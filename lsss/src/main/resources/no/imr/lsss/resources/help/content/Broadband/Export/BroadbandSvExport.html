@@ -1,0 +1,56 @@
+<h1>BB Sv(f) export</h1>
+<p>
+   This is the export of Sv-frequency spectra per ping from the depth ranges defined by the active regions,
+   as displayed by the <a href="../Views/BroadbandSvModule.html">BB Sv(f) view</a>.
+</p>
+
+<h2 id="Format">Format</h2>
+<pre>
+{
+   "info" : {
+      "exportType" : "BroadbandSv",
+      ... <span class="marec-comment">// See <a href="BroadbandExport.html">Broadband export</a> for details about the properties in the info block</span>
+   },
+   "regions" : [ {
+      "objectNumber" : 18,                           <span class="marec-comment">// The object number of this region</span>
+      "labels" : [ ],                                <span class="marec-comment">// The labels assigned to this region</span>
+      "scrutiny": [ ... ],                           <span class="marec-comment">// See <a href="BroadbandExport.html#Scrutiny">Broadband export</a> for details</span>
+      "pings" : [ {
+         "number" : 411,                             <span class="marec-comment">// The ping number</span>
+         "time" : "2014-11-02T09:44:52.797Z",        <span class="marec-comment">// The time of this ping</span>
+         "channels" : [ {
+            "id" : "WBT 2-1 009072085343 ES200-7CD", <span class="marec-comment">// The channel id</span>
+            "nominalFrequency" : 200000.0,           <span class="marec-comment">// Nominal frequency for this channel</span>
+            "minFrequency" : 160012.22,              <span class="marec-comment">// Minimum frequency</span>
+            "maxFrequency" : 250000.0,               <span class="marec-comment">// Maximum frequency</span>
+            "numFrequencies" : 2949,                 <span class="marec-comment">// The number of evenly spaced frequencies between the minimum and maximum frequencies inclusively</span>
+            "sv" : [ -61.28, ...  ],                 <span class="marec-comment">// numFrequencies number of Sv values</span>
+            "depth" : 10.507                         <span class="marec-comment">// Depth for the center</span>
+         }, {
+            ...                                      <span class="marec-comment">// More channels in this ping</span>
+         } ]
+      }, {
+         ...                                         <span class="marec-comment">// More pings for this region</span>
+      } ]
+   }, {
+      ...                                            <span class="marec-comment">// More regions</span>
+   } ]
+}
+</pre>
+
+<h2 id="Notes">Notes</h2>
+<ul>
+   <li>Depth is for the centre.</li>
+   <li>If a region spans more than one depth range for a given ping, then Sv is computed for each depth range and then averaged.</li>
+   <li>If a depth range is too short to compute Sv, then the error property is set and that depth range is ignored.</li>
+</ul>
+
+<h2 id="Changes">Changes</h2>
+<ul>
+   <li>LSSS 1.11.0:
+      Added assignments to acoustic categories.
+   </li>
+   <li>LSSS 2.8.0:
+      Renamed "acousticCategories" to "scrutiny".
+   </li>
+</ul>

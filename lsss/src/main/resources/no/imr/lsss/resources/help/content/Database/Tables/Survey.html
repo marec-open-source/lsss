@@ -1,0 +1,77 @@
+<h1>Survey</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>Survey</strong> - Survey data
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct Survey {
+  short Nation;
+  short Platform;
+  int   Survey;
+  char  SurveyTitle[80];
+  int   StartDate;
+  int   StartTime;
+  int   StopDate;
+  int   StopTime;
+  char  SurveyDescription[200];
+  float BoundaryNorth;
+  float BoundarySouth;
+  float BoundaryWest;
+  float BoundaryEast;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table contains information describing the individual surveys.
+   The survey information may be entered at the beginning of each survey, or
+   alternatively, the complete survey schedule is entered at the beginning of
+   the year with minor updates being performed throughout the year.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the
+      <a href="Nation.html">Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - A survey code is assigned to each survey. This code must be unique within each
+      Nation/Platform pair. There may be several ships and nations participating on a survey, and the
+      survey code provides a mechanism for combining observation data from all participating ships.
+   </li>
+   <li><span class="marec-parameter-def" id="SurveyTitle">SurveyTitle</span> - Short title to name the survey. Note that maximum 80 characters may be used.</li>
+   <li><span class="marec-parameter-def" id="StartDate">StartDate</span> - [YYYYMMDD] First day of the current survey. Dates must refer to Universal Time
+      Coordinated (previously denoted Greenwich Mean Time). Dates are coded using eight decimal digits,
+      for example 20040823.
+   </li>
+   <li><span class="marec-parameter-def" id="StartTime">StartTime</span> - [hhmmssxx] Start time of the current survey. Date and time refer to Universal Time
+      Coordinated (previously denoted Greenwich Mean Time). Time is coded using eight decimal digits,
+      for example 17235489 (17 hours, 23 minutes, 54 seconds, 89 hundredths of a second).
+   </li>
+   <li><span class="marec-parameter-def" id="StopDate">StopDate</span> - [YYYYMMDD] Last day of current survey.</li>
+   <li><span class="marec-parameter-def" id="StopTime">StopTime</span> - [hhmmssxx] End time of current survey.</li>
+   <li><span class="marec-parameter-def" id="SurveyDescription">SurveyDescription</span> - 200 characters space is available for a short survey description and other comments.</li>
+   <li><span class="marec-parameter-def" id="BoundaryNorth">BoundaryNorth</span> - Geographical latitude and longitude limiting the area surveyed by this platform
+      on the current survey. Latitude (positive north) and longitude (positive east) are
+      expressed as floating point numbers in degrees.
+   </li>
+   <li><span class="marec-parameter-def" id="BoundarySouth">BoundarySouth</span> - See BoundaryNorth.</li>
+   <li><span class="marec-parameter-def" id="BoundaryWest">BoundaryWest</span> - See BoundaryNorth.</li>
+   <li><span class="marec-parameter-def" id="BoundaryEast">BoundaryEast</span> - See BoundaryNorth.</li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   The database tables <a href="Personnel.html">Personnel</a> and <a href="Purpose.html">Purpose</a>
+   also contain survey related information.
+</p>

@@ -1,0 +1,194 @@
+<h1>Display organization</h1>
+<p>
+   The basic layout of the LSSS main frame is illustrated in the picture below:
+</p>
+<figure>
+   <svg xmlns="http://www.w3.org/2000/svg" width="1076" height="737" viewBox="0 0 1076 737">
+      <image href="Display.png" width="1076" height="737"></image>
+      <g fill="red" opacity="0.5">
+         <rect x="150" y="20" height="40" width="130"/>
+         <rect x="500" y="45" height="40" width="110"/>
+         <rect x="200" y="110" height="40" width="230"/>
+         <rect x="200" y="350" height="40" width="230"/>
+         <rect x="500" y="700" height="40" width="140"/>
+         <path d="M50,570 h850 v-450 h40 v490 h-890 z"/>
+      </g>
+      <g font-size="24" font-weight="bold" transform="translate(10,30)">
+         <text x="150" y="20"><a href="#MenuBar">Menu bar</a></text>
+         <text x="500" y="45"><a href="#Toolbar">Toolbar</a></text>
+         <text x="200" y="110"><a href="../Views/Echogram/Echogram.html">Pelagic echogram</a></text>
+         <text x="200" y="350"><a href="../Views/Echogram/Echogram.html">Bottom echogram</a></text>
+         <text x="500" y="700"><a href="#StatusBar">Status bar</a></text>
+         <text x="200" y="570"><a href="#FloatableViews">Floatable views</a></text>
+      </g>
+   </svg>
+</figure>
+<p>
+   The main frame consists of the following components:
+</p>
+<ul>
+   <li>The menu bar.</li>
+   <li>The toolbar.</li>
+   <li>The <a href="../Views/Echogram/Echogram.html">echogram</a>, consisting of a pelagic echogram and a bottom echogram.</li>
+   <li>The floatable views along the bottom and right edges of the frame.</li>
+   <li>The status bar.</li>
+</ul>
+
+<h2 id="MenuBar">The menu bar</h2>
+<p>
+   The main menus are laid out as follows:
+</p>
+<ul>
+   <li>File:
+      Functionality for creating/opening/saving surveys.
+   </li>
+   <li>View:
+      Functions for configuring the appearance of the main frame.
+   </li>
+   <li>Go:
+      Functionality for navigating in the echogram.
+      The <a href="../Views/Echogram/Echogram.html#ContextMenu">echogram context menu</a> has more functions.
+   </li>
+   <li><a href="../WorkingWith/Regions/RegionsMenu.html">Regions</a>:
+      Functionality for working with <a href="../WorkingWith/Regions/Regions.html">regions</a>.
+   </li>
+   <li>Tracks:
+      Functionality for working with <a href="../WorkingWith/Tracks/Tracks.html">tracks</a>.
+   </li>
+   <li>Window:
+      Options for hiding / showing each of the floatable views.
+   </li>
+   <li>Help:
+      Online help system (this document).
+   </li>
+</ul>
+
+<h2 id="Toolbar">The toolbar</h2>
+<p>
+   The toolbar has buttons for commonly used functionality:
+</p>
+<figure>
+   <svg xmlns="http://www.w3.org/2000/svg" width="830" height="190" viewBox="0 0 830 190">
+      <image href="Toolbar.png" x="0" y="130" width="770" height="26"></image>
+      <g transform="translate(0,125)" font-size="14" text-anchor="start">
+         <text transform="translate(15) rotate(-45)">Go to previous segment</text>
+         <text transform="translate(40) rotate(-45)">Go to next segment</text>
+         <text transform="translate(75) rotate(-45)">Set segment size</text>
+         <text transform="translate(125) rotate(-45)">Previous range</text>
+         <text transform="translate(160) rotate(-45)">Echogram range</text>
+         <text transform="translate(195) rotate(-45)">Next range</text>
+         <text transform="translate(235) rotate(-45)">Go to previous location</text>
+         <text transform="translate(260) rotate(-45)">Go to next location</text>
+         <text transform="translate(305) rotate(-45)">Undo school edit</text>
+         <text transform="translate(330) rotate(-45)">Redo school edit</text>
+         <text transform="translate(375) rotate(-45)">Select next visible region</text>
+         <text transform="translate(400) rotate(-45)">Reload data</text>
+         <text transform="translate(425) rotate(-45)">Toggle tooltip</text>
+         <text transform="translate(450) rotate(-45)">Edit <a href="../Configuration/LSSSConfiguration.html">configuration</a></text>
+         <text transform="translate(495) rotate(-45)">Edit mode</text>
+         <text transform="translate(520) rotate(-45)">Delete mode</text>
+         <text transform="translate(545) rotate(-45)">Zoom mode</text>
+         <text transform="translate(570) rotate(-45)">Add mode</text>
+         <text transform="translate(615) rotate(-45)">Toggle preprocessed data</text>
+         <text transform="translate(640) rotate(-45)">Start <a href="../WorkingWith/Preprocessing/Preprocessing.html#KoronaRelay">KORONA relay</a></text>
+         <text transform="translate(680) rotate(-45)">Previous frequency</text>
+         <text transform="translate(720) rotate(-45)">Select frequency</text>
+         <text transform="translate(760) rotate(-45)">Next frequency</text>
+         <text x="480" y="60"><a href="../GettingStarted/GettingStarted.html#WorkingMode">Working modes</a></text>
+         <path d="M480,36 l50,10 50,-10" fill="none" stroke="black"></path>
+      </g>
+   </svg>
+</figure>
+<p>
+   All toolbar buttons have tooltips, and most of them have keyboard shortcuts displayed in the tooltip.
+</p>
+
+<h2 id="FloatableViews">Floatable views</h2>
+<p>
+   The smaller frames along the bottom and right sides of the main frame are called floatable views.
+   Each of these views has three possible states:
+</p>
+<ul class="marec-list-spacing">
+   <li><em>Docked:</em>
+      When it is visible and attached to the main frame.
+      A docked window can be made floating using the
+      <img width="10" height="10" src="../../../images/icons/small/Float.svg" style="padding: 1px; border: 1px solid gray;">
+      button, and hidden using the
+      <img width="10" height="10" src="../../../images/icons/small/Hide.svg" style="padding: 1px; border: 1px solid gray;">
+      button.
+   </li>
+   <li><em>Floating:</em>
+      When it is visible and displayed in a separate window.
+      A floating window can be docked by closing the window.
+   </li>
+   <li><em>Hidden:</em>
+      When it is not visible.
+      A hidden view can be made visible via the window menu.
+   </li>
+</ul>
+<p>
+   The following buttons are shown in the upper part of the view:
+</p>
+<ul style="list-style: none;" class="marec-list-spacing">
+   <li>
+      <img width="10" height="10" src="../../../images/icons/small/Settings.svg" style="padding: 1px; border: 1px solid gray;">
+      This button launches the <a href="../Configuration/Survey/ModuleConf.html">configuration dialog</a> for this module.
+      This button is only displayed if the view has any configuration parameters.
+   </li>
+   <li>
+      <img width="10" height="10" src="../../../images/icons/small/Menu.svg" style="padding: 1px; border: 1px solid gray;">
+      This button displays a menu with more actions.
+   </li>
+   <li>
+      <img width="10" height="10" src="../../../images/icons/small/Float.svg" style="padding: 1px; border: 1px solid gray;">
+      This button makes the view <em>floating</em>.
+   </li>
+   <li>
+      <img width="10" height="10" src="../../../images/icons/small/Hide.svg" style="padding: 1px; border: 1px solid gray;">
+      This button makes the view <em>hidden</em>.
+   </li>
+</ul>
+<p>
+   Each view is described in the chapter on <a href="../Views/Views.html">views</a>.
+</p>
+
+<h2 id="StatusBar">The status bar</h2>
+<p>
+   The status bar shows the following information:
+</p>
+<figure>
+   <svg xmlns="http://www.w3.org/2000/svg" width="830" height="120" viewBox="0 0 830 120">
+      <image href="StatusBar.png" x="0" y="95" width="796" height="22"></image>
+      <g transform="translate(0,90)" font-size="14" text-anchor="start">
+         <text transform="translate(40) rotate(-45)">Status text</text>
+         <text transform="translate(350) rotate(-45)">Nation</text>
+         <text transform="translate(410) rotate(-45)">Platform</text>
+         <text transform="translate(500) rotate(-45)">Survey</text>
+         <text transform="translate(590) rotate(-45)">Data loading mode</text>
+         <text transform="translate(660) rotate(-45)">Database status</text>
+         <text transform="translate(740) rotate(-45)">Ping loading status</text>
+      </g>
+   </svg>
+</figure>
+<ul class="marec-list-spacing">
+   <li>Status text: A short description of the current system status.</li>
+
+   <li>Survey information: Nation / Platform name / Survey name (survey number)</li>
+
+   <li>Data loading mode:
+      <br>BROWSE: Only enough pings required for displaying the echogram image are loaded.
+      <br>DETAIL: All pings are loaded.
+      <br>Click to change.
+   </li>
+
+   <li>Database status:
+      <br><span style='font-weight: bold; color: gray;'>DB: none</span> if the database is not connected.
+      <br><span style='font-weight: bold; color: black;'>DB: idle</span> if the database is connected.
+      <br><span style='font-weight: bold; color: green;'>DB: busy</span> if there is currently communication with the database.
+   </li>
+
+   <li>Ping loading status:
+      <br>The number shows the percentage of the available pings that will be loaded. In DETAIL mode, this is always 100%.
+      <br>The progress indicator shows how many of the required pings that have been loaded.
+   </li>
+</ul>

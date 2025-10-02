@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <link rel="stylesheet" type="text/css" href="../../../../../../../../../../../../tools/help/client/src/styles-help-page.css">
+</head>
+<body>
+<h1>Correlation module</h1>
+<p>
+   This view shows the correlation between two frequency response curves computed with slightly different upper
+   thresholds for the currently selected region(s). The number of drops of the curve is intended to give an indication
+   of the number of different types of scatterers in the selected region.
+</p>
+<figure>
+   <img src="Correlation.png" width="445" height="268">
+</figure>
+<p>
+   Each value of S<sub>v</sub> along the horizontal axis is used as an upper threshold, and
+   the frequency response is computed in the same way as does the
+   <a href="../FrequencyResponse/FrequencyResponse.html">Frequency response view</a>:
+</p>
+<blockquote style="font-style: italic;">
+   s̅<sub>v</sub>(f) = (1 / N<sub>f</sub>) ∑ s<sub>v</sub>(f)
+</blockquote>
+<p>
+   The sum is taken over all samples in the selected region that are below this upper threshold
+   and above the lower threshold selected in the <a href="../Echogram/Echogram.html#Colorbar">colorbar</a>.
+</p>
+<p>
+   The parameter <a class="marec-parameter-ref" href="#Delta">Delta</a> is used to define the other upper threshold
+</p>
+<blockquote style="font-style: italic;">
+   S<sub>v</sub><sup>*</sup> = S<sub>v</sub> + Delta
+</blockquote>
+<p>
+   that is used to compute another frequency response.
+</p>
+<p>
+   Finally, the
+   <a href="https://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient">Pearson product-moment correlation coefficient</a>
+   between the two frequency responses is computed and used as the value along the vertical axis.
+</p>
+
+<h2 id="Settings">Settings</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Delta">Delta:</span>
+      The difference in upper threshold.
+   </li>
+   <li><span class="marec-parameter-def" id="Span">Span:</span>
+      The difference between upper and lower threshold.
+   </li>
+</ul>
+</body>
+</html>

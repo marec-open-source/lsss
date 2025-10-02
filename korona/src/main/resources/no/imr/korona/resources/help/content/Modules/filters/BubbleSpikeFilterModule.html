@@ -1,0 +1,34 @@
+<h1>Bubble spike filter module</h1>
+<p>
+   A module for removal of narrow vertical spikes in the echogram, typically caused
+   by bubble clouds that block the sound below the ship.
+</p>
+<p>
+   This filter works in a similar way as the <a href="SpikeFilterModule.html">Spike filter module</a>,
+   except that it is looking for vertical structures that are significantly weaker than the
+   surroundings (in contrast to the <a href="SpikeFilterModule.html">Spike filter module</a> that looks for vertical
+   structures that are stronger).
+</p>
+<p>
+   A sample is considered a spike if two criteria hold:
+</p>
+<ol>
+   <li>
+      The current search column is sufficiently weaker than the neighbouring search columns, i.e.,
+      <blockquote>
+         Neighbouring search column median < Current search column median + <a class="marec-parameter-ref" href="SpikeFilterModule.html#VerticalDelta">VerticalDelta</a>
+      </blockquote>
+      is true for at most one neighbouring search column.
+   </li>
+   <li>
+      The current sample is sufficiently weaker than the search window, i.e.,
+      <blockquote>
+         Current sample value < search window median - <a class="marec-parameter-ref" href="SpikeFilterModule.html#TotalDelta">TotalDelta</a>
+      </blockquote>
+   </li>
+</ol>
+
+<h2 id="Parameters">Parameters</h2>
+<p>
+   See <a href="SpikeFilterModule.html">Spike filter module</a> for a listing of parameters.
+</p>

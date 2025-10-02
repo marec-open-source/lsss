@@ -1,0 +1,14 @@
+<h1>Fill missing data module</h1>
+<p>
+   Adds missing channel data.
+   Pings with missing raw0Datagrams will after passing through this module have the same values on the missing
+   raw0datagrams as the previous ping had.
+   This module is used in front of other modules that do not handle missing pings in the middle of a stream.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+</ul>

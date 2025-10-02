@@ -1,0 +1,48 @@
+<h1>Pulse compression filter module</h1>
+<p>
+   This module allows applying a custom filter chain to broadband data.
+</p>
+<p>
+   Each element of the filter chain is a convolution filter specified through is coefficients. Additionally,
+   downsampling can be applied at each step of the chain.
+   Individual elements of the filter chain can be made conditional, based on certain parameters of the sent pulse.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+</ul>
+
+<h2 id="ConfigurationFile">Configuration file</h2>
+<p>
+   This module requires a
+   <a href="../../WorkingWith/ConfigFileSettings/PulseCompressionFilters/PulseCompressionFilters.html">configuration file</a>
+   containing the different filters to apply, grouped by channel.
+</p>
+<p>
+   For a specific channel, the order of filters is defined by their sequence in the configuration file.
+   Note that, while the convolution is a commutative operation, a filter with decimation will influence the frequency response of the filers applied later in the filter chain.
+   Hence, only adjacent filters without downsampling may be permuted.
+</p>
+<p>
+   There exist two types of filters
+</p>
+<ul>
+   <li><strong>Stage reference filters</strong>: a symbolic reference to the predefined stage filters used in pulse compression with implicitly defined coefficients and decimation factor, and</li>
+   <li><strong>Arbitrary filters</strong>: filters where the coefficients and decimation factor need to be defined explicitly in the configuration file.</li>
+</ul>
+<p>
+   In addition, each filter can be switched on and off, based on conditions the sent pulse needs to fulfill, defined in the optional appliesTo element of the filter definition.
+   Any of the following conditions may be imposed
+</p>
+<ul>
+   <li><strong>Pulse form</strong>: filter is only applied if sent pulse is of specified form,</li>
+   <li><strong>Pulse duration</strong>: filter is only applied if sent pulse is of specified duration (in seconds),</li>
+   <li><strong>Minimal pulse slope</strong>: filter is only applied if the sent pulse has a slope that is greater or equal to the here defined slope, and</li>
+   <li><strong>Maximal pulse slope</strong>: filter is only applied if the sent pulse has a slope that is less than the here defined slope.</li>
+</ul>
+<p>
+   For the exact definition of the configuration file se <a href="../../WorkingWith/ConfigFileSettings/PulseCompressionFilters/PulseCompressionFilters.html">here</a>.
+</p>

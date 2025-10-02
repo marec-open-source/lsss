@@ -1,0 +1,43 @@
+<h1>Views</h1>
+<p>
+   This chapter contains descriptions of the separate <a href="../Display/Display.html#FloatableViews">floatable views</a>
+   and the overlays to the echogram and map windows.
+</p>
+
+<h2 id="InputDomains">Input domains and domains affected by user actions</h2>
+<p>
+   It is important to understand which domain is used in computation
+   modules and which domain is affected by different user actions.
+</p>
+<ul>
+   <li>The computation modules that are shown in separate views
+      (for example,
+      <a href="FrequencyResponse/FrequencyResponse.html">frequency response module</a>,
+      <a href="ThresholdResponse/ThresholdResponse.html">threshold response module</a> and
+      <a href="TS/TS.html">TS distribution module</a>)
+      will only use the visible ping range of the active <a href="../WorkingWith/Regions/Regions.html">region(s)</a>
+      as the domain. Zooming in and out vertically will therefore not change the result
+      of these computations, while zooming in and out horizontally will.
+   </li>
+
+   <li>For the computation results that are overlaid on the
+      <a href="Echogram/Echogram.html">echogram module</a>, the domain is also
+      limited to what is visible in the vertical direction.
+      Examples here are the <a href="Echogram/Echogram.html#AccumulatedSaOverlay">s<sub>A</sub> integration curve</a> and
+      the grid integration.
+   </li>
+
+   <li>The s<sub>A</sub> assignments in the <a href="Interpretation/Interpretation.html">interpretation module</a>
+      will be stored as part of the regions. These assignments may therefore
+      affect parts of the survey outside the visible ping range. Note however
+      that when storing to the database, the ping range to be stored will be
+      isolated from the rest of the survey by automatic insertion of vertical
+      boundaries.
+   </li>
+
+   <li>When storing to the database, only the grid cells completely
+      inside the visible area will be stored. Hovering the mouse over
+      the store button(s) will show which grid cells will be stored
+      if all pings are loaded.
+   </li>
+</ul>

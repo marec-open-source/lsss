@@ -1,0 +1,42 @@
+<h1>Median noise quantification module</h1>
+<p>
+   This module can be used to quantify noise while the sonar operates in active mode.
+</p>
+<p>
+   The noise is quantified by picking a user defined number of equidistant samples per beam over a specified number of pings
+   and computing the median. Only the outer samples of the beam are used. If the maximum range of a beam is denoted MR,
+   and the user specifies a detection distance of x meters, only the samples in the range
+   [MR-x, MR] is used.
+</p>
+<p>
+   The module creates and updates noise files per input file, per day and per survey. The files are written to at the end of
+   the processing of the current file, and are placed in a subdirectory to the processed files.
+</p>
+<p>
+   NB: This module creates noise datagrams, the noise is removed with the NoiseRemoverModule.
+</p>
+
+<h2 id="NewDatagrams">New datagrams</h2>
+<ul>
+   <li>Noise quantification datagrams, <a href="../../Datagrams/Nqp0Datagram.html">Nqp0Datagram</a>.
+   </li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="PingHistory">Ping history [# pings]:</span>
+      Number of historical pings to use when computing new noise values.
+   </li>
+   <li><span class="marec-parameter-def" id="NoiseSamplesPerBeam">Noise samples per beam:</span>
+      Number of samples to extract per beam for noise calculation (median).
+   </li>
+   <li><span class="marec-parameter-def" id="DetectionDistance">Detection distance [m]:</span>
+      The distance for each beam used for noise detection.
+   </li>
+   <li><span class="marec-parameter-def" id="InnermostDistance">Innermost distance:</span>
+      Whether to use the innermost or outermost part of the beam.
+   </li>
+</ul>

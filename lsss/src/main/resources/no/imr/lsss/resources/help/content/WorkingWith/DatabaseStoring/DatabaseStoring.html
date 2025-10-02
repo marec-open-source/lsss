@@ -1,0 +1,106 @@
+<h1>Database storing</h1>
+<p>
+   Storing to the database means integrating the raw data to coarser grids that are stored to the
+   <a href="../../Database/Tables/Scatter.html">Scatter</a> and
+   <a href="../../Database/Tables/ScatterData.html">ScatterData</a>
+   tables.
+</p>
+<p>
+   Storing and deleting can be done from the <a href="../../Views/Interpretation/Interpretation.html">interpretation window</a>.
+</p>
+<p>
+   Bottom grids are not stored in <a href="../../Configuration/Survey/SurveyMiscConf.html#PelagicMode">pelagic mode</a>.
+   Bottom grids always refer to the <a href="../../Configuration/Survey/SurveyMiscConf.html#CoordinatedBottom">coordinated bottom</a>.
+</p>
+
+<h2 id="Settings">Storing settings</h2>
+<p>
+   These are the settings that affect the grids stored to the database.
+</p>
+
+<h3 id="SurveyLevelSettings">Survey level settings</h3>
+<p>
+   These settings are common for the survey, and are saved to the .lsss survey file.
+</p>
+<ul>
+   <li>
+      <a href="../../Configuration/Survey/GridConf.html">Grid unit and sizes</a>
+   </li>
+   <li>
+      Whether the <a href="../../Configuration/Survey/AcousticCategoryConf.html">raw data species</a> should be stored.
+   </li>
+</ul>
+
+<h3 id="HorizontallyVaryingSettings">Horizontally varying settings</h3>
+<p>
+   These settings can vary horizontally, and are saved in the <a href="../WorkFiles/WorkFiles.html">work files</a>.
+</p>
+<ul>
+   <li>Which <a href="../../Configuration/Survey/DataConf.html">data directory</a> to use (DataDir or KoronaDataDir)</li>
+   <li><a href="../../Configuration/Survey/SurveyMiscConf.html#PelagicMode">Pelagic or bottom mode</a></li>
+   <li>Interpretation <a href="../../Views/Interpretation/Interpretation.html#QualityButtons">quality</a></li>
+   <li>Which <a href="../../Views/Interpretation/Interpretation.html#FrequencyButtons">frequencies</a> to store</li>
+</ul>
+<p>
+   Some of these settings can be visualized in the <a href="../../Views/EchogramPlot/EchogramPlot.html">echogram plot</a>.
+</p>
+
+<h2 id="States">Storing states</h2>
+<p>
+   Horizontal distances in the echogram can be in three different states
+   depending on whether that distance is, or should be, stored to the database.
+</p>
+
+<h3 id="State-NotStored-NoSetting">Not stored to the database, and storing settings are not defined</h3>
+<p>
+   This is the starting state for a new survey before anything has been stored to the database.
+   There is no special indication of this state in the echogram.
+</p>
+<p>
+   Possible actions in this state:
+</p>
+<ul>
+   <li><strong>Store</strong>: Store to the database using the currently selected settings.
+      These settings will be saved in the work files for this distance.
+   </li>
+</ul>
+
+<h3 id="State-Stored">Stored to the database</h3>
+<p>
+   This state is entered by using the
+   <a href="../../Views/Interpretation/Interpretation.html#StoreButton">store button</a> in the interpretation window.
+   The echogram indicates this state with
+   <a href="../../Views/Echogram/Echogram.html#VerticalLineOverlay">green s<sub>A</sub> numbers</a>
+   and a <a href="../../Views/Echogram/Echogram.html#MaskingDisplayOverlay">semi-transparent green overlay</a>
+   on the stored frequencies.
+</p>
+<p>
+   The echogram becomes read-only in these areas.
+   Regions that are only partly stored also become read-only.
+</p>
+<p>
+   Possible actions in this state:
+</p>
+<ul>
+   <li><strong>Delete</strong>: Delete from the database, but keep the storing settings.</li>
+</ul>
+
+<h3 id="State-NotStored-HasSetting">Not stored to the database, but storing settings are defined</h3>
+<p>
+   This state is entered by using the
+   <a href="../../Views/Interpretation/Interpretation.html#DeleteButton">delete button</a> in the interpretation window.
+   The echogram indicates this state with a
+   <a href="../../Views/Echogram/Echogram.html#MaskingDisplayOverlay">striped green overlay</a>.
+</p>
+<p>
+   The echogram is not read-only in this state.
+   The storing settings can be changed from the
+   <a href="../../Views/Interpretation/Interpretation.html#EditStoringSettings">interpretation window</a>.
+</p>
+<p>
+   Possible actions in this state:
+</p>
+<ul>
+   <li><strong>Store</strong>: The striped area will be stored to the database using the defined storing settings.</li>
+   <li><strong>Delete</strong>: The storing settings will be deleted.</li>
+</ul>

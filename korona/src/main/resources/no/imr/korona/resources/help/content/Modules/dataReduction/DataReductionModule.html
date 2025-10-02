@@ -1,0 +1,41 @@
+<h1>Data reduction module</h1>
+<p>
+   Removes data above and below selected ranges.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+</ul>
+
+<h3 id="UpperLimit">Upper limit</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="BlindZone">Blind zone:</span>
+      Remove data above the blind zone configured in the Transducer ranges file.
+   </li>
+   <li><span class="marec-parameter-def" id="MinRange">Min range:</span>
+      Remove data above this range.
+   </li>
+   <li><span class="marec-parameter-def" id="MinDepth">Min depth:</span>
+      Remove data above this depth.
+   </li>
+</ul>
+
+<h3 id="LowerLimit">Lower limit</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="TransducerRange">Transducer range:</span>
+      Remove data below the range configured in the Transducer ranges file.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxRange">Max range:</span>
+      Remove data below this range.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxDepth">Max depth:</span>
+      Remove data below this depth.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxBelowBottom">Max below bottom:</span>
+      Remove data below this distance beyond the coordinated bottom detected by the
+      <a href="../DepthModule.html">Bottom detection module</a>.
+   </li>
+</ul>

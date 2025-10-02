@@ -1,0 +1,45 @@
+<h1>SchoolObjectType</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>SchoolObjectType</strong> - Type of school object
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct SchoolObjectType {
+  short SchoolObjectType;
+  char  SchoolObjectTypeName[40];
+  char  SchoolObjectTypeDescription[80];
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table provides a mapping between the observation type code and the
+   observation type name. Note that there is a maximum length of the name
+   and the description.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="ObservationType">ObservationType</span> - Unique identifier code for defined event types. Currently, the
+      following choices are suggested for type and type name:<br>
+      10 = School-Vertical-Alongship, uncorrected // E.g. from echo sounder or slice from sonar.<br>
+      11 = School-Vertical-Alongship, corrected // ---------- ? ---------- ? -------- ? ------ <br>
+      40 = School-Kernel, uncorrected<br>
+      41 = School-Kernel, corrected // Corrected could be ?smoothed? gravitation centre <br>
+      100 = Echogram-slice, uncorrected<br>
+   </li>
+   <li><span class="marec-parameter-def" id="SchoolObjectTypeName">SchoolObjectTypeName</span> - Free text to name and/or describe the event. Note the maximum length.</li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="SchoolMorphology.html">SchoolMorphology</a>
+</p>

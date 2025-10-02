@@ -1,0 +1,27 @@
+<h1>CTD data</h1>
+<p>
+   The CTD data can contain information from different sensors as a function of depth.
+</p>
+<p>
+   The data directory is configured in
+   <a href="../../Configuration/Survey/DataConf.html">[Survey configuration - Data files]</a>.
+</p>
+<p>
+   The data are shown by the <a href="../../Views/CTD/CTD.html">CTD module</a>
+   and by an overlay on the <a href="../../Views/Map/Map.html#CTDMapOverlay">map</a>.
+</p>
+
+<h2 id="StaCnvFiles">Sta cnv files</h2>
+<p>
+   File names must be on the form sta????.cnv.
+</p>
+<p>
+   The file is read in the following way:
+</p>
+<ul>
+   <li>The time, date, station, latitude, longitude, number of data columns, data column name are read from the header.</li>
+   <li>Data is expected to start after "*END*" mark and be columns corresponding to the data header.</li>
+</ul>
+<p>
+   See an <a href="ExampleCnvFile.html">example file</a>.
+</p>

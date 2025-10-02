@@ -1,0 +1,108 @@
+<h1>Plankton models</h1>
+<p>
+   There are five plankton models implemented in the <a href="PlanktonInversionModule.html">Plankton inversion module</a>.
+</p>
+
+<h2 id="FluidBentCylinder">FluidBentCylinder</h2>
+<p>
+   This models the backscattering of a fluid bent cylinder, taken from <a href="../../../Reference/Literature.html#Stanton94">Stanton 1994</a>.
+</p>
+<p>
+   The model has three configurable parameters:
+</p>
+<ul>
+   <li>Reflection coefficient</li>
+   <li>Relative standard deviation of length - std dev/L</li>
+   <li>Length to width ratio</li>
+</ul>
+<p>
+   The bend of the cylinder is not a parameter, as the average echo is independent of the curvature when
+   the distribution of orientations is sufficiently broad.
+</p>
+
+<h3 id="FluidBentCylinderBioVolume">Bio volume</h3>
+<p>
+   V = L * &pi; * r<sup>2</sup>
+   <br>
+   where L is the length of the cylinder and r is the radius.
+</p>
+
+<h2 id="FluidProlateSpheroid">FluidProlateSpheroid</h2>
+<p>
+   This models the backscattering of a prolate spheroid filled with a fluid, taken from <a href="../../../Reference/Literature.html#Stanton89">Stanton 1989</a>.
+</p>
+<p>
+   The model has three configurable parameters:
+</p>
+<ul>
+   <li>g - density body material/density surrounding fluid</li>
+   <li>h - compressional speed of sound in body material/compressional speed of sound in surrounding fluid</li>
+   <li>beta - Length to width ratio.</li>
+</ul>
+
+<h3 id="FluidProlateSpheroidBioVolume">Bio volume</h3>
+<p>
+   V = &pi; /6 * L * d * d
+   <br>
+   where L and d the diameters of the sphere.
+</p>
+
+<h2 id="GaseousSphere">GaseousSphere</h2>
+<p>
+   This models the backscattering of a gas filled sphere, taken from <a href="../../../Reference/Literature.html#Stanton89">Stanton 1989</a>.
+</p>
+<p>
+   The model has two parameters
+</p>
+<ul>
+   <li>g - density body material/density surrounding fluid</li>
+   <li>h - compressional speed of sound in body material/compressional speed of sound in surrounding fluid</li>
+</ul>
+
+<h3 id="GaseousSphereBioVolume">BioVolume</h3>
+<p>
+   V = &pi; /6 * L<sup>3</sup>
+   <br>
+   where L is the diameter of the sphere.
+</p>
+
+<h2 id="HardShelledSphere">HardShelledSphere</h2>
+<p>
+   This models the backscattering of a hard shelled sphere, taken from <a href="../../../Reference/Literature.html#Stanton89">Stanton 1989</a>.
+</p>
+<p>
+   The model has one parameter
+</p>
+<ul>
+   <li>R - The reflection factor.</li>
+</ul>
+
+<h3 id="HardShelledSphereBioVolume">Bio volume</h3>
+<p>
+   V = &pi; /6 * L<sup>3</sup>
+   <br>
+   where L is the diameter of the sphere.
+</p>
+
+<h2 id="SDWBA">SDWBA</h2>
+<p>
+   This models the backscattering of a reference size krill individual, using
+   a parametrization of the Stochastic Distorted Wave Born Approximation (SDWBA),
+   taken from <a href="../../../Reference/Literature.html#Conti06">Conti 2006</a>.
+</p>
+<p>
+   The model takes one parameter.
+</p>
+<ul>
+   <li>SDWBA coeff set - The parametrization of the SDWBA is given in terms of the distribution of krill orientations N(theta, sigma),
+      where theta is the mean krill orientation, and sigma is the standard deviation of the distribution of orientations. Coefficients
+      for the distributions presented in the paper above are provided in this implementation.
+   </li>
+</ul>
+
+<h3 id="SDWBABioVolume">Bio volume</h3>
+<p>
+   V = V<sub>0</sub> * (L/L<sub>0</sub>)<sup>3</sup>
+   <br>
+   where V<sub>0</sub> is the volume of the reference krill, L is the length and L<sub>0</sub> is the length of the reference krill.
+</p>

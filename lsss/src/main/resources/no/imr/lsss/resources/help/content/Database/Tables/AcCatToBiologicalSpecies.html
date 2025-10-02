@@ -1,0 +1,57 @@
+<h1>AcCatToBiologicalSpecies</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>AcCatToBiologicalSpecies</strong> - Coupling between acoustic categories and biological species
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct AcCatToBiologicalSpecies {
+  short Nation;
+  short Platform;
+  int   AcousticCategory;
+  int   BiologicalSpecies;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table contains coupling between the <a href="AcousticCategory.html">AcousticCategory</a>
+   and the <a href="BiologicalSpecies.html">BiologicalSpecies</a> database tables. An acoustic
+   category may be identical to a biological species, i.e. Cod, but it may also be a
+   combination of acoustic categories where each is a single biological species, i.e. Ha/Co
+   (Haddock/Cod), or it may be a subset of a biological species, e.g. 0-Herring (Zero group
+   herring - herring less than 1 year), or a more generic acoustic category, e.g. "Large krill".
+   The table should be updated at least when a new entry is inserted into
+   <a href="AcousticCategory.html">AcousticCategory</a>.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the
+      <a href="Nation.html">Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique identification code for observation platform. Note that <b>Platform</b> = 0
+      means "national-wide" or "institute-wide" entry of the database table. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="AcousticCategory">AcousticCategory</span> - Acoustic category, i.e. "acoustic species". Refer to the
+      <a href="AcousticCategory.html">AcousticCategory</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="BiologicalSpecies">BiologicalSpecies</span> - Unique identification code for biological species found in the
+      <a href="BiologicalSpecies.html">BiologicalSpecies</a> database table.
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="AcousticCategory.html">AcousticCategory</a>;
+   <a href="BiologicalSpecies.html">BiologicalSpecies</a>;
+   <a href="AcousticCategoryComposite.html">AcousticCategoryComposite</a>;
+</p>

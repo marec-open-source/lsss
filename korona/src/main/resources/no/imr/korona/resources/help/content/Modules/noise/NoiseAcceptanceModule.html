@@ -1,0 +1,51 @@
+<h1>Median noise acceptance module</h1>
+<p>
+   This module compares noise detected by noise detection modules to values recorded on files.
+   If the deviation between detected and recorded noise is large, the module replaces the detected noise value with
+   recorded noise value. The idea behind this is to avoid spikes in the detected noise by comparing the values to
+   values recorded over larger time intervals.
+</p>
+<p>
+   The user decides which noise file to compare against. Four choices are available:
+</p>
+<ul>
+   <li>Check against file noise file: Checks against the median noise for the file closest in time
+      before the time of the currently processed file.
+   </li>
+   <li>Check against day noise file: Checks against the median noise for the files with date equal to the date of
+      the currently processed file.
+   </li>
+   <li>Check against survey noise file: Checks against the median noise for all the files in the survey.</li>
+   <li>Check against survey low-median noise file: Checks against the lowest median noise over all the files in the survey.</li>
+</ul>
+<p>
+   It is possible to check multiple of these choices, but the module will check against the first available file in the sequence
+   file, day, survey. If, for example, all the choices are checked, the module will check against file noise if it is available. If
+   file noise is not available, the module will check against day noise, and so on.
+</p>
+<p>
+   The comparison against noise on file is performed by computing the ratio of detected noise to recorded noise. If this ratio
+   is outside the specified noise fraction range, the detected noise is replaced with the recorded noise.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="NoiseFraction">Noise fraction range:</span>
+      The fraction of detected noise to recorded noise should lie within this range.
+   </li>
+   <li><span class="marec-parameter-def" id="UseFileNoiseFile">Use file noise file:</span>
+      Check the noise against file noise file, if available.
+   </li>
+   <li><span class="marec-parameter-def" id="UseDayNoiseFile">Use day noise file:</span>
+      Check the noise against day noise file, if available.
+   </li>
+   <li><span class="marec-parameter-def" id="UseSurveyNoiseFile">Use survey noise file:</span>
+      Check the noise against survey noise file, if available.
+   </li>
+   <li><span class="marec-parameter-def" id="UseSurveyLowNoiseFile">Use survey low noise file:</span>
+      Check the noise against survey low-median noise file, if available.
+   </li>
+</ul>

@@ -1,0 +1,159 @@
+<h1>Plankton inversion module</h1>
+<p>
+   Produces plankton inversion datagrams. For more about the algorithm, see <a href="PlanktonInversionAlgorithm.html">plankton inversion algorithm</a>.
+   For more about the implemented plankton models, see <a href="PlanktonModels.html">plankton models</a>.
+   The initial size distribution is given by the
+   <a href="../../../WorkingWith/ConfigFileSettings/Plankton/Plankton.html">plankton configuration file</a>.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+
+<h3 id="DataSettings">Data settings</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalUnit">Vertical unit:</span>
+      Unit for the height of the search window and the search columns.
+   </li>
+   <li><span class="marec-parameter-def" id="PingsPerBin">Pings per bin:</span>
+      The number of pings per bin.
+   </li>
+   <li><span class="marec-parameter-def" id="DepthSamplesPerBin">Depth samples per bin:</span>
+      Bin height in number of samples.
+      Used when <a class="marec-parameter-ref" href="#VerticalUnit">Vertical unit</a> is set to <em>SAMPLES</em>.
+   </li>
+   <li><span class="marec-parameter-def" id="DepthDurationPerBin">Depth duration per bin:</span>
+      Bin height in milliseconds.
+      Used when <a class="marec-parameter-ref" href="#VerticalUnit">Vertical unit</a> is set to <em>DURATION</em>.
+   </li>
+   <li><span class="marec-parameter-def" id="DepthDistancePerBin">Depth distance per bin:</span>
+      Bin height in meters.
+      Used when <a class="marec-parameter-ref" href="#VerticalUnit">Vertical unit</a> is set to <em>DISTANCE</em>.
+   </li>
+   <li><span class="marec-parameter-def" id="Use global noise threshold">Use global noise threshold:</span>
+      Toggle this if the global noise threshold should be enabled. Using the global noise threshold means that the sample values
+      for all enabled frequencies should be above the given threshold value for the sample to be used in inversion.
+   </li>
+   <li><span class="marec-parameter-def" id="Noise threshold">Noise threshold:</span>
+      The global noise threshold. See above.
+   </li>
+   <li><span class="marec-parameter-def" id="Use min depth">Use min depth:</span>
+      If selected, then <a class="marec-parameter-ref" href="#Min depth">Min depth</a> is used.
+   </li>
+   <li><span class="marec-parameter-def" id="Min depth">Min depth:</span>
+      Used when <a class="marec-parameter-ref" href="#Use min depth">Use min depth</a> is selected.
+   </li>
+   <li><span class="marec-parameter-def" id="Use max depth">Use max depth:</span>
+      If selected, then <a class="marec-parameter-ref" href="#Max depth">Max depth</a> is used.
+   </li>
+   <li><span class="marec-parameter-def" id="Max depth">Max depth:</span>
+      Used when <a class="marec-parameter-ref" href="#Use max depth">Use max depth</a> is selected.
+   </li>
+   <li><span class="marec-parameter-def" id="CategoriesUsedForInversion">Categories used for inversion:</span>
+      Here the user can toggle which categories
+      (see <a href="../../categorization/CategorizationModule.html">CategorizationModule</a>) should be used as input to
+      plankton inversion.
+   </li>
+   <li><span class="marec-parameter-def" id="UseAllFrequencies">Use all frequencies:</span>
+      If selected, then all frequencies are used in the inversion.
+   </li>
+   <li><span class="marec-parameter-def" id="ActiveFrequencies">Active frequencies:</span>
+      The user can toggle which frequencies should be used in the inversion. The effect on the domain of backscatter models
+      can be seen in the <a href="#ShowPlot">backscatter curve plot</a>.
+   </li>
+</ul>
+
+<h3 id="InversionSettings">Inversion settings</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="MinResidualErrorThreshold">Min residual error threshold:</span>
+      The minimal residual error. The inversion iterations for a model stops if the residual is below this value.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#MinResidualErrorThreshold">Min residual error threshold</a> &ge; 0
+   </li>
+   <li><span class="marec-parameter-def" id="MaxResidualErrorThreshold">Max residual error threshold:</span>
+      The maximal residual error. The plankton sample is set to no category if the residual for the best-fit model is
+      higher than this number.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#MaxResidualErrorThreshold">Max residual error threshold</a> &ge; 0
+   </li>
+   <li><span class="marec-parameter-def" id="LevenbergMarquardtFactor">Levenberg-Marquardt factor:</span>
+      The Levenberg-Marquardt factor. Used in during the inversion to give preference to the solution with the smallest
+      norm. A higher value means that a small norm is more important than a small residual. Suggested value between
+      1e-6 and 1e-4.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#LevenbergMarquardtFactor">Levenberg-Marquardt factor</a> &ge; 0
+   </li>
+   <li><span class="marec-parameter-def" id="MaxIter">Max iter:</span>
+      The maximum number of iterations for each model inversion.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#MaxIter">Max iter</a> &ge; 1
+   </li>
+</ul>
+
+<h3 id="PlanktonModels">Plankton models</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="HardShelled">HardShelled:</span>
+      Toggle on if the hard shelled sphere model (<a href="../../../Reference/Literature.html#Stanton94">Stanton 1994</a>) is to be used in the inversion.
+   </li>
+   <li><span class="marec-parameter-def" id="HardShelledR">HardShelledR:</span>
+      Reflection coefficient.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="GaseousSphere">GaseousSphere:</span>
+      Toggle on if the gaseous sphere model (<a href="../../../Reference/Literature.html#Stanton94">Stanton 1994</a>) is to be used in the inversion.
+   </li>
+   <li><span class="marec-parameter-def" id="GasSphereG">GasSphereG:</span>
+      Relative density.
+   </li>
+   <li><span class="marec-parameter-def" id="GasSphereH">GasSphereH:</span>
+      Relative sound speed.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="FluidSpheriod">FluidSpheriod:</span>
+      Toggle on if the fluid prolate spheroid model (<a href="../../../Reference/Literature.html#Stanton89">Stanton 1989</a>) is to be used in the inversion.
+   </li>
+   <li><span class="marec-parameter-def" id="FluidSpheriodG">FluidSpheriodG:</span>
+      Relative density.
+   </li>
+   <li><span class="marec-parameter-def" id="FluidSpheriodH">FluidSpheriodH:</span>
+      Relative sound speed.
+   </li>
+   <li><span class="marec-parameter-def" id="FluidSpheriodBeta">FluidSpheriodBeta:</span>
+      Length to width ratio.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="FluidBent">FluidBent:</span>
+      Toggle on if the fluid bent cylinder model (<a href="../../../Reference/Literature.html#Stanton94">Stanton 1994</a>) is to be used in the inversion.
+   </li>
+   <li><span class="marec-parameter-def" id="FluidBentR">FluidBentR:</span>
+      Reflection coefficient.
+   </li>
+   <li><span class="marec-parameter-def" id="FluidBentS">FluidBentS:</span>
+      Standard deviation of length.
+   </li>
+   <li><span class="marec-parameter-def" id="FluidBentBeta">FluidBentBeta:</span>
+      Length to width ratio.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="SDWBA">SDWBA:</span>
+      Toggle on if the SDWBA model (<a href="../../../Reference/Literature.html#Conti06">Conti 2006</a>) is to be used in the inversion.
+   </li>
+   <li><span class="marec-parameter-def" id="SDWBA coeff">SDWBA coeff:</span>
+      Select which set of SDWBA coefficients should be used (defined in <a href="../../../Reference/Literature.html#Conti06">Conti 2006</a>).
+   </li>
+</ul>
+
+<h3 id="Visualization">Visualization</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="ShowPlot">Show backscatter curves...:</span>
+      Opens a view of the backscatter curves with the current configuration of the models. The unused part of the
+      backscatter curves will be drawn with a thinner line width than the parts that can be used given the set of
+      frequencies and the given initial size distributions of the individuals belonging to the models.
+      <figure>
+         <img src="backscatterPlot.png" width="688" height="447">
+      </figure>
+   </li>
+   <li><span class="marec-parameter-def" id="PlotResolution">Plot resolution:</span>
+      kA resolution of curves.
+   </li>
+   <li><span class="marec-parameter-def" id="PlotMaxRange">Plot max range:</span>
+      Max range in plot.
+   </li>
+</ul>

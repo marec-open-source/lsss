@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="450" height="250" viewBox="-30 -220 450 250">
+   <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+         <path d="M0,0 L10,5 0,10 z"/>
+      </marker>
+   </defs>
+   <g fill="none" stroke="black" stroke-width="2">
+      <line x1="0" y1="0" x2="400" y2="0" marker-end="url(#arrow)"/>
+      <line x1="0" y1="0" x2="0" y2="-200" marker-end="url(#arrow)"/>
+   </g>
+   <g fill="none" stroke="black" stroke-width="1">
+      <path d="M0,0 c0,0 7,0 17,-16 c10,-13 22,-43 30,-81 c8,-37 17,-99 40,-90 c23,8 43,53 50,69 c7,16 19,38 45,56 c26,17 45,32 82,39 c36,7 104,15 112,15"/>
+      <path d="M83,0 v-188"/>
+      <path d="M140,0 v-111"/>
+      <path d="M250,0 v-26"/>
+   </g>
+   <g fill="black" font-family="sans-serif" font-size="18" text-anchor="middle">
+      <text x="86" y="20">N<tspan baseline-shift="sub" font-size="12">T</tspan></text>
+      <text x="143" y="20">N<tspan baseline-shift="sub" font-size="12">E</tspan></text>
+      <text x="253" y="20">N<tspan baseline-shift="sub" font-size="12">H</tspan></text>
+      <text transform="translate(-10,-100) rotate(-90)">Probability</text>
+   </g>
+</svg>

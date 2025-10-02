@@ -1,0 +1,33 @@
+<h1>Echogram overlays</h1>
+
+<h2 id="DeepVisionPath">Deep Vision path</h2>
+<figure>
+   <img src="DeepVisionPathEchogramOverlay.png" width="987" height="257">
+</figure>
+<p>
+   This overlay shows the approximate path of the Deep Vision vessel. The coloring depends on the athwart distance of the Deep Vision path compared
+   to the ship's path. Green color indicates starboard, red indicates port and black indicates that the athwart distance is below a user specified threshold.
+</p>
+<p>
+   The orange rectangle shows the location of the currently selected Deep Vision frame.
+</p>
+<p>
+   The user can add <a href="../../Configuration/SurveyConfiguration.html#AdditionalData">additional information</a> that can be displayed together with the
+   Deep Vision path information. In the example above, a red filled circle has been defined at one of the Deep Vision frames.
+</p>
+<p>
+   Configuration distance mapping can be done in the <a href="../../Configuration/SurveyConfiguration.html#DistanceMapping">data files configuration</a>.
+</p>
+
+<h3 id="Configuration">Configuration</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="AthwartDistanceThreshold">Athwart distance threshold:</span>
+      The threshold for the athwart distance when the path will be colored differently.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxNumberOfCircles">Maximum number of circles:</span>
+      The maximum number of circles drawn below the path simultaneously. Reducing this number may improve the rendering speed.
+   </li>
+   <li><span class="marec-parameter-def" id="DepthSmoothingRadius">Depth smoothing radius:</span>
+      Smooth depths using this number of points before and after. A value of 0 means no smoothing.
+   </li>
+</ul>

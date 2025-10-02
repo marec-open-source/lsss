@@ -1,0 +1,9 @@
+package com.example;
+
+import no.marec.api.korona.*;
+
+public class ExampleModuleComputation extends SinglePingModuleComputation {
+   @Override
+   public void compute(Ping ping) {
+   }
+}

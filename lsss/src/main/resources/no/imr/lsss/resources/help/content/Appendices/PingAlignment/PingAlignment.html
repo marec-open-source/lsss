@@ -1,0 +1,19 @@
+<h1>Ping alignment</h1>
+<p>
+   This section explains the details on how pings are aligned relative to various axes.
+</p>
+<p>
+   The interpretation grid, defined in <a href="../../Configuration/Survey/GridConf.html">[Survey configuration - Grid]</a>,
+   consists of grid columns of constant width. A ping contributes only to one grid column even though its extent overlaps with two grid columns.
+   Which pings that contribute to which grid column is found by rounding downward as illustrated in the figure below:
+</p>
+<figure>
+   <img src="GridColumnsPing.svg" width="662" height="180">
+</figure>
+<p>
+   The <a href="../../Database/Tables/Observation.html">observation</a> date and time for a grid column is found similarly
+   by rounding downward to the nearest 1/100th of a second from the start of the first ping used in that grid column:
+</p>
+<figure>
+   <img src="GridColumnsTime.svg" width="395" height="218">
+</figure>

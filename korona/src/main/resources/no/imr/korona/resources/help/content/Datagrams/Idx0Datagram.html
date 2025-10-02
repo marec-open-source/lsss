@@ -1,0 +1,28 @@
+<h1>IDX0: Ping index datagram</h1>
+<p>
+   This datagram contains ping index information.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once per ping in the idx file.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li>The echosounder.</li>
+   <li>KORONA.</li>
+   <li>LSSS.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Idx0Datagram {
+   DatagramHeader header; <span class="marec-comment">// IDX0</span>
+   int pingNumber;
+   double vesselDistance; <span class="marec-comment">// [nmi]</span>
+   double latitude;       <span class="marec-comment">// [deg]. Value 0 indicates missing value</span>
+   double longitude;      <span class="marec-comment">// [deg]. Value 0 indicates missing value</span>
+   long fileOffset;       <span class="marec-comment">// Byte offset in the raw file</span>
+};
+</pre>

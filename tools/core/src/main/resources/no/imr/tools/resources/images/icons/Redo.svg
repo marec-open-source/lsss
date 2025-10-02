@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
+     fill="#333333">
+   <path d="M-4.24264068712,-4.24264068712 A 6,6 0,1,1 0,6
+            L0,8.5 -3.5,5 0,1.5 0,4
+            A 4,4 0,1,0 -2.82842712475,-2.82842712475"
+         transform="translate(8,9) rotate(180)"/>
+</svg>

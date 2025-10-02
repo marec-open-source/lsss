@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ek500>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">18</parameter>
+         <parameter name="SoundVeloity">1473</parameter>
+         <parameter name="PulseLength">0.001</parameter>
+         <parameter name="BandWidth">1800</parameter>
+         <parameter name="TransmitPower">2000</parameter>
+         <parameter name="AbsorptionCoefficient">0.003</parameter>
+         <parameter name="Gain">24.3</parameter>
+         <parameter name="EquivalentBeamAngle">-17</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">38</parameter>
+         <parameter name="SoundVeloity">1473</parameter>
+         <parameter name="PulseLength">0.001</parameter>
+         <parameter name="BandWidth">3800</parameter>
+         <parameter name="TransmitPower">2000</parameter>
+         <parameter name="AbsorptionCoefficient">0.01</parameter>
+         <parameter name="Gain">24.3</parameter>
+         <parameter name="EquivalentBeamAngle">-20.5</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">70</parameter>
+         <parameter name="SoundVeloity">1473</parameter>
+         <parameter name="PulseLength">0.001</parameter>
+         <parameter name="BandWidth">7000</parameter>
+         <parameter name="TransmitPower">1000</parameter>
+         <parameter name="AbsorptionCoefficient">0.02</parameter>
+         <parameter name="Gain">24.3</parameter>
+         <parameter name="EquivalentBeamAngle">-20.6</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">120</parameter>
+         <parameter name="SoundVeloity">1473</parameter>
+         <parameter name="PulseLength">0.001</parameter>
+         <parameter name="BandWidth">1200</parameter>
+         <parameter name="TransmitPower">1000</parameter>
+         <parameter name="AbsorptionCoefficient">0.038</parameter>
+         <parameter name="Gain">24.3</parameter>
+         <parameter name="EquivalentBeamAngle">-20.4</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">200</parameter>
+         <parameter name="SoundVeloity">1473</parameter>
+         <parameter name="PulseLength">0.001</parameter>
+         <parameter name="BandWidth">2000</parameter>
+         <parameter name="TransmitPower">1000</parameter>
+         <parameter name="AbsorptionCoefficient">0.053</parameter>
+         <parameter name="Gain">24.3</parameter>
+         <parameter name="EquivalentBeamAngle">-20.4</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">333</parameter>
+         <parameter name="SoundVeloity">1473</parameter>
+         <parameter name="PulseLength">0.001</parameter>
+         <parameter name="BandWidth">3330</parameter>
+         <parameter name="TransmitPower">1000</parameter>
+         <parameter name="AbsorptionCoefficient">0.053</parameter>
+         <parameter name="Gain">24.3</parameter>
+         <parameter name="EquivalentBeamAngle">-20.4</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">364</parameter>
+         <parameter name="SoundVeloity">1473</parameter>
+         <parameter name="PulseLength">0.001</parameter>
+         <parameter name="BandWidth">3640</parameter>
+         <parameter name="TransmitPower">1000</parameter>
+         <parameter name="AbsorptionCoefficient">0.086</parameter>
+         <parameter name="Gain">24.3</parameter>
+         <parameter name="EquivalentBeamAngle">-20.4</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">710</parameter>
+         <parameter name="SoundVeloity">1473</parameter>
+         <parameter name="PulseLength">6E-4</parameter>
+         <parameter name="BandWidth">7100</parameter>
+         <parameter name="TransmitPower">1000</parameter>
+         <parameter name="AbsorptionCoefficient">0.201</parameter>
+         <parameter name="Gain">24.3</parameter>
+         <parameter name="EquivalentBeamAngle">-20.4</parameter>
+      </parameters>
+   </transducer>
+</ek500>

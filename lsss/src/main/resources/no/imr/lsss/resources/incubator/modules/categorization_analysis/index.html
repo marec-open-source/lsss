@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html data-ng-app="MarecCategorizationAnalysisApp">
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Categorization analysis</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+   <style>
+      h2 {
+         margin-top: 1.5em;
+      }
+   </style>
+</head>
+<body>
+
+<div class="container-fluid" data-ng-controller="MarecCategorizationAnalysisController as ctrl">
+   <h1>Categorization analysis</h1>
+
+   <form class="row row-cols-sm-auto align-items-center">
+      <div class="col">
+         <div class="form-check"><label class="form-check-label"><input class="form-check-input" type="checkbox" ng-model="ctrl.show.table">Table</label></div>
+      </div>
+      <div class="col">
+         <div class="form-check"><label class="form-check-label"><input class="form-check-input" type="checkbox" ng-model="ctrl.show.echogram">Echogram</label></div>
+      </div>
+      <div class="col">
+         <div class="form-check"><label class="form-check-label"><input class="form-check-input" type="checkbox" ng-model="ctrl.show.categorization">Categorization</label></div>
+      </div>
+      <div class="col">
+         <div class="form-check"><label class="form-check-label"><input class="form-check-input" type="checkbox" ng-model="ctrl.show.frequencyResponse">Frequency response</label>
+         </div>
+      </div>
+   </form>
+
+   <h2>Summary</h2>
+
+   <table class="table table-sm table-bordered table-striped">
+      <thead>
+      <tr>
+         <th class="text-center">Haul</th>
+         <th class="text-center">Date (UTC)</th>
+         <th class="text-center">Fit</th>
+         <th class="text-center">Weighted fit</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr ng-repeat="result in ctrl.overallResult.analysisResults">
+         <td><a ng-href="#{{result.dir}}">{{result.name}}</a></td>
+         <td class="text-center">{{result.beginTime | date : 'HH:mm MMMM d, y' : 'UTC'}}</td>
+         <td class="text-right">{{result.fit * 100 | number : 0}} %</td>
+         <td class="text-right">{{result.weightedFit * 100 | number : 0}} %</td>
+      </tr>
+      <tr>
+         <th colspan="2">Overall:</th>
+         <td class="text-right">{{ctrl.overallResult.fit * 100 | number : 0}} %</td>
+         <td class="text-right">{{ctrl.overallResult.weightedFit * 100 | number : 0}} %</td>
+      </tr>
+      </tbody>
+   </table>
+
+   <div ng-repeat="result in ctrl.overallResult.analysisResults">
+      <h2 id="{{result.dir}}">{{result.name}}</h2>
+
+      <p>
+         {{result.beginTime | date : 'HH:mm MMMM d, y' : 'UTC'}} UTC — {{result.endTime | date : 'HH:mm MMMM d, y' : 'UTC'}} UTC
+      </p>
+
+      <table class="table table-sm table-bordered table-striped" ng-show="ctrl.show.table">
+         <thead>
+         <tr>
+            <th class="text-center">Species</th>
+            <th class="text-center">Echogram area [m<sup>2</sup>]</th>
+            <th class="text-center">Assumed TS [dB]</th>
+            <th class="text-center">Computed abundance</th>
+            <th class="text-center">Haul abundance</th>
+            <th class="text-center">Fit</th>
+            <th class="text-center">Weighted fit</th>
+         </tr>
+         </thead>
+         <tbody>
+         <tr ng-repeat="category in result.categories">
+            <td>{{category.name}}</td>
+            <td class="text-right">{{category.area | number : 0}}</td>
+            <td class="text-right">{{category.backscatterTS | number : 1}}</td>
+            <td class="text-right">{{category.abundanceFraction * 100 | number : 0}} %</td>
+            <td class="text-right">{{category.assignment * 100 | number : 0}} %</td>
+            <td class="text-right">{{category.fit * 100 | number : 0}} %</td>
+            <td class="text-right">{{category.weightedFit * 100 | number : 0}} %</td>
+         </tr>
+         <tr>
+            <th colspan="5">Overall:</th>
+            <td class="text-right">{{result.fit * 100 | number : 0}} %</td>
+            <td class="text-right">{{result.weightedFit * 100 | number : 0}} %</td>
+         </tr>
+         </tbody>
+      </table>
+
+      <p>
+         <img ng-show="ctrl.show.echogram" ng-src="{{result.dir}}/echogram.png" alt="Echogram for {{result.name}}">
+         <img ng-show="ctrl.show.categorization" ng-src="{{result.dir}}/categorization.png" alt="Categorization for {{result.name}}">
+         <img ng-show="ctrl.show.frequencyResponse" ng-src="{{result.dir}}/frequencyResponse.png" alt="Frequency response for {{result.name}}">
+      </p>
+   </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+<script src="categorizationAnalysisOverallResult.js"></script>
+<script>
+   (function () {
+      'use strict';
+
+      angular.module('MarecCategorizationAnalysisApp', [])
+            .controller('MarecCategorizationAnalysisController', [function () {
+               this.overallResult = categorizationAnalysisOverallResult;
+
+               this.show = {
+                  table: true,
+                  echogram: true,
+                  categorization: true,
+                  frequencyResponse: true
+               };
+            }]);
+   }());
+</script>
+</body>
+</html>

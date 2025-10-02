@@ -1,0 +1,85 @@
+<h1>Database LSSS</h1>
+<p>
+   The database contains the results of the scrutinizing of the acoustic data
+   and some information needed during the scrutinizing process.
+   The communication with the relational database is done through Hibernate
+   and JDBC. Several database engines may be used, including:
+</p>
+<ul>
+   <li>HSQLDB - Requires no server. Stored in files, text or binary. This database may not be suitable for large databases.</li>
+   <li>JavaDB - Requires no server. Stored in binary files.</li>
+   <li>PostgreSQL</li>
+</ul>
+<p>
+   The figure below shows how the database tables relate to each other. Some tables keep
+   general information about the data, i.e. name and code of nations, observing platforms and
+   surveys. Some tables keep information about the observations itself, i.e. about the data-stations
+   and its belonging navigation data and comments. Some tables keep the data from the data-stations,
+   e.g. the acoustic data. Some tables keep the information about the biological species and acoustic
+   categories.
+</p>
+<figure>
+   <img src="DB_model.png" width="683" height="510">
+</figure>
+<p>
+   The database tables in alphabetic order are as follows (tables in red are implemented, but not fully used):
+</p>
+<ul>
+   <li><a href="Tables/AcCatToBiologicalSpecies.html">AcCatToBiologicalSpecies</a> - Coupling between
+      acoustic category and biological species
+   </li>
+   <li><a href="Tables/AcousticCategory.html">AcousticCategory</a> - Acoustic category, i.e.
+      "acoustic species" used during data interpretation
+   </li>
+   <li><a href="Tables/AcousticCategoryComposite.html">AcousticCategoryComposite</a> - Acoustic category composed by several
+      non-composite acoustic categories
+   </li>
+   <li><a href="Tables/Area.html">Area</a> - Name of sea areas</li>
+   <li><a href="Tables/AreaOfAcousticCategory.html">AreaOfAcousticCategory</a> - Coupling between acoustic category and
+      area
+   </li>
+   <li><a href="Tables/BiologicalSpecies.html">BiologicalSpecies</a> - Names and codes of biological species</li>
+   <li><a href="Tables/Nation.html">Nation</a> - Name and code of nation</li>
+   <li><a href="Tables/Observation.html">Observation</a> - Observation and its coordinates</li>
+   <li><a href="Tables/ObservationComment.html">ObservationComment</a> - Observation comments</li>
+   <li><a href="Tables/ObservationType.html">ObservationType</a> - Observation type</li>
+   <li><a href="Tables/Personnel.html" style="color: red;">Personnel</a> - <!-- todo sjekk Table planned -->personnel and <!-- todo --> duty on survey</li>
+   <li><a href="Tables/Platform.html">Platform</a> - Observing platform (e.g. ship or buoy)</li>
+   <li><a href="Tables/PlatformCodes.html" style="color: red;">PlatformCodes</a> - Platform codes in alternative coding systems</li>
+   <li><a href="Tables/PlatformName.html">PlatformName</a> - Platform names</li>
+   <li><a href="Tables/PlatformType.html">PlatformType</a> - Name of platform types and subtypes</li>
+   <li><a href="Tables/Purpose.html">Purpose</a> - Purpose of using acoustic category in the scrutinizing process</li>
+   <li><a href="Tables/Scatter.html">Scatter</a> - Main scatter information</li>
+   <li><a href="Tables/ScatterData.html">ScatterData</a> - Depth-channel data of acoustic scatter</li>
+   <li><a href="Tables/ScatterObject.html">ScatterObject</a> - Group of scatter (e.g. entire school)</li>
+   <li><a href="Tables/ScatterType.html">ScatterType</a> - Type of scatter-channels</li>
+   <li><a href="Tables/SchoolCategory.html" style="color: red;">SchoolCategory</a> - Acoustic category for school object</li>
+   <li><a href="Tables/SchoolCategorySystem.html" style="color: red;">SchoolCategorySystem</a> - Code system for school</li>
+   <li><a href="Tables/SchoolData.html" style="color: red;">SchoolData</a> - Data for school object (in addition to Scatter)</li>
+   <li><a href="Tables/SchoolDetect.html" style="color: red;">SchoolDetect</a> - Settings used to detect school</li>
+   <li><a href="Tables/SchoolMorphology.html" style="color: red;">SchoolMorphology</a> - Morphology of school</li>
+   <li><a href="Tables/SchoolObjectType.html" style="color: red;">SchoolObjectType</a> - Type of school object</li>
+   <li><a href="Tables/StandardComment.html">StandardComment</a> - Frequently used observation comments</li>
+   <li><a href="Tables/Survey.html">Survey</a> - Survey information</li>
+</ul>
+
+<h2 id="AboutFieldsInDatabaseTables">About the fields in the database tables</h2>
+<p>
+   The size of the fields of each table is given as short, int, long, char or float. The sizes of each of
+   these fields are as follows:
+</p>
+<pre>
+  short:  2 byte (int 2)
+  int:    4 byte (int 4)
+  long:   4 byte (int 4)
+  char:   1 byte (int 1)
+  float:  4 byte (float 4)
+  double: 8 byte (float 8)
+</pre>
+<p>
+   The fields Date and Time (ObservationDate, StartDate, ObservationTime, StartTime, ...)
+</p>
+<ul>
+   <li>Date format - YYYYMMDD where YYYY is year, MM is month, DD is day.</li>
+   <li>Time format - hhmmssxx where hh is hour, mm is minutes, ss seconds, xx 1/100 of seconds</li>
+</ul>

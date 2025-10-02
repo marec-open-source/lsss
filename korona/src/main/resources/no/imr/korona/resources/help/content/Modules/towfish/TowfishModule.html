@@ -1,0 +1,103 @@
+<h1>Towfish merging module</h1>
+<p>
+   Merges towfish data with the main echosounder data.
+</p>
+<p>
+   For each ping in the input data, the module searches for a corresponding ping in the towfish data.
+   For a corresponding towfish ping to be found, the following criteria must be met:
+</p>
+<ul>
+   <li>A towfish sensor data file folder must be specified</li>
+   <li>There must exist towfish sensor data, and the time of the input ping must correspond to sensor data for that time. The
+      sensor data must be on one of the formats specified in <a href="#sensorData">sensor data section</a></li>
+   <li>There must exist towfish raw data for the towfish corresponding to the input ping time</li>
+</ul>
+<p>
+   If a towfish ping is found, the data from the towfish ping is merged with the input data.
+</p>
+<p>
+   The module attempts to use the data for cable length and depth of the towfish (from the sensor data) to find a matching
+   towfish ping for a given input ping. To do this, there must be a relationship between the cable length <i>L</i> and the
+   towfish depth, <i>D</i> on one hand and the distance behind the ship on the other hand. Two types of functions are available:
+</p>
+<ul>
+   <li>Pythagoras: The distance behind the ship is given as <i>sqrt(L<sup>2</sup> - D<sup>2</sup></i>)</li>
+   <li>Straight down: The distance behind the ship is <i>0</i></li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="TowfishBlindZone">Towfish blind zone:</span>
+      The blind zone of the towfish vessel. The samples in the blind zone are excluded when merging the towfish data with input data.
+   </li>
+   <li><span class="marec-parameter-def" id="TowfishEchosounderTimeAddition">Time to add to the towfish echosounder data:</span>
+      If there is a known time offset between the towfish echosounder data and the towfish sensor data and the ship
+      mounted echosounder data, the offset can be entered here.
+   </li>
+   <li><span class="marec-parameter-def" id="DistBehindFunction">Distance behind function:</span>
+      The relationship between the cable length and towfish depth on the one side and the distance behind the ship
+      on the other side.
+   </li>
+</ul>
+
+<h2 id="sensorData">Sensor data</h2>
+<p>
+   Currently, three types of towfish sensor data can be read by the towfish module. The expected format is decided by the name of
+   the directory where the sensor data file is found. The acoustic data from the towfish should be placed in the configured Towfish directory,
+   and the sensor data directory should be a subdirectory to the Towfish directory.
+</p>
+<p>
+   The following naming conventions for the subdirectory are used:
+</p>
+<ul>
+   <li>Consys: <code>Consys-metadata</code></li>
+   <li>Messor: <code>Messor-metadata</code></li>
+   <li>Must: <code>Must-metadata</code></li>
+</ul>
+<p>
+   The formats and the sensor data directory name are explained below.
+</p>
+
+<h3 id="TelegramBasedData">Telegram based data</h3>
+<p>
+   Sensor data directory name: Consys-metadata. In this format, the data comes as telegrams in a flat text file.
+   Each line in the file starts with the time and date in the following format:
+</p>
+<blockquote>
+   <code>dd.MM.yyyy,HH:mm:ss</code><br>
+</blockquote>
+<p>
+   The relevant telegrams are:
+</p>
+<ul>
+   <li>Pressure: <code>Pressure = 110.300 dB Temperature = 10.2 dgr C</code>, where pressure is in decibars and temperature is in degrees Celsius</li>
+   <li>Cable length: <code>L=102.9m S=13.4m/m</code>, where L is cable length [meters] and S is winch speed [meters/minute]</li>
+   <li>Ship vessel log: <code>$EKDEA,D2,19360507,1823.9,6,1,0,*5c</code>, where the third parameter is the time/data and the fourth parameter is the vessel log in nmi</li>
+</ul>
+
+<h3 id="LineBasedData">Line-based data</h3>
+<p>
+   In this format, each line is a complete set of parameters for the towfish. The first line should be headers giving the
+   name of the columns. For all following lines, each line starts with the time and date, and contains vessel log and
+   depth. All numbers use '.' as decimal character. There are currently two variants of line-based data available based on
+   sensor data files from two different tow-bodies (MUST and MESSOR).
+</p>
+<p>
+   Sensor data directory name: Messor-metadata. The relevant columns of MESSOR separated by tab are:
+</p>
+<ul>
+   <li>Column 0 - Date and time: format <code>ddMMyyyyHHmmss</code></li>
+   <li>Column tag "EK_Log-Dist" - Vessel log: The vessel log in nmi</li>
+   <li>Column tag "CTD_Depth(m)" - towfish depth: The depth of the towfish in meters</li>
+</ul>
+<p>
+   Sensor data directory name: Must-metadata. The relevant columns of MUST separated by " , " (space-comma-space) are:
+</p>
+<ul>
+   <li>Column 0 - Date and time: format <code>yyyyMMddHHmmssSS</code></li>
+   <li>Column tag "ShipER60VesselLog" - Vessel log: The vessel log in nmi</li>
+   <li>Column tag "CTDDepth" - towfish depth: The depth of the towfish in meters</li>
+</ul>

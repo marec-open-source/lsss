@@ -1,0 +1,104 @@
+<router-outlet></router-outlet>
+
+<mat-form-field class="marec-search-input" [class.marec-left-hidden]="!leftVisible()">
+   <mat-label>Search</mat-label>
+   <input matInput type="text" [(ngModel)]="searchText" (focus)="onSearchFocus()">
+   @if (searchText()) {
+      <button mat-icon-button matSuffix (click)="searchText.set('')">
+         <svg width="16" height="16" fill="#333333">
+            <path d="M4,3 l -1,1 4,4 -4,4 1,1 4,-4 4,4 1,-1 -4,-4 4,-4-1,-1-4,4 z"></path>
+         </svg>
+      </button>
+   }
+</mat-form-field>
+
+<div class="marec-all-top">
+   <button mat-icon-button class="marec-left-button" (click)="leftVisible.set(!leftVisible())">
+      <svg width="16" height="16" fill="#333333">
+         <path d="M1,2 v2 h14 v-2 z M1,7 v2 h14 v-2 z M1,12 v2 h14 v-2 z"></path>
+      </svg>
+   </button>
+   <div class="marec-title">
+      <div class="marec-banner-title">
+         {{ configService.config.helpSets[0].name }} {{ configService.config.helpSets[0].version }}
+      </div>
+   </div>
+   <marec-menu></marec-menu>
+</div>
+
+<div class="marec-left" [class.marec-left-hidden]="!leftVisible()">
+   <div class="marec-left-scroll">
+      <div [class.marec-invisible]="searchText()">
+         <mat-tree #tree [dataSource]="toc" [childrenAccessor]="childrenAccessor" class="marec-tree">
+            <mat-nested-tree-node *matTreeNodeDef="let node">
+               <li class="mat-tree-node" [id]="tocId(node)">
+                  <button mat-icon-button disabled aria-hidden="true"></button>
+                  <a class="marec-toc-item" [class.marec-selected-toc-item]="node === selectedTocItem()" [style]="node.style"
+                     [href]="tocLink(node)" (click)="tocClick(node)"
+                  >
+                     @if (!node.parent) {
+                        <img [src]="tocImgSrc(node)" width="16" height="16" alt="">
+                     }
+                     {{ node.text }}
+                  </a>
+               </li>
+            </mat-nested-tree-node>
+
+            <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+               <li>
+                  <div class="mat-tree-node" [id]="tocId(node)">
+                     <button mat-icon-button matTreeNodeToggle>
+                        <span class="marec-toc-button" [class.marec-toc-button-rotate]="tree.isExpanded(node)">
+                           <svg width="16" height="16" fill="#333333">
+                              <path d="M12,8 l -5,5 -1,-1 4,-4 -4,-4 1,-1 z"></path>
+                           </svg>
+                        </span>
+                     </button>
+                     <a class="marec-toc-item" [class.marec-selected-toc-item]="node === selectedTocItem()" [style]="node.style"
+                        [href]="tocLink(node)" (click)="tocClick(node)"
+                     >
+                        @if (!node.parent) {
+                           <img [src]="tocImgSrc(node)" width="16" height="16" alt="">
+                        }
+                        {{ node.text }}
+                     </a>
+                  </div>
+                  <ul [class.marec-invisible]="!tree.isExpanded(node)" style="padding-left: 20px;">
+                     <ng-container matTreeNodeOutlet></ng-container>
+                  </ul>
+               </li>
+            </mat-nested-tree-node>
+         </mat-tree>
+      </div>
+      @if (searchText()) {
+         <marec-progress-spinner [show]="searchService.loading()"></marec-progress-spinner>
+         <marec-error-response [error]="searchService.errorResponse()"></marec-error-response>
+
+         @for (result of searchResults(); track $index) {
+            <div class="marec-search-result">
+               <span class="marec-search-result-score">{{ result.score | number:'1.0-0' }}</span>
+               <a class="marec-toc-item" [class.marec-selected-toc-item]="result.tocItem === selectedTocItem()" [style]="result.tocItem.style"
+                  [href]="tocLink(result.tocItem)" (click)="searchResultClick(result)"
+               >
+                  {{ result.title }}
+               </a>
+            </div>
+         }
+      }
+   </div>
+</div>
+
+<div class="marec-right">
+   <div class="marec-right-overlay" [class.marec-right-overlay-active]="leftVisible()" (click)="leftVisible.set(false)" aria-hidden="true"></div>
+   <div class="marec-right-scroll" (scroll)="onScroll()">
+      <marec-progress-spinner [show]="loading()"></marec-progress-spinner>
+      <marec-error-response [error]="errorResponse()"></marec-error-response>
+
+      <div style="display: flex; flex-direction: column; min-height: 100%;">
+         <div class="marec-help-container" style="flex: 1;">
+            <div #helpContent></div>
+         </div>
+         <marec-footer></marec-footer>
+      </div>
+   </div>
+</div>

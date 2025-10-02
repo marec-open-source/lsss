@@ -1,0 +1,94 @@
+<h1>School detection module</h1>
+<p>
+   This module detects schools on a specified channel.
+   The schools can be visualized in the <a href="../../WorkingWith/KoronaPlaybox/KoronaPlaybox.html">KORONA playbox</a>.
+</p>
+<p>
+   Use of other modules prior to the school detection can change the detected schools. Some examples:
+</p>
+<ul>
+   <li>
+      To get schools with a smoother boundary,
+      use, for example, the <a href="../convolution/SmootherModule.html">Smoother module</a>.
+   </li>
+   <li>
+      To eliminate very small schools,
+      use, for example, the <a href="../filters/ErodeModule.html">Erode module</a>
+      followed by the <a href="../filters/DilateModule.html">Dilate module</a>.
+   </li>
+   <li>
+      To detect schools on a combination of other channels,
+      use, for example, the <a href="../ExpressionModule.html">Expression module</a>
+      or the <a href="../CombinationModule.html">Combination module</a>.
+   </li>
+</ul>
+
+<h2 id="NewDatagrams">New datagrams</h2>
+<ul>
+   <li>
+      <a href="../../Datagrams/RegionBorderDatagram.html">Region border datagram</a> -
+      One datagram for each ping containing the depth ranges detected on that ping.
+   </li>
+   <li>
+      <a href="../../Datagrams/RegionInfoDatagram.html">Region info datagram</a> -
+      One datagram for each detected school.
+   </li>
+   <li>
+      <a href="../../Datagrams/RegionTableOfContentsDatagram.html">Region table of contents datagram</a> -
+      One datagram in the last ping, with info about which pings contain region info datagrams.
+   </li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+
+<h3 id="DetectionSettings">Detection settings</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="ProcessLast">Process last:</span>
+      If selected, the last channel will be used for school detection.
+   </li>
+   <li><span class="marec-parameter-def" id="Channel">Channel:</span>
+      Which channel to work on, starting at 1.
+      Used only if <a class="marec-parameter-ref" href="#ProcessLast">Process last</a> is not selected.
+   </li>
+   <li><span class="marec-parameter-def" id="MinDepth">Min depth:</span>
+      Minimum depth for school detection [m].
+   </li>
+   <li><span class="marec-parameter-def" id="MaxDepth">Max depth:</span>
+      Maximum depth for school detection [m].
+   </li>
+   <li><span class="marec-parameter-def" id="Threshold">Threshold:</span>
+      Minimum value of all samples inside a school [dB].
+   </li>
+</ul>
+
+<h3 id="AcceptanceSettings">Acceptance settings</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="Density">Mean Sv:</span>
+      Limits for average Sv in school [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="MaxSv">Max Sv:</span>
+      Limits for max Sv in school [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="Length">Length:</span>
+      Limits for length of school [m].
+   </li>
+   <li><span class="marec-parameter-def" id="Thickness">Thickness:</span>
+      Limits for thickness of school [m].
+   </li>
+   <li><span class="marec-parameter-def" id="Area">Area:</span>
+      Limits for area of school [m²].
+   </li>
+   <li><span class="marec-parameter-def" id="Compactness">Compactness:</span>
+      Limits for compactness = Perimeter of circle with same area / Perimeter.
+   </li>
+</ul>
+
+<h3 id="Postprocessing">Postprocessing</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="FillHoles">Fill holes:</span>
+      If selected, then holes in detected schools will be filled.
+   </li>
+</ul>

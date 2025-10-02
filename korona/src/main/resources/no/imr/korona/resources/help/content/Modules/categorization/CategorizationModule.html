@@ -1,0 +1,96 @@
+<h1>Categorization module</h1>
+<p>
+   Module for categorization using the <a href="../../WorkingWith/ConfigFileSettings/Categorization/Categorization.html">categorization library</a>.
+   See references for description of original methods.
+</p>
+
+<h2 id="Requirements">Requirements</h2>
+<ul>
+   <li>Depth datagrams, <a href="../../Datagrams/Dep0Datagram.html">Dep0Datagram</a>, see <a href="../DepthModule.html">Bottom detection module</a>,
+      if category <em>bottom</em> is active.
+   </li>
+   <li>Noise datagrams, <a href="../../Datagrams/Nqp0Datagram.html">Nqp0Datagram</a>, see <a href="../noise/NoiseQuantificationModule.html">NoiseQuantificationModule</a>,
+      if category <em>noise</em> is active.
+   </li>
+   <li>Smoothing, see <a href="../convolution/SmootherModule.html">SmootherModule</a>, is recommended.
+   </li>
+</ul>
+
+<h2 id="NewDatagrams">New datagrams</h2>
+<ul>
+   <li>One initial categorization configuration datagram, <a href="../../Datagrams/Cac0Datagram.html">Cac0Datagram</a>.
+   </li>
+   <li>Subsequently, one categorization datagram, <a href="../../Datagrams/Cad0Datagram.html">Cad0Datagram</a>, for each ping.
+   </li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="CategoryCount">Category count:</span>
+      Number of categories per pixel to put in the categorization datagrams.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#CategoryCount">Category count</a> &ge; 1
+   </li>
+   <li><span class="marec-parameter-def" id="ActiveFeatures">Active features:</span>
+      Which features to use. Only enabled features can be set to active.
+   </li>
+   <li><span class="marec-parameter-def" id="ActiveCategories">Active categories:</span>
+      Which categories to use. Only enabled categories can be set to active.
+   </li>
+   <li><span class="marec-parameter-def" id="Categorizer">Categorizer:</span>
+      Type of classifier.
+      <br>Allowed values: <em>{ Gauss, Nearest neighbor, Combined }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="Discriminant">Discriminant:</span>
+      Type of discriminant function.
+      <br>Allowed values: <em>{ Aposteriori, Cost }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="ContextualCorrection">Contextual correction:</span>
+      Type of contextual correction iteration.
+      <br>Allowed values: <em>{ None, ICM }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="ContextualIterations">Contextual iterations:</span>
+      Number of contextual correction iterations.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#ContextualIterations">Contextual iterations</a> &ge; 0
+   </li>
+   <li><span class="marec-parameter-def" id="UseMinLogSv">Use min Sv:</span>
+      Enable Sv threshold.
+   </li>
+   <li><span class="marec-parameter-def" id="MinLogSv">Min Sv:</span>
+      Only assign category for samples above a threshold at 38 kHz.
+   </li>
+</ul>
+
+<h2 id="Details">Details</h2>
+<p>
+   The data flow through the categorization module is depicted in the following figure:
+</p>
+<figure>
+   <img src="CategorizationModuleDataFlow.png" width="605" height="253">
+</figure>
+
+<h2 id="References">References</h2>
+<ul class="marec-literature">
+   <li>
+      Korneliussen, R. J., and Ona, E. 2002. An operational system for processing and
+      visualizing multi-frequency acoustic data. – ICES Journal of Marine Science, 159:
+      293–313.
+   </li>
+   <li>
+      Korneliussen, R. J., and Ona, E. 2003. Synthetic echograms generated from the relative
+      frequency response. – ICES Journal of Marine Science, 60: 636–640.
+   </li>
+   <li>
+      Korneliussen, R. J., Heggelund, Y., Eliassen, I. K., and Johansen, G. O. 2009. Acoustic species identification of schooling fish. – ICES Journal of
+      Marine Science, 66: 1111–1118.
+   </li>
+   <li>
+      Pedersen, G., and Korneliussen, R. J. 2009. The relative frequency response derived from individually separated targets of northeast Arctic cod
+      (Gadus morhua), saithe (Pollachius virens), and Norway pout (Trisopterus esmarkii). – ICES Journal of Marine Science, 66: 1149–1154.
+   </li>
+   <li>
+      Korneliussen, R. J. 2010. The acoustic identification of Atlantic mackerel. – ICES Journal of Marine Science, 67: 1749–1758.
+   </li>
+</ul>

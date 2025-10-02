@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<categorization>
+   <categories>
+      <category enabled="true" name="unknown" legend="unkno" color="white"/>
+      <category enabled="true" name="bottom" legend="botto" color="#ccffff"/>
+      <category enabled="true" name="blindzone" legend="blind" color="#ccccff"/>
+      <category enabled="true" name="noise" legend="noise" color="#cccccc"/>
+      <category enabled="true" name="uncategorized" legend="uncat" color="#ccffff"/>
+   </categories>
+   <parameters>
+      <parameter name="OutlierFraction">0.1</parameter>
+      <parameter name="ICMBeta">0.1</parameter>
+      <parameter name="NearestNeighborMetric">euclidean</parameter>
+      <parameter name="NearestNeighborDistanceThreshold">0</parameter>
+      <parameter name="DefaultCostDiagonalValue">-1</parameter>
+      <parameter name="DefaultCostOffDiagonalValue">0</parameter>
+      <parameter name="ThinnedScatterSize">1000</parameter>
+      <parameter name="DeltaMinMaxSv38">10</parameter>
+   </parameters>
+   <cost/>
+   <features>
+      <feature enabled="true" name="R18"/>
+      <feature enabled="true" name="R70"/>
+      <feature enabled="true" name="R120"/>
+      <feature enabled="true" name="R200"/>
+      <feature enabled="false" name="R333"/>
+      <feature enabled="false" name="R364"/>
+      <feature enabled="true" name="Sv38"/>
+      <feature enabled="false" name="depth"/>
+   </features>
+</categorization>

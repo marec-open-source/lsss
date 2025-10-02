@@ -1,0 +1,19 @@
+<h1>Transducer ranges</h1>
+<p>
+   This is a configuration file specifying the blind zone and range of each transducer.
+</p>
+<p>
+   Used by several <a href="../../../Modules/Modules.html">modules</a>, including
+   the <a href="../../../Modules/DepthModule.html">Bottom detection module</a>,
+   the <a href="../../../Modules/dataReduction/DataReductionModule.html">Data reduction module</a> and
+   the <a href="../../../Modules/categorization/CategorizationModule.html">Categorization module</a>.
+</p>
+<p>
+   If data to be processed contains a channel with a frequency not specified in this file,
+   then the blind zone and the range will be interpolated.
+   However, no extrapolation will be done.
+</p>
+<ul>
+   <li><em>Blind zone</em>: Interpolated to the maximum of the blind zones of the next lower and higher frequencies.</li>
+   <li><em>Range</em>: Interpolated linearly using the ranges of the next lower and higher frequencies.</li>
+</ul>

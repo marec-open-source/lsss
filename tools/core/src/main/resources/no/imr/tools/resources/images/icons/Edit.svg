@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
+     fill="#333333">
+   <polygon points="0,16 1,10 10,1 11,2 2,11 3,12 12,3 13,4 4,13 5,14 14,5 15,6 6,15"/>
+   <ellipse cx="12.5" cy="3.5" rx="3.5" ry="1.1" transform="rotate(45 12.5,3.5)"/>
+</svg>

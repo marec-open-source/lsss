@@ -1,0 +1,63 @@
+<h1>Survey configuration</h1>
+<figure>
+   <img src="SurveyConf.png" height="501" width="798">
+</figure>
+<p>
+   In this panel, the parameters for the current survey can be adjusted, or a new survey can be created.
+</p>
+<p>
+   When creating a new survey, all parameters except the survey title
+   are optional. The parameters are there for later searches in the
+   database, so it is recommended to use some reasonable values where
+   possible.
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation:</span>
+      Select the nation from a list.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform:</span>
+      After selecting the nation, select the platform (ship or stationary platform) from a list.
+      If the platform does not exist, it can be created with the <em>New platform</em> button.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="SurveyId">Survey number:</span>
+      The survey number. The number must be unique, since it
+      is used as a key in the database together with Nation and Platform.
+      When creating a new survey, an available number in the database will be
+      selected by default.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey title:</span>
+      The survey title.
+   </li>
+   <li><span class="marec-parameter-def" id="StartDate">Start date (UTC) (optional):</span>
+      The start date of the survey. Today's date will be chosen by default.
+   </li>
+   <li><span class="marec-parameter-def" id="StartTime">Start time (UTC) (optional):</span>
+      The start time of the survey. 00:00 will be chosen by default.
+   </li>
+   <li><span class="marec-parameter-def" id="StopDate">Stop date (UTC) (optional):</span>
+      The end date of the survey. Today's date will be chosen by default.
+   </li>
+   <li><span class="marec-parameter-def" id="StopTime">Stop time (UTC) (optional):</span>
+      The end time of the survey. 23:59 will be chosen by default.
+   </li>
+   <li><span class="marec-parameter-def" id="BoundaryNorth">Northern survey boundary (N+, S-) (optional):</span>
+      The (approximate) northern boundary of the survey.
+   </li>
+   <li><span class="marec-parameter-def" id="BoundarySouth">Southern survey boundary (N+, S-) (optional):</span>
+      The (approximate) southern boundary of the survey.
+   </li>
+   <li><span class="marec-parameter-def" id="BoundaryWest">Western survey boundary (E+, W-) (optional):</span>
+      The (approximate) western boundary of the survey.
+   </li>
+   <li><span class="marec-parameter-def" id="BoundaryEast">Eastern survey boundary (E+, W-) (optional):</span>
+      The (approximate) eastern boundary of the survey.
+   </li>
+   <li><span class="marec-parameter-def" id="Comment">Short survey description (optional):</span>
+      A short description of the survey.
+   </li>
+</ul>
+<p>
+   The start and end times can optionally specify seconds (using format HH:MM:SS)
+   or even hundredths of a second (using format HH:MM:SS:XX).
+</p>

@@ -1,0 +1,42 @@
+<h1>Plankton configuration</h1>
+<p>
+   The plankton inversion configuration file.
+</p>
+<p>
+   Used by the <a href="../../../Modules/plankton/PlanktonInversionModule/PlanktonInversionModule.html">Plankton inversion module</a>.
+</p>
+
+<h2 id="Editor">Editor</h2>
+<p>
+   The editor lets the user specify an initial size distribution for the various models
+   used in the plankton inversion.
+</p>
+<figure>
+   <img src="initialSizeEditor.png" width="1020" height="249">
+   <figcaption>Screenshot of the plankton file editor.</figcaption>
+</figure>
+<p>
+   Each row defines an initial size distribution histogram for a given class [FBCyl, FluidS, Gas, Hard]. The species column
+   is used for entering a catch. By clicking "Show all", it is possible to specify a start/stop date/time/depth
+   for each distribution, defining a window of validity in terms of time and depth.
+</p>
+<p>
+   The number of bins in the histogram is given in the "size" column. Entering a higher/lower
+   number here will dynamically alter the number of columns in the table to match
+   the number of bins in the histogram. The SX gives the lower edge of each histogram bin,
+   while SS gives the upper edge of the last bin. NX gives the contents of each bin.
+   If a divider is entered that is inconsistent with the previous/next divider, the user is asked if
+   the surrounding inconsistent dividers should be automatically adjusted. The dividers will be adjusted with
+   one unit with respect to the entered divider.
+</p>
+<p>
+   The initial size factor in the combo box gives the scaling factor for the
+   histogram bin edges.
+</p>
+<p>
+   Additional initial size distributions can be specified by pressing "Add row". Distributions
+   are deleted by selecting a row and pressing "Delete row".
+</p>
+<p>
+   Pressing OK saves the setting to the XML file indicated in the window header.
+</p>

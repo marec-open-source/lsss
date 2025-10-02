@@ -1,0 +1,47 @@
+<h1>Examples using KORONA</h1>
+<p>
+   This section describes possible use cases for preprocessing in KORONA. The data flows through the KORONA modules in
+   a sequence described in the module setup, and some processing modules use the content of a reference file as
+   illustrated in the figure below. Several modules may use the same reference file. <em>Note that the sequence of the
+   processing modules may affect the result.</em> For example, noise removal (NoiseRemovalModule) needs to be done after
+   noise quantification (NoiseQuantificationModule). Further, the best data used to quantify noise is picked somewhat
+   "below" the detected bottom (really: some time after bottom echo), so the Bottom detection module should be used before the
+   NoiseQuantificationModule.
+</p>
+<figure>
+   <img src="figures/ex_korona.png" height="332" width="613">
+</figure>
+<p>
+   The processing modules can be grouped into 6 classes:
+</p>
+<ol>
+   <li>Data improvement modules. These manipulate data, but the data-format and file-size remain unchanged.
+   </li>
+   <li>Data reduction modules. These remove or compress the data, but do not add information in the form of new data-telegrams.
+   </li>
+   <li>Echo-trace detection modules. These detect the extent of e.g. a school or a single-fish track, and calculate
+      parameters that characterize the echo-trace and pass this information as new data-telegrams in the data in addition
+      to those defined by the data-file format *.raw.
+   </li>
+   <li>Identification of acoustic scattering classes by means of an acoustic feature library or by scattering models.
+      The information is passed as new data-telegrams in the data.
+   </li>
+   <li>Generation and removal of data-channels through mathematical operators.
+   </li>
+   <li>Modules for visualizing intermediate results, e.g. echogram between any two processing modules.
+   </li>
+</ol>
+
+<h2 id="Examples">Examples</h2>
+<p>
+   <a href="Example1.html">Example 1 - Data improvement</a>.<br>
+   <a href="Example2.html">Example 2 - Data reduction</a>.<br>
+   <a href="Example3.html">Example 3 - School detection</a>.<br>
+   <a href="Example4.html">Example 4 - Echo-trace detection</a>.<br>
+   <a href="Example5.html">Example 5 - Categorisation</a>.<br>
+   <a href="Example6.html">Example 6 - School categorisation</a>.<br>
+   <a href="Example7.html">Example 7 - Zooplankton size estimation</a>.<br>
+   <a href="Example8.html">Example 8 - Visualisation of intermediate results</a>.<br>
+   <a href="Example9.html">Example 9 - Colour scales</a>.<br>
+   <a href="Example10.html">Example 10 - Bottom detection</a>.<br>
+</p>

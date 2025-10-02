@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<AcousticCategory>
+   <i nation="0" platform="0" acousticCategory="0" composite="0" initials="RAADA" englishInitials="RAW" commonName="Akustiske rådata" englishName="Acoustic raw data"/>
+   <i nation="0" platform="0" acousticCategory="1" composite="0" initials="ANDRE" englishInitials="OTHER" commonName="Andre sorter" englishName="Other species"/>
+   <i nation="0" platform="0" acousticCategory="2" composite="0" initials="BUNN" englishInitials="BOTT" commonName="Bunnfisk" englishName="Bottom fish"/>
+   <i nation="0" platform="0" acousticCategory="3" composite="0" initials="PELAG" englishInitials="PELAG" commonName="Pelagisk fisk" englishName="Pelagic fish"/>
+   <i nation="0" platform="0" acousticCategory="4" composite="0" initials="MANET" englishInitials="JELLY" commonName="Maneter" englishName="Jellyfish"/>
+   <i nation="0" platform="0" acousticCategory="5" composite="0" initials="REKER" englishInitials="SHRIM" commonName="Reker" englishName="Shrimps"/>
+   <i nation="0" platform="0" acousticCategory="6" composite="0" initials="PLANK" englishInitials="PLANK" commonName="Plankton" englishName="Plankton"/>
+   <i nation="0" platform="0" acousticCategory="7" composite="0" initials="LYSPR" englishInitials="LANTE" commonName="Lysprikkfisk" englishName="Lantern fish"/>
+   <i nation="0" platform="0" acousticCategory="8" composite="0" initials="POLAR" englishInitials="POLAR" commonName="Polartorsk" englishName="Polar cod (In North America: arctic cod)"/>
+   <i nation="0" platform="0" acousticCategory="9" composite="0" initials="2SILD" englishInitials="2HERR" commonName="II-Sild" englishName="II-Herring (2-3 years old)"/>
+   <i nation="0" platform="0" acousticCategory="10" composite="0" initials="1SILD" englishInitials="1HERR" commonName="I-Sild" englishName="I-Herring (1-2 years old)"/>
+   <i nation="0" platform="0" acousticCategory="11" composite="0" initials="0SILD" englishInitials="0HERR" commonName="0-Sild" englishName="0-Herring (0-1 years old)"/>
+   <i nation="0" platform="0" acousticCategory="12" composite="0" initials="SILD" englishInitials="HERR" commonName="Sild" englishName="Herring"/>
+   <i nation="0" platform="0" acousticCategory="13" composite="0" initials="2LODD" englishInitials="2CAP" commonName="II-Lodde" englishName="II-Capelin (2-3 years old)"/>
+   <i nation="0" platform="0" acousticCategory="14" composite="0" initials="1LODD" englishInitials="1CAP" commonName="I-Lodde" englishName="I-Capelin (1-2 years old)"/>
+   <i nation="0" platform="0" acousticCategory="15" composite="0" initials="0LODD" englishInitials="0CAP" commonName="0-Lodde" englishName="0-Capelin (0-1 years old)"/>
+   <i nation="0" platform="0" acousticCategory="16" composite="0" initials="LODDE" englishInitials="CAP" commonName="Lodde" englishName="Capelin"/>
+   <i nation="0" platform="0" acousticCategory="17" composite="0" initials="0-GR." englishInitials="0MIX" commonName="0-gruppe blandet" englishName="0-group mixed (0-1 years old)"/>
+   <i nation="0" platform="0" acousticCategory="18" composite="0" initials="HVITT" englishInitials="WHITE" commonName="Hvitting" englishName="Whiting"/>
+   <i nation="0" platform="0" acousticCategory="19" composite="0" initials="LYR" englishInitials="POLLO" commonName="Lyr" englishName="Pollock"/>
+   <i nation="0" platform="0" acousticCategory="20" composite="0" initials="BRISL" englishInitials="SPRAT" commonName="Brisling" englishName="Sprat"/>
+   <i nation="0" platform="0" acousticCategory="21" composite="0" initials="MAKRE" englishInitials="MACKE" commonName="Makrell" englishName="Macerel"/>
+   <i nation="0" platform="0" acousticCategory="22" composite="0" initials="SEI" englishInitials="SAITH" commonName="Sei" englishName="Saithe"/>
+   <i nation="0" platform="0" acousticCategory="23" composite="0" initials="VASSI" englishInitials="GR.SI" commonName="Vassild" englishName="Gr.silv.smelt"/>
+   <i nation="0" platform="0" acousticCategory="24" composite="0" initials="KOLMU" englishInitials="BLUE" commonName="Kolmule" englishName="Blue whiting"/>
+   <i nation="0" platform="0" acousticCategory="25" composite="0" initials="BROSM" englishInitials="TUSK" commonName="Brosme" englishName="Tusk"/>
+   <i nation="0" platform="0" acousticCategory="26" composite="0" initials="LANGE" englishInitials="LING" commonName="Lange" englishName="Link"/>
+   <i nation="0" platform="0" acousticCategory="27" composite="0" initials="SIL" englishInitials="SAND" commonName="Sil" englishName="Sand eel"/>
+   <i nation="0" platform="0" acousticCategory="28" composite="0" initials="OEYEP" englishInitials="N.POU" commonName="Oeyepaal" englishName="Norway pout"/>
+   <i nation="0" platform="0" acousticCategory="29" composite="0" initials="UER" englishInitials="RED" commonName="Uer" englishName="Redfish"/>
+   <i nation="0" platform="0" acousticCategory="30" composite="0" initials="HYSE" englishInitials="HADDO" commonName="Hyse" englishName="Haddock"/>
+   <i nation="0" platform="0" acousticCategory="31" composite="0" initials="TORSK" englishInitials="COD" commonName="Torsk" englishName="Cod"/>
+   <i nation="0" platform="0" acousticCategory="32" composite="0" initials="0-UER" englishInitials="0RED" commonName="0-Uer" englishName="0-Redfish (0-1 years old)"/>
+   <i nation="0" platform="0" acousticCategory="33" composite="0" initials="0-POL" englishInitials="0POLA" commonName="0-Polartorsk" englishName="0-Polar cod (0-1 years old)"/>
+   <i nation="0" platform="0" acousticCategory="41" composite="0" initials="Hy/To" englishInitials="Ha/Co" commonName="Hyse, Torsk" englishName="Haddock, Cod"/>
+   <i nation="0" platform="0" acousticCategory="42" composite="0" initials="Va/Ko" englishInitials="Gr/Bl" commonName="Vassild, Kolmule" englishName="Gr.s. smelt, Bl. whiting"/>
+   <i nation="0" platform="0" acousticCategory="43" composite="0" initials="An/Lo" englishInitials="Ot/Ca" commonName="Andre sorter, Lodde" englishName="Others, Capelin"/>
+   <i nation="0" platform="0" acousticCategory="44" composite="0" initials="Pe/Pl" englishInitials="Pe/Pl" commonName="Pelagisk fisk, Plankton" englishName="Pelagic fish, Plankton"/>
+   <i nation="0" platform="0" acousticCategory="45" composite="0" initials="An/Pl" englishInitials="Ot/Pl" commonName="Andre sorter, Plankton" englishName="Others, Plankton"/>
+   <i nation="0" platform="0" acousticCategory="46" composite="0" initials="P/0/0" englishInitials="P/0/0" commonName="Plankton, 0-Sild, 0-Lodde" englishName="Plank., 0-Herr., 0-Cap."/>
+   <i nation="0" platform="0" acousticCategory="47" composite="0" initials="U/H/T" englishInitials="U/H/C" commonName="Uer, Hyse, Torsk" englishName="Redfish, Haddock, Cod"/>
+   <i nation="0" platform="0" acousticCategory="48" composite="0" initials="Lo/Ko" englishInitials="Ca/Bl" commonName="Lodde, Kolmule" englishName="Capelin, Blue whiting"/>
+   <i nation="0" platform="0" acousticCategory="49" composite="0" initials="Ly/Ko" englishInitials="La/Bl" commonName="Lysprikkfisk, Kolmule" englishName="Lantern fish, Bl. whiting"/>
+   <i nation="0" platform="0" acousticCategory="50" composite="0" initials="Ko/Ue" englishInitials="Bl/Re" commonName="Kolmule, Uer" englishName="Blue whiting, Redfish"/>
+   <i nation="0" platform="0" acousticCategory="51" composite="0" initials="A/0/S" englishInitials="Ot/He" commonName="Andre sorte, 0-Sild, Sild" englishName="Others, 0-Herr., Herring"/>
+   <i nation="0" platform="0" acousticCategory="52" composite="0" initials="BUNN2" englishInitials="BOTT2" commonName="Bunnfisk type 2" englishName="Bottom fish type 2"/>
+   <i nation="0" platform="0" acousticCategory="53" composite="0" initials="Si/Br" englishInitials="He/Sp" commonName="Sild, Brisling" englishName="Herring, Sprat"/>
+   <i nation="0" platform="0" acousticCategory="54" composite="0" initials="Pl/Ly" englishInitials="Pl/La" commonName="Plankton, Lysprikkfisk" englishName="Plankton, Lantern fish"/>
+   <i nation="0" platform="0" acousticCategory="55" composite="0" initials="An/Bu" englishInitials="Ot/Bo" commonName="Andre sorter, Bunnfisk" englishName="Others, Bottom reg"/>
+   <i nation="0" platform="0" acousticCategory="56" composite="0" initials="H/B/S" englishInitials="W/T/S" commonName="Hvitting, Brosme, Sil" englishName="Whiting, Tusk, Sand eel"/>
+   <i nation="0" platform="0" acousticCategory="57" composite="0" initials="Pl/0G" englishInitials="P/0Mx" commonName="Plankton, 0-gruppe blandet" englishName="Plankton, 0-group mixed"/>
+   <i nation="0" platform="0" acousticCategory="58" composite="0" initials="1S/0S" englishInitials="1/2He" commonName="I-Sild, 0-Sild" englishName="I-Herring, 0-Herring"/>
+   <i nation="0" platform="0" acousticCategory="59" composite="0" initials="2L/1L" englishInitials="1/2Lo" commonName="II-Lodde, I-Lodde" englishName="II-Capelin, I-Capelin"/>
+   <i nation="0" platform="0" acousticCategory="60" composite="0" initials="An/2S" englishInitials="Ot/He" commonName="Andre sorter, II-Sild" englishName="Others, II-Herring"/>
+   <i nation="0" platform="0" acousticCategory="61" composite="0" initials="0S/Br" englishInitials="OH/Sp" commonName="0-Sild, Brisling" englishName="0-Herring, Sprat"/>
+   <i nation="0" platform="0" acousticCategory="62" composite="0" initials="B/O/T" englishInitials="B/N/C" commonName="Bunnfisk, Oeyepaal, Torsk" englishName="Bot. reg, Norw. pout, Cod"/>
+   <i nation="0" platform="0" acousticCategory="63" composite="0" initials="B/H/T" englishInitials="B/H/C" commonName="Bunnfisk, Hyse, Torsk" englishName="Bot. reg, Haddock, Cod"/>
+   <i nation="0" platform="0" acousticCategory="64" composite="0" initials="Pe/Ly" englishInitials="Pe/La" commonName="Pelagisk fisk, Lysprikkfisk" englishName="Pel. fish, Lantern fish"/>
+   <i nation="0" platform="0" acousticCategory="66" composite="0" initials="An/Ue" englishInitials="Ot/Re" commonName="Andre sorter, Uer" englishName="Others, Redfish"/>
+   <i nation="0" platform="0" acousticCategory="67" composite="0" initials="G67" englishInitials="G67" commonName="Maneter, Reker, Plankton, Lysprikk" englishName="Jellyfis, Shr., Pl., Lan."/>
+   <i nation="0" platform="0" acousticCategory="68" composite="0" initials="G68" englishInitials="G68" commonName="Pelagisk, Maneter, Plankton, Lysprik" englishName="Pel., Jellyfis, Pl., Lan."/>
+   <i nation="0" platform="0" acousticCategory="69" composite="0" initials="Ma/Se" englishInitials="Ma/Sa" commonName="Makrell, Sei" englishName="Macerel, Saithe"/>
+   <i nation="0" platform="0" acousticCategory="73" composite="0" initials="LUER" englishInitials="LRED" commonName="Lusuer" englishName="Redfish"/>
+   <i nation="0" platform="0" acousticCategory="76" composite="0" initials="ME/PL" englishInitials="Me/Pl" commonName="Mesopelagisk fisk, Plankton" englishName="Mesopelagic, Plankton"/>
+   <i nation="0" platform="0" acousticCategory="77" composite="0" initials="KRILL" englishInitials="KRILL" commonName="Krill (euphausiids)" englishName="Krill (euphausiids)"/>
+   <i nation="0" platform="0" acousticCategory="100" composite="0" initials="TOTAL" englishInitials="TOTAL" commonName="Total" englishName="Total"/>
+   <i nation="0" platform="0" acousticCategory="701" composite="0" initials="MESO1" englishInitials="MESO1" commonName="Mesopelagisk fisk 1" englishName="Mesopelagic fish 1"/>
+   <i nation="0" platform="0" acousticCategory="702" composite="0" initials="MESO2" englishInitials="MESO2" commonName="Mesopelagisk fisk 2" englishName="Mesopelagic fish 2"/>
+   <i nation="0" platform="0" acousticCategory="703" composite="0" initials="MESO3" englishInitials="MESO3" commonName="Mesopelagisk fisk 3" englishName="Mesopelagic fish 3"/>
+   <i nation="0" platform="0" acousticCategory="704" composite="0" initials="MESO4" englishInitials="MESO4" commonName="Mesopelagisk fisk 4" englishName="Mesopelagic fish 4"/>
+   <i nation="0" platform="0" acousticCategory="705" composite="0" initials="MESO5" englishInitials="MESO5" commonName="Mesopelagisk fisk 5" englishName="Mesopelagic fish 5"/>
+   <i nation="0" platform="0" acousticCategory="5001" composite="0" initials="0SPRA" englishInitials="0SPRA" commonName="0-Brisling" englishName="0-Sprat"/>
+   <i nation="0" platform="0" acousticCategory="5002" composite="0" initials="SKOLE" englishInitials="RGREN" commonName="Skolest" englishName="Roundnose grenadier"/>
+   <i nation="0" platform="0" acousticCategory="5003" composite="0" initials="TAGG" englishInitials="HMACK" commonName="Taggmakrell (hestmakrell)" englishName="Horse Mackerel"/>
+   <i nation="0" platform="0" acousticCategory="5004" composite="0" initials="SARDP" englishInitials="PILCH" commonName="Pilchard = Sardintype" englishName="Pilchard"/>
+   <i nation="0" platform="0" acousticCategory="5005" composite="0" initials="LSILD" englishInitials="PSIDE" commonName="Laksesild" englishName="Pearlside"/>
+   <i nation="0" platform="0" acousticCategory="5006" composite="0" initials="Va/Sk" englishInitials="Gs/Rg" commonName="Vassild, Skolest" englishName="Gr.s. smelt, R.n. grenadi"/>
+   <i nation="0" platform="0" acousticCategory="5007" composite="0" initials="A/S/G" englishInitials="A/G/R" commonName="Ansjos eller vassild, Skolest" englishName="Anchovy or G.sm., Ro. gr."/>
+   <i nation="0" platform="0" acousticCategory="5008" composite="0" initials="RHERR" englishInitials="RHERR" commonName="Round herring ??" englishName="Round herring"/>
+   <i nation="0" platform="0" acousticCategory="5009" composite="0" initials="TRMAC" englishInitials="HMACK" commonName="IKKE  BRUK KOMPATIBILITET: - Taggmakrell" englishName="DO NOT USE - COMPATIBILITY: Horse mackerel ??"/>
+   <i nation="0" platform="0" acousticCategory="5010" composite="0" initials="LYSIN" englishInitials="HAKE" commonName="Hake" englishName="Hake"/>
+   <i nation="0" platform="0" acousticCategory="5011" composite="0" initials="DENT" englishInitials="DENT" commonName="Dentex" englishName="Dentex"/>
+   <i nation="0" platform="0" acousticCategory="5012" composite="0" initials="ODFI" englishInitials="ODFI" commonName="Other demersal fish" englishName="Other demersal fish"/>
+   <i nation="0" platform="0" acousticCategory="5013" composite="0" initials="MESFI" englishInitials="MESFI" commonName="Mesopelagisk fisk" englishName="Mesopelagic fish"/>
+   <i nation="0" platform="0" acousticCategory="5014" composite="0" initials="An/RH" englishInitials="An/RH" commonName="Anchovy, Round herring" englishName="Anchovy, Round herring (etrumeus teres)"/>
+   <i nation="0" platform="0" acousticCategory="5015" composite="0" initials="SARD" englishInitials="SARD" commonName="Sardinella = Sardintype" englishName="Sardinella"/>
+   <i nation="0" platform="0" acousticCategory="5016" composite="0" initials="PEL1" englishInitials="PEL1" commonName="Pelagisk fisk 1" englishName="Pelagic 1 fish"/>
+   <i nation="0" platform="0" acousticCategory="5017" composite="0" initials="PEL2" englishInitials="PEL2" commonName="Pelagisk fisk 2" englishName="Pelagic 2 fish"/>
+   <i nation="0" platform="0" acousticCategory="5018" composite="0" initials="BRAC" englishInitials="BRAC" commonName="? UKJENT ?" englishName="? UNKNOWN ?"/>
+   <i nation="0" platform="0" acousticCategory="5019" composite="0" initials="SARDA" englishInitials="SARDA" commonName="Makrelltype" englishName="Mackerel type"/>
+   <i nation="0" platform="0" acousticCategory="5020" composite="0" initials="SARDM" englishInitials="SARDM" commonName="? UKJENT ?" englishName="? UNKNOWN ?"/>
+   <i nation="0" platform="0" acousticCategory="5021" composite="0" initials="DERH" englishInitials="DERH" commonName="? UKJENT ?" englishName="? UNKNOWN ?"/>
+   <i nation="0" platform="0" acousticCategory="5022" composite="0" initials="Pl/Mf" englishInitials="Pl/Mf" commonName="Plankton  mesopel. fish" englishName="Plankton mesopel. fish"/>
+   <i nation="0" platform="0" acousticCategory="5023" composite="0" initials="GOBI" englishInitials="GOBI" commonName="Gobies" englishName="Gobies"/>
+   <i nation="0" platform="0" acousticCategory="5024" composite="0" initials="Va/St" englishInitials="Gs/St" commonName="Vassild, Stroemsild" englishName="Gr.silv.smelt, Argentine"/>
+   <i nation="0" platform="0" acousticCategory="5025" composite="0" initials="GONA" englishInitials="GONA" commonName="Gonatus" englishName="Gonatus"/>
+   <i nation="0" platform="0" acousticCategory="5026" composite="0" initials="La/Ly" englishInitials="Pe/La" commonName="Laksesild, Lysprikkfisk" englishName="Pearlside, Lanternfish"/>
+   <i nation="0" platform="0" acousticCategory="5027" composite="0" initials="0TOB" englishInitials="0SAND" commonName="0gr. tobis" englishName="0-group sandeels"/>
+   <i nation="0" platform="0" acousticCategory="5028" composite="0" initials="K_LUE" englishInitials="C_RED" commonName="IKKE BRUK - Kompatibilitet: Lusuer" englishName="DO NOT USE - COMPATIBILITY: redfish"/>
+   <i nation="0" platform="0" acousticCategory="5029" composite="0" initials="SUER" englishInitials="SNA" commonName="Snabeluer" englishName="??"/>
+   <i nation="0" platform="0" acousticCategory="5030" composite="0" initials="K_LYS" englishInitials="K_HAK" commonName="IKKE BRUK - Kompatibilitet: Lysing" englishName="DO NOT USE - COMPATIBILITY: redfish"/>
+   <i nation="0" platform="0" acousticCategory="5031" composite="0" initials="UHYSE" englishInitials="YHADD" commonName="Unghyse" englishName="Young haddock"/>
+   <i nation="0" platform="0" acousticCategory="5032" composite="0" initials="UTORS" englishInitials="YCOD" commonName="Ungtorsk" englishName="Young cod"/>
+   <i nation="0" platform="0" acousticCategory="5033" composite="0" initials="STROM" englishInitials="ARGE" commonName="Stroemsild" englishName="Argentine"/>
+   <i nation="0" platform="0" acousticCategory="5034" composite="0" initials="K_STR" englishInitials="C_ARG" commonName="IKKE BRUK - Kompatibilitet: Stroemsild" englishName="DO NOT USE - COMPATIBILITY: argentine"/>
+   <i nation="0" platform="0" acousticCategory="5035" composite="0" initials="K_V/S" englishInitials="C_G/S" commonName="IKKE BRUK - Kompatibilitet: Vass/Str.s" englishName="DO NOT USE - COMPATIBILITY: gss.+arg."/>
+   <i nation="0" platform="0" acousticCategory="5036" composite="0" initials="K_MES" englishInitials="C_MES" commonName="IKKE BRUK - Kompatibilitet: Mesop fisk" englishName="DO NOT USE - COMPATIBILITY: mesop.f."/>
+   <i nation="0" platform="0" acousticCategory="5037" composite="0" initials="K_LSI" englishInitials="C_PEA" commonName="IKKE BRUK - Kompatibilitet: Laksesild" englishName="DO NOT USE - COMPATIBILITY: pearlside"/>
+   <i nation="0" platform="0" acousticCategory="5039" composite="0" initials="S_FAM" englishInitials="RATTA" commonName="Skolestfamilie" englishName="Rat tail family"/>
+   <i nation="0" platform="0" acousticCategory="5040" composite="0" initials="BERYX" englishInitials="ALFON" commonName="Beryx" englishName="Alfonsino"/>
+   <i nation="0" platform="0" acousticCategory="5041" composite="0" initials="ANSJO" englishInitials="ANCHO" commonName="Ansjos" englishName="Anchovy"/>
+   <i nation="0" platform="0" acousticCategory="5842" composite="0" initials="ORANG" englishInitials="ORANG" commonName="Orange Roughy" englishName="Orange Roughy"/>
+   <i nation="0" platform="0" acousticCategory="5843" composite="0" initials="HAI" englishInitials="SHARK" commonName="Hai" englishName="Shark"/>
+   <i nation="0" platform="0" acousticCategory="5844" composite="0" initials="OREO" englishInitials="OREO" commonName="Oreo dories" englishName="Oreo dories"/>
+   <i nation="0" platform="0" acousticCategory="5845" composite="0" initials="ULYSI" englishInitials="JHAKE" commonName="Ung lysing" englishName="Young hake"/>
+   <i nation="0" platform="0" acousticCategory="6001" composite="0" initials="BLUEF" englishInitials="BLUEF" commonName="Bluefish" englishName="Bluefish"/>
+   <i nation="0" platform="0" acousticCategory="6002" composite="0" initials="MHMAC" englishInitials="MHMAC" commonName="Middelhav taggmakrell" englishName="Mediterranean horse mackerel"/>
+   <i nation="0" platform="0" acousticCategory="6003" composite="0" initials="RMULL" englishInitials="RMULL" commonName="Red mullet" englishName="Red mullet"/>
+   <i nation="0" platform="0" acousticCategory="6004" composite="0" initials="MULL" englishInitials="MULL" commonName="Mullets" englishName="Mullets"/>
+   <i nation="0" platform="0" acousticCategory="6005" composite="0" initials="PDOG" englishInitials="PDOG" commonName="Piked dogfish" englishName="Piked dogfish"/>
+   <i nation="0" platform="0" acousticCategory="6006" composite="0" initials="BELON" englishInitials="BELON" commonName="Belone belone" englishName="Belone belone"/>
+   <i nation="0" platform="0" acousticCategory="6007" composite="0" initials="KOPEP" englishInitials="COPEP" commonName="Kopepoder" englishName="Copepods"/>
+   <i nation="0" platform="0" acousticCategory="6008" composite="0" initials="AMFI" englishInitials="AMPHI" commonName="Amfipoder" englishName="Amphipods"/>
+   <i nation="0" platform="0" acousticCategory="6009" composite="0" initials="MTOB" englishInitials="PSAND" commonName="Muligens tobis" englishName="Possible sandeel"/>
+   <i nation="0" platform="0" acousticCategory="6010" composite="0" initials="0TOB" englishInitials="0SAND" commonName="0 gruppe tobis" englishName="0 group sandeel"/>
+</AcousticCategory>

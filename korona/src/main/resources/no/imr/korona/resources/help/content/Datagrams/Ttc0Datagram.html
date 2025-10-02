@@ -1,0 +1,25 @@
+<h1>TTC0: Track table of contents datagram</h1>
+<p>
+   This datagram contains references to <a href="Tnf0Datagram.html">Track info datagrams</a>.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   In the last ping of the file.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/tracking/TrackingModule.html">Tracking module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Ttc0Datagram {
+   DatagramHeader header; <span class="marec-comment">// TTC0</span>
+   int validCount;        <span class="marec-comment">// The number of valid tracks</span>
+   int[] validIds;        <span class="marec-comment">// The ids of the valid tracks</span>
+   int timesCount;        <span class="marec-comment">// The number of pings containing one or more <a href="Tnf0Datagram.html">Track info datagram</a></span>
+   ntTime[] pingTimes;    <span class="marec-comment">// The time of pings containing one or more <a href="Tnf0Datagram.html">Track info datagram</a></span>
+};
+</pre>

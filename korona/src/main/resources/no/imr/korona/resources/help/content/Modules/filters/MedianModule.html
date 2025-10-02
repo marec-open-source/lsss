@@ -1,0 +1,34 @@
+<h1>Median module</h1>
+<p>
+   The module sets each sample value to the median of its 8 neighbors and itself.
+   It has the effect of removing spikes and of smoothing the data whilst preserving edges.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="LogarithmicValues">Logarithmic values:</span>
+      Use log(sv) or sv.
+   </li>
+   <li><span class="marec-parameter-def" id="ShowDetails">Show details:</span>
+      Shows more detailed settings (Only last, Channels to process, Automatic depth range, Start depth, End depth).
+   </li>
+   <li><span class="marec-parameter-def" id="OnlyLast">Only last:</span>
+      When true, only last channel is processed, if false all channels are processed.
+   </li>
+   <li><span class="marec-parameter-def" id="ChannelsToProcess">Channels to process:</span>
+      Process the n last channels (-1 for all channels).
+   </li>
+   <li><span class="marec-parameter-def" id="AutomaticDepthRange">Automatic depth range:</span>
+      If true and Bottom detection module is used, then the range goes to the detected seabed,
+      if true and Bottom detection module is not used, the range goes to max depth of the ping.
+   </li>
+   <li><span class="marec-parameter-def" id="StartDepth">Start depth:</span>
+      Start depth in meter for filter.
+   </li>
+   <li><span class="marec-parameter-def" id="EndDepth">End depth:</span>
+      End depth in meter for filter.
+   </li>
+</ul>

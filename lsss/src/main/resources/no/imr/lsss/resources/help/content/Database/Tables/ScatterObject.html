@@ -1,0 +1,76 @@
+<h1>ScatterObject</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>ScatterObject</strong> - Object (number) used to group scatter info (e.g. a school)
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct ScatterObject {
+  short Nation;
+  short Platform;
+  int   Survey;
+  int   Object;
+  int   ObservationDate;
+  int   ObservationTime;
+  short ObservationType;
+  int   Duration;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   Interpreted echo data from scattered fish is stored in the tables
+   <a href="Scatter.html">Scatter</a> and ScatterData,
+   and is grouped by the number <b>Object</b> (described below). Information about
+   object morphology, e.g. a school of fish, is stored in the tables
+   <a href="SchoolMorphology.html">SchoolMorphology</a> contains processing and support parameters,
+   while SchoolData contains the integrated echo levels.
+   Interpreted data is stored in the tables with a selectable horizontal resolution.
+   The horizontal resolution is controlled by the DistanceInterval parameter in the
+   <a href="Scatter.html">Scatter</a> table. Vertically, the data in
+   <a href="Scatter.html">Scatter</a> and ScatterData is
+   resolved into depth-channels; pelagic and bottom. The vertical resolution is controlled
+   by the <b>ChannelThickness</b> parameter in the <a href="Scatter.html">Scatter</a> table.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the <a href="Nation.html">
+      Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - Unique survey identification code. See the <a href="Survey.html">
+      Survey</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="Object">Object</span> - see <a href="Scatter.html">Scatter</a> table.</li>
+   <li><span class="marec-parameter-def" id="ObservationDate">ObservationDate</span> - [YYYYMMDD] (UTC) Date of observation. Refer to the
+      <a href="Observation.html">Observation</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="ObservationTime">ObservationTime</span> - [hhmmssxx] (UTC) Time of observation. Refer to the
+      <a href="Observation.html">Observation</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="ObservationType">ObservationType</span> - Code for which type of observation made. Refer to the
+      <a href="ObservationType.html">Observation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Duration">Duration</span> - [1/100 s] This parameter states the duration in hundredths of
+      seconds (1/100) for the scatter-object.
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="Scatter.html">Observation</a>
+   <a href="Scatter.html">Scatter</a>
+   <a href="SchoolCategory.html">SchoolCategory</a>
+   <a href="SchoolMorphology.html">SchoolMorphology</a>
+   <a href="SchoolData.html">SchoolDetect</a>
+</p>

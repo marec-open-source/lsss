@@ -1,0 +1,52 @@
+<h1>Comment module</h1>
+<p>
+   This module can be used for writing a comment about the module configuration.
+   It can also be used for visually organizing the modules in the
+   <a href="../WorkingWith/ConfigFileSettings/ModuleConfiguration/ModuleConfiguration.html#Editor">module editor</a>
+   by adding line breaks and defining collapsible module groups.
+</p>
+
+<h2 id="LineBreaks">Line breaks</h2>
+<p>
+   The parameters
+   <a class="marec-parameter-ref" href="#LineBreak">Line break</a> and
+   <a class="marec-parameter-ref" href="#VerticalSpace">Vertical space</a>
+   can be used to add a visual separation between distinct sets of modules.
+</p>
+
+<h2 id="ModuleGroups">Module groups</h2>
+<p>
+   A module group can be defined with the
+   <a class="marec-parameter-ref" href="#GroupStart">Start module group</a> parameter,
+   in which case a corresponding <a href="GroupEnd.html">Group end module</a> is automatically inserted.
+   The modules placed between a comment module and the corresponding group end module can be visually collapsed
+   by clicking the comment module button in the
+   <a href="../WorkingWith/ConfigFileSettings/ModuleConfiguration/ModuleConfiguration.html#Editor">module editor</a>.
+   The definition of a module group and its collapsed state do not affect the operation of the modules
+   within the group.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="GroupStart">Start module group:</span>
+      This module defines the start of a collapsible group of modules.
+   </li>
+   <li><span class="marec-parameter-def" id="GroupCollapsed">Collapse module group:</span>
+      Visually collapses all modules until the corresponding group end module.
+   </li>
+   <li><span class="marec-parameter-def" id="LineBreak">Line break:</span>
+      Line break before button in the module editor.
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalSpace">Vertical space:</span>
+      Vertical space above button in the module editor.
+   </li>
+   <li><span class="marec-parameter-def" id="Label">Label:</span>
+      Displayed on the button in the module editor.
+   </li>
+   <li><span class="marec-parameter-def" id="Comment">Comment:</span>
+      The comment.
+   </li>
+</ul>

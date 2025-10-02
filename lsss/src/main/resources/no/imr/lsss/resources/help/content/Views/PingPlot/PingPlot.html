@@ -1,0 +1,59 @@
+<h1>Ping plot</h1>
+<p>
+   This view plots an echogram variable against depth for the ping corresponding to the mouse position.
+   The plot can either use the same variable as is shown in the echogram,
+   or be configured to show a separate variable.
+   If the mouse is in the bottom echogram, then z is used as the vertical axis instead of depth.
+</p>
+<figure>
+   <img src="PingPlot.png" width="359" height="365" class="marec-floatable-module">
+   <figcaption>
+      Screenshot of the Ping plot module.
+      The vertical lines correspond to the upper and lower thresholds.
+      The horizontal line corresponds to the mouse position.
+   </figcaption>
+</figure>
+
+<p>
+   It is possible to plot several pings at once by setting the <em>PingRadius</em> parameter.
+   The colour scheme for the different curves is illustrated in the figure below:
+</p>
+<figure>
+   <img src="PingColourScheme.svg" width="435" height="200">
+   <figcaption>
+      Illustration of the colour scheme coding for previous and subsequent pings using
+      shades of purple and green, respectively.
+      Darker colours indicate pings closer to the current ping, lighter colours pings further away.
+   </figcaption>
+</figure>
+
+<h2 id="Settings">Settings</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="PingRadius">Ping radius:</span>
+      The number of previous and subsequent pings to be displayed along with the current ping (mouse position in echogram).
+      In total, 2 × PingRadius + 1 curves are shown.
+   </li>
+   <li><span class="marec-parameter-def" id="UseThresholdRange">Use threshold range:</span>
+      This option determines the extent of the horizontal axis.
+      If this option is selected then the upper and lower thresholds for the chosen variable are used,
+      if not then the configured min/max limits for the chosen variable are used.
+   </li>
+   <li><span class="marec-parameter-def" id="OnlySelectedRegions">Only selected regions:</span>
+      If this option is selected, then only samples in selected regions are plotted.
+   </li>
+   <li><span class="marec-parameter-def" id="SameVariableAsEchogram">Same variable as echogram:</span>
+      If this option is selected, then the same variable is used as is shown in the echogram.
+      Normally the echogram variable is S<sub>v</sub>, but a different variable can be selected in the
+      <a href="../Echogram/Echogram.html#ColorbarContextMenu">colorbar advanced menu</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="Variable">Variable:</span>
+      The variable to show.
+      This option is only enabled if <a class="marec-parameter-ref" href="#SameVariableAsEchogram">Same variable as echogram</a> is deselected.
+      The choices available here are the same is in the <a href="../Echogram/Echogram.html#ColorbarContextMenu">colorbar advanced menu</a>.
+      <p>
+         Note that all variables have individual min/max limits and upper/lower thresholds.
+         This means that the limits and thresholds for selected variable in this plot
+         may not correspond to what is shown in the <a href="../Echogram/Echogram.html#Colorbar">colorbar</a>.
+      </p>
+   </li>
+</ul>

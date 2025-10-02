@@ -1,0 +1,27 @@
+<h1>BB TS(f) histogram</h1>
+<p>
+   This view shows a histogram of targets detected by <a href="BroadbandTsModule.html">BB TS(f)</a>.
+</p>
+<p>
+   The frequency&times;TS-plane is discretized into uniformly sized cells.
+   The cell size along the frequency axis is <a class="marec-parameter-ref" href="BroadbandTsModule.html#FrequencyResolution">Frequency resolution</a>
+   configured in <a href="BroadbandTsModule.html">BB TS(f)</a>.
+   Each cell counts the number of targets whose TS(f) curve intersects that cell.
+</p>
+<p>
+   The colour of a cell is given by a gray scale <img src="BroadbandTsHistogramModule-GrayScale.png" width="50" height="12"> where
+</p>
+<ul>
+   <li>White represents a count of zero</li>
+   <li>Black represents the highest count of all cells</li>
+</ul>
+
+<h2 id="Settings">Settings</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="TSResolution">TS resolution:</span>
+      The cell size along the TS axis.
+   </li>
+   <li><span class="marec-parameter-def" id="AutoAdjustAxes">Auto-adjust axes:</span>
+      Automatically adjust the x-axis and y-axis when the plot is updated.
+   </li>
+</ul>

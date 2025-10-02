@@ -1,0 +1,61 @@
+<h1>Grid configuration</h1>
+<p>
+   This section defines the grids used when <a href="../../WorkingWith/DatabaseStoring/DatabaseStoring.html">storing to the database</a>.
+   Storing and deleting can be done from the <a href="../../Views/Interpretation/Interpretation.html">interpretation window</a>,
+   and the grids can be displayed as an <a href="../../Views/Echogram/Echogram.html#GridOverlay">echogram overlay</a>.
+</p>
+
+<h2 id="DatabaseGrid">Database grid</h2>
+<ul class="marec-list-spacing">
+   <li><span class="marec-parameter-def" id="HorizontalGridUnit">Unit of horizontal grid:</span>
+      The unit used for the horizontal grid settings below.
+      Possible choices are <em>pings</em>, <em>nmi</em> and <em>seconds</em>.
+      This unit determines how s<sub>V</sub> is integrated over several pings and thus affects s<Sub>A</Sub> and s<sub>L</sub>.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="HorizontalGridSize">Horizontal grid size:</span>
+      This is the horizontal size of the pelagic and bottom grids.
+   </li>
+   <li><span class="marec-parameter-def" id="MinHorizontalGridSize">Minimum horizontal grid size:</span>
+      Grid columns that are partly <a href="../../WorkingWith/Regions/Exclusion.html">excluded</a>
+      will automatically be divided into shorter grid columns, which will only be used
+      if they have at least this size.
+   </li>
+   <li><span class="marec-parameter-def" id="SchoolHorizontalGridSize">School horizontal grid size:</span>
+      The horizontal size for pelagic and bottom school grids.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalGridSizePelagic">Echogram vertical grid size - pelagic:</span>
+      The vertical size in meter of pelagic grid cells.
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalGridSizeBottom">Echogram vertical grid size - bottom:</span>
+      The vertical size in meter of bottom grid cells.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="SchoolVerticalGridSizePelagic">School vertical grid size - pelagic:</span>
+      The vertical size in meter of pelagic school grid cells.
+   </li>
+   <li><span class="marec-parameter-def" id="SchoolVerticalGridSizeBottom">School vertical grid size - bottom:</span>
+      The vertical size in meter of bottom school grid cells.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalExtentBottom">Vertical extent - bottom:</span>
+      The vertical extent in meter of the bottom grids.
+      The bottom grids go from z = 0 up to minus this value.
+   </li>
+</ul>
+
+<h2 id="DisplaySettings">Display settings</h2>
+<ul class="marec-list-spacing">
+   <li><span class="marec-parameter-def" id="PreferredHorizontalSize">Echogram horizontal display - preferred size:</span>
+      The preferred segment sizes when interpreting a survey.
+      Multiple sizes can be specified as a comma separated list.
+      The <a href="../../Display/Display.html#Toolbar">toolbar</a>
+      and the <a href="../../Views/Interpretation/Interpretation.html#EchogramNavigation">interpretation window</a>
+      have buttons for setting the segment sizes specified here.
+   </li>
+   <li><span class="marec-parameter-def" id="AutomaticDetailMode">Automatic DETAIL mode:</span>
+      Automatically enter <a href="../../GettingStarted/GettingStarted.html#DataLoadingMode">DETAIL data loading mode</a>
+      when clicking a preferred size button.
+   </li>
+</ul>

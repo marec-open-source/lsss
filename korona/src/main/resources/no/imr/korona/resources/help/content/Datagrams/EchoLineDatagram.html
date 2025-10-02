@@ -1,0 +1,32 @@
+<h1>LSSS/11: Echo line datagram</h1>
+<p>
+   This datagram is similar to the RAW0 datagram, but contains only a subset of the samples.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once per ping per channel.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/dataReduction/EchoLineCompressionModule.html">Echo line compression module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct EchoLineDatagram {
+   DatagramHeader header;     <span class="marec-comment">// LSSS</span>
+   short subDatagramType;     <span class="marec-comment">// 11</span>
+   RAW0 parameters;           <span class="marec-comment">// RAW0 parameters, but not sample values</span>
+   int echoLineCount;         <span class="marec-comment">// The number of echo lines</span>
+   EchoLine[echoLineCount] echoLines;
+};
+
+struct EchoLine {
+   int startSample;              <span class="marec-comment">//</span>
+   int sampleCount;              <span class="marec-comment">//</span>
+   short[sampleCount] power;     <span class="marec-comment">// Power values as in the RAW0 datagram</span>
+   byte[2 * sampleCount] angles; <span class="marec-comment">// Only present if RAW0 mode & 2 != 0</span>
+};
+</pre>

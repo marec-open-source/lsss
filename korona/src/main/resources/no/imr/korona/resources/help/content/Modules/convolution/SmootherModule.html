@@ -1,0 +1,74 @@
+<h1>Smoother module</h1>
+<p>
+   Performs smoothing by convolution.
+</p>
+
+<h2 id="Requirements">Requirements</h2>
+<ul>
+   <li>Depth datagrams, <a href="../../Datagrams/Dep0Datagram.html">Dep0Datagram</a>, see <a href="../DepthModule.html">Bottom detection module</a>,
+      if parameter <a class="marec-parameter-ref" href="#MaskBottom">Mask bottom</a> is selected.
+   </li>
+   <li>Noise datagrams, <a href="../../Datagrams/Nqp0Datagram.html">Nqp0Datagram</a>, see <a href="../noise/NoiseQuantificationModule.html">NoiseQuantificationModule</a>,
+      if parameter <a class="marec-parameter-ref" href="#MaskNoise">Mask noise</a> is selected.
+   </li>
+   <li>Region border datagrams, <a href="../../Datagrams/RegionBorderDatagram.html">RegionBorderDatagram</a>, see <a href="../region/SchoolDetectionModule.html">School detection module</a>,
+      if parameter <a class="marec-parameter-ref" href="#MaskRegion">Mask region</a> is selected.
+   </li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="OnlyLastChannel">Only last channel:</span>
+      If selected only the last channel is processed, otherwise all channels are processed.
+   </li>
+   <li><span class="marec-parameter-def" id="MaskPelagic">Mask pelagic:</span>
+      Exclude samples above bottom.
+   </li>
+   <li><span class="marec-parameter-def" id="MaskBottom">Mask bottom:</span>
+      Exclude samples below bottom.
+   </li>
+   <li><span class="marec-parameter-def" id="MaskSecondBottom">Mask second bottom:</span>
+      Exclude samples below 10 m above second bottom echo.
+   </li>
+   <li><span class="marec-parameter-def" id="MaskNoise">Mask noise:</span>
+      Exclude samples below noise threshold.
+   </li>
+   <li><span class="marec-parameter-def" id="MaskRegion">Mask region:</span>
+      Exclude samples in connection with regions.
+      <br>Allowed values: <em>{ none, inside, outside }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="MaskTrack">Mask track:</span>
+      Exclude samples in connection with tracks.
+      <br>Allowed values: <em>{ none, inside, outside }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="MinPing">Min ping:</span>
+      Number of pings used ≥ 2 × Min ping + 1.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#MinPing">Min ping</a> ≥ 0
+   </li>
+   <li><span class="marec-parameter-def" id="MaxPing">Max ping:</span>
+      Number of pings used ≤ 2 × Max ping + 1.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#MaxPing">Max ping</a> ≥ 0
+   </li>
+   <li><span class="marec-parameter-def" id="HorizontalKernelType">Horizontal kernel type:</span>
+      Convolution kernel type horizontally.
+      <br>Allowed values: <em>{ gaussian, tophat }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalKernelType">Vertical kernel type:</span>
+      Convolution kernel type vertically.
+      <br>Allowed values: <em>{ gaussian, tophat }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="HorizontalWidth">Horizontal width:</span>
+      Convolution kernel width in meters.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#HorizontalWidth">Horizontal width</a> &gt; 0
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalWidth">Vertical width:</span>
+      Convolution kernel height in meters.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#VerticalWidth">Vertical width</a> &gt; 0
+   </li>
+   <li><span class="marec-parameter-def" id="LogarithmicValues">Logarithmic values:</span>
+      If checked use log(sv), otherwise use (linear) sv.
+   </li>
+</ul>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<unit name="SurveyConfiguration" version="2">
+   <configuration>
+      <parameters/>
+   </configuration>
+   <unit name="SurveyConf">
+      <configuration>
+         <parameters>
+            <parameter name="UseLocalDatabase">false</parameter>
+            <parameter name="Nation">Norway</parameter>
+            <parameter name="PlatformId">9999</parameter>
+            <parameter name="Platform">inge (9999)</parameter>
+            <parameter name="SurveyId">2005114</parameter>
+            <parameter name="Survey">LSSS_DEMO_DATA (2005114)</parameter>
+            <parameter name="StartDate">2018-03-23</parameter>
+            <parameter name="StartTime">00:00</parameter>
+            <parameter name="StopDate">2018-03-23</parameter>
+            <parameter name="StopTime">23:59</parameter>
+            <parameter name="BoundaryNorth">0</parameter>
+            <parameter name="BoundarySouth">0</parameter>
+            <parameter name="BoundaryWest">0</parameter>
+            <parameter name="BoundaryEast">0</parameter>
+            <parameter name="Comment"/>
+         </parameters>
+      </configuration>
+   </unit>
+   <unit name="AcousticCategoryConf">
+      <configuration>
+         <parameters>
+            <parameter name="StoreRawDataSpecies">false</parameter>
+         </parameters>
+         <species>
+            <specy id="21" purpose="1">Makrell</specy>
+            <specy id="12" purpose="1">Sild</specy>
+            <specy id="6" purpose="2">Plankton</specy>
+            <specy id="1" purpose="3">Andre sorter</specy>
+            <speciesMappings>
+               <specie id="21">Makrell
+                  <category name="mackerel"/>
+               </specie>
+               <specie id="12">Sild
+                  <category name="herring"/>
+               </specie>
+               <specie id="6">Plankton
+                  <plankton name="FluidS"/>
+                  <plankton name="FBCyl"/>
+                  <plankton name="Gas"/>
+                  <plankton name="Hard"/>
+               </specie>
+               <specie id="1">Andre sorter
+                  <category name="resonant_18"/>
+                  <category name="herring"/>
+                  <category name="uncategorized"/>
+                  <category name="unknown"/>
+               </specie>
+            </speciesMappings>
+         </species>
+      </configuration>
+   </unit>
+</unit>

@@ -1,0 +1,68 @@
+<h1>Changing default configurations</h1>
+<p>
+   The first time LSSS is started, some global settings are configured. Those settings can be changed at any later
+   time. The global settings are stored in files with a location decided by LSSS, and neither the location nor the
+   file-names can be changed by the user if LSSS should be able to get its content. The global settings are used as
+   default settings when a new survey is created. To change the global settings, you need to first start the LSSS
+   administration window and then change to Administrator mode as shown below.
+</p>
+<figure>
+   <img src="StartAdmin.png" height="118" width="643">
+</figure>
+<figure>
+   <img src="AdminMode.png" height="420" width="630">
+</figure>
+<p>
+   These are examples of the global settings that are used when a new survey is created:
+</p>
+<ol>
+   <li>Default database and database engine. For details, see <a href="../../Configuration/Application/DatabaseConf.html">Database configuration</a>.</li>
+   <li>Default data and work directories. For details, see <a href="../../Configuration/Application/DirectoryConf.html">Directories configuration</a>.</li>
+   <li>Default pre-processing directories and files. For details, see <a href="../../Configuration/Application/AppPreprocessingConf.html">Pre-processing configuration</a>.</li>
+   <li>Miscellaneous. For details, see <a href="../../Configuration/Application/AppMiscConf.html">Miscellaneous configuration</a>.</li>
+   <li>Default nation.</li>
+   <li>Default platform (ship).</li>
+</ol>
+
+<h2 id="ChangeAppDefaults">Changing application configuration</h2>
+<p>
+   Default database, database engine, data and work directories, preprocessing files and preprocessing directories
+   (including the acoustic feature directories), and application miscellaneous settings may be changed from the
+   "Database", "Directories", Preprocessing" and "Miscellaneous" fields of the Application subsection of the main
+   administration menu (in Access level "Administrator mode") as shown below. The button "Save current settings"
+   has to be clicked for the LSSS to remember the adjusted application-settings.
+</p>
+<figure>
+   <img src="SaveApplicationDefaults.png" height="360" width="574">
+</figure>
+<p>
+   The following global settings are stored in the LSSS-application-file:
+</p>
+<ol>
+   <li>Default database and database engine. For details, see <a href="../../Configuration/Application/DatabaseConf.html">Database configuration</a>.</li>
+   <li>Default data and work directories. For details, see <a href="../../Configuration/Application/DirectoryConf.html">Directories configuration</a>.</li>
+   <li>Default pre-processing directories and files. For details, see <a href="../../Configuration/Application/AppPreprocessingConf.html">Pre-processing configuration</a>.</li>
+   <li>Miscellaneous. For details, see <a href="../../Configuration/Application/AppMiscConf.html">Miscellaneous configuration</a>.</li>
+</ol>
+
+<h2 id="ChangeNationOrPlatform">Changing default nation or platform</h2>
+<p>
+   Default nation or platform (ship) may be changed from the "Nation" and "Platform" fields of the Survey subsection
+   of the main administration menu (in Access level "Administrator mode") as shown below.
+</p>
+<figure>
+   <img src="NationOrPlatform.png" height="308" width="636">
+</figure>
+<p>
+   When changes are done, they have to be saved to the survey-defaults file by pressing the button marked
+   "Save current settings as defaults" as shown below.
+</p>
+<figure>
+   <img src="SaveSurveyDefaults.png" height="354" width="595">
+</figure>
+<p>
+   Refer to the sections in the survey configuration chapter for explanation of other elements:
+</p>
+<ul>
+   <li><a href="../../Configuration/Survey/SurveyConf.html">Survey configuration</a>.</li>
+</ul>

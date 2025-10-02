@@ -1,0 +1,120 @@
+<h1>Acoustic categories configuration</h1>
+<figure>
+   <img src="AcousticCategoryConf.png" height="550" width="900">
+</figure>
+<p>
+   Select which acoustic categories to interpret in the survey from a list of available acoustic categories.
+   By selecting an area in the combo box, only the acoustic categories associated to that area are shown in the list to the right.
+</p>
+<p>
+   Use the buttons 1, 2 or 3 to add one or more acoustic categories.
+   A selected category can have one of three different statuses in the interpretation:
+</p>
+<ul style="list-style-type:none;">
+   <li><span style="background-color: #66cdaa;">1</span>: Use the species as a <span
+         style="font-style: italic;">main category</span> if one of the main purposes of this survey is to interpret
+      this acoustic category.
+   </li>
+   <li><span style="background-color: #f0e68c;">2</span>: Use the species as a <span
+         style="font-style: italic;">usable category</span> if it is an interesting category, but not the main focus of
+      this survey.
+   </li>
+   <li><span style="background-color: #fa8072;">3</span>: Use the species as a <span
+         style="font-style: italic;">fill category</span> if it is known to exist in the survey, but is primarily used
+      for assigning the rest of the s<sub>A</sub>.
+   </li>
+</ul>
+<p>
+   The selected acoustic categories will appear in the same order in the
+   <a href="../../Views/Interpretation/Interpretation.html">interpretation module</a>.
+</p>
+<p>
+   The lower row buttons can be used to define mapping to KORONA categories, acoustic categories, and areas:
+</p>
+<ul>
+   <li><strong>KORONA mapping</strong>
+      <ul>
+         <li><a href="#CategoryMapping">Edit...</a> - opens a dialog for setting a mapping between the selected acoustic categories and preprocessed categories.</li>
+      </ul>
+   </li>
+   <li><strong>Acoustic category</strong>
+      <ul>
+         <li><a href="#CreateOrEditAcCat">New non-composite...</a> - opens a dialog for creating a new non-composite acoustic category. This
+            is a category either associated to one biological species or not associated to any species.
+         </li>
+         <li><a href="#CreateOrEditAcCat">New composite...</a> - opens a dialog for creating a new composite acoustic category. This is
+            a category consisting of other acoustic categories.
+         </li>
+         <li><a href="#CreateOrEditAcCat">Edit...</a> - opens a dialog for editing an acoustic category selected from the right-hand list of
+            acoustic categories.
+         </li>
+      </ul>
+   </li>
+   <li><strong>Area</strong>
+      <ul>
+         <li><a href="#CreateOrEditArea">New...</a> - opens a dialog for creating a new area.</li>
+         <li><a href="#CreateOrEditArea">Edit...</a> - opens a dialog for editing the currently selected area.</li>
+      </ul>
+   </li>
+</ul>
+
+<h3 id="CategoryMapping">Mapping from acoustic category to preprocessed categories</h3>
+<figure>
+   <img src="AcousticCategoryConf-CategoryMapping.png" width="695" height="191">
+</figure>
+<p>
+   This dialog can be used to configure a relationship between acoustic categories and preprocessed categories. For each
+   acoustic category, the user can select which preprocessed categories correspond to the acoustic category by
+   checking the boxes in the table.
+</p>
+<p>
+   To use this dialog, the preprocessing must have been performed or a configuration file with categorization
+   or plankton categorization must have been configured in the <a href="PreprocessingConf.html">preprocessing panel</a>. If not,
+   no categories will appear as columns in the dialog.
+</p>
+<p>
+   The relationship can be used for faster interpretation in the <a href="../../Views/Interpretation/Interpretation.html">interpretation module</a>.
+</p>
+
+<h3 id="CreateOrEditAcCat">Create or edit acoustic category</h3>
+<figure>
+   <img src="AcousticCategoryConf-CreateOrEditAcCat.png" width="800" height="600">
+</figure>
+<p>
+   This dialog is used for creating a new or editing an existing acoustic category.<br>
+   The upper section of the dialog lets the user decide the contents of an acoustic category. The right list
+   shows the available elements, while the left list shows the elements that the category is
+   currently composed of. If the user is creating or editing a non-composite category, a list
+   of biological species will be displayed in the list to the right.
+   In the case of editing or creating a composite category, the list to
+   the right will show all acoustic categories.
+</p>
+<p>
+   The middle part of the dialog lets the user associate the acoustic category to one or more areas.
+</p>
+<p>
+   The user can define native and English initials as well as native and English names for each category. In the case
+   of a new category, the user can also decide the ID, although the first available ID is suggested.
+   If the user tries to create a category with an ID that is already in use, an error message will appear.
+</p>
+<p>
+   The category is stored in the database when the user pushes the OK button. An acoustic
+   category is always associated to a platform.
+</p>
+
+<h3 id="CreateOrEditArea">Create or edit an area</h3>
+<figure>
+   <img src="AcousticCategoryConf-CreateOrEditArea.png" height="346" width="800">
+</figure>
+<p>
+   This dialog is used for creating a new or editing an existing area.
+</p>
+<p>
+   The user can select which acoustic categories to associate to this area, as well as the name of the area.
+   An area is associated to a nation, and is stored to the database when the user pushes the OK button.
+</p>
+<p>
+   NB: Since Area is a nation-wide table, i.e. common to all platforms of a nation, additions of
+   new Areas need to be coordinated. If a single platform defines its own areas, a conflict might
+   occur when surveys from several platforms are imported to the same database.
+</p>

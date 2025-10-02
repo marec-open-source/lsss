@@ -1,0 +1,2010 @@
+<h1>Report generator</h1>
+
+<h2 id="Description">Description</h2>
+<p>
+   The report generator provides means to output data from the
+   <a href="../../../Database/Database.html">database</a>. The user selects a survey and at least one report from a set
+   of pre-defined report formats. The reports are stored in the
+   <a class="marec-parameter-ref" href="../../../Configuration/Survey/DataConf.html#ReportsDir">ReportsDir</a>
+   directory, which is set from
+   <a href="../../../Configuration/Survey/DataConf.html">[Survey configuration - Data files]</a>,
+   and also shown in the report generator window. The reports are generated for all frequencies.
+   For some pre-defined report formats, only some species are printed. The number of species printed in those special
+   reports is set from the report generator window. The naming of the print-files is similar to the report generator
+   of Bergen Echo Integrator, BEI, i.e. the report format 5 is the same as ListUser05 in BEI. Some reports were not
+   much used during the latest years of BEI, and those are not currently included in LSSS.
+</p>
+
+<h2 id="NamingOfPrintFiles">Naming of print files</h2>
+<p>
+   The print files are named: <strong>List</strong><i>Type</i><strong>_L</strong><i>Start-stop</i><i>_Postfix</i>
+</p>
+<ul>
+   <li><i>Type</i> gives the format name but also the frequency and transceiver if there is only one of those, e.g.
+      "User02_F038000_T02". If the file contains all frequencies and transceivers, frequency and transceiver is not
+      given in the file name.
+   </li>
+   <li><i>Start-stop</i> is the start and stop distance of the print-file. Note that <i>Start</i> is at or after the
+      requested start-distance of the reporting, and that the distance is independent of frequency. In other words, if the
+      requested start-distance is 1000 nmi, and there is stored data from 1000 nmi at 38 kHz and from 1200 nmi at 70 kHz,
+      both the name of the 38 kHz file and the 70 kHz file be named "....._L1000.0-....". The similar is true for the stop
+      distance.
+   </li>
+   <li><i>_Postfix</i> gives the name of the acoustic category (="acoustic species") in short form (5 letters) if the
+      file contains only one.
+   </li>
+</ul>
+<p>
+   Example of file names are: ListUserFile05__F038000_T2_L3197.0-3234.0_HERRI and ListUserFile20__L3197.0-3234.0
+</p>
+
+<h2 id="IntendedUseOfReportFormats">Intended use of report formats</h2>
+<ul>
+   <li><a href="#CompactPrintFormat">Compact format</a>: Paper printouts. Each species occupy one column.</li>
+   <li><a href="#PrintFormat2">Print format 2</a>: Similar to "Compact" format, but with comments, empty lines excluded to make the files more
+      suitable for automatic use, and with 3 decimals.
+   </li>
+   <li><a href="#PrintFormat3">Print format 3</a>: Similar to "Print format 02", but comma separated columns suited for use in e.g. MS Excel.</li>
+   <li><a href="#PrintFormat4">Print format 4</a>: Input fitted for e.g. MS Excel with all info on each line. Max number of pelagic depth channels.
+      Each file contain one species measured at one acoustic frequency.
+   </li>
+   <li><a href="#PrintFormat5">Print format 5</a>: General output suitable as input to a long range of programs, e.g. SAS. Each file contains one
+      species measured at one acoustic frequency.<br>
+      <i>Note that only the selected number of acoustic categories on the Species sub-dialog in the
+         <a href="../../../Configuration/Survey/SurveyConfiguration.html">SurveyConfiguration</a> dialog will be printed.</i>
+   </li>
+   <li><a href="#PrintFormat7">Print format 7</a>: PGNAPES format (1)</li>
+   <li><a href="#PrintFormat8">Print format 8</a>: PGNAPES format (2)</li>
+   <li><a href="#PrintFormat9">Print format 9</a>: Input fitted for e.g. MS Excel with all info on each line. High number of pelagic and
+      bottom depth channels. Each file contains one species measured at one acoustic frequency.
+   </li>
+   <li><a href="#PrintFormat11">Print format 11</a>: Each file contains one species measured at one acoustic frequency.</li>
+   <li><a href="#PrintFormat16">Print format 16</a>: Each file contains all selected species at one frequency.</li>
+</ul>
+<br>
+<p>
+   The following print formats (20-40) can only be printed in native resolution, i.e. in the resolution as stored in the database:
+</p>
+<ul>
+   <li><a href="#PrintFormat20">Print format 20</a>: XML file suitable for general abundance estimation. Each file contains all selected species and
+      is sorted by increasing time and increasing frequency.
+   </li>
+   <li><a href="#PrintFormat21">Print format 21</a>: Report format intended for estimating the backscatter at frequency "f" relative to "38 kHz"
+      (i.e. the "relative frequency response). Print format 21 has fixed columns.
+      The file contains the relative frequency response for the first species selected.
+   </li>
+   <li><a href="#PrintFormat22">Print format 22</a>: Report format intended for estimating the backscatter at frequency "f" relative to "38 kHz"
+      (i.e. the "relative frequency response). Print format 22 is comma separated unlike print format 21 that has fixed columns.
+      The file contains the relative frequency response for the first species selected.
+   </li>
+   <li><a href="#PrintFormat23">Print format 23</a>: Report format intended for estimating the backscatter at frequency "f" relative to "38 kHz"
+      (i.e. the "relative frequency response). Print format 23 is comma separated like print format 22, but channel 0 that
+      contains the sum of all of the water column, is omitted.
+      The file contains the relative frequency response for the first species selected.
+   </li>
+   <li><a href="#PrintFormat24">Print format 24</a>: Report format intended for estimating the backscatter at frequency "f" relative to other frequencies
+      (i.e. the "relative frequency response). Print format 24 has the same print format as 22 and 23, but the data are not
+      normalized to 38 kHz. This allows for normalization to other frequencies when 38 kHz data does not exist.
+      Channel 0 (i.e. the sum channel) is omitted. The file contains data for the first species selected.
+   </li>
+   <li><a href="#PrintFormat25">Print format 25</a>: ICES format
+   </li>
+   <li><a href="#PrintFormat26">Print format 26</a>: Same as <a href="#PrintFormat25">Print format 25</a>,
+      but using the <a href="../../../Database/Tables/AcousticCategory.html">AcousticCategory</a> numerical code instead of the
+      <a href="https://acoustic.ices.dk/Services/Schema/XML/AC_SaCategory.xml">ICES code</a>.
+   </li>
+   <li><a href="#PrintFormat30">Print format 30</a>: Report format intended for school analysis: compact print format sorted on object-number,
+      date, time. The object-number identifies a school with the same object-number across the frequencies. The
+      object-number also identifies the echogram that was visible when storing to the database.
+   </li>
+   <li><a href="#PrintFormat31">Print format 31</a>: Report format intended for school analysis. General output similar to print format 5, but sorted
+      on object-number, date, time. Each file contains one species measured at one acoustic frequency.
+   </li>
+   <li><a href="#PrintFormat32">Print format 32</a>: Report format intended for school analysis. General output with similar content as print format 31, but with all data
+      contained in a single line. Each file contains one species measured at one acoustic frequency.
+   </li>
+   <li><a href="#PrintFormat40">Print format 40</a>: Report format intended for analysis of vertical distribution. Data parallel to surface and bottom
+      are in separate files.
+   </li>
+</ul>
+
+
+<h2 id="ReducedResolution">Printing at reduced resolution</h2>
+<p>
+   Some reports can be printed at reduced resolution if requested, and some cannot. Reports 1 - 19 can be printed at reduced resolution while 20 - 40 cannot
+</p>
+
+
+<h2 id="SchoolsOnly">Use schools only</h2>
+<p>
+   Use only data scrutinized as schools, and use school depth channels.
+</p>
+
+
+<h2 id="DistanceFileExtension">Use distance file extension in report file-names</h2>
+<p>
+   Use distance file extension in report file-names, e.g. ListComScatter_F0380000_T2_L3205.0-3235.0.txt instead of ListComScatter_F0380000_T2.txt
+</p>
+
+
+<h2 id="PrintFormats">Print formats</h2>
+<p>
+   ("%s") means string, ("%d") means integer, ("%f") means floating number, (NEWLINE) means line shift. ("%4d") means
+   4 positions are used to print an integer, (" %4d") means a leading space before the 4 positions of an integer,
+   ("%02d") means that 2 positions are used to print an integer, and that the first position is zero if the integer
+   is a single digit integer.
+</p>
+<br>
+<br>
+
+<h3 id="CompactPrintFormat">Compact print format</h3>
+<pre>
+"SHIP: "("%s")"     NATION: "("%s")"    SURVEY: "("%d")"                                         (NEWLINE)
+"Frequency: "("%8d")" [Hz]   Transceiver: ("%d")"                                                (NEWLINE) (NEWLINE)
+"   DATE    TIME         LOG            POSITION       DEPTH"
+Initials_of_acoustic_category("%7s"){No_acoustic_categories_to_be_printed times} ("  TOTAL SC")  (NEWLINE)
+Date("%4d"."%02d"."%02d ") Time("%02d":"%02d  ") Latitude("N/S""%03d":"%4.1f ")
+Longitude("E/W""%03d":"%4.1f") Bottomdepth("%5.0f ")
+sa_of_acoustic-category(" %6.0f"){No_acoustic_categories_to_be_printed times} Total_sa(" %6.0f")
+Number_of_schools_starting_in _distance ("%1d")                                                  (NEWLINE)
+If_comment_exist( Date("%4d"."%02d"."%02d ") Time("%02d":"%02d  ") Comment("%s")                 (NEWLINE) )
+If_10_lines_with_different_date_time_are_printed(                                                (NEWLINE) )
+If_40_lines_with_different_date_time_are_printed(                                                (NEW_PAGE))
+</pre>
+<br>
+<strong>Example: ListComScatter_F0380000_T2_L3205.0-3235.0.txt</strong>
+<pre>
+SHIP: G.O.Sars   NATION: Norway   SURVEY: 2005115
+FREQUENCY:    38000 [Hz]   TRANSCEIVER: 2
+
+   DATE    TIME         LOG            POSITION       DEPTH  MACKE   HERR  PSIDE  OTHER  PLANK   BLUE  TOTAL SC
+2005.11.18  6:54  3203.0 - 3204.0  N60:38.5 E003:10.3   230   2564      0      0      0      0      0   2727  0
+2005.11.18  7:00  3204.0 - 3205.0  N60:38.0 E003:09.2   222   8967      0      0      0      0      0   9106  0
+2005.11.18  7:21  3205.0 - 3210.0  N60:38.5 E003:08.2   111    662      0      0      0      0      0   1166  0
+2005.11.18  8:49  3210.0 - 3215.0  N60:42.5 E003:03.2   198      0      0      0      0      0      0    232  0
+2005.11.18  9:18  I kursretning,PT221
+2005.11.18  9:36  3215.0 - 3220.0  N60:40.4 E003:06.1   254      0      0      0      0      0      0   9346  0
+2005.11.18 10:03  3220.0 - 3225.0  N60:39.4 E003:16.1   307      0      0      0      0      0      0   1436  1
+2005.11.18 10:14  This is a free text comment
+2005.11.18 10:29  3225.0 - 3230.0  N60:39.3 E003:26.1   314      0      0      0      0      0      0   1132  0
+2005.11.18 10:56  3230.0 - 3235.0  N60:39.5 E003:36.2   311      0      0      0      0      0      0    524  0
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat2">Print format 2</h3>
+<pre>
+% Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 2.17.0
+% Export time: Thu Jan 25 13:18:02 CET 2024, LSSS version 2.17.0
+%
+"SHIP: "("%s")"     NATION: "("%s")"    SURVEY: "("%d")" "Frequency: "("%8d")" [Hz]   Transceiver: ("%d")" (NEWLINE)
+"   DATE    TIME         LOG            POSITION       DEPTH"
+Initials_of_acoustic_category("%10s"){No_acoustic_categories_to_be_printed times} ("  TOTAL SC")            (NEWLINE)
+Date(4d.02d.02d ) Time(02d:02d  ) Latitude(N/S03d:4.1f) Longitude(E/W03d:4.1f) Bottomdepth(5.0f)
+sa_of_acoustic-category(" %10.3f"){No_acoustic_categories_to_be_printed times} Total_sa(" %10.3f")
+Number_of_schools_starting_in _distance ("%1d")                                                            (NEWLINE)
+</pre>
+<br>
+<strong>Example: ListUserFile02__F038000_T2_L3182.0-3194.0.txt</strong>
+<pre>
+% Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 2.17.0
+% Export time: Thu Jan 25 13:18:02 CET 2024, LSSS version 2.17.0
+%
+SHIP: G.O.Sars   NATION: Norway   SURVEY: 2005114
+FREQUENCY:    38000 [Hz]   TRANSCEIVER: 2
+
+   DATE     TIME        LOG             POSITION      DEPTH      OTHER       HERR      MACKE      Pl/La      TOTAL SC
+2005.11.18  4:53  3182.0 - 3183.0  N60:39.9 E002:31.5   119    100.474      0.000      0.000      0.000    100.474  0
+2005.11.18  4:59  3183.0 - 3184.0  N60:39.9 E002:33.6   118     52.369      0.000      0.000      0.000     52.369  0
+2005.11.18  5:05  3184.0 - 3185.0  N60:39.8 E002:35.6   117     33.386      0.000      0.000      0.000     33.386  0
+2005.11.18  5:11  3185.0 - 3186.0  N60:39.8 E002:37.6   114   1440.176      0.000      0.000      0.000   1440.176  0
+2005.11.18  5:17  3186.0 - 3187.0  N60:39.8 E002:39.7   113     18.622      0.000      0.000      0.000     18.622  0
+2005.11.18  5:22  3187.0 - 3188.0  N60:39.8 E002:41.7   115     17.588      0.000      0.000      0.000     17.588  0
+2005.11.18  5:28  3188.0 - 3189.0  N60:39.8 E002:43.7   117     29.415      7.547      0.000      0.000     36.962  1
+2005.11.18  5:34  3189.0 - 3190.0  N60:39.8 E002:45.8   117     27.903      0.000      0.000      0.000     27.903  0
+2005.11.18  5:40  3190.0 - 3191.0  N60:39.8 E002:47.8   119     59.228      0.000      0.000      0.000     59.228  0
+2005.11.18  5:45  3191.0 - 3192.0  N60:39.8 E002:49.8   124     29.017      0.000      0.000      0.000     29.017  0
+2005.11.18  5:51  3192.0 - 3193.0  N60:39.8 E002:51.9   133     64.158     26.961      0.000      0.000     91.119  1
+2005.11.18  5:56  3193.0 - 3194.0  N60:39.8 E002:53.9   143    148.895    140.172      0.000      0.000    289.066  0
+</pre>
+<p>
+   Changes:
+</p>
+<ul>
+   <li>LSSS 2.17.0:
+      Headers (lines starting with "%") added in the beginning of the report. The number of decimals for each acoustic category
+      (species) increased from 0 to 3.
+   </li>
+</ul>
+<br>
+<br>
+
+<h3 id="PrintFormat3">Print format 3</h3>
+<pre>
+% Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 2.17.0
+% Export time: Thu Jan 25 13:18:02 CET 2024, LSSS version 2.17.0
+%
+"SHIP, NATION, SURVEY, FREQUENCY, TR, DATE, TIME, LOGSTART,  LOGSTOP, LONGITUDE,  LATITUDE, DEPTH, ",
+Initials_of_acoustic_category(%s, ){No_acoustic_categories_to_be_printed} ("TOTAL")                   (NEWLINE)
+Ship(%s, ), Nation(%s, ), Survey(%d, ), Frequency(%d, ), Transceiver(%d, ), Date(%4d.%02d.%02d, ) Time(%02d:%02d:%02d, )
+Longitude(%9.5f, ), Latitude(%9.5f, ), Bottomdepth(%.1f, ),
+sa_of_acoustic-category(%.3f, ){No_acoustic_categories_to_be_printed times} Total_sa(%.3f)         (NEWLINE)
+</pre>
+<br>
+<strong>Example: ListUserFile03__F038000_T2_L3182.0-3235.0.txt</strong>
+<pre>
+ % Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 2.17.0
+% Export time: Thu Jan 25 13:18:02 CET 2024, LSSS version 2.17.0-alpha
+%
+SHIP, NATION, SURVEY, FREQUENCY, TR, DATE, TIME, LOGSTART, LOGSTOP, LONGITUDE, LATITUDE, DEPTH, OTHER, HERR, MACKE, Pl/La, TOTAL
+G.O.Sars, Norway, 2005114, 38000, 2, 2005.11.18, 04:53:40, 3182.00, 3183.00, 2.52580, 60.66578, 119.0, 100.474, 0.000, 0.000, 0.000, 100.474
+G.O.Sars, Norway, 2005114, 38000, 2, 2005.11.18, 04:59:28, 3183.00, 3184.00, 2.55960, 60.66507, 117.8, 52.369, 0.000, 0.000, 0.000, 52.369
+G.O.Sars, Norway, 2005114, 38000, 2, 2005.11.18, 05:05:26, 3184.00, 3185.00, 2.59350, 60.66417, 117.2, 33.386, 0.000, 0.000, 0.000, 33.386
+G.O.Sars, Norway, 2005114, 38000, 2, 2005.11.18, 05:11:22, 3185.00, 3186.00, 2.62719, 60.66335, 114.0, 1440.176, 0.000, 0.000, 0.000, 1440.176
+G.O.Sars, Norway, 2005114, 38000, 2, 2005.11.18, 05:17:16, 3186.00, 3187.00, 2.66115, 60.66299, 113.2, 18.622, 0.000, 0.000, 0.000, 18.622
+G.O.Sars, Norway, 2005114, 38000, 2, 2005.11.18, 05:22:59, 3187.00, 3188.00, 2.69489, 60.66259, 115.1, 17.588, 0.000, 0.000, 0.000, 17.588
+G.O.Sars, Norway, 2005114, 38000, 2, 2005.11.18, 05:28:41, 3188.00, 3189.00, 2.72873, 60.66256, 116.8, 29.415, 7.547, 0.000, 0.000, 36.962
+G.O.Sars, Norway, 2005114, 38000, 2, 2005.11.18, 05:34:23, 3189.00, 3190.00, 2.76253, 60.66268, 116.9, 27.903, 0.000, 0.000, 0.000, 27.903
+G.O.Sars, Norway, 2005114, 38000, 2, 2005.11.18, 05:40:01, 3190.00, 3191.00, 2.79639, 60.66287, 119.1, 59.228, 0.000, 0.000, 0.000, 59.228
+G.O.Sars, Norway, 2005114, 38000, 2, 2005.11.18, 05:45:39, 3191.00, 3192.00, 2.83020, 60.66292, 123.8, 29.017, 0.000, 0.000, 0.000, 29.017
+G.O.Sars, Norway, 2005114, 38000, 2, 2005.11.18, 05:51:20, 3192.00, 3193.00, 2.86421, 60.66296, 132.6, 64.158, 26.961, 0.000, 0.000, 91.119
+G.O.Sars, Norway, 2005114, 38000, 2, 2005.11.18, 05:56:54, 3193.00, 3194.00, 2.89804, 60.66311, 142.5, 148.895, 140.172, 0.000, 0.000, 289.066
+ ...
+</pre>
+<p>
+   Changes:
+</p>
+<ul>
+   <li>LSSS 2.17.0:
+      Headers (lines starting with "%") added in the beginning of the report. The number of decimals for each acoustic category
+      (species) increased from 1 to 3.
+   </li>
+</ul>
+<br>
+<br>
+
+<h3 id="PrintFormat4">Print format 4</h3>
+<pre>
+ " StartDate StartTime START_LOG  STOP_LOG  LATITUDE LONGITUDE MIN_DEPTH MAX_DEPTH FREQUENCY    TRANSC THRESHOLD   SPECIES    CH_PEL NO_CH_PEL       Pel_CH_00       Pel_CH_01       Pel_CH_02       Pel_CH_03       Pel_CH_04       Pel_CH_05       Pel_CH_06       Pel_CH_07       Pel_CH_08       Pel_CH_09       Pel_CH_10       Pel_CH_11       Pel_CH_12       Pel_CH_13       Pel_CH_14       Pel_CH_15       Pel_CH_16       Pel_CH_17       Pel_CH_18       Pel_CH_19       Pel_CH_20       Pel_CH_21       Pel_CH_22       Pel_CH_23       Pel_CH_24       Pel_CH_25       Pel_CH_26       Pel_CH_27       Pel_CH_28       Pel_CH_29       Pel_CH_30       Pel_CH_31       Pel_CH_32       Pel_CH_33       Pel_CH_34       Pel_CH_35       Pel_CH_36       Pel_CH_37       Pel_CH_38       Pel_CH_39       Pel_CH_40       Pel_CH_41       Pel_CH_42       Pel_CH_43       Pel_CH_44       Pel_CH_45       Pel_CH_46       Pel_CH_47       Pel_CH_48       Pel_CH_49       Pel_CH_50    CH_BOT NO_CH_BOT       Bot_CH_00       Bot_CH_01       Bot_CH_02       Bot_CH_03       Bot_CH_04       Bot_CH_05       Bot_CH_06       Bot_CH_07       Bot_CH_08       Bot_CH_09       Bot_CH_10"
+   Date[YYYYMMDD]("%10d ") Time[hhmmssxx]("%10d ") Start_distance[nmi]("%10.3f ") Stop_distance[nmi]("%10.3f ")
+   Latitude("%10.3f ") Longitude("%10.3f ") Min_bottomdepth[m]("%10.3f ") Max_bottomdepth("%10.3f ")Frequency("%10d ")
+   Transceiver("%10d ") Threshold("%10.3f ") Acoustic_category_code("%10d ")
+   Pelagic_channel_thickness("%10.3f ") Number_pelagic_channels_with_values("%10d ") Sum_channel_pelagic("%16.5f ")
+   Pelagic_channel("%16.5f "){Repeated Number_pelagic_channels_with_values times}
+   Bottom_channel_thickness("%10.3f ") Number_bottom_channels_with_values("%10d ") Sum_channel_bottom("%16.5f ")
+   Bottom_channels("%16.5f "){Repeated Number_bottom_channels_with_values times}   (NEWLINE)
+</pre>
+<br>
+<strong>Example: ListUserFile04_F0380000_T2_L3205.0-3235.0_Mackerel.txt</strong>
+<pre>
+   StartDate StartTime START_LOG  STOP_LOG  LATITUDE LONGITUDE MIN_DEPTH MAX_DEPTH FREQUENCY    TRANSC THRESHOLD   SPECIES    CH_PEL NO_CH_PEL       Pel_CH_00       Pel_CH_01       Pel_CH_02       Pel_CH_03       Pel_CH_04       Pel_CH_05       Pel_CH_06       Pel_CH_07       Pel_CH_08       Pel_CH_09       Pel_CH_10       Pel_CH_11       Pel_CH_12       Pel_CH_13       Pel_CH_14       Pel_CH_15       Pel_CH_16       Pel_CH_17       Pel_CH_18       Pel_CH_19       Pel_CH_20       Pel_CH_21       Pel_CH_22       Pel_CH_23       Pel_CH_24       Pel_CH_25       Pel_CH_26       Pel_CH_27       Pel_CH_28       Pel_CH_29       Pel_CH_30       Pel_CH_31       Pel_CH_32       Pel_CH_33       Pel_CH_34       Pel_CH_35       Pel_CH_36       Pel_CH_37       Pel_CH_38       Pel_CH_39       Pel_CH_40       Pel_CH_41       Pel_CH_42       Pel_CH_43       Pel_CH_44       Pel_CH_45       Pel_CH_46       Pel_CH_47       Pel_CH_48       Pel_CH_49       Pel_CH_50    CH_BOT NO_CH_BOT       Bot_CH_00       Bot_CH_01       Bot_CH_02       Bot_CH_03       Bot_CH_04       Bot_CH_05       Bot_CH_06       Bot_CH_07       Bot_CH_08       Bot_CH_09       Bot_CH_10
+    20051118   6542406  3202.998  3203.998    60.648     3.177   222.789   236.585     38000         2   -82.000        21    10.000        24      2563.86255         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000       106.13937       325.81250       521.70966       904.57538       601.57666       102.06777         1.98117         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000     2.000         5      2563.86255         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000
+    20051118   7001806  3203.999  3204.999    60.635     3.158   220.378   223.302     38000         2   -82.000        21    10.000        23      8967.27148         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000       194.94231       917.28882      1874.66162      2285.50830      1629.12976      1160.95874       727.15485       170.67717         6.95048         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000     2.000         5         3.95492         0.00000         0.00000         0.00000         0.13560         3.81932         0.00000         0.00000         0.00000         0.00000         0.00000
+    20051118   7214170  3205.000  3210.000    60.648     3.141     0.000   222.605     38000         2   -82.000        21    10.000        23       661.50940         0.00000         1.16307         0.85633         0.38208         0.45550         0.72394         0.60080         0.55157         0.64549         0.95134         1.90374         3.31539         5.82435         8.94128        10.60030        15.54729        30.51589        59.80573       119.28112       121.34319        91.89983       186.20117         0.00001         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000     2.000         5       145.96831        35.77621        48.37823        36.46689        15.51063         9.83634         0.72394         0.60080         0.55157         0.64549         0.95134
+    20051118   8492984  3210.000  3215.000    60.716     3.058   181.933   213.674     38000         2   -82.000        21    10.000         0         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000     2.000         5         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000
+    20051118   9361548  3214.999  3219.999    60.679     3.104   211.559   295.765     38000         2   -82.000        21    10.000         0         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000     2.000         5         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000
+    20051118  10030548  3219.999  3224.999    60.662     3.270   295.164   319.674     38000         2   -82.000        21    10.000         0         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000     2.000         5         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000
+    20051118  10294662  3224.997  3229.997    60.660     3.439   306.957   320.643     38000         2   -82.000        21    10.000         0         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000     2.000         5         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000
+    20051118  10562862  3229.998  3234.998    60.665     3.607   305.178   316.521     38000         2   -82.000        21    10.000         0         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000     2.000         5         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000         0.00000
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat5">Print format 5</h3>
+<pre>
+1) Survey("%10d ") Nation("%10d ") Ship("%10d ") Date[YYYYMMDD]("%10d ") Time[hhmmssxx]("%10d ")
+   Start_distance[nmi]("%10.3f ") Stop_distance[nmi]("%10.3f ") Latitude("%10.3f ") Longitude("%10.3f ")
+   Min_bottomdepth[m]("%10.3f ") Max_bottomdepth("%10.3f ") Frequency("%10d ")
+   Transceiver("%10d ") Threshold("%10.3f ") Acoustic_category_code("%10d ")       (NEWLINE)
+2) Pelagic_channel_thickness("%10.3f ")
+   Number_pelagic_channels_with_values("%10d ") Sum_channel_pelagic("%16.5f ")
+   Pelagic_channel("%16.5f "){Repeated Number_pelagic_channels_with_values times}  (NEWLINE)
+3) Bottom_channel_thickness("%10.3f ")
+   Number_bottom_channels_with_values("%10d ") Sum_channel_bottom("%16.5f ")
+   Bottom_channels("%16.5f "){Repeated Number_bottom_channels_with_values times}   (NEWLINE)
+</pre>
+<br>
+<strong>Example: ListUserFile05_F0380000_T3_L3205.0-3235.0_Mackerel.txt</strong>
+<pre>
+   2005115        578       4174   20051118    6542406   3202.998   3203.998     60.648      3.177    222.789    236.585      38000          2    -82.000         21
+    10.000         24       2563.86255          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000        106.13937        325.81250        521.70966        904.57538        601.57666        102.06777          1.98117          0.00000          0.00000          0.00000          0.00000
+     2.000          5          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000
+   2005115        578       4174   20051118    7001806   3203.999   3204.999     60.635      3.158    220.378    223.302      38000          2    -82.000         21
+    10.000         23       8967.27148          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000        194.94231        917.28882       1874.66162       2285.50830       1629.12976       1160.95874        727.15485        170.67717          6.95048          0.00000
+     2.000          5          3.95492          0.00000          0.00000          0.00000          0.13560          3.81932
+   2005115        578       4174   20051118    7214170   3205.000   3210.000     60.648      3.141      0.000    222.605      38000          2    -82.000         21
+    10.000         23        661.50940          0.00000          1.16307          0.85633          0.38208          0.45550          0.72394          0.60080          0.55157          0.64549          0.95134          1.90374          3.31539          5.82435          8.94128         10.60030         15.54729         30.51589         59.80573        119.28112        121.34319         91.89983        186.20117          0.00001
+     2.000          5        145.96831         35.77621         48.37823         36.46689         15.51063          9.83634
+   2005115        578       4174   20051118    8492984   3210.000   3215.000     60.716      3.058    181.933    213.674      38000          2    -82.000         21
+    10.000         22          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000
+     2.000          5          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000
+   2005115        578       4174   20051118    9361548   3214.999   3219.999     60.679      3.104    211.559    295.765      38000          2    -82.000         21
+    10.000         30          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000
+     2.000          5          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000
+   2005115        578       4174   20051118   10030548   3219.999   3224.999     60.662      3.270    295.164    319.674      38000          2    -82.000         21
+    10.000         32          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000
+     2.000          5          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000
+   2005115        578       4174   20051118   10294662   3224.997   3229.997     60.660      3.439    306.957    320.643      38000          2    -82.000         21
+    10.000         33          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000
+     2.000          5          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000
+   2005115        578       4174   20051118   10562862   3229.998   3234.998     60.665      3.607    305.178    316.521      38000          2    -82.000         21
+    10.000         32          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000
+     2.000          5          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat7">Print format 7</h3>
+<pre>
+"Country(tab)Vessel(tab)Cruise(tab)Log(tab)Year(tab)Month(tab)Day(tab)Hour(tab)Min(tab)AcLat(tab)AcLon(tab)Logint(tab)Frequency(tab)Sv_threshold" (NEWLINE)
+"%s\t%s\t%s\t%s\t%d\t%02d\t%02d\t%02d\t%02d\t%s\t%s\t%s\t%02d\t%s\t" (NEWLINE)
+</pre>
+<br>
+<strong>Example: ListUserFile07__F070000_T3_L3197.0-3234.5_HERR.txt</strong>
+<pre>
+Country	Vessel	Cruise	Log	Year	Month	Day	Hour	Min	AcLat	AcLon	Logint	Frequency	Sv_threshold
+NO	LMEL	2005114	3197.0	2005	11	18	06	20	60.663	3.034	0.5	70000	-82.0
+NO	LMEL	2005114	3197.5	2005	11	18	06	23	60.663	3.051	0.5	70000	-82.0
+NO	LMEL	2005114	3198.0	2005	11	18	06	26	60.663	3.068	0.5	70000	-82.0
+NO	LMEL	2005114	3198.5	2005	11	18	06	29	60.664	3.085	0.5	70000	-82.0
+NO	LMEL	2005114	3199.0	2005	11	18	06	31	60.664	3.102	0.5	70000	-82.0
+NO	LMEL	2005114	3199.5	2005	11	18	06	34	60.664	3.118	0.5	70000	-82.0
+NO	LMEL	2005114	3200.0	2005	11	18	06	37	60.664	3.135	0.5	70000	-82.0
+...
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat8">Print format 8</h3>
+<pre>
+"Country(tab)Vessel(tab)Cruise(tab)Log(tab)Year(tab)Month(tab)Day(tab)Species(tab)ChUppDepth(tab)ChLowDepth(tab)SA  (NEWLINE)
+"%s\t%s\t%s\t%s\t%d\t%02d\t%02d\t%s\t%s\t%s\t%s\t"   (NEWLINE)
+</pre>
+<br>
+<strong>Example: ListUserFile08__F038000_T2_L3197.0-3234.5_HERR.txt</strong>
+<pre>
+Country	Vessel	Cruise	Log	Year	Month	Day	Species	ChUppDepth	ChLowDepth	SA
+NO	LMEL	2005114	3198.0	2005	11	18	HER	50.0	100.0	0.00
+NO	LMEL	2005114	3198.0	2005	11	18	HER	100.0	150.0	689.44
+NO	LMEL	2005114	3198.0	2005	11	18	HER	150.0	200.0	3965.84
+NO	LMEL	2005114	3198.0	2005	11	18	HER	200.0	250.0	2530.23
+NO	LMEL	2005114	3198.0	2005	11	18	HER	250.0	300.0	145.48
+NO	LMEL	2005114	3198.0	2005	11	18	HER	300.0	350.0	0.00
+NO	LMEL	2005114	3198.0	2005	11	18	HER	350.0	400.0	0.00
+...
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat9">Print format 9</h3>
+<strong>Example: ListUserFile09__F070000_T3_L3197.0-3204.9_PLANK.txt</strong>
+<pre>
+% Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 1.8.0 (max pelagic channels changed in version 2.16.0: 100->250)
+% Export time: Fri Jan 03 16:02:48 CET 2014, LSSS version 1.8.0
+%
+% Printout with many bottom channels sorted by date, time.
+% Nation: Norway(578);  Platform: G.O.Sars(4174);
+% Survey:  (2005114);
+% Description: ;
+% Scatter type: SCATTER(1000);
+% Frequency: 70000[Hz];  Transceiver: 3[-];
+%
+% StartDate[yyyymmdd],StartTime[hhmmssxx],StartLog[nmi],StopLog[nmi],Latitude[deg],Longitude[deg],MinDepth[m],MaxDepth[m],Frequency[Hz],Transceiver[#],Threshold[dB],Species[-],PelagicChThickness[m],NoPelagicCh[#],NoPelagicChWithData[#],Total_sA_species1[m2/nmi2],PelCh1_sA_species1[m2/nmi2],PelCh2_sA_species1[m2/nmi2],...,BottomChThickness[m],NoBottomCh[#],NoBottomChWithData[#],Total_sA_species1[m2/nmi2],BottomCh1_sA_species1[m2/nmi2], ...
+Date,Time,StartLog,StopLog,Latitude,Longitude,MinDepth,MaxDepth,Freq,Tran,Thresh,Species,ChPel,NoChPel,NoChPelData,PelChTot,PelCh01,PelCh02,PelCh03,PelCh04,PelCh05,PelCh06,PelCh07,PelCh08,PelCh09,PelCh10,PelCh11,PelCh12,PelCh13,PelCh14,PelCh15,PelCh16,PelCh17,PelCh18,PelCh19,PelCh20,PelCh21,PelCh22,PelCh23,PelCh24,PelCh25,PelCh26,PelCh27,PelCh28,PelCh29,PelCh30,PelCh31,PelCh32,PelCh33,PelCh34,PelCh35,PelCh36,PelCh37,PelCh38,PelCh39,PelCh40,PelCh41,PelCh42,PelCh43,PelCh44,PelCh45,PelCh46,PelCh47,PelCh48,PelCh49,PelCh50,ChBott,NoChBott,NoChBottData,BottChTot,BottCh01,BottCh02,BottCh03,BottCh04,BottCh05,BottCh06,BottCh07,BottCh08,BottCh09,BottCh10,BottCh11,BottCh12,BottCh13,BottCh14,BottCh15,BottCh16,BottCh17,BottCh18,BottCh19,BottCh20,BottCh21,BottCh22,BottCh23,BottCh24,BottCh25,BottCh26,BottCh27,BottCh28,BottCh29,BottCh30,BottCh31,BottCh32,BottCh33,BottCh34,BottCh35,BottCh36,BottCh37,BottCh38,BottCh39,BottCh40,BottCh41,BottCh42,BottCh43,BottCh44,BottCh45,BottCh46,BottCh47,BottCh48,BottCh49,BottCh50
+20051118,6204206,3196.999,3197.999,60.663,3.034,173.777,188.729,70000,3,-82.000,6,10.000,50,19,53.36776,0.00000,4.27843,1.48003,0.94552,0.82956,0.57003,0.42282,0.39043,0.44850,0.42264,0.37303,0.34598,0.82886,1.39329,0.47319,2.30082,4.08302,19.69062,14.09098,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,5.000,50,2,32.53886,19.45448,13.08439,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000
+20051118,6262006,3198.000,3199.000,60.663,3.068,188.920,204.310,70000,3,-82.000,6,10.000,50,21,186.09233,0.00000,1.83611,1.02995,0.83840,0.99512,0.60086,0.52149,0.83599,1.43278,2.26738,26.05941,28.13706,11.59395,27.81198,13.84589,3.35662,7.07964,12.71123,24.97642,19.10261,1.05944,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,5.000,50,2,35.61536,21.57214,14.04322,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000
+20051118,6315406,3198.998,3199.998,60.664,3.102,204.607,224.097,70000,3,-82.000,6,10.000,50,23,153.14056,0.00000,1.09232,1.31976,0.38646,1.15764,1.17162,0.24417,1.09848,1.71238,5.17408,14.50058,5.18769,3.03935,6.57066,13.22434,19.23272,21.90765,4.94803,7.81894,10.80210,15.25685,16.20310,1.09165,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,5.000,50,2,26.99745,15.32333,11.67412,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000
+20051118,6372906,3199.997,3200.997,60.664,3.135,224.221,239.449,70000,3,-82.000,6,10.000,50,24,88.97378,0.00000,1.50004,1.43233,0.30473,0.25264,0.15159,0.12266,0.10061,0.26134,1.08686,1.15833,1.19935,1.43055,1.78669,2.13887,3.13631,3.90946,5.92165,6.03126,5.77411,8.57773,15.55016,21.55135,5.59517,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,5.000,50,2,27.08233,10.83252,16.24981,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000
+20051118,6425906,3200.997,3201.997,60.664,3.169,238.890,251.459,70000,3,-82.000,6,10.000,50,26,339.79752,0.00000,8.26020,14.99028,2.37967,0.41210,0.28210,0.41010,0.45472,1.08941,5.00109,6.99276,7.60490,8.01169,7.20676,6.73433,6.33933,7.23761,6.30837,7.98438,8.67090,8.81254,11.11535,20.22365,74.66330,115.50403,3.10794,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,5.000,50,2,129.87054,57.79280,72.07774,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000
+20051118,6483606,3202.000,3203.000,60.662,3.198,236.366,251.380,70000,3,-82.000,6,10.000,50,26,272.85895,0.00000,1.04594,2.78080,2.83028,0.42449,0.18346,0.43042,0.99304,2.88643,4.91129,6.52892,8.32114,5.91608,6.45690,4.68570,5.38470,3.99182,5.58755,6.63126,10.15542,15.65091,18.17336,22.03714,42.89556,93.95637,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,5.000,50,2,121.62253,81.95119,39.67133,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000
+20051118,6542406,3202.998,3203.998,60.648,3.177,222.783,236.530,70000,3,-82.000,6,10.000,50,24,107.46557,0.00000,9.64276,4.48904,3.11371,0.55989,0.22067,0.20041,0.56095,1.34639,2.08810,2.22336,1.59489,1.71513,7.05242,3.61720,2.02033,1.72794,2.06435,5.73976,10.01347,14.77410,18.88803,11.53500,2.27770,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,5.000,50,2,14.68667,5.20872,9.47795,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000
+20051118,7001806,3203.999,3204.999,60.635,3.158,220.298,223.263,70000,3,-82.000,6,10.000,50,23,104.63816,0.00000,1.21668,1.58803,2.67555,5.43252,2.97467,1.82099,0.93278,1.35636,1.75622,2.34869,1.51721,2.13334,2.14884,1.66020,1.26218,3.80092,9.96268,23.25021,8.78855,13.14421,13.42037,1.44696,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,5.000,50,2,11.60996,5.05734,6.55262,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000,0.00000
+...
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat11">Print format 11</h3>
+<pre>
+   "      DATE       TIME  START_LOG   STOP_LOG   Latitude  Longitude   MinDepth   MaxDepth  Frequency  Transcei.  "
+   "Threshold    Species ScatterPCT  NoPelagic          P_CH000          "
+   (50)"P_CH(%03d)          BottomUpper            B_CH0"      (NEWLINE)
+   (data)                                                      (NEWLINE)
+</pre>
+<br>
+<strong>Example: ListUserFile11__F038000_T2_L4502.0-9906.0_TORSK.txt</strong>
+<pre>
+      DATE       TIME  START_LOG   STOP_LOG   Latitude  Longitude   MinDepth   MaxDepth  Frequency  Transcei.  Threshold    Species ScatterPCT  NoPelagic          P_CH000          P_CH001          P_CH002          P_CH003          P_CH004          P_CH005          P_CH006          P_CH007          P_CH008          P_CH009          P_CH010          P_CH011          P_CH012          P_CH013          P_CH014          P_CH015          P_CH016          P_CH017          P_CH018          P_CH019          P_CH020          P_CH021          P_CH022          P_CH023          P_CH024          P_CH025          P_CH026          P_CH027          P_CH028          P_CH029          P_CH030          P_CH031          P_CH032          P_CH033          P_CH034          P_CH035          P_CH036          P_CH037          P_CH038          P_CH039          P_CH040          P_CH041          P_CH042          P_CH043          P_CH044          P_CH045          P_CH046          P_CH047          P_CH048          P_CH049          P_CH050      BottomUpper            B_CH0
+  20070912   21294378   7852.999   7853.999     76.332     32.676    290.175    296.486      38000          2    -82.000         31     10.000         30          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000           15.000          0.00000
+  20070912   21353778   7853.994   7854.994     76.348     32.680    294.204    300.959      38000          2    -82.000         31     10.000         31          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000           15.000          0.00000
+  20070912   21412978   7854.999   7855.999     76.365     32.683    289.232    298.648      38000          2    -82.000         31     10.000         30          0.46402          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00262          0.00788          0.01022          0.01368          0.00659          0.02375          0.03061          0.07466          0.11690          0.17711         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000           15.000          0.26542
+  20070912   21471992   7855.999   7856.999     76.381     32.686    288.388    292.509      38000          2    -82.000         31     10.000         30          0.62453          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00155          0.01852          0.01645          0.01459          0.01802          0.05158          0.04161          0.06599          0.34363          0.05261         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000           15.000          0.39191
+  20070912   21530992   7856.996   7857.996     76.398     32.689    285.787    291.348      38000          2    -82.000         31     10.000         30          0.87790          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00117          0.00434          0.04219          0.02486          0.01035          0.02475          0.02892          0.10012          0.63675          0.00446         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000           15.000          0.66947
+  20070912   21590192   7857.997   7858.997     76.415     32.692    282.790    290.778      38000          2    -82.000         31     10.000         30          0.84615          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00357          0.00734          0.01042          0.00835          0.01446          0.03829          0.04959          0.12184          0.57592          0.01637         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000           15.000          0.67000
+  20070912   22045392   7858.999   7859.999     76.431     32.694    273.763    284.869      38000          2    -82.000         31     10.000         29          0.74152          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00642          0.00984          0.00982          0.02149          0.02609          0.04301          0.12206          0.38794          0.11485         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000           15.000          0.53812
+  20070912   22104792   7859.999   7860.999     76.448     32.696    260.288    273.865      38000          2    -82.000         31     10.000         28          0.68700          0.00000          0.00000          0.00000          0.00000          0.00040          0.00418          0.00136          0.00122          0.00057          0.00010          0.00007          0.00026          0.00015          0.00001          0.00002          0.00014          0.00113          0.00001          0.00000          0.00004          0.00482          0.00901          0.01006          0.02183          0.02261          0.09457          0.42627          0.08817         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000           15.000          0.53093
+  20070912   22240992   7860.998   7861.998     76.464     32.703    258.368    267.798      38000          2    -82.000         31     10.000         27          0.62764          0.00000          0.00000          0.00000          0.00000          0.01076          0.00180          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00635          0.03084          0.03383          0.03286          0.05718          0.28323          0.17080         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000           15.000          0.42655
+  20070912   22410192   7861.999   7862.999     76.480     32.712    257.891    269.814      38000          2    -82.000         31     10.000         27          0.71524          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00810          0.03386          0.02639          0.05483          0.07433          0.15434          0.36340         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000           15.000          0.47489
+  20070912   23053556   7863.000   7864.000     76.495     32.739    254.266    261.933      38000          2    -82.000         31     10.000         27          3.82981          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00245          0.10161          0.21211          0.52492          0.55121          0.64472          0.65253          0.40155          0.43116          0.30476          0.00278         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000           15.000          0.45936
+  20070913     401969   7864.000   7865.000     76.502     32.689      0.000    264.180      38000          2    -82.000         31     10.000         27          2.56998          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00000          0.00337          0.03739          0.06071          0.17588          0.48097          0.62697          0.62388          0.30835          0.17900          0.07118          0.00230         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000         -1.00000           15.000          0.09813
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat16">Print format 16</h3>
+<pre>
+   (see example)
+</pre>
+<br>
+<strong>Example: ListUserFile16__F038000_T2_L4502.0-9906.0.txt</strong>
+<pre>
+   YEAR MO DA    UTC    LOG1    LOG2  LATITUDE  LONGITUD  BDMIN   BDMAX    CH PDMIN PDMAX  PDMEAN  UPINLM  UILCHK       POLAR        SILD       LODDE         SEI         UER        HYSE       TORSK       KOLMU       OEYEP       ANDRE       PLANK       0-GR.       TOTAL
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5     1     0    15     7.5    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5     2    15    20    17.5    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.3705      4.0404      4.4109
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5     3    20    30    25.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.4390      4.7875      5.2266
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5     4    30    40    35.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.1811      1.9747      2.1557
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5     5    40    50    45.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0549      0.5984      0.6532
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5     6    50    60    55.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0411      0.4487      0.4899
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5     7    60    70    65.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0490      0.5346      0.5837
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5     8    70    80    75.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0604      0.6582      0.7186
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5     9    80    90    85.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0676      0.7367      0.8043
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    10    90   100    95.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0532      0.5806      0.6338
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    11   100   110   105.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0147      0.1603      0.1750
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    12   110   120   115.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0495      0.0156      0.0651
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    13   120   130   125.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0152      0.0000      0.0152
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    14   130   140   135.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0217      0.0000      0.0217
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    15   140   150   145.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0145      0.0000      0.0145
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    16   150   160   155.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.3422      0.0000      0.3422
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    17   160   170   165.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0241      0.0000      0.0241
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    18   170   180   175.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0000      0.0275      0.0000      0.0275
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    19   180   190   185.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0008      0.0000      0.0002      0.0087      0.0000      0.0000      0.0176      0.0000      0.0273
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    20   190   200   195.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0033      0.0000      0.0008      0.0358      0.0000      0.0000      0.0000      0.0000      0.0398
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    21   200   210   205.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0071      0.0000      0.0017      0.0777      0.0000      0.0000      0.0000      0.0000      0.0866
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    22   210   220   215.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0463      0.0000      0.0113      0.5067      0.0000      0.0000      0.0000      0.0000      0.5642
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    23   220   230   225.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0299      0.0000      0.0073      0.3271      0.0000      0.0000      0.0000      0.0000      0.3643
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    24   230   240   235.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0241      0.0000      0.0059      0.2634      0.0000      0.0000      0.0000      0.0000      0.2933
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    25   240   250   245.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.0291      0.0000      0.0071      0.3189      0.0000      0.0000      0.0000      0.0000      0.3551
+   2007 08 15  01:45  4502.0  4503.0  71.25774  20.96285  211.6   259.5    26   250   260   255.0    15.0      OK      0.0000      0.0000      0.0000      0.0000      0.1309      0.0000      0.0319      1.4330      0.0000      0.0000      0.0000      0.0000      1.5958
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat20">Print format 20</h3>
+<pre>
+   (see example). Printed in native resolution only.
+</pre>
+<br>
+<strong>Example: ListUserFile20__L3197.0-3204.0.txt</strong>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;!DOCTYPE echosounder_dataset SYSTEM "echosounder_dataset.dtd">
+&lt;echosounder_dataset>
+   &lt;report_time>2009-0-12 15:22:2&lt;/report_time>
+   &lt;lsss_version>1.3.0&lt;/lsss_version>
+   &lt;nation>578&lt;/nation>
+   &lt;platform>4174&lt;/platform>
+   &lt;cruise>2005114&lt;/cruise>
+   &lt;distance_list>
+      &lt;distance log_start="3196.999" start_time="2005-11-18 06:20:42">
+         &lt;stop_time>2005-11-18 06:26:20&lt;/stop_time>
+         &lt;integrator_dist>1.0&lt;/integrator_dist>
+         &lt;pel_ch_thickness>10.0&lt;/pel_ch_thickness>
+         &lt;bot_ch_thickness>1.0&lt;/bot_ch_thickness>
+         &lt;include_estimate>1&lt;/include_estimate>
+         &lt;lat_start>60.663258&lt;/lat_start>
+         &lt;lat_stop>todo&lt;/lat_stop>
+         &lt;lon_start>3.0336995&lt;/lon_start>
+         &lt;lon_stop>todo&lt;/lon_stop>
+         &lt;frequency freq="18000" transceiver="1">
+            &lt;threshold>-82.0&lt;/threshold>
+            &lt;num_pel_ch>19&lt;/num_pel_ch>
+            &lt;min_bot_depth>173.8402&lt;/min_bot_depth>
+            &lt;max_bot_depth>188.75859&lt;/max_bot_depth>
+            &lt;upper_interpret_depth>10.0&lt;/upper_interpret_depth>
+            &lt;lower_interpret_depth>190.0&lt;/lower_interpret_depth>
+            &lt;upper_integrator_depth>15.0&lt;/upper_integrator_depth>
+            &lt;lower_integrator_depth>190.0&lt;/lower_integrator_depth>
+            &lt;quality>3.0&lt;/quality>
+            &lt;bubble_corr>1.0&lt;/bubble_corr>
+            &lt;ch_type type="P">
+               &lt;sa_by_acocat acocat="54">
+                  &lt;sa ch="2">33.15636&lt;/sa>
+                  &lt;sa ch="3">19.715197&lt;/sa>
+                  &lt;sa ch="4">5.6092787&lt;/sa>
+                  &lt;sa ch="5">2.1511433&lt;/sa>
+                  &lt;sa ch="6">2.0593028&lt;/sa>
+                  &lt;sa ch="7">2.0839925&lt;/sa>
+                  &lt;sa ch="8">3.308937&lt;/sa>
+                  &lt;sa ch="9">3.7050188&lt;/sa>
+                  &lt;sa ch="10">4.0737996&lt;/sa>
+                  &lt;sa ch="11">3.6416912&lt;/sa>
+                  &lt;sa ch="12">3.4502923&lt;/sa>
+                  &lt;sa ch="13">2.6673105&lt;/sa>
+                  &lt;sa ch="14">3.66677&lt;/sa>
+                  &lt;sa ch="15">1.5594624&lt;/sa>
+                  &lt;sa ch="16">2.6120777&lt;/sa>
+                  &lt;sa ch="17">7.266288&lt;/sa>
+                  &lt;sa ch="18">34.237774&lt;/sa>
+                  &lt;sa ch="19">24.81409&lt;/sa>
+               &lt;/sa_by_acocat>
+            &lt;/ch_type>
+            &lt;ch_type type="B">
+               &lt;sa_by_acocat acocat="54">
+                  &lt;sa ch="1">4.1424947&lt;/sa>
+                  &lt;sa ch="2">10.149836&lt;/sa>
+                  &lt;sa ch="3">7.9149327&lt;/sa>
+                  &lt;sa ch="4">5.5000014&lt;/sa>
+                  &lt;sa ch="5">7.21047&lt;/sa>
+                  &lt;sa ch="6">5.73566&lt;/sa>
+                  &lt;sa ch="7">8.451172&lt;/sa>
+                  &lt;sa ch="8">4.121539&lt;/sa>
+                  &lt;sa ch="9">1.4932095&lt;/sa>
+                  &lt;sa ch="10">1.9569955&lt;/sa>
+               &lt;/sa_by_acocat>
+            &lt;/ch_type>
+         &lt;/frequency>
+         &lt;frequency freq="38000" transceiver="2">
+            &lt;threshold>-82.0&lt;/threshold>
+            &lt;num_pel_ch>19&lt;/num_pel_ch>
+            &lt;min_bot_depth>173.83311&lt;/min_bot_depth>
+            &lt;max_bot_depth>188.87947&lt;/max_bot_depth>
+            &lt;upper_interpret_depth>10.0&lt;/upper_interpret_depth>
+            &lt;lower_interpret_depth>190.0&lt;/lower_interpret_depth>
+            &lt;upper_integrator_depth>15.0&lt;/upper_integrator_depth>
+            &lt;lower_integrator_depth>190.0&lt;/lower_integrator_depth>
+            &lt;quality>3.0&lt;/quality>
+            &lt;bubble_corr>1.0&lt;/bubble_corr>
+            &lt;ch_type type="P">
+               &lt;sa_by_acocat acocat="54">
+                  &lt;sa ch="2">2.820259&lt;/sa>
+                  ...
+               &lt;/sa_by_acocat>
+            &lt;/ch_type>
+            &lt;ch_type type="B">
+               ...
+            &lt;/ch_type>
+         &lt;/frequency>
+         &lt;frequency freq="70000" transceiver="3">
+            ...
+         &lt;/frequency>
+         &lt;frequency freq="120000" transceiver="4">
+            ...
+         &lt;/frequency>
+         &lt;frequency ...>
+            ...
+         &lt;/frequency>
+      &lt;/distance>
+      &lt;distance log_start="3198.0" start_time="2005-11-18 06:26:20">
+         &lt;stop_time>2005-11-18 06:31:54&lt;/stop_time>
+         &lt;integrator_dist>1.0&lt;/integrator_dist>
+         &lt;pel_ch_thickness>10.0&lt;/pel_ch_thickness>
+         &lt;bot_ch_thickness>1.0&lt;/bot_ch_thickness>
+         &lt;include_estimate>1&lt;/include_estimate>
+         &lt;lat_start>60.66341&lt;/lat_start>
+         &lt;lat_stop>todo&lt;/lat_stop>
+         &lt;lon_start>3.0676317&lt;/lon_start>
+         &lt;lon_stop>todo&lt;/lon_stop>
+         &lt;frequency freq=...>
+            ...
+         &lt;/frequency>
+      &lt;/distance>
+      &lt;distance log_start="3198.9978" start_time="2005-11-18 06:31:54">
+         ...
+      &lt;/distance>
+      &lt;distance log_start=...>
+         ...
+      &lt;/distance>
+      &lt;acocat_list>
+         &lt;acocat acocat="12" acocat="12">
+            &lt;purpose>2&lt;/purpose>
+         &lt;/acocat>
+         &lt;acocat acocat="21" acocat="21">
+            &lt;purpose>1&lt;/purpose>
+         &lt;/acocat>
+         &lt;acocat acocat="54" acocat="54">
+            &lt;purpose>2&lt;/purpose>
+         &lt;/acocat>
+      &lt;/acocat_list>
+   &lt;/distance_list>
+&lt;/echosounder_dataset>
+</pre>
+<!--
+<!DOCTYPE echosounder_dataset SYSTEM "echosounder_dataset.dtd">
+<echosounder_dataset>
+   <report_time>2009-0-6 14:1:29</report_time>
+   <lsss_version>1.3.0</lsss_version>
+   <nation>578</nation>
+   <platform>4174</platform>
+   <cruise>2005114</cruise>
+   <integrator_dist>1.0</integrator_dist>
+   <distance_list>
+      <distance log_start="3196.999" start_time="2005-11-18 06:20:42">
+         <stop_time>2005-11-18 06:26:20</stop_time>
+         <integrator_dist>1.0</integrator_dist>
+         <pel_ch_thickness>10.0</pel_ch_thickness>
+         <bot_ch_thickness>1.0</bot_ch_thickness>
+         <include_estimate>1</include_estimate>
+         <lat_start>60.663258</lat_start>
+         <lon_start>3.0336995</lon_start>
+         <frequency freq="18000" transceiver="1">
+            <threshold>-82.0</threshold>
+            <num_pel_ch>19</num_pel_ch>
+            <min_bot_depth>173.8402</min_bot_depth>
+            <max_bot_depth>188.75859</max_bot_depth>
+            <upper_interpret_depth>10.0</upper_interpret_depth>
+            <lower_interpret_depth>190.0</lower_interpret_depth>
+            <upper_integrator_depth>15.0</upper_integrator_depth>
+            <lower_integrator_depth>190.0</lower_integrator_depth>
+            <quality>3.0</quality>
+            <bubble_corr>1.0</bubble_corr>
+            <ch_type type="P">
+               <sa_by_acocat acocat="54">
+                  <sa ch="2">33.15636</sa>
+                  <sa ch="3">19.715197</sa>
+                  <sa ch="4">5.6092787</sa>
+                  <sa ch="5">2.1511433</sa>
+                  ...
+               </sa_by_acocat>
+            </ch_type>
+            <ch_type type="B">
+               <sa_by_acocat acocat="54">
+                  <sa ch="1">4.1424947</sa>
+                  <sa ch="2">10.149836</sa>
+                  <sa ch="3">7.9149327</sa>
+                  ...
+               </sa_by_acocat>
+            </ch_type>
+         </frequency>
+         <frequency freq="38000" transceiver="2">
+            <threshold>-82.0</threshold>
+            <num_pel_ch>19</num_pel_ch>
+            <min_bot_depth>173.83311</min_bot_depth>
+            <max_bot_depth>188.87947</max_bot_depth>
+            <upper_interpret_depth>10.0</upper_interpret_depth>
+            <lower_interpret_depth>190.0</lower_interpret_depth>
+            <upper_integrator_depth>15.0</upper_integrator_depth>
+            <lower_integrator_depth>190.0</lower_integrator_depth>
+            <quality>3.0</quality>
+            <bubble_corr>1.0</bubble_corr>
+            <ch_type type="P">
+               <sa_by_acocat acocat="54">
+                  ...
+               </sa_by_acocat>
+            </ch_type>
+         </frequency>
+         ...
+      </distance>
+      <distance log_start="3198.0" start_time="2005-11-18 06:26:20">
+         ...
+      </distance>
+         ...
+      <acocat_list>
+         <acocat acocat="12" acocat="12">
+            <purpose>2</purpose>
+         </acocat>
+         <acocat acocat="21" acocat="21">
+            <purpose>1</purpose>
+         </acocat>
+         <acocat acocat="54" acocat="54">
+            <purpose>2</purpose>
+         </acocat>
+      </acocat_list>
+   </distance_list>
+</echosounder_dataset>
+-->
+<!--
+<br>
+<h3 id="DetailedDescriptionOfFields">Detailed description of fields</h3>
+-->
+<pre>
+<!-- "echosounder_dataset": variables valid for the entire dataset;
+     all frequencies, all acoustic categories, all integrated distances.
+
+     report_time:		the timestamp when the dataset is created by LSSS(*).
+     lsss_version:		LSSS version number.
+     nation:			nation in LSSS.
+     platform:		platform in LSSS.
+     cruise:			survey in LSSS.
+     integrator_dist         Integrator distance.
+     ******************************************************************
+     "distance_list": child of "echosounder_dataset", valid for integrated distances.
+     ******************************************************************
+     "distance": child of "echosounder_dataset", variables valid for all frequencies
+      and all acoustic categories by distance.
+
+start_time:		the timestamp in the start of the interval(*).
+     stop_time:		the timestamp in the end of the interval(*).
+     pel_ch_thickness:	channelthickness of pelagic channels.
+     bot_ch_thickness:	channelthickness of bottom channels.
+include_estimate:	include in estimate, future variable telling if integrated distance
+                             should be included in abundance estimation. Default = 1
+     lat_start:              latitude in the start of the interval.
+     lat_stop:               latitude in the end of the interval.
+     lon_start:              longitude in the start of the interval.
+     lon_stop:               longitude in the end of the interval.
+     log_start:              log in the start of the interval.
+
+     ******************************************************************
+     "frequency": child of "distance", variables valid for all acoustic categories by frequency and transceiver.
+
+threshold:		threshold in LSSS.
+     num_pel_ch:             number of pelagic channels.
+     num_bot_ch:		number of bottom channels.
+     min_bot_depth:		minbottomdepth in LSSS.
+     max_bot_depth:          maxbottomdepth in LSSS.
+     upper_interpret_depth:  upperinterpretationdepth in  LSSS.
+     lower_interpret_depth:  lowerinterpretationdepth in  LSSS.
+     upper_integrator_depth: upperintegratordepth in LSSS.
+     lower_integrator_depth: lowerintegrationdepth in LSSS.
+     quality:		quality in LSSS.
+     bubble_corr:		bubblecorrection in LSSS.
+     ******************************************************************
+     "ch_type": child of "frequency", variables valid for all sa values and acoustic categories by one channel type.
+
+     type: 	scattertype in LSSS (channel type).
+     ******************************************************************
+     "sa_by_acocat": child of "ch_type", variables valid for all sa values by one acoustic category.
+
+     acocat: 		acousticcategory in LSSS (the acoustic category).
+
+     ******************************************************************
+     "sa": child of "sa_by_acocat", variables valid for one sa value by one channel number.
+
+     ch: 			channelnumber in LSSS
+     Note: 			1. Only positive SA values are included,
+                    2. Total SA value is not included here.
+                             3. The SA value 263.4 for channel 9 is written like this:
+                                <sa ch = '9'>263.4</sa>.
+     ******************************************************************
+     "acocat_list": child of "echosounder_dataset", valid for acsoutic categories.
+     ******************************************************************
+     "acocat": child of "acocat_list", variables valid for one acoustic category.
+
+     acocat: 		acousticcategory in LSSS (the acoustic category).
+     purpose: 		purpose in LSSS.
+     ******************************************************************
+     (*) timestamp format: '2008-10-28 10:11:01'
+-->
+<!--
+<!ELEMENT echosounder_dataset (
+   report_time?,
+   lsss_version?,
+   nation?,
+   platform?,
+   cruise?,
+   integrator_dist,
+   distance_list*,
+   acocat_list*
+)>
+
+<!ELEMENT report_time (#PCDATA)>
+<!ELEMENT lsss_version (#PCDATA)>
+<!ELEMENT nation (#PCDATA)>
+<!ELEMENT platform (#PCDATA)>
+<!ELEMENT cruise (#PCDATA)>
+<!ELEMENT integrator_dist (#PCDATA)>
+
+<!ELEMENT distance_list (distance*)>
+<!ELEMENT acocat_list (acocat*)>
+<!ELEMENT distance (
+   stop_time?,
+   pel_ch_thickness?,
+   bot_ch_thickness?,
+   include_estimate?,
+   lat_start?,
+   lat_stop?,
+   lon_start?,
+   lon_stop?,
+   frequency*
+)>
+<!ATTLIST distance
+   log_start CDATA #REQUIRED
+   start_time CDATA #REQUIRED>
+<!ELEMENT stop_time (#PCDATA)>
+<!ELEMENT pel_ch_thickness (#PCDATA)>
+<!ELEMENT bot_ch_thickness (#PCDATA)>
+<!ELEMENT include_estimate (#PCDATA)>
+<!ELEMENT lat_start (#PCDATA)>
+<!ELEMENT lat_stop (#PCDATA)>
+<!ELEMENT lon_start (#PCDATA)>
+<!ELEMENT lon_stop (#PCDATA)>
+
+
+<!ELEMENT frequency (
+   threshold?,
+   num_pel_ch?,
+   num_bot_ch?,
+   min_bot_depth?,
+   max_bot_depth?,
+   upper_interpret_depth?,
+   lower_interpret_depth?,
+   upper_integrator_depth?,
+   lower_integrator_depth?,
+   quality?,
+   bubble_corr?,
+   ch_type*
+)>
+<!ATTLIST frequency
+   freq CDATA #REQUIRED
+   transceiver CDATA #REQUIRED>
+<!ELEMENT threshold (#PCDATA)>
+<!ELEMENT num_pel_ch (#PCDATA)>
+<!ELEMENT num_bot_ch (#PCDATA)>
+<!ELEMENT min_bot_depth (#PCDATA)>
+<!ELEMENT max_bot_depth (#PCDATA)>
+<!ELEMENT upper_interpret_depth (#PCDATA)>
+<!ELEMENT lower_interpret_depth (#PCDATA)>
+<!ELEMENT upper_integrator_depth (#PCDATA)>
+<!ELEMENT lower_integrator_depth (#PCDATA)>
+<!ELEMENT quality (#PCDATA)>
+<!ELEMENT bubble_corr (#PCDATA)>
+
+<!ELEMENT ch_type (sa_by_acocat*)>
+<!ATTLIST ch_type
+   type (P|B) #REQUIRED>
+
+<!ELEMENT sa_by_acocat (sa*)>
+<!ATTLIST sa_by_acocat
+   acocat CDATA #REQUIRED>
+
+<!ELEMENT sa (#PCDATA)>
+<!ATTLIST sa
+   ch CDATA #REQUIRED>
+
+<!ELEMENT acocat (purpose?)>
+<!ATTLIST acocat
+   acocat CDATA #REQUIRED>
+-->
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat21">Print format 21</h3>
+<pre>
+   (see example). Printed in native resolution only.
+</pre>
+<br>
+<strong>Example: ListUserFile21__L3198.1-3205.0.txt</strong>
+<pre>
+RELATIVE FREQUENCY RESPONSE FOR SPECIES FIRST ON LIST
+Nation: Norway(578);  Platform: G.O.Sars(4174);
+Survey: Acoustic mackerel survey in the Norwegian Sea and North sea (2005114);
+
+SPECIES     DATE     TIME  CH  dCH          sA38    r018    r038    r070    r120    r200
+  MAKRE 20051118 06581006   0 10.0 001490.741577    1.23    1.00    0.59    1.74    3.65
+  MAKRE 20051118 06581006  16 10.0 000178.783676    1.16    1.00    0.47    2.21    3.60
+  MAKRE 20051118 06581006  17 10.0 000696.505981    1.31    1.00    0.62    1.80    3.91
+  MAKRE 20051118 06581006  18 10.0 000582.495605    1.16    1.00    0.60    1.55    3.37
+  MAKRE 20051118 06584606   0 10.0 007781.001465    1.32    1.00    0.64    1.57    3.42
+  MAKRE 20051118 06584606  14 10.0 000038.046261    1.19    1.00    1.09    1.15    1.43
+  MAKRE 20051118 06584606  15 10.0 000984.670227    0.93    1.00    0.60    1.57    4.05
+  MAKRE 20051118 06584606  16 10.0 002309.793945    1.22    1.00    0.61    1.64    3.49
+  MAKRE 20051118 06584606  17 10.0 002411.605957    1.37    1.00    0.60    1.55    3.33
+  MAKRE 20051118 06584606  18 10.0 001665.804810    1.58    1.00    0.75    1.59    3.29
+  MAKRE 20051118 06592706   0 10.0 016382.260742    1.36    1.00    0.80    1.32    2.52
+  MAKRE 20051118 06592706  14 10.0 001029.219849    1.05    1.00    0.57    1.79    3.97
+  MAKRE 20051118 06592706  15 10.0 002284.780029    1.47    1.00    0.78    1.83    4.04
+  MAKRE 20051118 06592706  16 10.0 002734.623047    1.48    1.00    0.91    1.46    3.19
+  MAKRE 20051118 06592706  17 10.0 005953.727051    1.34    1.00    0.85    1.13    1.86
+  MAKRE 20051118 06592706  18 10.0 003770.844482    1.33    1.00    0.74    1.10    1.77
+  MAKRE 20051118 06592706  19 10.0 000598.735107    1.31    1.00    0.72    1.23    2.34
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat22">Print format 22</h3>
+<pre>
+   (see example). Printed in native resolution only.
+</pre>
+<br>
+<strong>Example: ListUserFile22__L999888768.0-0.0.txt</strong>
+<pre>
+% Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 1.6.2
+% Export time: Tue Oct 30 14:18:31 CET 2012, LSSS version 1.6.2
+%
+% Relative frequency response for species first on list
+% Nation: Norway(578);  Platform: G.O.Sars(4174);
+% Survey: MACKEREL2005 (2005114);
+%
+% Species[-],Date[yyyymmdd],Time[hhmmssxx],Ch[#],dCh[#],sA38[m2/nmi2],r018[-],r038[-],r070[-],r120[-],r200[-]
+Species,Date,Time,Ch,dCh,sA38,r018,r038,r070,r120,r200
+MACKE,20051118,06315406,0,225.0,726.096130,1.287,1.000,0.752,1.441,3.475
+MACKE,20051118,06315406,11,10.0,1.093859,1.030,1.000,1.281,3.490,10.893
+MACKE,20051118,06315406,12,10.0,48.467468,0.889,1.000,0.801,1.607,5.292
+MACKE,20051118,06315406,13,10.0,241.868881,1.213,1.000,0.676,1.431,3.634
+MACKE,20051118,06315406,14,10.0,275.624390,1.443,1.000,0.726,1.462,3.239
+MACKE,20051118,06315406,15,10.0,102.189629,1.209,1.000,0.940,1.410,3.351
+MACKE,20051118,06315406,16,10.0,55.125656,1.260,1.000,0.789,1.217,2.421
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat23">Print format 23</h3>
+<pre>
+   (see example). Printed in native resolution only.
+</pre>
+<br>
+<strong>Example: ListUserFile23__L3199.0-3201.6_SCHOOL.txt</strong>
+<pre>
+% Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 1.8.0
+% Export time: Wed Jul 16 11:10:38 CEST 2014, LSSS version 1.8.0
+%
+% Relative frequency response for species first on list
+% Nation: Norway(578);  Platform: G.O.Sars(4174);
+% Survey:  (2005114);
+%
+% Species[-],Date[yyyymmdd],Time[hhmmssxx],Ch[#],dCh[#],sA38[m2/nmi2],r018[-],r038[-],r070[-],r120[-],r200[-],r364[-]
+Species,Date,Time,Ch,dCh,sA38,r018,r038,r070,r120,r200,r364
+MACKE,20051118,06340006,59,2.0,0.132725,17.480,1.000,1.351,20.629,18.654,15.520
+MACKE,20051118,06340006,60,2.0,63.658890,0.544,1.000,0.708,1.192,4.845,2.720
+MACKE,20051118,06340006,61,2.0,185.237289,0.842,1.000,0.329,1.408,2.956,1.484
+MACKE,20051118,06340006,62,2.0,221.067673,1.127,1.000,0.365,1.097,3.189,1.921
+MACKE,20051118,06340006,63,2.0,154.936142,2.167,1.000,0.633,1.259,3.029,1.444
+MACKE,20051118,06340006,64,2.0,76.636337,3.997,1.000,0.955,2.036,3.079,1.296
+MACKE,20051118,06340006,65,2.0,43.216690,1.771,1.000,0.790,3.121,6.050,1.152
+MACKE,20051118,06341306,57,2.0,27.320374,0.509,1.000,1.449,0.866,9.824,5.307
+MACKE,20051118,06341306,58,2.0,69.640884,0.802,1.000,0.486,1.102,7.107,3.891
+MACKE,20051118,06341306,59,2.0,167.044632,0.653,1.000,0.684,1.252,5.956,2.939
+MACKE,20051118,06341306,60,2.0,305.711823,0.668,1.000,0.633,1.454,4.803,2.898
+MACKE,20051118,06341306,61,2.0,724.720032,1.013,1.000,0.653,1.238,2.874,1.901
+MACKE,20051118,06341306,62,2.0,636.544739,2.421,1.000,0.673,1.812,2.799,1.689
+MACKE,20051118,06341306,63,2.0,824.960327,1.389,1.000,0.763,1.299,4.441,1.436
+MACKE,20051118,06341306,64,2.0,674.545227,1.740,1.000,1.112,1.109,4.211,2.345
+MACKE,20051118,06341306,65,2.0,996.906433,1.272,1.000,0.393,0.989,3.444,1.160
+MACKE,20051118,06341306,66,2.0,1203.183838,0.888,1.000,0.447,1.308,1.858,0.911
+MACKE,20051118,06341306,67,2.0,1110.959595,2.358,1.000,0.372,1.325,2.670,1.573
+MACKE,20051118,06341306,68,2.0,902.212402,2.230,1.000,0.704,1.445,2.357,1.465
+MACKE,20051118,06341306,69,2.0,1182.017212,1.074,1.000,0.644,1.584,3.373,1.012
+   ...
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat24">Print format 24</h3>
+<pre>
+   (see example). Printed in native resolution only.
+</pre>
+<br>
+<strong>Example: ListUserFile24__L3199.0-3201.6_SCHOOL.txt</strong>
+<pre>
+% Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 1.8.1
+% Export time: Wed Jul 16 11:10:38 CEST 2014, LSSS version 1.8.1
+%
+% Nautical Area Scattering Coefficient (Area backscattering coefficient - sA) for species first on list
+% Nation: Norway(578);  Platform: G.O.Sars(4174);
+% Survey:  (2005114);
+% Scatter type: SCHOOL(3000);
+%
+% Species[-],Object[-],Date[yyyymmdd],Time[hhmmssxx],Threshold[dB],Ch[#],dCh[#],sa018[m2/nmi2],sa038[m2/nmi2],sa070[m2/nmi2],sa120[m2/nmi2],sa200[m2/nmi2],sa364[m2/nmi2]
+Species,Object,Date,Time,Threshold,Ch,dCh,sa018,sa038,sa070,sa120,sa200,sa364
+MACKE,20,20051118,06340006,-82.000,59,2.0,2.320,0.133,0.179,2.738,2.476,2.060
+MACKE,20,20051118,06340006,-82.000,60,2.0,34.650,63.659,45.045,75.888,308.433,173.138
+MACKE,20,20051118,06340006,-82.000,61,2.0,155.978,185.237,61.010,260.739,547.603,274.941
+MACKE,20,20051118,06340006,-82.000,62,2.0,249.228,221.068,80.631,242.534,704.973,424.775
+MACKE,20,20051118,06340006,-82.000,63,2.0,335.756,154.936,98.085,195.080,469.372,223.746
+MACKE,20,20051118,06340006,-82.000,64,2.0,306.336,76.636,73.217,156.020,235.990,99.344
+MACKE,20,20051118,06340006,-82.000,65,2.0,76.529,43.217,34.160,134.868,261.445,49.800
+MACKE,20,20051118,06341306,-82.000,57,2.0,13.913,27.320,39.587,23.647,268.404,144.984
+MACKE,20,20051118,06341306,-82.000,58,2.0,55.883,69.641,33.876,76.761,494.969,270.998
+MACKE,20,20051118,06341306,-82.000,59,2.0,109.143,167.045,114.294,209.104,994.836,491.019
+MACKE,20,20051118,06341306,-82.000,60,2.0,204.180,305.712,193.459,444.561,1468.425,886.104
+MACKE,20,20051118,06341306,-82.000,61,2.0,734.483,724.720,473.555,897.018,2082.553,1378.042
+MACKE,20,20051118,06341306,-82.000,62,2.0,1541.346,636.545,428.300,1153.552,1781.837,1075.328
+MACKE,20,20051118,06341306,-82.000,63,2.0,1145.573,824.960,629.367,1071.816,3663.388,1184.466
+MACKE,20,20051118,06341306,-82.000,64,2.0,1173.830,674.545,749.858,747.857,2840.445,1582.139
+MACKE,20,20051118,06341306,-82.000,65,2.0,1267.728,996.906,391.734,985.963,3433.482,1156.723
+MACKE,20,20051118,06341306,-82.000,66,2.0,1068.319,1203.184,537.628,1573.807,2235.468,1095.916
+MACKE,20,20051118,06341306,-82.000,67,2.0,2619.738,1110.960,413.007,1471.909,2966.537,1747.442
+MACKE,20,20051118,06341306,-82.000,68,2.0,2011.519,902.212,634.922,1303.409,2126.148,1321.607
+MACKE,20,20051118,06341306,-82.000,69,2.0,1269.807,1182.017,760.736,1871.926,3986.393,1195.729
+MACKE,20,20051118,06341306,-82.000,70,2.0,1232.428,867.654,824.211,1331.342,4731.134,1532.500
+MACKE,20,20051118,06341306,-82.000,71,2.0,1255.538,562.578,406.719,852.456,2328.134,547.030
+MACKE,11,20051118,06341906,-82.000,59,2.0,39.093,9.844,9.793,30.716,61.794,53.701
+MACKE,11,20051118,06341906,-82.000,60,2.0,78.987,45.299,69.424,43.180,165.049,100.745
+MACKE,11,20051118,06341906,-82.000,61,2.0,199.109,107.659,57.569,74.901,256.755,254.048
+MACKE,11,20051118,06341906,-82.000,62,2.0,96.104,89.417,253.521,245.986,433.700,183.920
+MACKE,11,20051118,06341906,-82.000,63,2.0,156.047,278.634,236.816,308.673,757.587,252.076
+   ...
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat25">Print format 25</h3>
+<p>
+   Printed in native resolution only. The metadata for this report is configured in
+   <a href="../../../Configuration/Survey/SurveyMiscConf.html#IcesAcousticMetadata">[Survey configuration - Miscellaneous - ICES acoustic metadata]</a>
+   and is stored in the <a href="../../../Database/Tables/SurveyInfo.html">SurveyInfo</a> database table.
+</p>
+<br>
+<strong>Example: ListUserFile25__L3198.0-3199.0.xml</strong>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;Acoustic>
+   &lt;Instrument ID="ID_F38">
+      &lt;Frequency>38&lt;/Frequency>
+      &lt;TransducerLocation IDREF="AC_TransducerLocation_AB"/>
+      &lt;TransducerManufacturer>Simrad&lt;/TransducerManufacturer>
+      &lt;TransducerModel>ES38B&lt;/TransducerModel>
+      &lt;TransducerSerial>&lt;/TransducerSerial>
+      &lt;TransducerBeamType IDREF="AC_TransducerBeamType_S2"/>
+      &lt;TransducerDepth>8.5&lt;/TransducerDepth>
+      &lt;TransducerOrientation>downwards-looking&lt;/TransducerOrientation>
+      &lt;TransducerPSI>-20.8&lt;/TransducerPSI>
+      &lt;TransducerBeamAngleMajor>7.01&lt;/TransducerBeamAngleMajor>
+      &lt;TransducerBeamAngleMinor>7.01&lt;/TransducerBeamAngleMinor>
+      &lt;TransceiverManufacturer>Simrad&lt;/TransceiverManufacturer>
+      &lt;TransceiverModel>&lt;/TransceiverModel>
+      &lt;TransceiverSerial>&lt;/TransceiverSerial>
+      &lt;TransceiverFirmware>&lt;/TransceiverFirmware>
+   &lt;/Instrument>
+   &lt;Calibration ID="C0">
+      &lt;Date>2005-11-01&lt;/Date>
+      &lt;AcquisitionMethod IDREF="AC_AcquisitionMethod_SS"/>
+      &lt;ProcessingMethod IDREF="AC_ProcessingMethod_calibration.exe"/>
+      &lt;AccuracyEstimate>AC_AccuracyEstimate_0.01&lt;/AccuracyEstimate>
+   &lt;/Calibration>
+   &lt;DataAcquisition ID="DA0">
+      &lt;SoftwareName IDREF="AC_DataAcquisitionSoftwareName_ER60"/>
+      &lt;SoftwareVersion>2.1.1&lt;/SoftwareVersion>
+      &lt;StoredDataFormat IDREF="AC_StoredDataFormat_RAW"/>
+      &lt;PingDutyCycle>Varying&lt;/PingDutyCycle>
+   &lt;/DataAcquisition>
+   &lt;DataProcessing ID="DP38">
+      &lt;SoftwareName IDREF="AC_DataProcessingSoftwareName_LSSS"/>
+      &lt;SoftwareVersion>3.1.0-alpha&lt;/SoftwareVersion>
+      &lt;TriwaveCorrection IDREF="AC_TriwaveCorrection_NA"/>
+      &lt;ChannelID>GPT 38 kHz 009072034687 6 ES38B Noise removed&lt;/ChannelID>
+      &lt;Bandwidth>2.4251497&lt;/Bandwidth>
+      &lt;Frequency>38&lt;/Frequency>
+      &lt;TransceiverPower>2000&lt;/TransceiverPower>
+      &lt;TransmitPulseLength>1.024&lt;/TransmitPulseLength>
+      &lt;OnAxisGain>25.54&lt;/OnAxisGain>
+      &lt;OnAxisGainUnit IDREF="AC_OnAxisGainUnit_dB"/>
+      &lt;SaCorrection>-0.66&lt;/SaCorrection>
+      &lt;Absorption>0.008319035&lt;/Absorption>
+      &lt;AbsorptionDescription>Typical for centre frequency&lt;/AbsorptionDescription>
+      &lt;SoundSpeed>1493.6&lt;/SoundSpeed>
+      &lt;SoundSpeedDescription>Typical for surveyed waters&lt;/SoundSpeedDescription>
+      &lt;TransducerPSI>-20.8&lt;/TransducerPSI>
+   &lt;/DataProcessing>
+   &lt;Vocabulary>
+      &lt;Survey>
+         &lt;Code ID="AC_Survey_NORHERSS" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_Survey.xml">NORHERSS&lt;/Code>
+      &lt;/Survey>
+      &lt;Country>
+         &lt;Code ID="ISO_3166_NO" CodeType="https://acoustic.ices.dk/Services/Schema/XML/ISO_3166.xml">NO&lt;/Code>
+      &lt;/Country>
+      &lt;Platform>
+         &lt;Code ID="SHIPC_58GS" CodeType="https://acoustic.ices.dk/Services/Schema/XML/SHIPC.xml">58GS&lt;/Code>
+      &lt;/Platform>
+      &lt;Organisation>
+         &lt;Code ID="EDMO_1351" CodeType="https://acoustic.ices.dk/Services/Schema/XML/EDMO.xml">1351&lt;/Code>
+      &lt;/Organisation>
+      &lt;PingAxisIntervalType>
+         &lt;Code ID="AC_PingAxisIntervalType_distance" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_PingAxisIntervalType.xml">distance&lt;/Code>
+      &lt;/PingAxisIntervalType>
+      &lt;PingAxisIntervalUnit>
+         &lt;Code ID="AC_PingAxisIntervalUnit_nmi" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_PingAxisIntervalUnit.xml">nmi&lt;/Code>
+      &lt;/PingAxisIntervalUnit>
+      &lt;PingAxisIntervalOrigin>
+         &lt;Code ID="AC_PingAxisIntervalOrigin_start" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_PingAxisIntervalOrigin.xml">start&lt;/Code>
+      &lt;/PingAxisIntervalOrigin>
+      &lt;Origin>
+         &lt;Code ID="AC_LogOrigin_start" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_LogOrigin.xml">start&lt;/Code>
+         &lt;Code ID="AC_LogOrigin_end" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_LogOrigin.xml">end&lt;/Code>
+      &lt;/Origin>
+      &lt;LogValidity>
+         &lt;Code ID="AC_LogValidity_V" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_LogValidity.xml">V&lt;/Code>
+      &lt;/LogValidity>
+      &lt;SaCategory>
+         &lt;Code ID="AC_SaCategory_UNK" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_SaCategory.xml">UNK&lt;/Code>
+         &lt;Code ID="AC_SaCategory_HER" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_SaCategory.xml">HER&lt;/Code>
+         &lt;Code ID="AC_SaCategory_MAC" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_SaCategory.xml">MAC&lt;/Code>
+      &lt;/SaCategory>
+      &lt;Type>
+         &lt;Code ID="AC_AcousticDataType_C" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_AcousticDataType.xml">C&lt;/Code>
+      &lt;/Type>
+      &lt;Unit>
+         &lt;Code ID="AC_DataUnit_m2nmi-2" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_DataUnit.xml">m2nmi-2&lt;/Code>
+      &lt;/Unit>
+      &lt;TransducerLocation>
+         &lt;Code ID="AC_TransducerLocation_AB" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_TransducerLocation.xml">AB&lt;/Code>
+      &lt;/TransducerLocation>
+      &lt;TransducerBeamType>
+         &lt;Code ID="AC_TransducerBeamType_S2" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_TransducerBeamType.xml">S2&lt;/Code>
+      &lt;/TransducerBeamType>
+      &lt;AcquisitionMethod>
+         &lt;Code ID="AC_AcquisitionMethod_SS" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_AcquisitionMethod.xml">SS&lt;/Code>
+      &lt;/AcquisitionMethod>
+      &lt;ProcessingMethod>
+         &lt;Code ID="AC_ProcessingMethod_calibration.exe" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_ProcessingMethod.xml">calibration.exe&lt;/Code>
+      &lt;/ProcessingMethod>
+      &lt;DataAcquisitionSoftwareName>
+         &lt;Code ID="AC_DataAcquisitionSoftwareName_ER60" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_DataAcquisitionSoftwareName.xml">ER60&lt;/Code>
+      &lt;/DataAcquisitionSoftwareName>
+      &lt;StoredDataFormat>
+         &lt;Code ID="AC_StoredDataFormat_RAW" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_StoredDataFormat.xml">RAW&lt;/Code>
+      &lt;/StoredDataFormat>
+      &lt;DataProcessingSoftwareName>
+         &lt;Code ID="AC_DataProcessingSoftwareName_LSSS" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_DataProcessingSoftwareName.xml">LSSS&lt;/Code>
+      &lt;/DataProcessingSoftwareName>
+      &lt;TriwaveCorrection>
+         &lt;Code ID="AC_TriwaveCorrection_NA" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_TriwaveCorrection.xml">NA&lt;/Code>
+      &lt;/TriwaveCorrection>
+      &lt;OnAxisGainUnit>
+         &lt;Code ID="AC_OnAxisGainUnit_dB" CodeType="https://acoustic.ices.dk/Services/Schema/XML/AC_OnAxisGainUnit.xml">dB&lt;/Code>
+      &lt;/OnAxisGainUnit>
+   &lt;/Vocabulary>
+   &lt;Cruise>
+      &lt;Survey>
+         &lt;Code IDREF="AC_Survey_NORHERSS"/>
+      &lt;/Survey>
+      &lt;Country IDREF="ISO_3166_NO"/>
+      &lt;Platform IDREF="SHIPC_58GS"/>
+      &lt;StartDate>2005-11-18&lt;/StartDate>
+      &lt;EndDate>2005-11-18&lt;/EndDate>
+      &lt;Organisation IDREF="EDMO_1351"/>
+      &lt;LocalID>578-4174-2005114&lt;/LocalID>
+      &lt;Log>
+         &lt;Distance>3198&lt;/Distance>
+         &lt;Time>2005-11-18 06:26:20&lt;/Time>
+         &lt;Latitude>60.66341&lt;/Latitude>
+         &lt;Longitude>3.0676317&lt;/Longitude>
+         &lt;Origin IDREF="AC_LogOrigin_start"/>
+         &lt;Latitude2>60.663647&lt;/Latitude2>
+         &lt;Longitude2>3.1015596&lt;/Longitude2>
+         &lt;Origin2 IDREF="AC_LogOrigin_end"/>
+         &lt;Validity IDREF="AC_LogValidity_V"/>
+         &lt;BottomDepth>188.9586&lt;/BottomDepth>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>10&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>20&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>1.1412498&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.64286494&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.035955034&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>20&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>30&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>1.0857967&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.611628&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.034207974&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>30&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>40&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.46635234&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.2626959&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.0146924155&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>40&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>50&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.3466319&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.19525743&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.010920624&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>50&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>60&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.35481644&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.19986773&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.011178476&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>60&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>70&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.47772557&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.26910228&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.015050728&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>70&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>80&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.84875053&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.47810033&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.026739858&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>80&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>90&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>1.7792958&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>1.0022753&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.056056645&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>90&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>100&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>2.5089662&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>1.796604&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.079046555&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>100&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>110&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>27.440828&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>367.82492&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.8660774&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>110&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>120&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>48.462383&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>2070.5938&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>1.5358229&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>120&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>130&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>14.854099&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>2028.3091&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.47689155&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>130&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>140&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>38.47036&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>497.7609&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>1.2141081&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>140&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>150&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>17.417744&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>43.645912&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.5488946&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>150&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>160&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>3.0883713&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>1.7396764&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.09729902&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>160&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>170&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>6.4442186&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>3.6300206&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.2030249&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>170&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>180&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>11.0806265&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>6.241702&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.3490947&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>180&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>190&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>26.870651&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>15.136212&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.84655887&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>190&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>200&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>86.9994&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>49.00664&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>2.7409134&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+         &lt;Sample>
+            &lt;ChannelDepthUpper>200&lt;/ChannelDepthUpper>
+            &lt;ChannelDepthLower>210&lt;/ChannelDepthLower>
+            &lt;PingAxisInterval>1&lt;/PingAxisInterval>
+            &lt;PingAxisIntervalType IDREF="AC_PingAxisIntervalType_distance"/>
+            &lt;PingAxisIntervalUnit IDREF="AC_PingAxisIntervalUnit_nmi"/>
+            &lt;SvThreshold>-82&lt;/SvThreshold>
+            &lt;Instrument IDREF="ID_F38"/>
+            &lt;Calibration IDREF="C0"/>
+            &lt;DataAcquisition IDREF="DA0"/>
+            &lt;DataProcessing IDREF="DP38"/>
+            &lt;PingAxisIntervalOrigin IDREF="AC_PingAxisIntervalOrigin_start"/>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_UNK"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>1.5802449&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.8901502&lt;/Value>
+            &lt;/Data>
+            &lt;Data>
+               &lt;SaCategory IDREF="AC_SaCategory_MAC"/>
+               &lt;Type IDREF="AC_AcousticDataType_C"/>
+               &lt;Unit IDREF="AC_DataUnit_m2nmi-2"/>
+               &lt;Value>0.049785554&lt;/Value>
+            &lt;/Data>
+         &lt;/Sample>
+      &lt;/Log>
+   &lt;/Cruise>
+&lt;/Acoustic>
+</pre>
+<br>
+<br>
+
+
+<h3 id="PrintFormat26">Print format 26</h3>
+<p>
+   Printed in native resolution only. Same as <a href="#PrintFormat25">Print format 25</a>,
+   but using the <a href="../../../Database/Tables/AcousticCategory.html">AcousticCategory</a> numerical code instead of the
+   <a href="https://acoustic.ices.dk/Services/Schema/XML/AC_SaCategory.xml">ICES code</a>.
+</p>
+<p>
+   That should give with ICES species codes in Print format 25 (e.g.):  &lt;SaCategory IDREF="AC_SaCategory_HER"/>
+   and similarly with local (IMR) species codes in Print format 26:     &lt;SaCategory IDREF="AC_SaCategory_12"/>
+</p>
+<br>
+<br>
+
+
+<h3 id="PrintFormat30">Print format 30</h3>
+<pre>
+   Printed in native resolution only. See example below for description of print format.
+</pre>
+<br>
+<strong>Example(1): ListUserFile30__F038000_T2_L3198.1-3199.4__SCHOOL.txt</strong>
+<pre>
+% Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 1.7.0
+% Export time: Tue Oct 30 14:18:30 CET 2012, LSSS version 1.7.0
+%
+% Compact printout sorted by object-number. A school is an object, and also the echogram visible when storing
+% Nation: Norway(578);  Platform: G.O.Sars(4174);
+% Survey: MACKEREL2005 (2005114);
+% Description: Acoustic investigations of mackerel in the North Sea;
+% Frequency: 38000[Hz];  Transceiver: 2[-];
+%
+% Object[-],Date[yyyymmdd],Time[hhmmssxx],StartLog[nmi],StopLog[nmi],Latitude[deg],Longitude[deg],Depth[m],sA_species1[m2/nmi2],...,Total[m2/nmi2], ...
+Object,Date,Time,StartLog,StopLog,Latitude,Longitude,Depth,MACKE,HERR,Pe/La,OTHER,PLANK,Total
+61,20051118,6335006,3199.35010,3199.40015,60.66367,3.11337,211.66,347.46,0.00,0.00,0.00,0.00,347.46
+61,20051118,6340706,3199.39990,3199.44995,60.66369,3.11508,212.52,7170.29,0.00,0.00,0.00,0.00,7170.29
+62,20051118,6353206,3199.64990,3199.69995,60.66378,3.12357,217.13,465.03,0.00,0.00,0.00,0.00,465.03
+62,20051118,6354806,3199.69702,3199.74707,60.66380,3.12517,216.33,6190.70,0.00,0.00,0.00,0.00,6190.70
+63,20051118,6271006,3198.14990,3198.19995,60.66347,3.07269,191.13,0.00,228.60,0.00,0.00,0.00,228.60
+63,20051118,6272706,3198.19995,3198.25000,60.66348,3.07439,191.81,0.00,20688.93,0.00,0.00,0.00,20688.93
+63,20051118,6274306,3198.24707,3198.29712,60.66349,3.07601,192.80,0.00,27367.08,0.00,0.00,0.00,27367.08
+63,20051118,6280106,3198.30005,3198.35010,60.66351,3.07784,194.03,0.00,10868.07,0.00,0.00,0.00,10868.07
+63,20051118,6281706,3198.35010,3198.40015,60.66352,3.07946,194.95,0.00,5633.10,0.00,0.00,0.00,5633.10
+63,20051118,6283406,3198.39746,3198.44751,60.66354,3.08118,195.29,0.00,4038.08,0.00,0.00,0.00,4038.08
+63,20051118,6285106,3198.44995,3198.50000,60.66357,3.08291,195.77,0.00,4272.90,0.00,0.00,0.00,4272.90
+63,20051118,6290706,3198.50000,3198.55005,60.66356,3.08455,197.38,0.00,10775.00,0.00,0.00,0.00,10775.00
+63,20051118,6292406,3198.54858,3198.59863,60.66357,3.08627,198.81,0.00,11825.12,0.00,0.00,0.00,11825.12
+63,20051118,6294106,3198.60010,3198.65015,60.66359,3.08801,198.53,0.00,2653.61,0.00,0.00,0.00,2653.61
+64,20051118,6324306,3199.14844,3199.19849,60.66369,3.10656,208.05,0.00,8437.97,0.00,0.00,0.00,8437.97
+64,20051118,6330006,3199.19995,3199.25000,60.66368,3.10831,209.05,0.00,18611.03,0.00,0.00,0.00,18611.03
+64,20051118,6331706,3199.25000,3199.30005,60.66371,3.11004,209.97,0.00,20000.58,0.00,0.00,0.00,20000.58
+64,20051118,6333306,3199.29736,3199.34741,60.66370,3.11166,211.05,0.00,145505.56,0.00,0.00,0.00,145505.56
+64,20051118,6335006,3199.35010,3199.40015,60.66367,3.11337,211.66,0.00,7706.23,0.00,0.00,0.00,7706.23
+</pre>
+<br>
+<br>
+<strong>Example(2): ListUserFile30__F200000_T5_L3198.1-3199.4__SCHOOL.txt</strong>
+<pre>
+% Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 1.7.0
+% Export time: Tue Oct 30 14:18:31 CET 2012, LSSS version 1.7.0
+%
+% Compact printout sorted by object-number. A school is an object, and also the echogram visible when storing
+% Nation: Norway(578);  Platform: G.O.Sars(4174);
+% Survey: MACKEREL2005 (2005114);
+% Description: Acoustic investigations of mackerel in the North Sea;
+% Frequency: 200000[Hz];  Transceiver: 5[-];
+%
+% Object[-],Date[yyyymmdd],Time[hhmmssxx],StartLog[nmi],StopLog[nmi],Latitude[deg],Longitude[deg],Depth[m],sA_species1[m2/nmi2],...,Total[m2/nmi2], ...
+Object,Date,Time,StartLog,StopLog,Latitude,Longitude,Depth,MACKE,HERR,Pe/La,OTHER,PLANK,Total
+61,20051118,6335006,3199.35010,3199.40015,60.66367,3.11337,211.66,1357.83,0.00,0.00,0.00,0.00,1357.83
+61,20051118,6340706,3199.39990,3199.44995,60.66369,3.11508,212.52,22855.18,0.00,0.00,0.00,0.00,22855.18
+62,20051118,6353206,3199.64990,3199.69995,60.66378,3.12357,217.13,2166.80,0.00,0.00,0.00,0.00,2166.80
+62,20051118,6354806,3199.69702,3199.74707,60.66380,3.12517,216.33,22823.38,0.00,0.00,0.00,0.00,22823.38
+63,20051118,6271006,3198.14990,3198.19995,60.66347,3.07269,191.13,0.00,146.95,0.00,0.00,0.00,146.95
+63,20051118,6272706,3198.19995,3198.25000,60.66348,3.07439,191.81,0.00,9162.43,0.00,0.00,0.00,9162.43
+63,20051118,6274306,3198.24707,3198.29712,60.66349,3.07601,192.80,0.00,12592.55,0.00,0.00,0.00,12592.55
+63,20051118,6280106,3198.30005,3198.35010,60.66351,3.07784,194.03,0.00,4403.77,0.00,0.00,0.00,4403.77
+63,20051118,6281706,3198.35010,3198.40015,60.66352,3.07946,194.95,0.00,2475.70,0.00,0.00,0.00,2475.70
+63,20051118,6283406,3198.39746,3198.44751,60.66354,3.08118,195.29,0.00,1730.74,0.00,0.00,0.00,1730.74
+63,20051118,6285106,3198.44995,3198.50000,60.66357,3.08291,195.77,0.00,1922.91,0.00,0.00,0.00,1922.91
+63,20051118,6290706,3198.50000,3198.55005,60.66356,3.08455,197.38,0.00,4391.66,0.00,0.00,0.00,4391.66
+63,20051118,6292406,3198.54858,3198.59863,60.66357,3.08627,198.81,0.00,4845.13,0.00,0.00,0.00,4845.13
+63,20051118,6294106,3198.60010,3198.65015,60.66359,3.08801,198.53,0.00,1152.91,0.00,0.00,0.00,1152.91
+64,20051118,6324306,3199.14844,3199.19849,60.66369,3.10656,208.05,0.00,7701.72,0.00,0.00,0.00,7701.72
+64,20051118,6330006,3199.19995,3199.25000,60.66368,3.10831,209.05,0.00,18424.60,0.00,0.00,0.00,18424.60
+64,20051118,6331706,3199.25000,3199.30005,60.66371,3.11004,209.97,0.00,17378.00,0.00,0.00,0.00,17378.00
+64,20051118,6333306,3199.29736,3199.34741,60.66370,3.11166,211.05,0.00,58701.35,0.00,0.00,0.00,58701.35
+64,20051118,6335006,3199.35010,3199.40015,60.66367,3.11337,211.66,0.00,5063.31,0.00,0.00,0.00,5063.31
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat31">Print format 31</h3>
+<pre>
+   Printed in native resolution only. See example below for description of print format.
+</pre>
+<br>
+<strong>Example: ListUserFile31__F038000_T2_L3198.4-3198.6_MACKE_SCHOOL.txt</strong>
+<pre>
+% Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 1.7.0
+% Export time: Fri Nov 02 16:26:33 CET 2012, LSSS version 1.7.0
+%
+% Compact printout sorted by object-number. A school is an object, and also the echogram visible when storing
+% Nation: Norway(578);  Platform: G.O.Sars(4174);
+% Survey: MACKEREL2005 (2005114);
+% Description: Acoustic investigations of mackerel in the North Sea;
+% Frequency: 18000[Hz];  Transceiver: 1[-];
+%
+% Survey[-],Nation[-],Platform[-],Object[-],Date[yyyymmdd],Time[hhmmssxx],StartLog[nmi],StopLog[nmi],Latitude[deg],Longitude[deg],MinBottomDepth[m],MaxBottomDepth[m],Frequency[Hz],Transceiver[-],Threshold[dB],AcousticCategory[-]
+% ChannelThickness[m],MaxPelagicChannel[-],sA_Ch0,sA_Ch1,sA_Ch2,...
+% ChannelThickness[m],MaxBottomChannel[-],sA_Ch0,sA_Ch1,sA_Ch2,...
+2005114,578,4174,61,20051118,6335006,3199.35010,3199.40015,60.66367,3.11337,211.214,212.106,18000,1,-82.000,21,
+5.000,27,543.685,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,31.738,270.667,236.001,5.279
+0.000,0,0.000
+2005114,578,4174,61,20051118,6340706,3199.39990,3199.44995,60.66369,3.11508,212.020,213.022,18000,1,-82.000,21,
+5.000,29,9480.824,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,30.568,327.474,1585.361,2089.092,2932.535,1909.484,606.310
+0.000,0,0.000
+2005114,578,4174,62,20051118,6353206,3199.64990,3199.69995,60.66378,3.12357,216.722,217.537,18000,1,-82.000,21,
+5.000,26,568.802,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,14.084,65.022,218.278,213.183,58.235
+0.000,0,0.000
+2005114,578,4174,62,20051118,6354806,3199.69702,3199.74707,60.66380,3.12517,215.798,216.869,18000,1,-82.000,21,
+5.000,33,7664.604,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,8.761,44.205,149.445,512.519,837.492,1358.289,1568.148,876.607,881.355,944.022,365.675,118.089
+0.000,0,0.000
+2005114,578,4174,63,20051118,6271006,3198.14990,3198.19995,60.66347,3.07269,190.724,191.542,18000,1,-82.000,21,
+5.000,27,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000
+0.000,0,0.000
+2005114,578,4174,63,20051118,6272706,3198.19995,3198.25000,60.66348,3.07439,191.474,192.154,18000,1,-82.000,21,
+5.000,27,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000
+0.000,0,0.000
+2005114,578,4174,63,20051118,6274306,3198.24707,3198.29712,60.66349,3.07601,192.187,193.404,18000,1,-82.000,21,
+5.000,27,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000
+0.000,0,0.000
+2005114,578,4174,63,20051118,6280106,3198.30005,3198.35010,60.66351,3.07784,193.374,194.685,18000,1,-82.000,21,
+5.000,27,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000
+0.000,0,0.000
+2005114,578,4174,63,20051118,6281706,3198.35010,3198.40015,60.66352,3.07946,194.560,195.342,18000,1,-82.000,21,
+5.000,27,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000
+0.000,0,0.000
+2005114,578,4174,63,20051118,6283406,3198.39746,3198.44751,60.66354,3.08118,195.177,195.406,18000,1,-82.000,21,
+5.000,26,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000
+0.000,0,0.000
+2005114,578,4174,63,20051118,6285106,3198.44995,3198.50000,60.66357,3.08291,195.228,196.314,18000,1,-82.000,21,
+5.000,28,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000
+0.000,0,0.000
+2005114,578,4174,63,20051118,6290706,3198.50000,3198.55005,60.66356,3.08455,196.446,198.313,18000,1,-82.000,21,
+5.000,29,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000
+0.000,0,0.000
+2005114,578,4174,63,20051118,6292406,3198.54858,3198.59863,60.66357,3.08627,198.353,199.261,18000,1,-82.000,21,
+5.000,30,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000
+0.000,0,0.000
+2005114,578,4174,63,20051118,6294106,3198.60010,3198.65015,60.66359,3.08801,197.913,199.142,18000,1,-82.000,21,
+5.000,29,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000
+0.000,0,0.000
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat32">Print format 32</h3>
+<pre>
+   Printed in native resolution only. See example below for description of print format.
+</pre>
+<br>
+<strong>Example: ListUserFile32_____(todo)_____.txt</strong>
+<pre>
+% Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 2.13.0
+% Export time: Fri Nov 02 16:26:33 CET 2012, LSSS version 2.13.0
+%
+% Compact printout sorted by object-number. A school is an object, and also the echogram visible when storing
+% Nation: Norway(578);  Platform: G.O.Sars(4174);
+% Survey: MACKEREL2005 (2005114);
+% Description: Acoustic investigations of mackerel in the North Sea;
+% Frequency: 18000[Hz];  Transceiver: 1[-];
+%
+% Survey[-],Nation[-],Platform[-],Object[-],Date[yyyymmdd],Time[hhmmssxx],StartLog[nmi],StopLog[nmi],Latitude[deg],Longitude[deg],Frequency[Hz],Transceiver[-],Threshold[dB],AcousticCategory[-], ChannelThickness[m],MaxPelagicChannel[-],sA_Ch0,sA_Ch1,sA_Ch2,...
+%
+2005114,578,4174,61,20051118,6335006,3199.35010,3199.40015,60.66367,3.11337,18000,1,-82.000,21,5.000,27,543.685,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,31.738,270.667,236.001,5.279
+0.000,0,0.000
+</pre>
+<br>
+<br>
+
+<h3 id="PrintFormat40">Print format 40</h3>
+<pre>
+   Printed in native resolution only. See example below for description of print format.
+</pre>
+<br>
+<strong>Example: ListUserFile40_F38000_T2_PELAGIC.txt</strong>
+<pre>
+% Lines starting with % are comments
+% The format of and definitions in this file may change in future versions of LSSS, last changed in LSSS version 2.7.0
+% Export time: Thu Aug 22 23:59:32 CEST 2019, LSSS version 2.7.0
+%
+% SHIP: G.O.Sars, NATION: Norway, SURVEY: 2019107, FREQUENCY: 38000 [Hz], TRANSCEIVER: 2
+% DistanceInterval: 1.0 [nmi], Count: 3123
+%
+AcCat,sA_Tot,sA_Ch1,sA_Ch2,sA_Ch3,sA_Ch4,sA_Ch5,sA_Ch6,sA_Ch7,sA_Ch8,sA_Ch9,sA_Ch10,sA_Ch11,sA_Ch12,sA_Ch13,sA_Ch14,sA_Ch15,sA_Ch16,sA_Ch17,sA_Ch18,sA_Ch19,sA_Ch20,sA_Ch21,sA_Ch22,sA_Ch23,sA_Ch24,sA_Ch25,sA_Ch26,sA_Ch27,sA_Ch28,sA_Ch29,sA_Ch30,sA_Ch31,sA_Ch32,sA_Ch33,sA_Ch34,sA_Ch35,sA_Ch36,sA_Ch37,sA_Ch38,sA_Ch39,sA_Ch40,sA_Ch41,sA_Ch42,sA_Ch43,sA_Ch44,sA_Ch45,sA_Ch46,sA_Ch47,sA_Ch48,sA_Ch49,sA_Ch50,sA_Ch51
+ANDRE,111085.164000,0.000000,0.000102,0.000009,0.000000,0.000000,0.000123,0.000000,0.000000,0.000009,0.000372,0.006248,2.419131,12.319082,5.596155,9.469315,20.336456,52.023636,92.963638,138.731232,234.805847,357.154388,731.550110,541.035217,795.321045,1724.348750,2049.188230,2801.372070,3174.724370,4926.963870,5340.932130,7300.289060,6159.503910,5091.631840,5294.655270,5398.096680,5882.850590,5986.718750,5797.272950,5766.607910,5663.797360,5367.282230,5549.080080,5102.873050,4412.771970,3667.100100,2856.977780,1371.146850,693.503906,403.843445,305.869171,2.009822
+PLANK,143899.391000,0.000000,5566.679690,29548.652300,11910.333000,2032.400510,1747.757200,2686.395750,720.446045,303.583435,719.815613,495.553802,154.320892,822.419250,339.646545,2037.562620,1249.877320,870.421265,655.558350,1149.974850,1207.227540,1616.126220,1271.721190,3319.391850,3505.242430,2828.086910,1125.130860,1285.710330,1885.295780,1813.191650,3451.862550,4425.509770,5651.163570,4523.294920,4618.163090,4334.197750,4412.895510,5311.936520,4843.703130,3969.156010,3193.695800,4474.225590,5022.203130,2327.926760,333.363525,98.951096,28.508534,4.769190,1.486929,3.750895,0.000000,0.000000
+SILD,318787.531000,0.000000,47353.210900,108834.297000,75435.453100,32686.634800,9674.352540,3269.137700,1017.088200,417.994965,320.926361,255.973816,176.175491,117.895973,103.353287,96.094299,83.939056,98.565338,116.766220,99.558632,94.155327,112.394485,61.836365,34.068680,29.794071,44.153915,134.504852,181.650070,125.702766,150.506500,200.246597,303.673401,474.197205,688.946655,928.800720,1225.795900,1699.688840,1924.259890,2157.543460,2273.673100,2473.092530,2718.253910,2739.715330,2646.899660,2727.955570,2690.782470,2460.707280,2221.345460,2091.163820,1917.067500,1096.692140,0.441512
+KOLMU,430010.250000,0.000000,47.026810,52.632694,55.686787,959.696350,1594.549930,1965.633300,2579.606930,3112.645750,3751.330570,4966.938960,6164.854490,6722.967290,5988.433590,5302.942870,4961.010740,5062.642090,4987.315920,4697.131350,4126.979490,3865.508790,3645.333500,3531.890630,3780.677000,4655.360840,5208.614750,5335.660640,5983.569820,7126.531740,8443.703130,10021.575200,11080.981400,12302.138700,13583.123000,14684.785200,15350.148400,17109.675800,18257.738300,19639.710900,20033.943400,19514.828100,19648.054700,19481.181600,18677.794900,17565.822300,16222.537100,14943.819300,13150.491200,11422.019500,8549.288090,93.825470
+ME/PL,2408.619630,0.000000,0.000000,0.000000,0.000000,0.000000,1.054155,6.831719,75.063423,168.655762,176.992432,190.842010,284.996063,267.749420,169.843719,88.807388,65.597595,58.174511,106.312744,69.136971,59.698914,60.157486,54.415230,47.756062,37.224423,27.802166,33.734837,38.557842,47.749046,49.812100,50.186222,44.922443,36.343540,26.319225,23.246025,19.873339,13.929356,5.976063,0.857195,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000
+MESFI,47284.773400,0.000000,814.449768,3068.209960,3553.281010,5340.207030,4346.755860,2344.676760,1290.562380,259.598511,601.596985,389.849426,684.278564,450.827972,667.744873,543.350037,870.781067,1119.847170,2285.596190,1354.375730,1354.316160,1689.914310,1322.693120,1337.243650,6184.823240,1391.080320,965.032166,318.384186,261.697937,505.166321,273.741730,193.913086,166.187027,178.139862,179.215088,184.531616,148.038757,116.850662,104.911720,71.177078,82.486359,83.755615,74.490868,57.506420,28.091478,6.647270,4.535919,4.591171,3.846088,3.703660,2.045388,0.000000
+</pre>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../../../Database/Database.html">Database</a><br>
+   <a href="../../../Database/Tables/Observation.html">Observation</a><br>
+   <a href="../../../Database/Tables/ObservationType.html">ObservationType</a><br>
+   <a href="../../../Database/Tables/Scatter.html">Scatter</a><br>
+   <a href="../../../Database/Tables/ScatterType.html">ScatterType</a><br>
+   <a href="../../../Database/Tables/ScatterData.html">ScatterData</a><br>
+   <a href="../../../Database/Tables/ObservationType.html">ObservationType</a><br>
+</p>

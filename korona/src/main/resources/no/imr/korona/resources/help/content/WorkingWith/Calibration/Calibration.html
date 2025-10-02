@@ -1,0 +1,194 @@
+<h1>Calibration</h1>
+<p>
+   Calibration of data is done if a file named "calibration.xml" exists in the same directory as the raw data files.
+</p>
+
+<h2 id="SimpleExample">Simple example</h2>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;calibration>
+   &lt;default g="26.5" SA="64:-0.49, 128:-0.71, 256:-0.58, 512:-0.77,  1024:-0.66, 2048:-0.42, 4096:-0.35, 8192:-0.35"/>
+   &lt;case channel="1" kHz="18" g="22.4" SA="512:-0.59, 1024:-0.65, 2048:-0.45, 4096:-0.4,  8192:-0.35"/>
+   &lt;case channel="2" kHz="38" g="26.5" SA="256:-0.58, 512:-0.77,  1024:-0.66, 2048:-0.42, 4096:-0.35"/>
+   &lt;case channel="3" kHz="70" g="27.0" SA="128:-0.88, 256:-0.82,  512:-0.53,  1024:-0.39, 2048:-0.41"/>
+   &lt;case channel="4" kHz="120" g="27.0" SA="64:-0.49, 128:-0.71,  256:-0.66,  512:-0.41,  1024:-0.32"/>
+   &lt;case channel="5" kHz="200" g="27.0" SA="64:-0.66, 128:-0.76,  256:-0.38,  512:-0.32,  1024:-0.29"/>
+   &lt;case channel="6" kHz="333" g="27.0" SA="64:-0.50, 128:-0.70,  256:-0.35,  512:-0.30,  1024:-0.30"/>
+&lt;/calibration>
+</pre>
+<p>
+   If the default element is present, then it will apply to all channels without a separate case element.
+   If a separate case element is specified for a channel, then none of the information from the default element is used.
+</p>
+<p>
+   At least one of the attributes 'id' and 'channel' must be specified. All other attributes are optional.
+</p>
+<p>
+   If an actual transducer configuration in a data file for a specified 'id' or 'channel'
+   does not match all the values specified for 'id', 'channel' and 'kHz' then a warning is given
+   and the calibration is not applied.
+</p>
+<table class="marec-table">
+   <tr>
+      <th>Attribute</th>
+      <th>Unit</th>
+      <th>Description</th>
+   </tr>
+   <tr>
+      <td>id</td>
+      <td></td>
+      <td>The channel id</td>
+   </tr>
+   <tr>
+      <td>channel</td>
+      <td></td>
+      <td>The channel number</td>
+   </tr>
+   <tr>
+      <td>kHz</td>
+      <td>kHz</td>
+      <td>The frequency in kHz</td>
+   </tr>
+   <tr>
+      <td>g</td>
+      <td>dB</td>
+      <td>New value for gain</td>
+   </tr>
+   <tr>
+      <td>SA</td>
+      <td>μs:dB</td>
+      <td>New values of the sa correction table given as a comma separated list mapping
+         from pulse length (in microseconds) to sa correction
+      </td>
+   </tr>
+   <tr>
+      <td>abs</td>
+      <td>dB/m</td>
+      <td>Absorption coefficient</td>
+   </tr>
+   <tr>
+      <td>sound</td>
+      <td>m/s</td>
+      <td>Sound velocity</td>
+   </tr>
+   <tr>
+      <td>equivalentBeamAngle</td>
+      <td>dB</td>
+      <td>Equivalent beam angle</td>
+   </tr>
+   <tr>
+      <td>beamWidthAlong</td>
+      <td>deg</td>
+      <td>Beam width alongship</td>
+   </tr>
+   <tr>
+      <td>beamWidthAthwart</td>
+      <td>deg</td>
+      <td>Beam width athwartship</td>
+   </tr>
+   <tr>
+      <td>angleOffsetAlong</td>
+      <td>deg</td>
+      <td>Angle offset alongship</td>
+   </tr>
+   <tr>
+      <td>angleOffsetAthwart</td>
+      <td>deg</td>
+      <td>Angle offset athwartship</td>
+   </tr>
+</table>
+
+<h2 id="AllAttributes">Example with all attributes</h2>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;calibration>
+   &lt;case id="GPT  18 kHz 009072033fb1 5 ES18-11" channel="1" kHz="18" g="22.28" equivalentBeamAngle="-17.3" beamWidthAlong="10.66" beamWidthAthwart="10.58" angleOffsetAlong="-0.13" angleOffsetAthwart="-0.21" SA="512:-0.59, 1024:-0.65, 2048:-0.45, 4096:-0.4, 8192:-0.35" abs="0.0022000852" sound="1493.6"/>
+   &lt;case id="GPT  38 kHz 009072034687 6 ES38B" channel="2" kHz="38" g="25.54" equivalentBeamAngle="-20.8" beamWidthAlong="7.01" beamWidthAthwart="7.01" angleOffsetAlong="-0.15" angleOffsetAthwart="-0.07" SA="256:-0.58, 512:-0.77, 1024:-0.66, 2048:-0.42, 4096:-0.35" abs="0.008319035" sound="1493.6"/>
+   &lt;case id="GPT  70 kHz 009072033fb3 1 ES70-7C" channel="3" kHz="70" g="26.77" equivalentBeamAngle="-20.6" beamWidthAlong="6.47" beamWidthAthwart="6.55" angleOffsetAlong="-0.02" angleOffsetAthwart="-0.1" SA="128:-0.88, 256:-0.82, 512:-0.53, 1024:-0.39, 2048:-0.41" abs="0.020728815" sound="1493.6"/>
+   &lt;case id="GPT 120 kHz 009072033fdc 2 ES120-7C" channel="4" kHz="120" g="26.81" equivalentBeamAngle="-21" beamWidthAlong="6.39" beamWidthAthwart="6.4" angleOffsetAlong="-0.13" angleOffsetAthwart="0.01" SA="64:-0.49, 128:-0.71, 256:-0.6, 512:-0.41, 1024:-0.32" abs="0.036459964" sound="1493.6"/>
+   &lt;case id="GPT 200 kHz 00907203465b 3 ES200-7C" channel="5" kHz="200" g="26.84" equivalentBeamAngle="-20.5" beamWidthAlong="6.41" beamWidthAthwart="6.58" angleOffsetAlong="-0.16" angleOffsetAthwart="-0.09" SA="64:-0.66, 128:-0.76, 256:-0.38, 512:-0.32, 1024:-0.29" abs="0.052974265" sound="1493.6"/>
+   &lt;case id="GPT 364 kHz 009072055b99 4 ES400-7C" channel="6" kHz="364" g="25.05" equivalentBeamAngle="-20.43" beamWidthAlong="6.15" beamWidthAthwart="6.66" angleOffsetAlong="-0.33" angleOffsetAthwart="-0.03" SA="64:-0.4, 128:-0.4, 256:-0.4, 512:-0.4, 1024:-0.31" abs="0.08423309" sound="1493.6"/>
+&lt;/calibration>
+</pre>
+
+<h2 id="MultipleTimeIntervals">Example with multiple time intervals</h2>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;calibration>
+   &lt;calibration begin="2010-01-01T12:00:00Z" end="2010-02-01T12:00:00Z">
+      &lt;case channel="1" kHz="18" g="22.4" SA="512:-0.59, 1024:-0.65, 2048:-0.45, 4096:-0.4,  8192:-0.35"/>
+      &lt;case channel="2" kHz="38" g="26.5" SA="256:-0.58, 512:-0.77,  1024:-0.66, 2048:-0.42, 4096:-0.35"/>
+   &lt;/calibration>
+   &lt;calibration begin="2010-03-01T12:00:00Z" end="2010-04-01T12:00:00Z">
+      &lt;case channel="1" kHz="18" g="22.4" SA="512:-0.59, 1024:-0.65, 2048:-0.45, 4096:-0.4,  8192:-0.35"/>
+      &lt;case channel="2" kHz="38" g="26.5" SA="256:-0.58, 512:-0.77,  1024:-0.66, 2048:-0.42, 4096:-0.35"/>
+   &lt;/calibration>
+&lt;/calibration>
+</pre>
+<p>
+   The calibration element can have multiple nested calibration elements specifying begin and end times.
+   The times are specified in UTC using the format
+   <code>YYYY-MM-DDThh:mm:ssZ</code>
+   in accordance with <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a>.
+</p>
+<p>
+   If the <em>begin</em> time is omitted, it is taken to mean since the beginning of time.<br>
+   If the <em>end</em> time is omitted, it is taken to mean to the end of time.
+</p>
+<p>
+   <strong>NB!</strong> Note that the calibration element matching the time of the <a href="../../Datagrams/Con0Datagram.html">CON0 datagram</a>
+   will be used for the entire data file. This means that even if the time of a ping matches a different calibration element, then
+   the calibration element matching the time of CON0 datagram will be used.
+</p>
+<p>
+   <strong>NB!</strong> Note that if the time matches the interval of a nested calibration element, then <em>only</em> that element is used.
+   Specifically, top level default and case elements and not merged with those of a nested element.
+   In the example below, only channel 2 will be modified between 2010-01-01T12:00:00Z and 2010-02-01T12:00:00Z,
+   as the top level default and case elements do not apply.
+</p>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;calibration>
+   &lt;default g="26.5" SA="64:-0.49, 128:-0.71, 256:-0.58, 512:-0.77,  1024:-0.66, 2048:-0.42, 4096:-0.35, 8192:-0.35"/>
+   &lt;case channel="1" kHz="18" g="22.4" SA="512:-0.59, 1024:-0.65, 2048:-0.45, 4096:-0.4,  8192:-0.35"/>
+   &lt;calibration begin="2010-01-01T12:00:00Z" end="2010-02-01T12:00:00Z">
+      &lt;case channel="2" kHz="38" g="26.5" SA="256:-0.58, 512:-0.77,  1024:-0.66, 2048:-0.42, 4096:-0.35"/>
+   &lt;/calibration>
+&lt;/calibration>
+</pre>
+<p>
+   In fact, the above example is equivalent to
+</p>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;calibration>
+   &lt;calibration>
+      &lt;default g="26.5" SA="64:-0.49, 128:-0.71, 256:-0.58, 512:-0.77,  1024:-0.66, 2048:-0.42, 4096:-0.35, 8192:-0.35"/>
+      &lt;case channel="1" kHz="18" g="22.4" SA="512:-0.59, 1024:-0.65, 2048:-0.45, 4096:-0.4,  8192:-0.35"/>
+   &lt;/calibration>
+   &lt;calibration begin="2010-01-01T12:00:00Z" end="2010-02-01T12:00:00Z">
+      &lt;case channel="2" kHz="38" g="26.5" SA="256:-0.58, 512:-0.77,  1024:-0.66, 2048:-0.42, 4096:-0.35"/>
+   &lt;/calibration>
+&lt;/calibration>
+</pre>
+
+<h2 id="EK80">EK80 calibration</h2>
+<p>
+   An EK80 calibration file can be used by referring to it from "calibration.xml":
+</p>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;calibration refEK80="TrList_calibration.xml"/>
+</pre>
+<p>
+   The value of the 'refEK80' attribute is the path to the EK80 calibration file.
+   The path can be absolute or relative to the directory containing "calibration.xml".
+</p>
+<p>
+   If an EK80 calibration file is specified, then only that file is used.
+   Any content within the 'calibration' element is ignored.
+</p>
+<p>
+   The channels in the EK80 calibration file are identified by transducer name and serial number.
+   The calibration is applied to channels in the actual data files only for matching transducer name and serial number.
+</p>

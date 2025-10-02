@@ -1,0 +1,100 @@
+<h1>EK80 broadband data</h1>
+<p>
+   This section contains details about the processing of broadband data produced by the Simrad EK80 echo sounder.
+</p>
+
+<h2 id="Sv">Computation of S<sub>v</sub></h2>
+<p>
+   Let y<sub>i</sub> be the complex sample value of sector i ∈ [1, n].
+   <br>Let y = (1/n) ∑ y<sub>i</sub> be the average value over all sectors and s the (ideal) transmitted chirp signal.
+   <br>Let furthermore y<sub>pc</sub>= y * s̅<sub>-1</sub> be the pulse compressed received signal, where * denotes the convolution of two signals and
+   &macr;<sub>-1</sub> the combined conjugation and time reverse operator.
+   <br>Let p = &kappa;|y<sub>pc</sub>|<sup>2</sup>, with &kappa; = (n / 8) <span style="font-size: x-large;">(</span>
+   (R<sub>wbt,rx</sub> + Z<sub>trd</sub>) / R<sub>wbt,rx</sub><span style="font-size: x-large;">)</span><sup>2</sup> / Z<sub>trd</sub>.
+   <br>Then
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; S<sub>v</sub> = 10 log<sub>10</sub>(p) + C<sub>S<sub>v</sub></sub> + TVG<sub>S<sub>v</sub></sub>
+   <br>where
+   <br>C<sub>S<sub>v</sub></sub> = -2 G<sub>f<sub>c</sub></sub> - Ψ<sub>f<sub>c</sub></sub> - 10 log<sub>10</sub><span style="font-size: x-large;">(</span>
+   (p<sub>tx</sub> λ<sup>2</sup> c τ<sub>eff</sub>) / (32 π<sup>2</sup>) <span style="font-size: x-large;">)</span>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; G<sub>f<sub>c</sub></sub> = Gain at Centre frequency
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; Ψ<sub>f<sub>c</sub></sub> = Equivalent beam angle at Centre frequency
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; p<sub>tx</sub> = Transmit power
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; λ = c / f<sub>c</sub>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; c = Sound speed
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; f<sub>c</sub> = Centre frequency
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; τ<sub>eff</sub> = Effective pulse duration
+   <br>
+   <br>TVG<sub>S<sub>v</sub></sub> = 20 log<sub>10</sub>(r<sub>TVG</sub>) + 2 α r<sub>TVG</sub>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; r<sub>TVG</sub> = Sample range - τ c / 4
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; α = Absorption coefficient
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; τ = Pulse duration
+</p>
+
+<h2 id="TS">Computation of TS</h2>
+<p>
+   The target strength is derived using the following formula
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; TS<sub>u</sub> = 10 log10(p) + C<sub>TS</sub> + TVG<sub>TS</sub>
+   <br>
+   <br> for uncorrected target strength, where
+   <br>C<sub>TS</sub> = -2 G<sub>f<sub>c</sub></sub> - 10 log<sub>10</sub><span style="font-size: x-large;">(</span>
+   (p<sub>tx</sub> λ<sup>2</sup>) / (16 π<sup>2</sup>) <span style="font-size: x-large;">)</span>
+   <br>
+   <br>TVG<sub>TS</sub> = 40 log<sub>10</sub>(r<sub>TVG</sub>) + 2 α r<sub>TVG</sub>
+   <br>and
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; TS<sub>c</sub> = TS<sub>u</sub> + 20 log<sub>10</sub>2 <span style="font-size: x-large;">(</span>&rho;<sub>&xi;</sub> + &rho;<sub>&chi;</sub> - 0.18 &rho;<sub>&xi;</sub> &rho;<sub>&chi;</sub><span
+      style="font-size: x-large;">)</span>
+   <br>for beam position corrected target strength, where
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; &xi; = along angle
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; &chi; = athwart angle
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; &rho;<sub>&xi;</sub> = (2 &xi; / bw<sub>&xi;,f<sub>c</sub></sub>)<sup>2</sup>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; &rho;<sub>&chi;</sub> = (2 &chi; / bw<sub>&chi;,f<sub>c</sub></sub>)<sup>2</sup>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; bw<sub>&xi;,f<sub>c</sub></sub> = along beam width at centre frequency
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; bw<sub>&chi;,f<sub>c</sub></sub> = athwart beam width at centre frequency
+   <br> and remaining symbols as already defined
+</p>
+
+<h2 id="Sv_f">Computation of S<sub>v</sub>(f)</h2>
+<p>
+   Let <span style="font-size: x-large;">(</span>(y<sub>pc</sub>)<sub>ℓ</sub><span style="font-size: x-large;">)</span><sub>ℓ</sub> be a signal segment with ℓ = ℓ<sub>1</sub>,&hellip;,ℓ<sub>m</sub>
+   the sample index of the signal in a single ping.
+   Let furthermore s<sub>pc</sub> be the pulse compressed (or autocorrelated) transmitted chirp signal as above and ℱ the discrete Fourier transform (DFT) operator.
+   <br> Then, the S<sub>v</sub>-spectrum S<sub>v</sub>(f) is computed as follows
+   <br>&nbsp;&nbsp;&nbsp;&nbsp;S<sub>v</sub>(f<sub>k</sub>) = 10 log<sub>10</sub> <span style="font-size: x-large;">(</span> &kappa;|ℱ{y<sub>pc</sub>}<sub>k</sub> /
+   ℱ{s<sub>pc</sub>}<sub>k</sub>|<sup>2</sup><span style="font-size: x-large;">)</span>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - 10 log<sub>10</sub><span style="font-size: x-large;">(</span>
+   (p<sub>tx</sub> c &lambda;<sub>f<sub>k</sub></sub><sup>2</sup>) / (32 π<sup>2</sup>) <span style="font-size: x-large;">)</span>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - 10 log<sub>10</sub>(m T)
+   <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; + 2 r &alpha;<sub>f<sub>k</sub>,d</sub> - 2 G<sub>f<sub>k</sub></sub> - Ψ<sub>f<sub>k</sub></sub>
+   <br>with
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; f<sub>k</sub> = k<sup>th</sup> DFT frequency
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; &lambda;<sub>f<sub>k</sub></sub> = c / f<sub>k</sub>, wavelength
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; T = sampling interval
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; r = range of sample corresponding to signal segment midpoint
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; &alpha;<sub>f<sub>k</sub></sub> = absorption coefficient at f<sub>k</sub>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; G<sub>f<sub>k</sub></sub> = Gain at f<sub>k</sub>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; Ψ<sub>f<sub>k</sub></sub> = Equivalent beam angle at f<sub>k</sub>
+   <br> and remaining symbols as already defined.
+</p>
+
+<h2 id="TS_f">Computation of TS(f)</h2>
+<p>
+   Let <span style="font-size: x-large;">(</span>(y<sub>pc</sub>)<sub>ℓ</sub><span style="font-size: x-large;">)</span><sub>ℓ</sub> again be a signal segment with ℓ = ℓ<sub>1</sub>,&hellip;,ℓ<sub>m</sub>
+   the sample index of the signal in a single ping and s<sub>pc</sub> and ℱ as above.
+   <br> Then, the TS-spectrum TS(f) is computed as follows
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; TS(f<sub>k</sub>) = 10 log<sub>10</sub> <span style="font-size: x-large;">(</span> &kappa;|ℱ{y<sub>pc</sub>}<sub>k</sub> /
+   ℱ{s<sub>pc</sub>}<sub>k</sub>|<sup>2</sup><span style="font-size: x-large;">)</span>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - 10 log<sub>10</sub><span style="font-size: x-large;">(</span>
+   (p<sub>tx</sub> &lambda;<sub>f<sub>k</sub></sub><sup>2</sup>) / (16 π<sup>2</sup>) <span style="font-size: x-large;">)</span>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; + 40 log<sub>10</sub>(r<sub>p</sub>)
+   <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; + 2 r<sub>p</sub> &alpha;<sub>f<sub>k</sub>,d<sub>p</sub></sub> - 2 G<sub>f<sub>k</sub></sub>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; + 20 log<sub>10</sub>2 <span style="font-size: x-large;">(</span>&rho;<sub>&xi;<sub>p</sub></sub> + &rho;<sub>&chi;<sub>p</sub></sub> - 0.18 &rho;<sub>&xi;<sub>p</sub></sub> &rho;<sub>&chi;<sub>p</sub></sub><span
+      style="font-size: x-large;">)</span>
+   <br>with
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; &xi;<sub>p</sub> = along angle of sample corresponding to peak of signal
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; &chi;<sub>p</sub> = athwart angle of sample corresponding to peak of signal
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; &rho;<sub>&xi;<sub>p</sub></sub> = (2 &xi;<sub>p</sub> / bw<sub>&xi;,f<sub>k</sub></sub>)<sup>2</sup>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; &rho;<sub>&chi;<sub>p</sub></sub> = (2 &chi;<sub>p</sub> / bw<sub>&chi;,f<sub>k</sub></sub>)<sup>2</sup>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; r<sub>p</sub> = range of sample corresponding to peak of signal
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; &alpha;<sub>f<sub>k</sub></sub> = absorption coefficient at f<sub>k</sub>
+   <br> and remaining symbols as already defined.
+</p>

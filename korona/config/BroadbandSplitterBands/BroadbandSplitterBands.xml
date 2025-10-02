@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<splitterBands>
+   <band frequencyNominal="18" frequencyStart="" frequencyStop=""/>
+   <band frequencyNominal="38" frequencyStart="" frequencyStop=""/>
+   <band frequencyNominal="55" frequencyStart="" frequencyStop="65"/>
+   <band frequencyNominal="70" frequencyStart="60" frequencyStop=""/>
+   <band frequencyNominal="100" frequencyStart="" frequencyStop="115"/>
+   <band frequencyNominal="120" frequencyStart="105" frequencyStop="135"/>
+   <band frequencyNominal="150" frequencyStart="135" frequencyStop=""/>
+   <band frequencyNominal="175" frequencyStart="" frequencyStop="190"/>
+   <band frequencyNominal="200" frequencyStart="185" frequencyStop="215"/>
+   <band frequencyNominal="225" frequencyStart="210" frequencyStop="240"/>
+   <band frequencyNominal="250" frequencyStart="230" frequencyStop=""/>
+   <band frequencyNominal="300" frequencyStart="" frequencyStop="320"/>
+   <band frequencyNominal="333" frequencyStart="308" frequencyStop="348"/>
+   <band frequencyNominal="370" frequencyStart="348" frequencyStop="388"/>
+   <band frequencyNominal="400" frequencyStart="380" frequencyStop="420"/>
+   <band frequencyNominal="430" frequencyStart="410" frequencyStop=""/>
+</splitterBands>

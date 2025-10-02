@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+      "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="no.imr.lsss.database.tables.hibernate.SchoolCategory" table="schoolcategory">
+      <composite-id name="compId" class="no.imr.lsss.database.tables.hibernate.SchoolCategoryPK">
+         <key-property name="nation" column="Nation" type="short"/>
+         <key-property name="platform" column="Platform" type="short"/>
+         <key-property name="survey" column="Survey" type="int"/>
+         <key-property name="object" column="Object" type="int"/>
+         <key-property name="categorySystem" column="categorysystem" type="short"/>
+         <key-property name="category" column="category" type="int"/>
+      </composite-id>
+
+      <!-- Associations -->
+
+      <many-to-one
+            name="schoolCategorySystem"
+            class="no.imr.lsss.database.tables.hibernate.SchoolCategorySystem"
+            not-null="true"
+            insert="false"
+            update="false"
+      >
+         <column name="categorysystem"/>
+      </many-to-one>
+
+      <many-to-one
+            name="scatterObject"
+            class="no.imr.lsss.database.tables.hibernate.ScatterObject"
+            not-null="true"
+            insert="false"
+            update="false"
+      >
+         <column name="Nation"/>
+         <column name="Platform"/>
+         <column name="Survey"/>
+         <column name="Object"/>
+      </many-to-one>
+
+   </class>
+</hibernate-mapping>

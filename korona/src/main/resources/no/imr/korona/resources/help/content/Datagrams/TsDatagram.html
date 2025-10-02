@@ -1,0 +1,31 @@
+<h1>LSSS/10: TS detection datagram</h1>
+<p>
+   This datagram contains single target detections.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once per ping per channel.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/ts/TsDetectionModule.html">TS detection module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct TsDatagram {
+   DatagramHeader header; <span class="marec-comment">// LSSS</span>
+   short subDatagramType; <span class="marec-comment">// 10</span>
+   int channel;           <span class="marec-comment">// The channel the detection was performed on</span>
+   int detectionCount;    <span class="marec-comment">// The number of detections</span>
+   TsDetection[detectionCount] detections;
+};
+
+struct TsDetection {
+   float minDepth;   <span class="marec-comment">// [m]</span>
+   float maxDepth;   <span class="marec-comment">// [m]</span>
+   float peakDepth;  <span class="marec-comment">// [m]</span>
+};
+</pre>

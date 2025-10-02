@@ -1,0 +1,77 @@
+<h1>School parameters</h1>
+<p>
+   A number of parameters are calculated for each <a href="LayersAndSchools.html#School">school</a>.
+   These parameters are saved to work files, and can be <a href="../Output/Export/Export.html">exported</a>.
+   They can also be shown in the <a href="../../Views/Echogram/Echogram.html#Tooltip">echogram tooltip</a>.
+</p>
+<p>
+   To enable calculation of school parameters, go to
+   <a href="../../Configuration/Survey/SurveyMiscConf.html">[Survey configuration - Miscellaneous]</a>
+   and make sure the "Compute school parameters" is selected.
+   The school parameters are recomputed whenever a school is modified.
+   All pings are used when calculating the school parameters.
+</p>
+<p>
+   The calculation of school parameters uses masking this way:
+</p>
+<ul>
+   <li>Morphological parameters, such as length and area, do not any kind of masking or thresholding.</li>
+   <li>Value-based parameters, such as s<sub>A</sub> and mean s<sub>v</sub>,
+      use <a href="Exclusion.html">exclusion</a> and <a href="Masking.html">frequency-dependent deletion</a>,
+      but do not use conditional masking or thresholding.
+   </li>
+</ul>
+<p>
+   The school parameters include the flag "Data processed" signalling whether the parameters were computed using original or processed data.
+   The parameters are computed using the currently selected data and are not automatically recomputed when switching between original and processed data.
+   To recompute all school parameters, go to
+   <a href="../../Configuration/Survey/SurveyMiscConf.html">[Survey configuration - Miscellaneous]</a>
+   and click the "Recompute" button.
+</p>
+
+<h2 id="FrequencyIndependentParameters">Frequency independent parameters</h2>
+<p>
+   These parameters do not depend on the data of specific frequencies.
+</p>
+<ul>
+   <li><em>Area</em>: The area of the school.</li>
+   <li><em>Bottom depth</em>: The bottom depth at the ping where <em>Min dist bottom</em> is found.</li>
+   <li><em>Circumference</em>: The circumference of the school.</li>
+   <li><em>Corrected height</em>: <em>Height</em> - effectivePulseDuration × soundVelocity.</li>
+   <li><em>Corrected length</em>: <em>Length</em>
+      - {half the beam width for center depth on the first ping}
+      - {half the beam width for center depth on the last ping}.
+   </li>
+   <li><em>Height</em>: The maximum per ping vertical extent of the school.</li>
+   <li><em>Length</em>: The horizontal extent of the school.</li>
+   <li><em>Max depth</em>: The maximum depth of the school.</li>
+   <li><em>Min depth</em>: The minimum depth of the school.</li>
+   <li><em>Min dist bottom</em>: The minimum distance from the deepest part of the school to coordinated bottom.</li>
+</ul>
+<p>
+   The <em>Corrected height</em> and <em>Corrected length</em> use data at the configured
+   <a href="../../Configuration/Survey/SurveyMiscConf.html">main frequency</a>.
+</p>
+
+<h2 id="PerFrequencyParameters">Per frequency parameters</h2>
+<p>
+   These parameters are computed for each frequency.
+</p>
+<ul>
+   <li><em>s<sub>A</sub></em>: Always calculated using vessel distance,
+      and does not depend on the chosen <a href="../../Configuration/Survey/GridConf.html">horizontal grid unit</a>.
+   </li>
+   <li><em>Sample count</em></li>
+   <li><em>s<sub>v</sub></em> statistics:
+      <ul>
+         <li><em>Kurtosis</em>: The fourth standardized moment, a measure of "tailedness".</li>
+         <li><em>Max</em>: The maximum value.</li>
+         <li><em>Mean</em>: The average value.</li>
+         <li><em>Mean, truncated x%</em>: The x% lowest and the x% highest values are discarded before computing the mean.</li>
+         <li><em>Median</em>: The median value.</li>
+         <li><em>Min</em>: The minimum value.</li>
+         <li><em>Skewness</em>: The third standardized moment, a measure of asymmetry.</li>
+         <li><em>Variance</em>: The variance.</li>
+      </ul>
+   </li>
+</ul>

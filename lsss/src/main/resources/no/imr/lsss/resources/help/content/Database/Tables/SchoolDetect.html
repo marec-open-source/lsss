@@ -1,0 +1,68 @@
+<h1>SchoolDetect</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>SchoolDetect</strong> - Multi-frequency acoustic measurements on a school object
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct SchoolDetect {   //How calculations were done to process data
+  short Nation;
+  short Platform;
+  int   Survey;
+  int   Object;
+  float DetectionThreshold;
+  float DetectionThresholdHole;
+  float MinSizeHole;
+  float SmoothVertical;
+  float SmoothHorizontal;
+  char  DetectionSettings[1024];
+  short ManuallyCorrected;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table provides a mapping between the observation type code and the
+   observation type name. Note that there is a maximum length of the name
+   and the description.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the <a href="Nation.html">
+      Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - Unique survey identification code. See the <a href="Survey.html">
+      Survey</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="Object">Object</span> - see <a href="Scatter.html">Scatter</a> table.</li>
+   <li><span class="marec-parameter-def" id="DetectionThreshold">DetectionThreshold</span> [dB] - Detection threshold for the synthetic channel where the school extent was detected.</li>
+   <li><span class="marec-parameter-def" id="DetectionThresholdHole">DetectionThresholdHole</span> [dB] - Detection threshold for hole of school.</li>
+   <li><span class="marec-parameter-def" id="MinSizeHole">MinSizeHole</span> [m] - Minimum length/height of hole to be accepted.</li>
+   <li><span class="marec-parameter-def" id="SmoothVertical">SmoothVertical</span> [m] - Vertical smoothing diameter.</li>
+   <li><span class="marec-parameter-def" id="SmoothHorizontal">SmoothHorizontal</span> [m] - Horizontal smoothing diameter.</li>
+   <li><span class="marec-parameter-def" id="DetectionSettings">DetectionSettings</span> - Detection settings used by preprocessor (KORONA).</li>
+   <li><span class="marec-parameter-def" id="ManuallyCorrected">ManuallyCorrected</span> - False if automatically detected school, true else.</li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="Observation.html">Observation</a>;
+   <a href="ScatterObject.html">ScatterObject</a>;
+   <a href="SchoolObjectType.html">SchoolObjectType</a>;
+   <a href="SchoolData.html">SchoolData</a>;
+   <a href="SchoolMorphology.html">SchoolMorphology</a>;
+   <a href="Scatter.html">ScatterObject</a>
+   <a href="SchoolCategory.html">SchoolCategory</a>
+   <a href="SchoolCategorySystem.html">SchoolMorphology</a>
+</p>

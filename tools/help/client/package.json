@@ -1,0 +1,53 @@
+{
+  "name": "marec-help",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --proxy-config=proxy.conf.json --host=0.0.0.0",
+    "buildDev": "ng build --base-href= --output-path=build/distDev --configuration=development",
+    "buildProd": "ng build --base-href= --output-path=build/distProd",
+    "test": "ng test --watch=false",
+    "lint": "ng lint"
+  },
+  "prettier": {
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/cdk": "^20.1.0",
+    "@angular/common": "^20.1.0",
+    "@angular/compiler": "^20.1.0",
+    "@angular/core": "^20.1.0",
+    "@angular/forms": "^20.1.0",
+    "@angular/material": "^20.1.0",
+    "@angular/platform-browser": "^20.1.0",
+    "@angular/router": "^20.1.0",
+    "lunr": "2.3.9",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.1.0",
+    "@angular/cli": "^20.1.0",
+    "@angular/compiler-cli": "^20.1.0",
+    "@types/jasmine": "~5.1.0",
+    "@types/lunr": "2.3.7",
+    "angular-eslint": "20.1.1",
+    "eslint": "9.31.0",
+    "jasmine-core": "~5.8.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "typescript": "~5.8.2",
+    "typescript-eslint": "8.36.0"
+  }
+}

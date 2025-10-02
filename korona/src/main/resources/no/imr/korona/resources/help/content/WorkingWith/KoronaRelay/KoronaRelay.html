@@ -1,0 +1,45 @@
+<h1>KORONA relay</h1>
+<p>
+   KORONA relay is intended for batch processing.
+   Launch <a href="../KoronaPlaybox/KoronaPlaybox.html">KORONA playbox</a> for interactive exploration.
+</p>
+<figure>
+   <img src="KoronaRelay.png" width="805" height="379">
+</figure>
+<ul>
+   <li><em><a href="../ConfigFileSettings/ConfigFileSettings.html">Config file settings</a>:</em>
+      A file containing the paths to config files used by the processing.
+   </li>
+   <li><em>Source directory:</em> Location of files to be processed.</li>
+   <li><em>Destination directory:</em> Location of the processed files.</li>
+</ul>
+
+<h2 id="StatusXml">status.xml</h2>
+<p>
+   As KORONA relay processes files, it writes the processing status to the file <em>status.xml</em> in the destination directory.
+   This is done for several reasons:
+</p>
+<ul>
+   <li>
+      To speed up the processing, it is possible to use multiple instances of KORONA relay on different computers.
+      The <em>status.xml</em> file coordinates the collaboration by the different KORONA relay instances.
+   </li>
+   <li>
+      The processed files are written with an extra <em>.new</em> file name suffix instead of overwriting existing files.
+      This is done to not interfere with other programs using the existing files.
+      The <em>status.xml</em> file is used for coordinating when the existing files are replaced by the <em>.new</em> files.
+   </li>
+</ul>
+<p>
+   If the <em>status.xml</em> file becomes corrupt or contains wrong information,
+   it might be necessary to re-create it.
+   This can be done in the file menu of KORONA relay.
+</p>
+
+<h2 id="CopiedConfigFiles">copiedConfigFiles</h2>
+<p>
+   When starting processing, KORONA relay will copy the used config files to the subdirectory <em>copiedConfigFiles</em>
+   in the destination directory.
+   The files in this directory are automatically updated.
+   <br>NB: Manual edits will be overwritten!
+</p>

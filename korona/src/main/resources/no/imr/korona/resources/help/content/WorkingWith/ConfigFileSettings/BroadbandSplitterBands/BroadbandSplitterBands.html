@@ -1,0 +1,32 @@
+<h1>Broadband splitter bands</h1>
+<p>
+   Used by the <a href="../../../Modules/broadband/BroadbandSplitterModule.html">Broadband splitter module</a>.
+</p>
+<p>
+   One or both of frequencyStart and frequencyStop may be left blank.
+   Unspecified values will be derived from the actual input data:
+</p>
+<ul class="marec-list-spacing">
+   <li>
+      If both frequencyStart and frequencyEnd are left blank, then the frequency band containing frequencyNominal is used.
+      If several frequency bands contain frequencyNominal, then the band with center frequency closest to frequencyNominal is used.
+   </li>
+   <li>
+      If frequencyStart is blank, then the start of the frequency band containing frequencyEnd is used.
+      If several frequency bands contain frequencyEnd, then the maximum is used.
+   </li>
+   <li>
+      If frequencyEnd is blank, then the end of the frequency band containing frequencyStart is used.
+      If several frequency bands contain frequencyStart, then the minimum is used.
+   </li>
+</ul>
+
+<h2 id="Example">Example XML file</h2>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;splitterBands>
+   &lt;band frequencyNominal="70" frequencyStart="60" frequencyStop="75"/>
+   &lt;band frequencyNominal="170" frequencyStart="150" frequencyStop="180"/>
+   &lt;band frequencyNominal="200" frequencyStart="180" frequencyStop="230"/>
+&lt;/splitterBands>
+</pre>

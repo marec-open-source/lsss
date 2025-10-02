@@ -1,0 +1,7 @@
+{
+  "label" : "Next colormap",
+  "tooltip" : "Select the next colormap.",
+  "icon" : "icon.svg",
+  "showDialog" : true,
+  "inputParameters" : [ ]
+}

@@ -1,0 +1,49 @@
+<h1>Preprocessing configuration</h1>
+<p>
+   This section contains data processing setups for use on the fly while loading data in LSSS,
+   and for preprocessing using KORONA.
+</p>
+
+<h3 id="OnTheFly">On the fly</h3>
+<p>
+   Some of the KORONA modules can be used on the fly while loading data.
+   This kind of processing can be done without writing the processed data to files in a directory.
+   If on the fly processing is configured, a notice is shown in the <a href="../../Display/Display.html#StatusBar">status bar</a>.
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="UseOnTheFlyProcessing">Use on the fly processing:</span>
+      Select if on the fly processing should be used.
+   </li>
+   <li><span class="marec-parameter-def" id="OnTheFlyDataDir">On the fly processing of DataDir:</span>
+      The processing setup to use for on the fly processing.
+   </li>
+   <li><span class="marec-parameter-def" id="EvenIfProcessed">Apply even if already processed:</span>
+      Select if on the fly processing should be applied even if the data is already processed.
+   </li>
+</ul>
+
+<h3 id="KoronaRelay">KORONA relay</h3>
+<p>
+   The preprocessing program, <a href="../../WorkingWith/Preprocessing/Preprocessing.html#KoronaRelay">KORONA relay</a>,
+   can be started from this panel.
+   Several preprocessing setups can be defined by clicking the "Add preprocessing setup" button.
+</p>
+<ul>
+   <li><span class="marec-parameter-def">Comment:</span>
+      An optional comment about this processing setup.
+   </li>
+   <li><span class="marec-parameter-def" id="ConfigFileSettings">Config file settings:</span>
+      A file containing the paths to config files used by processing.
+      See the <a href="../../WorkingWith/Preprocessing/Preprocessing.html#Help">KORONA help system</a>, section "Config File Settings" for more information.
+   </li>
+   <li><span class="marec-parameter-def" id="SourceDirectory">Source directory:</span>
+      Location of files to be processed.
+   </li>
+   <li><span class="marec-parameter-def" id="DestinationDirectory">Destination directory:</span>
+      Location of the processed files.
+   </li>
+</ul>
+<p>
+   These setups are also used by the
+   <a href="../../Views/KoronaExperimentation/KoronaExperimentationModule.html">KORONA experimentation module</a>.
+</p>

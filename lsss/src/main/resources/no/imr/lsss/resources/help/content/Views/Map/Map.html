@@ -1,0 +1,275 @@
+<h1>Map</h1>
+<p>
+   This view displays a map together with other types of geographical information.
+   This information is organized in a stack of <a href="#Overlays">overlays</a> shown on top of each other.
+   Each overlay can individually be set active or inactive in the map configuration dialog.
+   This dialog can be reached from the map view context menu.
+</p>
+<figure>
+   <svg xmlns="http://www.w3.org/2000/svg" width="549" height="360" viewBox="0 -70 549 360">
+      <image href="Map.png" width="549" height="213"></image>
+      <defs>
+         <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 0,10 z"/>
+         </marker>
+      </defs>
+      <g fill="none" stroke="black" stroke-width="1" marker-end="url(#arrow)">
+         <line x1="100" y1="-30" x2="235" y2="75"/>
+         <line x1="300" y1="-50" x2="280" y2="60"/>
+         <line x1="500" y1="-50" x2="485" y2="57"/>
+         <line x1="50" y1="235" x2="80" y2="105"/>
+         <line x1="130" y1="265" x2="150" y2="105"/>
+         <line x1="270" y1="235" x2="220" y2="100"/>
+      </g>
+      <g text-anchor="middle" font-size="16">
+         <text x="100" y="-55">Mouse position</text>
+         <text x="100" y="-35">in <a href="../Echogram/Echogram.html">echogram</a></text>
+         <text x="300" y="-55"><a href="../Comment/Comment.html">Comment</a></text>
+         <text x="500" y="-55">Start of file</text>
+         <text x="50" y="255">Survey line</text>
+         <text x="200" y="285">Red: Stored to <a href="../../Database/Database.html">database</a></text>
+         <text x="350" y="255">Blue: Visible in echogram</text>
+      </g>
+   </svg>
+</figure>
+
+<h2 id="Modes">Modes</h2>
+<p>
+   The map view has three modes (use Tab to shift):
+</p>
+<ul>
+   <li><strong>Zoom mode:</strong>
+      Click the left (middle) mouse button to zoom in (out) and recenter.
+      Press down the left mouse button and drag the mouse to draw a zoom rectangle.
+   </li>
+   <li><strong>Pan mode:</strong>
+      Press down the left mouse button and drag the mouse to move the map.
+   </li>
+   <li><strong>Selection mode:</strong>
+      Press down the left mouse button and drag the mouse to draw a selection rectangle.
+   </li>
+</ul>
+<p>
+   See also the map section in <a href="../../KeyboardShortcuts/KeyboardShortcuts.html#Map">keyboard shortcuts</a>.
+</p>
+
+<h2 id="Settings">Settings</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="AutoZoomFromEchogram">Auto zoom from echogram:</span>
+      If selected, then the map is automatically zoomed when the echogram is zoomed.
+   </li>
+</ul>
+
+<h2 id="ContextMenu">Context menu</h2>
+<p>
+   Items in the map context menu:
+</p>
+<ul>
+   <li><strong>Configure Map:</strong>
+      Brings up the configuration dialog for the map.
+   </li>
+   <li><strong>Reset geographical area:</strong>
+      Zooms the map to fit the entire survey line.
+   </li>
+   <li><strong>Zoom echogram from map:</strong>
+      Zooms the <a href="../Echogram/Echogram.html">echogram</a> to include the parts of the survey line that is currently visible on the map.
+   </li>
+   <li><strong>Zoom map from echogram:</strong>
+      Zooms the map to include the parts of the survey line that is currently visible in the <a href="../Echogram/Echogram.html">echogram</a>.
+   </li>
+   <li><strong>Exclude visible ping:</strong>
+      <a href="../../WorkingWith/Regions/Exclusion.html">Excludes</a> the pings visible in the map.
+   </li>
+   <li><strong>Include visible ping:</strong>
+      <a href="../../WorkingWith/Regions/Exclusion.html">Includes</a> the pings visible in the map.
+   </li>
+   <li><strong>Go to previous map location:</strong>
+      Goes backward in the map zoom history.
+   </li>
+   <li><strong>Go to next map location:</strong>
+      Goes forward in the map zoom history.
+   </li>
+</ul>
+
+<h2 id="Tooltip">Tooltip</h2>
+<p>
+   The <a href="../../Display/Display.html#Toolbar">toolbar button</a>
+   <img src="../../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Information.svg" width="16" height="16">
+   can be used to toggle on and off the map tooltip.
+   The tooltip displays latitude and longitude corresponding to the mouse location.
+</p>
+<figure>
+   <img src="Map-Tooltip.png" width="201" height="98">
+</figure>
+
+<h2 id="Overlays">Overlays</h2>
+
+<p>
+   The map view is organized as a stack of several overlays.
+   Each overlay can be turned on or off in the configuration dialog for the map.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="BackgroundMapOverlay">Background map</h3>
+<figure>
+   <img src="Overlays/BackgroundMapOverlay.png" width="318" height="159">
+</figure>
+<p>
+   This overlay displays the background map.
+   The map image is provided by a WMS server. The URL of the WMS application can be configured in
+   <a href="../../Configuration/Application/AppMiscConf.html#MapURL">[Application configuration - Miscellaneous]</a>.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="CommentMapOverlay">Comments</h3>
+<figure>
+   <img src="Overlays/CommentMapOverlay.png" width="154" height="101">
+</figure>
+<p>
+   This overlay displays the letter "C" at the location of a comment.
+   Comments are also displayed on the <a href="../Echogram/Echogram.html#CommentEchogramOverlay">echogram</a>
+   and in the <a href="../Comment/Comment.html">comment module</a>.
+   Comments may be added using the context menu of the echogram.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="CTDMapOverlay">CTD map overlay</h3>
+<figure>
+   <img src="Overlays/CTDMapOverlay.png" width="378" height="208">
+</figure>
+<p>
+   This overlay displays a Z corresponding to where <a href="../../Appendices/CTD/CTDData.html">CTD data</a> exists.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="EchogramPositionOverlay">Echogram position</h3>
+<figure>
+   <img src="Overlays/EchogramPositionOverlay.png" width="156" height="111">
+</figure>
+<p>
+   This overlay displays a red dot corresponding to the mouse position in the <a href="../Echogram/Echogram.html">echogram</a>.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="FileMarkerMapOverlay">File markers</h3>
+<figure>
+   <img src="Overlays/FileMarkerMapOverlay.png" width="175" height="124">
+</figure>
+<p>
+   This overlay draws a small box at the beginning of each data file.
+   This corresponds to the file markers on the <a href="../Echogram/Echogram.html#FileMarkerOverlay">echogram</a>.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="LatLonOverlay">Latitudes and longitudes</h3>
+<figure>
+   <img src="Overlays/LatLonOverlay.png" width="309" height="151">
+</figure>
+<p>
+   This overlay displays a geographical grid of latitude and longitude lines.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="ScaleMapOverlay">Length scale</h3>
+<figure>
+   <img src="Overlays/ScaleMapOverlay.png" width="108" height="48">
+</figure>
+<p>
+   This overlay displays a length scale in the lower right corner of the map.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="PanOverlay">Pan</h3>
+<figure>
+   <img src="../../../../images/cursors/Forward-32.png" width="32" height="32">
+   <img src="../../../../images/cursors/Back-32.png" width="32" height="32">
+   <img src="../../../../images/cursors/Up-32.png" width="32" height="32">
+   <img src="../../../../images/cursors/Down-32.png" width="32" height="32">
+</figure>
+<p>
+   This overlay is active near the edges of the map.
+   Here the mouse cursor will change to indicate the panning direction: east, west, north, south.
+   If the left mouse button is clicked, the view area is shifted in the indicated direction.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="RefLogMapOverlay">Reference log</h3>
+<figure>
+   <img src="Overlays/RefLogOverlay.png" width="327" height="223">
+</figure>
+<p>
+   This overlay displays information from the <a href="../../Appendices/RefLog/RefLog.html">reference log data files</a>.
+</p>
+<p>
+   The following symbols are used:
+</p>
+<ul style="list-style: none;">
+   <li>
+      <svg width="16" height="16" fill="none" stroke-width="2" stroke="#333333">
+         <path d="M2,2 h12 v12 h-12 z"></path>
+      </svg>
+      Bottom trawl.
+   </li>
+   <li>
+      <svg width="16" height="16" fill="none" stroke-width="2" stroke="#333333">
+         <path d="M8,2 l6,12 h-12 z"></path>
+      </svg>
+      Pelagic trawl.
+   </li>
+   <li>
+      <svg width="16" height="16" fill="none" stroke-width="2" stroke="#333333">
+         <path d="M2,2 l12,12 m-12,0 l12,-12"></path>
+      </svg>
+      Other stations.
+   </li>
+</ul>
+<p>
+   CTD stations in the ref log data are not shown by this overlay,
+   but are shown by the <a href="#CTDMapOverlay">CTD overlay</a>.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="SaMapOverlay">Sa map overlay</h3>
+<figure>
+   <img src="Overlays/SaMapOverlay.png" width="344" height="149">
+</figure>
+<p>
+   This overlay displays s<sub>A</sub> in the map as circles of different sizes depending on the s<sub>A</sub> value.
+   The circles in the bottom right corner shows what s<sub>A</sub> value corresponds to which circle size.
+   The s<sub>A</sub> can also be shown in the <a href="../Echogram/Echogram.html#SaOverlay">echogram</a>.
+</p>
+<p>
+   This overlay can optionally show s<sub>A</sub> for only one
+   <a href="../../Configuration/Survey/AcousticCategoryConf.html">acoustic category</a>.
+   In that case, the s<sub>A</sub> is multiplied by the
+   <a href="../Interpretation/Interpretation.html#CategoryAssignments">category assignment</a>
+   for each region.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="SurveyLineOverlay">Survey line</h3>
+<figure>
+   <img src="Overlays/SurveyLineOverlay.png" width="200" height="67">
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   <img src="Overlays/SurveyLineExclusion.png" width="153" height="67">
+</figure>
+<p>
+   This overlay shows the vessel line.
+   This line is thick blue for the distance shown in the echogram view, and thin gray elsewhere.
+   Segments that are <a href="../../WorkingWith/Regions/Exclusion.html">excluded</a> are drawn using a thin dotted line.
+   In addition, the parts where interpretation is stored to the database a red line is shown.
+</p>
+<p>
+   Click on the line to center the <a href="../Echogram/Echogram.html#FileMarkerOverlay">echogram</a> around that point.
+</p>

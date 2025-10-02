@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ices-acoustic-category>
+   <i acousticCategory="9" ices="HER"/>
+   <i acousticCategory="10" ices="HER"/>
+   <i acousticCategory="11" ices="HER"/>
+   <i acousticCategory="12" ices="HER"/>
+   <i acousticCategory="13" ices="CAP"/>
+   <i acousticCategory="14" ices="CAP"/>
+   <i acousticCategory="15" ices="CAP"/>
+   <i acousticCategory="16" ices="CAP"/>
+   <i acousticCategory="20" ices="SPR"/>
+   <i acousticCategory="21" ices="MAC"/>
+   <i acousticCategory="24" ices="WHB"/>
+   <i acousticCategory="27" ices="SAN"/>
+   <i acousticCategory="28" ices="NOP"/>
+   <i acousticCategory="5001" ices="SPR"/>
+   <i acousticCategory="5003" ices="HOM"/>
+   <i acousticCategory="5004" ices="PIL"/>
+   <i acousticCategory="5005" ices="MAV"/>
+   <i acousticCategory="5027" ices="SAN"/>
+   <i acousticCategory="5041" ices="ANE"/>
+   <i acousticCategory="6009" ices="SAN"/>
+   <i acousticCategory="6010" ices="SAN"/>
+</ices-acoustic-category>

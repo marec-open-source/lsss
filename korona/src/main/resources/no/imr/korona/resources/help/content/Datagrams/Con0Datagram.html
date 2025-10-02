@@ -1,0 +1,22 @@
+<h1>CON0: Configuration datagram</h1>
+<p>
+   This datagram contains echosounder configuration.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once, in the beginning of the file.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li>The echosounder.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Con0Datagram {
+   DatagramHeader header; <span class="marec-comment">// CON0</span>
+   Echosounder configuration
+};
+</pre>

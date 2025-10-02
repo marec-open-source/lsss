@@ -1,0 +1,93 @@
+<h1>TS distribution</h1>
+<p>
+   The purpose of the TS module is to visualize the target
+   strength distribution of the detected single targets in the active
+   regions. The distribution for the currently active frequency is shown
+   with a thick piecewise histogram-like curve as shown below. To avoid a cluttered plot,
+   the distributions for the other frequencies are shown with piecewise
+   linear curves.
+</p>
+<figure>
+   <img src="TS.png" width="458" height="421" class="marec-floatable-module">
+</figure>
+<p>
+   The <a href="../Echogram/Echogram.html#TSEchogramOverlay">TS locations overlay</a>
+   can display the positions of the detected targets in the echogram.
+</p>
+<p>
+   The <a href="../TsPositions/TsPositionsModule.html">TS positions module</a>
+   can display the angles of the detected targets.
+</p>
+<p>
+   The <a href="../../Broadband/Views/BroadbandTsModule.html">BB TS(f) module</a>
+   can detect targets for broadband data and display frequency spectra.
+</p>
+
+<h2 id="Settings">Settings</h2>
+
+<h3 id="TargetDetectorSettings">Target detector settings</h3>
+<p>
+   See the
+   <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/ts/TsDetectionModule.html#Parameters">TS detection module</a>
+   in KORONA for further description on the target detector settings.
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="DetectorType">Detector type:</span>
+      The target detector type. Choices:
+      <ul>
+         <li><em>SED:</em> Detect targets using the
+            <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/ts/TsDetectionModule.html#SED">SED</a>
+            algorithm.
+         </li>
+         <li><em>Peak:</em> Detect targets using the
+            <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/ts/TsDetectionModule.html#Peak">Peak</a>
+            algorithm.
+         </li>
+         <li><em>KORONA:</em> Use targets already detected by the
+            <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/ts/TsDetectionModule.html#Parameters">TS detection module</a>
+         </li>
+      </ul>
+   </li>
+   <li><span class="marec-parameter-def" id="MinTS">Min TS:</span>
+      Minimum corrected TS value to be detected [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="PulseLengthDeterminationLevel">Pulse length determination level:</span>
+      Pulse length determination level [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="MinEchoLength">Min echo length:</span>
+      Minimum echo length (relative to pulse length). NB: may be << 1 for pulse compressed data!
+   </li>
+   <li><span class="marec-parameter-def" id="MaxEchoLength">Max echo length:</span>
+      Maximum echo length (relative to pulse length). NB: may be << 1 for pulse compressed data!
+   </li>
+   <li><span class="marec-parameter-def" id="MaxGainCompensation">Max gain compensation:</span>
+      Maximum (one way) gain compensation [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="DoPhaseDeviationCheck">Do phase deviation check:</span>
+      Check this if phase deviation check should be performed.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxPhaseDevSteps">Max phase deviation:</span>
+      Max phase deviation [phase steps].
+   </li>
+   <li><span class="marec-parameter-def" id="MaxDepth">Max depth:</span>
+      Maximal depth of targets [m]. Optional, may be left blank.
+   </li>
+</ul>
+
+<h3 id="DisplaySettings">Display settings</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="DeltaTS">Delta TS:</span>
+      The histogram bin size.
+   </li>
+   <li><span class="marec-parameter-def" id="DisplayMinTS">Min TS:</span>
+      The minimum value shown in the TS plot, i.e. the lower limit of the x-axis.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxTS">Max TS:</span>
+      The maximum value shown in the TS plot, i.e. the upper limit of the x-axis.
+   </li>
+</ul>
+
+<h2 id="Export">Export</h2>
+<p>
+   The detected targets can be <a href="../../WorkingWith/Output/Export/Export.html#TS">exported to file</a>.
+</p>

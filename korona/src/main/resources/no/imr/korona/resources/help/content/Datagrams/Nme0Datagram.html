@@ -1,0 +1,22 @@
+<h1>NME0: NMEA datagram</h1>
+<p>
+   This datagram contains an NMEA sentence.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Unspecified.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li>External sensors attached to the echosounder.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Nme0Datagram {
+   DatagramHeader header; <span class="marec-comment">// NME0</span>
+   string nmea;           <span class="marec-comment">// NMEA sentence</span>
+};
+</pre>

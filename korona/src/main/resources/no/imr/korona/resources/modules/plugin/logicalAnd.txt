@@ -1,0 +1,34 @@
+package com.example;
+
+import no.marec.api.korona.*;
+
+public class ExampleModuleComputation extends SinglePingModuleComputation {
+   @Override
+   public void compute(Ping ping) {
+      double threshold = -60;
+      double replacement = -120;
+
+      for (int sampleIndex = 0; true; sampleIndex++) {
+         double minLogSv = Double.MAX_VALUE;
+         boolean end = true;
+         for (Channel channel : ping.getChannels()) {
+            if (sampleIndex >= channel.getEndSampleIndex()) continue;
+            end = false;
+            if (sampleIndex >= channel.getBeginSampleIndex()) {
+               double logSv = channel.getLogSv(sampleIndex);
+               minLogSv = Math.min(minLogSv, logSv);
+            }
+         }
+
+         if (end) return;
+
+         if (minLogSv < threshold) {
+            for (Channel channel : ping.getChannels()) {
+               if (sampleIndex >= channel.getBeginSampleIndex() && sampleIndex < channel.getEndSampleIndex()) {
+                  channel.setLogSv(sampleIndex, replacement);
+               }
+            }
+         }
+      }
+   }
+}

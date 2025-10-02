@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<notchFilters>
+   <filter RejectionFrequencyKHz="180" BandwidthKHz="1" StopTime="2016-11-18T12:19:00Z"/>
+   <filter RejectionFrequencyKHz="180" BandwidthKHz="1" StartTime="2016-11-18T12:19:00Z" StopTime="2016-11-18T12:19:00Z"/>
+   <filter RejectionFrequencyKHz="180" BandwidthKHz="1" StartTime="2016-11-18T12:19:00Z"/>
+   <filter RejectionFrequencyKHz="220" BandwidthKHz="1"/>
+</notchFilters>

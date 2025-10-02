@@ -1,0 +1,72 @@
+<h1>Observation</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>Observation</strong> - Data-stations and belonging navigation information.
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct Observation {
+  short Nation;
+  short Platform;
+  int   Survey;
+  int   ObservationDate;
+  int   ObservationTime;
+  short ObservationType;
+  float Distance;
+  float Latitude;
+  float Longitude;
+  float BottomDepth;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   The Observation database table contains information about all data-stations and corresponding
+   navigation information.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the
+      <a href="Nation.html">Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - Unique survey identification code. See the <a href="Survey.html">Survey</a>
+      table.
+   </li>
+   <li><span class="marec-parameter-def" id="Date">Date</span> - Date [YYYYMMDD] (UTC) of the observation.</li>
+   <li><span class="marec-parameter-def" id="Time">Time</span> - Time [hhmmssxx] (UTC) of the observation.</li>
+   <li><span class="marec-parameter-def" id="ObservationType">ObservationType</span> - This parameter defines the type of observation made.
+      Refer to the <a href="ObservationType.html">ObservationType</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="Distance">Distance</span> - The vessel distance (in nautical miles) at the time of the
+      observation measured from the vessel's logged distance at the start of the
+      survey. If the vessel log shows NN nautical miles at the beginning of the
+      survey, the Distance parameter will contain NN+X, where X is the sailed
+      distance from the start of the survey.
+   </li>
+   <li><span class="marec-parameter-def" id="Latitude">Latitude</span> - The latitude of the geographical position (in degrees)
+      of the platform (often a ship) at the time of the observation.
+   </li>
+   <li><span class="marec-parameter-def" id="Longitude">Longitude</span> - The longitude of the geographical position (in degrees)
+      of the platform (ship) at the time of the observation.
+   </li>
+   <li><span class="marec-parameter-def" id="BottomDepth">BottomDepth</span> - The detected bottom depth (in meters) at the time of
+      the observation.
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="ObservationType.html">ObservationType</a>
+   <a href="ObservationComment.html">ObservationComment</a>
+</p>

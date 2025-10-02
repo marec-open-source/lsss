@@ -1,0 +1,15 @@
+<h1>Temporary computations begin module</h1>
+<p>
+   This module marks the start of temporary computations.
+   For each ping, copies of the <a href="../Datagrams/Raw0Datagram.html">Raw0Datagrams</a> are made.
+   Subsequent changes to Raw0Datagrams are reverted by a
+   <a href="TemporaryComputationsEndModule.html">Temporary computations end module</a>.
+   New datagrams, however, from for example, seabed detection, region detection or categorization, are kept.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+</ul>

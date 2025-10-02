@@ -1,0 +1,67 @@
+<h1>Purpose</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>Purpose</strong> - Purpose of scrutinizing acoustic category on survey.
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct Purpose {
+  short Nation;
+  short Platform;
+  int   Survey;
+  int   AcousticCategory;
+  short Purpose;           //OLD:SpeciesPurpose; char Purpose
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table contains the purpose code for the acoustic categories used in the current survey.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the
+      <a href="Nation.html">Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - Unique survey identification code. See the
+      <a href="Survey.html">Survey</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="AcousticCategory">AcousticCategory</span> - Unique identification code for acoustic category. Refer to the
+      <a href="AcousticCategory.html">AcousticCategory</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Purpose">Purpose</span> - Identification code assigning the requested purpose (priority) to
+      one or more species. The purposes of scrutinizing this acoustic category are as follows:<br>
+      <b>1</b> = <i>Most important category.</i> This is the main (or one of the few main) acoustic category scrutinized on this
+      survey. There are experts on the species represented by the acoustic category at the
+      observation platform. The survey is designed to cover the residential area of the stock.
+      The biological sampling is optimized for the species represented by the acoustic category,
+      e.g. for the purpose of using the acoustic data (in <a href="Scatter.html">Scatter</a> and
+      <a href="ScatterData.html">ScatterData</a>) to estimate fish stock abundance.<br>
+      <b>2</b> = <i>Not very important category.</i> The biological sampling is not optimized for the species represented by the
+      acoustic category, or the survey area only covers parts of the residential area of the stock.
+      The acoustic data may with some care be used as support information to acoustic data from
+      other cruises to calculate fish stock abundance.<br>
+      <b>3</b> = <i>Unimportant category.</i> The acoustic category is used as a collector for "the rest of the acoustic data".
+      Typical acoustic categories marked by <b>Purpose</b> = 3 are "Others", "Mix of pelagic fish",
+      "Mix of bottom fish". The acoustic category may not be used to estimate abundance.<br>
+      <b>0</b> = <i>Unknown importance.</i> Means that the category purpose code has not been assigned or is unknown as for
+      some historical data.
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   The database tables <a href="Personnel.html">Personnel</a> and <a href="Survey.html">Survey</a>
+   also contain survey related information.
+</p>

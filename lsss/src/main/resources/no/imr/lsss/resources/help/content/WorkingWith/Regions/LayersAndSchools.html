@@ -1,0 +1,272 @@
+<h1>Layers and schools</h1>
+
+<h2 id="Layer">Layers</h2>
+<p>
+   Layers are defined by a set of layer boundaries. Two types of
+   boundaries exist: horizontal boundaries and vertical boundaries. For
+   each ping, a layer is limited by exactly one upper horizontal boundary and one
+   lower horizontal boundary. The layer boundaries are not allowed to
+   cross other layer boundaries. The layer boundaries are connected by yellow square connectors (see the figure below).
+</p>
+
+<h2 id="School">School regions</h2>
+<p>
+   School regions are defined by a closed outline. The points
+   inside a school region are excluded from the layers with which the school region
+   overlaps. School regions are not allowed to overlap other school regions,
+   or to extend above/below the uppermost/lowermost layer boundaries.
+</p>
+<figure>
+   <svg xmlns="http://www.w3.org/2000/svg" width="440" height="343" viewBox="0 0 440 343">
+      <image href="LayersAndSchools.png" width="440" height="343"></image>
+      <g font-size="18">
+         <text x="5" y="60">Horizontal boundary</text>
+         <text x="265" y="140">Vertical boundary</text>
+         <text x="265" y="200">Connector</text>
+         <text x="30" y="145">Layer</text>
+         <text x="100" y="240">Layer</text>
+         <text x="250" y="40">Layer</text>
+         <text x="380" y="100">Layer</text>
+         <text x="140" y="100">School region</text>
+      </g>
+   </svg>
+</figure>
+
+<h2 id="CreatingRegions">Creating regions</h2>
+<p>
+   Layer boundaries and school regions can be created by clicking the
+   <img src="../../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Add.svg" width="16" height="16"> button in the
+   <a href="../../Display/Display.html#Toolbar">toolbar</a>.
+   The Spacebar can be used to cycle through different adding modes:
+</p>
+<p>
+   <img src="../../../../images/cursors/AddHorizontal-32.png" width="32" height="32">
+   Add a horizontal boundary at the mouse position when clicking in the echogram. The horizontal boundary
+   will extend to the nearest vertical boundaries to the left and right of
+   the insertion point. If such vertical boundaries do not exist in the
+   visible ping range, vertical boundaries are inserted at the edges of the
+   screen.
+   School regions are not modified.
+</p>
+<p>
+   <img src="../../../../images/cursors/AddVertical-32.png" width="32" height="32">
+   Add a vertical boundary at the mouse position. The vertical boundary will extend to the nearest
+   horizontal boundaries above and below the insertion point.
+   School regions are not modified.
+</p>
+<p>
+   <img src="../../../../images/cursors/AddBox-32.png" width="32" height="32">
+   Add a school region by draw or click. Start drawing a school box at
+   the mouse position. Holding the left mouse button down and dragging the
+   mouse extends the school box. Releasing the mouse button creates the school
+   region. Press Esc to cancel.
+   Alternatively, click the left mouse button to grow a school using the current echogram thresholds.
+</p>
+<p>
+   The two modes for adding a layer boundary have corresponding penetrating versions that can be activated by holding down the Ctrl key:
+</p>
+<p>
+   <img src="../../../../images/cursors/AddHorizontalMax-32.png" width="32" height="32">
+   Add a penetrating horizontal boundary at the mouse position when clicking in the echogram.
+   The horizontal boundary will extend through vertical boundaries until the left and
+   right edges of the visible echogram, where vertical boundaries will be inserted if needed.
+   The result is several independent horizontal layer boundaries.
+   School regions are not modified.
+</p>
+<p>
+   <img src="../../../../images/cursors/AddVerticalMax-32.png" width="32" height="32">
+   Add a vertical divider at the mouse position. All layers with a ping range containing the insertion
+   point will get a vertical boundary at this ping, and all school regions
+   intersecting the insertion point will be split at this ping.
+</p>
+<p>
+   If automatic school detection has been performed in a <a href="../Preprocessing/Preprocessing.html">preprocessing
+   step</a>, the detected regions can be transformed into
+   editable school regions by
+   using the context menu. The automatically detected schools will appear
+   with a <a href="../../Views/Echogram/Echogram.html#KoronaRegionEchogramOverlay">purple outline</a>.
+   By moving the mouse close to the outline and
+   then right-clicking, a menu option will appear to transform the region.
+</p>
+
+<h2 id="Edit">Selecting, editing and moving regions</h2>
+<p>
+   The layers and schools can be edited with the
+   <img src="../../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Edit.svg" width="16" height="16"> button in the toolbar. The default
+   action in this mode is selection of regions. Regions can be selected by
+   clicking in the interior of the regions. Dragging the mouse over
+   several regions selects all regions intersecting the dragged box.
+   Holding Ctrl down while dragging selects unselected regions and unselects selected regions.
+   Press Ctrl + A to select all currently visible regions in the survey.
+</p>
+<p>
+   When the mouse is close enough to a region boundary, the cursor will change:
+</p>
+<ul class="marec-list-spacing">
+   <li>If the mouse is close enough to a <span style="text-decoration: underline;">horizontal layer boundary</span>,
+      the cursor will change to the <img src="../../../../images/cursors/Pencil-32.png" width="32" height="32"> (edit mode)
+      or the system-dependent cursor for resizing up and down (move mode).
+      Pressing the Spacebar will cycle between
+      the two modes. When in the <img src="../../../../images/cursors/Pencil-32.png" width="32" height="32">mode, dragging the
+      mouse will edit the boundary. When in the move mode, dragging the mouse will move
+      the boundary vertically. The boundary will 'drape' around colliding
+      boundaries to avoid boundary crossings.
+   </li>
+   <li>If the mouse is close enough to a <span style="text-decoration: underline;">vertical layer boundary</span>,
+      the cursor will change to the system-dependent cursor for resizing left
+      and right. Dragging the mouse will move the vertical boundary to the
+      left and right. The vertical boundary is not allowed to move past other
+      vertical boundaries or connector points in the same layer.
+   </li>
+   <li>If the mouse is close enough to a <span style="text-decoration: underline;">connector</span>,
+      the cursor will change to the system-dependent move cursor. Dragging
+      the mouse will move the connector, and also edit the layer boundaries
+      attached to the connector.
+   </li>
+   <li>If the mouse is close enough to a <span style="text-decoration: underline;">school outline</span>, the
+      cursor will change to the <img src="../../../../images/cursors/Pencil-32.png" width="32" height="32">symbol
+      or the system-dependent symbol for resizing up/down or left/right depending on the edge. Pressing the Spacebar will
+      cycle between the two modes. In the <img src="../../../../images/cursors/Pencil-32.png" width="32" height="32">mode, the school
+      outline can be edited in a freehand manner, while in the resizing mode whole edges can be moved uniformly. The resizing mode is only
+      available for newly created schools that still are rectangular. In both modes, dragging the mouse will edit
+      the school outline. The edited school outline will be
+      drawn in black, and the part of the school outline that will be
+      replaced will be drawn in cyan.
+      Pressing Spacebar toggles which part that will be replaced.
+      Releasing the button performs the
+      replacement. Pressing Esc while editing cancels the edit operation. If
+      an edit is such that the outline will intersect another school, the
+      edit is rejected and the outline goes back to the way it was.
+      Self-intersections are not allowed. If the user tries to create self-intersections,
+      these will be removed when the user releases the button.
+      The school edit will be clamped between the uppermost and lowermost
+      layer boundaries.
+   </li>
+   <li>If the mouse is in a <span style="text-decoration: underline;">school interior</span>,
+      the cursor will change to the system-dependent move cursor. Pressing Spacebar
+      will make the cursor cycle through the modes "select", "move", "scale" and back to "draw".
+      Dragging the mouse while in the move mode will move the school to the mouse position. Dragging the mouse upward
+      and downward while in the scale mode will alter the size of the school; the school becomes bigger by dragging
+      the mouse upward, and smaller by dragging the mouse downward. If the school is moved or scaled so that the
+      school outline intersects another school outline, the school boundary will adjust so that the schools do not overlap.
+      While scaling the school, the outline will be limited by the visible ping range. Upon releasing the
+      mouse button, the school will also be clamped between the uppermost and the
+      lowermost layer boundary.
+   </li>
+</ul>
+<p>
+   Keyboard shortcuts:
+</p>
+<ul>
+   <li>
+      Key '1': Can be used as an alternative to the left mouse button when editing regions.
+      Position the mouse where the edit should start and then press and release the key '1'.
+      (Do not hold the key down.) Move the mouse without pressing any mouse buttons to draw.
+      When finished, type '1' again to stop the editing.
+   </li>
+   <li>
+      Key '2': Selects the drawing mode in all contexts that has a drawing mode.
+   </li>
+   <li>
+      Key '3': Selects the select mode in all contexts that has a select mode.
+   </li>
+</ul>
+<p>
+   The following table summarizes the edit mode.
+</p>
+<table class="marec-table">
+   <tr>
+      <th>Mouse location</th>
+      <th>Sub-modes</th>
+   </tr>
+
+   <tr>
+      <td rowspan="2">None of the locations below</td>
+      <td>Select</td>
+   </tr>
+   <tr>
+      <td>Draw</td>
+   </tr>
+
+   <tr>
+      <td rowspan="3">Horizontal layer boundary</td>
+      <td>Select</td>
+   </tr>
+   <tr>
+      <td>Draw</td>
+   </tr>
+   <tr>
+      <td>Move vertically</td>
+   </tr>
+
+   <tr>
+      <td rowspan="2">Vertical layer boundary</td>
+      <td>Select</td>
+   </tr>
+   <tr>
+      <td>Move horizontally</td>
+   </tr>
+
+   <tr>
+      <td rowspan="2">Connector point</td>
+      <td>Select</td>
+   </tr>
+   <tr>
+      <td>Move</td>
+   </tr>
+
+   <tr>
+      <td rowspan="5">School outline</td>
+      <td>Select</td>
+   </tr>
+   <tr>
+      <td>Draw</td>
+   </tr>
+   <tr>
+      <td>Move school</td>
+   </tr>
+   <tr>
+      <td>Split school</td>
+   </tr>
+   <tr>
+      <td>Move rectangular school edges</td>
+   </tr>
+
+   <tr>
+      <td rowspan="4">School interior</td>
+      <td>Select</td>
+   </tr>
+   <tr>
+      <td>Move</td>
+   </tr>
+   <tr>
+      <td>Scale</td>
+   </tr>
+   <tr>
+      <td>Draw</td>
+   </tr>
+</table>
+
+<h2 id="DeletingAndMerging">Deleting and merging regions</h2>
+<p>
+   Layers can be merged with other layers by selecting all layers to be
+   merged, right-clicking in the echogram window and choosing <em>Merge layers</em>
+   from the <a href="../../Views/Echogram/Echogram.html#ContextMenu">context menu</a>.
+   Alternatively, use the <em>Region</em> menu and choose <em>Merge layers</em> (shortcut Ctrl + M).
+   The resulting layer after a merge must be such that exactly
+   one upper horizontal boundary and one
+   lower horizontal boundary exist per ping. If this is not the case, the
+   merge operation will be aborted and only partially carried out. Also note that if a region extends
+   beyond the visible range, vertical dividers will be inserted to isolate
+   the visible ping range before the merge operation.
+</p>
+<p>
+   Schools can be deleted by right-clicking inside the school, and
+   choosing <em>Delete school</em> from the <a href="../../Views/Echogram/Echogram.html#ContextMenu">context menu</a>.
+   Alternatively, select one or more schools and choose <em>Delete active schools</em> in the <em>Region</em> menu.<br>
+</p>
+<p>
+   Schools can also be merged by selecting two schools, and choosing
+   <em>Merge schools</em> from the <a href="../../Views/Echogram/Echogram.html#ContextMenu">context menu</a>.
+   Schools can only be merged if their ping ranges do not intersect.
+</p>

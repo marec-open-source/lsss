@@ -1,0 +1,34 @@
+<h1>Combination module</h1>
+<p>
+   Module for generating combination echograms.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="FirstOperandKhz">First operand kHz:</span>
+      Frequency of the first operand.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#FirstOperandKhz">First operand kHz</a> &ge; 0
+   </li>
+   <li><span class="marec-parameter-def" id="SecondOperandKhz">Second operand kHz:</span>
+      Frequency of the second operand.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#SecondOperandKhz">Second operand kHz</a> &ge; 0
+   </li>
+   <li><span class="marec-parameter-def" id="FirstOperandChannel">First operand channel:</span>
+      Channel of the first operand (used if <a class="marec-parameter-ref" href="#FirstOperandKhz">First operand kHz</a> = 0).
+      <br>Allowed values: <a class="marec-parameter-ref" href="#FirstOperandChannel">First operand channel</a> &ge; 1
+   </li>
+   <li><span class="marec-parameter-def" id="SecondOperandChannel">Second operand channel:</span>
+      Channel of the second operand (used if <a class="marec-parameter-ref" href="#SecondOperandKhz">Second operand kHz</a> = 0).
+      <br>Allowed values: <a class="marec-parameter-ref" href="#SecondOperandChannel">Second operand channel</a> &ge; 1
+   </li>
+   <li><span class="marec-parameter-def" id="LogarithmicOperands">Logarithmic operands:</span>
+      If checked use log(sv), otherwise use (linear) sv.
+   </li>
+   <li><span class="marec-parameter-def" id="Operation">Operation:</span>
+      Specifies how the operands are combined.
+      <br>Allowed values: <em>{ -, +, *, /, mean, harmonic mean, min, max, zero, copy1stOperand }</em>
+   </li>
+</ul>

@@ -1,0 +1,31 @@
+<h1>File draw</h1>
+<p>
+   Data directory is configured in
+   <a href="../../Configuration/Survey/DataConf.html">[Survey configuration - Data files]</a>.
+</p>
+<p>
+   The data is shown as an overlay on the
+   <a href="../../Views/Echogram/Echogram.html#FileDrawOverlay">echogram</a>.
+</p>
+
+<h2 id="FileFormat">File format</h2>
+<p>
+   A data file consists of lines specifying points as [Date] [Time] [Depth]:
+</p>
+<ol>
+   <li>Date as yyyymmdd in UTC</li>
+   <li>Time as hhmmssXXX in UTC. XXX means milliseconds and is optional.</li>
+   <li>Depth in meters</li>
+</ol>
+
+<h3 id="Example">Example</h3>
+<pre>
+20001214 160237 150.3
+20001214 160300 160
+20001214 160630 170.7
+20001214 160720 170.5
+20001214 160807 180.1
+20001214 160837 165.1
+20001214 160901 150.2
+20001214 161007 140.4
+</pre>

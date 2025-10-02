@@ -1,0 +1,22 @@
+<h1>Display module</h1>
+<p>
+   This module displays all data channels as done by <a href="../../WorkingWith/KoronaPlaybox/KoronaPlaybox.html">KORONA playbox</a>.
+   If no display modules are specified, then KORONA playbox will add a Display module at the end.
+</p>
+<p>
+   One reason for using this module explicitly is for visually comparing the data before and after some processing.
+   For example, the module configuration
+</p>
+<blockquote>
+   Display module ➔ Smoother module ➔ Display module
+</blockquote>
+<p>
+   will display the data before and after smoothing.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+</ul>

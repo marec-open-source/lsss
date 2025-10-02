@@ -1,0 +1,27 @@
+<h1>Threshold response</h1>
+<p>
+   This view shows a plot of the threshold response curve, t = t(dB), defined as
+</p>
+<blockquote>
+   t(dB) = s<sub>A</sub>(dB, &infin;).
+</blockquote>
+<p>
+   The curve is computed for the currently active region(s).
+</p>
+<p>
+   With lower threshold dB<sub>low</sub> and upper threshold dB<sub>high</sub> the s<sub>A</sub> is
+</p>
+<blockquote>
+   s<sub>A</sub>(dB<sub>low</sub>, dB<sub>high</sub>) = t(dB<sub>low</sub>) - t(dB<sub>high</sub>).
+</blockquote>
+<figure>
+   <img src="ThresholdResponse.png" width="470" height="374" class="marec-floatable-module">
+</figure>
+<p>
+   There is one curve for each frequency. The checkboxes below the plot can be used to select which frequencies that should
+   be plotted. The curve for the current frequency is always plotted and with a thick line.
+</p>
+<p>
+   The vertical lines indicate the threshold values set in the <a href="../Echogram/Echogram.html#Colorbar">colorbar</a>.
+   If the upper threshold value only is used for modifying the color scale and not for clipping, then that line is dashed.
+</p>

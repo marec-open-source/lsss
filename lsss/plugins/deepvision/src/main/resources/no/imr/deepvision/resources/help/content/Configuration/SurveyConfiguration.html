@@ -1,0 +1,110 @@
+<h1>Survey configuration</h1>
+
+<h2 id="Data">Data files</h2>
+<p>
+   The <strong>DeepVisionDataDir</strong> is the root directory of where the Deep Vision files are stored. The system will scan for Deep Vision files in the root
+   directory and one level down. All files in those directories that meet the following criteria will be selected:
+</p>
+<ul>
+   <li>The file type is xml.</li>
+   <li>The root element of the xml-document is called deepvision.</li>
+</ul>
+<p>
+   The xml-file could be called <em>deepvision.xml</em> (or something.xml).
+   With the root element called deepvision, the first lines could look like:
+</p>
+<pre><code>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;deepvision xmlns:ns="http://www.deepvision.no/formats/deepvision/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="deepvision.xsd">
+...
+&lt;/deepvision>
+</code></pre>
+
+<h3 id="DistanceMapping">Distance mapping</h3>
+<p>
+   The following parameters decide how the Deep Vision data are positioned relative to the echosounder data:
+</p>
+<ul>
+   <li><strong>Distance mapping:</strong>
+      Switches how the Deep Vision path maps to the echogram. Choices:
+      <ul>
+         <li><em>Identity:</em>
+            The Deep Vision position is a fixed distance behind the ship.
+         </li>
+         <li><em>Geographical:</em>
+            The recorded Deep Vision positions are used.
+         </li>
+      </ul>
+   </li>
+   <li><strong>Distance behind ship:</strong>
+      The fixed distance behind the ship of the Deep Vision vessel. Only used when the distance mapping is set to <em>Identity</em>.
+   </li>
+</ul>
+
+<h3 id="LocationOfImages">Location of images</h3>
+<p>
+   The format of the image files is specified by the 'fileformat' attribute of the 'frames' element in the Deep Vision file.
+   Example: <code>fileformat="jpg"</code>.
+   If the format ends with '-zip', then the images are stored in zip files.
+   Example: <code>fileformat="jpg-zip"</code>.
+</p>
+<p>
+   If the images are not stored in zip files, then the expected location is:
+</p>
+<pre>
+   File name: {time}.{fileformat}
+   Directory: {Directory of Deep Vision file} / {Left or Right} / {folder}
+</pre>
+<p>
+   where {time} and {folder} are attribute values of 'frame' elements in the Deep Vision file.
+</p>
+<p>
+   If the images are stored in zip files, then the expected location is:
+</p>
+<pre>
+   File name: {time}.{fileformat without '-zip'}
+   Zip file:  {Directory of Deep Vision file} / {Left or Right} / {folder}.zip
+</pre>
+
+<h3 id="AdditionalData">Additional user defined data files</h3>
+<p>
+   For each Deep Vision file, users can add an xml-file with additional information that can be displayed in LSSS. Currently, the user can define filled circles that can be shown
+   below the Deep Vision path. These circles can, for example, be used to indicate species type and amount.
+   The additional files must meet the following criteria:
+</p>
+<ul>
+   <li>The file must be placed in the same directory as the corresponding Deep Vision file.</li>
+   <li>The file type is xml.</li>
+   <li>The root element is called lsss-deepvision</li>
+</ul>
+<p>
+   This additional xml-file could, for example, be called <em>lsss-deepvision.xml</em>,
+   and has a format that is illustrated in the example below:
+</p>
+<pre><code>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;lsss-deepvision>
+   &lt;frames>
+      &lt;frame time="20150305065645195" color="#dc143c" size="20"/>
+   &lt;/frames>
+&lt;/lsss-deepvision>
+</code></pre>
+<p>
+   The <code>time</code>-attribute is used to associate to the corresponding frame in the Deep Vision file.
+   The color has the form '#rrggbb' with hexadecimal color components.
+   The size is the diameter of the circle in units of pixels.
+</p>
+
+<h3 id="Example">Data directory example</h3>
+<p>
+   <strong>DeepVisionDataDir</strong> = C:/LSSS_DATA/S2020116_PG.O.Sars[4174]/DeepVision
+</p>
+<pre>
+   DeepVisionDataDir/20201120T1457Z
+   DeepVisionDataDir/20201120T1457Z/Left
+   DeepVisionDataDir/20201120T1457Z/Left/145720Z_active.zip
+   DeepVisionDataDir/20201120T1457Z/Right
+   DeepVisionDataDir/20201120T1457Z/Right/145720Z_active.zip
+   DeepVisionDataDir/20201120T1457Z/deepvision.xml
+   DeepVisionDataDir/20201120T1457Z/lsss-deepvision.xml
+</pre>

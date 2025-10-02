@@ -1,0 +1,74 @@
+<h1>Broadband notch filter module</h1>
+<p>
+   This module removes spike noise from the frequency spectrum of the broadband signal and writes out the filtered broadband channels.
+</p>
+<p>
+   The noise removal is achieved by applying one or several notch filters, i.e. a (very) narrow band-stop filter. See the <a href=#Details>Details</a>
+   section below for the exact mathematical definition and further background information.
+</p>
+<p>
+   In order to apply a notch filter in LSSS, its parameters need to be specified in the file.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+</ul>
+
+<h2 id="ConfigurationFile">Configuration file</h2>
+<p>
+   This module requires a
+   <a href="../../WorkingWith/ConfigFileSettings/BroadbandNotchFilters/BroadbandNotchFilters.html">configuration file</a>
+   containing the definition of the notch filters to apply to the data.
+   The file can be edited directly from the configuration of the module.
+</p>
+<p>
+   Each notch filter is defined by the following required parameters:
+</p>
+<ul>
+   <li>rejection frequency, and</li>
+   <li>bandwidth.</li>
+</ul>
+<p>
+   The figure below showing the magnitude frequency response of a single notch filter illustrated the meaning of these two parameters.
+</p>
+<figure id="NotchFilterMagnitude">
+   <img src="notch-filter-magnitude.svg" width=576 height=430>
+</figure>
+<p>
+   Besides the filter parameters, it is also possible to specify the temporal validity of each of the notch filters by giving start and/or stop time.
+   Time is to be specified in ISO 8601 format, i.e. [YYYY]-[MM]-[DD]T[hh]:[mm]:[ss]Z.
+</p>
+<p>
+   It should be noted that the frequency resolution in the data is limited by the inverse of the pulse length. Thus, the filter bandwidth should be at
+   least 2-3 times this limit resolution in order to capture the notch properly. E.g. for a pulse duration of 2 milliseconds, the filter width should
+   be at least 1-1.5 kHz.
+</p>
+<p>
+   If already filtered data are processed by the module, only filters not already applied are considered. In other words, the set of filters applied
+   is the union of previously applied and the currently specified filters, no filter is applied more than once.
+</p>
+
+<h2 id="Details">Details</h2>
+<p>
+   The used notch filter is defined by the following transfer function.
+</p>
+<figure>
+   <!-- Latex code for formula:
+    H(s) = \frac{s^2 + \omega^2}{s^2 + \frac{\omega}{q}s + \omega^2}
+     -->
+   <img src="TransferFunctionNotch.png" width="165" height="50">
+</figure>
+<p>
+   where &omega; is the rejection frequency and q the quality factor determining the bandwidth. The q-factor is found iteratively for a prescribed
+   bandwidth.
+</p>
+<p>
+   The figure below shows the phase response of a notch filter with a rejection frequency of 1 Hz. For the magnitude response, see the figure <a
+      href="#NotchFilterMagnitude">above</a>. The bandwidth of the filter is user chosen.
+</p>
+<figure>
+   <img src="notch-filter-phase.svg" width=576 height=430>
+</figure>

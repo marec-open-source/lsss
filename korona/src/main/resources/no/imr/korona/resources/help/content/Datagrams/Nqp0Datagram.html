@@ -1,0 +1,27 @@
+<h1>NQP0: Noise quantification datagram</h1>
+<p>
+   This datagram contains noise quantification parameters.
+   These parameters are used later by the
+   <a href="../Modules/noise/NoiseRemoverModule.html">Noise remover module</a>.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once per ping per channel.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/noise/NoiseQuantificationModule.html">Noise quantification module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Nqp0Datagram {
+   DatagramHeader header; <span class="marec-comment">// NQP0</span>
+   short channel;         <span class="marec-comment">// The channel to which this datagram corresponds</span>
+   float average;         <span class="marec-comment">// Average noise level, N<sub>E</sub></span>
+   float upperLimit;      <span class="marec-comment">// Upper limit for noise values, N<sub>H</sub></span>
+   float quality;         <span class="marec-comment">// The quality of the noise parameters, ranging from 0 to 100</span>
+};
+</pre>

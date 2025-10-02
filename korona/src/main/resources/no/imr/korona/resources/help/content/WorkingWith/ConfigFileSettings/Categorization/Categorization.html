@@ -1,0 +1,279 @@
+<h1>Categorization library</h1>
+<p>
+   The categorization config file.
+</p>
+<p>
+   Used by the <a href="../../../Modules/categorization/CategorizationModule.html">Categorization module</a>.
+</p>
+
+<h2 id="Editor">Categorization library visualizer and editor</h2>
+
+<h3 id="EditMenu">The edit menu</h3>
+
+<h4 id="Edit-Configuration">Categorization configuration</h4>
+<figure>
+   <img width="818" height="343" src="figures/categoryConfig.png">
+</figure>
+<p>
+   Here it is possible to define new categories with the <strong>Add</strong> button, and permanently
+   remove categories with the <strong>Remove</strong> button.
+</p>
+<p>
+   The features known by the system can also be enabled/disabled though the panel
+   to the right.
+</p>
+<p>
+   For each category, the following parameters can be configured:
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="Enabled">Enabled:</span>
+      A checkbox specifying whether the category is enabled.
+      Disabled categories become invisible to the user and will not be used in the categorization.
+   </li>
+   <li><span class="marec-parameter-def" id="Name">Name:</span>
+      The name for the category.
+      The names for the permanent categories such as noise, bottom, etc. cannot be edited.
+   </li>
+   <li><span class="marec-parameter-def" id="Legend">Legend:</span>
+      A shorter legend which is used in the colorbar when visualising
+      results from categorization. The legend should be 5 characters or shorter.
+   </li>
+   <li><span class="marec-parameter-def" id="Comment">Comment:</span>
+      An optional comment describing the category.
+   </li>
+   <li><span class="marec-parameter-def" id="Color">Color:</span>
+      The color of the category.
+   </li>
+   <li><span class="marec-parameter-def" id="OverallAPriori">Overall a priori:</span>
+      The overall a priori probability of the category.
+   </li>
+   <li><span class="marec-parameter-def" id="SchoolAPriori">School a priori:</span>
+      Optional school a priori probability.
+      Only used by <a href="../../../Modules/categorization/SchoolCategorizationModule.html">School categorization module</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="GeoAPriori">Geo a priori:</span>
+      Optional geographical a priori probability.
+      The geographical a priori for a ping is multiplied with the overall a priori during categorization.
+   </li>
+   <li><span class="marec-parameter-def" id="MinSv38">Min Sv 38:</span>
+      Optional minimum Sv(38 kHz).
+      Categorization of lower values will get a linearly reduced a priori probability that reaches 0 at
+      <a class="marec-parameter-ref" href="#MinSv38">Min Sv 38</a> - <a class="marec-parameter-ref" href="#DeltaMinMaxSv38">Delta min max Sv 38</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxSv38">Max Sv 38:</span>
+      Optional maximum Sv(38 kHz).
+      Categorization of higher values will get a linearly reduced a priori probability that reaches 0 at
+      <a class="marec-parameter-ref" href="#MaxSv38">Max Sv 38</a> + <a class="marec-parameter-ref" href="#DeltaMinMaxSv38">Delta min max Sv 38</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="Requirement">Requirement:</span>
+      Optional requirement for using the category during categorization.
+      The requirement is a Boolean expression that must evaluate to true for the category to be used.
+      <ul>
+         <li>If no expression is specified, then the category is always used.</li>
+         <li>R18 evaluates to true if 18 kHz is available and false otherwise. Similarly, for R70, R120, etc.</li>
+         <li>Boolean operators such as &amp;&amp; and || can be used.</li>
+         <li>The function count(Boolean...) takes any number of Boolean parameters and returns the number of parameters with value true.</li>
+      </ul>
+      Examples:
+      <ul>
+         <li>Example 1: If <code>R200</code> is specified for mackerel then 200 kHz must be available for anything to be categorized as mackerel.
+            If the transducer range for 200 kHz is set to 200 m in
+            <a href="../VerticalTransducerOffsets/VerticalTransducerOffsets.html">Vertical transducer offsets</a>
+            then nothing will be categorized as mackerel below 200 m.
+         </li>
+         <li>Example 2: <code>R18 &amp;&amp; count(R70, R120, R200) >= 1</code> specifies that 18 kHz must be available together with at least one of 70, 120 and 200 kHz.</li>
+      </ul>
+   </li>
+</ul>
+<p>
+   The Sv a priori is illustrated in the figure below.
+</p>
+<figure>
+   <img src="figures/SvAPriori.svg" width="600" height="200">
+</figure>
+<p>
+   The total a priori is calculated as
+</p>
+<blockquote>
+   Total a priori =
+   <a class="marec-parameter-ref" href="#OverallAPriori">Overall a priori</a> ×
+   <a class="marec-parameter-ref" href="#SchoolAPriori">School a priori</a> ×
+   <a class="marec-parameter-ref" href="#GeoAPriori">Geo a priori</a> ×
+   <em>Sv a priori</em>.
+</blockquote>
+
+<h4 id="Edit-CategorizationParameters">Categorization parameters</h4>
+<figure>
+   <img width="632" height="81" src="figures/categorizationParams.png">
+</figure>
+<p>
+   Parameters used by the categorization system can be set here.
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="OutlierFraction">Outlier fraction:</span>
+      The points that lie in the percentile given by 1 minus this number are considered outliers.
+   </li>
+   <li><span class="marec-parameter-def" id="ThinnedScatterSize">Thinned scatter size:</span>
+      The maximum number of points in the point clouds used for visualization.
+      The points used are drawn randomly from all existing points.
+   </li>
+   <li><span class="marec-parameter-def" id="DeltaMinMaxSv38">Delta min max Sv 38:</span>
+      Distance outside <a class="marec-parameter-ref" href="#MinSv38">Min Sv 38</a> and <a class="marec-parameter-ref" href="#MaxSv38">Max Sv 38</a>
+      until the a priori probability is linearly reduced to 0.
+   </li>
+</ul>
+
+<h4 id="Edit-AddToCategory">Add to category</h4>
+<figure>
+   <img width="268" height="126" src="figures/addToDialog.png">
+</figure>
+<p>
+   The user can add the extracted points to a category that can be selected from
+   a drop-down list. The category that the system deems to be the best automatically
+   appears at the top of the list, then the second best and so on. For adding points
+   to categories, see also <a href="#View-Misclassification">Misclassification matrix</a>.
+</p>
+
+<h4 id="Edit-Mark">Mark</h4>
+<p>
+   Through this, you can mark points that meet some criteria. Possible criteria are:
+</p>
+<ul>
+   <li>Classified as: marks points that will be classified as the chosen category.</li>
+   <li>Not classified as: marks points that will NOT be classified as the chosen category.</li>
+   <li>Outlier: marks points that are outliers relative to the chosen category.</li>
+   <li>Inlier: marks points that are inliers relative to the chosen category.</li>
+</ul>
+
+<h4 id="Edit-Unmark">Unmark</h4>
+<p>
+   Through this, you can unmark points that meet some criteria. Possible criteria are:
+</p>
+<ul>
+   <li>Classified as: unmarks points that will be classified as the chosen category.</li>
+   <li>Not classified as: unmarks points that will NOT be classified as the chosen category.</li>
+   <li>Outlier: unmarks points that are outliers relative to the chosen category.</li>
+   <li>Inlier: unmarks points that are inliers relative to the chosen category.</li>
+</ul>
+
+<h4 id="Edit-ClearMarking">Clear marking</h4>
+<p>
+   Clears all current markings. Shortcut key: <code>Escape</code>.
+</p>
+
+<h4 id="Edit-InvertMarking">Invert marking</h4>
+<p>
+   Inverts all current markings.
+</p>
+
+<h4 id="Edit-DeleteMarkedPoints">Delete marked points</h4>
+<p>
+   Deletes the marked points. Shortcut key: <code>Delete</code>.
+</p>
+
+<h4 id="Edit-DeleteUnmarkedPoints">Delete unmarked points</h4>
+<p>
+   Deletes the unmarked points. Shortcut key: <code>Alt-Delete</code>.
+</p>
+
+<h4 id="Edit-UndoAllModifications">Undo all modifications</h4>
+<p>
+   Reads the data from file again so that all modifications before a Save
+   are undone.
+</p>
+
+<h3 id="ViewMenu">The view menu</h3>
+
+<h4 id="View-Echogram">Echogram</h4>
+<figure>
+   <img width="560" height="420" src="figures/echogram.png">
+</figure>
+<p>
+   Shows the extracted rectangle with a separate colorbar for each frequency.
+   The points will be masked/unmasked by dragging the colorbars. Points can also
+   be masked by drawing rectangles directly in the echogram views. Holding
+   <code>Ctrl</code> enables marking of several rectangles, and holding
+   <code>Alt</code> unmarks the points inside the drawn rectangle.
+</p>
+
+<h4 id="View-Scatter">Scatter</h4>
+<figure>
+   <img width="560" height="420" src="figures/scatter.png">
+</figure>
+<p>
+   Shows a scatter plot of how the points of the categories are distributed in the
+   feature space. A pair of feature axes can be selected by clicking the checkboxes to the left
+   and below the plot. See also <a href="#common">category toggles</a>.
+</p>
+
+<h4 id="View-FrequencyResponse">Frequency response</h4>
+<figure>
+   <img width="560" height="420" src="figures/freqResp.png">
+</figure>
+<p>
+   Shows the relative frequency response curves for the categories.
+   See also <a href="#common">category toggles</a>.
+</p>
+<p>
+   The option 'Draw confidence interval' shows the extent of the category distributions
+   as dashed lines. The position of the dashed lines for a frequency, e.g. 200 kHz,
+   corresponds to the ellipse in the <a href="#View-Scatter">scatter</a> plot projected
+   to the axis of the corresponding feature, e.g. R200.
+   The size of the ellipses and the position of the dashed confidence lines depend on the
+   <a href="#Edit-CategorizationParameters">outlier fraction</a>.
+</p>
+
+<h4 id="View-Probabilities">Probabilities</h4>
+<figure>
+   <img width="560" height="420" src="figures/probabilities.png">
+</figure>
+<p>
+   Shows the probability density function for the categories for a selected feature.
+   See also <a href="#common">category toggles</a>.
+</p>
+
+<h4 id="View-Misclassification">Misclassification matrix</h4>
+<figure>
+   <img width="541" height="267" src="figures/misclass.png">
+</figure>
+<p>
+   The first table shows how point cloud <code>i</code>, where <code>i</code>
+   is the row, would be categorized if
+   the extracted points were added as a NEW category.
+</p>
+<p>
+   The second table shows the overlap between the different point clouds, i.e. the
+   percentage of the points in category <code>i</code> that lies within the
+   <code>1 - outlierFraction</code> contour of category <code>j</code>,where
+   <code>i</code> is the row and <code>j</code> is the column.
+</p>
+<p>
+   This view also gives a recommendation of what can be done with the extracted
+   points.
+</p>
+<p>
+   The user can specify different coloring schemes, depending on whether the user wishes
+   to add the points to an existing category or create a new category. The system will then
+   highlight the problematic values with either yellow or red color depending on the
+   severity of the problem (yellow: somewhat severe, red: more severe).
+</p>
+<p>
+   The user can also turn on/off the enabled features (see <a href="#Edit-Configuration">Configuration</a> to enable features)
+   by clicking the toggles at the bottom of the view. The
+   results will then be recalculated.
+</p>
+
+<h4 id="View-RescaleAxes">Rescale axes</h4>
+<p>
+   Rescales the plot axes.
+</p>
+
+<h4 id="common">Common buttons for many views</h4>
+<ul>
+   <li><strong>Category toggles:</strong> Positioned at the top of many views. By left-clicking
+      these toggles, the user can turn on/off the visualization of the given category.
+      Right-clicking the toggles brings up another view where it is possible to turn on/off
+      the use of earlier saved point clouds. By right-clicking the earlier point clouds, it
+      is possible to delete them permanently.
+   </li>
+</ul>

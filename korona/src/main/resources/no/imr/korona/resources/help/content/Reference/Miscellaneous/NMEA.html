@@ -1,0 +1,58 @@
+<h1>NMEA</h1>
+<p>
+   This section contains some details about the NMEA datagrams used.
+</p>
+
+<h2 id="IndexFileGeneration">Index file generation</h2>
+<p>
+   When idx files are generated, or when a raw file without an idx file is read, these NMEA sentences are used:
+</p>
+<ul>
+   <li><code>$GPGGA</code>:
+      Used for longitude and latitude.
+   </li>
+   <li><code>$GPGLL</code>:
+      Used for longitude and latitude,
+      but only if no <code>$GPGGA</code> sentences have been read so far.
+   </li>
+   <li><code>$GPVLW</code>:
+      Used for vessel distance.
+   </li>
+   <li><code>$GPVTG</code>:
+      Speed is used for updating vessel distance,
+      but only if no <code>$GPVLW</code> sentences have been read so far.
+   </li>
+</ul>
+<p>
+   In some cases when a ping does not contain all necessary NMEA sentences,
+   pings will be buffered while searching for such sentences.
+   The buffering will be maximum 10 seconds and no more than 100 pings.
+</p>
+<ul class="marec-list-spacing">
+   <li>If the first ping does not contain any NMEA sentences with geographical position,
+      then pings will be buffered in search for the next NMEA sentence with geographical position.
+      If found, then that geographical position is used for the first pings,
+      otherwise latitude and longitude are set to 0 which indicates not available.
+   </li>
+   <li>If <code>$GPVLW</code> sentences have been read and a ping does not a <code>$GPVLW</code> sentence,
+      then pings will be buffered in search for the next ping with a <code>$GPVLW</code> sentence.
+      If found, then the vessel distance will be interpolated linearly,
+      otherwise the vessel distance will remain the same.
+      <br>
+      If the first ping contains a <code>$GPVLW</code> sentence with vessel distance zero and
+      no more <code>$GPVLW</code> sentences can be found while buffering, then that <code>$GPVLW</code> sentence is ignored.
+   </li>
+</ul>
+
+<h2 id="Heading">Heading</h2>
+<p>
+   Vessel heading is found through NMEA sentences:
+</p>
+<ul>
+   <li><code>$GPHDT</code>:
+      Used for heading.
+   </li>
+</ul>
+<p>
+   If no <code>$GPHDT</code> are available for a ping, then heading is interpolated from neighbouring pings.
+</p>

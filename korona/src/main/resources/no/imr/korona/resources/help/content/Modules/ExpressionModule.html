@@ -1,0 +1,25 @@
+<h1>Expression module</h1>
+<p>
+   Creates a new channel defined as an expression of the existing channels.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="Expression">Expression:</span>
+      An expression of the (linear) s<sub>v</sub> values.
+      Use C1, C2, ..., or F18, F38, ...
+      <br>
+      If multiple expressions are specified, then the first expression with all variables available is used.
+      <br>
+      All functions in java.lang.Math are available.
+      <br>
+      Examples:
+      <br>C1
+      <br>(C1 + C2) / 2
+      <br>C1 / C5 + F70 - C4
+      <br>C6 * log10(C2) / pow(C3, F364)
+   </li>
+</ul>

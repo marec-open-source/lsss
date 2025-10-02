@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<pulseCompressionFilters>
+   <channel id="WBT 545609-15 ES200-3C">
+      <filter refStage="1">
+         <appliesTo pulseDuration="0.002048" pulseForm="1"/>
+      </filter>
+      <filter>
+         <decimationFactor>1</decimationFactor>
+         <re>1,2,3</re>
+         <im>4,5,6</im>
+      </filter>
+   </channel>
+   <channel id="WBT 562907-15 ES333-7CD">
+      <filter refStage="1"/>
+      <filter>
+         <appliesTo minSlope="1E-6" maxSlope="0.25" pulseForm="fm_linear_down_sweep"/>
+         <decimationFactor>1</decimationFactor>
+         <re>1,2,3</re>
+         <im>4,5,6</im>
+      </filter>
+   </channel>
+</pulseCompressionFilters>

@@ -1,0 +1,64 @@
+<h1>Categorization</h1>
+<p>
+   Categorization is done by
+   <a href="../../Modules/categorization/CategorizationModule.html">CategorizationModule</a>,
+   which is typically used in the following setup:
+</p>
+<figure>
+   <div style="display: inline-block; border: 1px solid #666666; padding: 3px; margin-bottom: 10px;">
+      <a href="../../Modules/DepthModule.html">Bottom detection module</a>
+      ➔
+      <a href="../../Modules/noise/NoiseQuantificationModule.html">Noise quantification module</a>
+      ➔
+      <a href="../../Modules/noise/NoiseRemoverModule.html">Noise remover module</a>
+      ➔
+      <a href="../../Modules/convolution/SmootherModule.html">Smoother module</a>
+      ➔
+      <a href="../../Modules/categorization/CategorizationModule.html">Categorization module</a>
+   </div>
+   <figcaption>Typical module configuration when doing categorization.</figcaption>
+</figure>
+<p>
+   The <a href="../ConfigFileSettings/Categorization/Categorization.html">categorization library</a> used is specified in the
+   <a href="../ConfigFileSettings/ConfigFileSettings.html">config file settings</a>.
+</p>
+
+<h2 id="ViewingCategorizationResults">Viewing categorization results</h2>
+<img width="266" height="334" src="ColormapCategoriesMenu.png" class="marec-img-float-right">
+<p>
+   Make sure categorization datagrams,
+   <a href="../../Datagrams/Cac0Datagram.html">Cac0Datagram</a>
+   and
+   <a href="../../Datagrams/Cad0Datagram.html">Cad0Datagram</a>,
+   are available and start playback. Right-click in one of the echogram panels and
+   select 'Use private colormap'.
+   Right-click in the separate colormap panel to access a colormap menu
+   with the following extensions:
+</p>
+<ul>
+   <li><em>Category:</em> Each pixel is colored according to its category.</li>
+   <li><em>CategoryProbability:</em> Each pixel is colored according to its category
+      with light intensity proportional to category conditional probability.
+   </li>
+   <li><em>CategoryDiscriminant:</em> Each pixel is colored according to its category
+      with light intensity proportional to discriminant value.
+   </li>
+   <li><em>CategoryDoubt:</em> Each pixel is colored according to its category
+      with light intensity proportional to the difference in discriminant value
+      of the two best categories.
+   </li>
+   <li><em>CategorySv:</em> Each pixel is colored according to its category
+      with light intensity proportional to signal strength, S<sub>v</sub>.
+   </li>
+</ul>
+<p>
+   The following actions are possible:
+</p>
+<ul>
+   <li>Left-click on a category's square in the colormap panel to toggle on and off plotting
+      of that category. When a category is turned off, the next best category is plotted instead.
+   </li>
+   <li>For category colorings that modify the light intensity (the four last choices):
+      Drag the two markers in the colormap panel.
+   </li>
+</ul>

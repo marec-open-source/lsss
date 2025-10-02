@@ -1,0 +1,44 @@
+<h1>Personnel</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>Personnel</strong> - Name of person and (on??) <!-- todo --> duty on survey
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct Personnel {
+  short Nation;
+  short Platform;
+  int   Survey;
+  char  Person[80];
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   Name of person and (on??) <!-- todo --> duty on survey
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the
+      <a href="Nation.html">Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - A survey code is assigned to each survey. Refer to the
+      <a href="Survey.html">Survey</a> database table.
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="Survey.html">Survey</a>
+</p>

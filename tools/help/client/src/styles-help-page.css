@@ -1,0 +1,115 @@
+/* Included by the help app and the individual help pages */
+
+html, body {
+   width: 100%;
+   height: 100%;
+   margin: 0;
+   padding: 0;
+   font-family: sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+   clear: both;
+   overflow-wrap: break-word;
+}
+
+h1 {
+   margin-top: 0;
+   padding-top: 20px;
+}
+
+a {
+   text-decoration: none;
+}
+
+a:hover {
+   text-decoration: underline;
+}
+
+a:link, a:visited {
+   color: #0000ff;
+}
+
+svg a {
+   fill: #0000ff;
+}
+
+th {
+   background-color: #c0c0c0;
+}
+
+figure img, figure svg {
+   max-width: 100%;
+   height: auto;
+}
+
+table img {
+   max-width: none;
+}
+
+pre {
+   max-width: 100%;
+   overflow-x: auto;
+}
+
+.marec-comment {
+   color: #808080;
+}
+
+.marec-horizontal-scroll {
+   max-width: 100%;
+   overflow-x: auto;
+}
+
+.marec-overflow-break-word {
+   overflow-wrap: break-word;
+}
+
+.marec-table {
+   border-collapse: collapse;
+}
+
+.marec-table th, .marec-table td {
+   border: 1px solid #666666;
+   padding: 3px;
+}
+
+.marec-table-first-column-nowrap td:first-child {
+   white-space: nowrap;
+}
+
+.marec-parameter-def {
+   font-weight: bold;
+}
+
+.marec-parameter-ref {
+   font-style: italic;
+}
+
+.marec-parameter-ref:link, .marec-parameter-ref:visited {
+   color: black;
+}
+
+.marec-floatable-module {
+   border: 2px solid gray;
+}
+
+.marec-list-spacing > li {
+   margin: 5px 0;
+}
+
+.marec-img-float-right {
+   float: right;
+   margin-left: 5px;
+   margin-bottom: 5px;
+}
+
+.marec-literature {
+   list-style-type: none;
+   padding-left: 2em;
+}
+
+.marec-literature > li {
+   margin-top: 1em;
+   text-indent: -2em;
+}

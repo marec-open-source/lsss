@@ -1,0 +1,110 @@
+<h1>Export</h1>
+<p>
+   Many of the LSSS modules can export data. By selecting File->Export to files...,
+   a dialog with all available exports pops up, and exporters can be selected/deselected
+   and configured individually.
+</p>
+<p>
+   Common for all export types:
+</p>
+<ul>
+   <li>Area exported:
+      <ul>
+         <li>The exported area is limited to the horizontally zoomed range.</li>
+         <li>Vertical zooming does not limit the exported area.<br>
+            (Except for exporting echosounder data with option 'Zoomed vertically' selected.)
+         </li>
+         <li>The export is limited to selected regions.<br>
+            (Except for exporting echosounder data.)
+         </li>
+      </ul>
+   </li>
+   <li>All pings are used, even if <a href="../../../GettingStarted/GettingStarted.html#DataLoadingMode">browse mode</a>
+      is currently active.
+   </li>
+   <li>The exported file names are of the form
+      <blockquote>
+         &lt;Optional prefix&gt;&lt;Export type&gt;_T&lt;Start time&gt;-&lt;Stop time&gt;[_nn].&lt;Suffix&gt;
+      </blockquote>
+      where start time and stop time are on the form YYYYMMDD_HHMMSSXX,
+      and nn is a counter added to avoid overwriting existing files.
+   </li>
+   <li>If the export is done on preprocessed data, then the module setup is also saved.</li>
+   <li>The format and content of the exported files may change in future versions of LSSS.</li>
+</ul>
+
+<h2 id="BroadbandData">Broadband data</h2>
+<p>
+   See the separate page on
+   <a href="../../../Broadband/Export/BroadbandExport.html">broadband export</a>.
+</p>
+
+<h2 id="EchogramPlot">Echogram plot</h2>
+<p>
+   Exports the functions selected by the <a href="../../../Views/EchogramPlot/EchogramPlot.html">Echogram plot module</a>.
+</p>
+<p>
+   Changes:
+</p>
+<ul>
+   <li>LSSS 2.16.0:
+      If the parameter <a href="../../../Views/EchogramPlot/EchogramPlot.html#PlotAllChannels">Plot all channels</a>
+      is selected, then the export will contain values for all channels for channel-dependent variables.
+      Prior to 2.16.0 only the current channel was exported.
+   </li>
+</ul>
+
+<h2 id="EchosounderData">Echosounder data</h2>
+<p>
+   Exports the horizontally visible echosounder data to raw files.
+   Selected regions do not limit what is exported.
+</p>
+<p>
+   Options:
+</p>
+<ul>
+   <li>Zoomed vertically: When selected then
+      <ul>
+         <li>Only the vertical extent visible in the pelagic echogram is exported.</li>
+         <li>Only RAW0 datagrams are exported.</li>
+      </ul>
+   </li>
+</ul>
+
+<h2 id="SchoolParameters">School parameters</h2>
+<p>
+   Exports <a href="../../Regions/SchoolParameters.html">school parameters</a> for the selected schools.
+</p>
+<p>
+   Changes:
+</p>
+<ul>
+   <li>LSSS 2.8.0:
+      Renamed "acousticCategories" to "scrutiny".
+   </li>
+</ul>
+
+<h2 id="Sv">Sv</h2>
+<p>
+   Exports sample values in the selected regions.
+</p>
+
+<h2 id="Tracks">Tracks</h2>
+<p>
+   Exports <a href="../../Tracks/Tracks.html">tracks</a> detected by the
+   <a href="../../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/tracking/TrackingModule.html">KORONA tracking module</a>.
+   Only tracks completely contained in the selected regions are exported.
+</p>
+
+<h2 id="TS">TS</h2>
+<p>
+   Exports TS targets detected by <a href="../../../Views/TS/TS.html">TS module</a> in the selected regions.
+</p>
+<p>
+   Changes:
+</p>
+<ul>
+   <li>LSSS 1.9.3:
+      Renamed column "sv" to "sV_of_peak".
+   </li>
+</ul>

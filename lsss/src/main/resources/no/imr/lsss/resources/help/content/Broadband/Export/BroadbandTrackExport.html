@@ -1,0 +1,72 @@
+<h1>BB TS(f) tracks export</h1>
+<p>
+   This is the export <a href="../../WorkingWith/Tracks/Tracks.html">tracks</a> detected by the
+   <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/tracking/TrackingModule.html">KORONA tracking module</a>.
+   TS is calculated using the
+   <a class="marec-parameter-ref" href="../Views/BroadbandTsModule.html#FrequencyWindowing">FrequencyWindowing</a> and
+   <a class="marec-parameter-ref" href="../Views/BroadbandTsModule.html#FrequencyResolution">FrequencyResolution</a>
+   configured for the <a href="../Views/BroadbandTsModule.html">BB TS(f) view</a>.
+   Only the tracks where all peak samples are contained in the selected regions are included in the export.
+</p>
+<p>
+   For each track, the properties "pingNumber" - "peakDepth" and "minFrequency" - "tsc" are arrays over the pings that the track consists of.
+   If a channel is missing for a particular ping, then the value NaN is used.
+</p>
+
+<h2 id="Format">Format</h2>
+<pre>
+{
+   "info" : {
+      "exportType" : "BroadbandTracks",
+      ... <span class="marec-comment">// See <a href="BroadbandExport.html">Broadband export</a> for details about the properties in the info block</span>
+   },
+   "tracks" : [ {
+      "labels" : [ "labelA", ... ],                                             <span class="marec-comment">// Labels</span>
+      "pingNumber" : [ 757, 758, ... ],                                         <span class="marec-comment">// Ping number</span>
+      "time" : [ "2014-11-02T09:46:04.470Z", "2014-11-02T09:46:04.678Z", ... ], <span class="marec-comment">// Time</span>
+      "longitude" : [ 5.48296867, 5.48296828, ... ],                            <span class="marec-comment">// Longitude</span>
+      "latitude" : [ 59.99294278, 59.99294288, ... ],                           <span class="marec-comment">// Latitude</span>
+      "heading" : [ 213.15, 213.09, ... ],                                      <span class="marec-comment">// Heading</span>
+      "heave" : [ 0.0, 0.10, ... ],                                             <span class="marec-comment">// Heave</span>
+      "pitch" : [ 0.54, 0.55, ... ],                                            <span class="marec-comment">// Pitch</span>
+      "roll" : [ 0.87, 0.88, ... ],                                             <span class="marec-comment">// Roll</span>
+      "minDepth" : [ 13.255, 13.255, ... ],                                     <span class="marec-comment">// Minimum depth of the track on the detection channel</span>
+      "maxDepth" : [ 13.279, 13.279, ... ],                                     <span class="marec-comment">// Maximum depth of the track on the detection channel</span>
+      "peakDepth" : [ 13.267, 13.267, ... ],                                    <span class="marec-comment">// Depth of the peak sample on the detection channel</span>
+      "channels" : [ {
+         "id" : "WBT 2-1 009072085343 ES200-7CD",      <span class="marec-comment">// The channel id</span>
+         "nominalFrequency" : 200000.0,                <span class="marec-comment">// Nominal frequency</span>
+         "minFrequency" : [ 165000.0, 165000.0, ... ], <span class="marec-comment">// Minimum frequency</span>
+         "maxFrequency" : [ 250000.0, 250000.0, ... ], <span class="marec-comment">// Maximum frequency</span>
+         "numFrequencies" : [ 86, 86, ... ],           <span class="marec-comment">// The number of evenly spaced frequencies between the minimum and maximum frequencies inclusively</span>
+         "peakRange" : [ 13.267, 13.267, ... ],        <span class="marec-comment">// Range of the peak sample</span>
+         "fftDistanceBefore" : [ 0.012, 0.012, ... ],  <span class="marec-comment">// Distance above peak included in FFT</span>
+         "fftDistanceAfter" : [ 0.012, 0.012, ... ],   <span class="marec-comment">// Distance below peak included in FFT</span>
+         "alongshipAngle" : [ 0.95, 0.71, ... ],       <span class="marec-comment">// Alongship angle for the sample with the peak value at nominal frequency</span>
+         "athwartshipAngle" : [ -1.71, -1.41, ... ],   <span class="marec-comment">// Athwartship angle for the sample with the peak value at nominal frequency</span>
+         "x" : [ 0.22, 0.163, ... ],                   <span class="marec-comment">// Alongship position of peak sample, relative to transducer</span>
+         "y" : [ -0.396, -0.325, ... ],                <span class="marec-comment">// Athwartship position of peak sample, relative to transducer</span>
+         "z" : [ 13.259, 13.262, ... ],                <span class="marec-comment">// Vertical position of peak sample, relative to transducer</span>
+         "tsc" : [ [ -76.96, -80.31, ... ], ... ]      <span class="marec-comment">// numFrequencies number of beam compensated TS values</span>
+      }, {
+         ...                                           <span class="marec-comment">// More channels for this track</span>
+      } ],
+   }, {
+      ...                                              <span class="marec-comment">// More tracks</span>
+   } ]
+}
+</pre>
+
+<h2 id="Notes">Notes</h2>
+<ul>
+   <li>TS values are beam compensated.</li>
+   <li>Angles are calculated at sample with peak value at nominal frequency.</li>
+   <li>Angles are not included for <a href="../../WorkingWith/Tracks/Tracks.html#VisualEditing">visually edited</a> parts of tracks.</li>
+</ul>
+
+<h2 id="Changes">Changes</h2>
+<ul>
+   <li>LSSS 2.3.0:
+      Renamed "ts" to "tsc".
+   </li>
+</ul>

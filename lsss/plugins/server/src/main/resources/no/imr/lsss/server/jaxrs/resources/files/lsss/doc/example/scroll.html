@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>LSSS server</title>
+   <link rel="icon" href="../lsss.svg">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+   <link rel="stylesheet" href="../style.css">
+</head>
+<body class="container-fluid">
+
+<h3 id="time"></h3>
+<img id="image" src="">
+
+<script>
+   (function () {
+      'use strict';
+
+      let uniquifier = Date.now();
+
+      const duration = 5 * 60 * 1000; // 5 minutes
+      const timeStep = 10 * 1000;     // 10 seconds
+      let minTime;
+      let timeRange;
+      fetch('/lsss/module/PelagicEchogramModule/zoom/max')
+            .then(response => response.json())
+            .then(data => {
+               timeRange = {
+                  min: new Date(data[0].time).getTime(),
+                  max: new Date(data[1].time).getTime()
+               };
+               minTime = Math.ceil(timeRange.min / timeStep) * timeStep;
+               document.getElementById('image').addEventListener('load', () => {
+                  document.getElementById('time').textContent = new Date(minTime).toISOString();
+                  minTime += timeStep;
+                  nextImage();
+               });
+               nextImage();
+            });
+
+      function nextImage() {
+         const maxTime = minTime + duration;
+         if (maxTime > timeRange.max) {
+            return;
+         }
+         fetch('/lsss/module/PelagicEchogramModule/zoom', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify([{time: new Date(minTime).toISOString()}, {time: new Date(maxTime).toISOString()}]),
+         })
+               .then(() => fetch('/lsss/data/wait'))
+               .then(() => {
+                  document.getElementById('image').src = '/lsss/module/PelagicEchogramModule/image?uniquifier=' + uniquifier++;
+               });
+      }
+   })();
+</script>
+</body>
+</html>

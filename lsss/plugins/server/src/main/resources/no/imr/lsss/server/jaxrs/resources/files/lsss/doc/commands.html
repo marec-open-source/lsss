@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>LSSS server</title>
+   <link rel="icon" href="lsss.svg">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+   <link rel="stylesheet" href="style.css">
+   <style>
+      h3, h4 {
+         padding-top: 20px;
+      }
+   </style>
+</head>
+<body class="container-fluid">
+
+<h1>LSSS server commands</h1>
+<p>
+   This page lists the commands for the <a href=".">LSSS server</a>.
+</p>
+
+<h4>Notes</h4>
+<ul>
+   <li>All non-empty request and response bodies are JSON unless otherwise specified.</li>
+   <li>GET requests do not change the LSSS state. POST and DELETE requests do.</li>
+</ul>
+
+<h4>Contents</h4>
+<ul>
+   <li><a href="#/lsss/application">/lsss/application</a></li>
+   <li><a href="#/lsss/application/config/unit/DatabaseConf">/lsss/application/config/unit/DatabaseConf</a></li>
+   <li><a href="#/lsss/data">/lsss/data</a></li>
+   <li><a href="#/lsss/database">/lsss/database</a></li>
+   <li><a href="#/lsss/doc">/lsss/doc</a></li>
+   <li><a href="#/lsss/events">/lsss/events</a></li>
+   <li><a href="#/lsss/export">/lsss/export</a></li>
+   <li><a href="#/lsss/module">/lsss/module</a></li>
+   <li><a href="#/lsss/module/ColorBarModule">/lsss/module/ColorBarModule</a></li>
+   <li><a href="#/lsss/module/{EchogramModuleId}">/lsss/module/{EchogramModuleId}</a></li>
+   <li><a href="#/lsss/module/InterpretationModule">/lsss/module/InterpretationModule</a></li>
+   <li><a href="#/lsss/package">/lsss/package</a></li>
+   <li><a href="#/lsss/regions">/lsss/regions</a></li>
+   <li><a href="#/lsss/survey">/lsss/survey</a></li>
+   <li><a href="#/lsss/survey/config/unit/AcousticCategoryConf">/lsss/survey/config/unit/AcousticCategoryConf</a></li>
+   <li><a href="#/lsss/survey/config/unit/{DataConfId}">/lsss/survey/config/unit/{DataConfId}</a></li>
+   <li><a href="#/lsss/system">/lsss/system</a></li>
+</ul>
+
+<h3 id="/lsss/application">/lsss/application</h3>
+
+<table class="table table-bordered table-hover marec-commands" data-regex-{id}="AppMiscConf">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/application/config/xml</td><td></td><td></td><td>XML</td><td>Returns the application configuration as XML</td></tr>
+   <tr><td>POST</td><td>/lsss/application/config/xml</td><td></td><td>XML</td><td></td><td>Sets the application configuration as XML</td></tr>
+   <tr><td>GET</td><td>/lsss/application/config/unit</td><td></td><td></td><td>Array of configuration units</td><td>Lists all accessible application configuration units</td></tr>
+   <tr><td>GET</td><td>/lsss/application/config/unit/{id}/xml</td><td></td><td></td><td>XML</td><td>Returns the configuration of the specified unit as XML</td></tr>
+   <tr><td>POST</td><td>/lsss/application/config/unit/{id}/xml</td><td></td><td>XML</td><td></td><td>Sets the configuration of the specified unit as XML</td></tr>
+   <tr><td>GET</td><td>/lsss/application/config/unit/{id}/parameter</td><td></td><td></td><td>Arrays of parameters</td><td>Lists all accessible parameters</td></tr>
+   <tr><td>GET</td><td>/lsss/application/config/unit/{id}/parameter/{parameter-path}</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns the value of a single parameter</td></tr>
+   <tr><td>POST</td><td>/lsss/application/config/unit/{id}/parameter/{parameter-path}</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the value of a single parameter</td></tr>
+   <tr><td>POST</td><td>/lsss/application/exit</td><td></td><td></td><td></td><td>Shuts down LSSS. This request will not get a response</td></tr>
+   <tr><td>GET</td><td>/lsss/application/info</td><td></td><td></td><td>Application info</td><td>Returns info about LSSS</td></tr>
+   <tr><td>GET</td><td>/lsss/application/ready</td><td></td><td></td><td>{"value": true}</td><td>Returns {"value": true} when the server is started and ready for use</td></tr>
+   <tr><td>POST</td><td>/lsss/application/save</td><td></td><td></td><td></td><td>Saves the application configuration to file</td></tr>
+   </tbody>
+</table>
+
+<h3 id="/lsss/application/config/unit/DatabaseConf">/lsss/application/config/unit/DatabaseConf</h3>
+
+<p>
+   Functionality specific for configuration of the database.
+</p>
+
+<table class="table table-bordered table-hover marec-commands">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/application/config/unit/DatabaseConf/connected</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns the current connection state of the global database</td></tr>
+   <tr><td>POST</td><td>/lsss/application/config/unit/DatabaseConf/connected</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the connection state of the global database</td></tr>
+   <tr><td>POST</td><td>/lsss/application/config/unit/DatabaseConf/create</td><td>
+      <ul class="marec-query-params">
+         <li>empty: boolean. Default = false</li>
+      </ul>
+   </td><td></td><td></td><td>Creates a new database. Any existing data will be deleted</td></tr>
+   </tbody>
+</table>
+
+<h3 id="/lsss/data">/lsss/data</h3>
+
+<table class="table table-bordered table-hover marec-commands">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/data/config</td><td></td><td></td><td>Data configuration</td><td>Returns the data configuration, including transducers. Only the first data file is used</td></tr>
+   <tr><td>GET</td><td>/lsss/data/frequencies</td><td></td><td></td><td>Array of frequencies</td><td>Returns the available frequencies [Hz]</td></tr>
+   <tr><td>GET</td><td>/lsss/data/frequency</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns the current frequency [Hz]</td></tr>
+   <tr><td>POST</td><td>/lsss/data/frequency</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the current frequency [Hz]. The closest available is selected</td></tr>
+   <tr><td>GET</td><td>/lsss/data/mode</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns the data loading mode</td></tr>
+   <tr><td>POST</td><td>/lsss/data/mode</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the data loading mode: BROWSE or DETAIL</td></tr>
+   <tr><td>GET</td><td>/lsss/data/ping</td>
+      <td>
+         One of:
+         <ul class="marec-query-params">
+            <li>time: string. Time in <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a></li>
+            <li>pingNumber: integer. Ping number</li>
+            <li>vesselDistance: float. Vessel distance [nmi]</li>
+         </ul>
+         Optionally, some of:
+         <ul class="marec-query-params">
+            <li>all: boolean. All these options (except pulseCompressed and complex)</li>
+            <li>angles: boolean. Alongship and athwartship angles [degree]</li>
+            <li>sv: boolean. Sv [dB]</li>
+            <li>tsc: boolean. Beam compensated TS [dB]</li>
+            <li>tsu: boolean. Uncompensated TS [dB]</li>
+            <li>pulseCompressed: boolean. Complex sample data after pulse compression, if available</li>
+            <li>complex: boolean. Complex sample data before pulse compression, if available</li>
+            <li>nmea: boolean. NMEA sentences</li>
+         </ul>
+         Optionally limit the vertical extent:
+         <ul class="marec-query-params">
+            <li>minDepth: float. Minimum depth [m]</li>
+            <li>maxDepth: float. Maximum depth [m]</li>
+         </ul>
+      </td><td></td><td>Data for ping</td><td>Returns data in the specified ping</td></tr>
+   <tr><td>GET</td><td>/lsss/data/pings</td>
+      <td>
+         Same as for /lsss/data/ping and additionally:
+         <ul class="marec-query-params">
+            <li>pingCount: integer. Number of pings</li>
+         </ul>
+      </td><td></td><td>Array of data for pings</td><td>Returns an arrays of the data in the specified pings</td></tr>
+   <tr><td>GET</td><td>/lsss/data/wait</td><td></td><td></td><td>{"value": true}</td><td>Waits until all requested pings are loaded</td></tr>
+   </tbody>
+</table>
+
+<h3 id="/lsss/database">/lsss/database</h3>
+
+<table class="table table-bordered table-hover marec-commands" data-regex-{report}="20">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/database/report</td>
+      <td>
+         <ul class="marec-query-params">
+            <li>startDate: integer. Default = 0. Start date [YYYYMMDD]</li>
+            <li>startTime: integer. Default = 0. Start time [hhmmss]</li>
+            <li>stopDate: integer. Default = 99991231. Stop date [YYYYMMDD]</li>
+            <li>stopTime: integer. Default = 240000. Stop time [hhmmss]</li>
+            <li>maxSpecies: integer. Default = no limit. Max number of species in "single species" reports</li>
+            <li>allSpecies: boolean. Default = false. Print all scrutinized species. (Default: use those selected in "Acoustic categories" window)</li>
+            <li>accumulateDistance: float. Accumulate distance [nmi] to print at reduced resolution</li>
+            <li>schoolsOnly: boolean. Default = false. Use schools only (i.e. scatter data scrutinized as school objects - closed curve with 'x' inside)</li>
+            <li>distanceFileExtension: boolean. Default = false. Use distance file extension in report file-names</li>
+            <li>reports: array of integers. Reports to include. Default: All reports. "Compact" report is 0</li>
+         </ul>
+      </td>
+      <td></td><td>Zip file</td><td>Returns database reports as a zip file</td></tr>
+   <tr><td>GET</td><td>/lsss/database/report/{report}</td>
+      <td>Same as for /lsss/database/report</td>
+      <td></td><td>XML or text</td><td>Returns a single report as XML or text. Available for reports {20, 21, 22, 23, 24, 25, 26}</td>
+   </tr>
+   <tr><td>GET</td><td>/lsss/database/sql</td>
+      <td>
+         <ul class="marec-query-params">
+            <li>query: string. The SQL query</li>
+            <li>format: {json, csv}. Default = json</li>
+         </ul>
+      </td>
+      <td></td><td>List of results</td><td>Runs the SQL query. Example: <a href="/lsss/database/sql?query=select * from nation">/lsss/database/sql?query=select * from nation</a></td></tr>
+   </tbody>
+</table>
+
+<h3 id="/lsss/doc">/lsss/doc</h3>
+<p>
+   This is the location of the <a href=".">LSSS server documentation</a>.
+</p>
+
+<h3 id="/lsss/events">/lsss/events</h3>
+
+<table class="table table-bordered table-hover marec-commands">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/events</td><td></td><td></td>
+      <td><a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events">Server-sent events</a></td>
+      <td>Streams mouse and keyboard input events. Example page: <a href="example/events.html">/lsss/doc/example/events.html</a></td>
+   </tr>
+   </tbody>
+</table>
+
+<h3 id="/lsss/export">/lsss/export</h3>
+
+<table class="table table-bordered table-hover marec-commands" data-regex-{id}="EchogramPlot">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/export</td><td></td><td></td><td>Array of exports</td><td>Lists all available exports</td></tr>
+   <tr><td>GET</td><td>/lsss/export/{id}</td><td></td><td></td><td>JSON or text</td><td>Performs the export</td></tr>
+   <tr><td>GET</td><td>/lsss/export/{id}/config/xml</td><td></td><td></td><td>XML</td><td>Returns the configuration of the specified export as XML</td></tr>
+   <tr><td>POST</td><td>/lsss/export/{id}/config/xml</td><td></td><td>XML</td><td></td><td>Sets the configuration of the specified export as XML</td></tr>
+   <tr><td>GET</td><td>/lsss/export/{id}/config/parameter</td><td></td><td></td><td>Array of parameters</td><td>Lists all accessible parameters</td></tr>
+   <tr><td>GET</td><td>/lsss/export/{id}/config/parameter/{parameter-path}</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns the value of a single parameter</td></tr>
+   <tr><td>POST</td><td>/lsss/export/{id}/config/parameter/{parameter-path}</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the value of a single parameter</td></tr>
+   </tbody>
+</table>
+
+<h3 id="/lsss/module">/lsss/module</h3>
+
+<table class="table table-bordered table-hover marec-commands" data-regex-module.{id}="module/PelagicEchogramModule" data-regex-overlay.{id}="overlay/AccumulatedSaOverlay">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr>
+      <td>GET</td>
+      <td>/lsss/module</td>
+      <td>
+         <ul class="marec-query-params">
+            <li>enabled: boolean. Filters the response</li>
+            <li>hasData: boolean. Filters the response</li>
+            <li>hasView: boolean. Filters the response</li>
+            <li>hasOverlays: boolean. Filters the response</li>
+            <li>data: boolean. Default = false. Include data if available</li>
+         </ul>
+      </td>
+      <td></td>
+      <td>Array of modules</td>
+      <td>Lists all available modules</td>
+   </tr>
+
+   <tr><td>GET</td><td>/lsss/module/{id}/config/xml</td><td></td><td></td><td>XML</td><td>Returns the configuration of the specified module as XML</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{id}/config/xml</td><td></td><td>XML</td><td></td><td>Sets the configuration of the specified module as XML</td></tr>
+   <tr><td>GET</td><td>/lsss/module/{id}/config/parameter</td><td></td><td></td><td>Array of parameters</td><td>Lists all accessible parameters</td></tr>
+   <tr><td>GET</td><td>/lsss/module/{id}/config/parameter/{parameter-path}</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns the value of a single parameter</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{id}/config/parameter/{parameter-path}</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the value of a single parameter</td></tr>
+
+   <tr><td>GET</td><td>/lsss/module/{id}/data</td><td></td><td></td><td>Display data</td><td>Returns data used for generating the image of the specified module</td></tr>
+
+   <tr><td>GET</td><td>/lsss/module/{id}/docked</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns whether the module is docked or floating</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{id}/docked</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the module docked or floating</td></tr>
+
+   <tr><td>GET</td><td>/lsss/module/{id}/enabled</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns whether the display of the module is on or off</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{id}/enabled</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Turns display of the module on or off</td></tr>
+
+   <tr><td>GET</td><td>/lsss/module/{id}/image</td><td></td><td></td><td>PNG</td><td>Returns the image of the specified module</td></tr>
+
+   <tr>
+      <td>GET</td>
+      <td>/lsss/module/{id}/overlay</td>
+      <td>
+         <ul class="marec-query-params">
+            <li>enabled: boolean. Filters the response</li>
+            <li>hasData: boolean. Filters the response</li>
+            <li>data: boolean. Default = false. Include data if available</li>
+         </ul>
+      </td>
+      <td></td>
+      <td>Array of overlays</td>
+      <td>Lists the overlays of the specified module</td>
+   </tr>
+
+   <tr><td>GET</td><td>/lsss/module/{id}/overlay/{id}/config/xml</td><td></td><td></td><td>XML</td><td>Returns the configuration of the specified overlay as XML</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{id}/overlay/{id}/config/xml</td><td></td><td>XML</td><td></td><td>Sets the configuration of the specified overlay as XML</td></tr>
+   <tr><td>GET</td><td>/lsss/module/{id}/overlay/{id}/config/parameter</td><td></td><td></td><td>Array of parameters</td><td>Lists all accessible parameters</td></tr>
+   <tr><td>GET</td><td>/lsss/module/{id}/overlay/{id}/config/parameter/{parameter-path}</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns the value of a single parameter</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{id}/overlay/{id}/config/parameter/{parameter-path}</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the value of a single parameter</td></tr>
+
+   <tr><td>GET</td><td>/lsss/module/{id}/overlay/{id}/data</td><td></td><td></td><td>Display data</td><td>Returns data used for generating the display of the specified overlay</td></tr>
+
+   <tr><td>GET</td><td>/lsss/module/{id}/overlay/{id}/enabled</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns whether the display of the overlay is on or off</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{id}/overlay/{id}/enabled</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Turns display of the overlay on or off</td></tr>
+
+   <tr><td>GET</td><td>/lsss/module/{id}/overlay/{id}/image</td><td></td><td></td><td>PNG</td><td>Returns the image of the specified overlay</td></tr>
+   </tbody>
+</table>
+
+<h3 id="/lsss/module/ColorBarModule">/lsss/module/ColorBarModule</h3>
+
+<p>
+   Functionality specific for the colorbar module.
+</p>
+
+<table class="table table-bordered table-hover marec-commands">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/module/ColorBarModule/colormap</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns the name of the selected colormap</td></tr>
+   <tr><td>POST</td><td>/lsss/module/ColorBarModule/colormap</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the colormap</td></tr>
+   <tr><td>GET</td><td>/lsss/module/ColorBarModule/colormaps</td><td></td><td></td><td>Array of colormaps</td><td>Returns all available colormaps</td></tr>
+   <tr><td>GET</td><td>/lsss/module/ColorBarModule/threshold/max</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns the maximum threshold</td></tr>
+   <tr><td>POST</td><td>/lsss/module/ColorBarModule/threshold/max</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the maximum threshold</td></tr>
+   <tr><td>GET</td><td>/lsss/module/ColorBarModule/threshold/min</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns the minimum threshold</td></tr>
+   <tr><td>POST</td><td>/lsss/module/ColorBarModule/threshold/min</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the minimum threshold</td></tr>
+   </tbody>
+</table>
+
+<h3 id="/lsss/module/{EchogramModuleId}">/lsss/module/{EchogramModuleId}</h3>
+
+<p>
+   Functionality specific for the echogram modules.
+   {EchogramModuleId} is either PelagicEchogramModule or BottomEchogramModule.
+</p>
+
+<table class="table table-bordered table-hover marec-commands" data-regex-{EchogramModuleId}="PelagicEchogramModule">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/module/{EchogramModuleId}/current-echogram-point</td><td></td><td></td><td><a href="#echogram-point">Echogram point</a></td><td>Returns the current echogram point</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{EchogramModuleId}/current-echogram-point</td><td></td><td><a href="#echogram-point">Echogram point</a></td><td></td><td>Sets the current echogram point</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{EchogramModuleId}/horizontal-layer-boundary</td><td></td><td>Array of <a href="#echogram-point">echogram points</a></td><td></td><td>Adds a horizontal layer boundary</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{EchogramModuleId}/school-boundary</td><td></td><td>Array of <a href="#echogram-point">echogram points</a></td><td>Region info</td><td>Adds a school</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{EchogramModuleId}/school-mask</td><td></td><td>Array of <a href="#ping-mask">ping masks</a></td><td>Region info</td><td>Adds a school</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{EchogramModuleId}/select-point</td>
+      <td>
+         <ul class="marec-query-params">
+            <li>action: {ADD, REPLACE, TOGGLE}. Default = REPLACE</li>
+         </ul>
+      </td>
+      <td><a href="#echogram-point">Echogram point</a></td><td></td><td>Select by a point</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{EchogramModuleId}/select-rectangle</td>
+      <td>
+         <ul class="marec-query-params">
+            <li>action: {ADD, REPLACE, TOGGLE}. Default = REPLACE</li>
+         </ul>
+      </td>
+      <td>Array of two <a href="#echogram-point">echogram points</a></td><td></td><td>Select by rectangle</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{EchogramModuleId}/vertical-divider</td><td></td><td><a href="#echogram-point">Echogram point</a></td>
+      <td></td><td>Adds vertical boundaries for all layers and splits schools at the horizontal coordinate. The vertical coordinate is not used</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{EchogramModuleId}/vertical-layer-boundary</td><td></td><td><a href="#echogram-point">Echogram point</a></td><td></td><td>Adds a vertical layer boundary</td></tr>
+   <tr><td>GET</td><td>/lsss/module/{EchogramModuleId}/zoom</td><td></td><td></td><td>Array of two <a href="#echogram-point">echogram points</a></td><td>Returns the current zoom</td></tr>
+   <tr><td>POST</td><td>/lsss/module/{EchogramModuleId}/zoom</td><td></td><td>Array of two <a href="#echogram-point">echogram points</a></td><td></td><td>Sets the current zoom</td></tr>
+   <tr><td>GET</td><td>/lsss/module/{EchogramModuleId}/zoom/max</td><td></td><td></td><td>Array of two <a href="#echogram-point">echogram points</a></td><td>Returns the maximum zoom</td></tr>
+   </tbody>
+</table>
+
+<p>
+   For the select and zoom commands, either the horizontal or the vertical coordinate can be unspecified.
+</p>
+
+<h4 id="echogram-point">Echogram point</h4>
+<p>
+   An echogram point is a JSON object with two properties.
+</p>
+<ul>
+   <li>A horizontal coordinate. Alternatives:
+      <ul>
+         <li>time: string. Time in <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a></li>
+         <li>pingNumber: integer. Ping number</li>
+         <li>vesselDistance: float. Vessel distance [nmi]</li>
+      </ul>
+   </li>
+   <li>A vertical coordinate:
+      <ul>
+         <li>z: float. Depth [m] for the pelagic echogram, and range [m] from the bottom for the bottom echogram</li>
+      </ul>
+   </li>
+</ul>
+<p>
+   Example: { "time": "2014-11-02T09:45:30Z", "z": 10 }
+</p>
+
+<h3 id="/lsss/module/InterpretationModule">/lsss/module/InterpretationModule</h3>
+
+<p>
+   Functionality specific for the Interpretation module.
+</p>
+
+<table class="table table-bordered table-hover marec-commands">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr>
+      <td>POST</td>
+      <td>/lsss/module/InterpretationModule/database</td>
+      <td>
+         <ul class="marec-query-params">
+            <li>onlyPreviouslyStored: boolean. Default = false.</li>
+         </ul>
+      </td>
+      <td><a href="#store-request">Store request</a> (Not needed if onlyPreviouslyStored = true)</td>
+      <td></td>
+      <td>Stores the current ping range to the database</td>
+   </tr>
+   <tr>
+      <td>DELETE</td>
+      <td>/lsss/module/InterpretationModule/database</td>
+      <td>
+         <ul class="marec-query-params">
+            <li>keepStoringSettings: boolean. Default = false.</li>
+         </ul>
+      </td>
+      <td></td>
+      <td></td>
+      <td>Deletes the current ping range from the database</td>
+   </tr>
+   <tr>
+      <td>POST</td>
+      <td>/lsss/module/InterpretationModule/scrutiny</td>
+      <td></td>
+      <td><a href="#scrutiny">Scrutiny</a></td>
+      <td></td>
+      <td>Sets the scrutiny of the currently selected regions</td>
+   </tr>
+   </tbody>
+</table>
+
+<h4 id="store-request">Store request</h4>
+<p>
+   A JSON object with these properties:
+</p>
+<ul>
+   <li>quality: integer
+      <ul>
+         <li>1: High (Categories separable acoustically)</li>
+         <li>2: Intermediate</li>
+         <li>3: Low (Categories completely mixed acoustically)</li>
+      </ul>
+   </li>
+   <li>frequencies: array of integers. The frequencies [kHz] to store</li>
+</ul>
+<p>
+   Example: { "quality": 1, "frequencies": [38, 70, 200] }
+</p>
+
+<h3 id="/lsss/package">/lsss/package</h3>
+
+<p>
+   Note: This is an incubation feature. Functionality might change or be removed in future versions.
+</p>
+
+<table class="table table-bordered table-hover marec-commands">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/package</td>
+      <td>
+         <ul class="marec-query-params">
+            <li>userDefined: boolean. Filters the response</li>
+            <li>actions: boolean. Default = false. Include actions</li>
+         </ul>
+      </td>
+      <td></td><td>Array of packages</td><td>Lists all packages</td></tr>
+   <tr><td>GET</td><td>/lsss/package/{id}</td><td></td><td></td><td>Zip file</td><td>Returns the specified user defined package as a zip file</td></tr>
+   <tr><td>POST</td><td>/lsss/package/{id}</td><td></td><td>Zip file</td><td></td><td>Saves the package</td></tr>
+   <tr><td>DELETE</td><td>/lsss/package/{id}</td><td></td><td></td><td></td><td>Deletes the specified user defined package</td></tr>
+   <tr><td>GET</td><td>/lsss/package/{id}/action</td><td></td><td></td><td>Array of actions</td><td>Lists the actions in the specified package</td></tr>
+   <tr><td>GET</td><td>/lsss/package/{id}/action/{id}</td><td></td><td></td><td>Zip file</td><td>Returns the specified user defined action as a zip file</td></tr>
+   <tr><td>POST</td><td>/lsss/package/{id}/action/{id}</td><td></td><td>Zip file</td><td></td><td>Saves the action</td></tr>
+   <tr><td>DELETE</td><td>/lsss/package/{id}/action/{id}</td><td></td><td></td><td></td><td>Deletes the specified user defined action</td></tr>
+   <tr><td>POST</td><td>/lsss/package/{id}/action/{id}/run</td><td></td>
+      <td>
+         If the action requires input parameters:<br>
+         {"name": value, ...}
+      </td>
+      <td></td><td>Starts running the specified action. If the action has showDialog = true, then this request returns after the action has completed.</td></tr>
+   <tr><td>GET</td><td>/lsss/package/{id}/file/{file}</td><td></td><td></td><td>File content</td><td>Returns the file relative to the package directory</td></tr>
+   </tbody>
+</table>
+
+<h3 id="/lsss/regions">/lsss/regions</h3>
+
+<table class="table table-bordered table-hover marec-commands">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/regions/deletion</td><td></td><td></td><td>Array of <a href="#ping-mask">ping masks</a></td><td>Returns the frequency-dependent deletion for the current frequency as an array of <a href="#ping-mask">ping masks</a></td></tr>
+   <tr><td>POST</td><td>/lsss/regions/deletion</td>
+      <td>
+         <ul class="marec-query-params">
+            <li>delete: boolean. Default = true</li>
+            <li>allFrequencies: boolean. Default = false</li>
+         </ul>
+      </td>
+      <td>Array of <a href="#ping-mask">ping masks</a></td><td></td><td>Edits the frequency-dependent deletion</td></tr>
+   <tr><td>GET</td><td>/lsss/regions/exclusion</td><td></td><td></td>
+      <td>Array of pairs of <a href="#echogram-point">echogram points</a>: [ [ begin, end ], ...]</td>
+      <td>Returns the excluded ping ranges</td></tr>
+   <tr><td>POST</td><td>/lsss/regions/exclusion</td>
+      <td>
+         <ul class="marec-query-params">
+            <li>exclude: boolean. Default = true</li>
+         </ul>
+      </td>
+      <td>Array of two <a href="#echogram-point">echogram points</a></td><td></td><td>Edits the excluded ping ranges</td></tr>
+   <tr><td>GET</td><td>/lsss/regions/label</td><td><a href="#selection-request">Region matching criteria</a></td><td></td><td>Array of labels</td><td>Returns the union of labels of the matched regions</td></tr>
+   <tr><td>POST</td><td>/lsss/regions/label/{label}</td><td></td><td></td><td></td><td>Adds {label} to the selected regions</td></tr>
+   <tr><td>DELETE</td><td>/lsss/regions/label/{label}</td><td></td><td></td><td></td><td>Removes {label} from the selected regions</td></tr>
+   <tr><td>POST</td><td>/lsss/regions/merge-layers</td><td></td><td></td><td></td><td>Merges the selected layers</td></tr>
+   <tr><td>GET</td><td>/lsss/regions/region</td>
+      <td>
+         <a href="#selection-request">Region matching criteria</a> and options for including information:
+         <ul class="marec-query-params">
+            <li>all: boolean. All this information (except what is specified to false)</li>
+            <li>type: boolean. Region type</li>
+            <li>labels: boolean. Region labels</li>
+            <li>scrutiny: boolean. Assignments of acoustic categories</li>
+            <li>boundingBox: boolean. Array of upper left and lower right <a href="#echogram-point">echogram points</a></li>
+         </ul>
+      </td>
+      <td></td><td>Array of region info</td><td>Returns info about the specified regions</td></tr>
+   <tr><td>GET</td><td>/lsss/regions/region/{id}</td><td></td><td></td><td>Region info</td><td>Returns info about the specified region</td></tr>
+   <tr><td>DELETE</td><td>/lsss/regions/region/{id}</td><td></td><td></td><td></td><td>Deletes the specified school. (Layers can be merged, but not deleted)</td></tr>
+   <tr><td>GET</td><td>/lsss/regions/region/{id}/mask</td><td></td><td></td><td>Array of <a href="#ping-mask">ping masks</a></td><td>Returns the mask for the specified region</td></tr>
+   <tr><td>POST</td><td>/lsss/regions/region/{id}/mask</td><td></td><td>Array of <a href="#ping-mask">ping masks</a></td><td></td><td>Sets the mask for the specified school. (Not supported for layers)</td></tr>
+   <tr><td>GET</td><td>/lsss/regions/region/{id}/scrutiny</td><td></td><td></td><td><a href="#scrutiny">Scrutiny</a></td><td>Returns the scrutiny of the specified region</td></tr>
+   <tr><td>POST</td><td>/lsss/regions/region/{id}/scrutiny</td><td></td><td><a href="#scrutiny">Scrutiny</a></td><td></td><td>Sets the scrutiny of the specified region</td></tr>
+   <tr><td>GET</td><td>/lsss/regions/selection</td><td></td><td></td><td>Array of ids</td><td>Returns the ids of all selected regions</td></tr>
+   <tr><td>POST</td><td>/lsss/regions/selection</td><td></td><td><a href="#selection-request">Selection request</a></td><td></td><td>Modifies the set of selected regions</td></tr>
+   </tbody>
+</table>
+
+<h4 id="ping-mask">Ping mask</h4>
+<p>
+   A JSON object with these properties:
+</p>
+<ul>
+   <li>A horizontal coordinate. Alternatives:
+      <ul>
+         <li>time: string. Time in <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a></li>
+         <li>pingNumber: integer. Ping number</li>
+         <li>vesselDistance: float. Vessel distance [nmi]</li>
+      </ul>
+   </li>
+   <li>depthRanges: array of <a href="#float-range">float ranges</a></li>
+</ul>
+<p>
+   Example: { "time": "2014-11-02T09:45:30Z", "depthRanges": [ { "min": 10, "max": 20 }, { "min": 30, "max": 35 } ] }
+</p>
+
+<h4 id="float-range">Float range</h4>
+<p>
+   A JSON object with these properties:
+</p>
+<ul>
+   <li>min: float</li>
+   <li>max: float</li>
+</ul>
+<p>
+   Example: { "min": 12.3, "max": 15.78 }
+</p>
+
+<h4 id="selection-request">Selection request</h4>
+<p>
+   A JSON object with these properties:
+</p>
+<ul>
+   <li>The operation for how the set of matched regions modifies the set of selected regions:
+      <ul>
+         <li>operation: {ADD, REMOVE, RETAIN, SET}. Default = SET.</li>
+      </ul>
+   </li>
+   <li>Zero or more region matching criteria:
+      <ul>
+         <li>all: boolean. Optional. True matches all regions</li>
+         <li>layers: boolean. Optional. True matches all layers</li>
+         <li>schools: boolean. Optional. True matches all schools</li>
+         <li>selected: boolean. Optional. True matches selected regions</li>
+         <li>visible: boolean. Optional. True matches (partly) visible regions</li>
+         <li>ids: array of integer. Optional. Matches regions with any of these ids</li>
+         <li>labels: array of string. Optional. Matches regions with all these labels</li>
+      </ul>
+   </li>
+</ul>
+<p>
+   The set of matched regions is the subset of all regions that match all specified criteria. No criteria match all regions.
+</p>
+<p>
+   Examples:
+</p>
+<ul>
+   <li>Select all regions: { "all" : true }</li>
+   <li>Deselect all regions: { "all" : false }</li>
+   <li>Deselect schools with labels "a" and "b": { "operation" : "REMOVE", "schools" : true, "labels" : [ "a", "b" ] }</li>
+</ul>
+
+<h4 id="scrutiny">Scrutiny</h4>
+<p>
+   A JSON object with these properties:
+</p>
+<ul>
+   <li>channels: array of objects with these properties:
+      <ul>
+         <li>channelId: string</li>
+         <li>categories: array of objects with these properties:
+            <ul>
+               <li>id: integer</li>
+               <li>initials: string</li>
+               <li>assignment: float</li>
+            </ul>
+         </li>
+      </ul>
+   </li>
+   <li>restCategories: array of objects with these properties:
+      <ul>
+         <li>id: integer</li>
+         <li>initials: string</li>
+      </ul>
+   </li>
+</ul>
+<p>
+   Notes when settings the scrutiny:
+</p>
+<ul>
+   <li>The "initials" properties are not used, and can be omitted</li>
+   <li>If "channelId" is omitted, then the corresponding assignments are applied to all channels</li>
+</ul>
+
+<h3 id="/lsss/survey">/lsss/survey</h3>
+
+<table class="table table-bordered table-hover marec-commands" data-regex-{id}="SurveyMiscConf">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>POST</td><td>/lsss/survey/close</td><td></td><td></td><td></td><td>Closes the currently opened survey</td></tr>
+   <tr><td>GET</td><td>/lsss/survey/config/xml</td><td></td><td></td><td>XML</td><td>Returns the survey configuration as XML</td></tr>
+   <tr><td>POST</td><td>/lsss/survey/config/xml</td><td></td><td>XML</td><td></td><td>Sets the survey configuration as XML</td></tr>
+   <tr><td>GET</td><td>/lsss/survey/config/unit</td><td></td><td></td><td>Array of configuration units</td><td>Lists all accessible survey configuration units</td></tr>
+   <tr><td>GET</td><td>/lsss/survey/config/unit/{id}/xml</td><td></td><td></td><td>XML</td><td>Returns the configuration of the specified unit as XML</td></tr>
+   <tr><td>POST</td><td>/lsss/survey/config/unit/{id}/xml</td><td></td><td>XML</td><td></td><td>Sets the configuration of the specified unit as XML</td></tr>
+   <tr><td>GET</td><td>/lsss/survey/config/unit/{id}/parameter</td><td></td><td></td><td>Array of parameters</td><td>Lists all accessible parameters</td></tr>
+   <tr><td>GET</td><td>/lsss/survey/config/unit/{id}/parameter/{parameter-path}</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns the value of a single parameter</td></tr>
+   <tr><td>POST</td><td>/lsss/survey/config/unit/{id}/parameter/{parameter-path}</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the value of a single parameter</td></tr>
+   <tr><td>POST</td><td>/lsss/survey/open</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Opens the specified *.lsss file</td></tr>
+   <tr><td>POST</td><td>/lsss/survey/save</td><td></td><td></td><td></td><td>Saves the survey to file. Does not store to the database</td></tr>
+   </tbody>
+</table>
+
+<h3 id="/lsss/survey/config/unit/AcousticCategoryConf">/lsss/survey/config/unit/AcousticCategoryConf</h3>
+
+<p>
+   Functionality specific for configuration of acoustic categories.
+</p>
+
+<table class="table table-bordered table-hover marec-commands">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/survey/config/unit/AcousticCategoryConf/category</td><td></td><td></td><td>Array of acoustic categories</td><td>Returns all acoustic categories for the current platform</td></tr>
+   </tbody>
+</table>
+
+<h3 id="/lsss/survey/config/unit/{DataConfId}">/lsss/survey/config/unit/{DataConfId}</h3>
+
+<p>
+   Functionality specific for configuration of data files.
+   {DataConfId} is either DataConf, or some configuration unit nested below it.
+</p>
+
+<table class="table table-bordered table-hover marec-commands" data-regex-{DataConfId}="DataConf">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/survey/config/unit/{DataConfId}/files</td><td></td><td></td><td>Array of files</td><td>Lists all available files</td></tr>
+   <tr><td>GET</td><td>/lsss/survey/config/unit/{DataConfId}/files/selection</td><td></td><td></td><td><a href="#file-selection">File selection</a></td><td>Returns the current selection of files</td></tr>
+   <tr><td>POST</td><td>/lsss/survey/config/unit/{DataConfId}/files/selection</td><td></td><td><a href="#file-selection">File selection</a></td><td></td><td>Selects files</td></tr>
+   </tbody>
+</table>
+
+<h4 id="file-selection">File selection</h4>
+<p>
+   A JSON object with these properties:
+</p>
+<ul>
+   <li>firstIndex: integer. The index of the first selected file (zero-based)</li>
+   <li>lastIndex: integer. The index of the last selected file (zero-based)</li>
+</ul>
+
+<h3 id="/lsss/system">/lsss/system</h3>
+
+<table class="table table-bordered table-hover marec-commands">
+   <thead>
+   <tr><th>Method</th><th>URL</th><th>Query parameters</th><th>Request body</th><th>Response body</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>GET</td><td>/lsss/system/api-calls</td><td></td><td></td>
+      <td><a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events">Server-sent events</a></td>
+      <td>Streams info about API calls. Example page: <a href="example/api-calls.html">/lsss/doc/example/api-calls.html</a></td>
+   </tr>
+   <tr><td>GET</td><td>/lsss/system/graphics</td><td></td><td></td><td>Graphics info</td><td>Returns info about the graphics system</td></tr>
+   <tr><td>GET</td><td>/lsss/system/properties</td><td></td><td></td><td>Map of properties</td><td>Lists java system properties</td></tr>
+   <tr><td>GET</td><td>/lsss/system/thread-dump</td><td></td><td></td><td>Thread dump in text format</td><td>Lists stack traces for all java threads</td></tr>
+   </tbody>
+</table>
+
+<script>
+   (function () {
+      'use strict';
+
+      document.querySelectorAll('table.marec-commands').forEach(table => {
+         table.querySelectorAll('tr').forEach(tr => {
+            const td = Array.from(tr.querySelectorAll('td'));
+            if (td.length < 2) {
+               return;
+            }
+            const method = td[0].textContent;
+            const tdUrl = td[1];
+            tdUrl.classList.add('marec-url');
+            const urlText = tdUrl.textContent;
+            let urlHref = urlText;
+            if (method === 'GET') {
+               for (const attribute of table.attributes) {
+                  if (attribute.name.indexOf('data-regex-') === 0) {
+                     urlHref = urlHref.replace(new RegExp(attribute.name.substring(11), 'i'), attribute.value);
+                  }
+               }
+               if (urlHref.indexOf('{') < 0) {
+                  tdUrl.replaceChildren();
+                  const a = tdUrl.appendChild(document.createElement('a'));
+                  a.href = urlHref;
+                  a.textContent = urlText;
+               }
+            }
+         });
+      });
+   })();
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<h1>EK80 narrowband data</h1>
+<p>
+   This section contains details about the processing of narrowband data produced by the Simrad EK80 echo sounder.
+</p>
+
+<h2 id="Sv">Computation of S<sub>v</sub></h2>
+<p>
+   Let y<sub>i</sub> be the complex sample value of sector i ∈ [1, n].
+   <br>Let y = (1/n) ∑ y<sub>i</sub> be the average value over all sectors.
+   <br>Let p = &kappa;|y|<sup>2</sup>, with &kappa; = (n / 8) <span style="font-size: x-large;">(</span>
+   (R<sub>wbt,rx</sub> + Z<sub>trd</sub>) / R<sub>wbt,rx</sub><span style="font-size: x-large;">)</span><sup>2</sup> / Z<sub>trd</sub>.
+   <br>Then
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; S<sub>v</sub> = 10 log<sub>10</sub>(p) + constant + TVG
+   <br>where
+   <br>constant = -2 G - 2 S<sub>a,corr</sub> - Ψ - 10 log<sub>10</sub><span style="font-size: x-large;">(</span>
+   (p<sub>tx</sub> λ<sup>2</sup> c τ<sub>eff</sub>) / (32 π<sup>2</sup>) <span style="font-size: x-large;">)</span>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; G = Gain
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; S<sub>a,corr</sub> = S<sub>a</sub> correction
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; Ψ = Equivalent beam angle
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; p<sub>tx</sub> = Transmit power
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; λ = c / f
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; c = Sound speed
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; f = Frequency
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; τ<sub>eff</sub> = Effective pulse duration
+   <br>
+   <br>TVG = 20 log<sub>10</sub>(r<sub>TVG</sub>) + 2 α r<sub>TVG</sub>
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; r<sub>TVG</sub> = Sample range - τ c / 4
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; α = Absorption coefficient
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; τ = Pulse duration
+</p>
+
+<h2 id="Angles">Computation of split beam angles</h2>
+<p>
+   The complex samples values are used directly for <a href="Angles.html">computing split beam angles</a>.
+</p>

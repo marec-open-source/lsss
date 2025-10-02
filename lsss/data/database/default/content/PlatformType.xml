@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<PlatformType>
+   <i platformType="0" platformSubType="0" platformTypeName="Unknown" platformSubTypeName="Unknown"/>
+   <i platformType="1" platformSubType="0" platformTypeName="Land/Sea floor" platformSubTypeName=""/>
+   <i platformType="2" platformSubType="0" platformTypeName="Submersible" platformSubTypeName=""/>
+   <i platformType="3" platformSubType="0" platformTypeName="Ship" platformSubTypeName=""/>
+   <i platformType="3" platformSubType="1" platformTypeName="Ship" platformSubTypeName="Research"/>
+   <i platformType="4" platformSubType="0" platformTypeName="Buoy/Mooring" platformSubTypeName=""/>
+   <i platformType="5" platformSubType="0" platformTypeName="Balloon" platformSubTypeName=""/>
+   <i platformType="6" platformSubType="0" platformTypeName="Aircraft/Satellite/Rocket" platformSubTypeName=""/>
+   <i platformType="7" platformSubType="0" platformTypeName="Unassigned" platformSubTypeName=""/>
+   <i platformType="8" platformSubType="0" platformTypeName="Grid" platformSubTypeName=""/>
+   <i platformType="9" platformSubType="0" platformTypeName="Other" platformSubTypeName=""/>
+</PlatformType>

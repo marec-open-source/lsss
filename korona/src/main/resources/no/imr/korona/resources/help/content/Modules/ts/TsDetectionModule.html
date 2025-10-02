@@ -1,0 +1,201 @@
+<h1>TS detection module</h1>
+<p>
+   This module does single target detection.
+</p>
+<p>
+   Target detection is done on all channels.
+</p>
+<p>
+   The depth range for target detection is limited by:
+</p>
+<ul>
+   <li>The upper limit is the configured
+      <a href="../../WorkingWith/ConfigFileSettings/TransducerRanges/TransducerRanges.html">transducer blind zone</a>.
+   </li>
+   <li>The lower limit is the minimum of:
+      <ul>
+         <li>The configured
+            <a href="../../WorkingWith/ConfigFileSettings/TransducerRanges/TransducerRanges.html">transducer range</a>.
+         </li>
+         <li>The channel-specific bottom depth given by the
+            <a href="../../Datagrams/Bot0Datagram.html">BOT0 datagram</a>.
+         </li>
+      </ul>
+   </li>
+</ul>
+
+<h2 id="NewDatagrams">New datagrams</h2>
+<p>
+   <a href="../../Datagrams/TsDatagram.html">TS detection datagram</a>.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="DetectorType">Detector type:</span>
+      The <a href="#TargetDetectorTypes">target detector type</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="MinTS">Min TS:</span>
+      Minimum corrected TS value to be detected [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="PulseLengthDeterminationLevel">Pulse length determination level:</span>
+      Pulse length determination level [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="MinEchoLength">Min echo length:</span>
+      Minimum echo length (relative to pulse length). NB: may be << 1 for pulse compressed data!
+   </li>
+   <li><span class="marec-parameter-def" id="MaxEchoLength">Max echo length:</span>
+      Maximum echo length (relative to pulse length). NB: may be << 1 for pulse compressed data!
+   </li>
+   <li><span class="marec-parameter-def" id="MaxGainCompensation">Max gain compensation:</span>
+      Maximum (one way) gain compensation [dB].
+      See <a href="#Gain_compensation_estimation">Gain compensation estimation</a> for details.
+   </li>
+   <li><span class="marec-parameter-def" id="DoPhaseDeviationCheck">Do phase deviation check:</span>
+      Check this if phase deviation check should be performed.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxPhaseDevSteps">Max phase deviation:</span>
+      Max phase deviation [phase steps].
+      See <a href="#Computation_of_mechanical_degrees">Computation of mechanical angles</a> for details.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxDepth">Max depth:</span>
+      Maximal depth of targets [m]. Optional, may be left blank.
+   </li>
+</ul>
+
+<h2 id="TargetDetectorTypes">Target detector types</h2>
+
+<h3 id="SED">SED</h3>
+<p>
+   The input to the algorithm is <a href="#Converting_from_Sv_to_TS">TS values</a>.
+   First, find all the TS candidates, which are contiguous sequences of
+   samples (echolines) above minimum TS value. The minimum TS value for the samples in an echoline is
+   <a class="marec-parameter-ref" href="#MinTS">Min TS</a> - 2 × <a class="marec-parameter-ref" href="#MaxGainCompensation">Max gain compensation</a> -
+   <a class="marec-parameter-ref" href="#PulseLengthDeterminationLevel">Pulse length determination level</a>.
+   <br>
+   For each TS candidate:
+</p>
+<ol>
+   <li>Decrease the length of the echoline by backstepping by the
+      pulse length determination level relative to the peak value of the
+      echoline.
+   </li>
+   <li>Reject the candidate if the length of the echoline
+      relative to the pulse length of the transducer is not within the values
+      set in the parameters.
+   </li>
+   <li>If phase deviation checks should be performed:
+      Reject the candidate if the standard deviation of the <!--angles
+      (transformed to mechanical degrees)--> phase steps is not less than the specified
+      value.
+   </li>
+   <li>Estimate the <a href="#Gain_compensation_estimation">one-way gain
+      compensation value</a>. Reject the candidate if the gain compensation
+      is higher than the specified value.
+   </li>
+   <li>Reject the candidate if there are multiple peaks in the echoline.</li>
+   <li>Compute
+      the compensated TS value of the peak value in the echoline. Reject the
+      candidate if the compensated value is below the minimum TS value.
+   </li>
+   <li>If all tests pass, move the TS candidate to the list of accepted
+      candidates.
+   </li>
+</ol>
+
+<h3 id="Peak">Peak</h3>
+<p>
+   The Peak algorithm detects targets by finding peaks on sample values. A sample is said to be a peak if:
+</p>
+<ul>
+   <li>It is a local maximum.</li>
+   <li>Its value is larger than other local maxima within a certain number of samples.</li>
+</ul>
+<p>
+   The values used in the peak detection:
+</p>
+<ul class="marec-list-spacing">
+   <li>Broadband data (complex FM):
+      <ul>
+         <li>Values: The (sector averaged) pulse compressed raw signal.</li>
+         <li>Sample count for peak search: The sample count in the filtered sent signal.</li>
+      </ul>
+   </li>
+   <li>Narrowband data (complex CW):
+      <ul>
+         <li>Values: The (sector averaged) match filtered signal.</li>
+         <li>Sample count for peak search: <a class="marec-parameter-ref" href="#MaxEchoLength">Max echo length</a> × Pulse duration / Sample interval.</li>
+      </ul>
+   </li>
+   <li>Real data (sv and angles):
+      <ul>
+         <li>Values: Linear noise values (sv without TVG).</li>
+         <li>Sample count for peak search: <a class="marec-parameter-ref" href="#MaxEchoLength">Max echo length</a> × Pulse duration / Sample interval.</li>
+      </ul>
+   </li>
+</ul>
+<p>
+   The threshold for the required separation from other equally strong (or stronger) local maxima is determined using
+   Ridler and Calvard's (1978) classical iterative threshold selection method.
+</p>
+<p>
+   The extension of the target is determined as the sample range spanning from the peak sample to the next samples above and below
+   with a value lower than
+   <span style="white-space: nowrap;">the peak value × 10 <sup>-<a class="marec-parameter-ref" href="#PulseLengthDeterminationLevel">Pulse length determination level</a> / 20</sup></span>.
+</p>
+<p>
+   All targets fulfilling additional criteria on minimal corrected target strength at peak (<a class="marec-parameter-ref" href="#MinTS">Min TS</a>) and maximal gain compensation (<a class="marec-parameter-ref" href="#MaxGainCompensation">Max gain compensation</a>),
+   in addition to falling in the specified extended range (defined by <a class="marec-parameter-ref" href="#MinEchoLength">Min echo length</a> and <a class="marec-parameter-ref" href="#MaxEchoLength">Max echo length</a>), are accepted.
+   Filtering on phase deviation (enabled by <a class="marec-parameter-ref" href="#DoPhaseDeviationCheck">Do phase deviation check</a>) is not recommended for broadband data since angle information is only sensible for main peaks, but not on the side lobes.
+</p>
+
+<h2 id="Background">Background</h2>
+
+<h3 id="Gain_compensation_estimation">One-way gain compensation estimation</h3>
+<p>
+   The gain compensation is estimated according to the following
+   polynomial approximation to the first order Bessel function of the first kind:
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; B(a, b) = 3.0103 ( x<sup>2</sup> + y<sup>2</sup> - 0.18x<sup>2</sup>y<sup>2</sup>)
+   <br>where
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; a is the alongship angle.
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; b is the athwartship angle.
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; x = 2a / BW<sub>a</sub> and BW<sub>a</sub> is the beam width alongship.
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; y = 2b / BW<sub>b</sub> and BW<sub>b</sub> is the beam width athwartship.
+</p>
+
+<h3 id="Computation_of_mechanical_degrees">Computation of mechanical angles</h3>
+<p>
+   The 'electrical degree', e, is computed as
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; e = i * 180 / 128
+   <br>where
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; i is the signed byte stored on the data file (the phase step).
+</p>
+<p>
+   The 'mechanical degree', m, is then computed as
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; m = e / sensitivity - offset
+   <br>where
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; sensitivity is the angle sensitivity stored in the configuration datagram.
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; offset is the angle offset stored in the configuration datagram.
+</p>
+
+<h3 id="Converting_from_Sv_to_TS">Converting from S<sub>v</sub> to TS</h3>
+<p>
+   TS is computed from Sv as
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; TS = S<sub>v</sub> + 10 log (TVG(r) ) + 10 log ((c * tau * psi) / 2) + 2 S<sub>a</sub>Corr
+   <br>where
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; TVG(r) is the 20 log r time varying gain function.
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; c is the speed of sound in water
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; tau is the pulse length
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; psi is the equivalent beam angle
+   <br>&nbsp;&nbsp;&nbsp;&nbsp; S<sub>a</sub>Corr is a calibration offset.<br>
+</p>
+
+<h2 id="References">References</h2>
+<ul class="marec-literature">
+   <li>
+      Ridler, T. W., and S. Calvard (1978). "Picture thresholding using an iterative selection method."
+      IEEE trans. on Systems, Man and Cybernetics, Vol 8(8), pp 630-632.
+   </li>
+</ul>

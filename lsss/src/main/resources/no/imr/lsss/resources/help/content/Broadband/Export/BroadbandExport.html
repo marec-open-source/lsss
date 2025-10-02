@@ -1,0 +1,66 @@
+<h1>Broadband export</h1>
+<p>
+   The broadband exports use the <a href="https://json.org/">JSON</a> format. The general structure is:
+</p>
+
+<h2 id="Format">Format</h2>
+<pre>
+{
+   "info" : {
+      "exportType" : "BroadbandSv",                <span class="marec-comment">// The type of this export</span>
+      "exportTime" : "2015-09-07T13:47:17Z",       <span class="marec-comment">// Time of export in <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a> format</span>
+      "lsssVersion" : "1.9.2",                     <span class="marec-comment">// The version of LSSS used to generate the export</span>
+      "formatLastChangedInLsssVersion" : "1.9.2",  <span class="marec-comment">// The version of LSSS where for format of this type of export was last changed</span>
+      "parameters" : {                             <span class="marec-comment">// Parameter settings used during the export</span>
+         "parameter name": "value",
+         ...
+      },
+      "units" : {                                  <span class="marec-comment">// Units of the exported values</span>
+         "export value name": "unit",
+         ...
+      },
+      "comments" : [ "comment", ... ],
+   },
+
+   // Exported data
+
+   "channelInfo" : [ {                             <span class="marec-comment">// Summary information with channel parameters</span>
+      "id" : "WBT 2-1 009072085343 ES200-7CD",
+      "parameters" : [ {                           <span class="marec-comment">// There will be multiple entries if some parameters change value</span>
+         "startTime" : "2014-11-02T09:45:58.663Z",
+         "endTime" : "2014-11-02T09:46:26.630Z",
+         "nominalFrequency" : 200000.0,
+         "minFrequency" : 160000.0,
+         "maxFrequency" : 260000.0,
+         "transmitPower" : 120.0,
+         ...
+      } ]
+    } ]
+  }
+}
+</pre>
+
+<h2 id="Scrutiny">Scrutiny</h2>
+<p>
+   Some exports include assignments to acoustic categories for each region. The structure of this information is:
+</p>
+<pre>
+
+   "scrutiny" : [ {                                    <span class="marec-comment">// Array of channels</span>
+      "channelId" : "WBT 2-1 009072085343 ES200-7CD",
+      "categories" : [ {                               <span class="marec-comment">// Array of assignments to categories for this channel</span>
+        "id" : 12,
+        "initials" : "HERR",
+        "assignment" : 0.379
+      }, {
+         ...                                           <span class="marec-comment">// More acoustic categories for this channel</span>
+      } ]
+   }, {
+      ...                                              <span class="marec-comment">// More channels</span>
+   } ]
+</pre>
+
+<h2 id="Notes">Notes</h2>
+<p>
+   Note that the format of and definitions in all the export formats may change in future versions of LSSS.
+</p>

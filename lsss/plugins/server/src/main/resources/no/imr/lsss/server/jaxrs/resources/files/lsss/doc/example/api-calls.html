@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>LSSS server</title>
+   <link rel="icon" href="../lsss.svg">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+   <link rel="stylesheet" href="../style.css">
+</head>
+<body class="container-fluid">
+
+<h1>Api calls log</h1>
+<p>
+   Streaming info about API calls using <a href="https://developer.mozilla.org/en-US/docs/Server-sent_events">server-sent events</a>.
+</p>
+
+<div id="replay" hidden>
+   <a id="remove-replay" href="">❎</a>
+
+   Replay <span id="replay-number"></span> <span id="replay-method"></span>
+   <a id="replay-url" href=""></a>:
+   Status: <span id="replay-status"></span>, Response body: <span id="replay-data"></span>
+</div>
+<table class="table table-sm table-hover">
+   <thead>
+   <tr>
+      <th></th>
+      <th>Time</th>
+      <th>Status</th>
+      <th>Method</th>
+      <th>URL</th>
+      <th>Request body</th>
+   </tr>
+   </thead>
+   <tbody id="api-calls">
+   </tbody>
+</table>
+
+<script>
+   (function () {
+      'use strict';
+
+      let replayApiCall;
+
+      const source = new EventSource('/lsss/system/api-calls');
+      source.addEventListener('api-call', event => {
+         const apiCall = JSON.parse(event.data);
+
+         const tr = document.createElement('tr');
+         tr.appendChild(document.createElement('td')).textContent = '' + apiCall.number;
+         tr.appendChild(document.createElement('td')).textContent = new Date(apiCall.time).toISOString();
+         tr.appendChild(document.createElement('td')).textContent = apiCall.status;
+         tr.appendChild(document.createElement('td')).textContent = apiCall.method;
+         const tdUrl = tr.appendChild(document.createElement('td'));
+         const aUrl = tdUrl.appendChild(document.createElement('a'));
+         aUrl.textContent = apiCall.url;
+         aUrl.href = '';
+         aUrl.addEventListener('click', e => {
+            e.preventDefault();
+            doReplay(apiCall);
+         });
+         tr.appendChild(document.createElement('td')).textContent = apiCall.requestBody;
+
+         const apiCalls = document.getElementById('api-calls');
+         apiCalls.prepend(tr);
+         while (apiCalls.childElementCount > 100) {
+            apiCalls.removeChild(apiCalls.lastChild);
+         }
+      });
+
+      function doReplay(apiCall) {
+         replayApiCall = apiCall;
+         document.getElementById('replay').hidden = false;
+         document.getElementById('replay-number').textContent = apiCall.number;
+         document.getElementById('replay-method').textContent = apiCall.method;
+         document.getElementById('replay-url').textContent = apiCall.url;
+         document.getElementById('replay-status').textContent = 'Waiting...';
+         document.getElementById('replay-data').textContent = 'Waiting...';
+         fetch(apiCall.url, {
+            method: apiCall.method,
+            headers: {'Content-Type': 'application/json'},
+            body: apiCall.requestBody || undefined,
+         }).then(response => {
+            document.getElementById('replay-status').textContent = '' + response.status;
+            return response.text();
+         }).then(text => {
+            document.getElementById('replay-data').textContent = text;
+         });
+      }
+
+      document.getElementById('remove-replay').addEventListener('click', e => {
+         e.preventDefault();
+         document.getElementById('replay').hidden = true;
+         replayApiCall = undefined;
+      });
+
+      document.getElementById('replay-url').addEventListener('click', e => {
+         e.preventDefault();
+         doReplay(replayApiCall);
+      });
+   }());
+</script>
+</body>
+</html>

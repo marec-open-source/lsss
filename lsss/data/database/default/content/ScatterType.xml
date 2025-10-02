@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ScatterType>
+   <i scatterType="1000" scatterTypeName="scatter_pelagic"/>
+   <i scatterType="2000" scatterTypeName="scatter_bottom"/>
+   <i scatterType="3000" scatterTypeName="school_pelagic"/>
+   <i scatterType="4000" scatterTypeName="school_bottom"/>
+</ScatterType>

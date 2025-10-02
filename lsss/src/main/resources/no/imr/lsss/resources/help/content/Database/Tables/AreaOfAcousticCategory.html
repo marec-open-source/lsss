@@ -1,0 +1,46 @@
+<h1>AreaOfAcousticCategory</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>AreaOfAcousticCategory</strong> - Coupling between sea area and acoustic category
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct AreaOfAcousticCategory {
+  short Nation;
+  short Platform;
+  int   AcousticCategory;
+  int   Area;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table contains coupling between the <a href="AcousticCategory.html">AcousticCategory</a>
+   and the <a href="Area.html">Area</a> database tables. The coupling is done to reduce the
+   list of acoustic categories to a more convenient size when selected to be used in the
+   scrutinizing session.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the
+      <a href="Nation.html">Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique identification code for observation platform. Note that <b>Platform</b> = 0
+      means "national-wide" or "institute-wide" entry of the database table. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="AcousticCategory">AcousticCategory</span> - Acoustic category, i.e. "acoustic species". Refer to the
+      <a href="AcousticCategory.html">AcousticCategory</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="Area">Area</span> - Unique identification code for area. Refer to the
+      <a href="Area.html">Area</a> database table.
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>LSSS example package - Miscellaneous</title>
+   <style>
+      html {
+         font-family: sans-serif;
+      }
+   </style>
+</head>
+<body>
+<h1>LSSS example package - Miscellaneous</h1>
+<p>
+   Miscellaneous examples using pure JavaScript, without any third party libraries.
+   See also other <a href="../doc/index.html#WebPages">web page examples</a>.
+</p>
+
+<!---------------------------------------->
+
+<h2>Next colormap</h2>
+<p>
+   Using <code>/lsss/module/ColorBarModule/colormap</code>.
+</p>
+<p>
+   <button id="nextColormap">Select the next colormap</button>
+</p>
+<p>
+   Available colormaps: <a href="/lsss/module/ColorBarModule/colormaps">/lsss/module/ColorBarModule/colormaps</a>.
+</p>
+
+<!---------------------------------------->
+
+<h2>Add horizontal boundaries</h2>
+<p>
+   Using <code>/lsss/module/PelagicEchogramModule/horizontal-layer-boundary</code>.
+</p>
+<table>
+   <tr>
+      <td><label for="firstDepth">First depth</label>:</td>
+      <td><input id="firstDepth" type="number" value="100"></td>
+   </tr>
+   <tr>
+      <td><label for="deltaDepth">Delta depth</label>:</td>
+      <td><input id="deltaDepth" type="number" value="10"></td>
+   </tr>
+   <tr>
+      <td><label for="boundaryCount">Boundary count</label>:</td>
+      <td><input id="boundaryCount" type="number" value="6"></td>
+   </tr>
+</table>
+<p>
+   <button id="horizontalBoundaries">Add horizontal boundaries</button>
+</p>
+
+<!---------------------------------------->
+
+<h2>Run actions</h2>
+<p>
+   Using <code>/lsss/package/{packageId}/action/{actionId}/run</code>.
+</p>
+<p>
+   <button id="lsss/selectNextRegion">lsss / selectNextRegion</button>
+   <button id="lsss/showOnlyEchogram">lsss / showOnlyEchogram</button>
+   <button id="lsssExample/nextColormap">lsssExample / nextColormap</button>
+</p>
+<p>
+   Builtin actions: <a href="/lsss/package/lsss/action">/lsss/package/lsss/action</a>.<br>
+   Actions in this package: <a href="/lsss/package/lsssExample/action">/lsss/package/lsssExample/action</a>.
+</p>
+
+<!---------------------------------------->
+
+<script>
+   (function () {
+      'use strict';
+
+      function nextColormap() {
+         Promise.all([
+            fetch('/lsss/module/ColorBarModule/colormaps').then(response => response.json()),
+            fetch('/lsss/module/ColorBarModule/colormap').then(response => response.json())
+         ]).then(values => {
+            const allColormaps = values[0];
+            const currentColormap = values[1].value;
+            const i = allColormaps.indexOf(currentColormap);
+            const nextColormap = allColormaps[(i + 1) % allColormaps.length];
+            console.log(`Change colormap from ${currentColormap} to ${nextColormap}`);
+            fetch('/lsss/module/ColorBarModule/colormap', {
+               method: 'POST',
+               headers: {'Content-Type': 'application/json'},
+               body: JSON.stringify({value: nextColormap}),
+            });
+         });
+      }
+
+      function horizontalBoundaries() {
+         fetch('/lsss/module/PelagicEchogramModule/zoom')
+               .then(response => response.json())
+               .then(zoom => {
+                  const centerPingNumber = (zoom[0]['pingNumber'] + zoom[1]['pingNumber']) / 2;
+                  const firstDepth = parseFloat(document.getElementById('firstDepth').value);
+                  const deltaDepth = parseFloat(document.getElementById('deltaDepth').value);
+                  const boundaryCount = parseFloat(document.getElementById('boundaryCount').value);
+
+                  // Add boundaries sequentially by sending the next request
+                  // after receiving the response from the previous request.
+                  function addBoundary(index) {
+                     if (index < boundaryCount) {
+                        const depth = firstDepth + index * deltaDepth;
+                        fetch('/lsss/module/PelagicEchogramModule/horizontal-layer-boundary', {
+                           method: 'POST',
+                           headers: {'Content-Type': 'application/json'},
+                           body: JSON.stringify({'pingNumber': centerPingNumber, 'z': depth}),
+                        }).then(() => {
+                           console.log(`Inserted layer boundary at ${depth} m`);
+                           addBoundary(index + 1);
+                        });
+                     }
+                  }
+
+                  addBoundary(0);
+               });
+      }
+
+      function runAction(packageId, actionId) {
+         fetch(`/lsss/package/${packageId}/action/${actionId}/run`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+         });
+      }
+
+      document.getElementById('nextColormap').addEventListener('click', () => nextColormap());
+      document.getElementById('horizontalBoundaries').addEventListener('click', () => horizontalBoundaries());
+
+      document.getElementById('lsss/selectNextRegion').addEventListener('click', () => runAction('lsss', 'selectNextRegion'));
+      document.getElementById('lsss/showOnlyEchogram').addEventListener('click', () => runAction('lsss', 'showOnlyEchogram'));
+      document.getElementById('lsssExample/nextColormap').addEventListener('click', () => runAction('lsssExample', 'nextColormap'));
+   })();
+</script>
+</body>

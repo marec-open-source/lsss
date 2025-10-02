@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<unit name="ApplicationConfiguration" version="1">
+   <configuration>
+      <parameters/>
+   </configuration>
+   <unit name="PluginConf">
+      <configuration>
+         <parameters>
+            <parameter name="LsssIncubator">true</parameter>
+            <parameter name="LsssServer">true</parameter>
+            <parameter name="Profos">true</parameter>
+         </parameters>
+      </configuration>
+   </unit>
+   <unit name="DirectoryConf">
+      <configuration>
+         <parameters>
+            <parameter name="MainDir">E:\LSSS_DATA</parameter>
+            <parameter name="SurveyDirStructure">default</parameter>
+            <parameter name="BackupDirStructure">default</parameter>
+            <parameter name="Advanced">false</parameter>
+         </parameters>
+      </configuration>
+   </unit>
+   <unit name="AppPreprocessingConf">
+      <configuration>
+         <ConfigFileSettings>
+            <ModuleConfiguration>
+               <parameter name="ModuleConfiguration" ref="KoronaConfigDir">KoronaModuleSetup_example_FULL_MULTIFREQUENCY.cds</parameter>
+               <parameter name="AdditionalModuleConfiguration"/>
+            </ModuleConfiguration>
+            <Categorization>
+               <parameter name="Categorization" ref="KoronaConfigDir">categorizationIMR\categorization.xml</parameter>
+            </Categorization>
+            <HorizontalTransducerOffsets>
+               <parameter name="HorizontalTransducerOffsets" ref="KoronaConfigDir">HorizontalTransducerOffsets.xml</parameter>
+            </HorizontalTransducerOffsets>
+            <VerticalTransducerOffsets>
+               <parameter name="VerticalTransducerOffsets" ref="KoronaConfigDir">VerticalTransducerOffsets.xml</parameter>
+            </VerticalTransducerOffsets>
+            <TransducerRanges>
+               <parameter name="TransducerRanges" ref="KoronaConfigDir">TransducerRanges.xml</parameter>
+            </TransducerRanges>
+            <Plankton>
+               <parameter name="Plankton" ref="KoronaConfigDir">Plankton.xml</parameter>
+            </Plankton>
+            <BroadbandNotchFilters>
+               <parameter name="BroadbandNotchFilters" ref="KoronaConfigDir">BroadbandNotchFilters.xml</parameter>
+            </BroadbandNotchFilters>
+            <PulseCompressionFilters>
+               <parameter name="PulseCompressionFilters" ref="KoronaConfigDir">PulseCompressionFilters.xml</parameter>
+            </PulseCompressionFilters>
+            <BroadbandSplitterBands>
+               <parameter name="BroadbandSplitterBands" ref="KoronaConfigDir">BroadbandSplitterBands.xml</parameter>
+            </BroadbandSplitterBands>
+         </ConfigFileSettings>
+      </configuration>
+      <unit name="ProfosAppPreprocessingConf">
+         <configuration>
+            <ConfigFileSettings>
+               <ProfosModuleConfiguration>
+                  <parameter name="ProfosModuleConfiguration" ref="KoronaConfigDir">ProfosModuleSetup_Example__PENCIL.cds</parameter>
+                  <parameter name="AdditionalProfosModuleConfiguration"/>
+               </ProfosModuleConfiguration>
+               <ProfosTransducer>
+                  <parameter name="ProfosTransducer" ref="KoronaConfigDir">ProfosTransducer.xml</parameter>
+               </ProfosTransducer>
+            </ConfigFileSettings>
+         </configuration>
+      </unit>
+   </unit>
+   <unit name="AppMiscConf">
+      <configuration>
+         <parameters>
+            <parameter name="OnApplicationStart">OPEN_LAST_SURVEY</parameter>
+            <parameter name="OnSurveyOpen">SHOW_CONFIG_DIALOG</parameter>
+         </parameters>
+      </configuration>
+      <unit name="Packages">
+         <configuration>
+            <parameters>
+               <parameter name="PythonExecutable">E:\inge\crimac\venv\Scripts\python.exe</parameter>
+            </parameters>
+         </configuration>
+      </unit>
+   </unit>
+</unit>

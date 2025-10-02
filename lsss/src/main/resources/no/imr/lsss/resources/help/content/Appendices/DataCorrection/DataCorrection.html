@@ -1,0 +1,86 @@
+<h1>Data correction</h1>
+<p>
+   The data files with echo sounder sample data sometimes contain errors and inconsistencies.
+   Some of these are corrected automatically by the system.
+   The files with errors are marked in the status columns in the table in
+   <a href="../../Configuration/Survey/DataConf.html">[Survey configuration - Data files]</a> with the symbol
+</p>
+<ul style="list-style-type: none;">
+   <li><img src="../../../../images/icons/NoticeOK.svg" width="16" height="16">
+      &nbsp; or &nbsp; <img src="../../../../images/icons/KoronaNoticeOK.svg" width="16" height="16"> &nbsp; if an error is corrected.
+   </li>
+   <li><img src="../../../../images/icons/Error.svg" width="16" height="16">
+      &nbsp; or &nbsp; <img src="../../../../images/icons/KoronaError.svg" width="16" height="16"> &nbsp; if an error is not corrected.
+   </li>
+</ul>
+
+<h2 id="CorrectedErrors">Corrected errors</h2>
+<p>
+</p>
+<table class="marec-table">
+   <tr>
+      <th>Error</th>
+      <th>Correction</th>
+   </tr>
+   <tr>
+      <td>Missing index datagram within an idx-file</td>
+      <td>The previous index datagram is duplicated</td>
+   </tr>
+   <tr>
+      <td>Missing bot file</td>
+      <td>Bottom datagrams with depth 0 are used</td>
+   </tr>
+   <tr>
+      <td>Too few bottom datagrams in a bot-file</td>
+      <td>Bottom datagrams with depth 0 are appended</td>
+   </tr>
+   <tr>
+      <td>Datagram format error</td>
+      <td>Datagram is ignored</td>
+   </tr>
+   <tr>
+      <td>Gap in ping numbering between two consecutive files</td>
+      <td>Pings with no data are inserted</td>
+   </tr>
+   <tr>
+      <td>Decrease in ping numbering between two consecutive files</td>
+      <td>The ping numbering of the second file is shifted</td>
+   </tr>
+   <tr>
+      <td>Decrease in vessel distance within the same file</td>
+      <td>The vessel distance in a ping is forced to be larger than or equal to the vessel distance in the previous ping</td>
+   </tr>
+   <tr>
+      <td>Decrease in vessel distance between two consecutive files</td>
+      <td>The vessel distance of the second file is shifted</td>
+   </tr>
+   <tr>
+      <td>Non-increasing time from one ping to the next</td>
+      <td>The time of the second ping is modified.
+         The modified time is found by linear interpolation from the neighbouring pings weighted by vessel distance.
+         If linear interpolation is not applicable, then the modified time is set to the time of the previous ping plus 1 NT date unit = 100 nanoseconds.
+      </td>
+   </tr>
+</table>
+
+<h2 id="ErrorsNotCorrected">Errors not corrected</h2>
+<p>
+</p>
+<table class="marec-table">
+   <tr>
+      <th>Error</th>
+      <th>Consequence</th>
+   </tr>
+   <tr>
+      <td>Missing idx file</td>
+      <td>The file is not used</td>
+   </tr>
+   <tr>
+      <td>Non-increasing time between two consecutive files</td>
+      <td>The second file is not used</td>
+   </tr>
+   <tr>
+      <td>Different sets of frequencies in two files</td>
+      <td>The second file is not used</td>
+   </tr>
+</table>

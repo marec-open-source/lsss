@@ -1,0 +1,67 @@
+<h1>ScatterType</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>ScatterType</strong> - List of scatter data types
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct ScatterType {
+  short ScatterType;
+  char  ScatterTypeName[40];
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table contains a mapping between a scatter type code and the scatter type name.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="ScatterType">ScatterType</span> - Scatter type code.</li>
+   <li><span class="marec-parameter-def" id="ScatterTypeName">ScatterTypeName</span> - Name of scatter type. Currently, the following choices are available:<br>
+      <strong>1000 = 'scatter_pelagic'</strong> //Data from echogram-object in pelagic channels, i.e. parallel to surface. The pelagic
+      echogram depth-channels 'scatter_pelagic' starts at the sea-surface and continue down to the lower integration
+      line which is defined by the operator, but which is commonly just above the bottom (e.g. 0.5 m).
+      The sea surface is defined relative to the transducer face, which could be e.g. 9.3 m above a
+      transducer mounted on a protruding instrument-keel of a research vessel.
+      The lower integration line is defined by the operator. Note that UpperDepth, LowerDepth, UpperInterpretationDepth
+      and LowerInterpretationDepth express limitations on where data may be collected from. The deepest value of UpperDepth
+      and UpperInterpretationDepth is used, and the shallowest value of LowerDepth and LowerInterpretationDepth.
+      Depth channel 1 starts at
+      the sea surface, channel 2 starts where channel 1 stops, etc. Channel 0 is a special sum channel designed to cover
+      all pelagic channels. Summing up the s<sub>A</sub> values from all the pelagic channels for a particular acoustic
+      category produces the s<sub>A</sub> value of channel 0 for that acoustic category.<br>
+      <strong>2000 = 'scatter_bottom'</strong> //Data from echogram-object in bottom-related channels, i.e. parallel to bottom. The bottom
+      channels are organised in a similar manner as the pelagic depth-channels and starts at the bottom and increase with
+      increasing distance from the bottom. Channel 1 is next to the bottom, channel 2 starts where channel 1 stops, etc.,
+      and channel 0 is a special channel designed to cover all bottom channels. The bottom channels starts from the
+      detected bottom selected by the operator. This may be the bottom detected at 38 kHz, the bottom coordinated between
+      many frequencies. The bottom channel terminates at the surface. Further, the data used is limited by UpperDepth,
+      LowerDepth, UpperInterpretationDepth and LowerInterpretationDepth set for the channel type. The UpperIntegrationDepth
+      is commonly 15 m below the sea surface, and the LowerInterpretationDepth is commonly 0.5 m above the detected bottom.
+      <br>
+      <strong>3000 = 'school_pelagic'</strong> //Data from school-object in pelagic channels. The pelagic school channels 'school_pelagic'
+      are defined exactly as the echogram school channels 'scatter_pelagic', but is limited by the extent of the school
+      region. The upper and lower extents of the data used are indicated by UpperInterpretationDepth
+      and LowerInterpretationDepth or by UpperDepth and LowerDepth if those give a smaller extent.<br>
+      <strong>4000 = 'school_bottom'</strong> //Data from school-object in bottom-related channels. The bottom school channels
+      are defined exactly as the echogram school channels 'scatter_bottom', but is limited by the extent of the school
+      region. The upper and lower extents of the data used are indicated by UpperInterpretationDepth
+      and LowerInterpretationDepth or by UpperDepth and LowerDepth if those give a smaller extent.<br>
+
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="Scatter.html">Scatter</a>;
+   <a href="ScatterData.html">ScatterData</a>;
+</p>

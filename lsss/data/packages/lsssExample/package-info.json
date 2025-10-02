@@ -1,0 +1,9 @@
+{
+  "label" : "",
+  "version" : "",
+  "description" : "This is an example package created by LSSS.\nSee the package documentation for more information.",
+  "callbacks" : [ ],
+  "keyStrokes" : [ ],
+  "toolbarButtons" : [ ],
+  "menus" : [ ]
+}

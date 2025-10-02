@@ -1,0 +1,2127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<missions xmlns="http://www.imr.no/formats/nmdbiotic/v3.1">
+    <mission missiontype="4" startyear="2018" platform="1019" missionnumber="7">
+        <missiontypename>Forskningsfartøy</missiontypename>
+        <callsignal>LDGJ</callsignal>
+        <platformname>Johan Hjort</platformname>
+        <cruise>2018207</cruise>
+        <missionstartdate>2018-07-02Z</missionstartdate>
+        <missionstopdate>2018-07-31Z</missionstopdate>
+        <purpose>2018-NSJ-007: HERAS: Akustikksurvey på sild og brisling i Nordsjøen, NORACCU - akustikk på sei, øst av Shetland. Testing of utystyr, behavioral studies.    </purpose>
+        <fishstation serialnumber="24101">
+            <nation>58</nation>
+            <catchplatform>1019</catchplatform>
+            <station>331</station>
+            <stationstartdate>2018-07-03Z</stationstartdate>
+            <stationstarttime>01:58:23.000Z</stationstarttime>
+            <stationstopdate>2018-07-03Z</stationstopdate>
+            <stationstoptime>02:03:23.000Z</stationstoptime>
+            <stationtype>C</stationtype>
+            <latitudestart>58.42766666666667</latitudestart>
+            <longitudestart>3.844333333333333</longitudestart>
+            <latitudeend>58.42433333333334</latitudeend>
+            <longitudeend>3.8503333333333334</longitudeend>
+            <system>2</system>
+            <area>8</area>
+            <location>09</location>
+            <bottomdepthstart>158.68</bottomdepthstart>
+            <bottomdepthstop>159.9</bottomdepthstop>
+            <fishingdepthmax>159.93</fishingdepthmax>
+            <fishingdepthmin>158.68</fishingdepthmin>
+            <gearno>1624</gearno>
+            <gearcount>1</gearcount>
+            <direction>121.72</direction>
+            <gearflow>3.285</gearflow>
+            <logstart>9882.572</logstart>
+            <logstop>9882.847</logstop>
+            <distance>0.27</distance>
+            <gearcondition>1</gearcondition>
+            <samplequality>3</samplequality>
+            <verticaltrawlopening>-1.0</verticaltrawlopening>
+            <trawldoorspread>51.19</trawldoorspread>
+            <wirelength>410.0</wirelength>
+            <stationcomment>kalibrering</stationcomment>
+        </fishstation>
+        <fishstation serialnumber="24102">
+            <nation>58</nation>
+            <catchplatform>1019</catchplatform>
+            <station>332</station>
+            <stationstartdate>2018-07-03Z</stationstartdate>
+            <stationstarttime>03:24:29.000Z</stationstarttime>
+            <stationstopdate>2018-07-03Z</stationstopdate>
+            <stationstoptime>03:39:44.000Z</stationstoptime>
+            <stationtype>C</stationtype>
+            <latitudestart>58.44116666666667</latitudestart>
+            <longitudestart>3.8348333333333335</longitudestart>
+            <latitudeend>58.43033333333333</latitudeend>
+            <longitudeend>3.8528333333333333</longitudeend>
+            <system>2</system>
+            <area>8</area>
+            <location>09</location>
+            <bottomdepthstart>155.66</bottomdepthstart>
+            <bottomdepthstop>156.44</bottomdepthstop>
+            <fishingdepthmax>156.5</fishingdepthmax>
+            <fishingdepthmin>154.34</fishingdepthmin>
+            <gearno>1624</gearno>
+            <gearcount>1</gearcount>
+            <direction>126.39</direction>
+            <gearflow>3.399344262293422</gearflow>
+            <logstart>9888.912</logstart>
+            <logstop>9889.776</logstop>
+            <distance>0.863999999999578</distance>
+            <gearcondition>1</gearcondition>
+            <samplequality>1</samplequality>
+            <verticaltrawlopening>3.0</verticaltrawlopening>
+            <trawldoorspread>50.5</trawldoorspread>
+            <wirelength>410.0</wirelength>
+            <stationcomment>kalibrering</stationcomment>
+        </fishstation>
+        <fishstation serialnumber="24103">
+            <nation>58</nation>
+            <catchplatform>1019</catchplatform>
+            <station>333</station>
+            <stationstartdate>2018-07-03Z</stationstartdate>
+            <stationstarttime>04:27:41.000Z</stationstarttime>
+            <stationstopdate>2018-07-03Z</stationstopdate>
+            <stationstoptime>04:42:41.000Z</stationstoptime>
+            <stationtype>C</stationtype>
+            <latitudestart>58.4195</latitudestart>
+            <longitudestart>3.8791666666666664</longitudestart>
+            <latitudeend>58.42783333333333</latitudeend>
+            <longitudeend>3.86</longitudeend>
+            <system>2</system>
+            <area>8</area>
+            <location>09</location>
+            <bottomdepthstart>158.94</bottomdepthstart>
+            <bottomdepthstop>156.68</bottomdepthstop>
+            <fishingdepthmax>159.17</fishingdepthmax>
+            <fishingdepthmin>156.54</fishingdepthmin>
+            <gearno>1624</gearno>
+            <gearcount>1</gearcount>
+            <direction>318.35</direction>
+            <gearflow>3.108000000000175</gearflow>
+            <logstart>9892.966</logstart>
+            <logstop>9893.743</logstop>
+            <distance>0.7770000000000437</distance>
+            <gearcondition>1</gearcondition>
+            <samplequality>1</samplequality>
+            <verticaltrawlopening>3.44</verticaltrawlopening>
+            <trawldoorspread>52.88</trawldoorspread>
+            <wirelength>410.0</wirelength>
+            <stationcomment>kalibrering kalibrering</stationcomment>
+        </fishstation>
+        <fishstation serialnumber="24104">
+            <nation>58</nation>
+            <catchplatform>1019</catchplatform>
+            <station>334</station>
+            <stationstartdate>2018-07-03Z</stationstartdate>
+            <stationstarttime>05:24:37.000Z</stationstarttime>
+            <stationstopdate>2018-07-03Z</stationstopdate>
+            <stationstoptime>05:57:43.000Z</stationstoptime>
+            <stationtype>C</stationtype>
+            <latitudestart>58.42166666666667</latitudestart>
+            <longitudestart>3.849833333333333</longitudestart>
+            <latitudeend>58.39666666666667</latitudeend>
+            <longitudeend>3.8786666666666667</longitudeend>
+            <system>2</system>
+            <area>8</area>
+            <location>09</location>
+            <bottomdepthstart>161.52</bottomdepthstart>
+            <bottomdepthstop>156.39</bottomdepthstop>
+            <fishingdepthmax>162.55</fishingdepthmax>
+            <fishingdepthmin>156.15</fishingdepthmin>
+            <gearno>1616</gearno>
+            <gearcount>1</gearcount>
+            <direction>156.09</direction>
+            <gearflow>3.4876132930529686</gearflow>
+            <logstart>9896.024</logstart>
+            <logstop>9897.948</logstop>
+            <distance>1.9240000000008877</distance>
+            <gearcondition>1</gearcondition>
+            <samplequality>1</samplequality>
+            <verticaltrawlopening>-1.0</verticaltrawlopening>
+            <wirelength>150.0</wirelength>
+            <stationcomment>kalibrering kalibrering</stationcomment>
+        </fishstation>
+        <fishstation serialnumber="24105">
+            <nation>58</nation>
+            <catchplatform>1019</catchplatform>
+            <station>335</station>
+            <stationstartdate>2018-07-03Z</stationstartdate>
+            <stationstarttime>08:54:04.000Z</stationstarttime>
+            <stationstopdate>2018-07-03Z</stationstopdate>
+            <stationstoptime>09:09:01.000Z</stationstoptime>
+            <stationtype>C</stationtype>
+            <latitudestart>58.098</latitudestart>
+            <longitudestart>4.464166666666666</longitudestart>
+            <latitudeend>58.088</latitudeend>
+            <longitudeend>4.487833333333334</longitudeend>
+            <system>2</system>
+            <area>8</area>
+            <location>10</location>
+            <bottomdepthstart>117.39</bottomdepthstart>
+            <bottomdepthstop>117.38</bottomdepthstop>
+            <fishingdepthmax>117.76</fishingdepthmax>
+            <fishingdepthmin>116.03</fishingdepthmin>
+            <gearno>2</gearno>
+            <gearcount>1</gearcount>
+            <direction>117.34</direction>
+            <gearflow>3.905016722407851</gearflow>
+            <logstart>9924.903</logstart>
+            <logstop>9925.876</logstop>
+            <distance>0.9729999999999563</distance>
+            <gearcondition>1</gearcondition>
+            <samplequality>1</samplequality>
+            <verticaltrawlopening>-1.0</verticaltrawlopening>
+            <trawldoorspread>32.38</trawldoorspread>
+            <wirelength>220.0</wirelength>
+            <stationcomment>Sjøtesting Sjøtesting</stationcomment>
+        </fishstation>
+        <fishstation serialnumber="24106">
+            <nation>58</nation>
+            <catchplatform>1019</catchplatform>
+            <station>336</station>
+            <stationstartdate>2018-07-03Z</stationstartdate>
+            <stationstarttime>21:22:06.000Z</stationstarttime>
+            <stationstopdate>2018-07-03Z</stationstopdate>
+            <stationstoptime>21:52:07.000Z</stationstoptime>
+            <latitudestart>56.657</latitudestart>
+            <longitudestart>5.156833333333333</longitudestart>
+            <latitudeend>56.674</latitudeend>
+            <longitudeend>5.1098333333333334</longitudeend>
+            <system>2</system>
+            <area>41</area>
+            <location>65</location>
+            <bottomdepthstart>61.41</bottomdepthstart>
+            <bottomdepthstop>62.66</bottomdepthstop>
+            <fishingdepthmax>62.74</fishingdepthmax>
+            <fishingdepthmin>61.41</fishingdepthmin>
+            <gearno>1616</gearno>
+            <gearcount>1</gearcount>
+            <direction>306.91</direction>
+            <gearflow>3.7299278178789557</gearflow>
+            <logstart>54.527</logstart>
+            <logstop>56.393</logstop>
+            <distance>1.8659999999999997</distance>
+            <gearcondition>1</gearcondition>
+            <samplequality>1</samplequality>
+            <verticaltrawlopening>-1.0</verticaltrawlopening>
+            <trawldoorspread>44.94</trawldoorspread>
+            <wirelength>100.0</wirelength>
+            <catchsample catchsampleid="1">
+                <commonname>hvitting</commonname>
+                <catchcategory>164758</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>126438</aphia>
+                <scientificname>Merlangius merlangus</scientificname>
+                <sampletype>10</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>0.03</catchweight>
+                <catchcount>61</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>E</lengthmeasurement>
+                <lengthsampleweight>0.03</lengthsampleweight>
+                <lengthsamplecount>61</lengthsamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.055</length>
+                </individual>
+                <individual specimenid="2">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="3">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.06</length>
+                </individual>
+                <individual specimenid="4">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.045</length>
+                </individual>
+                <individual specimenid="5">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="6">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.02</length>
+                </individual>
+                <individual specimenid="7">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="8">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.05</length>
+                </individual>
+                <individual specimenid="9">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.05</length>
+                </individual>
+                <individual specimenid="10">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="11">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="12">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="13">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="14">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.05</length>
+                </individual>
+                <individual specimenid="15">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="16">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="17">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.02</length>
+                </individual>
+                <individual specimenid="18">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.025</length>
+                </individual>
+                <individual specimenid="19">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.05</length>
+                </individual>
+                <individual specimenid="20">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.045</length>
+                </individual>
+                <individual specimenid="21">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.06</length>
+                </individual>
+                <individual specimenid="22">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="23">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.02</length>
+                </individual>
+                <individual specimenid="24">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="25">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="26">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="27">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="28">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="29">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.055</length>
+                </individual>
+                <individual specimenid="30">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="31">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="32">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="33">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="34">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="35">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.025</length>
+                </individual>
+                <individual specimenid="36">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.02</length>
+                </individual>
+                <individual specimenid="37">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="38">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="39">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="40">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.055</length>
+                </individual>
+                <individual specimenid="41">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.05</length>
+                </individual>
+                <individual specimenid="42">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="43">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="44">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="45">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.025</length>
+                </individual>
+                <individual specimenid="46">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.025</length>
+                </individual>
+                <individual specimenid="47">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="48">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="49">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.045</length>
+                </individual>
+                <individual specimenid="50">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="51">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="52">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="53">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="54">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="55">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="56">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="57">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="58">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="59">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.025</length>
+                </individual>
+                <individual specimenid="60">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.025</length>
+                </individual>
+                <individual specimenid="61">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.025</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="2">
+                <commonname>knurr</commonname>
+                <catchcategory>167044</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>150637</aphia>
+                <scientificname>Eutrigla gurnardus</scientificname>
+                <sampletype>10</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>1.675</catchweight>
+                <catchcount>13</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>E</lengthmeasurement>
+                <lengthsampleweight>1.675</lengthsampleweight>
+                <lengthsamplecount>13</lengthsamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.2</length>
+                </individual>
+                <individual specimenid="2">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.325</length>
+                </individual>
+                <individual specimenid="3">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.265</length>
+                </individual>
+                <individual specimenid="4">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.22</length>
+                </individual>
+                <individual specimenid="5">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.24</length>
+                </individual>
+                <individual specimenid="6">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.29</length>
+                </individual>
+                <individual specimenid="7">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                </individual>
+                <individual specimenid="8">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.25</length>
+                </individual>
+                <individual specimenid="9">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.25</length>
+                </individual>
+                <individual specimenid="10">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.25</length>
+                </individual>
+                <individual specimenid="11">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.245</length>
+                </individual>
+                <individual specimenid="12">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.25</length>
+                </individual>
+                <individual specimenid="13">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.255</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="3">
+                <commonname>Silfamilien</commonname>
+                <catchcategory>171670</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>125516</aphia>
+                <scientificname>Ammodytidae</scientificname>
+                <sampletype>10</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>0.001</catchweight>
+                <catchcount>2</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>E</lengthmeasurement>
+                <lengthsampleweight>0.001</lengthsampleweight>
+                <lengthsamplecount>2</lengthsamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.06</length>
+                </individual>
+                <individual specimenid="2">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.045</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="4">
+                <commonname>kutlingfamilien</commonname>
+                <catchcategory>171746</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>125537</aphia>
+                <scientificname>Gobiidae</scientificname>
+                <sampletype>10</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>0.031</catchweight>
+                <catchcount>232</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>E</lengthmeasurement>
+                <lengthsampleweight>0.004</lengthsampleweight>
+                <lengthsamplecount>30</lengthsamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="2">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="3">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="4">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="5">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="6">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="7">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="8">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="9">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="10">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="11">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="12">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="13">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="14">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="15">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="16">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="17">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="18">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.025</length>
+                </individual>
+                <individual specimenid="19">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="20">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="21">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="22">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="23">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="24">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="25">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="26">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="27">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="28">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="29">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="30">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="5">
+                <commonname>makrell</commonname>
+                <catchcategory>172414</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>127023</aphia>
+                <scientificname>Scomber scombrus</scientificname>
+                <sampletype>34</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>0.203</catchweight>
+                <catchcount>2</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>F</lengthmeasurement>
+                <lengthsampleweight>0.203</lengthsampleweight>
+                <lengthsamplecount>2</lengthsamplecount>
+                <specimensamplecount>2</specimensamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.05</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.19</length>
+                </individual>
+                <individual specimenid="2">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.153</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="6">
+                <commonname>flyndrefamilien</commonname>
+                <catchcategory>172859</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>125579</aphia>
+                <scientificname>Pleuronectidae</scientificname>
+                <sampletype>10</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>3.0E-4</catchweight>
+                <catchcount>10</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>E</lengthmeasurement>
+                <lengthsampleweight>3.0E-4</lengthsampleweight>
+                <lengthsamplecount>10</lengthsamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>1</lengthresolution>
+                    <length>0.013</length>
+                </individual>
+                <individual specimenid="2">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>1</lengthresolution>
+                    <length>0.013</length>
+                </individual>
+                <individual specimenid="3">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>1</lengthresolution>
+                    <length>0.014</length>
+                </individual>
+                <individual specimenid="4">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>1</lengthresolution>
+                    <length>0.012</length>
+                </individual>
+                <individual specimenid="5">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>1</lengthresolution>
+                    <length>0.012</length>
+                </individual>
+                <individual specimenid="6">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>1</lengthresolution>
+                    <length>0.013</length>
+                </individual>
+                <individual specimenid="7">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>1</lengthresolution>
+                    <length>0.014</length>
+                </individual>
+                <individual specimenid="8">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>1</lengthresolution>
+                    <length>0.013</length>
+                </individual>
+                <individual specimenid="9">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>1</lengthresolution>
+                    <length>0.011</length>
+                </individual>
+                <individual specimenid="10">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>1</lengthresolution>
+                    <length>0.012</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="7">
+                <commonname>brennmanet</commonname>
+                <catchcategory>51671</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>135301</aphia>
+                <scientificname>Cyanea capillata</scientificname>
+                <sampletype>90</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>6.24</catchweight>
+                <catchcount>21</catchcount>
+            </catchsample>
+            <catchsample catchsampleid="8">
+                <commonname>blå brennmanet</commonname>
+                <catchcategory>51678</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>135302</aphia>
+                <scientificname>Cyanea lamarcki</scientificname>
+                <sampletype>90</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>0.57</catchweight>
+                <catchcount>23</catchcount>
+            </catchsample>
+            <catchsample catchsampleid="9">
+                <commonname>Illex coindetii</commonname>
+                <catchcategory>82523</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>140621</aphia>
+                <scientificname>Illex coindetii</scientificname>
+                <sampletype>91</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>0.015</catchweight>
+                <catchcount>1</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>B</lengthmeasurement>
+                <lengthsampleweight>0.015</lengthsampleweight>
+                <lengthsamplecount>1</lengthsamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.075</length>
+                </individual>
+            </catchsample>
+        </fishstation>
+        <fishstation serialnumber="24107">
+            <nation>58</nation>
+            <catchplatform>1019</catchplatform>
+            <station>337</station>
+            <stationstartdate>2018-07-04Z</stationstartdate>
+            <stationstarttime>02:04:06.000Z</stationstarttime>
+            <stationstopdate>2018-07-04Z</stationstopdate>
+            <stationstoptime>02:34:06.000Z</stationstoptime>
+            <latitudestart>56.654666666666664</latitudestart>
+            <longitudestart>4.017833333333333</longitudestart>
+            <latitudeend>56.64833333333333</latitudeend>
+            <longitudeend>3.9566666666666666</longitudeend>
+            <system>2</system>
+            <area>41</area>
+            <location>64</location>
+            <bottomdepthstart>52.51</bottomdepthstart>
+            <bottomdepthstop>59.24</bottomdepthstop>
+            <fishingdepthmax>59.16</fishingdepthmax>
+            <fishingdepthmin>52.47</fishingdepthmin>
+            <gearno>1616</gearno>
+            <gearcount>1</gearcount>
+            <direction>266.76</direction>
+            <gearflow>4.135999999999996</gearflow>
+            <logstart>93.018</logstart>
+            <logstop>95.086</logstop>
+            <distance>2.067999999999998</distance>
+            <gearcondition>1</gearcondition>
+            <samplequality>1</samplequality>
+            <verticaltrawlopening>-1.0</verticaltrawlopening>
+            <trawldoorspread>44.81</trawldoorspread>
+            <catchsample catchsampleid="1">
+                <commonname>sild'G05</commonname>
+                <catchcategory>161722.G05</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>126417</aphia>
+                <scientificname>Clupea harengus</scientificname>
+                <sampletype>34</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>0.258</catchweight>
+                <catchcount>6</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>E</lengthmeasurement>
+                <lengthsampleweight>0.258</lengthsampleweight>
+                <lengthsamplecount>6</lengthsamplecount>
+                <specimensamplecount>6</specimensamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.046</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.18</length>
+                </individual>
+                <individual specimenid="2">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.039</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.185</length>
+                </individual>
+                <individual specimenid="3">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.043</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.185</length>
+                </individual>
+                <individual specimenid="4">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.044</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.19</length>
+                </individual>
+                <individual specimenid="5">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.045</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.19</length>
+                </individual>
+                <individual specimenid="6">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.041</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.185</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="2">
+                <commonname>øyepål</commonname>
+                <catchcategory>164756</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>126444</aphia>
+                <scientificname>Trisopterus esmarkii</scientificname>
+                <sampletype>10</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>0.002</catchweight>
+                <catchcount>8</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>E</lengthmeasurement>
+                <lengthsampleweight>0.002</lengthsampleweight>
+                <lengthsamplecount>8</lengthsamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.025</length>
+                </individual>
+                <individual specimenid="2">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.025</length>
+                </individual>
+                <individual specimenid="3">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.025</length>
+                </individual>
+                <individual specimenid="4">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="5">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.02</length>
+                </individual>
+                <individual specimenid="6">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="7">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.02</length>
+                </individual>
+                <individual specimenid="8">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="3">
+                <commonname>hvitting</commonname>
+                <catchcategory>164758</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>126438</aphia>
+                <scientificname>Merlangius merlangus</scientificname>
+                <sampletype>10</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>0.03</catchweight>
+                <catchcount>27</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>E</lengthmeasurement>
+                <lengthsampleweight>0.03</lengthsampleweight>
+                <lengthsamplecount>27</lengthsamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="2">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="3">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="4">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.02</length>
+                </individual>
+                <individual specimenid="5">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.015</length>
+                </individual>
+                <individual specimenid="6">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.025</length>
+                </individual>
+                <individual specimenid="7">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.06</length>
+                </individual>
+                <individual specimenid="8">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.06</length>
+                </individual>
+                <individual specimenid="9">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.045</length>
+                </individual>
+                <individual specimenid="10">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.05</length>
+                </individual>
+                <individual specimenid="11">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.055</length>
+                </individual>
+                <individual specimenid="12">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.065</length>
+                </individual>
+                <individual specimenid="13">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.06</length>
+                </individual>
+                <individual specimenid="14">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.055</length>
+                </individual>
+                <individual specimenid="15">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.065</length>
+                </individual>
+                <individual specimenid="16">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.045</length>
+                </individual>
+                <individual specimenid="17">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.06</length>
+                </individual>
+                <individual specimenid="18">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="19">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.055</length>
+                </individual>
+                <individual specimenid="20">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="21">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.05</length>
+                </individual>
+                <individual specimenid="22">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.045</length>
+                </individual>
+                <individual specimenid="23">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="24">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.04</length>
+                </individual>
+                <individual specimenid="25">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+                <individual specimenid="26">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.035</length>
+                </individual>
+                <individual specimenid="27">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="4">
+                <commonname>knurr</commonname>
+                <catchcategory>167044</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>150637</aphia>
+                <scientificname>Eutrigla gurnardus</scientificname>
+                <sampletype>10</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>3.0E-4</catchweight>
+                <catchcount>2</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>E</lengthmeasurement>
+                <lengthsampleweight>3.0E-4</lengthsampleweight>
+                <lengthsamplecount>2</lengthsamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.02</length>
+                </individual>
+                <individual specimenid="2">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.02</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="5">
+                <commonname>Silfamilien</commonname>
+                <catchcategory>171670</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>125516</aphia>
+                <scientificname>Ammodytidae</scientificname>
+                <sampletype>10</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>0.001</catchweight>
+                <catchcount>1</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>E</lengthmeasurement>
+                <lengthsampleweight>0.001</lengthsampleweight>
+                <lengthsamplecount>1</lengthsamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.065</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="6">
+                <commonname>kutlingfamilien</commonname>
+                <catchcategory>171746</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>125537</aphia>
+                <scientificname>Gobiidae</scientificname>
+                <sampletype>10</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>0.001</catchweight>
+                <catchcount>1</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>E</lengthmeasurement>
+                <lengthsampleweight>0.001</lengthsampleweight>
+                <lengthsamplecount>1</lengthsamplecount>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.03</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="7">
+                <commonname>makrell</commonname>
+                <catchcategory>172414</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>127023</aphia>
+                <scientificname>Scomber scombrus</scientificname>
+                <sampletype>23</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>25.5</catchweight>
+                <catchcount>201</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>F</lengthmeasurement>
+                <lengthsampleweight>12.713</lengthsampleweight>
+                <lengthsamplecount>100</lengthsamplecount>
+                <specimensamplecount>100</specimensamplecount>
+                <agingstructure>2</agingstructure>
+                <individual specimenid="1">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.152</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.265</length>
+                    <sex>2</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="2">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.157</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                    <sex>2</sex>
+                    <specialstage>6</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="3">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.156</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                    <sex>2</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="4">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.304</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.335</length>
+                    <sex>1</sex>
+                    <specialstage>7</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>4</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="5">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.158</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                    <sex>1</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="6">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.166</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                    <sex>2</sex>
+                    <specialstage>7</specialstage>
+                    <stomachfillfield>2</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="7">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.175</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.28</length>
+                    <sex>1</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="8">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.163</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.26</length>
+                    <sex>2</sex>
+                    <specialstage>1</specialstage>
+                    <stomachfillfield>4</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>1</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="9">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.173</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                    <sex>2</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>3</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="10">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.153</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                    <sex>1</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>5</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="11">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.055</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.2</length>
+                    <sex>2</sex>
+                    <specialstage>1</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>1</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="12">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.06</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.2</length>
+                    <sex>1</sex>
+                    <specialstage>1</specialstage>
+                    <stomachfillfield>3</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>1</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="13">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.337</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.36</length>
+                    <sex>1</sex>
+                    <specialstage>7</specialstage>
+                    <stomachfillfield>2</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>8</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="14">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.179</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.285</length>
+                    <sex>2</sex>
+                    <specialstage>1</specialstage>
+                    <stomachfillfield>2</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="15">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.068</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.205</length>
+                    <sex>1</sex>
+                    <specialstage>1</specialstage>
+                    <stomachfillfield>2</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>1</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="16">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.197</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.29</length>
+                    <sex>1</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="17">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.167</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.28</length>
+                    <sex>2</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="18">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.071</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.22</length>
+                    <sex>2</sex>
+                    <specialstage>1</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>1</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="19">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.16</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                    <sex>1</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>2</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="20">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.157</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.28</length>
+                    <sex>1</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="21">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.148</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                    <sex>1</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>3</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="22">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.155</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                    <sex>1</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="23">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.082</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.22</length>
+                    <sex>1</sex>
+                    <specialstage>1</specialstage>
+                    <stomachfillfield>2</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>1</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="24">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.183</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.29</length>
+                    <sex>2</sex>
+                    <specialstage>7</specialstage>
+                    <stomachfillfield>2</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="25">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.152</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                    <sex>1</sex>
+                    <specialstage>2</specialstage>
+                    <stomachfillfield>1</stomachfillfield>
+                    <agedetermination agedeterminationid="1">
+                        <age>2</age>
+                        <readability>1</readability>
+                    </agedetermination>
+                </individual>
+                <individual specimenid="26">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.063</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.205</length>
+                </individual>
+                <individual specimenid="27">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.139</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                </individual>
+                <individual specimenid="28">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.151</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.265</length>
+                </individual>
+                <individual specimenid="29">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.056</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.2</length>
+                </individual>
+                <individual specimenid="30">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.146</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                </individual>
+                <individual specimenid="31">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.074</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.215</length>
+                </individual>
+                <individual specimenid="32">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.067</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.21</length>
+                </individual>
+                <individual specimenid="33">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.068</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.205</length>
+                </individual>
+                <individual specimenid="34">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.06</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.205</length>
+                </individual>
+                <individual specimenid="35">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.054</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.2</length>
+                </individual>
+                <individual specimenid="36">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.063</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.21</length>
+                </individual>
+                <individual specimenid="37">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.067</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.21</length>
+                </individual>
+                <individual specimenid="38">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.069</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.205</length>
+                </individual>
+                <individual specimenid="39">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.064</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.205</length>
+                </individual>
+                <individual specimenid="40">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.148</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.265</length>
+                </individual>
+                <individual specimenid="41">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.147</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                </individual>
+                <individual specimenid="42">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.171</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                </individual>
+                <individual specimenid="43">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.069</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.21</length>
+                </individual>
+                <individual specimenid="44">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.166</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.285</length>
+                </individual>
+                <individual specimenid="45">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.151</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                </individual>
+                <individual specimenid="46">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.066</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.205</length>
+                </individual>
+                <individual specimenid="47">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.142</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                </individual>
+                <individual specimenid="48">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.073</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.215</length>
+                </individual>
+                <individual specimenid="49">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.136</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.265</length>
+                </individual>
+                <individual specimenid="50">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.074</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.21</length>
+                </individual>
+                <individual specimenid="51">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.136</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.265</length>
+                </individual>
+                <individual specimenid="52">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.148</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.28</length>
+                </individual>
+                <individual specimenid="53">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.173</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.285</length>
+                </individual>
+                <individual specimenid="54">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.065</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.21</length>
+                </individual>
+                <individual specimenid="55">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.166</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.28</length>
+                </individual>
+                <individual specimenid="56">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.059</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.205</length>
+                </individual>
+                <individual specimenid="57">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.166</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.28</length>
+                </individual>
+                <individual specimenid="58">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.166</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.28</length>
+                </individual>
+                <individual specimenid="59">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.137</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.26</length>
+                </individual>
+                <individual specimenid="60">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.138</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                </individual>
+                <individual specimenid="61">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.179</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.285</length>
+                </individual>
+                <individual specimenid="62">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.074</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.215</length>
+                </individual>
+                <individual specimenid="63">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.149</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                </individual>
+                <individual specimenid="64">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.052</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.195</length>
+                </individual>
+                <individual specimenid="65">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.064</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.21</length>
+                </individual>
+                <individual specimenid="66">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.184</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.28</length>
+                </individual>
+                <individual specimenid="67">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.164</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                </individual>
+                <individual specimenid="68">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.069</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.215</length>
+                </individual>
+                <individual specimenid="69">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.137</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                </individual>
+                <individual specimenid="70">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.085</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.23</length>
+                </individual>
+                <individual specimenid="71">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.148</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                </individual>
+                <individual specimenid="72">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.081</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.215</length>
+                </individual>
+                <individual specimenid="73">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.168</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.28</length>
+                </individual>
+                <individual specimenid="74">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.147</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                </individual>
+                <individual specimenid="75">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.084</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.225</length>
+                </individual>
+                <individual specimenid="76">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.06</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.2</length>
+                </individual>
+                <individual specimenid="77">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.164</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.295</length>
+                </individual>
+                <individual specimenid="78">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.064</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.21</length>
+                </individual>
+                <individual specimenid="79">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.071</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.21</length>
+                </individual>
+                <individual specimenid="80">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.062</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.2</length>
+                </individual>
+                <individual specimenid="81">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.142</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.26</length>
+                </individual>
+                <individual specimenid="82">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.156</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                </individual>
+                <individual specimenid="83">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.147</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.265</length>
+                </individual>
+                <individual specimenid="84">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.051</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.19</length>
+                </individual>
+                <individual specimenid="85">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.052</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.19</length>
+                </individual>
+                <individual specimenid="86">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.185</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.285</length>
+                </individual>
+                <individual specimenid="87">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.168</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.28</length>
+                </individual>
+                <individual specimenid="88">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.155</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.285</length>
+                </individual>
+                <individual specimenid="89">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.168</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.285</length>
+                </individual>
+                <individual specimenid="90">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.059</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.205</length>
+                </individual>
+                <individual specimenid="91">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.061</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.205</length>
+                </individual>
+                <individual specimenid="92">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.164</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                </individual>
+                <individual specimenid="93">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.345</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.365</length>
+                </individual>
+                <individual specimenid="94">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.149</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.265</length>
+                </individual>
+                <individual specimenid="95">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.152</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                </individual>
+                <individual specimenid="96">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.056</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.2</length>
+                </individual>
+                <individual specimenid="97">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.17</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.275</length>
+                </individual>
+                <individual specimenid="98">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.144</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.27</length>
+                </individual>
+                <individual specimenid="99">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.166</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.28</length>
+                </individual>
+                <individual specimenid="100">
+                    <individualproducttype>1</individualproducttype>
+                    <individualweight>0.051</individualweight>
+                    <lengthresolution>2</lengthresolution>
+                    <length>0.195</length>
+                </individual>
+            </catchsample>
+            <catchsample catchsampleid="8">
+                <commonname>brennmanet</commonname>
+                <catchcategory>51671</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>135301</aphia>
+                <scientificname>Cyanea capillata</scientificname>
+                <sampletype>90</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>4.31</catchweight>
+                <catchcount>23</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>A</lengthmeasurement>
+            </catchsample>
+            <catchsample catchsampleid="9">
+                <commonname>blå brennmanet</commonname>
+                <catchcategory>51678</catchcategory>
+                <catchpartnumber>1</catchpartnumber>
+                <aphia>135302</aphia>
+                <scientificname>Cyanea lamarcki</scientificname>
+                <sampletype>90</sampletype>
+                <conservation>1</conservation>
+                <catchproducttype>1</catchproducttype>
+                <catchweight>0.108</catchweight>
+                <catchcount>8</catchcount>
+                <sampleproducttype>1</sampleproducttype>
+                <lengthmeasurement>A</lengthmeasurement>
+            </catchsample>
+        </fishstation>
+    </mission>
+</missions>

@@ -1,0 +1,135 @@
+<h1>Getting started with LSSS</h1>
+
+<h2 id="LoadingFiles">Loading files</h2>
+<p>
+   The data files to load are selected in the <a href="../Configuration/Survey/DataConf.html">'Data files'</a> section of the survey configuration dialog.
+   This dialog can be opened through the 'File' menu.
+   Data files, or a directory containing data files, can also be dragged from a file browser into the <a href="../Display/Display.html">echogram</a>.
+</p>
+<p>
+   Note that all raw-files must have corresponding idx-files. Idx-files can be created by LSSS from the <a href="../Configuration/Survey/DataConf.html">'Data files'</a>
+   section of the survey configuration dialog if they are missing. If bot-files are missing, LSSS can only be run in pelagic mode.
+</p>
+<p>
+   If there are corresponding <a href="../WorkingWith/WorkFiles/WorkFiles.html">work files</a>
+   in the WorkDir folder specified in the
+   <a href="../Configuration/Survey/DataConf.html">'Data files'</a> section of the survey configuration dialog,
+   then the saved interpretation (regions and species interpretation) will also be loaded.
+</p>
+
+<h2 id="WorkingMode">Working mode</h2>
+<p>
+   There are four different working modes.
+   The <a href="../Display/Display.html#Toolbar">toolbar</a> buttons
+   <img width="16" height="16" src="../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Edit.svg">
+   <img width="16" height="16" src="../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Erase.svg">
+   <img width="16" height="16" src="../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Zoom.svg">
+   <img width="16" height="16" src="../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Add.svg">
+   may be used to select working mode.
+   Alternatively, press the Tab (Shift + Tab) to go to the next (previous) mode.
+   If a mode has sub-modes, then Spacebar (Shift + Spacebar) selects the next (previous) sub-mode.
+</p>
+<p>
+   The delete, zoom and add modes are onetime operations.
+   Double-click on the corresponding toolbar button to apply one of these modes several times.
+</p>
+
+<h3 id="EditMode">Edit mode &nbsp; <img width="16" height="16" src="../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Edit.svg"></h3>
+<p>
+   The edit mode is context-sensitive. The action depends on the mouse location.
+</p>
+<ul>
+   <li>Click the left mouse button in a region to select that region.</li>
+   <li>Drag the mouse over several regions to select the regions intersecting the drawn rectangle.
+      <ul>
+         <li>Hold down Ctrl to toggle selection of the regions intersecting the draw rectangle.</li>
+         <li>Hold down Shift to additionally select the regions intersecting the draw rectangle.</li>
+      </ul>
+   </li>
+   <li>Press down the left button near a region boundary and drag the mouse to edit that region boundary.</li>
+   <li>Press down the left button at the center marker of a school region and drag the mouse to move that region.</li>
+</ul>
+<p>
+   This mode is described in more detail in the section on <a href="../WorkingWith/Regions/LayersAndSchools.html">regions</a>.
+</p>
+
+<h3 id="DeleteMode">Delete mode &nbsp; <img width="16" height="16" src="../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Erase.svg"></h3>
+<p>
+   This mode is for <a href="../WorkingWith/Regions/Masking.html">frequency-dependent deletion</a> of data.
+   Deleted data is marked with a <a href="../Views/Echogram/Echogram.html#MaskingDisplayOverlay">semi-transparent gray overlay</a>.
+</p>
+<ul>
+   <li>Press Spacebar to toggle between delete and undo delete.</li>
+   <li>Press Ctrl + Spacebar to change the shape of the deletion area.</li>
+   <li>Use Plus and Minus keys to change the size of the deletion area.</li>
+</ul>
+
+<h3 id="ZoomMode">Zoom mode &nbsp; <img width="16" height="16" src="../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Zoom.svg"></h3>
+<p>
+   Zoom in:
+</p>
+<ul>
+   <li>Click the left mouse button to zoom in horizontally around the mouse position.</li>
+</ul>
+<p>
+   Zoom out:
+</p>
+<ul>
+   <li>Click the middle mouse button (or Alt + Left button) to zoom out both horizontally and vertically around the mouse position.</li>
+   <li>Press down the Ctrl key and click the middle button to zoom out maximally both horizontally and vertically. Pressing
+      'Home' on the keyboard has the same effect.
+   </li>
+</ul>
+<p>
+   Press Spacebar to change between zoom and pan.
+</p>
+<p>
+   Zoom in to a rectangular area:
+</p>
+<ul>
+   <li>Press the left mouse button and drag the mouse to draw a rectangular area.</li>
+   <li>The shape of the area may be automatically expanded vertically or horizontally
+      depending on whether the initial mouse movement is horizontal, vertical or diagonal.
+   </li>
+   <li>Press Spacebar to change the automatic expansion of the area.</li>
+   <li>Release the mouse button to zoom in to the drawn area.</li>
+   <li>Press Esc to cancel the zoom.</li>
+</ul>
+
+<h3 id="AddMode">Add mode &nbsp; <img width="16" height="16" src="../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Add.svg"></h3>
+<ul>
+   <li>Click the left mouse button to insert a new layer boundary.</li>
+   <li>Press Spacebar to change between inserting horizontal and vertical layer boundaries and school regions.</li>
+</ul>
+<p>
+   This mode is described in more detail in the section on <a href="../WorkingWith/Regions/LayersAndSchools.html">regions</a>.
+</p>
+
+<h2 id="EchogramNavigation">Echogram navigation</h2>
+<p>
+   Navigation in addition to the zoom mode:
+</p>
+<ul>
+   <li>Press Ctrl + arrow keys to pan. Ctrl + Up and Down arrow keys operate only on the echogram in which the mouse is located.</li>
+   <li>Press Ctrl + Alt + Left (Right) to go to the previous (next) location.</li>
+   <li>Use the mouse scroll wheel to zoom horizontally. Press Shift to zoom vertically and Ctrl to zoom in both directions.</li>
+</ul>
+<p>
+   See also the chapter about the <a href="../Views/Echogram/Echogram.html">echogram</a>.
+</p>
+
+<h2 id="DataLoadingMode">Data loading mode</h2>
+<p>
+   There are two data loading modes:
+</p>
+<ul>
+   <li>BROWSE: Only enough pings are loaded to cover the echogram window.</li>
+   <li>DETAIL: All pings in the current range are loaded.</li>
+</ul>
+<p>
+   NB: If DETAIL mode is used on a too large interval, the system may run out of memory.
+</p>
+<p>
+   The data loading mode may be changed by clicking on the data loading mode indicator on the <a href="../Display/Display.html#StatusBar">status bar</a>
+   or through the <a href="../Views/Echogram/Echogram.html#ContextMenu">context menu</a> of the echogram view.
+</p>

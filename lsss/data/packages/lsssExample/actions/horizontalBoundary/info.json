@@ -1,0 +1,12 @@
+{
+  "label" : "Horizontal boundary",
+  "tooltip" : "Adds horizontal layer boundaries at the specified depths.",
+  "icon" : "",
+  "showDialog" : true,
+  "inputParameters" : [ {
+    "name" : "Depths",
+    "type" : "floatArray",
+    "unit" : "m",
+    "description" : "Comma-separated"
+  } ]
+}

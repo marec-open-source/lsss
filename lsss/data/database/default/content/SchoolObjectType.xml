@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<SchoolObjectType>
+   <i schoolObjectType="10" schoolObjectTypeName="SchoolVerticalAlongShipUncorrected" schoolObjectTypeDescription="SchoolVerticalAlongShipUncorrected"/>
+   <i schoolObjectType="11" schoolObjectTypeName="SchoolVerticalAlongShipCorrected" schoolObjectTypeDescription="SchoolVerticalAlongShipCorrected"/>
+   <i schoolObjectType="40" schoolObjectTypeName="SchoolKernelUncorrected" schoolObjectTypeDescription="SchoolKernelUncorrected"/>
+   <i schoolObjectType="41" schoolObjectTypeName="SchoolKernelCorrected" schoolObjectTypeDescription="SchoolKernelCorrected"/>
+   <i schoolObjectType="100" schoolObjectTypeName="EchogramSlice" schoolObjectTypeDescription="EchogramSlice"/>
+</SchoolObjectType>

@@ -1,0 +1,119 @@
+<h1>ScatterData</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>ScatterData</strong> - Integrated echo-level in depth-channels
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct ScatterData {
+  short Nation;
+  short Platform;
+  int   Survey;
+  int   Object;
+  int   ObservationDate;
+  int   ObservationTime;
+  int   Frequency;
+  short Transceiver;
+  short ScatterType;
+  int   ChannelNumber;
+  int   AcousticCategory;
+  float SA;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   Interpreted echo data from scattered fish is stored in the tables
+   <a href="Scatter.html">Scatter</a> and ScatterData.
+   <a href="Scatter.html">Scatter</a> contains processing and support parameters,
+   while ScatterData contains the integrated echo levels.
+   Interpreted data is stored in the tables with a selectable horizontal resolution.
+   The horizontal resolution is controlled by the DistanceInterval parameter in the
+   <a href="Scatter.html">Scatter</a> table. Vertically, the data in
+   <a href="Scatter.html">Scatter</a> and ScatterData is
+   resolved into depth-channels; pelagic and bottom. The vertical resolution is controlled
+   by the <b>ChannelThickness</b> parameter in the <a href="Scatter.html">Scatter</a> table.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the <a href="Nation.html">
+      Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - Unique survey identification code. See the <a href="Survey.html">
+      Survey</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="Object">Object</span> - see <a href="Scatter.html">Scatter</a> table.</li>
+   <li><span class="marec-parameter-def" id="ObservationDate">ObservationDate</span> - [YYYYMMDD] (UTC) Date of observation. Refer to the
+      <a href="Observation.html">Observation</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="ObservationTime">ObservationTime</span> - [hhmmssxx] (UTC) Time of observation. Refer to the
+      <a href="Observation.html">Observation</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="Frequency">Frequency</span> - [Hz] Echo sounder operating frequency in Hz. Refer to the
+      <a href="Scatter.html">Scatter</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="Transceiver">Transceiver</span> - Echo sounder transceiver channel number. Refer to the
+      <a href="Scatter.html">Scatter</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="ScatterType">ScatterType</span> - Type of scatter data. See the <a href="ScatterType.html">
+      ScatterType</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="ChannelNumber">ChannelNumber</span> - The pelagic channels are parallel to the sea surface, and the bottom channels are parallel
+      to the bottom. Their thickness is defined by the <b>ChannelThickness</b> parameter in the
+      <a href="Scatter.html">Scatter</a> table. See <a href="ScatterType.html">ScatterType</a> table for definitions of the
+      channel types. ChannelNumber increase with increasing distance from the reference, i.e. surface-related
+      depth-channels increase with increasing depth below surface, and bottom related channels increase with increasing
+      distance above bottom.
+   </li>
+   <li><span class="marec-parameter-def" id="AcousticCategory">AcousticCategory</span> - Code of acoustic category code. See the <a href="AcousticCategory.html">AcousticCategory</a>
+      table. Note that category code 0 implies that the s<sub>A</sub> parameter contains raw non-interpreted data;
+      bubble correction included, assignment factors onto acoustic categories excluded.
+   </li>
+   <li><span class="marec-parameter-def" id="SA">SA</span> - This parameter (s<sub>A</sub>, area backscattering coefficient, Nautical Area Scattering
+      Coefficient - NASC) contains the integrated echo level for a particular subinterval/channel/active-acoustic-category
+      triplet. The parameter has dimension square meter per square nautical mile. The value is allocated to one acoustic
+      category.
+   </li>
+</ul>
+
+<h2 id="DataStorage">Data storage</h2>
+<p>
+   A number of lines are added to the ScatterData table. All permutations
+   of subinterval, channel or active acoustic category are stored as separate lines. Hence, U x C x A lines are
+   added every base interval:
+</p>
+<ul>
+   <li><b>U</b> is the number of subintervals.</li>
+   <li><b>C</b> is the number of visible channels within the pelagic and bottom echogram.
+      Note that pelagic channel 0 and bottom channel 0 are special sum channels.
+   </li>
+   <li><b>A</b> is the number of active acoustic categories including acoustic category 0. Note that acoustic category 0
+      is a special identifier for raw non-interpreted echo level. The number of lines added
+      can be quite large with unfavorable settings. Therefore, the Scrutinize program only
+      stores lines containing a nonzero SA value. Hence, no lines are stored for pelagic
+      channels that are located below the bottom echogram and for active categories that are
+      assigned a distribution factor of zero in the Interpretation window. Two examples
+      will illustrate the storage mechanisms further. Typical situation: Assuming a horizontal
+      resolution of 1.0 nautical mile (U = 5), 17 visible channels (C = 17) and 3 active acoustic categories
+      (A = 3+1 = 4) a maximum of 5x17x4 = 340 lines are added every base interval. Typically, the
+      number of lines actually stored will be somewhat lower due to the fact that some pelagic
+      channels are below the bottom and that some acoustic categories are given an assignment factor of zero.
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="Scatter.html">Scatter</a>
+   <a href="ScatterType.html">ScatterType</a>
+</p>

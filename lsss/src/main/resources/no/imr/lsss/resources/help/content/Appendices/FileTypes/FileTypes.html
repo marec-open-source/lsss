@@ -1,0 +1,54 @@
+<h1>File types</h1>
+<p>
+   Below is an overview of file types used by LSSS:
+</p>
+
+<h2 id="DataInputFiles">Data input files</h2>
+<ul>
+   <li><strong>raw:</strong> The echosounder main input
+      files containing sample data. Preprocessed files have the same file
+      extension, and may contain additional data not available in standard
+      raw files.
+   </li>
+   <li><strong>idx:</strong> Index files for the raw sample files.</li>
+   <li><strong>bot:</strong> Files containing the detected bottom.</li>
+   <li><strong>ctd:</strong></li>
+   <li><strong>draw:</strong></li>
+   <li><strong>reflog:</strong></li>
+   <li><strong>spd:</strong> Trawl data files.</li>
+</ul>
+
+<h2 id="DataOutputFiles">Data output files</h2>
+<ul>
+   <li><strong>work:</strong>
+      <a href="../../WorkingWith/WorkFiles/WorkFiles.html">Work files</a> containing, among other things,
+      region definitions and assignment to acoustic categories.
+   </li>
+   <li><strong>snap:</strong>
+      Copies of <a href="../../WorkingWith/WorkFiles/WorkFiles.html#SnapFiles">work files</a> written by LSSS prior to version 2.10.0.
+   </li>
+   <li><strong>lsss:</strong>
+      Contains all the settings specified in
+      <a href="../../Configuration/Survey/SurveyConfiguration.html">[Configuration - Survey configuration]</a>.
+      The location of this file is selected in the last step in the sequence of
+      <a href="../../WorkingWith/NewSurvey/NewSurvey.html">setting up a new survey</a>.
+   </li>
+   <li><strong>log:</strong>
+      Contains system messages and debug information.
+   </li>
+</ul>
+
+<h2 id="DefaultConfigurationFiles">Default configuration files</h2>
+<p>
+   Two configuration files containing the default settings may exist. They are stored in the directory .ApplicationData/lsss/config in the user home directory.
+</p>
+<ul>
+   <li><strong>application.xml:</strong> The
+      default application settings. This is stored every time a survey is
+      stored and when actively choosing to store the settings from the
+      <a href="../../Configuration/Application/ApplicationConfiguration.html">application configuration main tab</a>.
+   </li>
+   <li><strong>survey.xml:</strong> The default survey settings. This is saved only when actively choosing to do so from the
+      <a href="../../Configuration/Survey/SurveyConfiguration.html">survey configuration main tab</a>.
+   </li>
+</ul>

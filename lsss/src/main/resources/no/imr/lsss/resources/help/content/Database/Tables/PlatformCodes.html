@@ -1,0 +1,54 @@
+<h1>PlatformCodes</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>PlatformCodes</strong> - Platform codes in several code systems
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct PlatformCodes {
+  short Nation;
+  short Platform;
+  char  PlatformCodeSysName[80];
+  int   FirstValidDate;
+  int   LastValidDate;
+  char  PlatformCode[80];
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table contains the mapping from the unique platform code used by the database internally to
+   other code systems. Other code systems may be e.g. "Callsign", which for RV "G.O.Sars" (1970-2002)
+   were LLZG, or ICES ship codes are "ICESnnsss", where nn is nation and sss is shipcode, which for
+   the same RV "G.O.Sars" were "ICES58015" (Norway = 58, "G.O.Sars" = 15).
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the <a href="Nation.html">Nation</a>
+      database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Platform identification code. Refer to the <a href="Platform.html">Platform</a>
+      database table.
+   </li>
+   <li><span class="marec-parameter-def" id="PlatformCodeSysName">PlatformCodeSysName</span> - Name of code system.</li>
+   <li><span class="marec-parameter-def" id="FirstValidDate">FirstValidDate</span> - [YYYYMMDD] First date the observation
+      platform was operational.
+   </li>
+   <li><span class="marec-parameter-def" id="LastValidDate">LastValidDate</span> - [YYYYMMDD] Last date the observation
+      platform was operational.
+   </li>
+   <li><span class="marec-parameter-def" id="PlatformCode">PlatformCode</span> - Code of platform in this code system.</li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   The database table <a href="Platform.html">Platform</a> contains unique platform codes.
+</p>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+      "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="no.imr.lsss.database.tables.hibernate.SchoolObjectType" table="schoolobjecttype">
+      <id name="schoolObjectType" column="schoolObjectType" type="short"/>
+
+      <property name="schoolObjectTypeName" column="schoolObjectTypename" type="java.lang.String" length="40"/>
+      <property name="schoolObjectTypeDescription" column="schoolObjectTypeDescription" type="java.lang.String" length="80"/>
+
+      <!-- Associations -->
+
+      <set
+            name="schoolMorphologies"
+            lazy="true"
+            inverse="true"
+            cascade="all,delete-orphan"
+      >
+         <key>
+            <column name="SchoolObjectType"/>
+         </key>
+         <one-to-many
+               class="no.imr.lsss.database.tables.hibernate.SchoolMorphology"
+         />
+      </set>
+
+   </class>
+</hibernate-mapping>

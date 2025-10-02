@@ -1,0 +1,46 @@
+<h1>Depth dependent resampling module</h1>
+<p>
+   This module performs depth dependent downsampling, but keeps the result on the original resolution.
+</p>
+<p>
+   A result of this module is that the stochastic part of the noise is more and more averaged out with increasing range,
+   at the expense of effective coarser resolution.
+</p>
+<p>
+   The target sample distance for downsampling is computed as a function of range r:
+</p>
+<blockquote>
+   SD(r) = <a class="marec-parameter-ref" href="#SampleDistanceAtRange100">Sample distance at range 100</a> × (r / 100)<sup>2</sup>.
+</blockquote>
+<p>
+   The number of samples included in the downsampling at range r is:
+</p>
+<blockquote>
+   n(r) = round( SD(r) / SD<sub>orig</sub> ),
+</blockquote>
+<p>
+   where SD<sub>orig</sub> is the original sample distance.
+</p>
+<figure>
+   <img src="DepthDependentResamplingModule-ping.svg" width="200" height="200">
+   <figcaption>The s<sub>v</sub> values for green samples will be replaced with the average s<sub>v</sub> for those samples.</figcaption>
+</figure>
+<p>
+   If bottom depths are available, then samples above bottom and below bottom will be averaged separately.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="MinFrequency">Min frequency:</span>
+      Apply resampling to channels with at least this frequency.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxFrequency">Max frequency:</span>
+      Apply resampling to channels with at most this frequency.
+   </li>
+   <li><span class="marec-parameter-def" id="SampleDistanceAtRange100">Sample distance at range 100:</span>
+      Sample distance at 100 m range.
+   </li>
+</ul>

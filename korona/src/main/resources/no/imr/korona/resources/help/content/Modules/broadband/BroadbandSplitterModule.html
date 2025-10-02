@@ -1,0 +1,155 @@
+<h1>Broadband splitter module</h1>
+<p>
+   This module splits the frequency band of each broadband data channel into narrower frequency bands and saves each of them as a single frequency
+   channel.
+</p>
+<p>
+   Two different methods for computing sv for the split bands are available:
+   <a href="#BandpassFilteringMethod">Bandpass filtering</a> and
+   <a href="#GlidingFftWindowMethod">gliding FFT window</a>.
+</p>
+
+<h2 id="ConfigurationFiles">Configuration files</h2>
+<p>
+   This module requires a
+   <a href="../../WorkingWith/ConfigFileSettings/BroadbandSplitterBands/BroadbandSplitterBands.html">configuration file</a>
+   containing frequency bands to be converted to single frequency data, specified by their nominal frequency, their
+   start frequency, and their stop frequency.
+</p>
+<p>
+   The
+   <a href="../../WorkingWith/ConfigFileSettings/BroadbandNotchFilters/BroadbandNotchFilters.html">broadband notch filters</a>
+   configuration file is optional, and only used with the <a href="#GlidingFftWindowMethod">Gliding FFT window method</a>.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+</ul>
+
+<h3 id="SplitBands">Split bands</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="AutoSplit">Auto split:</span>
+      Split the original broadband channels into equally large sub-bands.
+   </li>
+   <li><span class="marec-parameter-def" id="SplitCount">Split count:</span>
+      The number of single frequency channels created from each broadband channel.
+   </li>
+   <li><span class="marec-parameter-def" id="SplitBandwidth">Split bandwidth:</span>
+      Bandwidth of the auto-split bands.
+      The default is channel bandwidth / <a class="marec-parameter-ref" href="#SplitCount">Split count</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="StopBandDistance">Stopband distance:</span>
+      Distance between the passband and the stopbands, i.e. the totally attenuated frequencies, in kilohertz.
+   </li>
+   <li><span class="marec-parameter-def" id="MinBandwidth">Min bandwidth:</span>
+      Do not generate single frequency data from bands narrower than the specified bandwidth.
+   </li>
+</ul>
+
+<h3 id="DataReduction">Data reduction</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="Downsampling">Downsampling:</span>
+      Choose downsampling method.
+   </li>
+   <li><span class="marec-parameter-def" id="DownsamplingFactor">Downsampling factor:</span>
+      The downsampling factor.
+      Only applicable when <a class="marec-parameter-ref" href="#Downsampling">Downsampling</a> is set to <em>FACTOR</em>.
+   </li>
+   <li><span class="marec-parameter-def" id="DownsamplingSampleSize">Downsampling sample size:</span>
+      Downsampling is done with a downsampling factor that gives approximately this sample size.
+      Only applicable when <a class="marec-parameter-ref" href="#Downsampling">Downsampling</a> is set to <em>SAMPLE_SIZE</em>.
+   </li>
+   <li><span class="marec-parameter-def" id="ComputeAngles">Compute angles:</span>
+      Whether angles should be computed.
+   </li>
+</ul>
+
+<h3 id="ComputationalMethodHeader">Computational method</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="ComputationalMethod">Computational method:</span>
+      Method for computing sv for each split band.
+      Available methods:
+      <a href="#BandpassFilteringMethod">BANDPASS_FILTERING</a> and
+      <a href="#GlidingFftWindowMethod">GLIDING_FFT_WINDOW</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="FftWindowSize">FFT window size:</span>
+      Size of the FFT window in units of pulse length.
+      Only applicable when <a class="marec-parameter-ref" href="#ComputationalMethod">Computational method</a>
+      is set to <em>GLIDING_FFT_WINDOW</em>.
+   </li>
+</ul>
+
+<h2 id="BandpassFilteringMethod">Bandpass filtering method</h2>
+<p>
+   The splitting of the original frequency band is performed by bandpass filtering the pulse compressed signal and computing sv at the centre
+   frequency of this passband.
+   Angles are also computed on these bandpass filtered data.
+</p>
+<p>
+   It is worth noticing that the width of the sub-bands can affect the spatial resolution of the output.
+   Narrower bands can result in worse resolution.
+</p>
+<p>
+   Furthermore, the width of the bands is limited by the inverse of the pulse length.
+   In order to yield meaningful results, the bandwidth of the generated frequency bands should not be below
+   this number. E.g. for a pulse length of 2 milliseconds, the minimal bandwidth is 500 Hz.
+</p>
+<p>
+   The bandpass filter is represented by the following transfer function based on the Hann function:
+</p>
+<figure>
+   <!-- Latex code for formula:
+   H(f) = \left\{\begin{array}{cl}
+           0 & \text{for } f \leq \text{startFrequency} - \text{stopBandDistance}\\
+           \frac{1}{2} (1 + \cos(\pi \frac{f - \text{startFrequency}}{\text{stopBandDistance}})) & \text{for } \text{startFrequency} - \text{stopBandDistance} < f \leq \text{startFrequency}\\
+           1 & \text{for } \text{startFrequency} < f \leq \text{stopFrequency} \\
+           \frac{1}{2} (1 + \cos(\pi \frac{f - \text{stopFrequency}}{\text{stopBandDistance}})) & \text{for } \text{stopFrequency} < f \leq \text{stopFrequency} + \text{stopBandDistance}\\
+           0 & \text{for } f > \text{stopFrequency + stopBandDistance}
+           \end{array}\right.
+     -->
+   <img src="TransferFunctionBandpass.png" width="787" height="107">
+</figure>
+<p>
+   The figure below shows the frequency response of a bandpass filter with a start frequency of 30 kHz, stop frequency of 70 kHz, and stop band distance
+   of 20 kHz.
+</p>
+<figure>
+   <img src="bandpass-filter-magnitude.svg" width=576 height=430>
+</figure>
+
+<h3 id="Other">Other</h3>
+<ul>
+   <li><strong>Effective pulse length:</strong> The effective pulse length is calculated from the restricted sent pulse.</li>
+   <li><strong>Transducer gain:</strong> The transducer gain is corrected to correspond to the centre frequency of each sub-band.</li>
+</ul>
+
+<h2 id="GlidingFftWindowMethod">Gliding FFT window method</h2>
+<p>
+   This method uses a gliding FFT window for computing sv in the split bands:
+</p>
+<ol>
+   <li>
+      Compute sv(f) for each resulting sample.
+      The FFT window used has the configured size, and is centered around the sample.
+   </li>
+   <li>
+      Find the usable frequency set for each split band.
+      This is the split band minus any optionally configured
+      <a href="../../WorkingWith/ConfigFileSettings/BroadbandNotchFilters/BroadbandNotchFilters.html">notch filter bands</a>.
+      Therefore, when using this method, the <a href="BroadbandNotchFilterModule.html">Broadband notch filter module</a>
+      should not be used.
+   </li>
+   <li>
+      Compute the average of sv(f) for the usable frequency set.
+   </li>
+</ol>
+<p>
+   Because this method is computationally demanding, it might be advisable to use
+   <a class="marec-parameter-ref" href="#Downsampling">downsampling</a>.
+</p>
+<p>
+   Angles are computed the same way as for the <a href="#BandpassFilteringMethod">bandpass filtering method</a>.
+</p>

@@ -1,0 +1,20 @@
+.marec-front-page {
+   text-align: center;
+   page-break-after: always;
+}
+
+.marec-contents {
+   page-break-after: always;
+}
+
+@media screen {
+   .marec-front-page {
+      display: none;
+   }
+}
+
+@media print {
+   .marec-front-page {
+      margin-top: 33%;
+   }
+}

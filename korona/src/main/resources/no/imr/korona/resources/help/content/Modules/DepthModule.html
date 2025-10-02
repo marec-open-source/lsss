@@ -1,0 +1,134 @@
+<h1>Bottom detection module</h1>
+<p>
+   Module for detecting bottom depth.
+</p>
+<p>
+   Three algorithms are available:
+</p>
+<ul>
+   <li>EK500: An algorithm similar to the one used in the EK500 system.</li>
+   <li>Gradient: Finds some bottom candidates and gives them points according to signal strength, distance from transducer, and distance from previously found bottom.</li>
+   <li>Threshold: Returns the depth where for the first time the signal strength is above a pre-specified threshold.</li>
+</ul>
+
+<h3 id="ChannelDependentBottom">Finding a channel-dependent bottom depth</h3>
+<p>
+   The algorithms above find one bottom depth per ping common for all channels. The module then also finds a bottom depth for each of the channels according to the algorithm below:
+</p>
+<p>
+   For all channels:
+</p>
+<ol>
+   <li>Find the sample number corresponding to the detected bottom depth.</li>
+   <li>Create a moving average filter with a length of about 0.2 m. If the sample distance is above 0.1 m, a moving average filter of length 1 is used.</li>
+   <li>From the sample number found in 1., find the actual peak by using the moving average filter, and moving maximally 10 m in each direction.</li>
+   <li>Back-stepping: From the peak value step in the direction of the transducer until the value (according to the moving average filter) is less than
+      <a class="marec-parameter-ref" href="#MinDepthValueFraction">Min depth value fraction</a> of the peak value found in 3.
+      The depth of this value is the channel-dependent bottom depth.
+   </li>
+</ol>
+
+<h3 id="CoordinatedBottom">Coordinated bottom</h3>
+<p>
+   The following algorithm is used for finding the coordinated bottom:
+</p>
+<ol>
+   <li>Use the bottom depths detected on all frequencies between
+      <a class="marec-parameter-ref" href="#MinKHz">Minimum kHz</a> and
+      <a class="marec-parameter-ref" href="#MaxKHz">Maximum kHz</a>, but excluding
+      <a class="marec-parameter-ref" href="#DoNotUseKHz">Do not use kHz</a>.
+   </li>
+   <li>Find the maximum depth.</li>
+   <li>Clamp the remaining depths to be no less than
+      <a class="marec-parameter-ref" href="#MinDepthLimit">Min depth limit</a> above than the maximum depth.
+   </li>
+   <li>Reject the depths less than
+      <a class="marec-parameter-ref" href="#MinimumDepthThresholdFactor">Minimum depth threshold factor</a>
+      times the maximum depth.
+   </li>
+   <li>The coordinated depth is computed from the remaining depths:
+      <ol type="a">
+         <li>If the depth for the
+            <a class="marec-parameter-ref" href="#PreferredKHz">Preferred kHz</a>
+            is accepted, then it is used.
+         </li>
+         <li>Otherwise, the smallest of the remaining depths is used.</li>
+      </ol>
+   </li>
+</ol>
+<p>
+   The bottom datagrams, <a href="../Datagrams/Bot0Datagram.html">BOT0</a>, that may accompany the raw data files are used to detect the case that
+   no bottom can be found. If the accompanied bottom datagrams exist and have detected zero-depth for all channels, this is
+   used as an indication that there is no detectable bottom, and detection algorithms will not be called unless
+   <a class="marec-parameter-ref" href="#AlwaysDetectBottom">Always detect bottom</a> is selected.
+</p>
+<p>
+   The coordinated bottom is used in other preprocessing modules.
+</p>
+<p>
+   This module re-detects the bottom depth every time it is used in the processing setup. Only the coordinated bottom depth is used in the other preprocessing modules.
+   The channel-dependent bottom depths are written to a separate file which can be read and used by LSSS.
+</p>
+
+<h2 id="NewDatagrams">New datagrams</h2>
+<ul>
+   <li>Depth datagrams, <a href="../Datagrams/Dep0Datagram.html">Dep0Datagram</a>. These datagrams (one per ping) represent the coordinated depth.</li>
+   <li>Bottom datagrams, <a href="../Datagrams/Bot0Datagram.html">Bot0Datagram</a>. These datagrams (one per ping) represent the channel-dependent depths (contains one depth per channel).</li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="Algorithm">Algorithm:</span>
+      Specifies the algorithm to be used in the bottom calculation.
+      <br>Allowed values: <em>{ EK500, Gradient, Threshold }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="MinDepthLimit">Min depth limit:</span>
+      Specifies the maximal distance above bottom accepted as
+      the minimal bottom distance.
+   </li>
+   <li><span class="marec-parameter-def" id="MinDepthValueFraction">Min depth value fraction = "Backstep":</span>
+      For the minimal bottom calculation. The module backsteps from the
+      depth maximal bottom echo strength, until the echo strength is less than
+      this fraction of the maximal bottom echo strength.
+   </li>
+   <li><span class="marec-parameter-def" id="SignalStrengthThreshold">Signal strength threshold:</span>
+      The detected bottom must have signal strength larger than this value.
+   </li>
+   <li><span class="marec-parameter-def" id="MinimumDepthThresholdFactor">Minimum depth threshold factor:</span>
+      Shallowest acceptable depth relative to max depth.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxRangeFactor">Max range factor:</span>
+      Factor to multiply with given transducer ranges for ranges used in depth detection.
+   </li>
+   <li><span class="marec-parameter-def" id="AlwaysDetectBottom">Always detect bottom:</span>
+      Always try to detect bottom even if echosounder has zero bottom at all frequencies.
+   </li>
+   <li><span class="marec-parameter-def" id="KeepBottomDeeperThanData">Keep bottom deeper than data</span>
+      Keep echosounder bottom if it is deeper than available data.
+   </li>
+   <li><span class="marec-parameter-def" id="MinBottomDepth">Minimum bottom depth:</span>
+      The detected bottom must be minimum this value.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxBottomDepth">Maximum bottom depth:</span>
+      The detected bottom must be maximum this value.
+   </li>
+</ul>
+
+<h3 id="ParametersForCoordinatedBottom">Parameters for coordinated bottom</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="PreferredKHz">Preferred kHz:</span>
+      Preferred frequency for finding coordinated bottom.
+   </li>
+   <li><span class="marec-parameter-def" id="MinKHz">Minimum kHz:</span>
+      Only use channels with at least this frequency.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxKHz">Maximum kHz:</span>
+      Only use channels with at most this frequency.
+   </li>
+   <li><span class="marec-parameter-def" id="DoNotUseKHz">Do not use kHz:</span>
+      Comma-separated list of frequencies to not use.
+   </li>
+</ul>

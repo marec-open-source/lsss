@@ -1,0 +1,30 @@
+<h1>Thresholding all channels module</h1>
+<p>
+   This module masks out values on all channels if some channels are too weak or too strong.
+</p>
+<p>
+   If a channel has a sample value below or above the specified threshold,
+   then the corresponding samples on all channels are set to the specified replacement value.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="Criterion">Criterion:</span>
+      How to test values (>, ≥, ≤, <).
+   </li>
+   <li><span class="marec-parameter-def" id="Threshold">Threshold:</span>
+      The threshold value [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="Replacement">Replacement:</span>
+      The replacement value [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="MinFrequency">Min frequency:</span>
+      Minimum frequency [kHz] for testing against the threshold.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxFrequency">Max frequency:</span>
+      Maximum frequency [kHz] for testing against the threshold.
+   </li>
+</ul>

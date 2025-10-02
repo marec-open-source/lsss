@@ -1,0 +1,52 @@
+<h1>SchoolCategory</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>SchoolCategory</strong> - Acoustic category for school
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct SchoolCategory {
+  short Nation;
+  short Platform;
+  int   Survey;
+  int   Object;
+  short CategorySystem;
+  int   Category;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   Code for acoustic category and in which category system that is used.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the <a href="Nation.html">
+      Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - Unique survey identification code. See the <a href="Survey.html">
+      Survey</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="Object">Object</span> - see <a href="Scatter.html">Scatter</a> table.</li>
+   <li><span class="marec-parameter-def" id="CategorySystem">CategorySystem</span> - see <a href="SchoolCategorySystem.html">SchoolCategorySystem</a> table.</li>
+   <li><span class="marec-parameter-def" id="Category">Category</span> - Code for acoustic category (in given CategorySystem).</li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="ScatterObject.html">ScatterObject</a>;
+   <a href="SchoolMorphology.html">SchoolMorphology</a>;
+   <a href="SchoolDetect.html">SchoolDetect</a>;
+   <a href="SchoolCategorySystem.html">SchoolCategorySystem</a>;
+</p>

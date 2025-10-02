@@ -1,0 +1,32 @@
+<h1>CAS0: Categorization school datagram</h1>
+<p>
+   This datagram contains school categorization.
+   The categories are defined in the initial
+   <a href="Cac0Datagram.html">categorization configuration datagram</a>.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once per region which has not been identified as multi-species.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/categorization/SchoolCategorizationModule.html">School categorization module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Cas0Datagram {
+   DatagramHeader header; <span class="marec-comment">// CAS0</span>
+   byte categoryCount;    <span class="marec-comment">// Number of categories</span>
+   int regionId;          <span class="marec-comment">// Region id (the first border id)</span>
+   byte[categoryCount] categories;    <span class="marec-comment">// Category numbers defined in the <a href="Cac0Datagram.html">Categorization configuration datagram</a></span>
+   byte[categoryCount] discriminants;
+   byte[categoryCount] probabilities;
+};
+</pre>
+<p>
+   The byte values of the discriminants and probabilities arrays represent floating point numbers between 0 and 1,
+   converted using the formula <code>floatValue = (0xff & byteValue) / 255.0</code>.
+</p>

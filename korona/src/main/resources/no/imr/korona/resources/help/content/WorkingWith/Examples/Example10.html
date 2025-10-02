@@ -1,0 +1,38 @@
+<h1>Example 10 - Bottom detection by means of temporary calculations</h1>
+<p>
+   The common bottom detection in KORONA usees the same algorithm as Simrad EK500 and Simrad EK60. However, the settings
+   used by the algorithm may be different. How well a particular bottom detection setup works depends on the bottom,
+   i.e. a setup that works well in Norwegian waters may not work as well in Icelandic waters. The use of temporary
+   calculations may solve or at least reduce this problem. All calculations between temporary calculations are rejected,
+   but new datagrams (e.g. bottom datagram) are kept. The following KORONA module setup usually solves the challenge
+   of possibly using the improper settings to the bottom algorithm, and may work unless the bottom depth changes very
+   rapidly:
+</p>
+<ul>
+   <li>Mark the start of temporary calculations</li>
+   <li>Do heavy horizontal smoothing</li>
+   <li>Detect bottom</li>
+   <li>Mark stop the temporary calculations</li>
+</ul>
+<p>
+   The module setup of the smoother module and bottom detection module in the KORONA module setup is shown below:
+</p>
+<figure>
+   <img src="figures/ex10_ModuleSetup_smooth.png" height="561" width="721">
+   <figcaption>Settings in the <a href="../../Modules/convolution/SmootherModule.html">smoother module</a>.</figcaption>
+</figure>
+<figure>
+   <img src="figures/ex10_ModuleSetup_depth.png" height="438" width="864">
+   <figcaption>Settings in the <a href="../../Modules/DepthModule.html">bottom detection module</a></figcaption>
+</figure>
+<p>
+   The figures below show bottom detection from EK60 (38 kHz) and from KORONA using the module setup above.
+</p>
+<figure>
+   <img src="figures/ex10_bottom_ek60.png" height="333" width="757">
+   <figcaption>Bottom detection from EK60 at 38 kHz.</figcaption>
+</figure>
+<figure>
+   <img src="figures/ex10_bottom_korona.png" height="333" width="758">
+   <figcaption>Bottom detection from KORONA.</figcaption>
+</figure>

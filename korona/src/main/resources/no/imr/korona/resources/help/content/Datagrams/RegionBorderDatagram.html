@@ -1,0 +1,34 @@
+<h1>RBR0: Region border datagram</h1>
+<p>
+   This datagram contains region borders.
+   These region borders are referred to by the <a href="RegionInfoDatagram.html">Region info datagram</a>.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   At most once per ping per <a href="../Modules/region/SchoolDetectionModule.html">School detection module</a>.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/region/SchoolDetectionModule.html">School detection module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Rbr0Datagram {
+   DatagramHeader header; <span class="marec-comment">// RBR0</span>
+   int channel;           <span class="marec-comment">// The channel this region was detected on</span>
+   float threshold;       <span class="marec-comment">// The threshold [dB] used for region detection</span>
+   int borderInfoCount;   <span class="marec-comment">// Number of border elements</span>
+   BorderInfo borderInfos[];
+};
+
+struct BorderInfo {
+   int id;           <span class="marec-comment">// The id of this region border, referred to by <a href="RegionInfoDatagram.html">Region info datagram</a></span>
+   float startDepth; <span class="marec-comment">// Upper depth [m]</span>
+   float endDepth;   <span class="marec-comment">// Lower depth [m]</span>
+   float meanLogSv;  <span class="marec-comment">// The average Sv [dB] so far (computed on logarithmic values)</span>
+   int accepted;     <span class="marec-comment">// 1 if this region is currently accepted, otherwise 0</span>
+};
+</pre>

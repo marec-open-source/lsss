@@ -1,0 +1,57 @@
+<h1>BB sample data export</h1>
+<p>
+   This is an export of complex sample data after pulse compression.
+</p>
+<p>
+   For each region the rectangular bounding box in the time &times; range domain is exported.
+   The bounding box is split into one or more blocks, each with constant sample distance.
+   The 2D data arrays in each block are indexed as [timeIndex][rangeIndex].
+</p>
+<p>
+   If the available data does not cover the exported bounding box, then the value 0 is used instead.
+</p>
+
+<h2 id="Format">Format</h2>
+<pre>
+{
+   "info" : {
+      "exportType" : "BroadbandSampleData",
+      ... <span class="marec-comment">// See <a href="BroadbandExport.html">Broadband export</a> for details about the properties in the info block</span>
+   },
+   "regions" : [ {
+      "objectNumber" : 18,                                <span class="marec-comment">// The object number of this region</span>
+      "labels" : [ ],                                     <span class="marec-comment">// The labels assigned to this region</span>
+      "scrutiny": [ ... ],                                <span class="marec-comment">// See <a href="BroadbandExport.html#Scrutiny">Broadband export</a> for details</span>
+      "channels" : [ {
+         "id" : "WBT 2-1 009072085343 ES200-7CD",         <span class="marec-comment">// The channel id</span>
+         "nominalFrequency" : 200000.0,                   <span class="marec-comment">// Nominal frequency for this channel</span>
+         "minRange" : 50.1,                               <span class="marec-comment">// The minimum range of the bounding box on this channel</span>
+         "maxRange" : 60.2,                               <span class="marec-comment">// The maximum range of the bounding box on this channel</span>
+         "blocks" : [ {
+            "sampleDistance" : 0.00596,                   <span class="marec-comment">// The sample distance in this block</span>
+            "times" : ["2014-11-02T09:44:52.797Z", ... ], <span class="marec-comment">// The ping times in this block</span>
+            "re" : [ [ -1.30926E-4, ... ], ... ],         <span class="marec-comment">// The real part of the complex sample values, indexed re[timeIndex][rangeIndex]</span>
+            "im" : [ [ -5.55039E-5, ... ], ... ]          <span class="marec-comment">// The imaginary part of the complex sample values, indexed im[timeIndex][rangeIndex]</span>
+         }, {
+            ...                                           <span class="marec-comment">// More blocks for this channel</span>
+         } ]
+      }, {
+         ...                                              <span class="marec-comment">// More channels for this region</span>
+      } ]
+   }, {
+      ...                                                 <span class="marec-comment">// More regions</span>
+   } ]
+}
+</pre>
+
+<h2 id="Notes">Notes</h2>
+<ul>
+   <li>If a region spans more than one depth range for a given ping, then the enclosing depth range is used.</li>
+</ul>
+
+<h2 id="Changes">Changes</h2>
+<ul>
+   <li>LSSS 2.8.0:
+      Renamed "acousticCategories" to "scrutiny".
+   </li>
+</ul>

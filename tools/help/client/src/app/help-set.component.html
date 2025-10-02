@@ -1,0 +1,42 @@
+<router-outlet></router-outlet>
+
+@let helpSet = this.helpSet();
+
+<div class="marec-all-top">
+   @if (helpSet) {
+      <div class="marec-banner-title">
+         {{ helpSet.name }} {{ helpSet.version }}
+      </div>
+   }
+   <marec-menu></marec-menu>
+</div>
+
+<div class="marec-all-bottom">
+   <marec-progress-spinner [show]="loading()" [determinate]="fraction() > 0" [fraction]="fraction()"></marec-progress-spinner>
+   <marec-error-response [error]="errorResponse()"></marec-error-response>
+
+   <div style="display: flex; flex-direction: column; min-height: 100%;">
+      <div class="marec-help-container" style="flex: 1;">
+         @if (helpSet) {
+            <div class="marec-front-page">
+               <img [src]="helpSet.imgSrc" width="72" height="72" alt="">
+               <h1>
+                  {{ helpSet.name }}
+               </h1>
+               <p>
+                  Version {{ helpSet.version }}
+               </p>
+               <p>
+                  {{ helpSet.buildTime | date:'MMMM d, y':'UTC' }}
+               </p>
+            </div>
+            <div class="marec-contents">
+               <h1 [id]="'nav/' + helpSet.id + '//'">Contents</h1>
+               <marec-toc-list [tocItems]="helpSet.toc"></marec-toc-list>
+            </div>
+         }
+         <div #helpContent id="marec-help-content"></div>
+      </div>
+      <marec-footer></marec-footer>
+   </div>
+</div>

@@ -1,0 +1,44 @@
+<h1>Echogram plot</h1>
+<p>
+   This view is placed under the <a href="../Echogram/Echogram.html">echogram</a>,
+   and can plot various functions defined from a ping to a real number.
+</p>
+<p>
+   Some of the available functions (such as Sv, TSC and TSU) depend on the mouse position in the echogram.
+   These functions are evaluated at the depth corresponding to the mouse position (or the z coordinate for the bottom echogram).
+</p>
+<p>
+   The selected functions can also be <a href="../../WorkingWith/Output/Export/Export.html#EchogramPlot">exported</a>.
+</p>
+
+<h2 id="Settings">Settings</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="PlotAllChannels">Plot all channels:</span>
+      If unchecked, only the current channel is plotted for channel-dependent functions,
+      such as sample interval, transmit power, etc.
+   </li>
+   <li><span class="marec-parameter-def" id="AutoAdjustYAxis">Auto-adjust y-axis:</span>
+      Automatically adjust the y-axis when the plot is updated.
+   </li>
+   <li><span class="marec-parameter-def" id="GaussianSmoothing">Gaussian smoothing</span>
+      Gaussian kernel standard deviation measured in plot points.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li>Various parameters, such as vessel speed, heave, transmit power, etc.
+   </li>
+</ul>
+
+<h3 id="Function-RollTransmitToReceive">Roll: degrees-transmit-to-receive</h3>
+<p>
+   This function indicates (averaged) roll from transmit to receive. Intended used to indicate quality/usability of data from uncrewed surface vehicles (USV).
+</p>
+
+<h2 id="AdditionalInformation">Additional information</h2>
+<ul>
+   <li>
+      <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Reference/EK80/TransducerImpedance.html">Transducer impedance</a>
+   </li>
+   <li>
+      <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/noise/NoiseQuantificationModule.html">Noise quantification</a>
+   </li>
+</ul>

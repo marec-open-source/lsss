@@ -1,0 +1,38 @@
+<h1>BB Sv(f, depth)</h1>
+<p>
+   This view shows a heatmap of Sv as a function of frequency and depth for the current ping.
+</p>
+
+<h2 id="Description">Description</h2>
+<p>
+   The current ping is divided into depth intervals with size given by the <a class="marec-parameter-ref" href="#DepthResolution">Depth resolution</a> parameter.
+   For each depth interval, the Sv-frequency spectrum is computed in the same way as for
+   the <a href="BroadbandSvModule.html">BB Sv(f) module</a>.
+   Each resulting grid cell in the (frequency, depth)-domain is then colored according to
+   the <a href="../../Views/Echogram/Echogram.html#Colorbar">echogram colorbar</a>.
+</p>
+
+<h2 id="Settings">Settings</h2>
+
+<h3 id="FftSettings">FFT settings</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="FrequencyResolution">Frequency resolution:</span>
+      Horizontal grid size.
+   </li>
+   <li><span class="marec-parameter-def" id="DepthResolution">Depth resolution:</span>
+      Vertical grid size, used when computing Sv(f).
+   </li>
+   <li><span class="marec-parameter-def" id="FftWindowSize">FFT window size:</span>
+      Size of the FFT window in units of pulse length.
+   </li>
+</ul>
+
+<h3 id="DisplaySettings">Display settings</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="UseTVG">Use TVG:</span>
+      Plot Sv (with TVG) or Noise (Sv without TVG).
+   </li>
+   <li><span class="marec-parameter-def" id="AutoAdjustAxes">Auto-adjust axes:</span>
+      Automatically adjust the x-axis and y-axis when the plot is updated.
+   </li>
+</ul>

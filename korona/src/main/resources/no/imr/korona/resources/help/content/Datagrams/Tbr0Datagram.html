@@ -1,0 +1,26 @@
+<h1>TBR0: Track border datagram</h1>
+<p>
+   This datagram contains tracking info per ping.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once per ping per track.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/tracking/TrackingModule.html">Tracking module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Tbr0Datagram {
+   DatagramHeader header; <span class="marec-comment">// TBR0</span>
+   int id;                <span class="marec-comment">// ID of this track</span>
+   short channel;         <span class="marec-comment">// The channel this track was detected on</span>
+   float minDepth;        <span class="marec-comment">// [m]</span>
+   float maxDepth;        <span class="marec-comment">// [m]</span>
+   float peakDepth;       <span class="marec-comment">// [m]</span>
+};
+</pre>

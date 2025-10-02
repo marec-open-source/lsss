@@ -1,0 +1,33 @@
+<h1>Excluding ping ranges</h1>
+<p>
+   Sometimes a whole ping range must be excluded from the interpretation.
+   This may, for example, be because of a detour from the survey line
+   because of trawling.
+</p>
+<p>
+   The effect of exclusion:
+</p>
+<ul>
+   <li>Pings from excluded ranges will not be used in any computation.</li>
+   <li>Grid cells containing any excluded pings will not be stored to the database.</li>
+</ul>
+<p>
+   To exclude a ping range, right-click on a region and select <em>Exclude region range</em>
+   from the context menu.
+   Only the visible part is excluded.
+   If necessary, zoom to cover the range to be excluded or create a region with the desired
+   range. Excluded ranges can be re-included by right-clicking on a region
+   and selecting <em>Include region range</em>.
+   The excluded ranges will be shown in the echogram by the <a href="../../Views/Echogram/Echogram.html#MaskingDisplayOverlay">masking overlay</a>
+   as black diagonal lines on a semi-transparent gray overlay as shown below.
+</p>
+<figure>
+   <img src="ExclusionEchogram.png" width="817" height="501">
+</figure>
+<p>
+   The excluded segments are also shown in the map by the <a href="../../Views/Map/Map.html#SurveyLineOverlay">survey line overlay</a>
+   as thin dotted lines as shown below.
+</p>
+<figure>
+   <img src="ExclusionMap.png" width="511" height="334">
+</figure>

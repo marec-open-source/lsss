@@ -1,0 +1,24 @@
+<h1>DEP0: Coordinated bottom datagram</h1>
+<p>
+   This datagram contains the depth of the coordinated bottom.
+   Bottom depths per channel are given by the <a href="Bot0Datagram.html">BOT0 datagram</a>.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once per ping.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/DepthModule.html">Bottom detection module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Dep0Datagram {
+   DatagramHeader header; <span class="marec-comment">// DEP0</span>
+   float depth;           <span class="marec-comment">// The detected bottom depth [m]</span>
+   float minimumDepth;    <span class="marec-comment">// The minimum bottom depth [m]</span>
+};
+</pre>

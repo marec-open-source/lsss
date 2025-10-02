@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+      "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="no.imr.lsss.database.tables.hibernate.Survey" table="survey">
+      <composite-id name="compId" class="no.imr.lsss.database.tables.hibernate.SurveyPK">
+         <key-property name="nation" column="Nation" type="short"/>
+         <key-property name="platform" column="Platform" type="short"/>
+         <key-property name="survey" column="Survey" type="int"/>
+      </composite-id>
+
+      <property name="surveyTitle" column="SurveyTitle" type="java.lang.String" length="80"/>
+      <property name="startDate" column="StartDate" type="int" not-null="true"/>
+      <property name="startTime" column="StartTime" type="int" not-null="true"/>
+      <property name="stopDate" column="StopDate" type="int" not-null="true"/>
+      <property name="stopTime" column="StopTime" type="int" not-null="true"/>
+      <property name="surveyDescription" column="SurveyDescription" type="java.lang.String" length="200"/>
+      <property name="boundaryNorth" column="BoundaryNorth" type="float" not-null="true"/>
+      <property name="boundarySouth" column="BoundarySouth" type="float" not-null="true"/>
+      <property name="boundaryWest" column="BoundaryWest" type="float" not-null="true"/>
+      <property name="boundaryEast" column="BoundaryEast" type="float" not-null="true"/>
+
+      <!-- Associations -->
+
+      <many-to-one
+            name="platform"
+            class="no.imr.lsss.database.tables.hibernate.Platform"
+            update="false"
+            insert="false"
+      >
+         <column name="Nation"/>
+         <column name="Platform"/>
+      </many-to-one>
+
+      <set
+            name="observations"
+            lazy="true"
+            inverse="true"
+            cascade="none"
+      >
+         <key>
+            <column name="Nation"/>
+            <column name="Platform"/>
+            <column name="Survey"/>
+         </key>
+         <one-to-many
+               class="no.imr.lsss.database.tables.hibernate.Observation"
+         />
+      </set>
+
+      <set
+            name="purposes"
+            lazy="true"
+            inverse="true"
+            cascade="none"
+      >
+         <key>
+            <column name="Nation"/>
+            <column name="Platform"/>
+            <column name="Survey"/>
+         </key>
+         <one-to-many
+               class="no.imr.lsss.database.tables.hibernate.Purpose"
+         />
+      </set>
+
+   </class>
+</hibernate-mapping>

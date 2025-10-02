@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="395" height="218" viewBox="0 -100 395 218"
+     fill="none">
+
+   <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+         <path d="M0,0 L10,5 0,10 z" fill="black"/>
+      </marker>
+   </defs>
+
+   <path stroke="black" stroke-width="2" d="M2,0 H393 M210,0 v-40"/>
+
+   <g stroke="black" stroke-width="2">
+      <line x1="250" y1="-60" x2="220" y2="-35" marker-end="url(#arrow)"/>
+      <line x1="100" y1="-50" x2="147" y2="-17" marker-end="url(#arrow)"/>
+      <line x1="150" y1="70" x2="150" y2="30" marker-end="url(#arrow)"/>
+   </g>
+
+   <path stroke="#23b8dc" stroke-width="2" d="
+         M75,-10 v20
+         M155,-10 v20
+         M240,-10 v20
+         M265,-10 v20
+         M290,-10 v20
+   "/>
+
+   <path stroke="#b84747" stroke-width="2" d="
+         M140,0 v20
+         M150,0 v20
+         M160,0 v20
+         M170,0 v20
+         M180,0 v20
+   "/>
+
+   <path stroke="black" stroke-width="1" d="
+         M170,24.5 v1 a2,2 0 0 0 2,2 h1 a2,2 0 0 1 2,2 v1 v-1 a2,2 0 0 1 2,-2 h1 a2,2 0 0 0 2,-2 v-1
+   "/>
+
+   <g fill="black" stroke="none" font-family="sans-serif" font-size="16" text-anchor="middle">
+      <text x="100" y="-80">Start of first ping used</text>
+      <text x="100" y="-60">in the grid column</text>
+
+      <text x="300" y="-65">Start of a grid column</text>
+
+      <text x="235" y="50">1/100 th of a second</text>
+
+      <text x="150" y="90">The time for the observation</text>
+      <text x="150" y="110">of the grid column</text>
+   </g>
+</svg>

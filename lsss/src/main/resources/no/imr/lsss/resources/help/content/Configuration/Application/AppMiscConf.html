@@ -1,0 +1,63 @@
+<h1>Miscellaneous configuration</h1>
+<p>
+   This section contains miscellaneous application settings.
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="OnApplicationStart">On application start:</span>
+      What to do when starting LSSS.
+   </li>
+   <li><span class="marec-parameter-def" id="OnSurveyOpen">On survey open:</span>
+      What to do when opening a survey.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="MapURL">Map URL:</span>
+      The Map WMS URL is used by the <a href="../../Views/Map/Map.html#BackgroundMapOverlay">map view</a>
+      to produce the background map image. Example: <code>https://kart.hi.no/data/hi_basemap/wms?</code>.
+   </li>
+   <li><span class="marec-parameter-def" id="MapLayers">Map layers:</span>
+      The layers requested from <a class="marec-parameter-ref" href="#MapURL">Map URL</a>.
+      This should be a comma-separated list of identifiers.
+   </li>
+   <li><span class="marec-parameter-def" id="MapSelectLayers">Select layers...:</span>
+      Downloads WMS capabilities and select layers.
+   </li>
+   <li><span class="marec-parameter-def" id="MapResetLayers">Reset:</span>
+      Resets <a class="marec-parameter-ref" href="#MapURL">Map URL</a> and
+      <a class="marec-parameter-ref" href="#MapLayers">Map layers</a> to their default values.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="MaxPings">Max pings:</span>
+      The maximum number of pings that will be read in <a href="../../GettingStarted/GettingStarted.html#DataLoadingMode">DETAIL mode</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="PingLoading">Ping loading:</span>
+      The strategy for how pings should be read from file:
+      <ul>
+         <li>LEFT_TO_RIGHT: The pings are read from left to right. Arguably
+            the fastest way to read the pings, but the user will have to wait for a
+            while before an impression of the echogram appears.
+         </li>
+         <li>RANDOM: The pings are read in a completely random sequence.</li>
+         <li>LONGEST_GAP_LEFT_TO_RIGHT: The pings are read so that the
+            longest gap in the echogram is filled first. The gaps of equal length
+            are ordered from left to right.
+         </li>
+         <li>LONGEST_GAP_RANDOM: The pings are read so that the longest gap in the echogram is filled first. The gaps of equal length are ordered randomly.</li>
+      </ul>
+   </li>
+   <li><span class="marec-parameter-def" id="Preload">Preload:</span>
+      If checked, the system will preload pings in the next segment in the background.
+   </li>
+   <li><span class="marec-parameter-def" id="PreloadPreprocessed">Preload preprocessed:</span>
+      If checked, the system will preload pings from
+      the preprocessed data files in the background if available.
+      This preloading will be started after preloading the next segment is completed.
+      If the preprocessed data is activated then the original data will be preloaded.
+   </li>
+   <li><span class="marec-parameter-def" id="UseEnglish">Use English:</span>
+      If checked, English initials and names are used for acoustic categories in LSSS.
+      Otherwise, the native initials and names are used. This setting also affects the naming of acoustic categories in the reports.
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalScrollBar">Vertical scrollbar:</span>
+      If checked, then a vertical scrollbar is shown in the <a href="../../Views/Echogram/Echogram.html">echogram</a>.
+   </li>
+</ul>

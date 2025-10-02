@@ -1,0 +1,52 @@
+<h1>Directories configuration</h1>
+<figure>
+   <img src="DirectoryConf.png" height="988" width="950">
+</figure>
+<p>
+   The main directories are meant to contain subdirectories for each survey.
+   When a new survey is set up, the actual directories used are subdirectories to the main directories.
+   The names of the subdirectories are derived from survey and platform.
+</p>
+<p>
+   The naming scheme of the subdirectories uses the parameter SurveyDirStructure.
+   The default naming scheme is given in the example below.
+   Other naming schemes are defined in files in the directory [LSSS installation]/lsss/data/surveyDirStructure.
+</p>
+<p>
+   The parameters BackupDirStructure and BackupDestinationDir are used when
+   <a href="../../WorkingWith/BackupSurvey/BackupSurvey.html">backing up survey data</a>.
+   The BackupDirStructure parameter defines the resulting directory structure,
+   and the BackupDestinationDir gives the default location for the backed up survey directory.
+</p>
+<p>
+   The directories derived from the main directories together with survey and platform are default values
+   used when defining a new survey. These directories can later be changed
+   in <a href="../Survey/DataConf.html">[Survey configuration - Data files]</a>.
+</p>
+<p>
+   Example:
+   <br> - The MainDir is set to <code>C:\surveys</code> and the other directories are left blank.
+   <br> - The SurveyDirStructure is set to default.
+   <br> - The platform is called TestPlatform with id 1234.
+   <br> - The survey id is 2006123.
+   <br>Then the survey directory will be <code>C:\surveys\S2006123PTestPlatform[1234]</code> and
+</p>
+<div class="marec-horizontal-scroll">
+<table class="marec-table marec-table-first-column-nowrap">
+   <tr><td><code>C:\surveys\S2006123PTestPlatform[1234]\lsss</code></td><td>Survey configuration files</td></tr>
+   <tr><td><code>C:\surveys\S2006123PTestPlatform[1234]\Raw</code></td><td>Raw data files</td></tr>
+   <tr><td><code>C:\surveys\S2006123PTestPlatform[1234]\KORONA</code></td><td><a href="../../WorkingWith/Preprocessing/Preprocessing.html">Preprocessed</a> raw data files</td></tr>
+   <tr><td><code>C:\surveys\S2006123PTestPlatform[1234]\Trawl</code></td><td><a href="../../Views/Trawl/Trawl.html">Trawl</a> data files</td></tr>
+   <tr><td><code>C:\surveys\S2006123PTestPlatform[1234]\CTD</code></td><td><a href="../../Views/CTD/CTD.html">CTD</a> data files</td></tr>
+   <tr><td><code>C:\surveys\S2006123PTestPlatform[1234]\RefLog</code></td><td><a href="../../Views/Echogram/Echogram.html#RefLogEchogramOverlay">Reference log</a> files</td></tr>
+   <tr><td><code>C:\surveys\S2006123PTestPlatform[1234]\FileDraw</code></td><td>Files with <a href="../../Views/Echogram/Echogram.html#FileDrawOverlay">geometrical shapes</a></td></tr>
+   <tr><td><code>C:\surveys\S2006123PTestPlatform[1234]\Reports</code></td><td><a href="../../WorkingWith/Output/ReportGenerator/ReportGenerator.html">Generated reports</a></td></tr>
+   <tr><td><code>C:\surveys\S2006123PTestPlatform[1234]\Work</code></td><td>Work files</td></tr>
+   <tr><td><code>C:\surveys\S2006123PTestPlatform[1234]\Export</code></td><td><a href="../../WorkingWith/Output/Export/Export.html">Exported files</a></td></tr>
+</table>
+</div>
+<p>
+   It is also possible to specify a default root directory for each of
+   the data input types. If in the example above MainDataDir is set to <code>C:\data</code> then the directory for raw data files will be
+   <code>C:\data\S2006123PTestPlatform[1234]</code>.
+</p>

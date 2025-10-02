@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+      "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="no.imr.lsss.database.tables.hibernate.ObservationComment" table="ObservationComment">
+      <composite-id name="compId" class="no.imr.lsss.database.tables.hibernate.ObservationPK">
+         <key-property name="nation" column="Nation" type="short"/>
+         <key-property name="platform" column="Platform" type="short"/>
+         <key-property name="survey" column="Survey" type="int"/>
+         <key-property name="observationDate" column="ObservationDate" type="int"/>
+         <key-property name="observationTime" column="ObservationTime" type="int"/>
+         <key-property name="observationType" column="ObservationType" type="short"/>
+      </composite-id>
+
+      <property name="standardComment" column="StandardComment" type="int" not-null="true"/>
+      <property name="mantissa" column="Mantissa" type="int" not-null="true"/>
+      <property name="exp" column="Exp" type="int" not-null="true"/>
+      <property name="text" column="Text" type="java.lang.String" length="200"/>
+
+      <!-- Associations -->
+      <one-to-one
+            name="observation"
+            class="no.imr.lsss.database.tables.hibernate.Observation"
+            outer-join="auto"
+            constrained="true"
+            lazy="false"
+      >
+      </one-to-one>
+
+      <many-to-one
+            name="referencedStandardComment"
+            class="no.imr.lsss.database.tables.hibernate.StandardComment"
+            not-null="false"
+            lazy="false"
+            update="false"
+            insert="false"
+      >
+         <column name="Nation"/>
+         <column name="Platform"/>
+         <column name="StandardComment"/>
+      </many-to-one>
+
+   </class>
+</hibernate-mapping>

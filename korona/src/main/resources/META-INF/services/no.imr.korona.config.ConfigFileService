@@ -1,0 +1,10 @@
+no.imr.korona.computation.ModuleConfigurationFileService
+no.imr.korona.computation.categorization.CategorizationFileService
+no.imr.korona.computation.offset.HorizontalTransducerOffsetsFileService
+no.imr.korona.computation.offset.VerticalTransducerOffsetsFileService
+no.imr.korona.computation.offset.TransducerRangesFileService
+no.imr.korona.computation.plankton.PlanktonFileService
+no.imr.korona.computation.broadband.notchfilter.BroadbandNotchFiltersFileService
+no.imr.korona.computation.broadband.pulsecompressionfilter.PulseCompressionFiltersFileService
+no.imr.korona.computation.broadband.splitting.BroadbandSplitterBandsFileService
+no.imr.korona.computation.towfish.TowfishFileService

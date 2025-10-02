@@ -1,0 +1,80 @@
+<h1>RNF0: Region info datagram</h1>
+<p>
+   This datagram contains information about one region.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   At the end of each region.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/region/SchoolDetectionModule.html">School detection module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Rnf0Datagram {
+   DatagramHeader header;   <span class="marec-comment">// RNF0</span>
+   int accepted;            <span class="marec-comment">// 1 if this region is accepted, otherwise 0</span>
+   int channel;             <span class="marec-comment">// The channel this region was detected on</span>
+   float threshold;         <span class="marec-comment">// The threshold [dB] used for region detection</span>
+   BoundingBox boundingBox;
+   Values values;
+   Statistics statistics;   <span class="marec-comment">// Unused since KORONA version 2.15.0</span>
+   int borderIdCount;       <span class="marec-comment">// Number of border ids</span>
+   int borderIds[];         <span class="marec-comment">// Ids of <a href="RegionBorderDatagram.html">Region border datagram</a> for this region</span>
+   Histogram histogram;     <span class="marec-comment">// Unused since KORONA version 2.15.0</span>
+   int perimeterPointCount; <span class="marec-comment">// Always 0 since KORONA version 2.15.0</span>
+   PerimeterPoint[] perimeterPoints;
+   int maskIntervalCount;   <span class="marec-comment">// Always 0 prior to KORONA version 2.15.0</span>
+   MaskInterval[] maskIntervals;
+};
+
+struct BoundingBox {
+   float x;      <span class="marec-comment">// Ping number relative to beginning of the file</span>
+   float y;      <span class="marec-comment">// Upper depth [m]</span>
+   float width;  <span class="marec-comment">// Number of pings</span>
+   float height; <span class="marec-comment">// Height [m]</span>
+};
+
+struct Values {
+   float area;            <span class="marec-comment">// [m²]</span>
+   float sampleCount;     <span class="marec-comment">//</span>
+   float sumLogSv;        <span class="marec-comment">// [dB]</span>
+   float sumSv;           <span class="marec-comment">// [4π 1852² m²/m³]</span>
+   float logMeanSv;       <span class="marec-comment">// [dB]</span>
+   double sa;             <span class="marec-comment">// [m²/nmi²]</span>
+   float perimeter;       <span class="marec-comment">// [m]</span>
+   float length;          <span class="marec-comment">// [m]</span>
+   float maxHeight;       <span class="marec-comment">// [m]</span>
+};
+
+struct Statistics {      <span class="marec-comment">// Unused since KORONA version 2.15.0</span>
+   double meanInside;    <span class="marec-comment">// Mean LogSv for samples inside the region close to the border</span>
+   double stdDevInside;  <span class="marec-comment">// Standard deviation for samples inside the region close to the border</span>
+   double meanOutside;   <span class="marec-comment">// Mean LogSv for samples outside the region close to the border</span>
+   double stdDevOutside; <span class="marec-comment">// Standard deviation for samples outside the region close to the border</span>
+   double overlap;       <span class="marec-comment">// Overlap [%] between the Gauss curves of the two distributions</span>
+   double crossing;      <span class="marec-comment">// Cross point (between the mean values) of the two distributions</span>
+};
+
+struct Histogram {   <span class="marec-comment">// Unused since KORONA version 2.15.0</span>
+   float startValue; <span class="marec-comment">// Start value [dB] of the first histogram bin</span>
+   float step;       <span class="marec-comment">// Bin size [dB]</span>
+   int maxIndex;     <span class="marec-comment">// Index of the last bin</span>
+   int[] counts;     <span class="marec-comment">// Number of samples in each bin</span>
+};
+
+struct PerimeterPoint {
+   long ntTime;
+   float depth;
+};
+
+struct MaskInterval {
+   long ntTime;
+   float minDepth;
+   float maxDepth;
+};
+</pre>

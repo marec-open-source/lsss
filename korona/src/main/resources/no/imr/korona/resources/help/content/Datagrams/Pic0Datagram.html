@@ -1,0 +1,33 @@
+<h1>PIC0: Plankton inversion configuration datagram</h1>
+<p>
+   This datagram contains all plankton categories that are referred to later in
+   the plankton inversion datagrams <a href="Pid0Datagram.html">Plankton inversion data datagram</a>.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once, in the beginning of the file.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/plankton/PlanktonInversionModule/PlanktonInversionModule.html">Plankton inversion module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Pic0Datagram {
+   DatagramHeader header;  <span class="marec-comment">// PIC0</span>
+   int planktonCategoryCount;
+   PlanktonCategory[] planktonCategories;
+};
+
+struct PlanktonCategory {
+   string name;   <span class="marec-comment">// Full name of this plankton category</span>
+   string legend; <span class="marec-comment">// Short name displayed in e.g. the colorbar</span>
+   byte number;
+   byte red;
+   byte green;
+   byte blue;
+};
+</pre>

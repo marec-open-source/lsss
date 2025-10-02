@@ -1,0 +1,20 @@
+<router-outlet></router-outlet>
+
+<div class="marec-all-top">
+   <div class="marec-banner-title">
+      {{ configService.config.helpSets[0].name }} {{ configService.config.helpSets[0].version }}
+   </div>
+   <marec-menu></marec-menu>
+</div>
+
+<div class="marec-all-bottom">
+   <marec-progress-spinner [show]="loading()" [determinate]="fraction() > 0" [fraction]="fraction()"></marec-progress-spinner>
+   <marec-error-response [error]="errorResponse()"></marec-error-response>
+
+   <div style="display: flex; flex-direction: column; min-height: 100%;">
+      <div class="marec-help-container" style="flex: 1;">
+         <div #helpContent id="marec-help-content"></div>
+      </div>
+      <marec-footer></marec-footer>
+   </div>
+</div>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<StandardComment>
+   <i nation="0" platform="0" standardComment="0" text="Fri tekst"/>
+   <i nation="0" platform="0" standardComment="1" text="Manuelt punchet"/>
+   <i nation="0" platform="0" standardComment="2" text="Dårlig vær"/>
+   <i nation="0" platform="0" standardComment="3" text="I kursretning,PT"/>
+   <i nation="0" platform="0" standardComment="4" text="I kursretning,BT"/>
+   <i nation="0" platform="0" standardComment="5" text="Mot kursretning,PT"/>
+   <i nation="0" platform="0" standardComment="6" text="Mot kursretning,BT"/>
+   <i nation="0" platform="0" standardComment="7" text="Usikker tolking(Darlig vær)"/>
+   <i nation="0" platform="0" standardComment="8" text="Usikker tolking(Vanskelig bunn)"/>
+   <i nation="0" platform="0" standardComment="9" text="Sikker tolking"/>
+   <i nation="0" platform="0" standardComment="10" text="Egnet fortolkebibliotek"/>
+   <i nation="0" platform="0" standardComment="11" text="Skyggeeffekt"/>
+   <i nation="0" platform="0" standardComment="12" text="Senkekjoluttil[m]"/>
+   <i nation="0" platform="0" standardComment="13" text="Senkekjolinntil[m]"/>
+   <i nation="0" platform="0" standardComment="1000" text="Mislykket trålhal"/>
+   <i nation="0" platform="0" standardComment="1001" text="Diverse trålhal: PT151,BT152"/>
+   <i nation="0" platform="0" standardComment="1002" text="Plankton øverst antas å inneholde laksesild"/>
+   <i nation="0" platform="0" standardComment="1003" text="Plankton i øverste lag antas å inneholde laksesild"/>
+   <i nation="0" platform="0" standardComment="1004" text="Mislykket tråling: tekniskeproblemer"/>
+   <i nation="0" platform="0" standardComment="1005" text="SeMOCNESSstasjon262"/>
+   <i nation="0" platform="0" standardComment="1006" text="SeMOCNESS262"/>
+   <i nation="0" platform="0" standardComment="1007" text="MOCNESS262"/>
+   <i nation="0" platform="0" standardComment="1008" text="Nesteutgår: støy"/>
+   <i nation="0" platform="0" standardComment="1009" text="Motkursretning,PT168: Mislykket(poseikkeåpnet)"/>
+   <i nation="0" platform="0" standardComment="1010" text="3nesteutgår: støy"/>
+   <i nation="0" platform="0" standardComment="1011" text="De neste 5-milene utgår: øst av 4 graderE"/>
+   <i nation="0" platform="0" standardComment="1012" text="På tvers av kursretning: PT171"/>
+   <i nation="0" platform="0" standardComment="1013" text="PT171 på kryssende kurs, logg1488"/>
+   <i nation="0" platform="0" standardComment="1014" text="Nesteutgår: mislykket trålhal tilbake"/>
+   <i nation="0" platform="0" standardComment="1015" text="Ikursretning: PT178,S31447. 2 nesteutgår"/>
+   <i nation="0" platform="0" standardComment="1016" text="KnustTrål"/>
+   <i nation="0" platform="0" standardComment="1017" text="KnustTrålBT"/>
+   <i nation="0" platform="0" standardComment="1018" text="Forrige trålstasjon ble feilaktig gitt nr408"/>
+   <i nation="0" platform="0" standardComment="1019" text="Neste trålstasjon burde veaert 410"/>
+   <i nation="0" platform="0" standardComment="1020" text="Neste trålhal burde hattnummer 411"/>
+   <i nation="0" platform="0" standardComment="1021" text="Neste trålhal burde vaert 410"/>
+   <i nation="0" platform="0" standardComment="1022" text="Frekvensrespons dårlig under 250m formakrell"/>
+   <i nation="0" platform="0" standardComment="1023" text="Frekvensrespons for makrell upolitelig under 250m"/>
+   <i nation="0" platform="0" standardComment="1024" text="Støy over 40m på 18kHz"/>
+   <i nation="0" platform="0" standardComment="1025" text="Alt over 40m på 18kHz er støy"/>
+   <i nation="0" platform="0" standardComment="1026" text="Alt ovedr 40m er støy på 18kHz"/>
+   <i nation="0" platform="0" standardComment="1027" text="Neste utgår: mislykket tråling"/>
+</StandardComment>

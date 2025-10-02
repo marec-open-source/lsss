@@ -1,0 +1,254 @@
+<h1>Tracking module</h1>
+<p>
+   Tracks single targets.
+   Tracking is performed on a single frequency using a chosen tracker type, in the following steps:
+</p>
+<ol>
+   <li>target detection</li>
+   <li>target filtering</li>
+   <li>track initialization</li>
+   <li>track association</li>
+   <li>track acceptance/rejection</li>
+</ol>
+<p>
+   If the Tracking module is applied to data without angles, then both the alongship angle and
+   the athwartship angle are assumed to be zero for all samples.
+   This implies zero directivity correction, hence corrected TS equals uncorrected TS.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+
+<h3 id="GeneralSettings">General settings</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="TrackerType">Tracker type:</span>
+      The tracker to be used.
+   </li>
+   <li><span class="marec-parameter-def" id="kHz">Frequency [kHz]:</span>
+      The frequency on which to do tracking.
+   </li>
+</ul>
+
+<h4 id="TrackerTypes">Tracker types</h4>
+<p>
+   The choice of the tracker affects the target detection and track initialisation.
+   All the other stages of the tracking algorithm are independent of this choice.
+</p>
+<p>
+   The following tracker types are available:
+</p>
+<ul>
+   <li><em>Aggregation:</em>
+      This tracker detects targets in each ping based on target strength,
+      extracting all samples with target strength greater than <a class="marec-parameter-ref" href="#MinTS">Min TS</a>,
+      provided their gain compensation is less than <a class="marec-parameter-ref" href="#MaxGainCompensation">Max gain compensation</a>.
+   </li>
+   <li><em>SED:</em>
+      This tracker uses the <a href="../ts/TsDetectionModule.html#SED">SED</a> target detector in the
+      <a href="../ts/TsDetectionModule.html">TS detection module</a>.
+   </li>
+   <li><em>Peak:</em>
+      This tracker uses the <a href="../ts/TsDetectionModule.html#Peak">Peak</a> target detector in the
+      <a href="../ts/TsDetectionModule.html">TS detection module</a>.
+   </li>
+   <li><em>TSModule:</em>
+      This tracker uses the targets detected by a <a href="../ts/TsDetectionModule.html">TS detection module</a>
+      earlier in the module processing pipeline.
+   </li>
+</ul>
+
+<h3 id="PlatformSettings">Platform settings</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="PlatformMotionType">Platform motion type:</span>
+      The type of movement the platform undergoes.
+   </li>
+</ul>
+<p>
+   The following motion types are available:
+</p>
+<ul>
+   <li><em>Stationary:</em>
+      This choice assumes that changes in the position and orientation of the platform from ping to ping are negligible.
+      Tracking is performed in the transducer's coordinate system.
+   </li>
+   <li><em>Floating:</em>
+      This choice assumes that vertical changes in the position of the platform from ping to ping are negligible.
+      Tracking is performed in a local coordinate system, after correcting for heading, pitch, roll and heave.
+   </li>
+   <li><em>Moving:</em>
+      This choice assumes that changes in the position and orientation of the platform from ping to ping are non-negligible.
+      Tracking is performed in a global coordinate system.
+   </li>
+</ul>
+
+<h3 id="TargetDetectorSettings">Target detector settings</h3>
+<p>
+   Common parameters for all trackers, except <em>TSModule</em>:
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="MinTS">Min TS:</span>
+      Minimum TS value to be detected [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="MaxGainCompensation">Max gain compensation:</span>
+      Maximum (one way) gain compensation [dB].
+   </li>
+</ul>
+<p>
+   In addition to the common settings, the following parameters can be set for <em>Aggregation</em>,
+   and <em>Peak</em> trackers:
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="PulseLengthDeterminationLevel">Pulse length determination level:</span>
+      Pulse length determination level [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="MinEchoLength">Min echo length:</span>
+      Minimum echo length (relative to pulse length).   NB: may be << 1 for pulse compressed data!
+   </li>
+   <li><span class="marec-parameter-def" id="MaxEchoLength">Max echo length:</span>
+      Maximum echo length (relative to pulse length).   NB: may be << 1 for pulse compressed data!
+   </li>
+   <li><span class="marec-parameter-def" id="DoPhaseDeviationCheck">Do phase deviation check:</span>
+      Check this if phase deviation check should be performed.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxPhaseDevSteps">Max phase deviation:</span>
+      Max phase deviation [phase steps].
+   </li>
+</ul>
+<p>
+   The recommended presets for the target detection settings of the chosen tracker can be loaded by clicking on the <span class="marec-parameter-def" id="SetPresets">Set presets</span> button.
+</p>
+
+<h3 id="TargetFilteringSettings">Target filtering settings</h3>
+<p>
+   All targets not satisfying the here set condition are rejected post-detection. The settings are independent of the chosen tracker.
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="MaxTS">Max TS:</span>
+      Maximum corrected TS value [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="MaxDepth">Max depth:</span>
+      Maximum target depth at peak position [m].
+   </li>
+   <li><span class="marec-parameter-def" id="MaxAlongshipAngle">Max alongship angle:</span>
+      Maximum alongship angle [deg].
+   </li>
+   <li><span class="marec-parameter-def" id="MaxAthwartshipAngle">Max athwartship angle:</span>
+      Maximum athwartship angle [deg].
+   </li>
+</ul>
+
+<h3 id="TrackInitializationSettings">Track initialization settings</h3>
+<p>
+   Settings governing the initialisation of new tracks. In this stage, close-by targets may also be merged.
+</p>
+<p>
+   <em>Aggregation</em> tracker:
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="InitiationGateFunction">Initiation gate function:</span>
+      Definition of the <a href="#GateFunctionDescription">gate function</a> for merging of detected targets.
+   </li>
+   <li><span class="marec-parameter-def" id="InitiationMinLength">Initiation min length:</span>
+      Minimal number of targets to be merged for new track.
+   </li>
+</ul>
+<p>
+   <em>SED</em>, and <em>Peak</em> tracker:
+</p>
+<p>
+   No settings. All filtered detected targets that cannot be associated with an existing track are initialized as new tracks without merging.
+</p>
+
+<h3 id="TrackAssociationSettings">Track association settings</h3>
+<p>
+   Settings governing the construction and termination of tracks.
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="GateFunction">Gate function:</span>
+      Definition of the <a href="#GateFunctionDescription">gate function</a> for tack association.
+   </li>
+   <li><span class="marec-parameter-def" id="AlphaBetaEstimator">Alpha beta estimator:</span>
+      Definition predictor-corrector scheme for track association.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxMissingPings">Max missing pings:</span>
+      N<sub>m</sub> - Maximum number of missing pings in a row before termination.
+   </li>
+</ul>
+<p>
+   <em>Aggregation</em> tracker:
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="MaxMissingSamples">Max missing samples:</span>
+      N<sub>e</sub> - Maximum number of missing samples in a single ping before termination.
+   </li>
+</ul>
+
+<h3 id="TrackAcceptanceSettings">Track acceptance settings</h3>
+<p>
+   Setting for final acceptance/rejection of a terminated track.
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="MaxMissingPingsFraction">Max missing pings fraction:</span>
+      MN - Maximum acceptable ratio of missing pings to track length.
+   </li>
+   <li><span class="marec-parameter-def" id="MinTrackLength">Min track length:</span>
+      TL - Minimum acceptable track length.
+   </li>
+   <li><span class="marec-parameter-def" id="MinSampleToLengthFraction">Min sample to length fraction:</span>
+      NL - Minimum acceptable ratio of total number of samples to track length.
+   </li>
+</ul>
+
+<h2 id="Background">Background</h2>
+
+<h3 id="GateFunctionDescription">Gate function</h3>
+<p>
+   The difference between two targets <i>i</i> and <i>j</i>
+   is calculated as:
+</p>
+<blockquote>
+   &epsilon;<sub>ij</sub> = y<sub>i</sub> - y<sub>j</sub>
+</blockquote>
+<p>
+   where y<sub>i</sub> = [ &alpha; &beta; r TS ],
+   &alpha; = alongship angle,
+   &beta; = athwartship angle,
+   r = range,
+   TS = target strength.
+</p>
+<p>
+   The gate function defines a distance between two targets as
+</p>
+<blockquote>
+   d(y<sub>i</sub>, y<sub>j</sub>) = d<sub>ij</sub> = &epsilon;<sub>ij</sub> G &epsilon;<sub>ij</sub><sup>T</sup>
+</blockquote>
+<p>
+   where
+</p>
+<figure>
+   <img src="GateMatrix.svg" width="190" height="124">
+</figure>
+<p>
+   For association, a sample is said to be inside the gate if d<sub>ij</sub> ≤ 1.
+</p>
+
+<h2 id="References">References</h2>
+<ul class="marec-literature">
+   <li>
+      Handegard, N.O. (2007). "Observing individual fish behavior in fish aggregations:
+      Tracking in dense aggregations", J. Acoust. Soc. Am, Vol 122(1), pp 177-187.
+   </li>
+   <li>
+      Handegard, N.O., Patel, R., and Hjellvik, V. (2005). "Tracking individual fish from a moving platform
+      using a split-beam transducer", J. Acoust. Soc. Am., Vol 118(4), pp 2210-2223.
+   </li>
+</ul>
+
+<h2 id="NewDatagrams">New datagrams</h2>
+<p>
+   <a href="../../Datagrams/Tbr0Datagram.html">Tbr0Datagram</a>,
+   <a href="../../Datagrams/Tnf0Datagram.html">Tnf0Datagram</a>,
+   <a href="../../Datagrams/Ttc0Datagram.html">Ttc0Datagram</a>.
+</p>

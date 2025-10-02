@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>LSSS example package - Map</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+   <style>
+      html, body {
+         font-family: sans-serif;
+         width: 100%;
+         height: 100%;
+         margin: 0;
+         padding: 0;
+      }
+   </style>
+</head>
+<body>
+
+<div style="height: 100%; display: flex; flex-direction: column;">
+   <div style="margin: 0 0.5em;">
+      <h1>LSSS example package - Map</h1>
+      <p>
+         Move the mouse in the LSSS echogram or map.
+         This page uses <a href="https://leafletjs.com/">Leaflet</a> and <a href="https://www.openstreetmap.org/">OpenStreetMap</a>.
+         See also other <a href="../doc/index.html#WebPages">web page examples</a>.
+      </p>
+   </div>
+   <div style="flex: 1;">
+      <div id="map" style="width: 100%; height: 100%;"></div>
+   </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+   (function () {
+      'use strict';
+
+      const map = L.map('map');
+
+      map.setView([0, 0], 1);
+      let initializedView = false;
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      const marker = L.circleMarker([0, 0], {
+         stroke: false,
+         fillColor: 'red',
+         fillOpacity: 1,
+         radius: 5,
+      });
+
+      const eventSource = new EventSource('/lsss/events');
+
+      eventSource.addEventListener('geoPos', function (event) {
+         const data = JSON.parse(event.data);
+         if (data.hasOwnProperty('lon')) {
+            const p = [data.lat, data.lon];
+            marker.setLatLng(p);
+            if (!map.hasLayer(marker)) {
+               map.addLayer(marker);
+            }
+            if (!initializedView) {
+               initializedView = true;
+               map.setView(p, 6);
+            }
+         } else {
+            if (map.hasLayer(marker)) {
+               map.removeLayer(marker);
+            }
+         }
+      });
+
+   })();
+</script>
+</body>

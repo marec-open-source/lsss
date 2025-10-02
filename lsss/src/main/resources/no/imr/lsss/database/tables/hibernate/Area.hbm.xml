@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+      "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="no.imr.lsss.database.tables.hibernate.Area" table="Area">
+      <composite-id name="compId" class="no.imr.lsss.database.tables.hibernate.AreaPK">
+         <key-property name="nation" column="Nation" type="short"/>
+         <key-property name="area" column="Area" type="int"/>
+      </composite-id>
+
+      <property name="areaName" column="AreaName" type="java.lang.String" length="80"/>
+
+      <!-- Associations -->
+
+      <many-to-one
+            name="nation"
+            class="no.imr.lsss.database.tables.hibernate.Nation"
+            update="false"
+            insert="false"
+      >
+         <column name="Nation"/>
+      </many-to-one>
+
+      <set
+            name="areaOfAcousticCategory"
+            lazy="true"
+            inverse="true"
+            cascade="none"
+      >
+         <key>
+            <column name="Nation"/>
+            <column name="Area"/>
+         </key>
+         <one-to-many
+               class="no.imr.lsss.database.tables.hibernate.AreaOfAcousticCategory"
+         />
+      </set>
+
+   </class>
+</hibernate-mapping>

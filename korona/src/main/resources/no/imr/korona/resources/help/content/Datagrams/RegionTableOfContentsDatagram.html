@@ -1,0 +1,23 @@
+<h1>RTC0: Region table of contents datagram</h1>
+<p>
+   This datagram contains references to <a href="RegionInfoDatagram.html">Region info datagrams</a>.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   In the last ping of a file.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/region/SchoolDetectionModule.html">School detection module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Rtc0Datagram {
+   DatagramHeader header; <span class="marec-comment">// RTC0</span>
+   int timesCount;        <span class="marec-comment">// The number of pings containing one or more <a href="RegionInfoDatagram.html">Region info datagram</a></span>
+   ntTime[] pingTimes;    <span class="marec-comment">// The time of pings containing one or more <a href="RegionInfoDatagram.html">Region info datagram</a></span>
+};
+</pre>

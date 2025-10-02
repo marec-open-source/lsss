@@ -1,0 +1,49 @@
+<h1>AcousticCategoryComposite</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>AcousticCategoryComposite</strong> - List of composite acoustic categories and the members of each category.
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct AcousticCategoryComposite {
+  short Nation;
+  short Platform;
+  int   AcousticCategory;
+  int   AcousticCategoryMember;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table contains the name of the composite acoustic categories and which non-composite
+   acoustic categories are allocated as "members" of the composite acoustic category.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the
+      <a href="Nation.html">Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique identification code for observation platform. Note that <b>Platform</b> = 0
+      means "national-wide" or "institute-wide" entry of the database table. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="AcousticCategory">AcousticCategory</span> - Code of the acoustic category, which of course is composite (e.g. code for group of species).
+      Refer to the <a href="AcousticCategory.html">AcousticCategory</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="AcousticCategoryMember">AcousticCategoryMember</span> - Code of the non-composite acoustic category (e.g. code for species) defined as a
+      member of the composite category given by the field <i>AcousticCategory</i>. Refer to the <a href="AcousticCategory.html">AcousticCategory</a> database table.
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="AcousticCategory.html">AcousticCategory</a>;
+</p>

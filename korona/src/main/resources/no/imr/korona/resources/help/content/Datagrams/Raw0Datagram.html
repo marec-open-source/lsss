@@ -1,0 +1,23 @@
+<h1>RAW0: Sample data datagram</h1>
+<p>
+   This datagram contains echosounder sample data.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once per ping per channel.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li>The echosounder.</li>
+   <li>Various modules that create channels with derived data.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Raw0Datagram {
+   DatagramHeader header; <span class="marec-comment">// RAW0</span>
+   Echosounder sample data
+};
+</pre>

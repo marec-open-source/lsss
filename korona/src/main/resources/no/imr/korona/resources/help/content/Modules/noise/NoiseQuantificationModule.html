@@ -1,0 +1,213 @@
+<h1>Noise quantification module</h1>
+<p>
+   Produces noise quantification datagrams.
+   The datagrams contain:
+</p>
+<ol>
+   <li>The average noise level.</li>
+   <li>The noise upper limit.</li>
+   <li>The quality of the noise estimate as a number in the range [0, 100].
+      The quality depends on where in the water column data representative of noise is found.
+   </li>
+</ol>
+<p>
+   The overall procedure of this module is:
+</p>
+<ol>
+   <li>Select parts of the data representative of noise.</li>
+   <li>Accumulate that noise data in a histogram.</li>
+   <li>Use the histogram to quantify the noise level.</li>
+</ol>
+
+<h3 id="NoiseValues">Selecting noise values</h3>
+<p>
+   The noise values input to the histogram are found ping by ping:
+</p>
+<ol>
+   <li>Remove very low values</li>
+   <li>Smooth the data vertically</li>
+   <li>Select noise data</li>
+   <li>Filter on quality</li>
+   <li>Filter on threshold</li>
+</ol>
+<p>
+   The selection of noise data in a ping is done in one of these ways:
+</p>
+<ol>
+   <li>Between first and second bottom echo.
+      Quality = 100.
+   </li>
+   <li>Below a frequency-dependent deep range limit D<sub>1</sub>.
+      Quality = 100.
+   </li>
+   <li>Between a frequency-dependent range limit D<sub>2</sub> and the bottom.
+      Quality in the range [50, 100].
+   </li>
+   <li>Below D<sub>2</sub>.
+      Quality = 25.
+   </li>
+   <li>All data.
+      Quality = 0.
+   </li>
+</ol>
+<p>
+   Note that the definition of what it means to be above/below the first/second bottom echo may depend on the data type. For echosounder data, the first bottom
+   echo is given by the <a href="../../Datagrams/Dep0Datagram.html">Dep0Datagram</a>. The second bottom echo is simply twice the range to the first bottom echo.
+   The definition is, however, different for multibeam systems. Please look at help pages for the different data types for the definitions.
+</p>
+
+<h3 id="NoiseParameters">Estimating noise parameters</h3>
+<p>
+   The selected noise data that passes the filtering on quality and threshold is accumulated in a histogram,
+   which is used for estimating the noise parameters:
+</p>
+<figure>
+   <img src="NoiseQuantificationModule-Histogram.svg" width="450" height="250">
+</figure>
+<p>
+   First the value N<sub>T</sub> at peak probability is found.
+   Then N<sub>H</sub> is found at 2 to 4 standard deviations above N<sub>T</sub>,
+   depending on noise being close to normal distributed or not. A weighting between the two possibilities is done to avoid sudden jumps in N<sub>H</sub>.
+   Finally, N<sub>E</sub> is calculated as the average of noise values below N<sub>H</sub>.
+</p>
+<p>
+   The quality of the noise parameters is set to the average quality of the data in the histogram.
+   If probability(N<sub>H</sub>) is not low enough compared to probability(N<sub>E</sub>),
+   then the quality is reduced by a factor between 0.6 and 1.
+</p>
+
+<h3 id="Buffering">Buffering of pings</h3>
+<p>
+   There is an option for buffering pings to give more stable and representative noise values. The amount of allowable buffering is controlled by the parameter
+   <a class="marec-parameter-ref" href="#TimeStepBufferMaxSize">Time step buffer max size</a>. If the size of the buffer is larger than 0, the module may buffer up to the size of the buffer before providing noise values
+   for the first ping.
+</p>
+<p>
+   There is also an option for attempting to center noise values through the parameter <a class="marec-parameter-ref" href="#UseTimeStepBuffer">Use time step buffer</a>. When this option is enabled, the module tries to base
+   the noise values on pings in the immediate past and the immediate future. The future pings are buffered, and the amount of buffering is controlled by
+   <a class="marec-parameter-ref" href="#TimeStepBufferMaxSize">Time step buffer max size</a>.
+</p>
+
+<h3 id="FallbackNoise">Fallback noise</h3>
+<p>
+   Throughout processing, the file noise.xml in the processing destination directory updated.
+   This file is divided in 1 hour intervals, and each interval contains the noise parameters with the highest quality and the lowest value.
+</p>
+<p>
+   If not enough noise data samples are found, then the noise parameters from the closest available interval in noise.xml are used.
+   In this case, the quality in the generated datagrams is adjusted to be in the range [10, 20], depending on the original quality in noise.xml.
+</p>
+
+<h2 id="Requirements">Requirements</h2>
+<p>
+   Bottom detection datagrams, for example:
+</p>
+<ul>
+   <li>Depth datagrams, <a href="../../Datagrams/Dep0Datagram.html">Dep0Datagram</a>, see <a href="../DepthModule.html">Bottom detection module</a>.
+   </li>
+</ul>
+
+<h2 id="NewDatagrams">New datagrams</h2>
+<ul>
+   <li>Noise quantification datagrams, <a href="../../Datagrams/Nqp0Datagram.html">Nqp0Datagram</a>.
+   </li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="Smooth">Smooth:</span>
+      Type of smoothing.
+      <br>Allowed values: <em>{ none, running averager, averager }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="SmoothInterval">Smooth interval:</span>
+      Number of samples to smooth vertically before making histogram.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#SmoothInterval">Smooth interval</a> &ge; 0
+   </li>
+   <li><span class="marec-parameter-def" id="Mask">Mask:</span>
+      Type of masking.
+      <br>Allowed values: <em>{ none, dynamic }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="MinimumQuality">Minimum quality:</span>
+      Minimum quality of histogram data. The quality for each ping is set based on where the data for the histogram is
+      picked, and then the mean quality for all data used is calculated:<br>
+      Quality = 100. Data some frequency-dependent range after first and before second bottom echo are used. Expected to be similar to passive data.<br>
+      Quality = 100. Data large frequency-dependent range(1) below transducer. Expected to be similar to passive data.<br>
+      Quality = 90. Data a frequency-dependent range(2) (range(2) < range(1)) below transducer, no detected bottom detected, and data collected down to at least 500 m below the transducer. Expected to be close to passive data.<br>
+      Quality = 75. Data some frequency-dependent range(2) (range(2) < range(1) after first and before second bottom echo are used.<br>
+      Quality = 75. Data some frequency-dependent range(2) (range(2) < range(1) below transducer. Expected to be similar to passive data.<br>
+      Quality = 50. Data below a (frequency-dependent) range from the transducer, but above the first bottom echo are used.<br>
+      Quality = 25. ata some frequency-dependent range(3) (range(3) < range(2) < range(1) below transducer.
+      Quality = 0. All data are used.
+      <br>Allowed values: 0 &le; <a class="marec-parameter-ref" href="#MinimumQuality">Minimum quality</a> &le; 100
+   </li>
+   <li><span class="marec-parameter-def" id="ThresholdMasking">Threshold masking:</span>
+      Do not use samples with Sv values, including reflections below bottom, above the given threshold.
+   </li>
+   <li><span class="marec-parameter-def" id="Threshold">Threshold:</span>
+      The threshold to use for threshold masking.
+   </li>
+   <li><span class="marec-parameter-def" id="Histogram">Histogram:</span>
+      Type of histogram.
+      <br>Allowed values: <em>{ geometric, linear, constant }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="UseTimeStepBuffer">Use time step buffer:</span>
+      Try to center noise parameters.
+   </li>
+   <li><span class="marec-parameter-def" id="TimeStepBufferMaxSize">Time step buffer max size:</span>
+      Maximum number of time steps in buffer.
+   </li>
+   <li><span class="marec-parameter-def" id="HistogramInitializationCellCount">Histogram initialization cell count:</span>
+      Number of cells in the histograms at initialization.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#HistogramInitializationCellCount">Histogram initialization cell count</a> &ge; 1
+   </li>
+   <li><span class="marec-parameter-def" id="HistogramMaximumCellCount">Histogram maximum cell count:</span>
+      Maximum number of cells in the histograms.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#HistogramMaximumCellCount">Histogram maximum cell count</a> &ge; 1
+   </li>
+   <li><span class="marec-parameter-def" id="HistogramInitializationSampleCount">Histogram initialization sample count:</span>
+      Minimum count of noise samples at initialization of the histograms.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#HistogramInitializationSampleCount">Histogram initialization sample count</a> &ge; 1
+   </li>
+   <li><span class="marec-parameter-def" id="HistogramMinimumSampleCount">Histogram minimum sample count:</span>
+      Minimum number of noise samples in the histograms.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#HistogramMinimumSampleCount">Histogram minimum sample count</a> &ge; 1
+   </li>
+   <li><span class="marec-parameter-def" id="HistogramSmooth">Histogram smooth:</span>
+      Whether to smooth the probability distribution.
+   </li>
+   <li><span class="marec-parameter-def" id="HistogramSmoothFactor">Histogram smooth factor:</span>
+      Diffusion time step = HistogramSmoothFactor × dx<sup>2</sup>.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#HistogramSmoothFactor">Histogram smooth factor</a> &gt; 0
+   </li>
+   <li><span class="marec-parameter-def" id="SdevMasking">Sdev masking:</span>
+      Use specified number of standard deviations as high noise limit (NH) instead of system decided standard.
+   </li>
+   <li><span class="marec-parameter-def" id="Sdev">Sdev:</span>
+      No stdev right of noise-pdf top (NT) to be used as high noise (NH). NB! Not used to estimate average noise NE.
+   </li>
+   <li><span class="marec-parameter-def" id="SNMasking">S/N masking:</span>
+      Remove all values less than S/N ratio less than estimated noise.
+   </li>
+   <li><span class="marec-parameter-def" id="SNRatio">S/N ratio:</span>
+      Minimum ratio of signal to top of noise pdf-histogram, i.e. signal/NT.
+   </li>
+   <li><span class="marec-parameter-def" id="UseFallbackNoiseQuantile">Use fallback noise quantile:</span>
+      Use lower quantile of fallback noise on file instead of calculated noise.
+   </li>
+   <li><span class="marec-parameter-def" id="FallbackNoiseQuantile">Fallback noise quantile:</span>
+      Lower quantile of fallback noise on file.
+   </li>
+   <li><span class="marec-parameter-def" id="FallbackNoiseChannels">Fallback noise channels:</span>
+      Boolean expression using f = frequency in kHz, c = channel number, n = channel count.
+   </li>
+</ul>
+
+<h2 id="References">References</h2>
+<ul class="marec-literature">
+   <li>
+      Korneliussen, R. J. 2000. Measurement and removal of echo integration noise. ICES Journal of Marine Science, 57: 1204–1217.
+   </li>
+</ul>

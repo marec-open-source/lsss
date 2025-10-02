@@ -1,0 +1,33 @@
+package com.example;
+
+import no.marec.api.korona.*;
+
+public class ExampleModuleComputation implements ModuleComputation {
+   @Override
+   public int getPingBufferRadius() {
+      return 1;
+   }
+
+   @Override
+   public void compute(PingBuffer pingBuffer) {
+      if (pingBuffer.getBeginIndex() > -1) return;
+      if (pingBuffer.getEndIndex() <= 1) return;
+
+      Ping aPing = pingBuffer.getPing(-1);
+      Ping bPing = pingBuffer.getPing(0);
+      Ping cPing = pingBuffer.getPing(1);
+
+      for (Channel bChannel : bPing.getChannels()) {
+         Channel aChannel = aPing.getChannel(bChannel.getChannelNumber());
+         Channel cChannel = cPing.getChannel(bChannel.getChannelNumber());
+         int begin = Math.max(Math.max(aChannel.getBeginSampleIndex(), bChannel.getBeginSampleIndex()), cChannel.getBeginSampleIndex());
+         int end = Math.min(Math.min(aChannel.getEndSampleIndex(), bChannel.getEndSampleIndex()), cChannel.getEndSampleIndex());
+         for (int sampleIndex = begin; sampleIndex < end; sampleIndex++) {
+            double a = aChannel.getLogSv(sampleIndex);
+            double b = bChannel.getLogSv(sampleIndex);
+            double c = cChannel.getLogSv(sampleIndex);
+            if (Math.abs(a - b) > 5 && Math.abs(b - c) > 5) bChannel.setLogSv(sampleIndex, 0);
+         }
+      }
+   }
+}

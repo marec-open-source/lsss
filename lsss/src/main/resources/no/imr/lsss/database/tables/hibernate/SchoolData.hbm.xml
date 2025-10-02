@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+      "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="no.imr.lsss.database.tables.hibernate.SchoolData" table="schooldata">
+      <composite-id name="compId" class="no.imr.lsss.database.tables.hibernate.SchoolDataPK">
+         <key-property name="nation" column="Nation" type="short"/>
+         <key-property name="platform" column="Platform" type="short"/>
+         <key-property name="survey" column="Survey" type="int"/>
+         <key-property name="object" column="Object" type="int"/>
+         <key-property name="schoolObjectType" column="schoolobjecttype" type="short"/>
+         <key-property name="transceiver" column="transceiver" type="int"/>
+         <key-property name="frequency" column="frequency" type="int"/>
+      </composite-id>
+
+      <property name="transceiverRef" column="transceiverRef" type="int" not-null="true"/>
+      <property name="frequencyRef" column="frequencyRef" type="int" not-null="true"/>
+      <property name="sa" column="sa" type="float" not-null="true"/>
+      <property name="sl" column="sl" type="float" not-null="true"/>
+      <property name="rf" column="rf" type="float" not-null="true"/>
+      <property name="rf_sdev" column="rf_sdev" type="float" not-null="true"/>
+      <property name="sv_mean" column="sv_mean" type="float" not-null="true"/>
+      <property name="sv_sdev" column="sv_sdev" type="float" not-null="true"/>
+      <property name="skewness" column="skewness" type="float" not-null="true"/>
+
+      <!-- Associations -->
+
+      <many-to-one
+            name="schoolMorphology"
+            class="no.imr.lsss.database.tables.hibernate.SchoolMorphology"
+            not-null="true"
+            insert="false"
+            update="false"
+      >
+         <column name="Nation"/>
+         <column name="Platform"/>
+         <column name="Survey"/>
+         <column name="Object"/>
+         <column name="SchoolObjectType"/>
+      </many-to-one>
+
+   </class>
+</hibernate-mapping>

@@ -1,0 +1,65 @@
+<h1>AcousticCategory</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>AcousticCategory</strong> - Acoustic categories of the database
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct AcousticCategory {
+  short Nation;
+  short Platform;
+  int   AcousticCategory;
+  short Composite;
+  char  Initials[5];
+  char  EnglishInitials[5];
+  char  CommonName[80];
+  char  EnglishName[80];
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table contains information characterizing individual acoustic categories - name, identification code etc.
+   An acoustic category may be a fish-species (e.g. herring), a group of fish-species (e.g. Ha/Co - Haddock or Cod),
+   a subgroup of a species of fish (e.g. 0Herr - Zero group herring, i.e. herring less than one year) or similar, a
+   group of zooplankton (e.g. large fluid-like zooplankton), or similar.
+</p>
+<p>
+   <!--When a new acoustic category is entered into the database table, the name of the category is checked against the
+   entries of the <a href="BiologicalSpecies.html">BiologicalSpecies</a> database table. If an entry with similar name is found, an
+   entry is also entered into the <a href="AcCatToBiologicalSpecies.html">AcCatToBiologicalSpecies</a> database table if confirmed
+   by the operator.-->
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the
+      <a href="Nation.html">Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="AcousticCategory">AcousticCategory</span> - Unique identifier for acoustic category.</li>
+   <li><span class="marec-parameter-def" id="Composite">Composite</span> - Flag indicating if the acoustic category given by <b>Nation-Category</b>
+      is a composition of several acoustic categories or not. If subcategories are assigned this
+      parameter is set to 1, and with no subcategories it is set to 0.
+   </li>
+   <li><span class="marec-parameter-def" id="Initials">Initials</span> - Short form category name used by the Interpretation window and the printout programs.</li>
+   <li><span class="marec-parameter-def" id="EnglishInitials">EnglishInitials</span> - Short form category name in English.</li>
+   <li><span class="marec-parameter-def" id="CommonName">CommonName</span> - Complete category name in native language. Note that number of characters is limited.</li>
+   <li><span class="marec-parameter-def" id="EnglishName">EnglishName</span> - Complete category name in English. Note that number of characters is limited.</li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="AreaOfAcousticCategory.html">AreaOfAcousticCategory</a>;
+   <a href="BiologicalSpecies.html">BiologicalSpecies</a>;
+   <a href="AcousticCategoryComposite.html">AcousticCategoryComposite</a>;
+</p>

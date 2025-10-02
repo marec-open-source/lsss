@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>LSSS server</title>
+   <link rel="icon" href="../lsss.svg">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+   <link rel="stylesheet" href="../style.css">
+</head>
+<body class="container-fluid">
+
+<h1>LSSS server demo</h1>
+
+<h3>Examples</h3>
+<table id="url-table" class="table table-hover marec-commands">
+   <thead>
+   <tr><th>URL</th><th>Description</th></tr>
+   </thead>
+   <tbody>
+   <tr><td>/lsss/data/wait</td><td>Waits until all requested pings are loaded</td></tr>
+   <tr><td>/lsss/database/report</td><td>Get all database reports</td></tr>
+   <tr><td>/lsss/database/report?reports=0,5&allSpecies=true</td><td>Get "Compact" and "ListUserFile05" database reports with all scrutinized species</td></tr>
+   <tr><td>/lsss/database/report/20</td><td>Get the LUF20 database report</td></tr>
+   <tr><td>/lsss/module</td><td>Info about all modules</td></tr>
+   <tr><td>/lsss/module?hasData=true</td><td>Info about modules that exposes data</td></tr>
+   <tr><td>/lsss/module?enabled=false&hasData=true</td><td>Info about disabled modules that expose data</td></tr>
+   <tr><td>/lsss/module?enabled=true&hasData=true&data=true</td><td>Info about enabled modules that expose data, including exposed data</td></tr>
+   <tr><td>/lsss/module/PelagicEchogramModule/image</td><td>Screenshot of PelagicEchogramModule</td></tr>
+   <tr><td>/lsss/module/BottomEchogramModule/image</td><td>Screenshot of BottomEchogramModule</td></tr>
+   <tr><td>/lsss/module/FrequencyResponseModule/data</td><td>The data behind the FrequencyResponseModule display</td></tr>
+   <tr><td>/lsss/module/MapModule/image</td><td>Screenshot of MapModule</td></tr>
+   <tr><td>/lsss/module/MapModule/overlay</td><td>Info about all overlays of MapModule</td></tr>
+   <tr><td>/lsss/module/MapModule/overlay?enabled=true&data=true</td><td>Info about all enabled overlays of MapModule, including exposed data</td></tr>
+   <tr><td>/lsss/module/TSModule/config/xml</td><td>All configuration of the TSModule as XML</td></tr>
+   <tr><td>/lsss/module/TSModule/config/parameter/MinTS</td><td>The value of the MinTS parameter of TSModule
+   <tr><td>/lsss/regions/label?selected=true</td><td>Lists the labels of all selected regions
+   <tr><td>/lsss/regions/region?visible=true&schools=true</td><td>Lists the ids of visible schools
+   <tr><td>/lsss/survey/config/unit/DataConf/files</td><td>The available data files</td></tr>
+   <tr><td>/lsss/survey/config/unit/DataConf/files/selection</td><td>The currently selected files</td></tr>
+   <tr><td>/lsss/survey/config/unit/DataConf/parameter/DataDir</td><td>The current data directory</td></tr>
+   </tbody>
+</table>
+
+<h3>Data directory: <span id="dir"></span></h3>
+<p>
+   Click any of the following links to load that file:
+</p>
+<ol id="files" start="0">
+</ol>
+
+<script>
+   (function () {
+      'use strict';
+
+      function loadFile(index) {
+         fetch('/lsss/survey/config/unit/DataConf/files/selection', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({firstIndex: index, lastIndex: index}),
+         });
+      }
+
+      fetch('/lsss/survey/config/unit/DataConf/parameter/DataDir')
+            .then(response => response.json())
+            .then(data => document.getElementById('dir').textContent = data.value);
+
+      fetch('/lsss/survey/config/unit/DataConf/files')
+            .then(response => response.json())
+            .then(data => {
+               const ol = document.getElementById('files');
+               for (let i = 0; i < data.length; i++) {
+                  const li = ol.appendChild(document.createElement('li'));
+                  const a = li.appendChild(document.createElement('a'));
+                  a.textContent = data[i].file;
+                  a.href = '';
+                  a.addEventListener('click', e => {
+                     e.preventDefault();
+                     loadFile(i);
+                  });
+               }
+            });
+
+      document.querySelectorAll('#url-table tr td:first-child').forEach(td => {
+         const url = td.textContent;
+         const a = document.createElement('a');
+         a.textContent = url;
+         a.href = url;
+         td.classList.add('marec-url');
+         td.replaceChildren(a);
+      });
+   }());
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<h1>StandardComment</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>StandardComment</strong> - Standard comments frequently used
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct StandardComment {
+  short Nation;
+  short Platform;
+  int   StandardComment;
+  char  Text[200];
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table contains a list of the standard comments provided for the current nation/platform combination.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the
+      <a href="Nation.html">Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Note that <b>Platform</b> = 0
+      means "national-wide" or "institute-wide" entry of the database table. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="StandardComment">StandardComment</span> - Identification code for the comment. Refer to the
+      <a href="ObservationComment.html">ObservationComment</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Text">Text</span> - Free text containing the comment.</li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="ObservationComment.html">ObservationComment</a>
+</p>

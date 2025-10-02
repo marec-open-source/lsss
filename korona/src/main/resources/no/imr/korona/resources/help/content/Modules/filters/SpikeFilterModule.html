@@ -1,0 +1,100 @@
+<h1>Spike filter module</h1>
+<p>
+   A module for removal of narrow vertical spikes in the echogram, typically caused by instrumentation on the ship.
+</p>
+<p>
+   The module works on a per-sample basis, and for each sample computes:
+</p>
+<ul>
+   <li>The median of a <em>search window</em> of dimension 5 pings × (2 ⋅ <a class="marec-parameter-ref" href="#WindowMedianSearchHeight">Window median search height</a> + 1) samples.</li>
+   <li>The medians of each of 5 <em>search columns</em> of height (2 ⋅ <a class="marec-parameter-ref" href="#VerticalMedianSearchHeight">Vertical median search height</a> + 1) samples.</li>
+</ul>
+<p>
+   The search window and search columns are centered around the current sample as illustrated in the following figure:
+</p>
+<figure>
+   <img src="SpikeFilterModule-nz.svg" width="370" height="260">
+</figure>
+<p>
+   If the heights are specified as duration or distance, then the corresponding number of samples is calculated for each ping.
+</p>
+<p>
+   A sample is considered a spike if two criteria hold:
+</p>
+<ol>
+   <li>
+      The current search column is sufficiently stronger than the neighbouring search columns, i.e.,
+      <blockquote>
+         Neighbouring search column median > Current search column median - <a class="marec-parameter-ref" href="#VerticalDelta">Vertical delta</a>
+      </blockquote>
+      is true for at most one neighbouring search column.
+   </li>
+   <li>
+      The current sample is sufficiently stronger than the search window, i.e.,
+      <blockquote>
+         Current sample value > search window median + <a class="marec-parameter-ref" href="#TotalDelta">Total delta</a>
+      </blockquote>
+   </li>
+</ol>
+<p>
+   If the current sample is considered a spike, then its value is replaced by search window median.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="LogarithmicValues">Logarithmic values:</span>
+      Use log(sv) or sv.
+   </li>
+   <li><span class="marec-parameter-def" id="ShowDetails">Show details:</span>
+      Shows more detailed settings (Only last, Channels to process, Automatic depth range, Start depth, End depth).
+   </li>
+   <li><span class="marec-parameter-def" id="OnlyLast">Only last:</span>
+      When true, only last channel is processed, if false all channels are processed.
+   </li>
+   <li><span class="marec-parameter-def" id="ChannelsToProcess">Channels to process:</span>
+      Process the n last channels (-1 for all channels).
+   </li>
+   <li><span class="marec-parameter-def" id="AutomaticDepthRange">Automatic depth range:</span>
+      If true and Bottom detection module is used, then the range goes to the detected seabed,
+      if true and Bottom detection module is not used, the range goes to max depth of the ping.
+   </li>
+   <li><span class="marec-parameter-def" id="StartDepth">Start depth:</span>
+      Start depth in meter for filter.
+   </li>
+   <li><span class="marec-parameter-def" id="EndDepth">End depth:</span>
+      End depth in meter for filter.
+   </li>
+   <li><span class="marec-parameter-def" id="TotalDelta">Total delta:</span>
+      Minimum difference of current sample to search window median to be a spike candidate.
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalDelta">Vertical delta:</span>
+      Minimum difference of vertical median to (most) neighbouring pings to be a spike candidate.
+   </li>
+   <li><span class="marec-parameter-def" id="Debug">Debug:</span>
+      Replace spikes by 0 instead of median.
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalUnit">Vertical unit:</span>
+      The unit for specifying the height of the <em>search window</em> and the <em>search column</em>.
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalMedianSearchHeight">Vertical median search height:</span>
+      Half the height of the search column in number of samples.
+   </li>
+   <li><span class="marec-parameter-def" id="WindowMedianSearchHeight">Window median search height:</span>
+      Half the height of the search window in number of samples.
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalMedianSearchDuration">Vertical median search duration:</span>
+      Half the height of the search column in milliseconds.
+   </li>
+   <li><span class="marec-parameter-def" id="WindowMedianSearchDuration">Window median search duration:</span>
+      Half the height of the search window in milliseconds.
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalMedianSearchDistance">Vertical median search distance:</span>
+      Half the height of the search column in meters.
+   </li>
+   <li><span class="marec-parameter-def" id="WindowMedianSearchDistance">Window median search distance:</span>
+      Half the height of the search window in meters.
+   </li>
+</ul>

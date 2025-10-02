@@ -1,0 +1,23 @@
+<h1>CDS0: Computing description datagram</h1>
+<p>
+   This datagram contains the configuration of the module setup used when processing the file which this datagram is read from.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once, in the beginning of the file.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/io/WriterModule.html">Writer module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Cds0Datagram {
+   DatagramHeader header; <span class="marec-comment">// CDS0</span>
+   int byteCount;         <span class="marec-comment">// Length in bytes of the XML document</span>
+   byte[] content;        <span class="marec-comment">// The XML document</span>
+};
+</pre>

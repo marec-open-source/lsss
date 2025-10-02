@@ -1,0 +1,5 @@
+@if (visible()) {
+   <div class="marec-spinner-container">
+      <mat-progress-spinner [mode]="determinate() ? 'determinate' : 'indeterminate'" [value]="100 * fraction()"></mat-progress-spinner>
+   </div>
+}

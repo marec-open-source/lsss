@@ -1,0 +1,45 @@
+<h1>Erode low values module</h1>
+<p>
+   This is a module for eroding low values.
+   All samples close to another sample with a value lower or equal than a given threshold are set to a predefined value.
+   A sample is close to another if they are on the same or neighbouring pings and their vertical distance is less than
+   a configured distance in meters.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="LogarithmicValues">Logarithmic values:</span>
+      Use log(sv) or sv.
+   </li>
+   <li><span class="marec-parameter-def" id="ShowDetails">Show details:</span>
+      Shows more detailed settings (Only last, Channels to process, Automatic depth range, Start depth, End depth).
+   </li>
+   <li><span class="marec-parameter-def" id="OnlyLast">Only last:</span>
+      When true, only last channel is processed, if false all channels are processed.
+   </li>
+   <li><span class="marec-parameter-def" id="ChannelsToProcess">Channels to process:</span>
+      Process the n last channels (-1 for all channels).
+   </li>
+   <li><span class="marec-parameter-def" id="AutomaticDepthRange">Automatic depth range:</span>
+      If true and Bottom detection module is used, then the range goes to the detected seabed,
+      if true and Bottom detection module is not used, the range goes to max depth of the ping.
+   </li>
+   <li><span class="marec-parameter-def" id="StartDepth">Start depth:</span>
+      Start depth in meter for filter.
+   </li>
+   <li><span class="marec-parameter-def" id="EndDepth">End depth:</span>
+      End depth in meter for filter.
+   </li>
+   <li><span class="marec-parameter-def" id="Threshold">Threshold:</span>
+      The threshold for determining low values.
+   </li>
+   <li><span class="marec-parameter-def" id="ReplacementValue">Replacement value:</span>
+      The value to set to samples that are close to samples with value below the threshold.
+   </li>
+   <li><span class="marec-parameter-def" id="VerticalExtent">Vertical extent:</span>
+      The vertical distance that low values are eroded.
+   </li>
+</ul>

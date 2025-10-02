@@ -1,0 +1,106 @@
+<h1>SchoolMorphology</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>SchoolMorphology</strong> - Object (number) used to group scatter info (e.g. a school)
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct SchoolMorphology {
+  short Nation;
+  short Platform;
+  int   Survey;
+  int   Object;
+  short SchoolObjectType;
+  int   ObservationDate;
+  int   ObservationTime;
+  int   BoxDuration;
+  float BoxThickness;
+  float BoxLength;
+  float MaxThickness;
+  float MaxLength;
+  float Perimeter;
+  float Area;
+  float Roughness;
+  float Circularity;
+  float Rectangularity;
+  float Elongation;
+  float DistanceToBottom;
+  float DistanceToSurface;
+  float BottomDepth;
+  int   NmbAcousticCat;
+  int   NmbHoles;
+  int   NmbKernels;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   Interpreted echo data from scattered fish is stored in the tables
+   <a href="Scatter.html">Scatter</a> and ScatterData,
+   and is grouped by the number <b>Object</b> (described below). Information about
+   object morphology, e.g. a school of fish, is stored in the tables
+   <a href="SchoolMorphology.html">SchoolMorphology</a> contains processing and support parameters,
+   while SchoolData contains the integrated echo levels.
+   Interpreted data is stored in the tables with a selectable horizontal resolution.
+   The horizontal resolution is controlled by the DistanceInterval parameter in the
+   <a href="Scatter.html">Scatter</a> table. Vertically, the data in
+   <a href="Scatter.html">Scatter</a> and ScatterData is
+   resolved into depth-channels; pelagic and bottom. The vertical resolution is controlled
+   by the <b>ChannelThickness</b> parameter in the <a href="Scatter.html">Scatter</a> table.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the <a href="Nation.html">
+      Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - Unique survey identification code. See the <a href="Survey.html">
+      Survey</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="Object">Object</span> - see <a href="Scatter.html">Scatter</a> table.</li>
+   <li><span class="marec-parameter-def" id="SchoolObjectType">SchoolObjectType</span> - Type of school object: see <a href="SchoolObjectType.html">SchoolObjectType</a> table.</li>
+   <li><span class="marec-parameter-def" id="ObservationDate">ObservationDate</span> [YYYYMMDD] - (UTC) Date of observation. Refer to the
+      <a href="Observation.html">Observation</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="ObservationTime">ObservationTime</span> [hhmmssxx] - (UTC) Time of observation. Refer to the
+      <a href="Observation.html">Observation</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="BoxDuration">BoxDuration</span> [1/100 s] - This parameter states the duration in hundredths of
+      seconds for the current subinterval.
+   </li>
+   <li><span class="marec-parameter-def" id="BoxThickness">BoxThickness</span> [m] - Uncorrected thickness: T. For corrected thickness: T<sub>corr</sub> = T - cb/2. c = sound speed, b= pulse length.</li>
+   <li><span class="marec-parameter-def" id="BoxLength">BoxLength</span> [m] - Uncorrected length: L. For corrected length: L<sub>corr</sub> = (L - 2R tan(?/2)). R = school mean range.</li>
+   <li><span class="marec-parameter-def" id="MaxThickness">MaxThickness</span> [m] - Longest range of any vertical line from school bottom to top.</li>
+   <li><span class="marec-parameter-def" id="MaxLength">MaxLength</span> [m] - Longest range of any horizontal line from school left to right.</li>
+   <li><span class="marec-parameter-def" id="Perimeter">Perimeter</span> [m] - (P) X m between points. Corrected: P<sub>corr</sub> = P * C</li>
+   <li><span class="marec-parameter-def" id="Area">Area</span> [m] - Uncorrected area: A. Corrected area: A<sub>corr</sub> = A(L<sub>corr</sub>T<sub>corr</sub>)/LT</li>
+   <li><span class="marec-parameter-def" id="Roughness">Roughness</span> [-] - (F) F = 2 * lg( P / 4 ) / lg( Area ). Corrected: FC = 2lg(PC/4)/lg(AC)</li>
+   <li><span class="marec-parameter-def" id="Circularity">Circularity</span> [-] - (C) Alternative to image compactness.</li>
+   <li><span class="marec-parameter-def" id="Rectangularity">Rectangularity</span> [-] - (R) R = LT / A</li>
+   <li><span class="marec-parameter-def" id="Elongation">Elongation</span> [-] - BoxLength/BoxHeight. Corrected: LC/TC</li>
+   <li><span class="marec-parameter-def" id="DistanceToBottom">DistanceToBottom</span> [m] - Distance where school is closest to bottom. Corrected: + c?/2</li>
+   <li><span class="marec-parameter-def" id="DistanceToSurface">DistanceToSurface</span> [m] - Distance where school is closest to the surface. Same as corrected.</li>
+   <li><span class="marec-parameter-def" id="BottomDepth">BottomDepth</span> [m] - Distance where school is closest to bottom. Same as corrected.</li>
+   <li><span class="marec-parameter-def" id="NmbAcousticCat">NmbAcousticCat</span> [-] - Number of acoustic categories within school object. Should be = 1 for echogram library.</li>
+   <li><span class="marec-parameter-def" id="NmbHoles">NmbHoles</span> [-] - Number of holes in the school.</li>
+   <li><span class="marec-parameter-def" id="NmbKernels">NmbKernels</span> [-] - Number of kernels in the school.</li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="Scatter.html">ScatterObject</a>
+   <a href="SchoolData.html">SchoolData</a>
+   <a href="SchoolObjectType.html">SchoolObjectType</a>
+   <a href="SchoolCategory.html">SchoolCategory</a>
+   <a href="SchoolCategorySystem.html">SchoolDetect</a>
+</p>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<corrections type="RANGE">
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">18</parameter>
+         <parameter name="BlindZone">5</parameter>
+         <parameter name="Range">1000</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">38</parameter>
+         <parameter name="BlindZone">5</parameter>
+         <parameter name="Range">1000</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">70</parameter>
+         <parameter name="BlindZone">5</parameter>
+         <parameter name="Range">500</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">120</parameter>
+         <parameter name="BlindZone">5</parameter>
+         <parameter name="Range">350</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">200</parameter>
+         <parameter name="BlindZone">5</parameter>
+         <parameter name="Range">300</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">333</parameter>
+         <parameter name="BlindZone">5</parameter>
+         <parameter name="Range">110</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">364</parameter>
+         <parameter name="BlindZone">5</parameter>
+         <parameter name="Range">100</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">555</parameter>
+         <parameter name="BlindZone">5</parameter>
+         <parameter name="Range">75</parameter>
+      </parameters>
+   </transducer>
+</corrections>

@@ -1,0 +1,66 @@
+<h1>Filter 3×3 module</h1>
+<p>
+   This module applies a 3×3 filter.
+   Either choose a filter from the dropdown menu or specify one manually by setting all 3×3 values.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="LogarithmicValues">Logarithmic values:</span>
+      Use log(sv) or sv.
+   </li>
+   <li><span class="marec-parameter-def" id="ShowDetails">Show details:</span>
+      Shows more detailed settings (Only last, Channels to process, Automatic depth range, Start depth, End depth).
+   </li>
+   <li><span class="marec-parameter-def" id="OnlyLast">Only last:</span>
+      When true, only last channel is processed, if false all channels are processed.
+   </li>
+   <li><span class="marec-parameter-def" id="ChannelsToProcess">Channels to process:</span>
+      Process the n last channels (-1 for all channels).
+   </li>
+   <li><span class="marec-parameter-def" id="AutomaticDepthRange">Automatic depth range:</span>
+      If true and Bottom detection module is used, then the range goes to the detected seabed,
+      if true and Bottom detection module is not used, the range goes to max depth of the ping.
+   </li>
+   <li><span class="marec-parameter-def" id="StartDepth">Start depth:</span>
+      Start depth in meter for filter.
+   </li>
+   <li><span class="marec-parameter-def" id="EndDepth">End depth:</span>
+      End depth in meter for filter.
+   </li>
+   <li><span class="marec-parameter-def" id="FilterType">Filter type:</span>
+      Specifies what filter to use
+      <br>Allowed values: <em>{ User defined, /*smooth1*/{{1,2,1},{2,1,2},{1,2,1}}, /*smooth2*/{{1,1,1},{1,1,1},{1,1,1}},<br>/*lowpass*/{{1,2,1},{2,4,2},{1,2,1}}, /*sharpen*/{{-1,-1,-1},{-1,9,-1},{-1,-1,-1}},<br>/*Laplacian edge
+         (Deltasquared)*/{{1,-2,1},{-2,4,-2},{1,-2,1}},<br>... }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="00">00:</span>
+      matrix value.
+   </li>
+   <li><span class="marec-parameter-def" id="01">01:</span>
+      matrix value.
+   </li>
+   <li><span class="marec-parameter-def" id="02">02:</span>
+      matrix value.
+   </li>
+   <li><span class="marec-parameter-def" id="10">10:</span>
+      matrix value.
+   </li>
+   <li><span class="marec-parameter-def" id="11">11:</span>
+      matrix value.
+   </li>
+   <li><span class="marec-parameter-def" id="12">12:</span>
+      matrix value.
+   </li>
+   <li><span class="marec-parameter-def" id="20">20:</span>
+      matrix value.
+   </li>
+   <li><span class="marec-parameter-def" id="21">21:</span>
+      matrix value.
+   </li>
+   <li><span class="marec-parameter-def" id="22">22:</span>
+      matrix value.
+   </li>
+</ul>

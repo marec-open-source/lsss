@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<regionInterpretation version="2">
+   <timeRange start="9.7681242976E8" numberOfPings="156"/>
+   <exclusionRanges>
+      <timeRange start="9.76812658699E8" numberOfPings="11"/>
+   </exclusionRanges>
+   <bubbleCorrectionRanges>
+      <timeRange start="9.7681242976E8" numberOfPings="156" bubbleCorrectionValue="1.0"/>
+   </bubbleCorrectionRanges>
+   <masking referenceTime="9.7681242976E8"/>
+   <thresholding>
+      <upperThresholdActive>
+         <timeRange start="9.7681242976E8" numberOfPings="156" value="false"/>
+      </upperThresholdActive>
+      <upperThreshold>
+         <timeRange start="9.7681242976E8" numberOfPings="156" value="-30.0"/>
+      </upperThreshold>
+      <lowerThreshold>
+         <timeRange start="9.7681242976E8" numberOfPings="156" value="-82.0"/>
+      </lowerThreshold>
+   </thresholding>
+   <layerInterpretation>
+      <boundaries>
+         <curveBoundary id="0" startConnector="0" endConnector="2">
+            <curveRep>
+               <pingRange referenceTime="9.7681242976E8" startOffset="0" numberOfPings="156"/>
+               <depths>15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0 15.0
+                  15.0 15.0 15.0 15.0 15.0 15.0</depths>
+            </curveRep>
+         </curveBoundary>
+         <curveBoundary id="1" startConnector="1" endConnector="3">
+            <curveRep>
+               <pingRange referenceTime="9.7681242976E8" startOffset="0" numberOfPings="156"/>
+               <depths>316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8 316.8
+                  316.8 316.8 316.8 316.8 316.8 316.8</depths>
+            </curveRep>
+         </curveBoundary>
+         <verticalBoundary id="2" startConnector="0" endConnector="1">
+            <verticalBoundaryRep referenceTime="9.7681242976E8" pingOffset="0" startDepth="15.0" endDepth="316.8"/>
+         </verticalBoundary>
+         <verticalBoundary id="3" startConnector="2" endConnector="3">
+            <verticalBoundaryRep referenceTime="9.7681242976E8" pingOffset="156" startDepth="15.0" endDepth="316.8"/>
+         </verticalBoundary>
+      </boundaries>
+      <connectors>
+         <connector id="0">
+            <connectorRep referenceTime="9.7681242976E8" pingOffset="0" depth="15.0"/>
+         </connector>
+         <connector id="1">
+            <connectorRep referenceTime="9.7681242976E8" pingOffset="0" depth="316.8"/>
+         </connector>
+         <connector id="2">
+            <connectorRep referenceTime="9.7681242976E8" pingOffset="156" depth="15.0"/>
+         </connector>
+         <connector id="3">
+            <connectorRep referenceTime="9.7681242976E8" pingOffset="156" depth="316.8"/>
+         </connector>
+      </connectors>
+      <layerDefinitions>
+         <layer hasBeenVisisted="true" objectNumber="1007">
+            <speciesInterpretationRoot/>
+            <boundaries>
+               <curveBoundary id="0" isUpper="true"/>
+               <curveBoundary id="1" isUpper="false"/>
+               <verticalBoundary id="2"/>
+               <verticalBoundary id="3"/>
+            </boundaries>
+            <connectors>
+               <id number="0"/>
+               <id number="1"/>
+               <id number="2"/>
+               <id number="3"/>
+            </connectors>
+         </layer>
+      </layerDefinitions>
+   </layerInterpretation>
+   <schoolInterpretation/>
+</regionInterpretation>

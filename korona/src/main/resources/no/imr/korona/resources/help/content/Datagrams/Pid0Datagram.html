@@ -1,0 +1,46 @@
+<h1>PID0: Plankton inversion data datagram</h1>
+<p>
+   This datagram contains plankton inversion results with length distribution of the plankton categories.
+   The plankton categories are defined in the <a href="Pic0Datagram.html">Plankton inversion configuration datagram</a>.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once per ping.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/plankton/PlanktonInversionModule/PlanktonInversionModule.html">Plankton inversion module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Pid0Datagram {
+   DatagramHeader header; <span class="marec-comment">// PID0</span>
+   int count;             <span class="marec-comment">// The number of samples in the original RAW datagram this plankton sample is valid for</span>
+   float sampleDistance;  <span class="marec-comment">// The distance between the samples [m]</span>
+   float firstDepth;      <span class="marec-comment">// The depth of the first sample [m]</span>
+   int numberOfSamples;   <span class="marec-comment">// The number of stored planktonSamples objects</span>
+   PlanktonSample[] planktonSamples;
+};
+
+struct PlanktonSample {
+   int startSampleNumber;     <span class="marec-comment">// The first sample number in the original RAW datagram this plankton sample is valid for</span>
+   int numberOfPlanktonDatas; <span class="marec-comment">// The number of plankton datas for this sample</span>
+   PlanktonData[] planktonDatas;
+};
+
+struct PlanktonData {
+   byte planktonNumber; <span class="marec-comment">// Refers to the plankton category number in the <a href="Pic0Datagram.html">Plankton inversion configuration datagram</a></span>
+   int numberOfBinsInLengthDistribution;
+   LengthDistribution lengthDistribution; <span class="marec-comment">// Only present if numberOfBinsInLengthDistribution > 0</span>
+   float fraction; <span class="marec-comment">// The fraction of the s<sub>A</sub> this data unit represents</span>
+   float residual; <span class="marec-comment">// The computed <a href="../Modules/plankton/PlanktonInversionModule/PlanktonInversionAlgorithm.html#Residual">residual</a> from the inversion algorithm</span>
+};
+
+struct LengthDistribution {
+   float[] binDividers; <span class="marec-comment">// numberOfBinsInLengthDistribution + 1 of these.</span>
+   float[] abundances;  <span class="marec-comment">// numberOfBinsInLengthDistribution of these.</span>
+};
+</pre>

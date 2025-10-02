@@ -1,0 +1,12 @@
+.marec-footer {
+   border-top: solid 1px lightgrey;
+   color: darkgrey;
+   padding: 3px;
+   font-size: smaller;
+}
+
+@media print {
+   .marec-footer {
+      margin-top: 40px;
+   }
+}

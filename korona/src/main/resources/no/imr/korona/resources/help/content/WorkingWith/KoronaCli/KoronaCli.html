@@ -1,0 +1,254 @@
+<h1>KORONA cli</h1>
+<p>
+   This section describes the KORONA command line interface (cli).
+</p>
+<p>
+   Usage:
+</p>
+<blockquote><code>
+   KoronaCli &lt;command&gt; [options and arguments]
+</code></blockquote>
+
+<p>
+   Print usage and list available commands:
+</p>
+<blockquote><code>
+   KoronaCli --help
+</code></blockquote>
+
+<p>
+   Print help for a specific command:
+</p>
+<blockquote><code>
+   KoronaCli &lt;command&gt; --help
+</code></blockquote>
+
+<p>
+   Note: If options or arguments contain spaces, then quotes are necessary,
+   e.g. <code style="white-space: nowrap;">"--dir=D:\Raw files"</code>.
+</p>
+
+<h2 id="batch">batch</h2>
+<p>
+   <code>KoronaCli batch</code> processes files similarly to <a href="../KoronaRelay/KoronaRelay.html">KORONA relay</a>, but without the user interface.
+</p>
+<p>
+   Usage:
+</p>
+<blockquote><code>
+   KoronaCli batch [options]
+</code></blockquote>
+<p>
+   Options:
+</p>
+<table class="marec-table-first-column-nowrap">
+   <tr>
+      <td><code>--cfs</code></td>
+      <td style="width: 20px;"></td>
+      <td>The <a href="../ConfigFileSettings/ConfigFileSettings.html">config file settings</a> used by the processing.</td>
+   </tr>
+   <tr>
+      <td><code>--source</code></td>
+      <td></td>
+      <td>Directory with files to be processed.</td>
+   </tr>
+   <tr>
+      <td><code>--destination</code></td>
+      <td></td>
+      <td>Directory where the processed files will be written.</td>
+   </tr>
+   <tr>
+      <td><code>--help</code></td>
+      <td></td>
+      <td>Displays help information.</td>
+   </tr>
+</table>
+<p>
+   Example:
+</p>
+<blockquote><code>
+   KoronaCli.bat batch
+   <span style="white-space: nowrap;">--cfs=D:\ConfigFileSettings.cfs</span>
+   <span style="white-space: nowrap;">--source=D:\OriginalRaw</span>
+   <span style="white-space: nowrap;">--destination=D:\ProcessedRaw</span>
+</code></blockquote>
+
+<h2 id="calibration-generate">calibration-generate</h2>
+<p>
+   <code>KoronaCli calibration-generate</code> generates
+   <a href="../Calibration/Calibration.html">calibration.xml</a>
+   with values from data files.
+</p>
+<p>
+   Usage:
+</p>
+<blockquote><code>
+   KoronaCli calibration-generate [options]
+</code></blockquote>
+<p>
+   Options:
+</p>
+<table class="marec-table-first-column-nowrap">
+   <tr>
+      <td><code>--help</code></td>
+      <td style="width: 20px;"></td>
+      <td>Displays help information.</td>
+   </tr>
+   <tr>
+      <td><code>--dir</code></td>
+      <td></td>
+      <td>Directory with data files.</td>
+   </tr>
+   <tr>
+      <td><code>--output</code></td>
+      <td></td>
+      <td>Output file as an absolute path or relative to dir. If not specified, then stdout is used.</td>
+   </tr>
+</table>
+<p>
+   Example:
+</p>
+<blockquote><code>
+   KoronaCli.bat calibration-generate
+   <span style="white-space: nowrap;">--dir=D:\RawFiles</span>
+</code></blockquote>
+
+<h2 id="korona-info">korona-info</h2>
+<p>
+   <code>KoronaCli korona-info</code> prints info about KORONA, including modules and parameters, in JSON format.
+</p>
+<p>
+   Usage:
+</p>
+<blockquote><code>
+   KoronaCli korona-info
+</code></blockquote>
+<p>
+   Options:
+</p>
+<table class="marec-table-first-column-nowrap">
+   <tr>
+      <td><code>--help</code></td>
+      <td style="width: 20px;"></td>
+      <td>Displays help information.</td>
+   </tr>
+</table>
+<p>
+   Example:
+</p>
+<blockquote><code>
+   KoronaCli.bat korona-info
+</code></blockquote>
+
+<h2 id="print-datagrams">print-datagrams</h2>
+<p>
+   <code>KoronaCli print-datagrams</code> prints info about the datagrams in files or directories.
+   If a directory is specified, then all files in that directory will be used.
+   If no files or directories are specified, then the standard input is used.
+</p>
+<p>
+   Usage:
+</p>
+<blockquote><code>
+   KoronaCli print-datagrams [options] [file or directory]...
+</code></blockquote>
+<p>
+   Options:
+</p>
+<table class="marec-table-first-column-nowrap">
+   <tr>
+      <td><code>--help</code></td>
+      <td style="width: 20px;"></td>
+      <td>Displays help information.</td>
+   </tr>
+   <tr>
+      <td><code>--limit</code></td>
+      <td></td>
+      <td>Limits the number of datagrams to print.</td>
+   </tr>
+   <tr>
+      <td><code>--only</code></td>
+      <td></td>
+      <td>Comma-separated list of datagram types to print.</td>
+   </tr>
+   <tr>
+      <td><code>--skip</code></td>
+      <td></td>
+      <td>Comma-separated list of datagram types to not print.</td>
+   </tr>
+</table>
+<p>
+   Example:
+</p>
+<blockquote><code>
+   KoronaCli.bat print-datagrams
+   <span style="white-space: nowrap;">--skip=NME0,MRU0</span>
+   <span style="white-space: nowrap;">D:\RawFiles\some-file.raw</span>
+</code></blockquote>
+
+<h2 id="work-file-to-netcdf">work-file-to-netcdf (beta)</h2>
+<p>
+   <code>KoronaCli work-file-to-netcdf</code> converts work files to NetCDF format.
+</p>
+<p>
+   Usage:
+</p>
+<blockquote><code>
+   KoronaCli work-file-to-netcdf [options]
+</code></blockquote>
+<p>
+   Options:
+</p>
+<table class="marec-table-first-column-nowrap">
+   <tr>
+      <td><code>--help</code></td>
+      <td style="width: 20px;"></td>
+      <td>Displays help information.</td>
+   </tr>
+   <tr>
+      <td><code>--data-dir</code></td>
+      <td></td>
+      <td>Directory with data files.</td>
+   </tr>
+   <tr>
+      <td><code>--delta-range</code></td>
+      <td></td>
+      <td>The range resolution [m].</td>
+   </tr>
+   <tr>
+      <td><code>--frequency</code></td>
+      <td></td>
+      <td>The frequency [kHz] to use (default: 38).</td>
+   </tr>
+   <tr>
+      <td><code>--max-parallel</code></td>
+      <td></td>
+      <td>Maximum parallel processes, defaulting to the number of available processors.</td>
+   </tr>
+   <tr>
+      <td><code>--max-range</code></td>
+      <td></td>
+      <td>The maximum range [m].</td>
+   </tr>
+   <tr>
+      <td><code>--output-dir</code></td>
+      <td></td>
+      <td>Directory where to write work files as NetCDF.</td>
+   </tr>
+   <tr>
+      <td><code>--work-dir</code></td>
+      <td></td>
+      <td>Directory with work files.</td>
+   </tr>
+</table>
+<p>
+   Example:
+</p>
+<blockquote><code>
+   KoronaCli.bat work-file-to-netcdf
+   <span style="white-space: nowrap;">--delta-range=0.2</span>
+   <span style="white-space: nowrap;">--max-range=1000</span>
+   <span style="white-space: nowrap;">--data-dir=D:\RawFiles</span>
+   <span style="white-space: nowrap;">--work-dir=D:\WorkFiles</span>
+   <span style="white-space: nowrap;">--output-dir=D:\WorkFilesAsNetcdf</span>
+</code></blockquote>

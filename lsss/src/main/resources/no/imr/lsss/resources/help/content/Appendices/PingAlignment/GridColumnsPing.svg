@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="662" height="180" viewBox="0 -100 662 180"
+     fill="none">
+
+   <path stroke="black" stroke-width="2" d="
+         M2,0 H660
+         M30,0 v-40
+         M230,0 v-40
+         M430,0 v-40
+         M630,0 v-40
+   "/>
+
+   <path stroke="#23b8dc" stroke-width="2" d="
+         M15,-10 v20
+
+         M75,-10 v20
+         M110,-10 v20
+         M180,-10 v20
+
+         M260,-10 v20
+         M290,-10 v20
+         M320,-10 v20
+         M360,-10 v20
+         M395,-10 v20
+
+         M460,-10 v20
+         M500,-10 v20
+         M540,-10 v20
+         M600,-10 v20
+
+         M655,-10 v20
+   "/>
+
+   <path stroke="black" stroke-width="1" d="
+         M111,-20.5 a7,7 0 0 1 7,-7 h20 a7,7 0 0 0 7,-7 a7,7 0 0 0 7,7 h20 a7,7 0 0 1 7,7
+
+         M231,-66.6 a7,7 0 0 1 7,-7 h85 a7,7 0 0 0 7,-7 a7,7 0 0 0 7,7 h85 a7,7 0 0 1 7,7
+
+         M16,20.5 a7,7 0 0 0 7,7 h67.5 a7,7 0 0 1 7,7 a7,7 0 0 1 7,-7 h67.5 a7,7 0 0 0 7,-7
+         M181,20.5 a7,7 0 0 0 7,7 h92.5 a7,7 0 0 1 7,7 a7,7 0 0 1 7,-7 h92.5 a7,7 0 0 0 7,-7
+         M396,20.5 a7,7 0 0 0 7,7 h87.5 a7,7 0 0 1 7,7 a7,7 0 0 1 7,-7 h87.5 a7,7 0 0 0 7,-7
+   "/>
+
+   <g fill="black" stroke="none" font-family="sans-serif" font-size="16" text-anchor="middle">
+      <text x="30" y="-45">0 nmi</text>
+      <text x="230" y="-45">1 nmi</text>
+      <text x="430" y="-45">2 nmi</text>
+      <text x="630" y="-45">3 nmi</text>
+
+      <text x="145" y="-45">A ping</text>
+
+      <text x="330" y="-85">A grid column</text>
+
+      <text x="287.5" y="55">The pings used in the grid column</text>
+      <text x="287.5" y="75">from 1 nmi to 2 nmi</text>
+   </g>
+</svg>

@@ -1,0 +1,46 @@
+<h1>Reference log</h1>
+<p>
+   The reference log files contain data about ship stations and other events that are logged on the ship.
+</p>
+<p>
+   The data directory is configured in
+   <a href="../../Configuration/Survey/DataConf.html">[Survey configuration - Data files]</a>.
+</p>
+<p>
+   The data are shown as overlays on the
+   <a href="../../Views/Echogram/Echogram.html#RefLogEchogramOverlay">echogram</a> and on the
+   <a href="../../Views/Map/Map.html#RefLogMapOverlay">map</a>.
+</p>
+
+<h2 id="JsonFiles">JSON files</h2>
+<p>
+   This is a new file format that has replaced the <a href="#RefCsvFiles">ref cvs files</a>.
+</p>
+<p>
+   File names must be on the form *.json.
+</p>
+<p>
+   See an <a href="ExampleJsonFile.html">example file</a>.
+</p>
+
+<h2 id="RefCsvFiles">Ref cvs files</h2>
+<p>
+   This is a legacy file format, replaced by <a href="#JsonFiles">JSON files</a>.
+</p>
+<p>
+   File names must be on the form ref*.csv.
+</p>
+<p>
+   A file consists of two header lines followed by data lines.
+   The second header line contains descriptions of the data fields.
+</p>
+<p>
+   The second field in data line (Time) can have two formats:
+</p>
+<ol>
+   <li><code>HH:mm:ss</code></li>
+   <li><code>HHmmss.xx</code> (The xx is ignored by LSSS)</li>
+</ol>
+<p>
+   See an <a href="ExampleCsvFile.html">example file</a>.
+</p>

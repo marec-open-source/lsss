@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>LSSS server</title>
+   <link rel="icon" href="../lsss.svg">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+   <link rel="stylesheet" href="../style.css">
+</head>
+<body class="container-fluid">
+
+<h1>Input events</h1>
+<p>
+   Streaming events from mouse and keyboard using <a href="https://developer.mozilla.org/en-US/docs/Server-sent_events">server-sent events</a>.
+</p>
+
+<ul>
+   <li>Current module: <span id="module"></span></li>
+   <li>Echogram position: Depth [m]: <span id="depth"></span>, Time [UTC]: <span id="time"></span></li>
+   <li>Geographical position: Longitude: <span id="longitude"></span>, Latitude: <span id="latitude"></span></li>
+</ul>
+
+<h2>Log</h2>
+<table class="table table-sm table-hover">
+   <thead>
+   <tr>
+      <th></th>
+      <th>Time</th>
+      <th>Type</th>
+      <th>Data</th>
+   </tr>
+   </thead>
+   <tbody id="events">
+   </tbody>
+</table>
+
+<script>
+   (function () {
+      'use strict';
+
+      let eventCounter = 0;
+
+      function addEvent(type, data) {
+         eventCounter++;
+
+         const tr = document.createElement('tr');
+         tr.appendChild(document.createElement('td')).textContent = '' + eventCounter;
+         tr.appendChild(document.createElement('td')).textContent = new Date().toISOString();
+         tr.appendChild(document.createElement('td')).textContent = type;
+         tr.appendChild(document.createElement('td')).textContent = data;
+
+         const events = document.getElementById('events');
+         events.prepend(tr);
+         while (events.childElementCount > 100) {
+            events.removeChild(events.lastChild);
+         }
+      }
+
+      const source = new EventSource('/lsss/events');
+
+      function addEventListener(type, listener) {
+         source.addEventListener(type, event => {
+            if (listener) {
+               listener(JSON.parse(event.data));
+            }
+            addEvent(type, event.data);
+         });
+      }
+
+      addEventListener('echogramPos', data => {
+         document.getElementById("depth").textContent = data.depth?.toFixed(3) ?? '';
+         document.getElementById("time").textContent = data.time ?? '';
+      });
+      addEventListener('geoPos', data => {
+         document.getElementById("longitude").textContent = data.lon?.toFixed(8) ?? '';
+         document.getElementById("latitude").textContent = data.lat?.toFixed(8) ?? '';
+      });
+      addEventListener('mouseEntered', data => {
+         document.getElementById("module").textContent = data.module;
+      });
+      addEventListener('mouseExited', () => {
+         document.getElementById("module").textContent = "";
+      });
+      addEventListener('mouseClicked');
+      addEventListener('mousePressed');
+      addEventListener('mouseReleased');
+      addEventListener('mouseWheelMoved');
+      addEventListener('keyTyped');
+      addEventListener('keyPressed');
+      addEventListener('keyReleased');
+      addEventListener('deepVisionFrame');
+   }());
+</script>
+</body>
+</html>

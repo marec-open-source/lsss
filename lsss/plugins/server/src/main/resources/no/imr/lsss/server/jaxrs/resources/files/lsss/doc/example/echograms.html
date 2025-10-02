@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>LSSS server</title>
+   <link rel="icon" href="../lsss.svg">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+   <link rel="stylesheet" href="../style.css">
+</head>
+<body class="container-fluid">
+
+<h1 id="title">Initializing...</h1>
+
+<div id="content"></div>
+
+<script>
+   (function () {
+      'use strict';
+
+      let uniquifier = Date.now();
+
+      let dataFiles;
+
+      fetch('/lsss/survey/config/unit/DataConf/parameter/DataDir')
+            .then(response => response.json())
+            .then(data => document.getElementById('title').textContent = data.value);
+
+      fetch('/lsss/survey/config/unit/DataConf/files')
+            .then(response => response.json())
+            .then(data => {
+               dataFiles = data;
+               nextImage(0);
+            });
+
+      function nextImage(index) {
+         if (index === dataFiles.length) {
+            return;
+         }
+         fetch('/lsss/survey/config/unit/DataConf/files/selection', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({firstIndex: index, lastIndex: index}),
+         })
+               .then(() => fetch('/lsss/data/wait'))
+               .then(() => {
+                  const img = document.getElementById('content').appendChild(document.createElement('img'));
+                  img.src = '/lsss/module/PelagicEchogramModule/image?uniquifier=' + uniquifier++;
+                  img.addEventListener('load', () => {
+                     nextImage(index + 1);
+                  });
+               });
+      }
+   })();
+</script>
+</body>
+</html>

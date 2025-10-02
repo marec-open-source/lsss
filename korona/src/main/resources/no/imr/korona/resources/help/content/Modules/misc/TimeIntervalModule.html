@@ -1,0 +1,35 @@
+<h1>Time interval selection module</h1>
+<p>
+   Module for processing only the pings in a specified time interval.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+</ul>
+
+<h3 id="TimeLimits">Time limits</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="StartDateString">Start date:</span>
+      The start date and time in UTC (<code style="white-space: nowrap;">dd.MM.yyyy HH:mm:ss</code>).
+      The empty string implies no restriction.
+   </li>
+   <li><span class="marec-parameter-def" id="EndDateString">End date:</span>
+      The end date and time in UTC (<code style="white-space: nowrap;">dd.MM.yyyy HH:mm:ss</code>).
+      The empty string implies no restriction.
+   </li>
+</ul>
+
+<h3 id="RelativePingNumberLimits">Relative ping number limits</h3>
+<ul>
+   <li><span class="marec-parameter-def" id="StartRelativePingNumber">Start relative ping number:</span>
+      The minimum relative ping number within a file, starting at 1.
+      The empty string implies no restriction.
+   </li>
+   <li><span class="marec-parameter-def" id="EndRelativePingNumber">End relative ping number:</span>
+      The maximum relative ping number within a file, starting at 1.
+      The empty string implies no restriction.
+   </li>
+</ul>

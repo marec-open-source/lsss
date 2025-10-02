@@ -1,0 +1,26 @@
+<h1>TNF0: Track info datagram</h1>
+<p>
+   This datagram contains information about one track.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   At the end of each track.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/tracking/TrackingModule.html">Tracking module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Tnf0Datagram {
+   DatagramHeader header; <span class="marec-comment">// TNF0</span>
+   int id;                <span class="marec-comment">// ID of this track</span>
+   short channel;         <span class="marec-comment">// The channel this track was detected on</span>
+   byte valid;            <span class="marec-comment">// 1 if this track is marked as valid, otherwise 0</span>
+   int pingsSinceFirst;   <span class="marec-comment">// Number of pings since the start of this track, relative to this ping</span>
+   int pingsSinceLast;    <span class="marec-comment">// Number of pings since the end of this track, relative to this ping</span>
+};
+</pre>

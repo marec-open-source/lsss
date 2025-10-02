@@ -1,0 +1,986 @@
+# Lines starting with "#" are ignored
+#
+#  LSSS species  Nation  Platform  BEI species
+#
+          0        58        1       0 Utolkede data (raadata)
+          1        58        1       1 Andre sorter
+          2        58        1       2 Bunnfisk
+          3        58        1       3 Pelagisk fisk
+          4        58        1       4 Maneter
+          5        58        1       5 Reker
+          6        58        1       6 Plankton
+          7        58        1       7 Lysprikkfisk
+          8        58        1       8 Polartorsk
+          9        58        1       9 II-Sild
+         10        58        1      10 I-Sild
+         11        58        1      11 0-Sild
+         12        58        1      12 Sild
+         13        58        1      13 II-Lodde
+         14        58        1      14 I-Lodde
+         15        58        1      15 0-Lodde
+         16        58        1      16 Lodde
+         17        58        1      17 0-gruppe blandet
+         18        58        1      18 Hvitting
+         19        58        1      19 Lyr
+         20        58        1      20 Brisling
+         21        58        1      21 Makrell
+         22        58        1      22 Sei
+         23        58        1      23 Vassild
+         24        58        1      24 Kolmule
+         25        58        1      25 Brosme
+         26        58        1      26 Lange
+         27        58        1      27 Sil
+         28        58        1      28 Oeyepaal
+         29        58        1      29 Uer
+         30        58        1      30 Hyse
+         31        58        1      31 Torsk
+         32        58        1      32 0-Uer
+         33        58        1      33 0-Polartorsk
+         40        58        1      40
+         41        58        1      41 Hyse, Torsk
+         42        58        1      42 Vassild, Kolmule
+         43        58        1      43 Andre sorter, Lodde
+         44        58        1      44 Pelagisk fisk, Plankton
+         45        58        1      45 Andre sorter, Plankton
+         46        58        1      46 Plankton, 0-Sild, 0-Lodde
+         47        58        1      47 Uer, Hyse, Torsk
+         48        58        1      48 Lodde, Kolmule
+         49        58        1      49 Lysprikkfisk, Kolmule
+         50        58        1      50 Kolmule, Uer
+         51        58        1      51 Andre sorte, 0-Sild, Sild
+         52        58        1      52 Bunnfisk
+         53        58        1      53 Sild, Brisling
+         54        58        1      54 Plankton, Lysprikkfisk
+         55        58        1      55 Andre sorter, Bunnfisk
+         56        58        1      56 Hvitting, Brosme, Sil
+         57        58        1      57 Plankton, 0-gruppe blandet
+         58        58        1      58 I-Sild, 0-Sild
+         59        58        1      59 II-Lodde, I-Lodde
+         60        58        1      60 Andre sorter, II-Sild
+         61        58        1      61 0-Sild, Brisling
+         62        58        1      62 Bunnfisk, Oeyepaal, Torsk
+         63        58        1      63 Bunnfisk, Hyse, Torsk
+         64        58        1      64 Pelagisk fisk, Lysprikkfisk
+         65        58        1      65
+         66        58        1      66 Andre sorter, Uer
+         67        58        1      67 Maneter, Reker, Plankton, Lysprikk
+         68        58        1      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58        1      69 Makrell, Sei
+          3        58        1      70 Pelagisk fisk
+       5001        58        1      71 0-gr.Brisling
+          0        58        8       0 Utolkede data (raadata)
+          1        58        8       1 Andre sorter
+          2        58        8       2 Bunnfisk
+          3        58        8       3 Pelagisk fisk
+          4        58        8       4 Maneter
+          5        58        8       5 Reker
+          6        58        8       6 Plankton
+          7        58        8       7 Lysprikkfisk
+          8        58        8       8 Polartorsk
+          9        58        8       9 II-Sild
+         10        58        8      10 I-Sild
+         11        58        8      11 0-Sild
+         12        58        8      12 Sild
+         13        58        8      13 II-Lodde
+         14        58        8      14 I-Lodde
+         15        58        8      15 0-Lodde
+         16        58        8      16 Lodde
+         17        58        8      17 0-gruppe blandet
+         18        58        8      18 Hvitting
+         19        58        8      19 Lyr
+         20        58        8      20 Brisling
+         21        58        8      21 Makrell
+         22        58        8      22 Sei
+         23        58        8      23 Vassild
+         24        58        8      24 Kolmule
+         25        58        8      25 Brosme
+         26        58        8      26 Lange
+         27        58        8      27 Sil
+         28        58        8      28 Oeyepaal
+         29        58        8      29 Uer
+         30        58        8      30 Hyse
+         31        58        8      31 Torsk
+         32        58        8      32 0-Uer
+         33        58        8      33 0-Polartorsk
+         34        58        8      34 0 gruppe brisling
+         40        58        8      40
+         41        58        8      41 Hyse, Torsk
+         42        58        8      42 Vassild, Kolmule
+         43        58        8      43 Andre sorter, Lodde
+         44        58        8      44 Pelagisk fisk, Plankton
+         45        58        8      45 Andre sorter, Plankton
+         46        58        8      46 Plankton, 0-Sild, 0-Lodde
+         47        58        8      47 Uer, Hyse, Torsk
+         48        58        8      48 Lodde, Kolmule
+         49        58        8      49 Lysprikkfisk, Kolmule
+         50        58        8      50 Kolmule, Uer
+         51        58        8      51 Andre sorte, 0-Sild, Sild
+         52        58        8      52 Bunnfisk
+         53        58        8      53 Sild, Brisling
+         54        58        8      54 Plankton, Lysprikkfisk
+         55        58        8      55 Andre sorter, Bunnfisk
+         56        58        8      56 Hvitting, Brosme, Sil
+         57        58        8      57 Plankton, 0-gruppe blandet
+         58        58        8      58 I-Sild, 0-Sild
+         59        58        8      59 II-Lodde, I-Lodde
+         60        58        8      60 Andre sorter, II-Sild
+         61        58        8      61 0-Sild, Brisling
+         62        58        8      62 Bunnfisk, Oeyepaal, Torsk
+         63        58        8      63 Bunnfisk, Hyse, Torsk
+         64        58        8      64 Pelagisk fisk, Lysprikkfisk
+         65        58        8      65
+         66        58        8      66 Andre sorter, Uer
+         67        58        8      67 Maneter, Reker, Plankton, Lysprikk
+         68        58        8      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58        8      69 Makrell, Sei
+          0        58       10       0 Utolkede data (raadata)
+          1        58       10       1 Andre sorter
+          2        58       10       2 Bunnfisk
+          3        58       10       3 Pelagisk fisk
+          4        58       10       4 Maneter
+          5        58       10       5 Reker
+          6        58       10       6 Plankton
+          7        58       10       7 Lysprikkfisk
+          8        58       10       8 Polartorsk
+          9        58       10       9 II-Sild
+         10        58       10      10 I-Sild
+         11        58       10      11 0-Sild
+         12        58       10      12 Sild
+         13        58       10      13 II-Lodde
+         14        58       10      14 I-Lodde
+         15        58       10      15 0-Lodde
+         16        58       10      16 Lodde
+         17        58       10      17 0-gruppe blandet
+         18        58       10      18 Hvitting
+         19        58       10      19 Lyr
+         20        58       10      20 Brisling
+         21        58       10      21 Makrell
+         22        58       10      22 Sei
+         23        58       10      23 Vassild
+         24        58       10      24 Kolmule
+         25        58       10      25 Brosme
+         26        58       10      26 Lange
+         27        58       10      27 Sil
+         28        58       10      28 Oeyepaal
+         29        58       10      29 Uer
+         30        58       10      30 Hyse
+         31        58       10      31 Torsk
+         32        58       10      32 0-Uer
+         33        58       10      33 0-Polartorsk
+         40        58       10      40
+         41        58       10      41 Hyse, Torsk
+         42        58       10      42 Vassild, Kolmule
+         43        58       10      43 Andre sorter, Lodde
+         44        58       10      44 Pelagisk fisk, Plankton
+         45        58       10      45 Andre sorter, Plankton
+         46        58       10      46 Plankton, 0-Sild, 0-Lodde
+         47        58       10      47 Uer, Hyse, Torsk
+         48        58       10      48 Lodde, Kolmule
+         49        58       10      49 Lysprikkfisk, Kolmule
+         50        58       10      50 Kolmule, Uer
+         51        58       10      51 Andre sorte, 0-Sild, Sild
+         52        58       10      52 Bunnfisk
+         53        58       10      53 Sild, Brisling
+         54        58       10      54 Plankton, Lysprikkfisk
+         55        58       10      55 Andre sorter, Bunnfisk
+         56        58       10      56 Hvitting, Brosme, Sil
+         57        58       10      57 Plankton, 0-gruppe blandet
+         58        58       10      58 I-Sild, 0-Sild
+         59        58       10      59 II-Lodde, I-Lodde
+         60        58       10      60 Andre sorter, II-Sild
+         61        58       10      61 0-Sild, Brisling
+         62        58       10      62 Bunnfisk, Oeyepaal, Torsk
+         63        58       10      63 Bunnfisk, Hyse, Torsk
+         64        58       10      64 Pelagisk fisk, Lysprikkfisk
+         65        58       10      65
+         66        58       10      66 Andre sorter, Uer
+         67        58       10      67 Maneter, Reker, Plankton, Lysprikk
+         68        58       10      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58       10      69 Makrell, Sei
+       5004        58       10      70 Pilchard
+       5007        58       10      71 Anchovy or Vassild, Skolest
+       5008        58       10      72 Round herring
+       5009        58       10      73 Trachurus trecae
+       5010        58       10      74 Hake
+       5011        58       10      75 Dentex
+       5012        58       10      76 Other demersal fish
+       5013        58       10      77 Mesopelagic fish
+       5014        58       10      78 Anchovy, Round herring
+       5015        58       10      79 Sardinella
+       5016        58       10      80 Pelagic 1 fish
+       5017        58       10      81 Pelagic 2 fish
+       5018        58       10      82 Brachydeuterus
+       5019        58       10      83 Sardinella aurita
+       5020        58       10      84 Sardinella maderensis
+       5021        58       10      85 Decapterus rhonchus
+       5003        58       10      86 Taggmakrell
+          3        58       10      87 Pelagisk fisk
+       5022        58       10      88 Plankton  mesopelagic fish
+       5023        58       10      89 Gobies
+       5040        58       10      90 Alfonsino
+       5842        58       10      91 Orange Roughy
+       5039        58       10      92 Rat-Tails
+          0        58       11       0 Utolkede data (raadata)
+          1        58       11       1 Andre sorter
+          2        58       11       2 Bunnfisk
+          3        58       11       3 Pelagisk fisk
+          4        58       11       4 Maneter
+          5        58       11       5 Reker
+          6        58       11       6 Plankton
+          7        58       11       7 Lysprikkfisk
+          8        58       11       8 Polartorsk
+          9        58       11       9 II-Sild
+         10        58       11      10 I-Sild
+         11        58       11      11 0-Sild
+         12        58       11      12 Sild
+         13        58       11      13 II-Lodde
+         14        58       11      14 I-Lodde
+         15        58       11      15 0-Lodde
+         16        58       11      16 Lodde
+         17        58       11      17 0-gruppe blandet
+         18        58       11      18 Hvitting
+         19        58       11      19 Lyr
+         20        58       11      20 Brisling
+         21        58       11      21 Makrell
+         22        58       11      22 Sei
+         23        58       11      23 Vassild
+         24        58       11      24 Kolmule
+         25        58       11      25 Brosme
+         26        58       11      26 Lange
+         27        58       11      27 Sil
+         28        58       11      28 Oeyepaal
+         29        58       11      29 Uer
+         30        58       11      30 Hyse
+         31        58       11      31 Torsk
+         32        58       11      32 0-Uer
+         33        58       11      33 0-Polartorsk
+         34        58       11      34 0 gruppe brisling
+         40        58       11      40
+         41        58       11      41 Hyse, Torsk
+         42        58       11      42 Vassild, Kolmule
+         43        58       11      43 Andre sorter, Lodde
+         44        58       11      44 Pelagisk fisk, Plankton
+         45        58       11      45 Andre sorter, Plankton
+         46        58       11      46 Plankton, 0-Sild, 0-Lodde
+         47        58       11      47 Uer, Hyse, Torsk
+         48        58       11      48 Lodde, Kolmule
+         49        58       11      49 Lysprikkfisk, Kolmule
+         50        58       11      50 Kolmule, Uer
+         51        58       11      51 Andre sorte, 0-Sild, Sild
+         52        58       11      52 Bunnfisk
+         53        58       11      53 Sild, Brisling
+         54        58       11      54 Plankton, Lysprikkfisk
+         55        58       11      55 Andre sorter, Bunnfisk
+         56        58       11      56 Hvitting, Brosme, Sil
+         57        58       11      57 Plankton, 0-gruppe blandet
+         58        58       11      58 I-Sild, 0-Sild
+         59        58       11      59 II-Lodde, I-Lodde
+         60        58       11      60 Andre sorter, II-Sild
+         61        58       11      61 0-Sild, Brisling
+         62        58       11      62 Bunnfisk, Oeyepaal, Torsk
+         63        58       11      63 Bunnfisk, Hyse, Torsk
+         64        58       11      64 Pelagisk fisk, Lysprikkfisk
+         65        58       11      65
+         66        58       11      66 Andre sorter, Uer
+         67        58       11      67 Maneter, Reker, Plankton, Lysprikk
+         68        58       11      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58       11      69 Makrell, Sei
+       5001        58       11      70 0-gr.Brisling
+       5026        58       11      71 Laksesild, Lysprikkfisk
+       5027        58       11      72 0-gr. tobis
+       5028        58       11      74 Lusuer
+       5029        58       11      75 Snabeluer
+       5002        58       11      76 Skolest
+       5030        58       11      77 Lysing
+       5031        58       11      78 Unghyse
+       5032        58       11      79 Ungtorsk
+          0        58       12       0 Utolkede data (raadata)
+          1        58       12       1 Andre sorter
+          2        58       12       2 Bunnfisk
+          3        58       12       3 Pelagisk fisk
+          4        58       12       4 Maneter
+          5        58       12       5 Reker
+          6        58       12       6 Plankton
+          7        58       12       7 Lysprikkfisk
+          8        58       12       8 Polartorsk
+          9        58       12       9 II-Sild
+         10        58       12      10 I-Sild
+         11        58       12      11 0-Sild
+         12        58       12      12 Sild
+         13        58       12      13 II-Lodde
+         14        58       12      14 I-Lodde
+         15        58       12      15 0-Lodde
+         16        58       12      16 Lodde
+         17        58       12      17 0-gruppe blandet
+         18        58       12      18 Hvitting
+         19        58       12      19 Lyr
+         20        58       12      20 Brisling
+         21        58       12      21 Makrell
+         22        58       12      22 Sei
+         23        58       12      23 Vassild
+         24        58       12      24 Kolmule
+         25        58       12      25 Brosme
+         26        58       12      26 Lange
+         27        58       12      27 Sil
+         28        58       12      28 Oeyepaal
+         29        58       12      29 Uer
+         30        58       12      30 Hyse
+         31        58       12      31 Torsk
+         32        58       12      32 0-Uer
+         33        58       12      33 0-Polartorsk
+         34        58       12      34 0 gruppe brisling
+         40        58       12      40
+         41        58       12      41 Hyse, Torsk
+         42        58       12      42 Vassild, Kolmule
+         43        58       12      43 Andre sorter, Lodde
+         44        58       12      44 Pelagisk fisk, Plankton
+         45        58       12      45 Andre sorter, Plankton
+         46        58       12      46 Plankton, 0-Sild, 0-Lodde
+         47        58       12      47 Uer, Hyse, Torsk
+         48        58       12      48 Lodde, Kolmule
+         49        58       12      49 Lysprikkfisk, Kolmule
+         50        58       12      50 Kolmule, Uer
+         51        58       12      51 Andre sorte, 0-Sild, Sild
+         52        58       12      52 Bunnfisk
+         53        58       12      53 Sild, Brisling
+         54        58       12      54 Plankton, Lysprikkfisk
+         55        58       12      55 Andre sorter, Bunnfisk
+         56        58       12      56 Hvitting, Brosme, Sil
+         57        58       12      57 Plankton, 0-gruppe blandet
+         58        58       12      58 I-Sild, 0-Sild
+         59        58       12      59 II-Lodde, I-Lodde
+         60        58       12      60 Andre sorter, II-Sild
+         61        58       12      61 0-Sild, Brisling
+         62        58       12      62 Bunnfisk, Oeyepaal, Torsk
+         63        58       12      63 Bunnfisk, Hyse, Torsk
+         64        58       12      64 Pelagisk fisk, Lysprikkfisk
+         65        58       12      65
+         66        58       12      66 Andre sorter, Uer
+         67        58       12      67 Maneter, Reker, Plankton, Lysprikk
+         68        58       12      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58       12      69 Makrell, Sei
+       5003        58       12      70 Taggmakrell
+       5002        58       12      70 Skolest
+       5005        58       12      71 Laksesild
+       5006        58       12      71 Vassild, Skolest
+       5033        58       12      72 Stroemsild
+       5024        58       12      73 Vassild-Stroemsild
+       5013        58       12      74 Mesopelagic fish
+          0        58       14       0 Utolkede data (raadata)
+          1        58       14       1 Andre sorter
+          2        58       14       2 Bunnfisk
+          3        58       14       3 Pelagisk fisk
+          4        58       14       4 Maneter
+          5        58       14       5 Reker
+          6        58       14       6 Plankton
+          7        58       14       7 Lysprikkfisk
+          8        58       14       8 Polartorsk
+          9        58       14       9 II-Sild
+         10        58       14      10 I-Sild
+         11        58       14      11 0-Sild
+         12        58       14      12 Sild
+         13        58       14      13 II-Lodde
+         14        58       14      14 I-Lodde
+         15        58       14      15 0-Lodde
+         16        58       14      16 Lodde
+         17        58       14      17 0-gruppe blandet
+         18        58       14      18 Hvitting
+         19        58       14      19 Lyr
+         20        58       14      20 Brisling
+         21        58       14      21 Makrell
+         22        58       14      22 Sei
+         23        58       14      23 Vassild
+         24        58       14      24 Kolmule
+         25        58       14      25 Brosme
+         26        58       14      26 Lange
+         27        58       14      27 Sil
+         28        58       14      28 Oeyepaal
+         29        58       14      29 Uer
+         30        58       14      30 Hyse
+         31        58       14      31 Torsk
+         32        58       14      32 0-Uer
+         33        58       14      33 0-Polartorsk
+         40        58       14      40
+         41        58       14      41 Hyse, Torsk
+         42        58       14      42 Vassild, Kolmule
+         43        58       14      43 Andre sorter, Lodde
+         44        58       14      44 Pelagisk fisk, Plankton
+         45        58       14      45 Andre sorter, Plankton
+         46        58       14      46 Plankton, 0-Sild, 0-Lodde
+         47        58       14      47 Uer, Hyse, Torsk
+         48        58       14      48 Lodde, Kolmule
+         49        58       14      49 Lysprikkfisk, Kolmule
+         50        58       14      50 Kolmule, Uer
+         51        58       14      51 Andre sorte, 0-Sild, Sild
+         52        58       14      52 Bunnfisk
+         53        58       14      53 Sild, Brisling
+         54        58       14      54 Plankton, Lysprikkfisk
+         55        58       14      55 Andre sorter, Bunnfisk
+         56        58       14      56 Hvitting, Brosme, Sil
+         57        58       14      57 Plankton, 0-gruppe blandet
+         58        58       14      58 I-Sild, 0-Sild
+         59        58       14      59 II-Lodde, I-Lodde
+         60        58       14      60 Andre sorter, II-Sild
+         61        58       14      61 0-Sild, Brisling
+         62        58       14      62 Bunnfisk, Oeyepaal, Torsk
+         63        58       14      63 Bunnfisk, Hyse, Torsk
+         64        58       14      64 Pelagisk fisk, Lysprikkfisk
+         65        58       14      65
+         66        58       14      66 Andre sorter, Uer
+         67        58       14      67 Maneter, Reker, Plankton, Lysprikk
+         68        58       14      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58       14      69 Makrell, Sei
+       5004        58       14      70 Pilchard
+       5007        58       14      71 Anchovy or Vassild, Skolest
+       5008        58       14      72 Round herring
+       5009        58       14      73 Trachurus trecae
+       5010        58       14      74 Hake
+       5011        58       14      75 Dentex
+       5012        58       14      76 Other demersal fish
+       5013        58       14      77 Mesopelagic fish
+       5014        58       14      78 Anchovy, Round herring
+       5015        58       14      79 Sardinella
+       5016        58       14      80 Pelagic 1 fish
+       5017        58       14      81 Pelagic 2 fish
+       5018        58       14      82 Brachydeuterus
+       5019        58       14      83 Sardinella aurita
+       5020        58       14      84 Sardinella maderensis
+       5021        58       14      85 Decapterus rhonchus
+       5003        58       14      86 Taggmakrell
+          3        58       14      87 Pelagisk fisk
+       5022        58       14      88 Plankton  mesopelagic fish
+       5023        58       14      89 Gobies
+       5040        58       14      90 Alfonsino
+       5842        58       14      91 Orange Roughy
+       5039        58       14      92 Rat-Tails
+          0        58       15       0 Utolkede data (raadata)
+          1        58       15       1 Andre sorter
+          2        58       15       2 Bunnfisk
+          3        58       15       3 Pelagisk fisk
+          4        58       15       4 Maneter
+          5        58       15       5 Reker
+          6        58       15       6 Plankton
+          7        58       15       7 Lysprikkfisk
+          8        58       15       8 Polartorsk
+          9        58       15       9 II-Sild
+         10        58       15      10 I-Sild
+         11        58       15      11 0-Sild
+         12        58       15      12 Sild
+         13        58       15      13 II-Lodde
+         14        58       15      14 I-Lodde
+         15        58       15      15 0-Lodde
+         16        58       15      16 Lodde
+         17        58       15      17 0-gruppe blandet
+         18        58       15      18 Hvitting
+         19        58       15      19 Lyr
+         20        58       15      20 Brisling
+         21        58       15      21 Makrell
+         22        58       15      22 Sei
+         23        58       15      23 Vassild
+         24        58       15      24 Kolmule
+         25        58       15      25 Brosme
+         26        58       15      26 Lange
+         27        58       15      27 Sil
+         28        58       15      28 Oeyepaal
+         29        58       15      29 Uer
+         30        58       15      30 Hyse
+         31        58       15      31 Torsk
+         32        58       15      32 0-Uer
+         33        58       15      33 0-Polartorsk
+         40        58       15      40
+         41        58       15      41 Hyse, Torsk
+         42        58       15      42 Vassild, Kolmule
+         43        58       15      43 Andre sorter, Lodde
+         44        58       15      44 Pelagisk fisk, Plankton
+         45        58       15      45 Andre sorter, Plankton
+         46        58       15      46 Plankton, 0-Sild, 0-Lodde
+         47        58       15      47 Uer, Hyse, Torsk
+         48        58       15      48 Lodde, Kolmule
+         49        58       15      49 Lysprikkfisk, Kolmule
+         50        58       15      50 Kolmule, Uer
+         51        58       15      51 Andre sorte, 0-Sild, Sild
+         52        58       15      52 Bunnfisk
+         53        58       15      53 Sild, Brisling
+         54        58       15      54 Plankton, Lysprikkfisk
+         55        58       15      55 Andre sorter, Bunnfisk
+         56        58       15      56 Hvitting, Brosme, Sil
+         57        58       15      57 Plankton, 0-gruppe blandet
+         58        58       15      58 I-Sild, 0-Sild
+         59        58       15      59 II-Lodde, I-Lodde
+         60        58       15      60 Andre sorter, II-Sild
+         61        58       15      61 0-Sild, Brisling
+         62        58       15      62 Bunnfisk, Oeyepaal, Torsk
+         63        58       15      63 Bunnfisk, Hyse, Torsk
+         64        58       15      64 Pelagisk fisk, Lysprikkfisk
+         65        58       15      65
+         66        58       15      66 Andre sorter, Uer
+         67        58       15      67 Maneter, Reker, Plankton, Lysprikk
+         68        58       15      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58       15      69 Makrell, Sei
+       5003        58       15      70 Taggmakrell
+       5002        58       15      70 Skolest
+       5006        58       15      71 Vassild, Skolest
+       5005        58       15      72 Laksesild
+       5013        58       15      73 Mesopelagic fish
+       5025        58       15      74 Gonatus
+       5027        58       15      75 0-gr. tobis
+       5022        58       15      76 Mesopelagisk, Plankton
+          0        58       19       0 Utolkede data (raadata)
+          1        58       19       1 Andre sorter
+          2        58       19       2 Bunnfisk
+          3        58       19       3 Pelagisk fisk
+          4        58       19       4 Maneter
+          5        58       19       5 Reker
+          6        58       19       6 Plankton
+          7        58       19       7 Lysprikkfisk
+          8        58       19       8 Polartorsk
+          9        58       19       9 II-Sild
+         10        58       19      10 I-Sild
+         11        58       19      11 0-Sild
+         12        58       19      12 Sild
+         13        58       19      13 II-Lodde
+         14        58       19      14 I-Lodde
+         15        58       19      15 0-Lodde
+         16        58       19      16 Lodde
+         17        58       19      17 0-gruppe blandet
+         18        58       19      18 Hvitting
+         19        58       19      19 Lyr
+         20        58       19      20 Brisling
+         21        58       19      21 Makrell
+         22        58       19      22 Sei
+         23        58       19      23 Vassild
+         24        58       19      24 Kolmule
+         25        58       19      25 Brosme
+         26        58       19      26 Lange
+         27        58       19      27 Sil
+         28        58       19      28 Oeyepaal
+         29        58       19      29 Uer
+         30        58       19      30 Hyse
+         31        58       19      31 Torsk
+         32        58       19      32 0-Uer
+         33        58       19      33 0-Polartorsk
+         40        58       19      40
+         41        58       19      41 Hyse, Torsk
+         42        58       19      42 Vassild, Kolmule
+         43        58       19      43 Andre sorter, Lodde
+         44        58       19      44 Pelagisk fisk, Plankton
+         45        58       19      45 Andre sorter, Plankton
+         46        58       19      46 Plankton, 0-Sild, 0-Lodde
+         47        58       19      47 Uer, Hyse, Torsk
+         48        58       19      48 Lodde, Kolmule
+         49        58       19      49 Lysprikkfisk, Kolmule
+         50        58       19      50 Kolmule, Uer
+         51        58       19      51 Andre sorte, 0-Sild, Sild
+         52        58       19      52 Bunnfisk
+         53        58       19      53 Sild, Brisling
+         54        58       19      54 Plankton, Lysprikkfisk
+         55        58       19      55 Andre sorter, Bunnfisk
+         56        58       19      56 Hvitting, Brosme, Sil
+         57        58       19      57 Plankton, 0-gruppe blandet
+         58        58       19      58 I-Sild, 0-Sild
+         59        58       19      59 II-Lodde, I-Lodde
+         60        58       19      60 Andre sorter, II-Sild
+         61        58       19      61 0-Sild, Brisling
+         62        58       19      62 Bunnfisk, Oeyepaal, Torsk
+         63        58       19      63 Bunnfisk, Hyse, Torsk
+         64        58       19      64 Pelagisk fisk, Lysprikkfisk
+         65        58       19      65
+         66        58       19      66 Andre sorter, Uer
+         67        58       19      67 Maneter, Reker, Plankton, Lysprikk
+         68        58       19      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58       19      69 Makrell, Sei
+       5002        58       19      70 Skolest
+       5006        58       19      71 Vassild, Skolest
+          0        58       90       0 Utolkede data (raadata)
+          1        58       90       1 Andre sorter
+          2        58       90       2 Bunnfisk
+          3        58       90       3 Pelagisk fisk
+          4        58       90       4 Maneter
+          5        58       90       5 Reker
+          6        58       90       6 Plankton
+          7        58       90       7 Lysprikkfisk
+          8        58       90       8 Polartorsk
+          9        58       90       9 II-Sild
+         10        58       90      10 I-Sild
+         11        58       90      11 0-Sild
+         12        58       90      12 Sild
+         13        58       90      13 II-Lodde
+         14        58       90      14 I-Lodde
+         15        58       90      15 0-Lodde
+         16        58       90      16 Lodde
+         17        58       90      17 0-gruppe blandet
+         18        58       90      18 Hvitting
+         19        58       90      19 Lyr
+         20        58       90      20 Brisling
+         21        58       90      21 Makrell
+         22        58       90      22 Sei
+         23        58       90      23 Vassild
+         24        58       90      24 Kolmule
+         25        58       90      25 Brosme
+         26        58       90      26 Lange
+         27        58       90      27 Sil
+         28        58       90      28 Oeyepaal
+         29        58       90      29 Uer
+         30        58       90      30 Hyse
+         31        58       90      31 Torsk
+         32        58       90      32 0-Uer
+         33        58       90      33 0-Polartorsk
+         40        58       90      40
+         41        58       90      41 Hyse, Torsk
+         42        58       90      42 Vassild, Kolmule
+         43        58       90      43 Andre sorter, Lodde
+         44        58       90      44 Pelagisk fisk, Plankton
+         45        58       90      45 Andre sorter, Plankton
+         46        58       90      46 Plankton, 0-Sild, 0-Lodde
+         47        58       90      47 Uer, Hyse, Torsk
+         48        58       90      48 Lodde, Kolmule
+         49        58       90      49 Lysprikkfisk, Kolmule
+         50        58       90      50 Kolmule, Uer
+         51        58       90      51 Andre sorte, 0-Sild, Sild
+         52        58       90      52 Bunnfisk
+         53        58       90      53 Sild, Brisling
+         54        58       90      54 Plankton, Lysprikkfisk
+         55        58       90      55 Andre sorter, Bunnfisk
+         56        58       90      56 Hvitting, Brosme, Sil
+         57        58       90      57 Plankton, 0-gruppe blandet
+         58        58       90      58 I-Sild, 0-Sild
+         59        58       90      59 II-Lodde, I-Lodde
+         60        58       90      60 Andre sorter, II-Sild
+         61        58       90      61 0-Sild, Brisling
+         62        58       90      62 Bunnfisk, Oeyepaal, Torsk
+         63        58       90      63 Bunnfisk, Hyse, Torsk
+         64        58       90      64 Pelagisk fisk, Lysprikkfisk
+         65        58       90      65
+         66        58       90      66 Andre sorter, Uer
+         67        58       90      67 Maneter, Reker, Plankton, Lysprikk
+         68        58       90      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58       90      69 Makrell, Sei
+          0        58       91       0 Utolkede data (raadata)
+          1        58       91       1 Andre sorter
+          2        58       91       2 Bunnfisk
+          3        58       91       3 Pelagisk fisk
+          4        58       91       4 Maneter
+          5        58       91       5 Reker
+          6        58       91       6 Plankton
+          7        58       91       7 Lysprikkfisk
+          8        58       91       8 Polartorsk
+          9        58       91       9 II-Sild
+         10        58       91      10 I-Sild
+         11        58       91      11 0-Sild
+         12        58       91      12 Sild
+         13        58       91      13 II-Lodde
+         14        58       91      14 I-Lodde
+         15        58       91      15 0-Lodde
+         16        58       91      16 Lodde
+         17        58       91      17 0-gruppe blandet
+         18        58       91      18 Hvitting
+         19        58       91      19 Lyr
+         20        58       91      20 Brisling
+         21        58       91      21 Makrell
+         22        58       91      22 Sei
+         23        58       91      23 Vassild
+         24        58       91      24 Kolmule
+         25        58       91      25 Brosme
+         26        58       91      26 Lange
+         27        58       91      27 Sil
+         28        58       91      28 Oeyepaal
+         29        58       91      29 Uer
+         30        58       91      30 Hyse
+         31        58       91      31 Torsk
+         32        58       91      32 0-Uer
+         33        58       91      33 0-Polartorsk
+         40        58       91      40
+         40        58       91      40
+         41        58       91      41 Hyse, Torsk
+         42        58       91      42 Vassild, Kolmule
+         43        58       91      43 Andre sorter, Lodde
+         44        58       91      44 Pelagisk fisk, Plankton
+         45        58       91      45 Andre sorter, Plankton
+         46        58       91      46 Plankton, 0-Sild, 0-Lodde
+         47        58       91      47 Uer, Hyse, Torsk
+         48        58       91      48 Lodde, Kolmule
+         49        58       91      49 Lysprikkfisk, Kolmule
+         50        58       91      50 Kolmule, Uer
+         51        58       91      51 Andre sorte, 0-Sild, Sild
+         52        58       91      52 Bunnfisk
+         53        58       91      53 Sild, Brisling
+         54        58       91      54 Plankton, Lysprikkfisk
+         55        58       91      55 Andre sorter, Bunnfisk
+         56        58       91      56 Hvitting, Brosme, Sil
+         57        58       91      57 Plankton, 0-gruppe blandet
+         58        58       91      58 I-Sild, 0-Sild
+         59        58       91      59 II-Lodde, I-Lodde
+         60        58       91      60 Andre sorter, II-Sild
+         61        58       91      61 0-Sild, Brisling
+         62        58       91      62 Bunnfisk, Oeyepaal, Torsk
+         63        58       91      63 Bunnfisk, Hyse, Torsk
+         64        58       91      64 Pelagisk fisk, Lysprikkfisk
+         65        58       91      65
+         66        58       91      66 Andre sorter, Uer
+         67        58       91      67 Maneter, Reker, Plankton, Lysprikk
+         68        58       91      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58       91      69 Makrell, Sei
+       5039        58       91      70 Taggmakrell
+       5037        58       91      71 Laksesild
+       5034        58       91      72 Stroemsild
+       5035        58       91      73 Vassild/Stroemsild
+       5036        58       91      74 Mesopelagisk fisk
+          0        58       92       0 Utolkede data (raadata)
+          1        58       92       1 Andre sorter
+          2        58       92       2 Bunnfisk
+          3        58       92       3 Pelagisk fisk
+          4        58       92       4 Maneter
+          5        58       92       5 Reker
+          6        58       92       6 Plankton
+          7        58       92       7 Lysprikkfisk
+          8        58       92       8 Polartorsk
+          9        58       92       9 II-Sild
+         10        58       92      10 I-Sild
+         11        58       92      11 0-Sild
+         12        58       92      12 Sild
+         13        58       92      13 II-Lodde
+         14        58       92      14 I-Lodde
+         15        58       92      15 0-Lodde
+         16        58       92      16 Lodde
+         17        58       92      17 0-gruppe blandet
+         18        58       92      18 Hvitting
+         19        58       92      19 Lyr
+         20        58       92      20 Brisling
+         21        58       92      21 Makrell
+         22        58       92      22 Sei
+         23        58       92      23 Vassild
+         24        58       92      24 Kolmule
+         25        58       92      25 Brosme
+         26        58       92      26 Lange
+         27        58       92      27 Sil
+         28        58       92      28 Oeyepaal
+         29        58       92      29 Uer
+         30        58       92      30 Hyse
+         31        58       92      31 Torsk
+         32        58       92      32 0-Uer
+         33        58       92      33 0-Polartorsk
+         40        58       92      40
+         41        58       92      41 Hyse, Torsk
+         42        58       92      42 Vassild, Kolmule
+         43        58       92      43 Andre sorter, Lodde
+         44        58       92      44 Pelagisk fisk, Plankton
+         45        58       92      45 Andre sorter, Plankton
+         46        58       92      46 Plankton, 0-Sild, 0-Lodde
+         47        58       92      47 Uer, Hyse, Torsk
+         48        58       92      48 Lodde, Kolmule
+         49        58       92      49 Lysprikkfisk, Kolmule
+         50        58       92      50 Kolmule, Uer
+         51        58       92      51 Andre sorte, 0-Sild, Sild
+         52        58       92      52 Bunnfisk
+         53        58       92      53 Sild, Brisling
+         54        58       92      54 Plankton, Lysprikkfisk
+         55        58       92      55 Andre sorter, Bunnfisk
+         56        58       92      56 Hvitting, Brosme, Sil
+         57        58       92      57 Plankton, 0-gruppe blandet
+         58        58       92      58 I-Sild, 0-Sild
+         59        58       92      59 II-Lodde, I-Lodde
+         60        58       92      60 Andre sorter, II-Sild
+         61        58       92      61 0-Sild, Brisling
+         62        58       92      62 Bunnfisk, Oeyepaal, Torsk
+         63        58       92      63 Bunnfisk, Hyse, Torsk
+         64        58       92      64 Pelagisk fisk, Lysprikkfisk
+         65        58       92      65
+         66        58       92      66 Andre sorter, Uer
+         67        58       92      67 Maneter, Reker, Plankton, Lysprikk
+         68        58       92      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58       92      69 Makrell, Sei
+       5002        58       92      70 Skolest
+       5006        58       92      71 Vassild, Skolest
+       5005        58       92      72 Laksesild
+          0        58       94       0 Utolkede data (raadata)
+          1        58       94       1 Andre sorter
+          2        58       94       2 Bunnfisk
+          3        58       94       3 Pelagisk fisk
+          4        58       94       4 Maneter
+          5        58       94       5 Reker
+          6        58       94       6 Plankton
+          7        58       94       7 Lysprikkfisk
+          8        58       94       8 Polartorsk
+          9        58       94       9 II-Sild
+         10        58       94      10 I-Sild
+         11        58       94      11 0-Sild
+         12        58       94      12 Sild
+         13        58       94      13 II-Lodde
+         14        58       94      14 I-Lodde
+         15        58       94      15 0-Lodde
+         16        58       94      16 Lodde
+         17        58       94      17 0-gruppe blandet
+         18        58       94      18 Hvitting
+         19        58       94      19 Lyr
+         20        58       94      20 Brisling
+         21        58       94      21 Makrell
+         22        58       94      22 Sei
+         23        58       94      23 Vassild
+         24        58       94      24 Kolmule
+         25        58       94      25 Brosme
+         26        58       94      26 Lange
+         27        58       94      27 Sil
+         28        58       94      28 Oeyepaal
+         29        58       94      29 Uer
+         30        58       94      30 Hyse
+         31        58       94      31 Torsk
+         32        58       94      32 0-Uer
+         33        58       94      33 0-Polartorsk
+         40        58       94      40
+         41        58       94      41 Hyse, Torsk
+         42        58       94      42 Vassild, Kolmule
+         43        58       94      43 Andre sorter, Lodde
+         44        58       94      44 Pelagisk fisk, Plankton
+         45        58       94      45 Andre sorter, Plankton
+         46        58       94      46 Plankton, 0-Sild, 0-Lodde
+         47        58       94      47 Uer, Hyse, Torsk
+         48        58       94      48 Lodde, Kolmule
+         49        58       94      49 Lysprikkfisk, Kolmule
+         50        58       94      50 Kolmule, Uer
+         51        58       94      51 Andre sorte, 0-Sild, Sild
+         52        58       94      52 Bunnfisk
+         53        58       94      53 Sild, Brisling
+         54        58       94      54 Plankton, Lysprikkfisk
+         55        58       94      55 Andre sorter, Bunnfisk
+         56        58       94      56 Hvitting, Brosme, Sil
+         57        58       94      57 Plankton, 0-gruppe blandet
+         58        58       94      58 I-Sild, 0-Sild
+         59        58       94      59 II-Lodde, I-Lodde
+         60        58       94      60 Andre sorter, II-Sild
+         61        58       94      61 0-Sild, Brisling
+         62        58       94      62 Bunnfisk, Oeyepaal, Torsk
+         63        58       94      63 Bunnfisk, Hyse, Torsk
+         64        58       94      64 Pelagisk fisk, Lysprikkfisk
+         65        58       94      65
+         66        58       94      66 Andre sorter, Uer
+         67        58       94      67 Maneter, Reker, Plankton, Lysprikk
+         68        58       94      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58       94      69 Makrell, Sei
+          0        58       95       0 Utolkede data (raadata)
+          1        58       95       1 Andre sorter
+          2        58       95       2 Bunnfisk
+          3        58       95       3 Pelagisk fisk
+          4        58       95       4 Maneter
+          5        58       95       5 Reker
+          6        58       95       6 Plankton
+          7        58       95       7 Lysprikkfisk
+          8        58       95       8 Polartorsk
+          9        58       95       9 II-Sild
+         10        58       95      10 I-Sild
+         11        58       95      11 0-Sild
+         12        58       95      12 Sild
+         13        58       95      13 II-Lodde
+         14        58       95      14 I-Lodde
+         15        58       95      15 0-Lodde
+         16        58       95      16 Lodde
+         17        58       95      17 0-gruppe blandet
+         18        58       95      18 Hvitting
+         19        58       95      19 Lyr
+         20        58       95      20 Brisling
+         21        58       95      21 Makrell
+         22        58       95      22 Sei
+         23        58       95      23 Vassild
+         24        58       95      24 Kolmule
+         25        58       95      25 Brosme
+         26        58       95      26 Lange
+         27        58       95      27 Sil
+         28        58       95      28 Oeyepaal
+         29        58       95      29 Uer
+         30        58       95      30 Hyse
+         31        58       95      31 Torsk
+         32        58       95      32 0-Uer
+         33        58       95      33 0-Polartorsk
+         40        58       95      40
+         41        58       95      41 Hyse, Torsk
+         42        58       95      42 Vassild, Kolmule
+         43        58       95      43 Andre sorter, Lodde
+         44        58       95      44 Pelagisk fisk, Plankton
+         45        58       95      45 Andre sorter, Plankton
+         46        58       95      46 Plankton, 0-Sild, 0-Lodde
+         47        58       95      47 Uer, Hyse, Torsk
+         48        58       95      48 Lodde, Kolmule
+         49        58       95      49 Lysprikkfisk, Kolmule
+         50        58       95      50 Kolmule, Uer
+         51        58       95      51 Andre sorte, 0-Sild, Sild
+         52        58       95      52 Bunnfisk
+         53        58       95      53 Sild, Brisling
+         54        58       95      54 Plankton, Lysprikkfisk
+         55        58       95      55 Andre sorter, Bunnfisk
+         56        58       95      56 Hvitting, Brosme, Sil
+         57        58       95      57 Plankton, 0-gruppe blandet
+         58        58       95      58 I-Sild, 0-Sild
+         59        58       95      59 II-Lodde, I-Lodde
+         60        58       95      60 Andre sorter, II-Sild
+         61        58       95      61 0-Sild, Brisling
+         62        58       95      62 Bunnfisk, Oeyepaal, Torsk
+         63        58       95      63 Bunnfisk, Hyse, Torsk
+         64        58       95      64 Pelagisk fisk, Lysprikkfisk
+         65        58       95      65
+         66        58       95      66 Andre sorter, Uer
+         67        58       95      67 Maneter, Reker, Plankton, Lysprikk
+         68        58       95      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58       95      69 Makrell, Sei
+          0        58       96       0 Utolkede data (raadata)
+          1        58       96       1 Andre sorter
+          2        58       96       2 Bunnfisk
+          3        58       96       3 Pelagisk fisk
+          4        58       96       4 Maneter
+          5        58       96       5 Reker
+          6        58       96       6 Plankton
+          7        58       96       7 Lysprikkfisk
+          8        58       96       8 Polartorsk
+          9        58       96       9 II-Sild
+         10        58       96      10 I-Sild
+         11        58       96      11 0-Sild
+         12        58       96      12 Sild
+         13        58       96      13 II-Lodde
+         14        58       96      14 I-Lodde
+         15        58       96      15 0-Lodde
+         16        58       96      16 Lodde
+         17        58       96      17 0-gruppe blandet
+         18        58       96      18 Hvitting
+         19        58       96      19 Lyr
+         20        58       96      20 Brisling
+         21        58       96      21 Makrell
+         22        58       96      22 Sei
+         23        58       96      23 Vassild
+         24        58       96      24 Kolmule
+         25        58       96      25 Brosme
+         26        58       96      26 Lange
+         27        58       96      27 Sil
+         28        58       96      28 Oeyepaal
+         29        58       96      29 Uer
+         30        58       96      30 Hyse
+         31        58       96      31 Torsk
+         32        58       96      32 0-Uer
+         33        58       96      33 0-Polartorsk
+         40        58       96      40
+         41        58       96      41 Hyse, Torsk
+         42        58       96      42 Vassild, Kolmule
+         43        58       96      43 Andre sorter, Lodde
+         44        58       96      44 Pelagisk fisk, Plankton
+         45        58       96      45 Andre sorter, Plankton
+         46        58       96      46 Plankton, 0-Sild, 0-Lodde
+         47        58       96      47 Uer, Hyse, Torsk
+         48        58       96      48 Lodde, Kolmule
+         49        58       96      49 Lysprikkfisk, Kolmule
+         50        58       96      50 Kolmule, Uer
+         51        58       96      51 Andre sorte, 0-Sild, Sild
+         52        58       96      52 Bunnfisk
+         53        58       96      53 Sild, Brisling
+         54        58       96      54 Plankton, Lysprikkfisk
+         55        58       96      55 Andre sorter, Bunnfisk
+         56        58       96      56 Hvitting, Brosme, Sil
+         57        58       96      57 Plankton, 0-gruppe blandet
+         58        58       96      58 I-Sild, 0-Sild
+         59        58       96      59 II-Lodde, I-Lodde
+         60        58       96      60 Andre sorter, II-Sild
+         61        58       96      61 0-Sild, Brisling
+         62        58       96      62 Bunnfisk, Oeyepaal, Torsk
+         63        58       96      63 Bunnfisk, Hyse, Torsk
+         64        58       96      64 Pelagisk fisk, Lysprikkfisk
+         65        58       96      65
+         66        58       96      66 Andre sorter, Uer
+         67        58       96      67 Maneter, Reker, Plankton, Lysprikk
+         68        58       96      68 Pelagisk, Maneter, Plankton, Lysprikk
+         69        58       96      69 Makrell, Sei

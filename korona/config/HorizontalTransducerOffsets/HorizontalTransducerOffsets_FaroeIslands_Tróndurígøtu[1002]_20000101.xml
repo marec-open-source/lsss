@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<corrections type="HORIZONTAL">
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">38</parameter>
+         <parameter name="AlongCorrection">0</parameter>
+         <parameter name="AthwartCorrection">0</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">120</parameter>
+         <parameter name="AlongCorrection">-0.172</parameter>
+         <parameter name="AthwartCorrection">0.563</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">200</parameter>
+         <parameter name="AlongCorrection">-0.181</parameter>
+         <parameter name="AthwartCorrection">0.327</parameter>
+      </parameters>
+   </transducer>
+</corrections>

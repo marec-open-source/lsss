@@ -1,0 +1,83 @@
+<h1>Preprocessing</h1>
+<p>
+   LSSS has a system for doing preprocessing. This system is referred to by the name KORONA.
+   KORONA has a very modular design. It contains various computation modules, each performing a specific task.
+   Several such modules can be chained together into a processing pipeline.
+   The types of processing available include:
+</p>
+<ul>
+   <li>Bottom detection</li>
+   <li>Noise quantification and removal</li>
+   <li>Smoothing</li>
+   <li>Categorization</li>
+   <li>Region detection</li>
+   <li>Plankton inversion</li>
+</ul>
+<p>
+   The preprocessing system is a separate program and can be started from
+   <a href="../../Configuration/Survey/PreprocessingConf.html">[Survey configuration - Preprocessing]</a>.
+</p>
+
+<h2 id="KoronaRelay">KORONA relay</h2>
+<p>
+   <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/WorkingWith/KoronaRelay/KoronaRelay.html">KORONA relay</a>
+   is intended for batch processing.
+   The files in the source directory are processed, and the result is written to the destination directory.
+</p>
+<figure>
+   <img src="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/WorkingWith/KoronaRelay/KoronaRelay.png" width="805" height="379">
+</figure>
+
+<h2 id="KoronaPlaybox">KORONA playbox</h2>
+<p>
+   <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/WorkingWith/KoronaPlaybox/KoronaPlaybox.html">KORONA playbox</a>
+   allows for interactively exploring the processing.
+   The results are displayed as the processing progresses.
+</p>
+<figure>
+   <img src="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/WorkingWith/KoronaPlaybox/KoronaPlaybox.png" width="894" height="446">
+</figure>
+
+<h2 id="UsingProcessedDataInLSSS">Using preprocessed data in LSSS</h2>
+<p>
+   When preprocessing is done, the results can be used in LSSS.
+   The directory with the preprocessed files must be specified in
+   <a href="../../Configuration/Survey/DataConf.html">[Survey configuration - Data files]</a>.
+   The preprocessed files are output as temporary files from KORONA relay,
+   to not intervene with earlier preprocessed files open in LSSS. When entering the
+   <a href="../../Configuration/Survey/DataConf.html">[Survey configuration - Data files]</a>,
+   the user will be asked if the new temporary files should be copied for use in LSSS.
+   If there are older preprocessed versions of the raw file, these will then be replaced.
+   If the preprocessed data files are compatible with the selected original files, then the KORONA toolbar button
+   <img src="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/images/icons/korona.svg" width="16" height="16">
+   becomes enabled. This button can then be used to toggle between the original data and the preprocessed data.
+</p>
+<p>
+   Results of the preprocessing are used in several ways. The processing that modifies the original data,
+   such as smoothing and noise removal, is used directly in all computations in LSSS. In addition:
+</p>
+<ul>
+   <li>If categorization is done: The echogram can display categories instead of signal strength.
+      This can be selected through the context menu of the <a href="../../Views/Echogram/Echogram.html#Colorbar">colorbar</a>.
+   </li>
+   <li>If plankton inversion is done: The echogram can display plankton categories instead of signal strength.
+      This can be selected through the context menu of the <a href="../../Views/Echogram/Echogram.html#Colorbar">colorbar</a>.
+   </li>
+   <li>If region detection is done: The detected regions are displayed on the
+      <a href="../../Views/Echogram/Echogram.html#KoronaRegionEchogramOverlay">echogram</a>.
+      The detected regions can be converted to school regions for use in the interpretation through their context menu.
+   </li>
+</ul>
+<p>
+   The categorization and plankton inversion results can further be used in the
+   <a href="../../Views/Interpretation/Interpretation.html">interpretation</a> by setting up
+   <a href="../../Configuration/Survey/AcousticCategoryConf.html#CategoryMapping">mappings</a>
+   between preprocessed categories and acoustic categories.
+</p>
+
+<h2 id="Help">Preprocessing help system</h2>
+<p>
+   More information can be found in the help system in KORONA,
+   that can also be launched from the <a href="../../Display/Display.html#MenuBar">help menu</a> or from
+   <a href="../../Configuration/Survey/PreprocessingConf.html">[Survey configuration - Preprocessing]</a>.
+</p>

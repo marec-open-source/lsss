@@ -1,0 +1,42 @@
+<h1>Categorization NetCDF writer module (beta)</h1>
+<p>
+   Module for writing categorization data in netCDF-format.
+</p>
+<p>
+   <em>NB: This module is in beta and can be incompatibly changed or removed in future versions.</em>
+</p>
+
+<h2 id="NetCDF-C-Library">NetCDF-C library</h2>
+<p>
+   This module requires the NetCDF-C library for writing files in the NetCDF-4 format.
+   If this version of KORONA does not include the NetCDF-C library, please consult
+   <a href="https://docs.unidata.ucar.edu/netcdf-java/current/userguide/netcdf4_c_library.html">these instructions</a>.
+</p>
+
+<h2 id="AutomaticRange">Automatic range</h2>
+<p>
+   The parameters
+   <a class="marec-parameter-ref" href="#DeltaRange">Delta range</a> and
+   <a class="marec-parameter-ref" href="#MaxRange">Max range</a>
+   are optional.
+   If unspecified, these values are determined from the sample distance and max range in the input data.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="DirName">Output directory name:</span>
+      The netCDF files are written to this subfolder in the destination directory.
+   </li>
+   <li><span class="marec-parameter-def" id="MainFrequency">Main frequency:</span>
+      The channel with the main frequency is used for converting depth to range.
+   </li>
+   <li><span class="marec-parameter-def" id="DeltaRange">Delta range:</span>
+      Leave blank to <a href="#AutomaticRange">determine automatically</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxRange">Max range:</span>
+      Leave blank to <a href="#AutomaticRange">determine automatically</a>.
+   </li>
+</ul>

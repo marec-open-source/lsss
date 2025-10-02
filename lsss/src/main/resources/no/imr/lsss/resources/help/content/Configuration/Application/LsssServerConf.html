@@ -1,0 +1,21 @@
+<h1>LSSS server configuration</h1>
+<p>
+   LSSS includes a web server intended for remote control of LSSS via scripts.
+   The scripts can be made in any language or framework that supports making HTTP requests.
+   In particular, the LSSS server can be used by <a href="Packages.html#Actions">actions</a>
+   defined in <a href="Packages.html">packages</a>.
+</p>
+<p>
+   Select the "Server active" checkbox and click the "Open web page" button to access the
+   HTTP API documentation.
+</p>
+<p>
+   If several LSSS instances are started, then each instance needs a separate server port.
+   The server port can be specified using the command line argument <code>--server-port</code>.
+</p>
+<p>
+   Example:
+</p>
+<blockquote><code>
+   LSSS.bat <span style="white-space: nowrap;">--server-port=8001</span>
+</code></blockquote>

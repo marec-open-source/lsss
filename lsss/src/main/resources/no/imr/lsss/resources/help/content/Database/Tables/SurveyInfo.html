@@ -1,0 +1,60 @@
+<h1>SurveyInfo</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>SurveyInfo</strong> - Information/metadata about a survey
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct SurveyInfo {
+  short Nation;
+  short Platform;
+  int   Survey;
+  char  InfoKey[40];
+  int   InfoIndex;
+  char  InfoValue[30000];
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table is a key-value store for metadata related to a survey.
+</p>
+<p>
+   This table is, for example, used for storing
+   <a href="../../Configuration/Survey/SurveyMiscConf.html#IcesAcousticMetadata">ICES acoustic metadata</a>
+   used in the database report with
+   <a href="../../WorkingWith/Output/ReportGenerator/ReportGenerator.html#PrintFormat25">Print format 25</a>.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code.
+      Refer to the <a href="Nation.html">Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code.
+      Refer to the <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - Unique survey identification code.
+      Refer to the <a href="Survey.html">Survey</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="InfoKey">InfoKey</span> - The key for this entry.
+   </li>
+   <li><span class="marec-parameter-def" id="InfoIndex">InfoIndex</span> - If the metadata is too long to fit into one entry, then it is split into several entries
+      with an increasing number of InfoKey.
+   </li>
+   <li><span class="marec-parameter-def" id="InfoValue">InfoValue</span> - The value for this entry.
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   The database tables <a href="Survey.html">Survey</a> and <a href="Personnel.html">Personnel</a>
+   also contain survey related information.
+</p>

@@ -1,0 +1,45 @@
+<h1>Noise remover module</h1>
+<p>
+   Removes noise based on parameters in noise quantification datagrams.
+</p>
+<p>
+   The noise power index N is modified for each sample:
+</p>
+<table>
+   <tr>
+      <td style="width: 20px;"></td>
+      <td>N = N - N<sub>E</sub></td>
+      <td style="width: 20px;"></td>
+      <td> if N ≥ N<sub>H</sub></td>
+   </tr>
+   <tr>
+      <td></td>
+      <td>N = 0</td>
+      <td></td>
+      <td>if N &lt; N<sub>H</sub></td>
+   </tr>
+</table>
+<p>
+   where N<sub>E</sub> and N<sub>H</sub> are the noise average and upper limit.
+</p>
+
+<h2 id="Requirements">Requirements</h2>
+<ul>
+   <li>Noise quantification datagrams, <a href="../../Datagrams/Nqp0Datagram.html">Nqp0Datagram</a>,
+      see <a href="NoiseQuantificationModule.html">Noise quantification module</a>.
+   </li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="RemoveNoiseFromStart">Remove noise from start:</span>
+      Search for noise parameter datagram and use it for the first datagrams.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxBufferSize">Max buffer size:</span>
+      Maximum buffer size in search for first noise parameter datagram.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#MaxBufferSize">Max buffer size</a> &ge; 0
+   </li>
+</ul>

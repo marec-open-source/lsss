@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ObservationType>
+   <i observationType="0" observationTypeName="Unspecified"/>
+   <i observationType="1000" observationTypeName="Navigation Data Input"/>
+   <i observationType="2000" observationTypeName="Open Echosounder Log File"/>
+   <i observationType="2010" observationTypeName="Close Echosounder Log File"/>
+   <i observationType="3000" observationTypeName="Scattered Fish Data"/>
+   <i observationType="4000" observationTypeName="School Of Fish Data"/>
+   <i observationType="5000" observationTypeName="Oceanography Data Input"/>
+   <i observationType="6000" observationTypeName="Biology Data Input"/>
+   <i observationType="7000" observationTypeName="Meterology Data Input"/>
+   <i observationType="8000" observationTypeName="ScatterObject dummy"/>
+   <i observationType="9000" observationTypeName="ScatterObject School"/>
+   <i observationType="10000" observationTypeName="ScatterObject Pelagic"/>
+</ObservationType>

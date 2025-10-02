@@ -1,0 +1,82 @@
+<h1>School categorization module</h1>
+<p>
+   Module for performing categorization of whole schools.
+</p>
+
+<h2 id="Requirements">Requirements</h2>
+<ul>
+   <li>Region border datagrams, <a href="../../Datagrams/RegionBorderDatagram.html">RegionBorderDatagram</a>,
+      see <a href="../region/SchoolDetectionModule.html">School detection module</a>.
+   </li>
+   <li>Region info datagrams, <a href="../../Datagrams/RegionInfoDatagram.html">RegionInfoDatagram</a>,
+      see <a href="../region/SchoolDetectionModule.html">School detection module</a>.
+   </li>
+   <li>Categorization module,
+      see <a href="CategorizationModule.html">Categorization module</a>, must be before this module in the module setup.
+   </li>
+</ul>
+
+<h2 id="NewDatagrams">New datagrams</h2>
+<ul>
+   <li>A school categorization datagram, <a href="../../Datagrams/Cas0Datagram.html">Cas0Datagram</a>, for each detected
+      region that has not been classified as multi-species. If the module has been
+      unable to determine whether the region is single- or multi-species, the region is classified as uncategorized.
+   </li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="UseCellCategorization">Use cell categorization:</span>
+      If enabled, use cell as input to school categorization.
+   </li>
+   <li><span class="marec-parameter-def" id="Horizontal cell size">Horizontal cell size:</span>
+      Cell size in number of pings.
+   </li>
+   <li><span class="marec-parameter-def" id="Vertical cell size">Vertical cell size:</span>
+      Cell size in number of samples.
+   </li>
+   <li><span class="marec-parameter-def" id="Upper sample offset">Upper sample offset:</span>
+      Number of samples excluded at the top of a region.
+   </li>
+   <li><span class="marec-parameter-def" id="Lower sample offset">Lower sample offset:</span>
+      Number of samples excluded at the bottom of a region.
+   </li>
+   <li><span class="marec-parameter-def" id="HorizontalOffset">Horizontal offset:</span>
+      Number of pings excluded at the left and right edges of a region.
+   </li>
+   <li><span class="marec-parameter-def" id="SecondaryCategoryFraction">Secondary category fraction:</span>
+      Fraction of cells in a region that can be allowed to be different from the dominant category.
+   </li>
+   <li><span class="marec-parameter-def" id="SchoolCategorizationDistribution">School categorization distribution:</span>
+      Distribution to use when categorizing whole schools.
+      <br>Allowed values: <em>{ CELL, SCHOOL }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="Fill factor for cells">Fill factor for cells:</span>
+      The fill factor of cells must be above this value for cells to be used in the analysis of schools.
+   </li>
+   <li><span class="marec-parameter-def" id="MinFractionCategorizedCells">Minimum fraction categorized cells:</span>
+      The fraction of categorized cells has to be above this factor for the school to be categorized.
+   </li>
+   <li><span class="marec-parameter-def" id="MinCells">Minimum number of cells:</span>
+      If the number of cells is lower than this, the data will be merged.
+   </li>
+   <li><span class="marec-parameter-def" id="EnableUncategorizedCategory">Enable the uncategorized category:</span>
+      If enabled, the schools where it cannot be determined if they are single og multi species are set to this category.
+      Otherwise, no region category is given.
+   </li>
+   <li><span class="marec-parameter-def" id="EnableUnknownCategory">Enable the unknown category:</span>
+      If enabled, the unknown category can be used as a valid school category for schools determined to be single species.
+      Otherwise, no region category is given.
+   </li>
+</ul>
+
+<h2 id="References">References</h2>
+<ul class="marec-literature">
+   <li>
+      Korneliussen, R. J., Heggelund, Y., Eliassen, I. K., and Johansen, G. O. 2009. Acoustic species identification of schooling fish. – ICES Journal of
+      Marine Science, 66: 1111–1118.
+   </li>
+</ul>

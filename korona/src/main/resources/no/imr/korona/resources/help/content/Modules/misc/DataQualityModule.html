@@ -1,0 +1,21 @@
+<h1>Data quality module (beta)</h1>
+<p>
+   Computes various data quality indicators and writes the results to a netCDF file.
+</p>
+<p>
+   <em>NB: This module is in beta and can be incompatibly changed or removed in future versions.</em>
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="DirName">Output directory name:</span>
+      The netCDF files are written to this subfolder in the destination directory.
+   </li>
+   <li><span class="marec-parameter-def" id="MainFrequency">Main frequency:</span>
+      The channel with the main frequency is used for determining the bottom depth.
+      If unspecified, the first channel is used.
+   </li>
+</ul>

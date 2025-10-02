@@ -1,0 +1,52 @@
+<h1>BB TS(f) export</h1>
+<p>
+   This is the export of TS-frequency spectra per ping for targets detected in the depth ranges defined by the active regions,
+   as displayed by the <a href="../Views/BroadbandTsModule.html">BB TS(f) view</a>.
+</p>
+
+<h2 id="Format">Format</h2>
+<pre>
+{
+   "info" : {
+      "exportType" : "BroadbandTS",
+      ... <span class="marec-comment">// See <a href="BroadbandExport.html">Broadband export</a> for details about the properties in the info block</span>
+   },
+   "pings" : [ {
+      "number" : 411,                             <span class="marec-comment">// The ping number</span>
+      "time" : "2014-11-02T09:44:52.797Z",        <span class="marec-comment">// The time of this ping</span>
+      "channels" : [ {
+         "id" : "WBT 2-1 009072085343 ES200-7CD", <span class="marec-comment">// The channel id</span>
+         "nominalFrequency" : 200000.0,           <span class="marec-comment">// Nominal frequency for this channel</span>
+         "minFrequency" : 160012.22,              <span class="marec-comment">// Minimum frequency</span>
+         "maxFrequency" : 250000.0,               <span class="marec-comment">// Maximum frequency</span>
+         "numFrequencies" : 2949,                 <span class="marec-comment">// The number of evenly spaced frequencies between the minimum and maximum frequencies inclusively</span>
+         "targets" : [ {                          <span class="marec-comment">// The targets found in this ping</span>
+            "tsc" : [ -41.23, ...  ],             <span class="marec-comment">// numFrequencies number of beam compensated TS values</span>
+            "range" : 10.507,                     <span class="marec-comment">// Range from transducer for the sample with the peak value</span>
+            "alongshipAngle" : -0.37,             <span class="marec-comment">// Alongship angle for the sample with the peak value at nominal frequency</span>
+            "athwartshipAngle" : 0.49             <span class="marec-comment">// Athwartship angle for the sample with the peak value at nominal frequency</span>
+         }, {
+            ...                                   <span class="marec-comment">// More targets for this channel</span>
+         } ]
+      }, {
+         ...                                      <span class="marec-comment">// More channels in this ping</span>
+      } ]
+   }, {
+      ...                                         <span class="marec-comment">// More pings</span>
+   } ]
+}
+</pre>
+
+<h2 id="Notes">Notes</h2>
+<ul>
+   <li>TS values are beam compensated.</li>
+   <li>Range and angles are calculated at sample with peak value.</li>
+   <li>Angles are calculated at nominal frequency.</li>
+</ul>
+
+<h2 id="Changes">Changes</h2>
+<ul>
+   <li>LSSS 2.3.0:
+      Renamed "ts" to "tsc".
+   </li>
+</ul>

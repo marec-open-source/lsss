@@ -1,0 +1,74 @@
+<h1>Remove bottom module</h1>
+<p>
+   Module for removing data around the detected bottom.
+</p>
+<p>
+   Data in three different intervals can be removed:
+</p>
+<ul>
+   <li>Above the upper bottom limit</li>
+   <li>Between the upper and the lower bottom limits</li>
+   <li>Below the lower bottom limit</li>
+</ul>
+<p>
+   If <a class="marec-parameter-ref" href="#AutomaticDepthRange">Automatic depth range</a> is deselected, then
+   <a class="marec-parameter-ref" href="#StartDepth">Start depth</a> and
+   <a class="marec-parameter-ref" href="#EndDepth">End depth</a> can be specified manually,
+   and these will be used as upper and lower bottom limits.
+</p>
+
+<h2 id="Requirements">Requirements</h2>
+<p>
+   Depth datagrams, <a href="../../Datagrams/Dep0Datagram.html">Dep0Datagram</a>,
+   must be computed, see <a href="../DepthModule.html">Bottom detection module</a>.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="LogarithmicValues">Logarithmic values:</span>
+      Use log(sv) or sv.
+   </li>
+   <li><span class="marec-parameter-def" id="ShowDetails">Show details:</span>
+      Shows more detailed settings (Only last, Channels to process, Automatic depth range, Start depth, End depth).
+   </li>
+   <li><span class="marec-parameter-def" id="OnlyLast">Only last:</span>
+      When true, only last channel is processed, if false all channels are processed.
+   </li>
+   <li><span class="marec-parameter-def" id="ChannelsToProcess">Channels to process:</span>
+      Process the n last channels (-1 for all channels).
+   </li>
+   <li><span class="marec-parameter-def" id="AutomaticDepthRange">Automatic depth range:</span>
+      If true and Bottom detection module is used, then the range goes to the detected seabed,
+      if true and Bottom detection module is not used, the range goes to max depth of the ping.
+   </li>
+   <li><span class="marec-parameter-def" id="StartDepth">Start depth:</span>
+      Start depth in meter for filter.
+   </li>
+   <li><span class="marec-parameter-def" id="EndDepth">End depth:</span>
+      End depth in meter for filter.
+   </li>
+   <li><span class="marec-parameter-def" id="UseNeighbours">Use neighbours:</span>
+      Use minimum depth from current ping and neighbours.
+   </li>
+   <li><span class="marec-parameter-def" id="Above">Above:</span>
+      Upper bottom limit is this many samples above bottom.
+   </li>
+   <li><span class="marec-parameter-def" id="Below">Below:</span>
+      Lower bottom limit is this many samples below bottom.
+   </li>
+   <li><span class="marec-parameter-def" id="RemoveAboveBottom">Remove above bottom:</span>
+      Remove values above upper bottom limit.
+   </li>
+   <li><span class="marec-parameter-def" id="RemoveBottom">Remove bottom:</span>
+      Remove values between upper and lower bottom limits.
+   </li>
+   <li><span class="marec-parameter-def" id="RemoveBelowBottom">Remove below bottom:</span>
+      Remove values below lower bottom limit.
+   </li>
+   <li><span class="marec-parameter-def" id="PixelValue">Fill value:</span>
+      Value to set pixels to.
+   </li>
+</ul>

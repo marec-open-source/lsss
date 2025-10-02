@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<PlatformCodes>
+   <i nation="100" platform="7401" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="15AK"/>
+   <i nation="234" platform="1001" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="FOFF"/>
+   <i nation="234" platform="1004" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="26MH"/>
+   <i nation="352" platform="1001" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="46BS"/>
+   <i nation="380" platform="7585" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="48DP"/>
+   <i nation="566" platform="7721" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="5NYG"/>
+   <i nation="578" platform="1002" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="58AA"/>
+   <i nation="578" platform="1016" platformCodeSysName="ICES" firstValidDate="0" lastValidDate="0" platformCode="ICES5811"/>
+   <i nation="578" platform="1016" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="58GS"/>
+   <i nation="578" platform="1019" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="LDGJ"/>
+   <i nation="578" platform="1019" platformCodeSysName="ICES" firstValidDate="0" lastValidDate="0" platformCode="ICES5812"/>
+   <i nation="578" platform="1019" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="58J3"/>
+   <i nation="578" platform="1026" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="LINW"/>
+   <i nation="578" platform="1026" platformCodeSysName="ICES" firstValidDate="0" lastValidDate="0" platformCode="ICES5816"/>
+   <i nation="578" platform="1026" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="58GD"/>
+   <i nation="578" platform="1172" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="58UO"/>
+   <i nation="578" platform="1173" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="58JM"/>
+   <i nation="578" platform="2704" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="3YVG"/>
+   <i nation="578" platform="2704" platformCodeSysName="Fisheries Register" firstValidDate="0" lastValidDate="0" platformCode="M-0150-HØ"/>
+   <i nation="578" platform="2704" platformCodeSysName="ICES" firstValidDate="0" lastValidDate="0" platformCode="ICES5828"/>
+   <i nation="578" platform="2704" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="58CJ"/>
+   <i nation="578" platform="3206" platformCodeSysName="ICES" firstValidDate="0" lastValidDate="0" platformCode="ICES5889"/>
+   <i nation="578" platform="3206" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="LCYN"/>
+   <i nation="578" platform="3206" platformCodeSysName="Fisheries Register" firstValidDate="0" lastValidDate="0" platformCode="H-0004-AV"/>
+   <i nation="578" platform="3206" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="58VK"/>
+   <i nation="578" platform="3223" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="LCNN"/>
+   <i nation="578" platform="3223" platformCodeSysName="Fisheries Register" firstValidDate="0" lastValidDate="0" platformCode="M-0022-HØ"/>
+   <i nation="578" platform="3223" platformCodeSysName="ICES" firstValidDate="0" lastValidDate="0" platformCode="ICES5846"/>
+   <i nation="578" platform="4174" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="LMEL"/>
+   <i nation="578" platform="4174" platformCodeSysName="ICES" firstValidDate="0" lastValidDate="0" platformCode="ICES5810"/>
+   <i nation="578" platform="4174" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="58GS"/>
+   <i nation="578" platform="4405" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="LIWG"/>
+   <i nation="578" platform="4405" platformCodeSysName="Fisheries Register" firstValidDate="0" lastValidDate="0" platformCode="H-0001-BN"/>
+   <i nation="578" platform="4405" platformCodeSysName="ICES" firstValidDate="0" lastValidDate="0" platformCode="ICES5853"/>
+   <i nation="578" platform="4405" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="58BQ"/>
+   <i nation="578" platform="9387" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="LDLG"/>
+   <i nation="578" platform="9387" platformCodeSysName="ICES" firstValidDate="0" lastValidDate="0" platformCode="ICES5823"/>
+   <i nation="578" platform="9387" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="58KC"/>
+   <i nation="578" platform="9566" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="3YYQ"/>
+   <i nation="578" platform="9566" platformCodeSysName="ICES" firstValidDate="0" lastValidDate="0" platformCode="ICES5859"/>
+   <i nation="578" platform="9566" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="58BQ58US"/>
+   <i nation="578" platform="9756" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="LGXD"/>
+   <i nation="578" platform="9998" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="58LH"/>
+   <i nation="578" platform="9998" platformCodeSysName="ICES" firstValidDate="0" lastValidDate="0" platformCode="58LH"/>
+   <i nation="578" platform="9999" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="LD2660"/>
+   <i nation="578" platform="9999" platformCodeSysName="Small vessel Register" firstValidDate="0" lastValidDate="0" platformCode="MMSI257062110"/>
+   <i nation="578" platform="10318" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="LF7703"/>
+   <i nation="578" platform="10320" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="JXHE1"/>
+   <i nation="604" platform="7613" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="OASQ"/>
+   <i nation="604" platform="7613" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="65GT"/>
+   <i nation="826" platform="7048" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="MXQB4"/>
+   <i nation="826" platform="7158" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="MXHR6"/>
+   <i nation="826" platform="7158" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="74SC"/>
+   <i nation="826" platform="7628" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="MLRM6"/>
+   <i nation="826" platform="7628" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="740H"/>
+   <i nation="826" platform="7629" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="2FGX5"/>
+   <i nation="826" platform="7629" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="74EQ"/>
+   <i nation="826" platform="7630" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="ZDLP"/>
+   <i nation="826" platform="7630" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="74JC"/>
+   <i nation="826" platform="7631" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="ZDLS1"/>
+   <i nation="826" platform="7631" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="74EE"/>
+   <i nation="826" platform="7632" platformCodeSysName="Call signal" firstValidDate="0" lastValidDate="0" platformCode="VQHF3"/>
+   <i nation="826" platform="7632" platformCodeSysName="IOC/NODC" firstValidDate="0" lastValidDate="0" platformCode="74E9"/>
+</PlatformCodes>

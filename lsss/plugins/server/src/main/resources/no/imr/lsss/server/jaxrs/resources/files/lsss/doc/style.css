@@ -1,0 +1,33 @@
+body {
+   margin-bottom: 100px;
+}
+
+a {
+   text-decoration: none;
+}
+
+a:hover {
+   text-decoration: underline;
+}
+
+table.marec-commands th {
+   white-space: nowrap;
+}
+
+table.marec-commands th, table.marec-commands td {
+   padding: 0 5px;
+}
+
+table.marec-commands td.marec-url {
+   font-family: monospace;
+   white-space: nowrap;
+}
+
+.marec-query-params {
+   margin: 0;
+   padding-left: 1.5em;
+}
+
+.marec-query-params li {
+   margin: 0;
+}

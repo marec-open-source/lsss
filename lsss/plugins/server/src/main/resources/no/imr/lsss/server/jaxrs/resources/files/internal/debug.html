@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>LSSS internal</title>
+   <link rel="icon" href="../lsss/doc/lsss.svg">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+   <style>
+      #overlays li {
+         margin: 5px 0 5px 0;
+      }
+   </style>
+</head>
+<body class="container-fluid">
+
+<h1>LSSS internal debug</h1>
+
+<div id="error" class="alert alert-danger" hidden></div>
+<p>
+   Update counter: <span id="update-counter"></span><br>
+   Reloaded pings: <span id="reloaded-pings"></span><br>
+   Available pings: <span id="available-pings"></span><br>
+   Enabled modules: <span id="enabled-modules"></span><br>
+</p>
+
+<h3>Windows (<span id="window-count"></span>)</h3>
+<ol id="windows">
+</ol>
+
+<h3>Overlays with display data</h3>
+<ul id="overlays">
+</ul>
+
+<script>
+   (function () {
+      'use strict';
+
+      let updateCounter = 0;
+
+      function getData() {
+         fetch('/internal/debug/data')
+               .then(response => response.json())
+               .then(data => {
+                  document.getElementById('error').hidden = true;
+                  updateCounter++;
+                  document.getElementById('update-counter').textContent = '' + updateCounter;
+                  document.getElementById('reloaded-pings').textContent = '' + data.reloadedPings;
+                  document.getElementById('available-pings').textContent = '' + data.availablePings;
+                  document.getElementById('enabled-modules').textContent = '' + data.enabledModules;
+                  document.getElementById('window-count').textContent = '' + data.windows.length;
+
+                  const windowsElement = document.getElementById('windows');
+                  windowsElement.replaceChildren();
+                  for (const w of data.windows) {
+                     windowsElement.appendChild(document.createElement('li')).textContent = w;
+                  }
+
+                  const overlaysElement = document.getElementById('overlays');
+                  overlaysElement.replaceChildren();
+                  for (const [module, overlays] of Object.entries(data.overlaysWithData)) {
+                     const li = overlaysElement.appendChild(document.createElement('li'));
+                     li.appendChild(document.createElement('strong')).textContent = `${module} (${overlays.length})`;
+                     li.appendChild(document.createElement('span')).textContent = overlays.map(o => ' - ' + o).join();
+                  }
+               }, response => {
+                  console.log(response);
+                  const error = document.getElementById('error');
+                  error.hidden = false;
+                  error.textContent = `Error: ${response.status} ${response.statusText}`;
+               })
+               .finally(() => {
+                  setTimeout(getData, 1000);
+               });
+      }
+
+      getData();
+   }());
+</script>
+</body>
+</html>

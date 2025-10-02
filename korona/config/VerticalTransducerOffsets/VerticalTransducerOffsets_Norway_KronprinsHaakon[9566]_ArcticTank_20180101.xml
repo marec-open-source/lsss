@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<corrections type="VERTICAL">
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">18</parameter>
+         <parameter name="DepthCorrection">-0.023</parameter>
+         <parameter name="PulseDelayDepthCorrection">0</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">38</parameter>
+         <parameter name="DepthCorrection">0</parameter>
+         <parameter name="PulseDelayDepthCorrection">0</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">70</parameter>
+         <parameter name="DepthCorrection">0.024</parameter>
+         <parameter name="PulseDelayDepthCorrection">0</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">120</parameter>
+         <parameter name="DepthCorrection">0.026</parameter>
+         <parameter name="PulseDelayDepthCorrection">0</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">200</parameter>
+         <parameter name="DepthCorrection">0.037</parameter>
+         <parameter name="PulseDelayDepthCorrection">0</parameter>
+      </parameters>
+   </transducer>
+   <transducer>
+      <parameters>
+         <parameter name="Frequency">333</parameter>
+         <parameter name="DepthCorrection">0.039</parameter>
+         <parameter name="PulseDelayDepthCorrection">0</parameter>
+      </parameters>
+   </transducer>
+</corrections>

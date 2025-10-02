@@ -1,0 +1,21 @@
+<div class="marec-menu" style="position: absolute; right: 5px; top: 5px;">
+   <button mat-icon-button [matMenuTriggerFor]="menu" style="background: #99e2ff;">
+      <svg width="16" height="16" fill="#333333">
+         <path d="M2,6 l 6,6 6,-6 z"></path>
+      </svg>
+   </button>
+   <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="configService.navigateToPage()" [disabled]="configService.routePrefix === '/page'">
+         <span class="marec-menu-item-content">One page at a time</span>
+      </button>
+      @for (helpSet of configService.config.helpSets; track $index) {
+         <button mat-menu-item (click)="configService.navigateToHelpSet(helpSet)"
+                 [disabled]="configService.routePrefix === '/set' && configService.currentHelpSet === helpSet">
+         <span class="marec-menu-item-content">
+            <img [src]="helpSet.imgSrc" class="marec-menu-item-icon" alt="">
+            {{ helpSet.name }}
+         </span>
+         </button>
+      }
+   </mat-menu>
+</div>

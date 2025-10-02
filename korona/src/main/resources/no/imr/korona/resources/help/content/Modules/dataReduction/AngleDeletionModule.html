@@ -1,0 +1,33 @@
+<h1>Angle deletion module</h1>
+<p>
+   This module converts split beam data to single beam data.
+</p>
+
+<h2 id="RealData">Real data</h2>
+<p>
+   For real data containing power and angles, e.g. <a href="../../Datagrams/Raw0Datagram.html">Raw0Datagrams</a>,
+   the angles are simply discarded.
+</p>
+
+<h2 id="ComplexData">Complex data</h2>
+<p>
+   For complex data containing multiple sectors with complex numbers, e.g.
+   <a href="../../Reference/EK80/BroadbandData.html">broadband data</a> or
+   <a href="../../Reference/EK80/NarrowbandData.html">narrowband data</a>,
+   then the sectors are reduced to a single sector such that values of
+   S<sub>v</sub>(f) and uncorrected TS(f) are preserved.
+</p>
+<p>
+   If y<sub>i</sub> is the complex sample value of sector i ∈ [1, n],
+   then the replacement single beam value is computed as
+</p>
+<blockquote>
+   y = (1 / √n) ∑ y<sub>i</sub>
+</blockquote>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+</ul>

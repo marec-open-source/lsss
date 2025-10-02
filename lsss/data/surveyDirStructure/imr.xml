@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Arguments passed to format: 1. Survey number, 2. Platform name, 3. Platform number
+-->
+<surveyDir format="S%d_P%s_%d" removeRegex="[ \.]" case="upper">
+   <!-- LSSS -->
+   <dir path="ACOUSTIC/LSSS/LSSS_FILES"          id="ConfigDir"/>
+   <dir path="ACOUSTIC/EK80/EK80_RAWDATA"        id="DataDir"/>
+   <dir path="ACOUSTIC/LSSS/EXPORT"              id="ExportDir"/>
+   <dir path="ACOUSTIC/LSSS/FILE_DRAW"           id="FileDrawDataDir"/>
+   <dir path="ACOUSTIC/LSSS/KORONA"              id="KoronaDataDir"/>
+   <dir path="ACOUSTIC/LSSS/REPORTS"             id="ReportsDir"/>
+   <dir path="ACOUSTIC/LSSS/WORK"                id="WorkDir"/>
+   <dir path="BIOLOGY/CATCH_MEASUREMENTS/BIOTIC" id="TrawlDataDir"/>
+   <dir path="CRUISE_LOG/ACTIVITY"               id="RefLogDataDir"/>
+   <dir path="PHYSICS/CTD/CTD_DATA"              id="CTDDataDir"/>
+
+   <!-- PROMUS plugin -->
+   <dir path="ACOUSTIC/LSSS/MS70_PHANTOM"   id="PhantomDataDir"/>
+   <dir path="ACOUSTIC/LSSS/MS70_PROCESSED" id="ProcessedSonarDataDir"/>
+   <dir path="ACOUSTIC/MS70/MS70_RAWDATA"   id="SonarDataDir"/>
+
+   <!-- PROFOS plugin -->
+   <dir path="ACOUSTIC/SU90" id="ProfosDir"/>
+
+   <!-- DeepVision plugin -->
+   <dir path="BIOLOGY/CATCH_MEASUREMENTS/DEEP_VISION" id="DeepVisionDataDir"/>
+
+   <!-- PROMBE plugin -->
+   <dir path="ACOUSTIC/LSSS/ME70_PHANTOM"   id="PrombePhantomDir"/>
+   <dir path="ACOUSTIC/LSSS/ME70_PROCESSED" id="PrombeProcessedDir"/>
+   <dir path="ACOUSTIC/ME70/ME70_RAWDATA"   id="PrombeRawDir"/>
+</surveyDir>

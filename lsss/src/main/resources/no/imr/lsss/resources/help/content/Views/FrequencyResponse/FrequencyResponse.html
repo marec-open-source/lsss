@@ -1,0 +1,83 @@
+<h1>Frequency response</h1>
+<p>
+   This view shows the frequency response curve with standard error curves for the currently selected region(s).
+</p>
+<figure>
+   <img src="FrequencyResponse.png" width="394" height="354">
+</figure>
+<p>
+   The normalized frequency response, r, for frequency f with f<sub>N</sub> as normalization frequency is defined as
+</p>
+<blockquote style="font-style: italic;">
+   r(f) = s̅<sub>v</sub>(f) / s̅<sub>v</sub>(f<sub>N</sub>)
+</blockquote>
+<p>
+   where
+</p>
+<blockquote style="font-style: italic;">
+   s̅<sub>v</sub>(f) = (1 / N<sub>f</sub>) ∑ s<sub>v</sub>(f)
+</blockquote>
+<p>
+   The summation is over all samples in the selected regions (N<sub>f</sub> samples).
+   If a sample has a s<sub>v</sub> value below the lower threshold or above the upper threshold (if the upper threshold is active),
+   then s<sub>v</sub> = 0 is used for that sample.
+</p>
+<p>
+   The normalization frequency f<sub>N</sub> can be configured in
+   <a href="../../Configuration/Survey/SurveyMiscConf.html">[Survey configuration - Miscellaneous]</a>.
+</p>
+<p>
+   The standard error for frequency f of the frequency response function is estimated as
+</p>
+<blockquote style="font-style: italic;">
+   SE( r(f) ) = SE(f) / s̅<sub>v</sub>(f<sub>N</sub>)
+</blockquote>
+<p>
+   where the standard error of the mean for frequency f is estimated as<br>
+</p>
+<blockquote style="font-style: italic;">
+   SE(f) = σ(f) / sqrt(N<sub>f</sub>)
+</blockquote>
+<p>
+   where sigma is the estimated standard deviation of the sample values.
+</p>
+
+<h2 id="Settings">Settings</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="XAxis">X-axis:</span>
+      The type of x-axis. Possible choices:
+      <ul>
+         <li>IDENTITY: Linear mapping.</li>
+         <li>SQRT: Square root mapping.</li>
+         <li>CBRT: Cube root mapping.</li>
+         <li>LOG: Logarithmic mapping.</li>
+      </ul>
+   </li>
+   <li><span class="marec-parameter-def" id="YAxis">Y-axis:</span>
+      The type of y-axis. Possible choices:
+      <ul>
+         <li>DYNAMIC: The axis is linear, and dynamically expands depending on the range of the axis values.</li>
+         <li>FIXED: The axis is linear, and the range is fixed between 0 and 6.</li>
+         <li>SQRT: Dynamical square root mapping.</li>
+         <li>CBRT: Dynamical cube root mapping.</li>
+         <li>LOG: Dynamical logarithmic mapping.</li>
+      </ul>
+   </li>
+   <li><span class="marec-parameter-def" id="PlotStdErr">Plot std. err.:</span>
+      If checked, standard error curves will be plotted.
+   </li>
+   <li><span class="marec-parameter-def" id="ShowLegends">Show legends:</span>
+      Show legends for the selected KORONA categories.
+   </li>
+   <li><span class="marec-parameter-def" id="PlotInterpretationFunction">Plot interpretation function:</span>
+      Plot the frequency response function defined in the
+      <a href="../Interpretation/Interpretation.html#Settings">Interpretation module</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="PlotCategories">Plot KORONA categories:</span>
+      Plot frequency response for KORONA categories.
+   </li>
+   <li>
+      <span class="marec-parameter-def" id="KoronaCategories">KORONA categories:</span>
+      Which KORONA categories to plot.
+   </li>
+</ul>

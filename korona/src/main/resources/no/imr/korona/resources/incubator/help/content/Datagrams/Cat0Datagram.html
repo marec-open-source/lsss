@@ -1,0 +1,27 @@
+<h1>CAT0: Categorization track datagram</h1>
+<p>
+   Result of track categorization. Refers to categories identified in the initial categorization configuration datagram,
+   <a href="../../../../help/content/Datagrams/Cac0Datagram.html">Cac0Datagram</a>.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<ul>
+   <li>Once per track.</li>
+</ul>
+
+<h2 id="Creator">Creator</h2>
+<ul>
+   <li><a href="../Modules/TrackCategorizationModule.html">TrackCategorizationModule</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Cat0Datagram {
+   DatagramHeader header; <span class="marec-comment">// CAT0</span>
+   byte categoryCount;    <span class="marec-comment">// Number of categories</span>
+   int trackId;           <span class="marec-comment">// Track id</span>
+   byte[categoryCount] categories;    <span class="marec-comment">// Category numbers defined in the <a href="../../../../help/content/Datagrams/Cac0Datagram.html">Categorization configuration datagram</a></span>
+   byte[categoryCount] discriminants;
+   byte[categoryCount] probabilities;
+};
+</pre>

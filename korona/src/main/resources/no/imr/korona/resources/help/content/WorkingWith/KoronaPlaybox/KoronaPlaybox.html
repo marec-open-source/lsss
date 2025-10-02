@@ -1,0 +1,92 @@
+<h1>KORONA playbox</h1>
+<p>
+   KORONA playbox allows for interactively exploring the processing.
+   It can be launched from <a href="../KoronaRelay/KoronaRelay.html">KORONA relay</a>.
+</p>
+<figure>
+   <img src="KoronaPlaybox.png" width="894" height="446">
+</figure>
+
+<h2 id="DepthRangeMenu">Depth range menu</h2>
+<img width="194" height="136" src="DepthMenu.png" class="marec-img-float-right">
+<p>
+   The panel on the far right shows the depth range of the data. Right-click here
+   to access a menu with options for setting the depth range:
+</p>
+<ul>
+   <li><em>Auto:</em>
+      Visible depth range is set automatically to a reasonable range
+      based on the last 100 pings.
+   </li>
+   <li><em>Maximum:</em>
+      Visible depth range is set to the maximum (join) range during the last 100 pings.
+   </li>
+   <li><em>Manual:</em>
+      Visible depth range is user defined. Drag the two markers to
+      change the visible range or open a dialog by selecting <em>Set depth range...</em>
+   </li>
+   <li><em>Set depth range...</em>
+      Opens a dialog for setting the manually specified depth range.
+   </li>
+</ul>
+
+<h2 id="ColormapMenu">Colormap menu</h2>
+<img width="223" height="181" src="ColormapMenu.png" class="marec-img-float-right">
+<p>
+   The panel on the far left shows the mapping from S<sub>v</sub> values to colors.
+   Drag the two markers to change maximum and minimum values for the colormap.
+   Right-click to access a menu with these options:
+</p>
+<ul>
+   <li><em>Set thresholds...:</em>
+      Specify the upper and lower thresholds in a separate dialog.
+   </li>
+   <li><em>Set colour scale limits...:</em>
+      Specify the maximum and minimum values for the colormap in a separate dialog.
+   </li>
+   <li><em>Clip values above:</em>
+      Toggle on and off using white instead of the colormap's
+      extreme color for values above the maximum value.
+   </li>
+   <li><em>Rainbow, Greylevels, Combined, etc. :</em>
+      Choose which colormap to use.
+   </li>
+</ul>
+
+<h2 id="EchogramMenu">Echogram menu</h2>
+<img width="186" height="164" src="EchogramMenu.png" class="marec-img-float-right">
+<p>
+   Right-click in an echogram panel to access a menu with the following options:
+</p>
+<ul>
+   <li><em>Show texts:</em>
+      Toggle on and off text labels in the upper left corner.
+   </li>
+   <li><em>Show depth markers:</em>
+      Toggle on and off depth labels and drawing of horizontal lines at constant depth.
+   </li>
+   <li><em>Show region:</em>
+      Toggle on and off plotting of regions detected by the
+      <a href="../../Modules/region/SchoolDetectionModule.html">School detection module</a>.
+   </li>
+   <li><em>Show tracks:</em>
+      Toggle on and off plotting of tracks detected by the
+      <a href="../../Modules/tracking/TrackingModule.html">Tracking module</a>.
+   </li>
+   <li><em>Show targets:</em>
+      Toggle on and off plotting of targets detected by the
+      <a href="../../Modules/ts/TsDetectionModule.html">TS detection module</a>.
+   </li>
+   <li><em>Use private colormap:</em>
+      Toggle on and off the use of a separate colormap panel for this echogram panel.
+      This separate colormap panel has options to show categories.
+   </li>
+   <li><em>Change split direction:</em>
+      When a data file has more than one channel, it is possible to view the channels either
+      side by side, or stacked on top of each other. The size of each echogram panel may be
+      adjusted by dragging the dividers with the mouse.
+   </li>
+   <li><em>Reset split:</em>
+      Sets equal distance between the splitters.
+   </li>
+</ul>

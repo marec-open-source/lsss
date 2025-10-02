@@ -1,0 +1,35 @@
+<h1>CAC0: Categorization configuration datagram</h1>
+<p>
+   This datagram contains all categories referred to later
+   by <a href="Cad0Datagram.html">Categorization data datagrams</a>.
+   The categories are defined in the
+   <a href="../WorkingWith/ConfigFileSettings/Categorization/Categorization.html">Categorization library</a>.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once, in the beginning of the file.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/categorization/CategorizationModule.html">Categorization module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Cac0Datagram {
+   DatagramHeader header; <span class="marec-comment">// CAC0</span>
+   byte categoryCount;
+   Category[] categories;
+};
+
+struct Category {
+   string name;   <span class="marec-comment">// Full name of this category</span>
+   string legend; <span class="marec-comment">// Short name displayed in e.g. the colorbar</span>
+   byte number;   <span class="marec-comment">// Referred to by <a href="Cad0Datagram.html">Categorization data datagram</a></span>
+   byte red;
+   byte green;
+   byte blue;
+};
+</pre>

@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Nation>
+   <i nation="0" nationName="Default nation"/>
+   <i nation="4" nationName="Afghanistan"/>
+   <i nation="8" nationName="Albania"/>
+   <i nation="10" nationName="Antarctica"/>
+   <i nation="12" nationName="Algeria"/>
+   <i nation="16" nationName="American Samoa"/>
+   <i nation="20" nationName="Andorra"/>
+   <i nation="24" nationName="Angola"/>
+   <i nation="28" nationName="Antigua and Barbuda"/>
+   <i nation="31" nationName="Azerbaijan"/>
+   <i nation="32" nationName="Argentina"/>
+   <i nation="36" nationName="Australia"/>
+   <i nation="40" nationName="Austria"/>
+   <i nation="44" nationName="Bahamas"/>
+   <i nation="48" nationName="Bahrain"/>
+   <i nation="50" nationName="Bangladesh"/>
+   <i nation="51" nationName="Armenia"/>
+   <i nation="52" nationName="Barbados"/>
+   <i nation="56" nationName="Belgium"/>
+   <i nation="60" nationName="Bermuda"/>
+   <i nation="64" nationName="Bhutan"/>
+   <i nation="68" nationName="Bolivia, Plurinational State of"/>
+   <i nation="70" nationName="Bosnia and Herzegovina"/>
+   <i nation="72" nationName="Botswana"/>
+   <i nation="74" nationName="Bouvet Island"/>
+   <i nation="76" nationName="Brazil"/>
+   <i nation="84" nationName="Belize"/>
+   <i nation="86" nationName="British Indian Ocean Territory"/>
+   <i nation="90" nationName="Solomon Islands"/>
+   <i nation="92" nationName="Virgin Islands, British"/>
+   <i nation="96" nationName="Brunei Darussalam"/>
+   <i nation="100" nationName="Bulgaria"/>
+   <i nation="104" nationName="Myanmar"/>
+   <i nation="108" nationName="Burundi"/>
+   <i nation="112" nationName="Belarus"/>
+   <i nation="116" nationName="Cambodia"/>
+   <i nation="120" nationName="Cameroon"/>
+   <i nation="124" nationName="Canada"/>
+   <i nation="132" nationName="Cabo Verde"/>
+   <i nation="136" nationName="Cayman Islands"/>
+   <i nation="140" nationName="Central African Republic"/>
+   <i nation="144" nationName="Sri Lanka"/>
+   <i nation="148" nationName="Chad"/>
+   <i nation="152" nationName="Chile"/>
+   <i nation="156" nationName="China"/>
+   <i nation="158" nationName="Taiwan, Province of China"/>
+   <i nation="162" nationName="Christmas Island"/>
+   <i nation="166" nationName="Cocos (Keeling) Islands"/>
+   <i nation="170" nationName="Colombia"/>
+   <i nation="174" nationName="Comoros"/>
+   <i nation="175" nationName="Mayotte"/>
+   <i nation="178" nationName="Congo"/>
+   <i nation="180" nationName="Congo, the Democratic Republic of the"/>
+   <i nation="184" nationName="Cook Islands"/>
+   <i nation="188" nationName="Costa Rica"/>
+   <i nation="191" nationName="Croatia"/>
+   <i nation="192" nationName="Cuba"/>
+   <i nation="196" nationName="Cyprus"/>
+   <i nation="203" nationName="Czechia"/>
+   <i nation="204" nationName="Benin"/>
+   <i nation="208" nationName="Denmark"/>
+   <i nation="212" nationName="Dominica"/>
+   <i nation="214" nationName="Dominican Republic"/>
+   <i nation="218" nationName="Ecuador"/>
+   <i nation="222" nationName="El Salvador"/>
+   <i nation="226" nationName="Equatorial Guinea"/>
+   <i nation="231" nationName="Ethiopia"/>
+   <i nation="232" nationName="Eritrea"/>
+   <i nation="233" nationName="Estonia"/>
+   <i nation="234" nationName="Faroe Islands"/>
+   <i nation="238" nationName="Falkland Islands (Malvinas)"/>
+   <i nation="239" nationName="South Georgia and the South Sandwich Islands"/>
+   <i nation="242" nationName="Fiji"/>
+   <i nation="246" nationName="Finland"/>
+   <i nation="248" nationName="Åland Islands"/>
+   <i nation="250" nationName="France"/>
+   <i nation="254" nationName="French Guiana"/>
+   <i nation="258" nationName="French Polynesia"/>
+   <i nation="260" nationName="French Southern Territories"/>
+   <i nation="262" nationName="Djibouti"/>
+   <i nation="266" nationName="Gabon"/>
+   <i nation="268" nationName="Georgia"/>
+   <i nation="270" nationName="Gambia"/>
+   <i nation="275" nationName="Palestine, State of"/>
+   <i nation="276" nationName="Germany"/>
+   <i nation="288" nationName="Ghana"/>
+   <i nation="292" nationName="Gibraltar"/>
+   <i nation="296" nationName="Kiribati"/>
+   <i nation="300" nationName="Greece"/>
+   <i nation="304" nationName="Greenland"/>
+   <i nation="308" nationName="Grenada"/>
+   <i nation="312" nationName="Guadeloupe"/>
+   <i nation="316" nationName="Guam"/>
+   <i nation="320" nationName="Guatemala"/>
+   <i nation="324" nationName="Guinea"/>
+   <i nation="328" nationName="Guyana"/>
+   <i nation="332" nationName="Haiti"/>
+   <i nation="334" nationName="Heard Island and McDonald Islands"/>
+   <i nation="336" nationName="Holy See"/>
+   <i nation="340" nationName="Honduras"/>
+   <i nation="344" nationName="Hong Kong"/>
+   <i nation="348" nationName="Hungary"/>
+   <i nation="352" nationName="Iceland"/>
+   <i nation="356" nationName="India"/>
+   <i nation="360" nationName="Indonesia"/>
+   <i nation="364" nationName="Iran, Islamic Republic of"/>
+   <i nation="368" nationName="Iraq"/>
+   <i nation="372" nationName="Ireland"/>
+   <i nation="376" nationName="Israel"/>
+   <i nation="380" nationName="Italy"/>
+   <i nation="384" nationName="Côte d'Ivoire"/>
+   <i nation="388" nationName="Jamaica"/>
+   <i nation="392" nationName="Japan"/>
+   <i nation="398" nationName="Kazakhstan"/>
+   <i nation="400" nationName="Jordan"/>
+   <i nation="404" nationName="Kenya"/>
+   <i nation="408" nationName="Korea, Democratic People's Republic of"/>
+   <i nation="410" nationName="Korea, Republic of"/>
+   <i nation="414" nationName="Kuwait"/>
+   <i nation="417" nationName="Kyrgyzstan"/>
+   <i nation="418" nationName="Lao People's Democratic Republic"/>
+   <i nation="422" nationName="Lebanon"/>
+   <i nation="426" nationName="Lesotho"/>
+   <i nation="428" nationName="Latvia"/>
+   <i nation="430" nationName="Liberia"/>
+   <i nation="434" nationName="Libya"/>
+   <i nation="438" nationName="Liechtenstein"/>
+   <i nation="440" nationName="Lithuania"/>
+   <i nation="442" nationName="Luxembourg"/>
+   <i nation="446" nationName="Macao"/>
+   <i nation="450" nationName="Madagascar"/>
+   <i nation="454" nationName="Malawi"/>
+   <i nation="458" nationName="Malaysia"/>
+   <i nation="462" nationName="Maldives"/>
+   <i nation="466" nationName="Mali"/>
+   <i nation="470" nationName="Malta"/>
+   <i nation="474" nationName="Martinique"/>
+   <i nation="478" nationName="Mauritania"/>
+   <i nation="480" nationName="Mauritius"/>
+   <i nation="484" nationName="Mexico"/>
+   <i nation="492" nationName="Monaco"/>
+   <i nation="496" nationName="Mongolia"/>
+   <i nation="498" nationName="Moldova, Republic of"/>
+   <i nation="499" nationName="Montenegro"/>
+   <i nation="500" nationName="Montserrat"/>
+   <i nation="504" nationName="Morocco"/>
+   <i nation="508" nationName="Mozambique"/>
+   <i nation="512" nationName="Oman"/>
+   <i nation="516" nationName="Namibia"/>
+   <i nation="520" nationName="Nauru"/>
+   <i nation="524" nationName="Nepal"/>
+   <i nation="528" nationName="Netherlands"/>
+   <i nation="531" nationName="Curaçao"/>
+   <i nation="533" nationName="Aruba"/>
+   <i nation="534" nationName="Sint Maarten (Dutch part)"/>
+   <i nation="535" nationName="Bonaire, Sint Eustatius and Saba"/>
+   <i nation="540" nationName="New Caledonia"/>
+   <i nation="548" nationName="Vanuatu"/>
+   <i nation="554" nationName="New Zealand"/>
+   <i nation="558" nationName="Nicaragua"/>
+   <i nation="562" nationName="Niger"/>
+   <i nation="566" nationName="Nigeria"/>
+   <i nation="570" nationName="Niue"/>
+   <i nation="574" nationName="Norfolk Island"/>
+   <i nation="578" nationName="Norway"/>
+   <i nation="580" nationName="Northern Mariana Islands"/>
+   <i nation="581" nationName="United States Minor Outlying Islands"/>
+   <i nation="583" nationName="Micronesia, Federated States of"/>
+   <i nation="584" nationName="Marshall Islands"/>
+   <i nation="585" nationName="Palau"/>
+   <i nation="586" nationName="Pakistan"/>
+   <i nation="591" nationName="Panama"/>
+   <i nation="598" nationName="Papua New Guinea"/>
+   <i nation="600" nationName="Paraguay"/>
+   <i nation="604" nationName="Peru"/>
+   <i nation="608" nationName="Philippines"/>
+   <i nation="612" nationName="Pitcairn"/>
+   <i nation="616" nationName="Poland"/>
+   <i nation="620" nationName="Portugal"/>
+   <i nation="624" nationName="Guinea-Bissau"/>
+   <i nation="626" nationName="Timor-Leste"/>
+   <i nation="630" nationName="Puerto Rico"/>
+   <i nation="634" nationName="Qatar"/>
+   <i nation="638" nationName="Réunion"/>
+   <i nation="642" nationName="Romania"/>
+   <i nation="643" nationName="Russian Federation"/>
+   <i nation="646" nationName="Rwanda"/>
+   <i nation="652" nationName="Saint Barthélemy"/>
+   <i nation="654" nationName="Saint Helena, Ascension and Tristan da Cunha"/>
+   <i nation="659" nationName="Saint Kitts and Nevis"/>
+   <i nation="660" nationName="Anguilla"/>
+   <i nation="662" nationName="Saint Lucia"/>
+   <i nation="663" nationName="Saint Martin (French part)"/>
+   <i nation="666" nationName="Saint Pierre and Miquelon"/>
+   <i nation="670" nationName="Saint Vincent and the Grenadines"/>
+   <i nation="674" nationName="San Marino"/>
+   <i nation="678" nationName="Sao Tome and Principe"/>
+   <i nation="682" nationName="Saudi Arabia"/>
+   <i nation="686" nationName="Senegal"/>
+   <i nation="688" nationName="Serbia"/>
+   <i nation="690" nationName="Seychelles"/>
+   <i nation="694" nationName="Sierra Leone"/>
+   <i nation="702" nationName="Singapore"/>
+   <i nation="703" nationName="Slovakia"/>
+   <i nation="704" nationName="Viet Nam"/>
+   <i nation="705" nationName="Slovenia"/>
+   <i nation="706" nationName="Somalia"/>
+   <i nation="710" nationName="South Africa"/>
+   <i nation="716" nationName="Zimbabwe"/>
+   <i nation="724" nationName="Spain"/>
+   <i nation="728" nationName="South Sudan"/>
+   <i nation="729" nationName="Sudan"/>
+   <i nation="732" nationName="Western Sahara"/>
+   <i nation="740" nationName="Suriname"/>
+   <i nation="744" nationName="Svalbard and Jan Mayen"/>
+   <i nation="748" nationName="Swaziland"/>
+   <i nation="752" nationName="Sweden"/>
+   <i nation="756" nationName="Switzerland"/>
+   <i nation="760" nationName="Syrian Arab Republic"/>
+   <i nation="762" nationName="Tajikistan"/>
+   <i nation="764" nationName="Thailand"/>
+   <i nation="768" nationName="Togo"/>
+   <i nation="772" nationName="Tokelau"/>
+   <i nation="776" nationName="Tonga"/>
+   <i nation="780" nationName="Trinidad and Tobago"/>
+   <i nation="784" nationName="United Arab Emirates"/>
+   <i nation="788" nationName="Tunisia"/>
+   <i nation="792" nationName="Turkey"/>
+   <i nation="795" nationName="Turkmenistan"/>
+   <i nation="796" nationName="Turks and Caicos Islands"/>
+   <i nation="798" nationName="Tuvalu"/>
+   <i nation="800" nationName="Uganda"/>
+   <i nation="804" nationName="Ukraine"/>
+   <i nation="807" nationName="Macedonia, the former Yugoslav Republic of"/>
+   <i nation="818" nationName="Egypt"/>
+   <i nation="826" nationName="United Kingdom"/>
+   <i nation="831" nationName="Guernsey"/>
+   <i nation="832" nationName="Jersey"/>
+   <i nation="833" nationName="Isle of Man"/>
+   <i nation="834" nationName="Tanzania, United Republic of"/>
+   <i nation="840" nationName="United States of America"/>
+   <i nation="850" nationName="Virgin Islands, U.S."/>
+   <i nation="854" nationName="Burkina Faso"/>
+   <i nation="858" nationName="Uruguay"/>
+   <i nation="860" nationName="Uzbekistan"/>
+   <i nation="862" nationName="Venezuela, Bolivarian Republic of"/>
+   <i nation="876" nationName="Wallis and Futuna"/>
+   <i nation="882" nationName="Samoa"/>
+   <i nation="887" nationName="Yemen"/>
+   <i nation="894" nationName="Zambia"/>
+</Nation>

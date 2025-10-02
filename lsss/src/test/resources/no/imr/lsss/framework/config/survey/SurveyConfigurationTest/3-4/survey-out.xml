@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<unit name="SurveyConfiguration" version="4">
+   <configuration>
+      <parameters/>
+   </configuration>
+   <unit name="DataConf">
+      <configuration>
+         <parameters>
+            <parameter name="SortByTime">false</parameter>
+            <parameter name="TimeGrouping">DAYS</parameter>
+            <parameter name="FirstSelectedFile">2015104-D20150305-T053552</parameter>
+            <parameter name="LastSelectedFile">2015104-D20150305-T080743</parameter>
+            <parameter name="DataDir">P:\lsss-data\EK60\2016-09-21-DeepVision-Example\2015-03-05\EK60</parameter>
+            <parameter name="KoronaDataDir" ref="SurveyDir">KORONA</parameter>
+            <parameter name="TrawlDataDir" ref="SurveyDir">Trawl</parameter>
+            <parameter name="CTDDataDir" ref="SurveyDir">CTD</parameter>
+            <parameter name="RefLogDataDir" ref="SurveyDir">RefLog</parameter>
+            <parameter name="FileDrawDataDir" ref="SurveyDir">FileDraw</parameter>
+            <parameter name="ReportsDir" ref="SurveyDir">Reports</parameter>
+            <parameter name="WorkDir" ref="SurveyDir">Work</parameter>
+            <parameter name="ExportDir" ref="SurveyDir">Export</parameter>
+         </parameters>
+      </configuration>
+      <unit name="DeepVisionDataConf">
+         <configuration>
+            <parameters>
+               <parameter name="DeepVisionDataDir">P:\lsss-data\EK60\2016-09-21-DeepVision-Example\2015-03-05</parameter>
+               <parameter name="DistanceMapping">Identity</parameter>
+               <parameter name="DistanceBehindShip">100</parameter>
+            </parameters>
+         </configuration>
+      </unit>
+   </unit>
+   <unit name="ModuleConf">
+      <configuration>
+         <parameters/>
+      </configuration>
+      <unit name="PelagicEchogramModule">
+         <configuration>
+            <module>
+               <overlays>
+                  <overlay name="AccumulatedSaOverlay" enabled="true"/>
+                  <overlay name="BbtTargetEchogramOverlay" enabled="true"/>
+                  <overlay name="BottomOverlay" enabled="true"/>
+                  <overlay name="BroadbandTsEchogramOverlay" enabled="true"/>
+                  <overlay name="CommentEchogramOverlay" enabled="true"/>
+                  <overlay name="DeepVisionPathEchogramOverlay" enabled="true"/>
+                  <overlay name="DepthMarkerOverlay" enabled="true"/>
+                  <overlay name="EchogramImageOverlay" enabled="true"/>
+                  <overlay name="FileDrawOverlay" enabled="true"/>
+                  <overlay name="FileMarkerOverlay" enabled="true"/>
+                  <overlay name="GraphicalInfoOverlay" enabled="false"/>
+                  <overlay name="GridOverlay" enabled="true"/>
+                  <overlay name="KoronaRegionEchogramOverlay" enabled="true"/>
+                  <overlay name="MapPositionOverlay" enabled="true"/>
+                  <overlay name="MaskingDisplayOverlay" enabled="true"/>
+                  <overlay name="OpeningAngleOverlay" enabled="false"/>
+                  <overlay name="PingMarkerOverlay" enabled="true"/>
+                  <overlay name="RefLogEchogramOverlay" enabled="true"/>
+                  <overlay name="RegionDisplayOverlay" enabled="true"/>
+                  <overlay name="SaOverlay" enabled="false"/>
+                  <overlay name="SchoolCategoryOverlay" enabled="true"/>
+                  <overlay name="TSEchogramOverlay" enabled="false"/>
+                  <overlay name="TicksOverlay" enabled="true"/>
+                  <overlay name="TrackCategoryEchogramOverlay" enabled="false"/>
+                  <overlay name="TrackEchogramOverlay" enabled="true"/>
+                  <overlay name="TrawlPathEchogramOverlay" enabled="true"/>
+                  <overlay name="VerticalLineOverlay" enabled="true"/>
+               </overlays>
+            </module>
+         </configuration>
+         <unit name="DeepVisionPathEchogramOverlay">
+            <configuration>
+               <parameters>
+                  <parameter name="AthwartDistanceThreshold">10</parameter>
+                  <parameter name="MaxNumberOfCircles"/>
+                  <parameter name="DepthSmoothingRadius">100</parameter>
+               </parameters>
+            </configuration>
+         </unit>
+      </unit>
+   </unit>
+</unit>

@@ -1,0 +1,18 @@
+<h1>EK80 transducer impedance</h1>
+<p>
+   The EK80 system encodes measurements of transmitted (complex) voltage and current for each sector in the beginning of each ping. Thus, it is possible to
+   calculate the impedance per ping/transducer sector i by
+</p>
+<p>
+   Z<sub>i</sub> = |V<sub>i</sub> / I<sub>i</sub>| [Ω]
+</p>
+<p>
+   where <em>V</em> is the transmitted voltage, and <em>I</em> is the transmitted current.
+   The numbering of the sectors depends on the transducer and follows the same convention as in the computation of the <a href="Angles.html">split beam angles</a>.
+   The impedance is calculated per sample, from the start of each ping, up to the sample corresponding to the end of the sent pulse,
+   yielding an array holding the temporal evolution of impedance during pulse transmission.
+</p>
+<p>
+   For <a href="NarrowbandData.html">narrowband data</a>, the average of the central part of the array associated with the current sector and ping is used.
+   For <a href="BroadbandData.html">broadband data</a>, the impedance at the time of transmission of the center frequency of the used frequency band is used.
+</p>

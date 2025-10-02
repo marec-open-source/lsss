@@ -1,0 +1,58 @@
+<h1>Pulse compression filters</h1>
+<p>
+   Used by the <a href="../../../Modules/broadband/PulseCompressionFilterModule.html">Pulse compression filter module</a>.
+</p>
+<p>
+   The filters to apply to a specific channel are gathered in a channel element. Each channel element consists of one or several filter elements.
+   The order of the filter elements defines the sequence the respective filters are applied in.
+</p>
+<p>
+   Each filter element consists, in turn of the following elements
+</p>
+<ul>
+   <li><strong>decimationFactor</strong>: integer defining the downsampling factor to be applied after filtering,</li>
+   <li><strong>re</strong>: real part of the filter coefficients,</li>
+   <li><strong>im</strong>: imaginary part of the filter coefficients, and</li>
+   <li><strong>appliesTo</strong>: (optional) element holding conditions to be fulfilled by the sent pulse in order to apply filter.</li>
+</ul>
+<p>
+   The first three elements do not need to be specified if the filter is a symbolic reference to the predefined stage filters used in standard pulse compression.
+   Such a symbolic reference is defined by the presence of a refStage attribute in the filter element. Any decimation factor, and/or re will be ignored in this case.
+</p>
+<p>
+   The following conditions can be specified in the appliesTo tag, in all possible combinations
+</p>
+<ul>
+   <li><strong>pulseForm</strong>: filter is only applied if sent pulse is of specified form. Valid values are "fm_linear_up_sweep" and, "fm_linear_up_sweep".
+      Simrad encoding of the pulse forms as integers 1 and 5 might also be used,
+   </li>
+   <li><strong>pulseDuration</strong>: filter is only applied if sent pulse is of specified duration (in seconds),</li>
+   <li><strong>minSlope</strong>: filter is only applied if the sent pulse has a slope that is greater or equal to the here defined slope, and</li>
+   <li><strong>maxSlope</strong>: filter is only applied if the sent pulse has a slope that is less the here defined slope.</li>
+</ul>
+
+<h2 id="Example">Example XML file</h2>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;pulseCompressionFilters>
+   &lt;channel id="WBT 562907-15 ES333-7CD">
+      &lt;filter refStage="1"/>
+      &lt;filter>
+         &lt;appliesTo minSlope="1E-6" maxSlope="0.25" pulseForm="fm_linear_down_sweep"/>
+         &lt;decimationFactor>1&lt;/decimationFactor>
+         &lt;re>1,2,3&lt;/re>
+         &lt;im>4,5,6&lt;/im>
+      &lt;/filter>
+   &lt;/channel>
+   &lt;channel id="WBT 545609-15 ES200-3C">
+      &lt;filter refStage="1">
+         &lt;appliesTo pulseDuration="0.002048" pulseForm="1"/>
+      &lt;/filter>
+      &lt;filter>
+         &lt;decimationFactor>1&lt;/decimationFactor>
+         &lt;re>1,2,3&lt;/re>
+         &lt;im>4,5,6&lt;/im>
+      &lt;/filter>
+   &lt;/channel>
+&lt;/pulseCompressionFilters>
+</pre>

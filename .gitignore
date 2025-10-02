@@ -1,0 +1,9 @@
+/.idea
+/misc/node
+/out
+.angular
+.gradle
+.kotlin
+build
+node_modules
+tmp

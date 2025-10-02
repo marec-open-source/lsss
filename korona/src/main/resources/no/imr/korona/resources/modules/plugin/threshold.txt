@@ -1,0 +1,25 @@
+package com.example;
+
+import no.marec.api.korona.*;
+
+public class ExampleModuleComputation extends SinglePingModuleComputation {
+   @Override
+   public void compute(Ping ping) {
+      double lowThreshold = -80;
+      double lowReplacement = -120;
+
+      double highThreshold = -30;
+      double highReplacement = -120;
+
+      for (Channel channel : ping.getChannels()) {
+         for (int sampleIndex = channel.getBeginSampleIndex(); sampleIndex < channel.getEndSampleIndex(); sampleIndex++) {
+            double logSv = channel.getLogSv(sampleIndex);
+            if (logSv < lowThreshold) {
+               channel.setLogSv(sampleIndex, lowReplacement);
+            } else if (logSv > highThreshold) {
+               channel.setLogSv(sampleIndex, highReplacement);
+            }
+         }
+      }
+   }
+}

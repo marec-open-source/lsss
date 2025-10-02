@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+      "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="no.imr.lsss.database.tables.hibernate.AreaOfAcousticCategory" table="AreaOfAcousticCategory">
+      <composite-id name="compId" class="no.imr.lsss.database.tables.hibernate.AreaOfAcousticCategoryPK">
+         <key-property name="nation" column="Nation" type="short"/>
+         <key-property name="platform" column="Platform" type="short"/>
+         <key-property name="acousticCategory" column="AcousticCategory" type="int"/>
+         <key-property name="area" column="Area" type="int"/>
+      </composite-id>
+
+      <!-- Associations -->
+
+      <many-to-one
+            name="area"
+            class="no.imr.lsss.database.tables.hibernate.Area"
+            update="false"
+            insert="false"
+      >
+         <column name="Nation"/>
+         <column name="Area"/>
+      </many-to-one>
+
+      <many-to-one
+            name="acousticCategory"
+            class="no.imr.lsss.database.tables.hibernate.AcousticCategory"
+            update="false"
+            insert="false"
+      >
+         <column name="Nation"/>
+         <column name="Platform"/>
+         <column name="AcousticCategory"/>
+      </many-to-one>
+
+   </class>
+</hibernate-mapping>

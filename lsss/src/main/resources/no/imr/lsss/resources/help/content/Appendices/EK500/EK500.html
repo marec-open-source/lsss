@@ -1,0 +1,106 @@
+<h1>BEI / EK500</h1>
+<p>
+   This section applies to EK500 data and Bergen Echo Integrator (BEI) work files. Bergen Integrator 500 (BI500) work
+   files is a subset of BEI work files. The functionality described here can be reached from
+   <a href="../../Configuration/Survey/DataConf.html">[Survey configuration - Data files]</a>.
+</p>
+
+<h2 id="Settings">Settings</h2>
+<p>
+   The EK500 settings editor is used for specifying parameters that are not available in the EK500 data.
+   These parameters are used for conversion to EK60 format.
+</p>
+<p>
+   The frequencies in the EK500 data are substituted by the closest configured frequencies in the EK500 settings
+   if the difference is less than 1 kHz.
+   If, for example, the EK500 data contains a transducer with frequency 37879 Hz and
+   the EK500 settings are specified for 38 kHz, then the EK500 data will appear in LSSS as 38 kHz.
+</p>
+
+<h2 id="LoadingEK500Data">Loading EK500 data</h2>
+<p>
+   The times of the index records in the *-Ping files (time format YYYYMMDD HHMMSS) are corrected using
+   the corresponding *-Time files (time format HHMMSSXX) if available. *-Time files only exist in the late version
+   of BEI, but not in BI500. This correction follows the following algorithm:
+</p>
+<ol>
+   <li>A representative difference between times, t<sub>t</sub>, on *-Time files
+      and times, t<sub>p</sub>, on *-Ping files is found by computing &Delta;t = median of t<sub>t</sub> - t<sub>p</sub>
+      for the first 100 files for each frequency.
+   </li>
+   <li>For each *-Ping file the time of an index record, t<sub>p</sub>, is replaced by t<sub>t</sub> + t<sub>corr</sub>,
+      where t<sub>corr</sub> is initially 0.
+      If
+      <span style="white-space: nowrap;">|(t<sub>t</sub> + t<sub>corr</sub> - t<sub>p</sub>) - &Delta;t| &gt; 30 seconds</span>
+      then
+      t<sub>corr</sub> is set to &Delta;t - (t<sub>t</sub> - t<sub>p</sub>).
+   </li>
+   <li>The corrected index record times are possibly modified to ensure they are not decreasing.</li>
+</ol>
+<p>
+   After correction of times, the index records from the different transducers are organized into pings:
+</p>
+<ol>
+   <li>The largest group of synchronized transducers is identified.
+      (Two transducers are considered synchronized if the set of corrected times from one transducer overlaps
+      the set of corrected times from the other transducer with more than 80%.)
+   </li>
+   <li>
+      One ping is created for each time in the union set of all corrected times from
+      the transducers in the identified synchronized group.
+   </li>
+   <li>The index records for all transducers are assigned to the ping with time nearest, but not after.</li>
+</ol>
+<p>
+   The EK500 data contains separate sections of pelagic data and bottom data.
+</p>
+<ul>
+   <li>If these data segments are disjoint, the bottom data is discarded.</li>
+   <li>The bottom data is used to overwrite the pelagic data.</li>
+   <li>The smallest sample distance is used in the resulting data.</li>
+</ul>
+<p>
+   The last index record on a file is often seen to contain erroneous data.
+   Therefore, the last index record is replaced by a copy of the second last.
+   Files with frequency 0 Hz are ignored.
+</p>
+
+<h2 id="ConvertingWorkFiles">Converting work files</h2>
+<p>
+   Note that if both work files and snap files are found, the snap files are used.
+</p>
+<p>
+   Only layers for the frequency closest to the configured main frequency are converted, while schools for all
+   frequencies are considered in the conversion. The conversion algorithm scans through all frequencies, and converts
+   schools that are not overlapping with already converted schools (LSSS does not accept new schools that overlap
+   with existing schools).
+</p>
+<p>
+   The BEI species are converted to LSSS species according to the mapping given in the file SpeciesMap.txt, which can
+   be found in the folder lsss/data/ek500 in the LSSS installation directory.
+   The species numbers [1, 31] and [41, 52] (for Norway: [1, 69]) are assumed to have the identity mapping unless reassigned in this file.
+   If a mapping is not found during the conversion, the interpretation is set to the configured default species.
+</p>
+<p>
+   The conversion of layers and schools uses the following procedure:
+</p>
+<ol>
+   <li>
+      If the bottom data window was active in BEI, then a layer is created ranging from the bottom layer boundary up to
+      the extent of the bottom data window. Only one layer is created from the bottom data window.
+   </li>
+   <li>
+      The layers in the pelagic data window are created above the layer from the bottom data window.
+      The lowest layer extends down to the extent of the pelagic data window.
+      If the pelagic and bottom channels overlap, then the layer from the bottom data window is used and the pelagic
+      layers are truncated. If there is a gap between the pelagic data window and the bottom data window,
+      then a layer with no species assignments is created.
+   </li>
+   <li>
+      Schools in the pelagic data window are created, but only in the region covered by the layers created from the pelagic data window.
+      If a school extends into the region covered by the bottom data window, then the school is truncated.
+   </li>
+   <li>
+      No schools are expected within the extent of the bottom data window.
+   </li>
+</ol>

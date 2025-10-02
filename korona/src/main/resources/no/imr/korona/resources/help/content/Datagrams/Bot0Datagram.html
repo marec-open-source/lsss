@@ -1,0 +1,24 @@
+<h1>BOT0: Per channel bottom depths datagram</h1>
+<p>
+   This datagram contains bottom depths for each channel.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once per ping in the bot file.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li>The echosounder.</li>
+   <li><a href="../Modules/DepthModule.html">Bottom detection module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Bot0Datagram {
+   DatagramHeader header;  <span class="marec-comment">// BOT0</span>
+   int channelCount;       <span class="marec-comment">// Number of channels</span>
+   double[] channelDepths; <span class="marec-comment">// Bottom depth per channel [m]</span>
+};
+</pre>

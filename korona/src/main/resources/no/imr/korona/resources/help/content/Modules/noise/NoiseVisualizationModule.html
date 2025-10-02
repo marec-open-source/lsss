@@ -1,0 +1,33 @@
+<h1>Noise visualization module</h1>
+<p>
+   Visualizes noise parameters in a separate window.
+</p>
+
+<h2 id="Requirements">Requirements</h2>
+<ul>
+   <li>Noise quantification datagrams, <a href="../../Datagrams/Nqp0Datagram.html">Nqp0Datagram</a>,
+      see <a href="NoiseQuantificationModule.html">Noise quantification module</a>.
+   </li>
+   <li>Noise removing, see <a href="NoiseRemoverModule.html">Noise remover module</a>, should be done <em>after</em> noise visualization,
+      since the median of equidistant samples is plotted.
+   </li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="TimeSeriesLength">Time series length:</span>
+      Number of pings in the graphs.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#TimeSeriesLength">Time series length</a> &ge; 1
+   </li>
+   <li><span class="marec-parameter-def" id="HistogramSpan">Histogram span:</span>
+      Upper limit of plotted histogram domain in multiples of N<sub>H</sub>.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#HistogramSpan">Histogram span</a> &gt; 0
+   </li>
+   <li><span class="marec-parameter-def" id="MedianSampleCount">Median sample count:</span>
+      Number of equidistant samples used for finding median noise.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#MedianSampleCount">Median sample count</a> &ge; 0
+   </li>
+</ul>

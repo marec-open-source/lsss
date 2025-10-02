@@ -1,0 +1,55 @@
+<h1>ObservationType</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>ObservationType</strong> - Type of observation made
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct ObservationType {
+  short ObservationType;
+  char  ObservationTypeName[80];
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table provides a mapping between the observation type code and
+   the observation type name. Note that there is a maximum length of the name.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="ObservationType">ObservationType</span> - Unique identifier code for defined event types. Currently, the
+      following observation types are defined:<br>
+      0 = Unspecified<br>
+      1000 = NAVIGATION = Navigation Data Input<br>
+      2000 = ACOUSTIC_START = Start of data file containing acoustic data<br>
+      2010 = ACOUSTIC_STOP = End of data file containing acoustic data.<br>
+      3000 = SCATTER = Scattered Fish Data<br>
+      4000 = SCHOOL = Scattered Fish Data interpreted as a school of fish<br>
+      5000 = OCEANOGRAPHY = Oceanography Data Input<br>
+      6000 = BIOLOGY = Biology Data Input<br>
+      7000 = METEOROLOGY = Meteorology Data Input<br>
+      8000 = SCATTER_OBJECT_DUMMY<br>
+      9000 = SCATTER_OBJECT_SCHOOL = Scatter object of type school<br>
+      10000 = SCATTER_OBJECT_PELAGIC = Scatter object of type pelagic echogram<br>
+      A Scattered Fish Data event line is added to the Observation table for each interpreted
+      grid column where date, time, log, latitude, longitude and bottom depth all refer to
+      the start of the grid column. Note that the content may be expanded when LSSS is expanded with a new plugin subsystems
+      (see manual of the plugin subsystem).
+   </li>
+   <li><span class="marec-parameter-def" id="ObservationTypeName">ObservationTypeName</span> - Free text to name and/or describe the event. Note the maximum length.</li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="Observation.html">Observation</a>;
+   <a href="Scatter.html">Scatter</a>;
+</p>

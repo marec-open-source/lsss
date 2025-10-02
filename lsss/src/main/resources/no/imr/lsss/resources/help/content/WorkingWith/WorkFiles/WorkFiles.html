@@ -1,0 +1,88 @@
+<h1>Work files</h1>
+<p>
+   Work files are stored in WorkDir configured in
+   <a href="../../Configuration/Survey/DataConf.html">[Survey configuration - Data files]</a>.
+   Each work file is associated with a raw data file through the file name.
+</p>
+
+<h2 id="Contents">Work file contents</h2>
+<p>
+   The following list outlines the content of work files:
+</p>
+<ul>
+   <li>
+      Regions:
+      <ul>
+         <li>
+            Definitions of <a href="../Regions/Regions.html">layers and schools</a>.
+         </li>
+         <li>
+            <a href="../Regions/SchoolParameters.html">School parameters</a>.
+         </li>
+         <li>
+            Assignments of <a href="../../Configuration/Survey/AcousticCategoryConf.html">acoustic categories</a>.
+         </li>
+         <li>
+            Labels.
+         </li>
+      </ul>
+   </li>
+   <li>
+      <a href="../Regions/Exclusion.html">Exclusion</a> of ping ranges.
+   </li>
+   <li>
+      <a href="../Regions/Masking.html">Frequency-dependent deletion of data</a>.
+   </li>
+   <li>
+      Thresholds. Displayed by the echogram <a href="../../Views/Echogram/Echogram.html#Colorbar">colorbar</a>.
+   </li>
+   <li>
+      <a href="../../Views/Interpretation/Interpretation.html#BubbleCorrection">Bubble correction</a>.
+   </li>
+   <li>
+      <a href="../DatabaseStoring/DatabaseStoring.html#Settings">Database storing settings</a>.
+   </li>
+   <li>
+      Comments. Stored to the database in the <a href="../../Database/Tables/ObservationComment.html">ObservationComment</a> table.
+   </li>
+   <li>
+      Track <a href="../Tracks/Tracks.html#Editing">editing</a> and <a href="../Tracks/Tracks.html#Labels">labels</a>.
+   </li>
+</ul>
+
+<h2 id="Merging">Merging multiple work files</h2>
+<p>
+   Layers and schools that cross file boundaries will be stored in split parts in multiple work files.
+   Conversely, when loading multiple work files, regions will be merged if certain criteria are met:
+</p>
+<ul class="marec-list-spacing">
+   <li>Layers will be merged across file boundaries if
+      <ul>
+         <li>The layers have the same object number.</li>
+         <li>The layers have the same interpretation.</li>
+         <li>The layers can be merged topologically.</li>
+      </ul>
+   </li>
+   <li>Schools will be merged across file boundaries if
+      <ul>
+         <li>The schools have the same object number.</li>
+      </ul>
+   </li>
+</ul>
+<p>
+   If there are multiple layers with the same object number,
+   then new object numbers will be assigned to avoid duplicates.
+</p>
+
+<h2 id="workData">workData.xml</h2>
+<p>
+   The file workData.xml will be saved alongside the work files.
+   This file contains data global for all work files, such as a counter used when assigning new object numbers.
+</p>
+
+<h2 id="SnapFiles">Snap files</h2>
+<p>
+   Prior to version 2.10.0, LSSS would also save snap files,
+   which were copies of the work files at the time of storing to the database.
+   LSSS 2.10.0 reads snap files, but saving will only write work files, and snap files will be deleted.
+</p>

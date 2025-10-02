@@ -1,0 +1,38 @@
+# This file is generated and updated by LSSS
+
+import json
+import os
+import requests
+
+baseUrl = '@baseUrl@'
+input = json.loads(os.environ.get('LSSS_INPUT', '{}'))
+
+
+def get(path, params=None):
+    url = baseUrl + path
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        if response.headers['Content-Type'] == 'application/json':
+            return response.json()
+        return response.text
+    raise ValueError(url + ' returned status code ' + str(response.status_code) + ': ' + response.text)
+
+
+def post(path, params=None, json=None, data=None):
+    url = baseUrl + path
+    response = requests.post(url, params=params, json=json, data=data)
+    if response.status_code == 200:
+        if response.headers['Content-Type'] == 'application/json':
+            return response.json()
+        return response.text
+    if response.status_code == 204:
+        return None
+    raise ValueError(url + ' returned status code ' + str(response.status_code) + ': ' + response.text)
+
+
+def delete(path, params=None):
+    url = baseUrl + path
+    response = requests.delete(url, params=params)
+    if response.status_code == 200:
+        return None
+    raise ValueError(url + ' returned status code ' + str(response.status_code) + ': ' + response.text)

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+      "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="no.imr.lsss.database.tables.hibernate.PlatformType" table="PlatformType">
+      <composite-id name="compId" class="no.imr.lsss.database.tables.hibernate.PlatformTypePK">
+         <key-property name="platformType" column="PlatformType" type="short"/>
+         <key-property name="platformSubType" column="PlatformSubType" type="short"/>
+      </composite-id>
+
+      <property name="platformTypeName" column="PlatformTypeName" type="java.lang.String" length="80"/>
+      <property name="platformSubTypeName" column="PlatformSubTypeName" type="java.lang.String" length="80"/>
+
+      <!-- Associations -->
+
+      <set
+            name="platforms"
+            lazy="true"
+            inverse="true"
+            cascade="none"
+      >
+         <key>
+            <column name="PlatformType"/>
+            <column name="PlatformSubType"/>
+         </key>
+         <one-to-many
+               class="no.imr.lsss.database.tables.hibernate.Platform"
+         />
+      </set>
+
+   </class>
+</hibernate-mapping>

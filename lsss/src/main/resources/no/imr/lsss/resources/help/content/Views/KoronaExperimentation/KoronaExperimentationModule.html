@@ -1,0 +1,54 @@
+<h1>KORONA experimentation</h1>
+<p>
+   This module is intended for experimenting with
+   <a href="../../WorkingWith/Preprocessing/Preprocessing.html">KORONA preprocessing</a>.
+   The selected regions are preprocessed using one of the setups defined in
+   <a href="../../Configuration/Survey/PreprocessingConf.html">[Survey configuration - Preprocessing]</a>
+   and the result is displayed in a secondary LSSS frame.
+</p>
+<p>
+   The ping range processed is the span of the selected regions extended according to the parameter
+   <a class="marec-parameter-ref" href="#PingPadding">Ping padding</a>,
+   but limited to the currently visible ping range.
+</p>
+<p>
+   The module view, shown the figure below, has these inputs:
+</p>
+<ul>
+   <li>
+      <em>Preprocessing setup #n</em>: The selected setup in
+      <a href="../../Configuration/Survey/PreprocessingConf.html">[Survey configuration - Preprocessing]</a>.
+   </li>
+   <li>
+      <em>Process</em>: Starts processing using the currently selected setup.
+   </li>
+   <li>
+      <em>Edit</em>: Shows the module editor for the currently selected setup.
+   </li>
+</ul>
+<figure>
+   <img src="KoronaExperimentationModule.png" width="212" height="140" class="marec-floatable-module">
+   <figcaption>Screenshot of the KORONA experimentation module.</figcaption>
+</figure>
+
+<h2 id="Settings">Settings</h2>
+
+<ul>
+   <li><span class="marec-parameter-def" id="PreprocessingSetup">Preprocessing setup:</span>
+      The selected setup in
+      <a href="../../Configuration/Survey/PreprocessingConf.html">[Survey configuration - Preprocessing]</a>.
+      The same setting is also shown in the dropdown in the module view.
+   </li>
+   <li><span class="marec-parameter-def" id="PingPadding">Ping padding:</span>
+      The number of extra pings added on each side of the selected range.
+   </li>
+   <li><span class="marec-parameter-def" id="Process">Process:</span>
+      Button for starting the processing.
+   </li>
+   <li><span class="marec-parameter-def" id="ServerPort">Server port:</span>
+      Port for the
+      <a href="../../Configuration/Application/LsssServerConf.html">scripting server</a>
+      in the destination LSSS.
+      Leave blank to disable.
+   </li>
+</ul>

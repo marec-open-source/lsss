@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="370" height="260" viewBox="0 0 370 260"
+     fill="none">
+
+   <path stroke="black" stroke-width="1" d="M10.5,60.5 v190 h200 v-190 z
+         m40,0 v190 m40,0 v-190 m40,0 v190 m40,0 v-190 m40,0 v190
+         m-200,-180 h200 m0,10 h-200 m0,10 h200 m0,10 h-200 m0,10 h200 m0,10 h-200
+         m0,10 h200 m0,10 h-200 m0,10 h200 m0,10 h-200 m0,10 h200 m0,10 h-200
+         m0,10 h200 m0,10 h-200 m0,10 h200 m0,10 h-200 m0,10 h200 m0,10 h-200"/>
+
+   <path stroke="#3465a4" stroke-width="5" d="M10.5,90.5 v130 h200 v-130 z"/>
+
+   <path stroke="#00ae00" stroke-width="3" d="M10.5,120.5 v70 h200 v-70 z
+         m40,0 v70 m40,0 v-70 m40,0 v70 m40,0 v-70"/>
+
+   <path fill="#dc2300" d="M90.5,150.5 v10 h40 v-10 z"/>
+
+   <path fill="black" d="M109,20 v15 h-7 l8,25 8,-25 h-7 v-15 z"/>
+   <path fill="#3465a4" d="M250,104 h-15 v-7 l-25,8 25,8 v-7 h15 z"/>
+   <path fill="#dc2300" d="M250,154 h-95 v-7 l-25,8 25,8 v-7 h95 z"/>
+   <path fill="#00ae00" d="M250,234 h-221 v2 h221 z
+         M29,234 v-18 h-7 l8,-25 8,25 h-7 v18 z
+         M69,234 v-18 h-7 l8,-25 8,25 h-7 v18 z
+         M109,234 v-18 h-7 l8,-25 8,25 h-7 v18 z
+         M149,234 v-18 h-7 l8,-25 8,25 h-7 v18 z
+         M189,234 v-18 h-7 l8,-25 8,25 h-7 v18 z"/>
+
+   <g fill="black" font-family="sans-serif" font-size="16">
+      <text x="110" y="15" text-anchor="middle">Current ping</text>
+      <text x="255" y="110">Search window</text>
+      <text x="255" y="160">Current sample</text>
+      <text x="255" y="240">Search columns</text>
+   </g>
+</svg>

@@ -1,0 +1,24 @@
+<h1>Downsampling module</h1>
+<p>
+   This is a module for reducing vertical resolution by downsampling.
+   Sv is downsampled by averaging.
+   Angles are downsampled by using the angles of the center sample in the downsample interval.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="Downsampling">Downsampling:</span>
+      The method to find the downsampling factor.
+   </li>
+   <li><span class="marec-parameter-def" id="DownsamplingFactor">Downsampling factor:</span>
+      If <a class="marec-parameter-ref" href="#Downsampling">Downsampling</a> = <em>FACTOR</em>
+      then this is the downsampling factor.
+   </li>
+   <li><span class="marec-parameter-def" id="DownsamplingSampleSize">Downsampling sample size:</span>
+      If <a class="marec-parameter-ref" href="#Downsampling">Downsampling</a> = <em>SAMPLE_SIZE</em>
+      then the downsampling factor calculated to give approximately this sample size.
+   </li>
+</ul>

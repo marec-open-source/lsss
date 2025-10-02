@@ -1,0 +1,6 @@
+# Default:
+* text=auto eol=lf
+
+# Windows files:
+*.bat          text eol=crlf
+*.iss          text eol=crlf

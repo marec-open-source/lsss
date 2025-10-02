@@ -1,0 +1,206 @@
+<h1>Data files configuration</h1>
+<p>
+   This section contains configuration of various directories and selection of data files.
+</p>
+<p>
+   When a <a href="../../WorkingWith/NewSurvey/NewSurvey.html">new survey</a> is created,
+   the default locations for these directories are based on settings in
+   <a href="../Application/DirectoryConf.html">[Application configuration - Directories]</a> and the survey number and the name of
+   the platform configured in <a href="SurveyConf.html">[Survey configuration - Survey]</a>.
+</p>
+
+<h2 id="Directories">Directories</h2>
+<table class="marec-table">
+   <tr>
+      <td><span class="marec-parameter-def" id="DataDir">DataDir:</span></td>
+      <td>
+         Location of echosounder data.<br>
+         The contents of this directory will appear in the <a href="#FileListTable">file list table</a> below.
+      </td>
+   </tr>
+   <tr>
+      <td><span class="marec-parameter-def" id="KoronaDataDir">KoronaDataDir:</span></td>
+      <td>
+         Location of processed echosounder data.<br>
+         The <a href="../../Display/Display.html#Toolbar">toolbar</a> button
+         <img src="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/images/icons/korona.svg" width="16" height="16">
+         can be used to toggle between using data in DataDir and KoronaDataDir.
+      </td>
+   </tr>
+   <tr>
+      <td><span class="marec-parameter-def" id="TrawlDataDir">TrawlDataDir:</span></td>
+      <td>
+         Location of trawl data.<br>
+         Used by the <a href="../../Views/Trawl/Trawl.html">Trawl module</a>.
+      </td>
+   </tr>
+   <tr>
+      <td><span class="marec-parameter-def" id="CTDDataDir">CTDDataDir:</span></td>
+      <td>
+         Location of <a href="../../Appendices/CTD/CTDData.html">CTD data</a>.<br>
+         Used by the <a href="../../Views/CTD/CTD.html">CTD module</a>.
+      </td>
+   </tr>
+   <tr>
+      <td><span class="marec-parameter-def" id="RefLogDataDir">RefLogDataDir:</span></td>
+      <td>
+         Location of <a href="../../Appendices/RefLog/RefLog.html">reference log data</a>.<br>
+         Used by overlays on the <a href="../../Views/Echogram/Echogram.html#RefLogEchogramOverlay">echogram</a>
+         and <a href="../../Views/Map/Map.html#RefLogMapOverlay">map</a>.
+      </td>
+   </tr>
+   <tr>
+      <td><span class="marec-parameter-def" id="FileDrawDataDir">FileDrawDataDir:</span></td>
+      <td>
+         Location of <a href="../../Appendices/FileDraw/FileDraw.html">file draw data</a>.<br>
+         Used by an overlay on the <a href="../../Views/Echogram/Echogram.html#FileDrawOverlay">echogram</a>.
+      </td>
+   </tr>
+   <tr>
+      <td><span class="marec-parameter-def" id="ReportsDir">ReportsDir:</span></td>
+      <td>
+         Location of output from the <a href="../../WorkingWith/Output/ReportGenerator/ReportGenerator.html">database report generator</a>.
+      </td>
+   </tr>
+   <tr>
+      <td><span class="marec-parameter-def" id="WorkDir">WorkDir:</span></td>
+      <td>
+         Location of <a href="../../WorkingWith/WorkFiles/WorkFiles.html">work files</a>.
+      </td>
+   </tr>
+   <tr>
+      <td><span class="marec-parameter-def" id="ExportDir">ExportDir:</span></td>
+      <td>
+         Location of output from <a href="../../WorkingWith/Output/Export/Export.html">exports</a>.
+      </td>
+   </tr>
+</table>
+
+<h2 id="Buttons">Buttons</h2>
+<p>
+   The <img src="../../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Menu.svg" width="16" height="16"> button
+   contains functions for sorting and grouping the rows in the <a href="#FileListTable">file list table</a>.
+</p>
+<p>
+   The <img src="../../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Refresh.svg" width="16" height="16"> button
+   will reload the rows in the <a href="#FileListTable">file list table</a>.
+</p>
+<p>
+   The "Create idx..." button will become visible if some data files are missing index files.
+   Pressing this button gives the option of creating new index files based on speed or position.
+</p>
+<p>
+   The "Create bot..." button will become visible if some data files are missing bot files and corresponding xyz files are available.
+</p>
+<p>
+   The "Calibration..." button contains functions for creating and editing a
+   <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/WorkingWith/Calibration/Calibration.html">calibration file</a>.
+   This button becomes green if a calibration file exists and is used.
+   If the calibration file contains errors, then an error message will appear below the row of buttons.
+</p>
+<p>
+   The "BEI / EK500..." button will become visible if there are EK500 data files in the DataDir directory.
+   Press this button to edit settings and to convert work files.
+   Read more in the <a href="../../Appendices/EK500/EK500.html">BEI / EK500 appendix</a>.
+</p>
+
+<h2 id="FileListTable">File list table</h2>
+<p>
+   The files in this table can be sorted by file name or by time by using the
+   <img src="../../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Menu.svg" width="16" height="16">
+   <a href="#Buttons">button</a>.
+</p>
+<p>
+   The columns in the file list table:
+</p>
+<ul class="marec-list-spacing">
+   <li>The first column shows the status of <a href="../../WorkingWith/Preprocessing/Preprocessing.html">preprocessed</a> data files.
+      Hovering the mouse over the symbol will give a description in the tooltip of any errors or notices.
+      Status symbols:
+      <table class="marec-table">
+         <tr>
+            <td></td>
+            <td>No preprocessed file is available.</td>
+         </tr>
+         <tr>
+            <td><img src="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/images/icons/korona.svg" width="16" height="16"></td>
+            <td>The preprocessed file is found, but has not been checked yet.</td>
+         </tr>
+         <tr>
+            <td><img src="../../../../images/icons/KoronaOK.svg" height="16" width="16"></td>
+            <td>The preprocessed file is found, has been checked, and is OK.</td>
+         </tr>
+         <tr>
+            <td><img src="../../../../images/icons/KoronaNoticeOK.svg" height="16" width="16"></td>
+            <td>The preprocessed file is found, has been checked, and is OK, but a notice to the user is given.</td>
+         </tr>
+         <tr>
+            <td><img src="../../../../images/icons/KoronaError.svg" height="16" width="16"></td>
+            <td>There is an error, and the file cannot be used.
+               This will also disable the <a href="../../Display/Display.html#Toolbar">toolbar button for preprocessed files</a>.
+            </td>
+         </tr>
+      </table>
+   </li>
+   <li>The second column shows the status of original data files.
+      Hovering the mouse over the symbol will give a description in the tooltip of any errors or notices.
+      Status symbols:
+      <table class="marec-table">
+         <tr>
+            <td></td>
+            <td>The file has not been checked yet.</td>
+         </tr>
+         <tr>
+            <td><img src="../../../../images/icons/Notice.svg" height="16" width="16"></td>
+            <td>The file has not been checked yet,
+               but a notice to the user is given. The last file on the list is, for example, always given the notice symbol.
+            </td>
+         </tr>
+         <tr>
+            <td><img src="../../../../images/icons/OK.svg" height="16" width="16"></td>
+            <td>The file is checked and everything is OK.</td>
+         </tr>
+         <tr>
+            <td><img src="../../../../images/icons/NoticeOK.svg" height="16" width="16"></td>
+            <td>The file is checked and is OK,
+               but a notice to the user is given about for example correction done to the file.
+            </td>
+         </tr>
+         <tr>
+            <td><img src="../../../../images/icons/Error.svg" height="16" width="16"></td>
+            <td>There is an error, and the file cannot be used.</td>
+         </tr>
+      </table>
+      If a file has not been checked, then one of the following symbols may be shown:
+      <table class="marec-table">
+         <tr>
+            <td><img src="../../../../images/icons/FrequencyOK.svg" height="16" width="16"></td>
+            <td>The file has frequencies that are compatible with the current selection.</td>
+         </tr>
+         <tr>
+            <td><img src="../../../../images/icons/FrequencyError.svg" height="16" width="16"></td>
+            <td>The file has frequencies that are not compatible with the current selection.</td>
+         </tr>
+      </table>
+   </li>
+   <li>The <strong>File</strong> column is the name of the file.</li>
+   <li>The <strong>Pings</strong> column gives the ping range for the data in the file.</li>
+   <li>The <strong>Duration</strong> column gives the duration, in format H:MM:SS, that the file represents.</li>
+   <li>The <strong>Dist</strong> column gives the start position and distance in parentheses,
+      in nautical miles, that the file represents.
+   </li>
+   <li>The <strong>∑ s<sub>A</sub></strong> column gives the
+      sum of the interpreted area backscatter that is stored to the database.
+   </li>
+</ul>
+<p>
+   Refer to the section on <a href="../../Appendices/DataCorrection/DataCorrection.html">data correction</a> for details on errors and warnings.
+</p>
+<p>
+   The file list context menu contains entries for:
+</p>
+<ul>
+   <li>Data file labels</li>
+   <li>File selection</li>
+   <li>Printing KORONA processing setup of selected files</li>
+</ul>

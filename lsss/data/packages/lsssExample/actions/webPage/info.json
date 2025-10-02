@@ -1,0 +1,7 @@
+{
+  "label" : "Web page",
+  "tooltip" : "Opens a web page.",
+  "icon" : "",
+  "showDialog" : true,
+  "inputParameters" : [ ]
+}

@@ -1,0 +1,651 @@
+<h1>Echogram</h1>
+<p>
+   The echogram is the main part of the LSSS <a href="../../Display/Display.html">display</a>.
+   It is divided into two parts: the pelagic echogram and the bottom echogram.
+   The difference between these two echograms is the vertical representation.
+   In the pelagic echogram the vertical corresponds to depth,
+   whereas in the bottom echogram the vertical corresponds to distance from the bottom.
+   In both echograms, the vertical axis is directed downwards.
+</p>
+<figure>
+   <svg xmlns="http://www.w3.org/2000/svg" width="740" height="410" viewBox="0 -70 740 410">
+      <image href="Echogram.png" width="740" height="270"></image>
+      <defs>
+         <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 0,10 z"/>
+         </marker>
+      </defs>
+      <g fill="none" stroke="black" stroke-width="1" marker-end="url(#arrow)">
+         <line x1="100" y1="-50" x2="130" y2="50"/>
+         <line x1="500" y1="-50" x2="710" y2="100"/>
+         <line x1="700" y1="-30" x2="710" y2="30"/>
+         <line x1="100" y1="320" x2="120" y2="280"/>
+         <line x1="400" y1="320" x2="350" y2="200"/>
+         <line x1="700" y1="300" x2="710" y2="220"/>
+      </g>
+      <g text-anchor="middle" font-size="16">
+         <text x="100" y="-55">Pelagic echogram</text>
+         <text x="500" y="-55">Colorbar</text>
+         <text x="700" y="-55">Upper</text>
+         <text x="700" y="-35">threshold</text>
+         <text x="100" y="335">Scrollbar</text>
+         <text x="400" y="335">Bottom echogram</text>
+         <text x="700" y="315">Lower</text>
+         <text x="700" y="335">threshold</text>
+      </g>
+   </svg>
+</figure>
+<p>
+   The scrollbar below the echogram shows the location and extent of the visible part of the echogram relative to the total
+   range of data selected in <a href="../../Configuration/Survey/DataConf.html">[Survey configuration - Data files]</a>.
+</p>
+<p>
+   The echogram images are continually updated while pings are read from the data files. When the data loading mode is set to BROWSE, the width of the
+   echogram image decides how many pings that will be read from file and used in computations.
+   At most one ping corresponding to each pixel column will be used.
+   In the DETAIL data loading mode, all pings will be used in the computations, but still only one ping will be used for each pixel column.
+   Vertically, however, the samples corresponding to one pixel are averaged.
+</p>
+
+<h2 id="Navigation">Navigation</h2>
+<p>
+   Different ways to navigate in the echogram:
+</p>
+<ul>
+   <li>Use the mouse to drag the scrollbar below the echogram.</li>
+   <li>Use the <a href="../../GettingStarted/GettingStarted.html#WorkingMode">zoom working mode</a>.</li>
+   <li>Use keys:
+      <ul style="margin-top:0; margin-bottom:0;">
+         <li>Press Ctrl + arrow keys to pan. Ctrl + Up and Down arrow keys operate only on the echogram in which the mouse is located.</li>
+         <li>Press Ctrl + Alt + Left (Right) to go back to the previous (next) location.</li>
+      </ul>
+   </li>
+   <li>Use the mouse scroll wheel to zoom horizontally. Press Shift to zoom vertically and Ctrl to zoom in both directions.</li>
+   <li>Use the <a href="../../Display/Display.html#Toolbar">toolbar buttons</a>.</li>
+   <li>Use the <a href="../../Display/Display.html#MenuBar">go menu</a>.</li>
+   <li>Use the <a href="#ContextMenu">context menu</a>.</li>
+</ul>
+<p>
+   See also the section in <a href="../../KeyboardShortcuts/KeyboardShortcuts.html#Echogram">keyboard shortcuts</a>.
+</p>
+
+<h2 id="ContextMenu">Context menu</h2>
+<p>
+   The items in the echogram context menu are listed below.
+   Some overlays have specialized context menus.
+</p>
+<ul>
+   <li><strong>Pelagic mode:</strong>
+      For switching between <a href="../../Configuration/Survey/SurveyMiscConf.html#PelagicMode">pelagic mode</a> and full mode.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>Configure Pelagic / Bottom echogram...:</strong>
+      Brings up the configuration dialog for the echogram.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>Ping mapping:</strong>
+      Decides how the pings are laid out horizontally. Choices:
+      <ul style="margin-top:0; margin-bottom:0;">
+         <li>Ping: Pings are laid out horizontally according to ping number.</li>
+         <li>Distance: Pings are laid out horizontally according to vessel distance.</li>
+         <li>Time: Pings are laid out horizontally according to time.</li>
+      </ul>
+   </li>
+   <li><strong>Frequency:</strong>
+      Selecting the frequency to show in the echogram.
+      This can also be set in the <a href="../../Display/Display.html#Toolbar">toolbar</a>.
+   </li>
+   <li><strong>Data loading mode:</strong>
+      Choices:
+      <ul style="margin-top:0; margin-bottom:0;">
+         <li>BROWSE: Only enough pings are loaded to cover the echogram.</li>
+         <li>DETAIL: All pings in the current range are loaded.</li>
+      </ul>
+      This can also be set in the <a href="../../Display/Display.html#StatusBar">status bar</a>.
+   </li>
+   <li><strong>Depth transform:</strong>
+      Only applicable to bottom echogram.
+      Sets which bottom that should be horizontal for the displayed frequency.
+      Choices:
+      <ul style="margin-top:0; margin-bottom:0;">
+         <li>The bottom for each frequency.</li>
+         <li><a href="../../Configuration/Survey/SurveyMiscConf.html#CoordinatedBottom">Coordinated bottom</a>.</li>
+         <li>Bottom layer boundary.</li>
+      </ul>
+      The default for each frequency is the corresponding bottom for that frequency.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>Zoom out maximally:</strong>
+      Zooms out maximally horizontally and vertically in both echograms.
+   </li>
+   <li><strong>Zoom out vertically:</strong>
+      Zooms out maximally vertically in the echogram where the context menu was brought up.
+   </li>
+   <li><strong>Step up:</strong>
+      If the echogram is zoomed vertically, this shifts the visible echogram area upwards.
+      The horizontal extent remains the same. The other echogram is not affected.
+   </li>
+   <li><strong>Step down:</strong>
+      If the echogram is zoomed vertically, this shifts the visible echogram area downwards.
+      The horizontal extent remains the same. The other echogram is not affected.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>Add comment...:</strong>
+      Brings up a dialog for entering a new comment.
+   </li>
+   <li><strong>Add comments from TAG0 datagrams...:</strong>
+      Searches the data files for TAG0 datagrams and creates comments.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>Merge selected layers:</strong>
+      <a href="../../WorkingWith/Regions/LayersAndSchools.html#DeletingAndMerging">Merges</a>
+      the currently selected layers.
+   </li>
+   <li><strong>Delete selected schools:</strong>
+      <a href="../../WorkingWith/Regions/LayersAndSchools.html#DeletingAndMerging">Deletes</a>
+      the currently selected schools.
+   </li>
+   <li><strong>Merge selected schools:</strong>
+      <a href="../../WorkingWith/Regions/LayersAndSchools.html#DeletingAndMerging">Merges</a>
+      the currently selected schools.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>Exclude region range:</strong>
+      <a href="../../WorkingWith/Regions/Exclusion.html">Excludes</a>
+      the visible horizontal extent of the region in which the popup menu was triggered.
+   </li>
+   <li><strong>Include region range:</strong>
+      Includes a previously <a href="../../WorkingWith/Regions/Exclusion.html">excluded</a> range.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>View preprocessing configuration...:</strong>
+      Displays a module editor with the configuration used during
+      <a href="../../WorkingWith/Preprocessing/Preprocessing.html">preprocessing</a>.
+   </li>
+   <li><strong>Start preprocessing on visible files:</strong>
+      Launches <a href="../../WorkingWith/Preprocessing/Preprocessing.html#KoronaRelay">KORONA relay</a>
+      and selects the currently visible files.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>API:</strong>
+      Functions available in the HTTP API provided by the
+      <a href="../../Configuration/Application/LsssServerConf.html">LSSS scripting server</a>.
+   </li>
+</ul>
+
+<h2 id="Tooltip">Tooltip</h2>
+<p>
+   The <a href="../../Display/Display.html#Toolbar">toolbar button</a>
+   <img src="../../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Information.svg" width="16" height="16">
+   can be used to toggle on and off the echogram tooltip. The tooltip displays information about ping and sample
+   pointed at with the mouse.
+</p>
+<figure>
+   <img src="Echogram-Tooltip.png" width="432" height="223">
+</figure>
+<p>
+   The object number refers to the <a href="../../Database/Tables/Scatter.html">Scatter</a> database table.
+   Category and plankton are results of categorization and plankton inversion during
+   <a href="../../WorkingWith/Preprocessing/Preprocessing.html">preprocessing</a>.
+</p>
+<p>
+   The contents of the echogram tooltip can be configured in the echogram configuration.
+   Some overlays have specialized tooltips.
+</p>
+
+<h2 id="Colorbar">Colorbar</h2>
+<p>
+   The colorbar to the right of the echogram shows the mapping between the colors in the echogram image and signal strength,
+   S<sub>v</sub>, measured in dB.
+   The thresholds on the colorbar decide which samples that are included in the s<sub>A</sub> integrations and other computations.
+   The lower threshold is always active, while the upper threshold can be activated through the colorbar context menu
+   (when the checkbox "Clip values above" is unchecked).
+   The <a href="../ThresholdResponse/ThresholdResponse.html">threshold response view</a> shows how s<sub>A</sub> integration
+   depends on the thresholds.
+   Sample values outside the threshold range are shown in white in the echogram.
+   <br><br>
+   The threshold values can be set either by the colorbar context menu, or by dragging the threshold indicators in the colorbar.
+</p>
+
+<h3 id="ColorbarContextMenu">Colorbar context menu</h3>
+<p>
+   Different color scales can be selected in the colorbar context menu.
+   If <a href="../../WorkingWith/Preprocessing/Preprocessing.html">preprocessing</a> with categorization or
+   <a href="../Plankton/Plankton.html">plankton inversion</a> is done, the colorbar context menu will
+   also contain special color scales for displaying automatically detected categories.
+</p>
+<ul>
+   <li><strong>Set thresholds...:</strong>
+      Shows a dialog for settings the upper and lower threshold.
+      These thresholds can also be adjusted by dragging them with the mouse.
+   </li>
+   <li><strong>Set colour scale limits...:</strong>
+      Shows a dialog for settings the upper and lower limits of the colour scale.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>Clip values above:</strong>
+      If this option is selected, then samples with values above the upper threshold
+      will not be used in the echogram.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>Rainbow:</strong>
+      A colormap.
+   </li>
+   <li><strong>Greylevels:</strong>
+      A colormap.
+   </li>
+   <li><strong>Combined:</strong>
+      A colormap.
+   </li>
+   <li>
+      Several more colormaps...
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>Category:</strong>
+      Displays preprocessing categories if the data is <a href="../../WorkingWith/Preprocessing/Preprocessing.html">preprocessed</a>
+      using the
+      <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/categorization/Categorization.html">categorization module</a>.
+   </li>
+   <li><strong>Category Probability:</strong>
+      Displays preprocessing categories with thresholding of probability/similarity.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>Plankton:</strong>
+      Displays preprocessing plankton categories if the data is <a href="../../WorkingWith/Preprocessing/Preprocessing.html">preprocessed</a>
+      using the
+      <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/plankton/PlanktonInversionModule/PlanktonInversionModule.html">plankton inversion module</a>.
+   </li>
+   <li><strong>Residual:</strong>
+      The
+      <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/plankton/PlanktonInversionModule/PlanktonInversionAlgorithm.html#Residual">residual</a>
+      computed by the plankton inversion algorithm.
+   </li>
+   <li><strong>BioVolume:</strong>
+      The bio volume computed from the
+      <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/plankton/PlanktonInversionModule/PlanktonModels.html">plankton models</a>.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>Advanced...:</strong>
+      Show a dialog for customizing visualization of the available parameters.
+   </li>
+   <li><strong>Conditional masking...:</strong>
+      Show a dialog for <a href="#ConditionalMasking">conditional masking</a>.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><strong>API:</strong>
+      Functions in the HTTP API provided by the
+      <a href="../../Configuration/Application/LsssServerConf.html">LSSS scripting server</a>.
+   </li>
+</ul>
+
+<h3 id="ConditionalMasking">Conditional masking</h3>
+<p>
+   Conditional masking is accessed via the <a href="#ColorbarContextMenu">colorbar context menu</a>
+   and can be used to exclude or include specific categories from results of the
+   <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/categorization/Categorization.html">categorization module</a>
+   or the
+   <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/plankton/PlanktonInversionModule/PlanktonInversionModule.html">plankton inversion module</a>.
+</p>
+<p>
+   The conditional mask is displayed as an <a href="#MaskingDisplayOverlay">echogram overlay</a>,
+   and is converted to <a href="../../WorkingWith/Regions/Masking.html">frequency-dependent deletion of data</a>
+   before <a href="../../WorkingWith/DatabaseStoring/DatabaseStoring.html">storing to the database</a>.
+</p>
+
+<h3 id="LowerThresholdButtons">Lower threshold buttons</h3>
+<p>
+   Located below the colorbar are one or more buttons for settings the lower threshold.
+   These buttons can be configured in
+   <a href="../../Configuration/Survey/SurveyMiscConf.html#PreferredLowerThreshold">[Survey Configuration - Miscellaneous]</a>.
+</p>
+<p>
+   When clicking these buttons, the category assignments to the selected region in the
+   <a href="../Interpretation/Interpretation.html#CategoryAssignments">Interpretation module</a>
+   is changes as follows:
+</p>
+<ul>
+   <li>Click: Keep assignment (%) fixed so that s<sub>A</sub> changes.</li>
+   <li>Shift + Click: Keep assigned s<sub>A</sub> fixed and adjust assignment (%) accordingly.</li>
+</ul>
+
+<h2 id="Overlays">Overlays</h2>
+<p>
+   Both the pelagic and the bottom echograms are organized as a background picture with several overlays stacked on top of it.
+   Each overlay can be turned on or off in the configuration dialog for the echograms.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="BroadbandTsEchogramOverlay">BB TS(f) locations</h3>
+<figure>
+   <img src="Overlays/BroadbandTsEchogramOverlay.png" width="250" height="108">
+</figure>
+<p>
+   This overlay displays the targets detected by
+   <a href="../../Broadband/Views/BroadbandTsModule.html">BB TS(f) module</a>.
+   A gray area marks a depth range identified at an individual target.
+   The back line indicates the depth of the target's maximal target strength.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="BottomOverlay">Bottom</h3>
+<figure>
+   <img src="Overlays/BottomOverlay-Pelagic.png" width="198" height="59">
+   &nbsp;&nbsp;&nbsp;
+   <img src="Overlays/BottomOverlay-Bottom.png" width="206" height="59">
+</figure>
+<p>
+   This overlay displays the detected bottom as two black lines.
+   One line shows the detected bottom for the current frequency.
+   The other line shows the coordinated bottom.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="CommentEchogramOverlay">Comments</h3>
+<figure>
+   <img src="Overlays/CommentEchogramOverlay.png" width="129" height="46">
+</figure>
+<p>
+   This overlay displays the letter "C" near the upper edge of the echogram at the location of a comment.
+   This symbol has a context menu with options for editing and deleting the comment.
+   The context menu for the echogram has an item for adding new comments.
+</p>
+<p>
+   Comments are also displayed on the <a href="../Map/Map.html#CommentMapOverlay">map</a>
+   and in the <a href="../Comment/Comment.html">comment module</a>.
+</p>
+<p>
+   Comments are stored in the <a href="../../Database/Tables/ObservationComment.html">database ObservationComment table</a>.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="DepthMarkerOverlay">Depth markers</h3>
+<figure>
+   <img src="Overlays/DepthMarkerOverlay.png" width="143" height="118">
+</figure>
+<p>
+   This overlay shows equidistant horizontal lines stretching across the echogram.
+   The depth corresponding to each line is written to the left.
+   For the bottom echogram, these numbers are distance from the bottom.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="FileDrawOverlay">File draw</h3>
+<figure>
+   <img src="Overlays/FileDrawOverlay.png" width="288" height="100">
+</figure>
+<p>
+   This overlay draws geometric shapes defined in <a href="../../Appendices/FileDraw/FileDraw.html">file draw data files</a>.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="FileMarkerOverlay">File markers</h3>
+<figure>
+   <img src="Overlays/FileMarkerOverlay.png" width="204" height="67">
+</figure>
+<p>
+   This overlay shows white markers at the bottom of the echogram at the start of each data file.
+   This corresponds to the file markers on the <a href="../Map/Map.html#FileMarkerMapOverlay">map</a>.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="GridOverlay">Grid</h3>
+<figure>
+   <img src="Overlays/GridOverlay.png" width="596" height="152">
+</figure>
+<p>
+   This overlay displays the grids as defined in the <a href="../../Configuration/Survey/GridConf.html">[Survey configuration - Grid]</a>.
+   The grid is displayed when the mouse is over one of the buttons for storing and deleting in the
+   <a href="../Interpretation/Interpretation.html">interpretation window</a>.
+</p>
+<p>
+   When the mouse is over the <a href="../Interpretation/Interpretation.html#StoreButton">store button</a>,
+   this overlay displays the grid cells that will be stored to the database.
+</p>
+<p>
+   When the mouse is over the <a href="../Interpretation/Interpretation.html#DeleteButton">delete button</a>,
+   this overlay displays the stored grid cells that will be deleted from the database.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="AccumulatedSaOverlay">Integration line</h3>
+<figure>
+   <img src="Overlays/AccumulatedSaOverlay.png" width="426" height="125">
+</figure>
+<p>
+   This overlay draws the integration line for the selected regions if the s<sub>A</sub> &gt; 0.
+   Only data from the visible part of the echogram is used even if the regions extend further.
+   The steepness of this line indicates how much the corresponding pings are contribution to the s<sub>A</sub>.
+</p>
+<p>
+   The integration line is given by the function f(ping) = s<sub>V</sub> integrated over the visible area of the selected regions
+   to the left of that ping. This function is scaled so that the line extends from the bottom to the top of the echogram
+   whatever the actual integration value is.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="MapPositionOverlay">Map position</h3>
+<figure>
+   <img src="Overlays/MapPositionOverlay.png" width="108" height="87">
+</figure>
+<p>
+   This overlay displays a red vertical line corresponding to the mouse position in the <a href="../Map/Map.html">map</a>.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="MaskingDisplayOverlay">Masking</h3>
+<figure>
+   <img src="Overlays/MaskingDisplayOverlay-Stored.png" width="132" height="132" title="Stored to the database">
+   <img src="Overlays/MaskingDisplayOverlay-StoringSettings.png" width="132" height="132" title="Has database storing settings">
+   <img src="Overlays/MaskingDisplayOverlay-Excluded.png" width="132" height="132" title="Exclusion">
+   <img src="Overlays/MaskingDisplayOverlay-Deleted.png" width="132" height="132" title="Frequency-dependent deletion of data">
+   <img src="Overlays/MaskingDisplayOverlay-Conditional.png" width="132" height="132" title="Conditional masking">
+</figure>
+<p>
+   This overlay displays several kinds of semi-transparent masks on the echogram.
+</p>
+<p>
+   Areas that are <a href="../../WorkingWith/DatabaseStoring/DatabaseStoring.html">stored to the database</a>
+   are displayed with a green color.
+   These green areas correspond to the areas covered by stored grid cells for the current frequency.
+   The <a href="#VerticalLineOverlay">vertical line overlay</a> also indicates stored areas by using green numbers.
+   The <a href="../Map/Map.html#SurveyLineOverlay">map</a> also shows the stretches along the survey path that are stored.
+</p>
+<p>
+   Areas that are not stored to the database,
+   but where <a href="../../WorkingWith/DatabaseStoring/DatabaseStoring.html#Settings">storing settings</a> are defined,
+   are displayed with green diagonal lines.
+</p>
+<p>
+   Ranges that are <a href="../../WorkingWith/Regions/Exclusion.html">excluded</a> from storing to the database
+   are displayed gray with black diagonal lines.
+   Grid cells that overlap partly with an excluded range will be shortened before stored to the database.
+</p>
+<p>
+   <a href="../../WorkingWith/Regions/Masking.html">Frequency-dependent deleting</a> of data is shown using semi-transparent gray overlay.
+   The deleting can be edited using the
+   <img src="../../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Erase.svg" width="16" height="16"> toolbar button.
+   The deleting is done only on the current frequency.
+   Data from the deleted areas are not used in computations of s<sub>A</sub>.
+</p>
+<p>
+   <a href="#ConditionalMasking">Conditional masking</a> is displayed with a gray color.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="PingMarkerOverlay">Ping markers</h3>
+<figure>
+   <img src="Overlays/PingMarkerOverlay.png" width="209" height="93">
+</figure>
+<p>
+   This overlay shows the start of each loaded ping as green lines at the bottom of the echogram.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="KoronaRegionEchogramOverlay">Preprocessed regions</h3>
+<figure>
+   <img src="Overlays/KoronaRegionEchogramOverlay.png" width="160" height="107">
+</figure>
+<p>
+   This overlay displays regions that are automatically detected during <a href="../../WorkingWith/Preprocessing/Preprocessing.html">preprocessing</a>.
+   These regions are drawn with a purple line. They are not used in the interpretation.
+   The context menu for these regions includes an item for conversion to a school region that can be used in the interpretation.
+</p>
+<figure>
+   <img src="Overlays/KoronaRegionEchogramOverlay-Tooltip.png" width="347" height="197">
+</figure>
+<p>
+   The preprocessed regions overlay has a specialized tooltip giving some parameters for the school as shown above.
+</p>
+<figure>
+   <img src="Overlays/KoronaRegionEchogramOverlay-Context.png" width="362" height="137">
+</figure>
+<p>
+   There is also a specialized context menu for converting to a school that can be used in the interpretation.
+   The conversion can be applied multiple times, under the restriction that interpretable schools cannot overlap.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="RefLogEchogramOverlay">Reference log</h3>
+<figure>
+   <img src="Overlays/RefLogOverlay.png" width="466" height="124">
+</figure>
+<p>
+   This overlay displays information from the <a href="../../Appendices/RefLog/RefLog.html">reference log data files</a>.
+</p>
+<p>
+   The following stations are shown with station abbreviation and station number:
+</p>
+<ul>
+   <li>CTD with watersampler start (CTD)</li>
+   <li>CTD start (CTD)</li>
+   <li>Plankton-net start (PN)</li>
+   <li>Pelagic trawl start (PT)</li>
+   <li>Bottom trawl start (BT)</li>
+   <li>Mocness start (MOC)</li>
+   <li>Bergen Acoustic Bouy start (BAB)</li>
+</ul>
+
+<!--###########################################################################################-->
+
+<h3 id="RegionDisplayOverlay">Regions</h3>
+<figure>
+   <img src="Overlays/RegionDisplayOverlay.png" width="211" height="107">
+</figure>
+<p>
+   This overlay displays layers and schools. Active regions are red, the other are blue.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="SaOverlay">Sa line</h3>
+<figure>
+   <img src="Overlays/SaOverlay.png" width="619" height="197">
+</figure>
+<p>
+   This overlay draws the s<sub>A</sub> line for the selected region.
+
+</p>
+<p>
+   This function is scaled so that the line extends from the bottom to the top of the echogram
+   whatever the actual integration value is. The integration of this function corresponds to the integration line.
+   The s<sub>A</sub> is also represented in the <a href="../Map/Map.html#SaMapOverlay">map</a>.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="TicksOverlay">Ticks</h3>
+<figure>
+   <img src="Overlays/TicksOverlay.png" width="246" height="43">
+</figure>
+<p>
+   This overlay shows equidistant yellow markers at the top of the echogram. The distance between the lines and
+   the unit used (Ping / Distance / Time) can be configured.
+</p>
+<p>
+   The default tick interval is 10 minutes.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="TrackEchogramOverlay">Tracks</h3>
+<figure>
+   <img src="Overlays/TrackEchogramOverlay.png" width="412" height="171">
+</figure>
+<p>
+   This overlay displays detected <a href="../../WorkingWith/Tracks/Tracks.html">tracks</a>.
+   Parts of tracks that are <a href="../../WorkingWith/Tracks/Tracks.html#VisualEditing">visually edited</a> are displayed with a dashed line.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="TSEchogramOverlay">TS locations</h3>
+<figure>
+   <img src="Overlays/TSEchogramOverlay.png" width="254" height="100">
+</figure>
+<p>
+   This overlay displays the locations of the TS detections done by the <a href="../TS/TS.html">TS module</a>.
+   Each detection is shown as a black horizontal line.
+   NB: This overlay should be used with caution since it may cause the system to run slower.
+</p>
+
+<!--###########################################################################################-->
+
+<h3 id="VerticalLineOverlay">Vertical lines</h3>
+<figure>
+   <img src="Overlays/VerticalLineOverlay.png" width="415" height="118">
+</figure>
+<p>
+   This overlay shows equidistant vertical lines stretching from top to bottom of the echogram.
+   A line is drawn
+</p>
+<ul>
+   <li>Thick if it corresponds to a distance divisible by 10 nmi.</li>
+   <li>Normal if it corresponds to a distance divisible by 1 nmi.</li>
+   <li>Dashed if none of the above.</li>
+</ul>
+<p>
+   At the bottom of each line is textual information about the corresponding distance and time.
+</p>
+<p>
+   Each line also displays s<sub>A</sub> values for the regions it intersects.
+   These values are calculated for the visible area of the region between two successive lines.
+   At the end of each region, the s<sub>A</sub> values for both the visible area from the previous intersecting line
+   and for the entire visible part of the region are displayed. If the visible part of the region is completely contained in the area
+   between two successive lines these values are equal and hence displayed only once.
+   In addition, s<sub>L</sub> for the entire region is displayed, where s<sub>L</sub> = s<sub>A</sub>*L and L is the length of
+   the region in the chosen <a href="../../Configuration/Survey/GridConf.html">horizontal grid unit</a>.
+   If the s<sub>A</sub> value for the entire visible part of the region is exactly 0, then no values are displayed.
+</p>
+<p>
+   The color of the s<sub>A</sub> / s<sub>L</sub> values for a region is
+</p>
+<ul>
+   <li><span style='font-weight: bold; color: #DC143C; background-color: white;'>Crimson</span> / <span style='font-weight: bold; color: #0000FF; background-color: white;'>Blue</span> if the region is selected.</li>
+   <li><span style='font-weight: bold; color: #FFE4B5; background-color: #B0B0B0;'>Moccasin</span> if the region has never been selected.</li>
+   <li><span style='font-weight: bold; color: black; background-color: white;'>Black</span> if the region has been selected at least once.</li>
+   <li><span style='font-weight: bold; color: green; background-color: #B0B0B0;'>Green</span>/<span style='font-weight: bold; color: #00FFFF; background-color: #B0B0B0;'>Cyan</span>if an interpretation is stored to the database.</li>
+</ul>
+<p>
+   There are several s<sub>A</sub> and s<sub>L</sub> numbers in the echogram below. s<sub>A</sub> is
+   always shown just prior to the vertical live. If there are three numbers by the vertical line, the second and third
+   are averages s<sub>A</sub> and s<sub>L</sub> of the visible part of the region respectively. Numbers on a
+   white background indicate that the region has been inspected using the Interpretation window, i.e. it
+   has been active. Numbers on a black background, as some of the numbers in the figure below, indicate that the region
+   has never been active (and is therefore not yet scrutinized).
+</p>
+<figure>
+   <img src="Overlays/VerticalLineOverlay-sA_sL.png" width="660" height="438">
+</figure>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="190" height="124" viewBox="0 0 190 124"
+     fill="none">
+
+   <path stroke="black" stroke-width="1" d="
+      M42.5,2.5 h-5 v120 h5
+      M165.5,2.5 h5 v120 h-5"/>
+
+   <g fill="black" stroke="none" font-family="sans-serif" font-size="16" text-anchor="middle">
+      <text x="15" y="70">G =</text>
+
+      <text x="180" y="10" font-size="12">-1</text>
+
+      <text x="50" y="20">α<tspan dx="1" dy="-6" font-size="10">2</tspan><tspan dx="-6" dy="12" font-size="10">G</tspan></text>
+      <text x="50" y="50">0</text>
+      <text x="50" y="80">0</text>
+      <text x="50" y="110">0</text>
+
+      <text x="85" y="20">0</text>
+      <text x="85" y="50">β<tspan dx="1" dy="-6" font-size="10">2</tspan><tspan dx="-6" dy="12" font-size="10">G</tspan></text>
+      <text x="85" y="80">0</text>
+      <text x="85" y="110">0</text>
+
+      <text x="120" y="20">0</text>
+      <text x="120" y="50">0</text>
+      <text x="120" y="80">r<tspan dx="1" dy="-6" font-size="10">2</tspan><tspan dx="-6" dy="12" font-size="10">G</tspan></text>
+      <text x="120" y="110">0</text>
+
+      <text x="155" y="20">0</text>
+      <text x="155" y="50">0</text>
+      <text x="155" y="80">0</text>
+      <text x="155" y="110">I<tspan dx="1" dy="-6" font-size="10">2</tspan><tspan dx="-6" dy="12" font-size="10">G</tspan></text>
+   </g>
+</svg>

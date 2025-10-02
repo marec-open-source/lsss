@@ -1,0 +1,10 @@
+@if (tocItems()) {
+   <ul>
+      @for (tocItem of tocItems(); track $index) {
+         <li>
+            <a [href]="tocLink(tocItem)">{{ tocItem.text }}</a>
+            <marec-toc-list [tocItems]="tocItem.items"></marec-toc-list>
+         </li>
+      }
+   </ul>
+}

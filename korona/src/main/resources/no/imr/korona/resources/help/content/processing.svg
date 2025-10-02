@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="470" height="220" viewBox="-10 -110 470 220"
+     font-family="sans-serif" font-size="14" text-anchor="middle">
+
+   <g fill="none" stroke="black" stroke-width="1">
+      <rect x="-4.5" y="-99.5" width="110" height="200"/>
+      <path d="m5.5,-49.5 a5,1 0,0,1 90,0 a5,1 0,0,1 -90,0 v30 a5,1 0,0,0 90,0 v-30"/>
+      <rect x="5.5" y="10.5" width="90" height="30"/>
+
+      <rect x="150.5" y="-74.5" width="150" height="150"/>
+      <rect x="160.5" y="-24.5" width="30" height="90"/>
+      <rect x="200.5" y="-24.5" width="30" height="90"/>
+      <rect x="260.5" y="-24.5" width="30" height="90"/>
+
+      <rect x="345.5" y="-99.5" width="110" height="200"/>
+      <path d="m355.5,-49.5 a5,1 0,0,1 90,0 a5,1 0,0,1 -90,0 v30 a5,1 0,0,0 90,0 v-30"/>
+      <rect x="355.5" y="10.5" width="90" height="30"/>
+      <rect x="355.5" y="60.5" width="90" height="30"/>
+
+      <path d="m117.5,0.5 v10 h10 v5 l10,-10 -10,-10 v5 z"/>
+      <path d="m312.5,0.5 v10 h10 v5 l10,-10 -10,-10 v5 z"/>
+   </g>
+
+   <text x="50" y="-75">Input</text>
+   <text x="50" y="-20">File</text>
+   <text x="50" y="30">Socket</text>
+
+   <text x="225" y="-45">Computation</text>
+   <text x="245" y="10">...</text>
+   <g transform="translate(150, 20) rotate(-90)">
+      <text y="30">Module 1</text>
+      <text y="70">Module 2</text>
+      <text y="130">Module n</text>
+   </g>
+
+   <text x="400" y="-75">Output</text>
+   <text x="400" y="-20">File</text>
+   <text x="400" y="30">Socket</text>
+   <text x="400" y="80">Visualization</text>
+</svg>

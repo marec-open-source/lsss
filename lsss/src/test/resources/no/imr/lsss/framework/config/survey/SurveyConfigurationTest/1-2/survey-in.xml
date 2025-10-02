@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<unit name="SurveyConfiguration" version="1">
+   <configuration>
+      <parameters/>
+   </configuration>
+   <unit name="AcousticCategoryConf">
+      <configuration>
+         <species>
+            <specy id="21" purpose="1">Macerel</specy>
+            <specy id="12" purpose="1">Herring</specy>
+            <specy id="6" purpose="2">Plankton</specy>
+            <speciesMappings>
+               <specie id="21">Macerel
+                  <category name="mackerel"/>
+               </specie>
+               <specie id="12">Herring
+                  <category name="herring"/>
+               </specie>
+               <specie id="6">Plankton
+                  <category name="resonant_18"/>
+               </specie>
+            </speciesMappings>
+         </species>
+      </configuration>
+   </unit>
+   <unit name="ModuleConf">
+      <configuration>
+         <parameters/>
+      </configuration>
+      <unit name="InterpretationModule">
+         <configuration>
+            <parameters>
+               <parameter name="FrequencyResponseFunction">1</parameter>
+               <parameter name="StoreRawDataSpecies">false</parameter>
+               <parameter name="ShowQualityOptions">true</parameter>
+               <parameter name="Quality">HIGH</parameter>
+               <parameter name="Frequencies">38,70</parameter>
+            </parameters>
+         </configuration>
+      </unit>
+   </unit>
+</unit>

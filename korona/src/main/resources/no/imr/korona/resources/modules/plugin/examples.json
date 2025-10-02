@@ -1,0 +1,18 @@
+[
+  {
+    "file": "empty.txt",
+    "description": "Empty implementation"
+  },
+  {
+    "file": "logicalAnd.txt",
+    "description": "Logical and over all channels"
+  },
+  {
+    "file": "threshold.txt",
+    "description": "Threshold"
+  },
+  {
+    "file": "buffering.txt",
+    "description": "Buffering"
+  }
+]

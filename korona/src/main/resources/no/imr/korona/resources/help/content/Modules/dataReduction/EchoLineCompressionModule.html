@@ -1,0 +1,29 @@
+<h1>Echo line compression module</h1>
+<p>
+   This module makes resulting data files smaller by discarding low values.
+   Only samples above a given <a class="marec-parameter-ref" href="#Threshold">threshold</a> will be saved.
+   This module should normally be the last module.
+</p>
+<p>
+   To increase the compression, other modules that set samples to low values can be used prior to this module, such as:
+   <a href="../noise/NoiseRemoverModule.html">Noise remover module</a>,
+   <a href="../filters/ThresholdModule.html">Thresholding module</a>
+</p>
+
+<h2 id="NewDatagrams">New datagrams</h2>
+<ul>
+   <li>
+      <a href="../../Datagrams/EchoLineDatagram.html">Echo line datagram</a> -
+      One datagram for each channel for each ping.
+   </li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="Threshold">Threshold:</span>
+      Only samples above the threshold will be kept.
+   </li>
+</ul>

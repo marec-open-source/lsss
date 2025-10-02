@@ -1,0 +1,46 @@
+<h1>Horizontal offset correction module</h1>
+<p>
+   Module for horizontal offset correction.
+</p>
+<p>
+   The offsets are configured in the
+   <a href="../../WorkingWith/ConfigFileSettings/HorizontalTransducerOffsets/HorizontalTransducerOffsets.html">Horizontal transducer offsets</a>
+   part of the
+   <a href="../../WorkingWith/ConfigFileSettings/ConfigFileSettings.html">Config file settings</a>.
+</p>
+<p>
+   Only the value in the field AlongCorrection is used in this module.
+</p>
+<p>
+   The corrected sv values for each transducer are computed by linear interpolation between the two closest pings.
+   The angle values of the closest ping are used without change.
+</p>
+
+<h2 id="Example">Example</h2>
+<p>
+   The following figure shows the positions of three consecutive pings and the alongship locations of
+   two transducers labelled X and Y at the time of those pings.
+   The colors indicate which pings will be used for computing the corrected values in ping B.
+</p>
+<figure>
+   <img src="HorizontalOffsetCorrection.svg" width="660" height="90">
+</figure>
+<p>
+   The corrected sv values for transducer X in ping B will use linear interpolation
+   between the sv values in pings B and C, located at
+   <span style="color: red;">X<sub>B</sub></span> and
+   <span style="color: red;">X<sub>C</sub></span> in the figure above.
+</p>
+<p>
+   The corrected sv values for transducer Y in ping B will use linear interpolation
+   between the sv values in pings A and B, located at
+   <span style="color: blue;">Y<sub>A</sub></span> and
+   <span style="color: blue;">Y<sub>B</sub></span> in the figure above.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+</ul>

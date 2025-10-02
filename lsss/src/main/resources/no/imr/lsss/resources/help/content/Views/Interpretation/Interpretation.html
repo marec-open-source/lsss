@@ -1,0 +1,311 @@
+<h1>Interpretation</h1>
+<p>
+   The purpose of the interpretation window is to assign the total s<sub>A</sub>
+   for each region to the <a href="../../Configuration/Survey/AcousticCategoryConf.html">selected
+   acoustic category</a> and to store the interpretation to the database. Each <a href="../../WorkingWith/Regions/Regions.html">region</a> has
+   one set of assignments per frequency for the total extent of the region.
+</p>
+
+<h2 id="SupportingInformation">Supporting information</h2>
+<p>
+   In the top left corner, some numerical information is displayed,
+   both for the visual range and for the active region.
+</p>
+<ul>
+   <li>Date: The date of the first ping.</li>
+   <li>Time: The time of day of the first ping.</li>
+   <li>Duration: The time duration.</li>
+   <li>Dist [nmi]: The start position and the distance in parentheses.</li>
+   <li>#Ping: The number of pings.</li>
+   <li>s<sub>A</sub>: The s<sub>A</sub> computed based on the currently
+      read pings. Note that the s<sub>A</sub> reported for the active region
+      is based on only the pings in the visible part of the region.
+   </li>
+   <li>s<sub>A</sub> corr.: The same as above, with the
+      exception that bubble correction is taken into account.
+   </li>
+</ul>
+<p>
+   Note that s<sub>A</sub> depends on the chosen <a href="../../Configuration/Survey/GridConf.html">horizontal grid unit</a>.
+</p>
+
+<h2 id="AcousticCategories">Acoustic categories</h2>
+<figure>
+   <img src="AcousticCategories.png" width="180" height="22">
+</figure>
+<p>
+   The <a href="../../Configuration/Survey/AcousticCategoryConf.html">selected acoustic categories</a>
+   for the survey appear at the bottom of the interpretation window.
+   A subset of these acoustic categories can be assigned to each region.
+   Select a region and assign an acoustic category to that region by
+   clicking the acoustic category button and editing the <a href="#CategoryAssignments">category assignment</a>.
+</p>
+<p>
+   Clicking an acoustic category button that is already selected will remove that category
+   from the selected region.
+</p>
+<p>
+   Clicking an acoustic category button that is not selected will add that category to the selected region and:
+</p>
+<ul>
+   <li>Click: Set remaining assignment.</li>
+   <li>Shift + Click: Add as rest category.</li>
+</ul>
+
+<h2 id="CategoryAssignments">Category assignments</h2>
+<figure>
+   <img src="CategoryAssignments.png" width="261" height="85">
+</figure>
+<p>
+   After selecting which acoustic category to interpret for a region, use the
+   sliders in the right-hand part of the window to assign a percentage of
+   the total s<sub>A</sub> to the corresponding acoustic category. The fraction of
+   the total s<sub>A</sub> for each acoustic category will also be reported here.
+</p>
+<p>
+   It is possible to make one or more of the acoustic categories a 'rest acoustic category'.
+   The unassigned s<sub>A</sub> will be distributed equally among the rest acoustic categories.
+</p>
+<p>
+   If categorization has been performed in the preprocessing, and a
+   <a href="../../Configuration/Survey/AcousticCategoryConf.html#CategoryMapping">mapping from acoustic categories to preprocessed categories</a>
+   is configured, then it will be possible to use the buttons in the KORONA column
+   <img src="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/images/icons/korona.svg" width="16" height="16">.
+   Pressing such a button will compute s<sub>A</sub> for
+   the samples categorized as a category that the acoustic category maps to, and adjust the
+   assignment accordingly. This can be used to get a quick initial guess for the interpretation.
+   Pressing the Spacebar when the mouse is in this column will cycle through the following options:
+</p>
+<ul>
+   <li>&lt;: Apply categorization on current frequency.</li>
+   <li>∗: Apply categorization on all frequencies.</li>
+   <li>F: Apply the <a class="marec-parameter-ref" href="#FrequencyResponseFunction">Frequency response function</a> on other frequencies.</li>
+</ul>
+
+<h3 id="MultipleRegions">Interpreting multiple regions simultaneously</h3>
+<p>
+   Multiple regions can be interpreted simultaneously by selecting more than one region.
+   Adjusting the assignment then applies to all selected regions.
+</p>
+<p>
+   If the selected regions have different assignments for the same acoustic category,
+   then the average assignment is displayed, and the name label is colored red.
+   The name label then has a tooltip showing the different assignment values.
+</p>
+<figure>
+   <img src="CategoryAssignmentsRed.png" width="262" height="77">
+</figure>
+<p>
+   The name label is also colored red if an acoustic category is used as 'rest acoustic category' in some, but not all,
+   of the selected regions.
+</p>
+
+<h2 id="BubbleCorrection">Bubble correction</h2>
+<figure>
+   <img src="BubbleCorrection.png" width="241" height="18">
+</figure>
+<p>
+   Bubble correction is a factor that is multiplied to the s<sub>A</sub> in order to compensate for
+   reduced echo due to air bubbles. Initially, all pings have a bubble correction of 1 meaning
+   that the s<sub>A</sub> values are unchanged.
+   The bubble correction can be modified using the slider or the nearby input field.
+</p>
+<p>
+   If several different bubble corrections have been specified for the visible range,
+   then the bubble correction label is colored red.
+   The label then has a tooltip with all the different bubble correction values.
+   The average of the minimum and maximum of these values is used when computing the corrected s<sub>A</sub>.
+</p>
+<figure>
+   <img src="BubbleCorrectionRed.png" width="241" height="57">
+</figure>
+<p>
+   The bubble correction used in a grid column is the average of the minimum and maximum bubble corrections for all
+   pings in the range of the grid column. This means that corrected s<sub>A</sub> values shown on the screen is not
+   exactly equal to the corrected s<sub>A</sub> values stored to the database.
+</p>
+
+<h2 id="QualityButtons">Quality buttons</h2>
+<figure>
+   <img src="Quality.png" width="239" height="22">
+</figure>
+<p>
+   The quality indicates how easy it is to scrutinize.
+</p>
+<ol>
+   <li>High (Categories separable acoustically)</li>
+   <li>Intermediate</li>
+   <li>Low (Categories completely mixed acoustically)</li>
+</ol>
+<p>
+   The buttons for selecting the quality are shown if the configuration parameter
+   <a class="marec-parameter-ref" href="#ShowQualityOptions">Show quality options</a> is selected.
+   Otherwise, a dialog will appear after clicking the 'Store' button where the quality is selected.
+</p>
+<p>
+   The quality buttons are synchronized with the <a class="marec-parameter-ref" href="#Quality">Quality</a> parameter.
+</p>
+
+<h2 id="FrequencyButtons">Frequency buttons</h2>
+<figure>
+   <img src="Frequencies.png" width="151" height="22">
+</figure>
+<p>
+   These buttons select which frequencies will be stored to the database.
+</p>
+<p>
+   The frequency buttons are synchronized with the <a class="marec-parameter-ref" href="#Frequencies">Frequencies</a> parameter.
+</p>
+
+<h2 id="EchogramNavigation">Echogram navigation</h2>
+<figure>
+   <img src="EchogramNavigation.png" width="170" height="22">
+</figure>
+<p>
+   These buttons can be used for navigating in the echogram.
+   They are the same as those in the <a href="../../Display/Display.html#Toolbar">toolbar</a>.
+</p>
+
+<h2 id="StoreButton">Store button</h2>
+<p>
+   The store button is for storing to the database.
+   Placing the mouse over the store button will show the grid to be stored as an
+   <a href="../Echogram/Echogram.html#GridOverlay">echogram overlay</a>.
+</p>
+<p>
+   The store button has three different modes:
+</p>
+<ul class="marec-list-spacing">
+   <li>
+      <img src="StoreButtonFilled.png" width="71" height="22">
+      Areas without database storing settings will be stored to the database.
+   </li>
+   <li>
+      <img src="StoreButtonStriped.png" width="71" height="22">
+      Areas with database storing settings will be stored to the database.
+   </li>
+   <li>
+      <img src="StoreButtonDisabled.png" width="71" height="22">
+      Nothing can be stored.
+   </li>
+</ul>
+<p>
+   Storing the interpretation to the database uses all pings when calculating s<sub>A</sub>,
+   independently of the currently selected <a href="../../GettingStarted/GettingStarted.html#DataLoadingMode">data loading mode</a>.
+   The grids are stored to the database updating the tables
+   <a href="../../Database/Tables/Observation.html">Observation</a>,
+   <a href="../../Database/Tables/Scatter.html">Scatter</a> and
+   <a href="../../Database/Tables/ScatterData.html">ScatterData</a>.
+</p>
+<p>
+   Before storing to the database, the follow actions are taken:
+</p>
+<ul>
+   <li>
+      Vertical separators are inserted to isolate the segment to be stored.
+      This helps to ensure that the interpretation in stored areas will remain unmodified when editing regions and assignments
+      in areas that are not stored.
+   </li>
+   <li>
+      Any conditional masking in use is added to the
+      <a href="../../WorkingWith/Regions/Masking.html">frequency-dependent deletion of data</a>
+      for the frequencies that are to be stored.
+   </li>
+   <li>
+      <a href="../../WorkingWith/WorkFiles/WorkFiles.html">Work files</a> are saved.
+   </li>
+</ul>
+
+<h2 id="DeleteButton">Delete button</h2>
+<p>
+   The delete button is used for deleting from the database.
+   Placing the mouse over the delete button will show the grid to be deleted as an
+   <a href="../Echogram/Echogram.html#GridOverlay">echogram overlay</a>.
+</p>
+<p>
+   The delete button has three different modes:
+</p>
+<ul class="marec-list-spacing">
+   <li>
+      <img src="DeleteButtonFilled.png" width="42" height="22">
+      Areas that are stored to the database will be deleted.
+      Database storing settings will be kept.
+   </li>
+   <li>
+      <img src="DeleteButtonStriped.png" width="42" height="22">
+      Nothing can be deleted from the database.
+      Database storing settings will be deleted.
+   </li>
+   <li>
+      <img src="DeleteButtonDisabled.png" width="42" height="22">
+      Nothing can be deleted.
+   </li>
+</ul>
+
+<h2 id="EditStoringSettings">Edit storing settings</h2>
+<p>
+   The database storing settings for an area that is not stored to the database can be edited by choosing
+   'Edit storing settings...' from the menu displayed by clicking the
+   <img src="../../../../../../../../../../../../tools/core/src/main/resources/no/imr/tools/resources/images/icons/Menu.svg" width="16" height="16">
+   button.
+   A dialog will appear where the
+   <a href="../../WorkingWith/DatabaseStoring/DatabaseStoring.html#HorizontallyVaryingSettings">horizontally varying settings</a>
+   can be changed.
+</p>
+
+<h2 id="Initialization">Interpretation initialization</h2>
+<p>
+   The interpretation of a region consists of assignments to a set of species for each frequency.
+   For example, 3 species and 6 frequencies result in 3 &times; 6 = 18 assignment values.
+   As a help for setting all these values, the assignments are copied to uninitialized frequencies.
+</p>
+<p>
+   The interpretation of a region is initialized for the current frequency when a species
+   is added to the assignment table by selecting one of the species buttons.
+   When changing the current frequency to a frequency where the interpretation is not initialized,
+   the interpretation is initialized for that frequency by copying all assignments.
+   The source for this copy is selected from the following prioritized list:
+</p>
+<ol>
+   <li>The previously selected frequency if the interpretation is initialized on that frequency.</li>
+   <li>The nearest lower frequency for which the interpretation is initialized.</li>
+   <li>The nearest higher frequency for which the interpretation is initialized.</li>
+   <li>If none of the above, then the interpretation is not initialized on any frequency and is left uninitialized.</li>
+</ol>
+<p>
+   When storing to the database, and the interpretation is not initialized for all frequencies to be stored,
+   a dialog will appear with the following options:
+</p>
+<ul>
+   <li><em>Inherit interpretation:</em> Initialize the interpretation based on the list above.
+      If a region is uninitialized on all frequencies, then the interpretation is initialized with no assignments.
+      Interpretation initialization applied only to the frequencies to be stored.
+   </li>
+   <li><em>Leave unassigned:</em> Uninitialized interpretation is left as is and used as no assignments.</li>
+   <li><em>Cancel:</em> Do not initialize any interpretation, and cancel database storing.</li>
+   <li><em>Help:</em> Show this help page.</li>
+</ul>
+<p>
+   Note that it is possible to reinitialize the interpretation through the
+   'Delete assignments on other frequencies' item in the
+   <a href="../../WorkingWith/Regions/RegionsMenu.html">regions menu</a>.
+</p>
+
+<h2 id="Settings">Settings</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="FrequencyResponseFunction">Frequency response function:</span>
+      Can be used during <a href="#CategoryAssignments">category assignment</a>.
+      Can be plotted in the <a href="../FrequencyResponse/FrequencyResponse.html">Frequency response module</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="ShowQualityOptions">Show quality options:</span>
+      Show quality options in the module instead of in dialog when storing.
+   </li>
+   <li><span class="marec-parameter-def" id="Quality">Quality:</span>
+      Currently selected quality.
+      This parameter is synchronized with the <a href="#QualityButtons">quality buttons</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="Frequencies">Frequencies:</span>
+      Frequencies to store.
+      This parameter is synchronized with the <a href="#FrequencyButtons">frequency buttons</a>.
+   </li>
+</ul>

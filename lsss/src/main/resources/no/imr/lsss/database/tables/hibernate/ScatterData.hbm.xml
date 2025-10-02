@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+      "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="no.imr.lsss.database.tables.hibernate.ScatterData" table="ScatterData">
+      <composite-id name="compId" class="no.imr.lsss.database.tables.hibernate.ScatterDataPK">
+         <key-property name="nation" column="Nation" type="short"/>
+         <key-property name="platform" column="Platform" type="short"/>
+         <key-property name="survey" column="Survey" type="int"/>
+         <key-property name="object" column="Object" type="int"/>
+         <key-property name="observationDate" column="ObservationDate" type="int"/>
+         <key-property name="observationTime" column="ObservationTime" type="int"/>
+         <key-property name="frequency" column="Frequency" type="int"/>
+         <key-property name="transceiver" column="Transceiver" type="short"/>
+         <key-property name="scatterType" column="ScatterType" type="short"/>
+         <key-property name="channelNumber" column="ChannelNumber" type="int"/>
+         <key-property name="acousticCategory" column="AcousticCategory" type="int"/>
+      </composite-id>
+
+      <property name="sa" column="SA" type="float" not-null="true"/>
+
+      <!-- Associations -->
+
+      <many-to-one
+            name="scatter"
+            class="no.imr.lsss.database.tables.hibernate.Scatter"
+            not-null="true"
+            insert="false"
+            update="false"
+      >
+         <column name="Nation"/>
+         <column name="Platform"/>
+         <column name="Survey"/>
+         <column name="Object"/>
+         <column name="ObservationDate"/>
+         <column name="ObservationTime"/>
+         <column name="Frequency"/>
+         <column name="Transceiver"/>
+         <column name="ScatterType"/>
+      </many-to-one>
+
+      <many-to-one
+            name="acousticCategory"
+            class="no.imr.lsss.database.tables.hibernate.AcousticCategory"
+            not-null="true"
+            update="false"
+            insert="false"
+      >
+         <column name="Nation"/>
+         <column name="Platform"/>
+         <column name="AcousticCategory"/>
+      </many-to-one>
+
+   </class>
+</hibernate-mapping>

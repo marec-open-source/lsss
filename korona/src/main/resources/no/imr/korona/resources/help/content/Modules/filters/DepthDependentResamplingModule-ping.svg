@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"
+     fill="black" font-family="sans-serif" font-size="16">
+
+   <path d="M40.5,50.5 v80 h40 v-80 z" fill="#98fb98"/>
+
+   <g fill="none" stroke="black" stroke-width="1">
+      <path d="M40.5,10.5 v180 m40,0 v-180
+               m-40,10 h40 m0,10 h-40 m0,10 h40 m0,10 h-40 m0,10 h40 m0,10 h-40
+               m0,10 h40 m0,10 h-40 m0,10 h40 m0,10 h-40 m0,10 h40 m0,10 h-40
+               m0,10 h40 m0,10 h-40 m0,10 h40 m0,10 h-40 m0,10 h40"/>
+
+      <path d="M85.5,51.5 l20,20 m 0,38 l-20,20"/>
+   </g>
+
+   <text x="5" y="55">r</text>
+   <text x="15" y="55" font-size="20">→</text>
+   <text x="110" y="95">n(r) samples</text>
+</svg>

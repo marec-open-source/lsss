@@ -1,0 +1,149 @@
+<h1>BB TS(f)</h1>
+<p>
+   This view shows the TS-frequency spectra for individual targets.
+</p>
+<p>
+   The detected targets are also shown by other views:
+</p>
+<ul>
+   <li>Locations are visualized on the echogram by <a href="../../Views/Echogram/Echogram.html#BroadbandTsEchogramOverlay">BB TS(f) locations</a></li>
+   <li>The angles are visualized by <a href="../../Views/TsPositions/TsPositionsModule.html">TS positions</a></li>
+</ul>
+
+<h2 id="Description">Description</h2>
+<p>
+   The TS-frequency spectra are computed from the depth ranges in the active regions identified as individual targets in each ping.
+   Multiple active regions in the same ping are allowed. The target identification is performed on all available channels. Spectra from different
+   channels are coloured differently, the graphs corresponding to the currently active channel are bold.
+</p>
+<figure>
+   <img src="BroadbandTsModule.png" width="599" height="227" class="marec-floatable-module">
+   <figcaption>Screenshot of the BB TS(f) view.</figcaption>
+</figure>
+<p>
+   In addition to the current ping, the spectra from a number of previous and subsequent pings are plotted. The
+   previous pings are displayed in shades of purple, subsequent pings in shades of green. Darker colours indicate
+   pings closer to the current ping, lighter colours pings further away.
+</p>
+<figure>
+   <img src="../../Views/PingPlot/PingColourScheme.svg" width="435" height="200">
+   <figcaption>Illustration of the colour scheme coding previous and subsequent pings using
+      shades of purple and green, respectively.
+   </figcaption>
+</figure>
+
+<h2 id="Settings">Settings</h2>
+
+<h3 id="TargetDetectorSettings">Target detector settings</h3>
+<p>
+   A single target is defined by its peak sample and its vertical extent. A peak sample is a sample with an echo strength (squared absolute values of
+   averaged pulse compressed signal) larger than all the samples within a certain threshold distance. This threshold is automatically determined using
+   Ridler and Calvard's (1978) classical iterative threshold selection method, imposing the sent pulse length as upper bound.
+</p>
+<p>
+   The vertical extent of the target consists of all samples to either side with echo strength lower than the peak echo strength until a local maximum with
+   relative echo strength below <a class="marec-parameter-ref" href="#PulseLengthDeterminationLevel">Pulse length determination level</a> is encountered.
+</p>
+<p>
+   The target detector is the <em>Peak</em> algorithm in the
+   <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/ts/TsDetectionModule.html#Peak">TS detection module</a>
+   in KORONA.
+</p>
+<p>
+   The available parameters for the target detector are:
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="MinTS">Min TS:</span>
+      Minimum corrected TS value to be detected [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="PulseLengthDeterminationLevel">Pulse length determination level:</span>
+      Pulse length determination level [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="MinEchoLength">Min echo length:</span>
+      Minimum echo length (relative to pulse length). NB: may be << 1 for pulse compressed data!
+   </li>
+   <li><span class="marec-parameter-def" id="MaxEchoLength">Max echo length:</span>
+      Maximum echo length (relative to pulse length). NB: may be << 1 for pulse compressed data!
+   </li>
+   <li><span class="marec-parameter-def" id="MaxGainCompensation">Max gain compensation:</span>
+      Maximum (one way) gain compensation [dB].
+   </li>
+   <li><span class="marec-parameter-def" id="DoPhaseDeviationCheck">Do phase deviation check:</span>
+      Check this if phase deviation check should be performed.
+      <em>NOT</em> recommended for broadband data.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxPhaseDevSteps">Max phase deviation:</span>
+      Max phase deviation [phase steps].
+   </li>
+</ul>
+
+<h3 id="SpectrumExtractionSettings">Spectrum extraction settings</h3>
+<p>
+   The vertical extent of the target used for calculation of its frequency spectrum is determined by the chosen
+   <span class="marec-parameter-def" id="TargetExtentMode">Target extent for FFT</span> mode.
+   The available options are the following:
+</p>
+<ul>
+   <li>AUTOMATIC: The target extends as extracted by target detector.</li>
+   <li>MANUAL: The extent is manually specified, either symmetrically or asymmetrically around the detected peak.</li>
+   <li>REGION: The entire depth range of the region is used. Target detection is not performed.</li>
+</ul>
+<p>
+   Further parameters are:
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="ManualTargetExtentSymmetrical">Manual target extent symmetrical:</span>
+      The vertical extent of each detected target is centered around the peak if checked.
+   </li>
+   <li><span class="marec-parameter-def" id="ManualTargetExtent">Manual target extent:</span>
+      The <em>total</em> vertical extent of each detected target using the peak as the center,
+      when <a class="marec-parameter-ref" href="#TargetExtentMode">Target extent for FFT</a> is set to MANUAL
+      and <a class="marec-parameter-ref" href="#ManualTargetExtentSymmetrical">Manual target extent symmetrical</a> is checked.
+   </li>
+   <li><span class="marec-parameter-def" id="ManualTargetExtentAbove">Manual target extent above:</span>
+      The vertical extent <em>above</em> the peak of each detected target,
+      when <a class="marec-parameter-ref" href="#TargetExtentMode">Target extent for FFT</a> is set to MANUAL
+      and <a class="marec-parameter-ref" href="#ManualTargetExtentSymmetrical">Manual target extent symmetrical</a> is unchecked.
+   </li>
+   <li><span class="marec-parameter-def" id="ManualTargetExtentBelow">Manual target extent below:</span>
+      The vertical extent <em>below</em> the peak of each detected target,
+      when <a class="marec-parameter-ref" href="#TargetExtentMode">Target extent for FFT</a> is set to MANUAL
+      and <a class="marec-parameter-ref" href="#ManualTargetExtentSymmetrical">Manual target extent symmetrical</a> is unchecked.
+   </li>
+</ul>
+
+<h3 id="DisplaySettings">Display settings</h3>
+<p>
+   Several parameters for adjusting the presentation of target spectra are available.
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="PingRadius">Ping radius:</span>
+      Number of pings on either side to use. The number of previous and subsequent pings to be
+      displayed along with the current ping (mouse position in echogram). In total, the view displays 2 ×
+      <a class="marec-parameter-ref" href="#PingRadius">Ping radius</a> + 1 spectra.
+   </li>
+   <li><span class="marec-parameter-def" id="FrequencyWindowing">Frequency windowing:</span>
+      Percentage of extremal frequencies to be discarded (two-sided). The view shows the
+      central (100 - 2 × <a class="marec-parameter-ref" href="#FrequencyWindowing">Frequency windowing</a>) % of each frequency band.
+   </li>
+   <li><span class="marec-parameter-def" id="FrequencyResolution">Frequency resolution:</span>
+      Frequency resolution in <em>display</em>. The distance in kHz between the individual
+      frequencies displayed in the plot. The spectrum is computed at full resolution (determined by the extent of the depth range containing the time
+      signal) and resampled.
+   </li>
+   <li><span class="marec-parameter-def" id="PlotNarrowband">Plot narrowband:</span>
+      If this option is selected, then targets detected by the <a href="../../Views/TS/TS.html">TS module</a>
+      are shown for frequencies with narrowband data.
+   </li>
+   <li><span class="marec-parameter-def" id="XAxis">X-axis:</span>
+      Mapping of frequencies along x-axis.
+   </li>
+   <li><span class="marec-parameter-def" id="AutoAdjustAxes">Auto-adjust axes:</span>
+      Automatically adjust the x-axis and y-axis when the plot is updated.
+   </li>
+</ul>
+
+<h2 id="Export">Export</h2>
+<p>
+   See <a href="../Export/BroadbandTsExport.html">BB TS(f) export</a>.
+</p>

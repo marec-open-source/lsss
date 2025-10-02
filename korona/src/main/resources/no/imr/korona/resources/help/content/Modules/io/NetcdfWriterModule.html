@@ -1,0 +1,73 @@
+<h1>NetCDF writer module (beta)</h1>
+<p>
+   Module for writing data in netCDF-format.
+</p>
+<p>
+   <em>NB: This module is in beta and can be incompatibly changed or removed in future versions.</em>
+</p>
+
+<h2 id="NetCDF-C-Library">NetCDF-C library</h2>
+<p>
+   This module requires the NetCDF-C library for writing files in the NetCDF-4 format.
+   If this version of KORONA does not include the NetCDF-C library, please consult
+   <a href="https://docs.unidata.ucar.edu/netcdf-java/current/userguide/netcdf4_c_library.html">these instructions</a>.
+</p>
+
+<h2 id="AutomaticRange">Automatic range</h2>
+<p>
+   The parameters
+   <a class="marec-parameter-ref" href="#DeltaRange">Delta range</a> and
+   <a class="marec-parameter-ref" href="#MaxRange">Max range</a>
+   are optional.
+   If unspecified, these values are determined from the sample distance and max range in the input data.
+</p>
+<ul>
+   <li>
+      If <a class="marec-parameter-ref" href="#WriterType">Writer type</a> = <em>Gridded</em>,
+      the first available ping on the
+      <a class="marec-parameter-ref" href="#MainFrequency">Main frequency</a>
+      is used.
+   </li>
+   <li>
+      If <a class="marec-parameter-ref" href="#WriterType">Writer type</a> = <em>Channel groups</em>,
+      the first available ping on each channel is used for the corresponding output channel group.
+   </li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="DirName">Output directory name:</span>
+      The netCDF files are written to this subfolder in the destination directory.
+   </li>
+   <li><span class="marec-parameter-def" id="MainFrequency">Main frequency:</span>
+      The channel with the main frequency is placed first in the output file.
+      If unspecified, the first channel is used.
+   </li>
+   <li><span class="marec-parameter-def" id="WriterType">Writer type:</span>
+      How to structure the output data.
+   </li>
+   <li><span class="marec-parameter-def" id="GriddedOutputType">Gridded output type:</span>
+      Output data in addition to the basic information.
+   </li>
+   <li><span class="marec-parameter-def" id="ChannelGroupOutputType">Channel group output type:</span>
+      Output data in addition to the basic information.
+   </li>
+   <li><span class="marec-parameter-def" id="DeltaRange">Delta range:</span>
+      Leave blank to <a href="#AutomaticRange">determine automatically</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxRange">Max range:</span>
+      Leave blank to <a href="#AutomaticRange">determine automatically</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="FftWindowSize">FFT window size:</span>
+      Size of the FFT window in units of pulse length.
+   </li>
+   <li><span class="marec-parameter-def" id="DeltaFrequency">Delta frequency:</span>
+      Resolution of the broadband frequency array.
+   </li>
+   <li><span class="marec-parameter-def" id="WriteAngels">Write angles:</span>
+      If selected, then the output data will include arrays for alongship and athwartship angles.
+   </li>
+</ul>

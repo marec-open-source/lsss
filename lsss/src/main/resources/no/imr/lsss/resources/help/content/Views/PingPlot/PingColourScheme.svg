@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="435" height="200" viewBox="0 0 435 200"
+     font-family="sans-serif" text-anchor="middle">
+
+   <rect x="60" y="90" width="60" height="60" fill="#5b47d5"/>
+   <rect x="120" y="90" width="60" height="60" fill="#301caa"/>
+   <rect x="180" y="90" width="60" height="60" fill="#ff0000"/>
+   <rect x="240" y="90" width="60" height="60" fill="#30aa1c"/>
+   <rect x="300" y="90" width="60" height="60" fill="#5bd547"/>
+
+   <g fill="#ffffff" font-weight="bold" font-size="24">
+      <text x="90" y="128">-2</text>
+      <text x="150" y="128">-1</text>
+      <text x="210" y="128">0</text>
+      <text x="270" y="128">+1</text>
+      <text x="330" y="128">+2</text>
+   </g>
+
+   <g fill="#555555" font-size="18">
+      <path d="M207,40 v25 h-7 l10,15 10,-15 h-7 v-25 z"/>
+      <text x="210" y="30">Current ping</text>
+
+      <path d="M0,165 h420 v7 l15,-10 -15,-10 v7 h-420 z"/>
+      <text x="410" y="185" text-anchor="end">Ping number</text>
+   </g>
+</svg>

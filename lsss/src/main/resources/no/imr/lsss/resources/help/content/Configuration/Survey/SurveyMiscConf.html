@@ -1,0 +1,188 @@
+<h1>Miscellaneous configuration</h1>
+<p>
+   This section contains miscellaneous survey settings.
+</p>
+<ul>
+   <li><span class="marec-parameter-def">Pelagic mode:</span>
+      If selected, then <a href="#PelagicMode">pelagic mode</a> is used and the bottom echogram will be hidden.
+   </li>
+   <li><span class="marec-parameter-def" id="PingMapping">Ping mapping:</span>
+      The horizontal axis of the echogram.
+      <div style="height: 10px;"></div>
+   </li>
+   <li><span class="marec-parameter-def" id="SeabedMounted">Seabed mounted echosounder:</span>
+      Whether the echosounder is mounded on the seabed, i.e., is pointing upwards.
+   </li>
+   <li><span class="marec-parameter-def" id="SeabedMountedDistanceToSeabed">Seabed mounted echosounder: Distance to seabed:</span>
+      The distance from the seabed mounted echosounder to the seabed.
+   </li>
+   <li><span class="marec-parameter-def" id="SeabedMountedDistanceToSurface">Seabed mounted echosounder: Distance to surface:</span>
+      The depth of the seabed mounted echosounder.
+      <div style="height: 10px;"></div>
+   </li>
+   <li><span class="marec-parameter-def" id="MainFrequency">Main frequency (Used in Map, FR, FileList):</span>
+      The main frequency. Used in the <a href="../../Views/FrequencyResponse/FrequencyResponse.html">frequency response module</a> when computing relative frequency response.
+      <div style="height: 10px;"></div>
+   </li>
+   <li><span class="marec-parameter-def" id="TopBoundaryOffset">Depth of initial top boundary:</span>
+      The depth (in meters) to place the initial top layer boundary.
+   </li>
+   <li><span class="marec-parameter-def" id="BottomBoundaryOffset">Offset from lower integration line to "detected" bottom:</span>
+      The distance above the coordinated bottom (in meters) to place the initial bottom layer boundary.
+      <div style="height: 10px;"></div>
+   </li>
+   <li><span class="marec-parameter-def" id="MinFrequencyForBottom">Min frequency for finding coordinated bottom:</span>
+      The minimum frequency to be used when computing the <a href="#CoordinatedBottom">coordinated bottom</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxFrequencyForBottom">Max frequency for finding coordinated bottom:</span>
+      The maximum frequency to be used when computing the coordinated bottom.
+   </li>
+   <li><span class="marec-parameter-def" id="MinimumDepthThresholdFactor">Shallowest acceptable depth relative to max depth:</span>
+      Used in the coordinated bottom calculation.
+      <div style="height: 10px;"></div>
+   </li>
+   <li><span class="marec-parameter-def" id="PreferredUpperThreshold">Preferred upper threshold:</span>
+      The default upper threshold for the <a href="../../Views/Echogram/Echogram.html#Colorbar">echogram colorbar</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="PreferredLowerThreshold">Preferred lower threshold:</span>
+      The lower threshold set when pressing the button below the <a href="../../Views/Echogram/Echogram.html#Colorbar">echogram colorbar</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="AdditionalLowerThresholds">Additional lower thresholds:</span>
+      A comma-separated list of additional lower thresholds.
+   </li>
+   <li><span class="marec-parameter-def" id="ShowWarningIfNotUsingPreferredLowerThreshold">Show warning if not using preferred lower threshold:</span>
+      If the echogram is not using only the preferred lower threshold,
+      a warning is shown next to the <a href="../../Views/Interpretation/Interpretation.html#StoreButton">Store button</a> in the Interpretation module.
+   </li>
+   <li><span class="marec-parameter-def" id="ShowWarningIfVerticallyZoomed">Show warning if vertically zoomed:</span>
+      If the echogram is vertically zoomed,
+      a warning is shown next to the <a href="../../Views/Interpretation/Interpretation.html#StoreButton">Store button</a> in the Interpretation module.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="UseSchoolCategorization">Use school categorization in interpretation:</span>
+      Determines which type of categorization to use for echogram display of categorization results.
+      Also affects the assignment of sa from categorization results.
+   </li>
+   <li><span class="marec-parameter-def" id="ProbabilityThreshold">Minimum value for categorization probability/similarity:</span>
+      The minimum probability/similarity for a category to be used in the echogram.
+      <hr> <!-------------------------------------------------------->
+   </li>
+   <li><span class="marec-parameter-def" id="SchoolGrowSmoothing">School grow smoothing:</span>
+      Schools <a href="../../WorkingWith/Regions/LayersAndSchools.html#CreatingRegions">grown by clicking</a>
+      in echogram are smoothed by scaling up and down with this amount.
+   </li>
+   <li><span class="marec-parameter-def" id="ComputeSchoolParameters">Compute school parameters:</span>
+      Whether to compute <a href="../../WorkingWith/Regions/SchoolParameters.html">school parameters</a>.
+   </li>
+   <li><span class="marec-parameter-def" id="RecomputeSchoolParameters">Recompute:</span>
+      Recomputes all <a href="../../WorkingWith/Regions/SchoolParameters.html">school parameters</a>.
+   </li>
+</ul>
+
+<h3 id="PelagicMode">Pelagic mode</h3>
+<p>
+   The following table lists the differences between pelagic mode and full / bottom mode:
+</p>
+<table class="marec-table">
+   <tr>
+      <th>Feature</th>
+      <th>Pelagic mode</th>
+      <th>Full mode</th>
+   </tr>
+   <tr>
+      <td>The <a href="../../Display/Display.html">bottom echogram</a></td>
+      <td>Hidden</td>
+      <td>Visible</td>
+   </tr>
+   <tr>
+      <td>Pings with depth 0</td>
+      <td>Used as normal</td>
+      <td>Displayed white on the echogram and not used in any calculations</td>
+   </tr>
+   <tr>
+      <td>Definition of the lower boundary for the initial layer</td>
+      <td><a class="marec-parameter-ref" href="#BottomBoundaryOffset">BottomBoundaryOffset</a> above the coordinated bottom</td>
+      <td>Using 90% of the maximum depth of the pelagic echogram</td>
+   </tr>
+</table>
+<p>
+   Pelagic mode can also be selected in the echogram context menu.
+</p>
+
+<h3 id="CoordinatedBottom">Coordinated bottom</h3>
+<p>
+   The following algorithm is used for finding the coordinated bottom:
+</p>
+<ol>
+   <li>Use the bottom depths detected on all frequencies between
+      <a class="marec-parameter-ref" href="#MinFrequencyForBottom">MinFrequencyForBottom</a> and
+      <a class="marec-parameter-ref" href="#MaxFrequencyForBottom">MaxFrequencyForBottom</a>.
+   </li>
+   <li>Find the maximum depth.</li>
+   <li>Reject the depths less than
+      <a class="marec-parameter-ref" href="#MinimumDepthThresholdFactor">MinimumDepthThresholdFactor</a>
+      times the maximum depth.
+   </li>
+   <li>The coordinated depth is computed from the remaining depths:
+      <ol type="a">
+         <li>If the depth for the
+            <a class="marec-parameter-ref" href="#MainFrequency">MainFrequency</a>
+            is accepted, then it is used.
+         </li>
+         <li>Otherwise, the smallest of the remaining depths is used.</li>
+      </ol>
+   </li>
+</ol>
+<p>
+   The coordinated bottom is used for defining the lower boundary of the initial layer.
+   It is also displayed on the <a href="../../Views/Echogram/Echogram.html#BottomOverlay">echogram</a>.
+</p>
+
+<h2 id="IcesAcousticMetadata">ICES acoustic metadata</h2>
+<p>
+   This section contains metadata used when generating database reports with
+   <a href="../../WorkingWith/Output/ReportGenerator/ReportGenerator.html#PrintFormat25">Print format 25</a>.
+   This metadata is stored in the <a href="../../Database/Tables/SurveyInfo.html">SurveyInfo</a> database table.
+</p>
+<p>
+   The tables (Instrument, Calibration, DataAcquisition, DataProcessing) contain
+</p>
+<ul>
+   <li>Mandatory values indicated with <span style="font-weight: bold;">bold column headers</span>.</li>
+   <li>Optional values indicated with <span style="font-style: italic;">italicized column headers</span>.</li>
+</ul>
+<p>
+   Some entries should have values from schemas with specific sets of codes.
+   Click the button "Download schemas" to download the schema files listed below.
+   The schema files will be stored in a subdirectory of MainDir configured in
+   <a href="../Application/DirectoryConf.html">[Application configuration - Directories]</a>
+   and are shared across all surveys.
+   The codes with descriptions are shown in the tooltip.
+</p>
+<ul class="marec-overflow-break-word">
+   <li><a href="https://acoustic.ices.dk/Services/Schema/XML/AC_AcquisitionMethod.xml">https://acoustic.ices.dk/Services/Schema/XML/AC_AcquisitionMethod.xml</a></li>
+   <li><a href="https://acoustic.ices.dk/Services/Schema/XML/AC_DataAcquisitionSoftwareName.xml">https://acoustic.ices.dk/Services/Schema/XML/AC_DataAcquisitionSoftwareName.xml</a></li>
+   <li><a href="https://acoustic.ices.dk/Services/Schema/XML/AC_DataProcessingSoftwareName.xml">https://acoustic.ices.dk/Services/Schema/XML/AC_DataProcessingSoftwareName.xml</a></li>
+   <li><a href="https://acoustic.ices.dk/Services/Schema/XML/AC_OnAxisGainUnit.xml">https://acoustic.ices.dk/Services/Schema/XML/AC_OnAxisGainUnit.xml</a></li>
+   <li><a href="https://acoustic.ices.dk/Services/Schema/XML/AC_ProcessingMethod.xml">https://acoustic.ices.dk/Services/Schema/XML/AC_ProcessingMethod.xml</a></li>
+   <li><a href="https://acoustic.ices.dk/Services/Schema/XML/AC_StoredDataFormat.xml">https://acoustic.ices.dk/Services/Schema/XML/AC_StoredDataFormat.xml</a></li>
+   <li><a href="https://acoustic.ices.dk/Services/Schema/XML/AC_Survey.xml">https://acoustic.ices.dk/Services/Schema/XML/AC_Survey.xml</a></li>
+   <li><a href="https://acoustic.ices.dk/Services/Schema/XML/AC_TransducerBeamType.xml">https://acoustic.ices.dk/Services/Schema/XML/AC_TransducerBeamType.xml</a></li>
+   <li><a href="https://acoustic.ices.dk/Services/Schema/XML/AC_TransducerLocation.xml">https://acoustic.ices.dk/Services/Schema/XML/AC_TransducerLocation.xml</a></li>
+   <li><a href="https://acoustic.ices.dk/Services/Schema/XML/AC_TriwaveCorrection.xml">https://acoustic.ices.dk/Services/Schema/XML/AC_TriwaveCorrection.xml</a></li>
+   <li><a href="https://acoustic.ices.dk/Services/Schema/XML/EDMO.xml">https://acoustic.ices.dk/Services/Schema/XML/EDMO.xml</a></li>
+   <li><a href="https://acoustic.ices.dk/Services/Schema/XML/SHIPC.xml">https://acoustic.ices.dk/Services/Schema/XML/SHIPC.xml</a></li>
+</ul>
+<p>
+   The button "Reset values from data" will attempt to fill the tables with values from the beginning of the first file of the currently loaded data.
+   If the KORONA button is selected, then the table DataProcessing will use preprocessed data from KoronaDataDir.
+   The other tables will use original raw data from DataDir.
+</p>
+<p>
+   Not all entries of the ICES metadata are readily available in all data files.
+   It is therefore recommended reviewing the values and making necessary corrections.
+</p>
+<p>
+   Some of the metadata values, such as TransducerDepth and Absorption, can vary during a survey.
+   This variation will not be represented here, and suitably representative values should be chosen.
+</p>

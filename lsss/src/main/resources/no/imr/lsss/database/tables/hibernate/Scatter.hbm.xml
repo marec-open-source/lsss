@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+      "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="no.imr.lsss.database.tables.hibernate.Scatter" table="scatter">
+      <composite-id name="compId" class="no.imr.lsss.database.tables.hibernate.ScatterPK">
+         <key-property name="nation" column="Nation" type="short"/>
+         <key-property name="platform" column="Platform" type="short"/>
+         <key-property name="survey" column="Survey" type="int"/>
+         <key-property name="object" column="Object" type="int"/>
+         <key-property name="observationDate" column="ObservationDate" type="int"/>
+         <key-property name="observationTime" column="ObservationTime" type="int"/>
+         <key-property name="frequency" column="Frequency" type="int"/>
+         <key-property name="transceiver" column="Transceiver" type="short"/>
+         <key-property name="scatterType" column="ScatterType" type="short"/>
+      </composite-id>
+
+      <property name="observationType" column="ObservationType" type="short" not-null="true"/>
+      <property name="duration" column="Duration" type="int" not-null="true"/>
+      <property name="distanceInterval" column="DistanceInterval" type="float" not-null="true"/>
+      <property name="minBottomDepth" column="MinBottomDepth" type="float" not-null="true"/>
+      <property name="maxBottomDepth" column="MaxBottomDepth" type="float" not-null="true"/>
+      <property name="threshold" column="Threshold" type="float" not-null="true"/>
+      <property name="bubbleCorrection" column="BubbleCorrection" type="float" not-null="true"/>
+      <property name="channelThickness" column="ChannelThickness" type="float" not-null="true"/>
+      <property name="upperDepth" column="UpperDepth" type="float" not-null="true"/>
+      <property name="lowerDepth" column="LowerDepth" type="float" not-null="true"/>
+      <property name="sa" column="SA" type="float" not-null="true"/>
+      <property name="quality" column="Quality" type="float" not-null="true"/>
+      <property name="pctSa" column="PctSA" type="float" not-null="true"/>
+      <property name="upperInterpretationDepth" column="UpperInterpretationDepth" type="float" not-null="true"/>
+      <property name="lowerInterpretationDepth" column="LowerInterpretationDepth" type="float" not-null="true"/>
+      <property name="bottomActive" column="BottomActive" type="short" not-null="true"/>
+
+      <!-- Associations -->
+
+      <many-to-one
+            name="scatterType"
+            class="no.imr.lsss.database.tables.hibernate.ScatterType"
+            update="false"
+            insert="false"
+      >
+         <column name="ScatterType"/>
+      </many-to-one>
+
+      <many-to-one
+            name="observation"
+            class="no.imr.lsss.database.tables.hibernate.Observation"
+            not-null="true"
+            update="false"
+            insert="false"
+      >
+         <column name="Nation"/>
+         <column name="Platform"/>
+         <column name="Survey"/>
+         <column name="ObservationDate"/>
+         <column name="ObservationTime"/>
+         <column name="ObservationType"/>
+      </many-to-one>
+
+      <set
+            name="scatterDatas"
+            lazy="true"
+            inverse="true"
+      >
+         <key>
+            <column name="Nation"/>
+            <column name="Platform"/>
+            <column name="Survey"/>
+            <column name="Object"/>
+            <column name="ObservationDate"/>
+            <column name="ObservationTime"/>
+            <column name="Frequency"/>
+            <column name="Transceiver"/>
+            <column name="ScatterType"/>
+         </key>
+         <one-to-many
+               class="no.imr.lsss.database.tables.hibernate.ScatterData"
+         />
+      </set>
+
+      <many-to-one
+            name="scatterObject"
+            class="no.imr.lsss.database.tables.hibernate.ScatterObject"
+            not-null="true"
+            insert="false"
+            update="false"
+      >
+         <column name="nation"/>
+         <column name="platform"/>
+         <column name="survey"/>
+         <column name="object"/>
+      </many-to-one>
+
+   </class>
+</hibernate-mapping>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<unit name="SurveyConfiguration" version="1">
+   <configuration>
+      <parameters/>
+   </configuration>
+   <unit name="SurveyConf">
+      <configuration>
+         <parameters>
+            <parameter name="Nation">Norway</parameter>
+            <parameter name="PlatformId">9999</parameter>
+            <parameter name="Platform">inge (9999)</parameter>
+            <parameter name="StartDate"/>
+            <parameter name="StartTime"/>
+            <parameter name="StopDate"/>
+            <parameter name="StopTime"/>
+            <parameter name="BoundaryNorth"/>
+            <parameter name="BoundarySouth"/>
+            <parameter name="BoundaryWest"/>
+            <parameter name="BoundaryEast"/>
+            <parameter name="Comment"/>
+         </parameters>
+      </configuration>
+   </unit>
+   <unit name="AcousticCategoryConf">
+      <configuration>
+         <species>
+            <speciesMappings/>
+         </species>
+      </configuration>
+   </unit>
+   <unit name="GridConf">
+      <configuration>
+         <parameters>
+            <parameter name="HorizontalGridUnit">nmi</parameter>
+            <parameter name="PreferredHorizontalSize">5</parameter>
+            <parameter name="AutomaticDetailMode">false</parameter>
+            <parameter name="HorizontalGridSize">5</parameter>
+            <parameter name="MinHorizontalGridSize">0.1</parameter>
+            <parameter name="SchoolHorizontalGridSize">0.05</parameter>
+            <parameter name="VerticalGridSizePelagic">10</parameter>
+            <parameter name="VerticalGridSizeBottom">5</parameter>
+            <parameter name="SchoolVerticalGridSizePelagic">5</parameter>
+            <parameter name="SchoolVerticalGridSizeBottom">1</parameter>
+            <parameter name="VerticalExtentBottom">10</parameter>
+         </parameters>
+      </configuration>
+   </unit>
+   <unit name="SurveyMiscConf">
+      <configuration>
+         <parameters>
+            <parameter name="PelagicMode">false</parameter>
+            <parameter name="PingMapping">Distance</parameter>
+            <parameter name="SeabedMounted">false</parameter>
+            <parameter name="SeabedMountedDistanceToSeabed">0</parameter>
+            <parameter name="SeabedMountedDistanceToSurface">500</parameter>
+            <parameter name="MainFrequency">38000</parameter>
+            <parameter name="TopBoundaryOffset">15</parameter>
+            <parameter name="BottomBoundaryOffset">0.5</parameter>
+            <parameter name="MinFrequencyForBottom">10000</parameter>
+            <parameter name="MaxFrequencyForBottom">200000</parameter>
+            <parameter name="MinimumDepthThresholdFactor">0.99</parameter>
+            <parameter name="PreferredUpperThreshold">-30</parameter>
+            <parameter name="PreferredLowerThreshold">-82</parameter>
+            <parameter name="AdditionalLowerThresholds"/>
+            <parameter name="UseSchoolCategorization">true</parameter>
+            <parameter name="UseTrackCategorization">true</parameter>
+            <parameter name="ProbabilityThreshold">0</parameter>
+            <parameter name="ComputeSchoolParameters">false</parameter>
+         </parameters>
+      </configuration>
+   </unit>
+</unit>

@@ -1,0 +1,75 @@
+<h1>ObservationComment</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>ObservationComment</strong> - Comment to observation
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct ObservationComment {
+  short Nation;
+  short Platform;
+  int   Survey;
+  int   ObservationDate;
+  int   ObservationTime;
+  short ObservationType;
+  int   StandardComment;
+  int   Mantissa;
+  int   Exp;
+  char  Text[200];
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   ObservationComment contains the mapping link between observations and comments.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the
+      <a href="Nation.html">Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - Unique survey identification code. See the <a href="Survey.html">Survey</a>
+      table.
+   </li>
+   <li><span class="marec-parameter-def" id="Date">Date</span> - Date of event or observation. Refer to the
+      <a href="Observation.html">Observation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Time">Time</span> - Time of day of event or observation. Refer to the
+      <a href="Observation.html">Observation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="ObservationType">ObservationType</span> - Code for which type of observation made. Refer to the
+      <a href="ObservationType.html">Observation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="StandardComment">StandardComment</span> - Comment code. Refer to the <a href="StandardComment.html">
+      StandardComment</a> database table. If the code value is 0, the comment is defined in
+      the <a class="marec-parameter-ref" href="#Text">Text</a> parameter.
+   </li>
+   <li><span class="marec-parameter-def" id="Mantissa">Mantissa</span> - See the CommentExp parameter below.</li>
+   <li><span class="marec-parameter-def" id="Exp">Exp</span> - Any comment may have a specific value assigned to it. This value can be
+      any number, and the value stored as two different parameters in the ObservationComment database table;
+      Mantissa and Exp. Value = Mantissa &times; 10<sup>Exp</sup>. The conversion from the assigned
+      value to the two parameter values is performed
+      automatically when the data is stored to the database.
+   </li>
+   <li><span class="marec-parameter-def" id="Text">Text</span> - Free text to enter comment. Note that maximum size is 200
+      characters. This parameter is empty if a standard comment is used (<a class="marec-parameter-ref" href="#StandardComment">StandardComment</a>
+      parameter > 0).
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   The database table <a href="StandardComment.html">StandardComment</a>
+   contains standard comments frequently used.
+</p>

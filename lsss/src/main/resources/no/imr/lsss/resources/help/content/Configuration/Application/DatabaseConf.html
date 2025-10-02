@@ -1,0 +1,75 @@
+<h1>Database configuration</h1>
+<figure>
+   <img width="800" height="500" src="DatabaseConf.png">
+</figure>
+<p>
+   Before LSSS can be used for setting up a new survey, the database connection must be configured.
+   This is done in the following steps:
+</p>
+<ol>
+   <li>Select one of the supplied database types.</li>
+   <li>Configure the relevant parameters for the selected database.</li>
+   <li>Press the "Connect" button to connect to an existing database or press the "Initialize" button to initialize a
+      database. Note that initializing a database will delete all existing data.
+   </li>
+</ol>
+<p>
+   Most database types require access to an account on an external database server.
+   This is the case for PostgreSQL.
+   It may also be required, depending on account privileges, that the database is already created on the database server.
+</p>
+<p>
+   The databases HSQLDB and Java DB do not require any additional installation.
+   The content of HSQLDB is stored in files (text or binary), and kept in memory
+   while in use. This means that it is suitable only for relatively small databases.
+   <br>
+   Java DB stores data to binary files. It has no limitations on the size of
+   the database.
+</p>
+
+<h3 id="GenericDatabaseConnection">Generic database connection</h3>
+<p>
+   This option enables the use of any database with a
+   <a href="https://en.wikipedia.org/wiki/Java_Database_Connectivity">JDBC connection</a> and a
+   <a href="https://docs.jboss.org/hibernate/stable/annotations/api/org/hibernate/dialect/package-summary.html">Hibernate SQL dialect</a> implementation.
+   No guarantees are given about the interoperability between any particular such database and LSSS.
+</p>
+<p>
+   To use this option first do this:
+</p>
+<ol>
+   <li>Download the jar file containing the JDBC driver from the database vendor.</li>
+   <li>Place the jar file in the directory <code>[LSSS installation]/lib/jar</code>.</li>
+   <li>Restart LSSS.</li>
+</ol>
+<p>
+   Then configure these parameters:
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="JdbcDriver">JDBC driver:</span>
+      The fully qualified class name of the JDBC driver.
+   </li>
+   <li><span class="marec-parameter-def" id="SqlDialect">SQL dialect:</span>
+      The fully qualified class name of the Hibernate SQL dialect.
+   </li>
+   <li><span class="marec-parameter-def" id="ConnectionUrl">Connection URL:</span>
+      The URL for connecting.
+   </li>
+   <li><span class="marec-parameter-def" id="UserName">Username:</span>
+      The username (if required).
+   </li>
+   <li><span class="marec-parameter-def" id="Password">Password:</span>
+      The password (if required).
+   </li>
+   <li><span class="marec-parameter-def" id="SavePassword">Save password:</span>
+      If selected, then the password is saved encrypted in the configuration file.
+   </li>
+</ul>
+<p>
+   Example for the <a href="https://h2database.com/">H2 Database Engine</a>:
+</p>
+<ul>
+   <li>JDBC driver: <code>org.h2.Driver</code></li>
+   <li>SQL dialect: <code>org.hibernate.dialect.H2Dialect</code></li>
+   <li>Connection URL: <code>jdbc:h2:file:C:/data/test</code></li>
+</ul>

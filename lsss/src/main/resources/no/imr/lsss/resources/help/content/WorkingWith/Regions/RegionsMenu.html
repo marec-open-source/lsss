@@ -1,0 +1,106 @@
+<h1>Regions menu</h1>
+<p>
+   This menu is part of the <a href="../../Display/Display.html#MenuBar">menu bar</a>.
+</p>
+
+<h2 id="SelectNext">Select next visible region</h2>
+<p>
+   Select the next visible region.
+</p>
+
+<h2 id="SelectAll">Select all visible regions</h2>
+<p>
+   Select all visible regions.
+</p>
+
+<h2 id="ActivateNot100CurrentFrequency">Select all visible regions with total assignment not 100% on current frequency</h2>
+<p>
+   Select all visible regions where the total assignment is ≠ 100% on the current frequency.
+   This is a useful function to check that all regions are scrutinized prior to saving to the database.
+</p>
+
+<h2 id="SelectNot100StorableFrequencies">Select all visible regions with total assignment not 100% on storable frequencies</h2>
+<p>
+   Select all visible regions where the total assignment is ≠ 100% on storable frequencies.
+   This is a useful function to check that all regions are scrutinized prior to saving to the database.
+</p>
+
+<h2 id="SelectCategory">Select visible regions with acoustic category</h2>
+<p>
+   Select all visible regions that are scrutinized as specified category (e.g. mackerel).
+</p>
+
+<h2 id="Labels">Region labels</h2>
+<p>
+   Add labels to regions. Select regions based on labels.
+</p>
+
+<h2 id="ResetInterpretation">Reset interpretation...</h2>
+<p>
+   Reset interpretation, i.e. discard all allocated categories and set layer-lines to default. In surface-mode (i.e.
+   bottom window active), the lower integration line is drawn according to the detected bottom. Note that the bottom
+   detected by the echosounder and by the preprocessor is in general slightly different. If the echogram mode is set to
+   pelagic mode, the lower integration line is drawn at a predefined depth.
+</p>
+
+<h2 id="MergeNeighbouringLayersWithSameInterpretation">Merge neighbouring layers with same interpretation</h2>
+<p>
+   Merge visible layers with the same interpretation and the same set of labels.
+</p>
+
+<h2 id="SetUpperBoundaryFromRange">Set upper boundary from range</h2>
+<p>
+   Set the upper integration line from a specified range.
+</p>
+
+<h2 id="SetUpperBoundaryFromThreshold">Set upper boundary from threshold</h2>
+<p>
+   Set the upper integration line in the visible part of the echogram based on the colours. If the noise threshold is set
+   so that only the blind zone near the transducer is visible, the upper integration line will be drawn to follow the blind zone.
+</p>
+
+<h2 id="SetLowerBoundaryFromThreshold">Set lower boundary from threshold</h2>
+<p>
+   Set the lower integration line in the visible part of the echogram based on the colours. If the noise threshold is set
+   so that only the bottom is visible, the lower integration line will be drawn to follow the bottom.
+</p>
+
+<h2 id="SetLowerBoundaryFromCoordinatedBottom">Set lower boundary from coordinated bottom</h2>
+<p>
+   Set the lower integration line in the visible part of the echogram by using the detected/coordinated bottom
+   and the configured <a href="../../Configuration/Survey/SurveyMiscConf.html">offset from bottom</a>.
+</p>
+
+<h2 id="SetLowerBoundaryFromCurrentFrequencyBottom">Set lower boundary from bottom on current frequency</h2>
+<p>
+   Set the lower integration line in the visible part of the echogram by using the detected bottom in the current frequency
+   and the configured <a href="../../Configuration/Survey/SurveyMiscConf.html">offset from bottom</a>.
+</p>
+
+<h2 id="DeleteBottomDataCurrentFrequency">Delete data above lower integration line and below bottom on current frequency</h2>
+<p>
+   Applies <a href="Masking.html">frequency-dependent deletion</a> to data that is above the lower integration line
+   and below the detected bottom on the current frequency.
+   The deletion is applied to the current frequency in the visible ping range.
+</p>
+
+<h2 id="DeleteAssignmentsOnOtherFrequencies">Delete assignments on other frequencies</h2>
+<p>
+   Delete assignments for selected regions on other frequencies than the one that is currently active.
+</p>
+
+<h2 id="DeleteAssignmentsOnAllFrequencies">Delete assignments on all frequencies</h2>
+<p>
+   Delete assignments for selected regions on all frequencies.
+</p>
+
+<h2 id="SchoolVisualizerDialog">School visualizer dialog...</h2>
+<p>
+   Shows a dialog for exploring <a href="SchoolParameters.html">school parameters</a>.
+</p>
+
+<h2 id="CategoryEditor">Category editor...</h2>
+<p>
+   See <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/WorkingWith/ConfigFileSettings/Categorization/Categorization.html">categorization library</a>
+   in KORONA manual.
+</p>

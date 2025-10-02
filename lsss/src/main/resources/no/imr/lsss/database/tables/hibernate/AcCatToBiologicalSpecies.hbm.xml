@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+      "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="no.imr.lsss.database.tables.hibernate.AcCatToBiologicalSpecies" table="AcCatToBiologicalSpecies">
+      <composite-id name="compId" class="no.imr.lsss.database.tables.hibernate.AcCatToBiologicalSpeciesPK">
+         <key-property name="nation" column="Nation" type="short"/>
+         <key-property name="platform" column="Platform" type="short"/>
+         <key-property name="acousticCategory" column="AcousticCategory" type="int"/>
+         <key-property name="biologicalSpecies" column="BiologicalSpecies" type="int"/>
+      </composite-id>
+
+      <!-- Associations -->
+
+      <many-to-one
+            name="biologicalSpecies"
+            class="no.imr.lsss.database.tables.hibernate.BiologicalSpecies"
+            update="false"
+            insert="false"
+      >
+         <column name="Nation"/>
+         <column name="BiologicalSpecies"/>
+      </many-to-one>
+
+      <many-to-one
+            name="acousticCategory"
+            class="no.imr.lsss.database.tables.hibernate.AcousticCategory"
+            update="false"
+            insert="false"
+      >
+         <column name="Nation"/>
+         <column name="Platform"/>
+         <column name="AcousticCategory"/>
+      </many-to-one>
+
+   </class>
+</hibernate-mapping>

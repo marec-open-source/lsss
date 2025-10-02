@@ -1,0 +1,158 @@
+<h1>Example .json file</h1>
+<p>
+   This is an example <a href="RefLog.html">reference log</a> file in the <a href="RefLog.html#JsonFiles">JSON format</a>.
+</p>
+<pre>
+{
+  "id": "9cc68000-9e7c-11eb-a429-b7b91b84686c",
+  "name": "Pelagisk trål",
+  "activityTypeId": "e6d84e2a-bd89-4e09-a9af-bd9f834dbaed",
+  "activityTypeName": "Pelagisk trål",
+  "activityTypeCode": 1500,
+  "activityMainGroupId": "c88bdfe7-695b-4101-9c1f-cb34966cf819",
+  "activityMainGroupName": "Trål",
+  "superstationNumber": 2,
+  "localstationNumber": 3,
+  "activityNumber": 4,
+  "startTime": "2021-04-16T06:26:00.828Z",
+  "endTime": "2021-04-16T06:26:08.104Z",
+  "startPosition": {
+    "type": "Point",
+    "coordinates": [11.605738333333333, 67.40920833333334]
+  },
+  "endPosition": {
+    "type": "Point",
+    "coordinates": [11.606308333333333, 67.409045]
+  },
+  "comment": "test pelagisk",
+  "fields": [
+    {
+      "name": "Max depth",
+      "type": "instrumentData",
+      "value": 83.95,
+      "extendedValue": {
+        "autoManual": "auto",
+        "mapping": {
+          "id": "depth",
+          "port": 5010,
+          "nmeaIdentifier": "EKDBS",
+          "dataFields": [2],
+          "filters": [],
+          "expectedDataInterval": 10,
+          "measurementUnit": "m",
+          "comment": ""
+        },
+        "measurementUnit": "m",
+        "result": 83.95
+      }
+    }, {
+      "name": "Min depth",
+      "type": "instrumentData",
+      "value": 73.35,
+      "extendedValue": {
+        "autoManual": "auto",
+        "mapping": {
+          "id": "depth",
+          "port": 5010,
+          "nmeaIdentifier": "EKDBS",
+          "dataFields": [2],
+          "filters": [],
+          "expectedDataInterval": 10,
+          "measurementUnit": "m",
+          "comment": ""
+        },
+        "measurementUnit": "m",
+        "result": 73.35
+      }
+    }, {
+      "name": "Antall",
+      "type": "number",
+      "value": 1,
+      "extendedValue": 1
+    }, {
+      "name": "Kode (SPD)",
+      "type": "gear",
+      "value": 3517,
+      "extendedValue": 3517
+    }, {
+      "name": "Wirelengde",
+      "type": "number",
+      "value": null,
+      "extendedValue": null
+    }, {
+      "name": "Redskapsnummer",
+      "type": "number",
+      "value": null,
+      "extendedValue": null
+    }, {
+      "name": "Serienummer",
+      "type": "sequence",
+      "value": 3,
+      "extendedValue": 3
+    }, {
+      "name": "Åpning",
+      "type": "instrumentData",
+      "value": null,
+      "extendedValue": {
+        "autoManual": "auto",
+        "mapping": {
+          "id": "trawlopening",
+          "port": 5070,
+          "nmeaIdentifier": "PSCMSM2",
+          "dataFields": [5],
+          "filters": [
+            {
+              "fieldNumber": 1,
+              "requiredValue": "A"
+            }, {
+              "fieldNumber": 2,
+              "requiredValue": "TEY"
+            }, {
+              "fieldNumber": 4,
+              "requiredValue": "O"
+            }, {
+              "fieldNumber": 6,
+              "requiredValue": "15"
+            }
+          ],
+          "expectedDataInterval": 30,
+          "measurementUnit": "m",
+          "comment": ""
+        },
+        "measurementUnit": "m",
+        "result": null
+      }
+    }, {
+      "name": "Dørspredning",
+      "type": "instrumentData",
+      "value": 0,
+      "extendedValue": {
+        "autoManual": "auto",
+        "mapping": {
+          "id": "trawldoorspread",
+          "port": 5070,
+          "nmeaIdentifier": "PSCMSM2",
+          "dataFields": [5],
+          "filters": [
+            {
+              "fieldNumber": 1,
+              "requiredValue": "A"
+            }, {
+              "fieldNumber": 2,
+              "requiredValue": "DVTLAM"
+            }, {
+              "fieldNumber": 4,
+              "requiredValue": "S"
+            }
+          ],
+          "expectedDataInterval": 30,
+          "measurementUnit": "m",
+          "comment": ""
+        },
+        "measurementUnit": "m",
+        "result": 0
+      }
+    }
+  ]
+}
+</pre>

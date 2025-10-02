@@ -1,0 +1,71 @@
+<h1>SchoolData</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>SchoolData</strong> - Multi-frequency acoustic measurements on a school object
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct SchoolData {
+  short  Nation;
+  short  Platform;
+  int    Survey;
+  int    Object;
+  short  SchoolObjectType;
+  int    Frequency;
+  int    Transceiver;
+  int    FrequencyRef;
+  int    TransceiverRef;
+  float  SA;
+  float  SL;
+  float  RF;
+  float  rf_sdev;
+  float  sv_mean;
+  float  sv_sdev;
+  float  Skewness;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table provides a mapping between the observation type code and the
+   observation type name. Note that there is a maximum length of the name
+   and the description.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the <a href="Nation.html">
+      Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Unique platform (vessel) identification code. Refer to the
+      <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - Unique survey identification code. See the <a href="Survey.html">
+      Survey</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="Object">Object</span> - see <a href="Scatter.html">Scatter</a> table.</li>
+   <li><span class="marec-parameter-def" id="SchoolObjectType">SchoolObjectType</span></li>
+   <li><span class="marec-parameter-def" id="Frequency">Frequency</span> [Hz] - see <a href="Scatter.html">Scatter</a> table.</li>
+   <li><span class="marec-parameter-def" id="Transceiver">Transceiver</span> [-] - see <a href="Scatter.html">Scatter</a> table.</li>
+   <li><span class="marec-parameter-def" id="FrequencyRef">FrequencyRef</span> [Hz] - Reference frequency, usually 38 kHz.</li>
+   <li><span class="marec-parameter-def" id="TransceiverRef">TransceiverRef</span> [-] - Transceiver number of reference frequency.</li>
+   <li><span class="marec-parameter-def" id="sA">sA</span> // Total sA (or total sv?)</li>
+   <li><span class="marec-parameter-def" id="sL">sL</span> or object_length // Length [m] (so that abundance can be calculated)</li>
+   <li><span class="marec-parameter-def" id="rf">rf</span> (sA/sA_ref) // Corrected value is the same.</li>
+   <li><span class="marec-parameter-def" id="rf_sdev">rf_sdev</span> // Corrected value is the same.</li>
+   <li><span class="marec-parameter-def" id="sv_mean">sv_mean</span> // Corrected: sv_mean * A / AC * 10**(dSvC/10)</li>
+   <li><span class="marec-parameter-def" id="sv_sdev">sv_sdev</span> // [ (sv_mean - sv_i) / (n-1) ] ** 0.5</li>
+   <li><span class="marec-parameter-def" id="Skewness">Skewness</span> // Skewness should be OK for same measurement frequency.</li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="SchoolMorphology.html">SchoolMorphology</a>
+</p>

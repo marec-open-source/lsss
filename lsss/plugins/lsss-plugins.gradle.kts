@@ -1,0 +1,3 @@
+plugins {
+   marec.`base-plugin`
+}

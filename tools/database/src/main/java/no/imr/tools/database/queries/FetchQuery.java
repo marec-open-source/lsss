@@ -1,0 +1,79 @@
+package no.imr.tools.database.queries;
+
+import no.imr.tools.database.DatabaseColumn;
+import no.imr.tools.database.hibernate.BaseDatabaseObject;
+import org.hibernate.Session;
+import org.hibernate.StatelessSession;
+
+import java.util.List;
+
+/**
+ * Fetch from database.
+ */
+public final class FetchQuery<T extends BaseDatabaseObject> implements ValuedDatabaseQuery<List<T>>, StatelessValuedDatabaseQuery<List<T>> {
+   private final Class<T> clazz;
+   private final String query;
+
+   public FetchQuery(Class<T> clazz, String query) {
+      this.clazz = clazz;
+      this.query = query;
+   }
+
+   public FetchQuery(Class<T> clazz) {
+      this(clazz, QueryUtils.buildFromQuery(clazz));
+   }
+
+   public FetchQuery(Class<T> clazz,
+                     DatabaseColumn columnA, Object valueA) {
+      this(clazz, QueryUtils.buildFromQuery(clazz,
+            columnA, valueA));
+   }
+
+   public FetchQuery(Class<T> clazz,
+                     DatabaseColumn columnA, Object valueA,
+                     DatabaseColumn columnB, Object valueB) {
+      this(clazz, QueryUtils.buildFromQuery(clazz,
+            columnA, valueA,
+            columnB, valueB));
+   }
+
+   public FetchQuery(Class<T> clazz,
+                     DatabaseColumn columnA, Object valueA,
+                     DatabaseColumn columnB, Object valueB,
+                     DatabaseColumn columnC, Object valueC) {
+      this(clazz, QueryUtils.buildFromQuery(clazz,
+            columnA, valueA,
+            columnB, valueB,
+            columnC, valueC));
+   }
+
+   public FetchQuery(Class<T> clazz,
+                     DatabaseColumn columnA, Object valueA,
+                     DatabaseColumn columnB, Object valueB,
+                     DatabaseColumn columnC, Object valueC,
+                     DatabaseColumn columnD, Object valueD) {
+      this(clazz, QueryUtils.buildFromQuery(clazz,
+            columnA, valueA,
+            columnB, valueB,
+            columnC, valueC,
+            columnD, valueD));
+   }
+
+   public Class<T> getQueryClass() {
+      return clazz;
+   }
+
+   public String getQueryString() {
+      return query;
+   }
+
+   @Override
+   public List<T> executeAndGetValue(Session session) {
+      return session.createQuery(query, clazz).list();
+   }
+
+   @Override
+   public List<T> executeAndGetValue(StatelessSession session) {
+      return session.createQuery(query, clazz).list();
+   }
+}

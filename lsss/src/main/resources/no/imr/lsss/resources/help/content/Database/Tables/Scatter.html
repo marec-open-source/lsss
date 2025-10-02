@@ -1,0 +1,203 @@
+<h1>Scatter</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>Scatter</strong> - Processing and support parameters for acoustic data
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct Scatter {
+  short Nation;
+  short Platform;
+  int   Survey;
+  int   Object;
+  int   ObservationDate;
+  int   ObservationTime;
+  int   Frequency;
+  short Transceiver;
+  short ScatterType;
+  short ObservationType;
+  int   Duration;
+  float DistanceInterval;
+  float MinBottomDepth;
+  float MaxBottomDepth;
+  float Threshold;
+  float BubbleCorrection;
+  float ChannelThickness;
+  float UpperDepth;
+  float LowerDepth;
+  float SA;
+  float Quality;
+  float PctSA;
+  float UpperInterpretationDepth;
+  float LowerInterpretationDepth;
+  short BottomActive;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   Interpreted echo data from scattered fish are stored in the tables
+   Scatter and <a href="ScatterData.html">ScatterData</a>. The data
+   are stored in the tables with a selectable horizontal resolution. The database table
+   Scatter contains processing and support parameters. The database
+   table <a href="ScatterData.html">ScatterData</a> contains the integrated echo levels in
+   depth-channels as s<sub>A</sub> (Nautical Area Scattering Coefficient).
+   Vertically, the data in Scatter and
+   <a href="ScatterData.html">ScatterData</a> tables are resolved into depth-channels;
+   pelagic and bottom. The <strong>ScatterType</strong> parameter determines if the scatter data are
+   taken from pelagic or bottom channels, while channel thickness is controlled by
+   the <strong>ChannelThickness</strong> parameter. When stored to the database, there will for each
+   subinterval be stored: one <strong>ObservationType</strong> = <i>"Scattered Fish Data"</i> event line is added
+   to the <a href="ObservationType.html">ObservationType</a> table, one line is added to the
+   Scatter table several lines are added to the
+   <a href="ScatterData.html">ScatterData</a> table.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - [-] Unique nation identification code. Refer to the
+      <a href="Nation.html">Nation</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - [-] Unique platform (vessel) identification code.
+      Refer to the <a href="Platform.html">Platform</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Survey">Survey</span> - [-] Unique survey identification code. See the Survey
+      table.
+   </li>
+   <li><span class="marec-parameter-def" id="Object">Object</span> - [-] Object identification number.
+      The number is used to group scattered data. The primary gain is thought to be
+      by using the Object number to group scattered data from schools. The Object
+      (number) is shared between the frequencies. There are currently
+      two types of objects that are numbered: echogram and school. Each of these two
+      object-types have surface-referenced depth-channels (scatter-type Echogram-Pelagic
+      or School-Pelagic of the <a href="ScatterType.html">ScatterType</a> database table),
+      and may in addition also have bottom-referenced depth-channels (scatter-type
+      Echogram-Bottom or School-Bottom of the <a href="ScatterType.html">ScatterType</a>
+      database table) if BottomActive = TRUE (see below).<br>
+      For <i>School</i>: each of the regions of acoustic data (at all frequencies) in
+      the section visible on the computer-display scrutinized as a single school is
+      given the same Object (number) when stored to the database.<br>
+      For <i>Echogram</i>: all acoustic data (at all frequencies) in the section visible
+      on the computer-display is given the same Object number when stored to the database
+      if stored in the same store-operation. If the echograms at different frequencies are
+      NOT stored in the same operation, the echograms will be given different Object number. Note that if a section of the echogram-object
+      is deleted at a later stage, the same section is deleted at all frequencies simultaneously,
+      and the remaining undeleted section will keep the original Object number. Further, if
+      the deleted section is re-scrutinized and stored to the database again, the new section
+      stored to the database will be given a different Object number than the original.
+   </li>
+   <li><span class="marec-parameter-def" id="ObservationDate">ObservationDate</span> - [YYYYMMDD] (UTC) Each line in the Scatter
+      table is time stamped with the start of the associated subinterval, and there is a
+      "Scattered Fish Data" event line in the <a href="ObservationType.html">ObservationType</a>
+      table with a matching time stamp.
+   </li>
+   <li><span class="marec-parameter-def" id="ObservationTime">ObservationTime</span> - [hhmmssxx] (UTC) Each line in the Scatter table
+      is time stamped with the start of the associated subinterval, and there is a Scattered
+      Fish Data event line in the <a href="ObservationType.html">ObservationType</a>
+      table with a matching time stamp.
+   </li>
+   <li><span class="marec-parameter-def" id="Frequency">Frequency</span> - [Hz] Echo sounder operating frequency in Hz.</li>
+   <li><span class="marec-parameter-def" id="Transceiver">Transceiver</span> - {1; ...} Echo sounder transceiver or GPT channel number.
+   </li>
+   <li><span class="marec-parameter-def" id="ScatterType">ScatterType</span> - {...} Type of scatter data. See the <a href="ScatterType.html">
+      ScatterType</a> database table.
+   </li>
+   <li><span class="marec-parameter-def" id="ObservationType">ObservationType</span> - {...} Type of observation. See the
+      <a href="ObservationType.html">ObservationType</a> table.
+   </li>
+   <li><span class="marec-parameter-def" id="Duration">Duration</span> - [1/100 s] This parameter states the duration in hundredths of
+      seconds (1/100) for the current subinterval.
+   </li>
+   <li><span class="marec-parameter-def" id="DistanceInterval">DistanceInterval</span> - [nmi] This parameter states the distance in
+      nautical miles (1 nmi = 1852 m) covered by the current subinterval.
+   </li>
+   <li><span class="marec-parameter-def" id="MinBottomDepth">MinBottomDepth</span> - [m] Minimum bottom depth in meter within this
+      subinterval.
+   </li>
+   <li><span class="marec-parameter-def" id="MaxBottomDepth">MaxBottomDepth</span> - [m] Maximum bottom depth in meter within this
+      subinterval.
+   </li>
+   <li><span class="marec-parameter-def" id="Threshold">Threshold</span> - [dB] LSSS computes integrated echo level (s<sub>A</sub>) from
+      volume backscattering (s<sub>v</sub>) coefficients by performing
+      integration vertically and averaging horizontally. s<sub>V</sub> coefficients
+      are only included in the computations if their value exceeds a
+      certain threshold. The threshold is identical to the lower
+      boundary of the color scale as set in the color scale field of
+      the echogram view. The <b>Threshold</b> parameter contains the threshold
+      in dB that was used when interpreting this data.
+   </li>
+   <li><span class="marec-parameter-def" id="BubbleCorrection">BubbleCorrection</span> - [-] Small air bubbles sometimes attenuate the
+      echosounder signal, and a multiplication factor is available from
+      the Store Interpretation dialogue for manually boosting the signal
+      strength. Both pelagic and bottom channel data are affected by
+      this boosting mechanism. The <b>BubbleCorrection</b> parameter contains
+      the multiplication factor value that was used when interpreting
+      this data.
+   </li>
+   <li><span class="marec-parameter-def" id="ChannelThickness">ChannelThickness</span> - [m] Channel thickness in meters.</li>
+   <li><span class="marec-parameter-def" id="UpperDepth">UpperDepth</span> - [m] Upper depth boundary in meters where acoustic
+      data of specified <b>ScatterType</b> exist. <b>UpperDepth</b> is the least depth below sea surface
+      for all pings in the current subinterval (see <b>Duration</b> and <b>DistanceInterval</b>),
+      i.e. <b>UpperDepth</b> = MIN(<b>UpperDepth</b><sub>ping(i)</sub>, ..., <b>UpperDepth</b><sub>ping(i+n)</sub>).
+      For pelagic channels (i.e. that are referenced to the sea surface), <b>UpperDepth</b> is positive. Bottom
+      channels are referred to <i>detected</i> (coordinated) bottom and are positive downwards, i.e. UpperDepth is negative.
+   </li>
+   <li><span class="marec-parameter-def" id="LowerDepth">LowerDepth</span> - [m] Lower depth boundary in meters where acoustic
+      data of specified <b>ScatterType</b> exist. <b>LowerDepth</b> is the largest depth below sea surface
+      for all pings in the current subinterval (see <b>Duration</b> and <b>DistanceInterval</b>),
+      i.e. <b>LowerDepth</b> = MAX(<b>LowerDepth</b><sub>ping(i)</sub>, ..., <b>LowerDepth</b><sub>ping(i+n)</sub>).
+      For pelagic channels (<b>ScatterType</b> = "Echogram Pelagic" or "School Pelagic"), <b>LowerDepth</b> is
+      positive. Bottom channels are referred to <i>detected</i> (coordinated) bottom and are positive downwards.
+   </li>
+   <li><span class="marec-parameter-def" id="SA">SA</span> - [m<sup>2</sup>/nmi<sup>2</sup>] This parameter (s<sub>A</sub>) contains the sum of the interpreted
+      s<sub>A</sub> values for all the acoustic categories for all the channels in the column.
+      The parameter has dimension square meter per square nautical mile.
+   </li>
+   <li><span class="marec-parameter-def" id="Quality">Quality</span> - {1;2;3} User assigned quality code of for the current interpretation,
+      as defined in the Specify Quality dialogue following the Store
+      Interpretation procedure. The quality code is used to express how
+      confident the user is regarding the acoustic category interpretation.<br>
+      <b>1</b> = best quality, the acoustic category can be separated exclusively by means
+      of the acoustic measurements.<br>
+      <b>2</b> = second best, the acoustic category can be partly separated by the acoustic
+      measurements, but must be supported by biological samples.<br>
+      <b>3</b> = low quality, the acoustic category are completely mixed, and can only be
+      separated by means of biological samples.
+   </li>
+   <li><span class="marec-parameter-def" id="PctSA">PctSA</span> - [%] This parameter expresses in percentage the interpreted
+      s<sub>A</sub> value (above) divided by the total s<sub>A</sub> in the entire column.
+   </li>
+   <li><span class="marec-parameter-def" id="UpperInterpretationDepth">UpperInterpretationDepth</span> - [m] Upper depth where the acoustic data are scrutinized and stored.
+      <b>UpperInterpretationDepth</b> >= <b>UpperDepth</b>. For pelagic channels (i.e. that are referenced
+      to the sea surface; <b>ScatterType</b> = "Echogram Pelagic or "School Pelagic"), <b>UpperInterpretationDepth</b>
+      is positive. For bottom channels (i.e. that are referenced to the <i>detected</i> bottom (i.e. coordinated bottom); <b>ScatterType</b>=
+      "Echogram Bottom" or "School Bottom"), <b>UpperInterpretationDepth</b> is negative. Bottom channels are
+      restricted by the extent of the (visible) bottom window, which typically by default shows 10 m above bottom.
+      See also <b>UpperDepth</b>.
+   </li>
+   <li><span class="marec-parameter-def" id="LowerInterpretationDepth">LowerInterpretationDepth</span> - [m] Lower depth where the acoustic data are scrutinized and stored.
+      <b>LowerInterpretationDepth</b> <= <b>LowerDepth</b>. For <b>ScatterType</b> = "Echogram Bottom"
+      (and "School Bottom"), <b>LowerInterpretationDepth</b> is typically restricted by the lower integration line,
+      which is -0.5, i.e. 0.5 m above <i>detected</i> bottom (i.e. coordinated bottom).
+   </li>
+   <li><span class="marec-parameter-def" id="BottomActive">BottomActive</span> - {1;0} For a given
+      Object, the flag tells if the bottom was active (= 1) or not (= 0) when the
+      data was scrutinized. The BottomActive = 1 if the postprocessing system
+      was running in "FULL MODE" (formerly known as "SURFACE MODE") when
+      the data was scrutinized, and BottomActive = 0 if the system
+      was running in "PELAGIC" mode.
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="ScatterData.html">ScatterData</a>;
+   <a href="ScatterType.html">ScatterType</a>;
+</p>

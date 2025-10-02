@@ -1,0 +1,57 @@
+<h1>PlatformType</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>PlatformType</strong> - Information about platform types and subtypes
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct PlatformType {
+  short PlatformType;
+  short PlatformSupType;
+  char  PlatformTypeName[80];
+  char  PlatformSubTypeName[80];
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table contains the mapping from the name of the observation platform to nation code and
+   platform code. The observation platform is often a ship.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="PlatformType">PlatformType</span> - Code for type of observation platform. The standard list of
+      observation platforms are:
+      <b>0</b> = Unknown<br>
+      <b>0</b> = Unknown<br>
+      <b>1</b> = Land/Sea floor<br>
+      <b>2</b> = Submersible<br>
+      <b>3</b> = Ship <i>(Default)</i><br>
+      <b>4</b> = Buoy/Mooring<br>
+      <b>5</b> = Balloon<br>
+      <b>6</b> = Aircraft/Satellite/Rocket<br>
+      <b>7</b> = Unassigned<br>
+      <b>8</b> = 'Grid'<br>
+      <b>9</b> = Other<br>
+   </li>
+   <li><span class="marec-parameter-def" id="PlatformSubtype">PlatformSubtype</span> - Code for subtype observation platform.</li>
+   <li><span class="marec-parameter-def" id="PlatformTypeName">PlatformTypeName</span> - Name of platform type, e.g. "ship".</li>
+   <li><span class="marec-parameter-def" id="PlatformSubTypeName">PlatformSubTypeName</span> - Name of platform sup-type, e.g. "research ship".</li>
+</ul>
+<p>
+   <b>Note</b> that currently always PlatformType = 3 and PlatformSubtype = 1, which means "Research vessel".
+</p>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   <a href="Platform.html">Platform</a>;
+   <a href="PlatformCodes.html">PlatformCodes</a>;
+</p>

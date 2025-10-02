@@ -1,0 +1,33 @@
+<h1>Rescale module</h1>
+<p>
+   Rescales some channels to fit into the logarithmic Sv range.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="RescaleChannels">Rescale channels:</span>
+      Which channels to rescale.
+      <br>Allowed values: <em>{ all, half, last, none }</em>
+   </li>
+   <li><span class="marec-parameter-def" id="DesiredMinimum">Desired minimum:</span>
+      Desired minimum.
+   </li>
+   <li><span class="marec-parameter-def" id="DesiredMaximum">Desired maximum:</span>
+      Desired maximum.
+   </li>
+   <li><span class="marec-parameter-def" id="MinMaxFraction">Min max fraction:</span>
+      Discard this fraction of lower and upper values when deciding the rescaling.
+      <br>Allowed values: 0 &le; <a class="marec-parameter-ref" href="#MinMaxFraction">Min max fraction</a> &le; 1
+   </li>
+   <li><span class="marec-parameter-def" id="InitializationDatagramCount">Initialization datagram count:</span>
+      Number of datagrams from each channel used to determine rescaling factors.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#InitializationDatagramCount">Initialization datagram count</a> &ge; 1
+   </li>
+   <li><span class="marec-parameter-def" id="InitializationMaxPingCount">Initialization max ping count:</span>
+      Maximum number of pings to buffer up when finding rescaling factors.
+      <br>Allowed values: <a class="marec-parameter-ref" href="#InitializationMaxPingCount">Initialization max ping count</a> &ge; 1
+   </li>
+</ul>

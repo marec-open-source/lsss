@@ -1,0 +1,67 @@
+<h1>Datagrams</h1>
+<p>
+   The datagrams listed here include all custom datagrams defined by KORONA,
+   and some key datagrams from the echosounder.
+   For further information about the echosounder datagrams,
+   please refer to the documentation provided by the manufacturer.
+</p>
+<p>
+   <a href="Bot0Datagram.html">BOT0: Per channel bottom depths</a><br>
+   <a href="Cac0Datagram.html">CAC0: Categorization configuration</a><br>
+   <a href="Cad0Datagram.html">CAD0: Categorization data</a><br>
+   <a href="Cas0Datagram.html">CAS0: Categorization school</a><br>
+   <a href="Cds0Datagram.html">CDS0: Computing description</a><br>
+   <a href="Con0Datagram.html">CON0: Configuration</a><br>
+   <a href="Dep0Datagram.html">DEP0: Coordinated bottom</a><br>
+   <a href="Idx0Datagram.html">IDX0: Ping index</a><br>
+   <a href="TsDatagram.html">LSSS/10: TS detection</a><br>
+   <a href="EchoLineDatagram.html">LSSS/11: Echo lines</a><br>
+   <a href="Nme0Datagram.html">NME0: NMEA</a><br>
+   <a href="Nqp0Datagram.html">NQP0: Noise quantification</a><br>
+   <a href="Pic0Datagram.html">PIC0: Plankton inversion config</a><br>
+   <a href="Pid0Datagram.html">PID0: Plankton inversion data</a><br>
+   <a href="Raw0Datagram.html">RAW0: Sample data</a><br>
+   <a href="RegionBorderDatagram.html">RBR0: Region border</a><br>
+   <a href="RegionInfoDatagram.html">RNF0: Region info</a><br>
+   <a href="RegionTableOfContentsDatagram.html">RTC0: Region table of contents</a><br>
+   <a href="Tbr0Datagram.html">TBR0: Track border</a><br>
+   <a href="Tnf0Datagram.html">TNF0: Track info</a><br>
+   <a href="Ttc0Datagram.html">TTC0: Track table of contents</a><br>
+   <a href="UnknownDatagram.html">Unknown datagram</a><br>
+</p>
+
+<h2 id="Definitions">Definitions</h2>
+<p>
+   A file with datagrams is read with byte order little-endian.
+   The datagrams form a sequence of the following structure:
+</p>
+<pre>
+struct DatagramContainer {
+   int size;          <span class="marec-comment">// Size of datagram in bytes</span>
+   Datagram datagram;
+   int size;          <span class="marec-comment">// Size of datagram in bytes (repeated)</span>
+};
+
+struct Datagram {
+   DatagramHeader header;
+   <span class="marec-comment">// Content specific to the different datagram types</span>
+};
+
+struct DatagramHeader {
+   int type;    <span class="marec-comment">// Can also be interpreted as 4 ascii characters, e.g. 811024722 = "RAW0"</span>
+   ntTime time;
+};
+</pre>
+<p>
+   The data types used in the datagrams are as follows:
+</p>
+<ul>
+   <li><code style="display: inline-block; min-width: 4em;">byte</code> 8-bit integer</li>
+   <li><code style="display: inline-block; min-width: 4em;">short</code> 16-bit integer</li>
+   <li><code style="display: inline-block; min-width: 4em;">int</code> 32-bit integer</li>
+   <li><code style="display: inline-block; min-width: 4em;">long</code> 64-bit integer</li>
+   <li><code style="display: inline-block; min-width: 4em;">float</code> 32-bit floating point number (IEEE 754)</li>
+   <li><code style="display: inline-block; min-width: 4em;">double</code> 64-bit floating point number (IEEE 754)</li>
+   <li><code style="display: inline-block; min-width: 4em;">ntTime</code> 64-bit integer representing number of 100-nanosecond intervals since January 1, 1601 UTC</li>
+   <li><code style="display: inline-block; min-width: 4em;">string</code> 0-terminated string encoded as IS0-8859-1</li>
+</ul>

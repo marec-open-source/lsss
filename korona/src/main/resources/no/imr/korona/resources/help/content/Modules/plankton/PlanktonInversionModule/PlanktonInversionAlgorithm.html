@@ -1,0 +1,58 @@
+<h1>Plankton inversion algorithm</h1>
+<p>
+   The purpose of the plankton inversion algorithm is to fit the gathered volume backscatter coefficients for multiple
+   frequencies to analytical plankton backscatter models. The data is fitted to each model by the non-negative least squares algorithm
+   <a href="../../../Reference/Literature.html#LawsonHanson">(Lawson &amp; Hanson)</a>. The model with the smallest <a href="#Residual">residual</a>
+   is selected as the best fit model if the residual is smaller than a configurable maximal residual.
+</p>
+
+<h2 id="DescriptionOfAlgorithm">Description of algorithm</h2>
+<p>
+   Let an analytical backscatter model be given by <b>&sigma;(f, l)</b>, where <b>f</b>
+   is a transducer frequency and <b>l</b> is a plankton size. The models used in this software and their parameters
+   are described in <a href="PlanktonInversionModule.html">Plankton inversion module</a>
+</p>
+<p>
+   Let [f<sub>1</sub>, f<sub>2</sub>, ..., f<sub>M</sub>] be the frequencies used, let <b>c</b> = [s<sub>v1</sub>, s<sub>v2</sub>, ...,
+   s<sub>vM</sub>] be the measured backscatter for a collection of samples, and let
+   <b>N</b> = [n<sub>1</sub>, n<sub>2</sub>, ..., n<sub>N</sub>] be an abundance vector for an initial size distribution
+   <b>b</b> = <b>l</b> = [l<sub>1</sub>, l<sub>2</sub>, ..., l<sub>N</sub>].
+</p>
+<p>
+   The system of equations to be solved can with respect to the abundance vector <b>N</b> be expressed in matrix form as <br>
+   <b>A N = c</b>, <br>
+   where the elements in <b>A</b>, A<sub>ij</sub> = &sigma;(f<sub>i</sub>, l<sub>j</sub>), is the backscatter computed
+   by the plankton model for frequency number i in <b>c</b> and length number j in <b>b</b>.
+</p>
+<p>
+   Rows are added to the system: <br>
+   <b>c</b> = [s<sub>v1</sub>, s<sub>v2</sub>, ..., s<sub>vM</sub>, 0, ..., 0] (length M + N). <br>
+   A is extended by a submatrix of size N&times;N, given by <b>I<sub>N</sub> &times; ||A|| &times; LMfactor</b>, <br>
+   <img src="Amatrix.png" width="508" height="196"><br>
+   where <b>I<sub>N</sub></b> is the identity matrix of size N&times;N, <b>||A||</b> is the norm of <b>A</b>, and
+   <b>LMfactor</b> is the Levenberg-Marquardt factor (see <a href="../../../Reference/Literature.html#LawsonHanson">Lawson &amp; Hanson</a>).
+   The purpose of the Levenberg-Marquardt factor is to give a preference to the solution with the smallest norm if several solutions are acceptable.
+   It seems like a value between 1e-6 and 1e-4 gives solutions with reasonable norms without much change in <a href="#Residual">residual</a>.
+</p>
+<p>
+   The solution algorithm is described in <a href="../../../Reference/Literature.html#Lebourges">(Lebourges 2005)</a>. In short,
+   a non-negative least squares inversion is performed for each model with respect to the abundance vector N.
+   After each inversion, the size vector is <a href="#Optimization">optimized</a>
+   and a new matrix A is computed based on the new size vector. New inversions are then performed until convergence is reached,
+   or until a maximal number of iterations.
+   After iterating over all the models, the model with the smallest residual is kept if the residual is smaller than a
+   user configured maximal residual.
+</p>
+
+<h3 id="Residual">Computation of residual</h3>
+<p>
+   Each inversion of the system <b>A N = c</b>, gives a best fit solution vector <b>N'</b> which is an approximation for <b>N</b>.
+   The residual is computed as <b>|| A N' - c || / || c ||</b>, where the norm is the Euclidean norm.
+</p>
+
+<h2 id="Optimization">Optimization of the size vector</h2>
+<p>
+   The purpose of the optimization is to redistribute the size vector around the sizes where
+   non-null abundance has been found. The number of sizes in the size vector is kept constant. If the number of
+   sizes is not a multiple of non-null elements, the elements with the smallest size are divided first.
+</p>

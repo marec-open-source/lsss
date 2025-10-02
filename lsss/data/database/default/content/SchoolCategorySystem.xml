@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<SchoolCategorySystem>
+   <i categorySystem="1" categorySystemName="Acoustic_Category" categorySystemDescription="Acoustic category"/>
+   <i categorySystem="2" categorySystemName="KORONA_Category" categorySystemDescription="KORONA category"/>
+   <i categorySystem="4" categorySystemName="MOVIES_Category" categorySystemDescription="MOVIES category"/>
+</SchoolCategorySystem>

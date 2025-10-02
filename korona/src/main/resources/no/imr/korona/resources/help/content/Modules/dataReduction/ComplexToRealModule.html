@@ -1,0 +1,27 @@
+<h1>Complex to real module</h1>
+<p>
+   This module converts complex broadband or narrowband data to sv values and angles.
+</p>
+<p>
+   Sv is computed according to the formulas for
+   <a href="../../Reference/EK80/BroadbandData.html">broadband data</a>
+   and
+   <a href="../../Reference/EK80/NarrowbandData.html">narrowband data</a>
+</p>
+<p>
+   Conversion of broadband data to multiple single frequency datagrams per channel is possible by using the
+   <a href="../broadband/BroadbandSplitterModule.html">Broadband splitter module</a>.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="ComputeAngles">Compute angles:</span>
+      If selected, then angles are computed.
+   </li>
+   <li><span class="marec-parameter-def" id="KeepBroadband">Keep broadband:</span>
+      If selected, then broadband data is not converted to real data.
+   </li>
+</ul>

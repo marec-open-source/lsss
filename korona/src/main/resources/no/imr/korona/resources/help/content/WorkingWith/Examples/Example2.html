@@ -1,0 +1,17 @@
+<h1>Example 2 - Data reduction</h1>
+<p>
+   The processing setup is similar to <a href="Example1.html">Example 1</a>, except that the <strong>DataReductionModule</strong>
+   is inserted between the NoiseQuantificationModule and the NoiseRemovalModule. Note that the final result would be
+   the same if the DataReductionModule was placed after the NoiseRemovalModule, but placing if before makes the
+   processing go faster since time is not wasted in removing noise from data that is later removed.
+</p>
+<figure>
+   <img src="figures/ex2_dataReduce1.png" height="33" width="524">
+</figure>
+<p>
+   Results are shown below: the left panel is original data for all 6 frequencies, the right panel is after data improvement
+   and data reduction. Black colour means that there is no data.
+</p>
+<figure>
+   <img src="figures/ex2_dataReduce2.png" height="670" width="926">
+</figure>

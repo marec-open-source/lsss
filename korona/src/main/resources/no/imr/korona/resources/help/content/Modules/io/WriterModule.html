@@ -1,0 +1,32 @@
+<h1>Writer module</h1>
+<p>
+   This module writes processed data to .raw, .idx and .bot files.
+</p>
+
+<h2 id="NewDatagrams">New datagrams</h2>
+<ul>
+   <li>One initial module configuration datagram, <a href="../../Datagrams/Cds0Datagram.html">Cds0Datagram</a>,
+      is written to the file.
+   </li>
+</ul>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Active">Active:</span>
+      If the module is not active, then all datagrams pass unaltered through it.
+   </li>
+   <li><span class="marec-parameter-def" id="FileName">File name:</span>
+      Output file name. If blank, the input file name is used.
+   </li>
+   <li><span class="marec-parameter-def" id="UseRelativeDirectory">Use relative directory:</span>
+      Whether to specify a relative or an absolute output directory.
+   </li>
+   <li><span class="marec-parameter-def" id="RelativeDirectory">Relative directory:</span>
+      Output directory relative to the destination directory.
+      Used when <a class="marec-parameter-ref" href="#UseRelativeDirectory">Use relative directory</a> is checked.
+   </li>
+   <li><span class="marec-parameter-def" id="DirectoryName">Directory:</span>
+      Absolute output directory.
+      Used when <a class="marec-parameter-ref" href="#UseRelativeDirectory">Use relative directory</a> is unchecked.
+   </li>
+</ul>

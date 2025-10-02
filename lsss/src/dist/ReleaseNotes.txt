@@ -1,0 +1,1118 @@
+﻿LSSS - Release notes
+
+________________________________________________________________
+
+Contact information
+
+   Home page:    https://marec.no/
+   Email:        info@marec.no
+
+________________________________________________________________
+
+Version 3.1.0 - September 2025
+
+LSSS is now open source: https://github.com/marec-open-source/lsss
+
+This version of LSSS introduces a new Java API. This API enables
+developing plugins that extend the functionality of LSSS with,
+for example, new windows and new layers on the echogram and map.
+
+LSSS:
+• Windows menu:
+  - Added options for saving / restoring window selections.
+• Echogram plot module:
+  - New function "Roll: degrees-transmit-to-receive".
+• Trawl module:
+  - Read biotic files without the "missions" root element.
+• Database reports:
+  - Added option for using start and stop distances in file names.
+• Reading of raw-files:
+  - Using the frequency-dependent impedance in the data. Previously,
+    this was assumed to be a constant.
+  - Using the acidity parameter in the data when calculating sound
+    speed. Previously, pH was determined from the salinity.
+
+KORONA:
+• New modules:
+  - Categorization NetCDF reader and writer modules (beta).
+  - Data quality module - Quality indicators as NetCDF (beta).
+• Depth dependent resampling module:
+  - New parameter for maximum frequency.
+• Depth detection module:
+  - New parameter for keeping bottom depths deeper than the data.
+• Korona relay:
+  - Avoid processing the last file only if it is recently modified.
+• Korona cli:
+  - Added command for converting work files to NetCDF (beta).
+
+________________________________________________________________
+
+Version 3.0.0 - January 2025
+
+LSSS can now be used without a dongle or other licenses, and
+there are no restrictions on the number of simultaneous users.
+
+If you find LSSS useful, we encourage you to contribute to the
+development of LSSS by signing up for support and maintenance.
+Please contact info@marec.no for further information.
+
+LSSS:
+• LSSS setup wizard:
+  - Added configuration of the categorization library.
+• Survey configuration / Miscellaneous:
+  - Coordinated bottom now uses the main frequency if possible.
+• Frequency response module:
+  - Optionally show KORONA category legends.
+• Interpretation module:
+  - Show warning if total assignment ≠ 100%.
+  - Optionally show warning if echogram is vertically zoomed.
+• Map module:
+  - Longitude and latitude coordinates now show E/W and N/S.
+
+KORONA:
+• New module: NetCDF writer module (beta).
+• Bottom detection module:
+  - Added parameter for preferred frequency for coordinated bottom.
+• Depth dependent resampling module:
+  - Changed target sample distance to scale as r².
+
+________________________________________________________________
+
+Version 2.17.0 - August 2024
+
+LSSS:
+• Application configuration / Directories:
+  - New parameter for default location when backing up survey data.
+• Survey configuration / Acoustic categories / KORONA mapping:
+  - The table is transposed to normally have more rows than columns.
+  - Added tooltip on acoustic category initials.
+• Survey configuration / Miscellaneous / ICES acoustic metadata:
+  - Added suggestions for ICES survey and platform based on
+    configuration of Survey configuration / Survey.
+• Echogram plot:
+  - Added functions: Gain, Bottom depth relative to the main frequency.
+  - Added dialog with statistics about selected functions.
+  - Added parameter for optional smoothing.
+  - Added parameter for auto-adjusting the y-axis range.
+• Interpretation module:
+  - Adding a category will automatically set remaining assignment.
+• Trawl module:
+  - Select trawl station by clicking in map or echogram.
+• Database reports:
+  - Increased number of decimals in reports 2 and 3.
+• Region menu:
+  - Fixed usability problem for label menus with a lot of items.
+• Fixed problems with EK500 data loading:
+  - Use 38 kHz as reference when combining multiple frequency files.
+  - Allow small differences in time in file names.
+
+KORONA:
+• New module:
+  - Echo line compression: Makes raw-files more compact.
+• Data reduction module:
+  - Added option for removing data below detected bottom.
+• Noise quantification module:
+  - Any existing noise datagrams are removed before adding new ones.
+• Noise visualization module:
+  - Made markers for Ne and Nh more easily visible.
+  - Added table with information about the noise histograms.
+
+________________________________________________________________
+
+Version 2.16.0 - January 2024
+
+LSSS:
+• Survey configuration / Data files:
+  - Showing directory of lsss-file.
+  - New configuration of directories used by 'Copy remote survey data'.
+• Echogram plot export:
+  - Export all channels if parameter 'Plot all channels' is selected.
+• 'Backup survey data' and 'Copy remote survey data':
+  - 'Copy remote survey data' is run in a low priority thread, and can
+    optionally be run repeatedly with a specified delay.
+  - Remote directories are explicitly configured.
+  - Selection of directories to copy are remembered to next time.
+  - Progress bar indicates files to copy, not total number of files.
+  - Show warning if source directories has changed since last copy.
+  - Improved performance.
+
+KORONA:
+• Reference files are now organized by type in separate subdirectories.
+• Added support for MRU1 datagrams.
+• KORONA relay:
+  - Optionally do processing using low priority threads. (On by default.)
+• Module editor:
+  - Modules can be organized in collapsible groups.
+• Broadband splitter module:
+  - New parameter specifying bandwidth for auto bands.
+• Channel removal module, Channel data removal module:
+  - New channel selection criteria for data type and transmit mode.
+
+KoronaCli:
+• New command 'korona-info' for info about modules and parameters.
+
+________________________________________________________________
+
+Version 2.15.0 - August 2023
+
+LSSS:
+• The 'Open survey' dialog:
+  The search function in the 'Open survey' dialog now looks for surveys in
+  folders starting with "LSSS_DATA" in all drives.
+• Preprocessing configuration:
+  - Added optional comment to each processing setup.
+  - The ordering of the preprocessing setups can now be changed.
+• Regions menu:
+  - Added entry for selecting regions with no assigned acoustic categories.
+• Numerical view:
+  - Added the channel number to the transducer section.
+• BB Sv(f) and BB Sv(f, depth):
+  - Added parameters for controlling the FFT window.
+• Interpretation module:
+  - Keep sA instead of assignment when Shift + Click on threshold button.
+  - Optionally show a warning if not using the preferred lower threshold.
+• Seabed mounted data:
+  - Fixed errors in Upper/Lower Depth and InterpretationDepth
+    when data was configured as seabed mounted.
+• Fixed validation errors in database report no. 25 (ICES).
+
+LSSS API:
+• /lsss/module/InterpretationModule/data is added.
+• /lsss/module/PelagicEchogramModule/config/parameter now contains parameters
+  for changing the working mode and sub-modes.
+
+KORONA:
+• Categorization configuration:
+  - Added parameter "Comment" to each category.
+• Broadband splitter module:
+  - Added alternative splitting algorithm using a gliding FFT window.
+• Plankton inversion module:
+  - Fixed an error causing wrong results when data was resampled.
+• School detection module:
+  - This module has been reimplemented to improve accuracy by not doing
+    extra modifications to the data under the hood.
+  - Module setups are automatically converted to the use new module.
+  - The new module uses the configured blind zone depth.
+  - The region info datagram now contains the detected school as a mask.
+
+Deep Vision:
+• Playback speed is now adjustable.
+
+________________________________________________________________
+
+Version 2.14.1 - April 2023
+
+This is a bug fix release:
+• Fixed validation errors in database report no. 25 (ICES).
+
+________________________________________________________________
+
+Version 2.14.0 - January 2023
+
+LSSS:
+• Echogram:
+  - Improved school box editing, including making corners draggable.
+• Map:
+  - Option for extending survey line without loading raw data.
+• Echogram plot:
+  - Added 'Transducer depth', 'Distance between pings', 'Complex: Slope'.
+  - Option for plotting channel-dependent variables on all channels.
+• BB Sv(f):
+  - Option for plotting noise (Sv without TVG).
+  - Option for plotting linear sv values.
+  - Computation of Sv(f) subdivides large depth ranges into approximately
+    two times the pulse length.
+• BB Sv(f, depth):
+  - New module that displays a heatmap of Sv as a function of frequency
+    and depth for the current ping.
+• BB calibration plot:
+  - Fixed too low default gain for pulse durations not mentioned in
+    the raw file configuration data.
+• Trawl module:
+  - Combine trawl stations from both ref log data and trawl data.
+• Survey configuration / Data files:
+  - Functionality for assigning labels to data files.
+  - Menu option for data file visualizer dialog.
+• Region menu:
+  - 'Reset interpretation' in pelagic mode can specify depth of lower boundary.
+• In general:
+  - Tooltips for modules now contain a short description of the module.
+  - Most plots can be zoomed and panned using the mouse wheel.
+  - Some modules can temporarily turn off axis auto-adjustment.
+  - Plots with frequency on one axis:
+    * Show marker at frequency of mouse location in other frequency plots.
+    * Show more tick labels when zooming.
+  - Frequency checkboxes: Add a popup menu for doing multiple selection.
+
+LSSS API:
+• /lsss/module/{id}/overlay/{id}/image is added.
+
+KORONA:
+• Module editor:
+  - Modules are classified into categories, such as "Modifies data",
+    "Adds datagram", etc., that are shown with different colors.
+• School detection module:
+  - New parameter with maximum depth for school detection.
+
+Deep Vision:
+• Optionally skip inactive images when backing up survey
+  or copying remote data.
+
+________________________________________________________________
+
+Version 2.13.0 - August 2022
+
+LSSS:
+• Bugfix: Fixed a memory leak that could cause problems if LSSS ran
+  for a long time.
+• Survey configuration / Data files / Extra data files:
+  - New option for copying extra data directories. Used when backing
+    up survey or copying remote data.
+• Echogram:
+  - Color the center point of selected schools red.
+  - Optionally smoothing of school grown by clicking. Use parameter
+    'School grow smoothing' in 'Survey configuration' / 'Miscellaneous'.
+  - 'Select next region' with no selected regions now continues from the
+    location of the previous selection, instead of going to the beginning.
+  - Bugfix: Regions containing excluded pings could get too small
+    sa values. This error did not affect the database reports.
+• Colorbar:
+  - Show colormap icons in the context menu.
+  - Add API submenu to the context menu.
+• Map:
+  - Show reference log station numbers.
+  - New default background map, and improved selection of map layers.
+• TS positions module:
+  - Color selected tracks red.
+• TS(f) module:
+  - Fixed errors causing too small values in TS(f).
+• Database report no. 25 (ICES) now includes stop positions.
+
+LSSS API:
+• /lsss/module/ColorBarModule/data is added.
+• /lsss/module/ColorBarModule/image now excludes the threshold buttons.
+• /lsss/module/{EchogramModuleId}/image now excludes the vertical scrollbar.
+• /lsss/package/{id}/action/{id}/run now blocks the HTTP request until the
+  action has completed (if the action has 'showDialog' set to true).
+
+KORONA:
+• Module editor:
+  - Parameter descriptions use multiple lines if needed.
+• Tracking module:
+  - Parameter 'TrackerType' now includes an option to use targets
+    detected by the TS detection module.
+• Noise quantification module:
+  - Added parameter 'FallbackNoiseChannels' for selecting which channels
+    to apply fallback noise to.
+• Broadband splitter module:
+  - Parameter 'ComputeAngles' is now selected by default.
+• Broadband notch filter module:
+  - Bugfix: Usage of notch filters could result in too high values
+    away from the excluded frequencies.
+• Threshold module:
+  - Bugfix: The value of 'Threshold' in dB was incorrectly used
+    as a linear value when 'LogarithmicValues' was deselected.
+
+PROFOS:
+• Implemented calibration of data files with RAW2 datagrams.
+• Bugfix: 'timeOffset' in NetCDF data was used incorrectly.
+
+________________________________________________________________
+
+Version 2.12.0 - January 2022
+
+LSSS:
+• The LSSS API is promoted from preview to general availability.
+  See the help pages for information on the HTTP API and the use of
+  packages for adding custom buttons, menus, and keystrokes to LSSS.
+• Numerical view:
+  - Settings for which text blocks to show.
+  - Optional display of NMEA datagrams.
+• Echogram plot:
+  - Indicator for active transmit mode.
+  - Indicator for broadband data.
+  - sA for selected regions.
+  - Start and stop frequencies.
+  - Values from NMEA datagrams.
+• Interpretation module:
+  - Ctrl + Click on category button to add with remaining assignment.
+  - Shift + Click on category button to add as rest category.
+  - Functionality for deleting a specified time range from the database
+    without loading the corresponding echosounder data.
+• Map:
+  - sA map overlay can optionally show only one category.
+  - Use arrow keys to change zoom rectangle.
+• Comment module (new):
+  - Lists all survey comments.
+• School visualizer dialog (Regions menu):
+  - Category assignments as features.
+
+KORONA:
+• Module editor:
+  - Highlight corresponding modules for temporary computation on mouseover.
+• Deleted modules deprecated in 2.11.0.
+
+Deep Vision:
+• Deep Vision Image:
+  - Ctrl + Click on navigation buttons to search for the next image with
+    significant changes.
+• Additions to Echogram plot:
+  - Athwartship distance.
+  - Image difference.
+  - Position of current Deep Vision image.
+• Moved configuration of distance behind ship from echogram overlay
+  to configuration of Deep Vision data files.
+
+________________________________________________________________
+
+Version 2.11.0 - August 2021
+
+LSSS:
+• Survey configuration / Data files:
+  - Functionality for converting EK80 xyz-files to bot-files.
+  - Creating idx-files can optionally ignore vessel distance in raw-files.
+  - Remove unused directory TowfishDataDir.
+• Interpretation module:
+  - Fixed lost table input when selecting a new region in the echogram
+    without typing enter first.
+• TS distribution module:
+  - Optionally use TS detections from new KORONA module.
+  - Detector type 'Narrowband' renamed to 'Peak'.
+• Frequency response module:
+  - Configuration of KORONA categories to plot.
+• Scatter plot module:
+  - Configuration of KORONA categories to plot.
+• KORONA experimentation module:
+  - Configuration of HTTP port of scripting server in secondary LSSS.
+• Support new ref log data files in json-format.
+
+KORONA:
+• When starting processing, KORONA relay copies all configuration files to
+  subdirectory 'copiedConfigFiles' in destination directory.
+• New module: Depth dependent resampling.
+• New module: TS detection.
+• Tracking module:
+  - Detection types 'Broadband' and 'Narrowband' are combined to type 'Peak'.
+• Combination remover module and Remove single channel module are deprecated and
+  will be deleted in a future release. Use instead the Channel removal module.
+
+PROFOS:
+• School export: Add export file including pings with no schools.
+
+________________________________________________________________
+
+Version 2.10.1 - March 2021
+
+This is a bug fix release:
+• Fixed errors caused by work-files created when the echosounder was
+  still writing to the corresponding raw-file.
+
+________________________________________________________________
+
+Version 2.10.0 - January 2021
+
+Important note:
+• This version contains changes to survey (.lsss) and work files.
+  Older versions of LSSS cannot read work files written by LSSS 2.10.0.
+  An important change is that work-files now contain database storing
+  settings. Please see the help pages for more details.
+
+LSSS:
+• Work files:
+  - Work files contain settings for what should be stored to the database.
+  - Snap files are now obsolete. They are read if they exist, but are deleted when
+    the survey is saved.
+  - Database comments are now also saved in the work files.
+  - Faster reading and writing of work files.
+• Interpretation module:
+  - The parameter 'StoreRawDataSpecies' is moved to the 'Acoustic categories'
+    section of the configuration dialog.
+  - The 'Store' and 'Delete' buttons are also used for saving and deleting
+    database storing settings in the work files. See help pages for more details.
+  - Selected frequencies are remembered.
+  - Grid is stored with adaptive horizontal distance next to excluded areas.
+  - Grid configuration has only one horizontal distance.
+• Echogram:
+  - Read-only for areas that are stored to the database.
+  - Striped green for areas that are not stored to the database,
+    but where work files contain database storing settings.
+  - Option for showing database storing settings in tooltip.
+  - Colorbar indicates range of different upper and lower thresholds.
+  - Option for not rendering layer connectors (yellow squares).
+• Echogram plot:
+  - Time between pings.
+• TS distribution module:
+  - Option for changing the histogram bin size.
+• BB Sv(f) and BB TS(f) modules:
+  - Option for also showing frequencies with narrowband data.
+  - Option for changing mapping of frequency on the x-axis.
+• CTD module:
+  - Index of depth/pressure column in cnv-files is no longer fixed to 1.
+  - Option for viewing CTD measurements in a visualizer dialog.
+• Trawl module:
+  - Support for IMR biotic XML-files (in addition to .spd).
+  - Option for viewing trawl catch individuals in a visualizer dialog.
+• Configuration 'Data files':
+  - Option for generating calibration file with values from data files.
+• Toolbar:
+  - Added button for starting KORONA preprocessing.
+• Regions menu:
+  - Added item for merging layers with the same interpretation.
+• Visualizer dialog:
+  - Added button "Keep selected".
+  - Tooltip in scatter plot and histogram.
+• LSSS setup wizard:
+  - Redesigned to be much simpler.
+  - Can be started again from the help menu.
+
+KORONA:
+• Region filtering module is removed after deprecation in LSSS 2.9.0.
+
+Deep Vision:
+• More detailed documentation of image locations in help pages.
+• Option for smoothing the Deep Vision path on the echogram.
+
+PROFOS:
+• New module: PROFOS numerical view.
+• Updates to Sv and TS formulas when reading RAW2 datagrams.
+• Support for SONAR-netCDF4 version 1.0.
+
+PROMUS:
+• New database report format for general abundance estimation: no. 20.
+• Fixed slow cancellation of batch growing of schools.
+• Fixed bugs causing wrong exclusion areas and school growing depth limits.
+
+________________________________________________________________
+
+Version 2.9.0 - August 2020
+
+LSSS:
+• New module: Magnifier. Magnifies the area around mouse cursor.
+• Map:
+  - Added selection mode. (Use Tab to select mode.)
+  - Option for automatic zoom from echogram.
+• TS distribution: Detector type 'Narrowband' works on real data.
+• Regions menu: Added 'Set upper boundary from threshold'.
+• School visualizer dialog:
+  - Zoom by scroll wheel or drag mouse with middle/right button.
+  - Functionality for hiding selected schools.
+• ICES acoustic metadata: Survey and platform can be configured.
+• Database generator shows a notification if report no. 25 (ICES)
+  contains missing ICES categories.
+• New database report: no. 26. Same as no. 25 (ICES), but using
+  the acoustic category numerical code instead of the ICES code.
+
+KORONA:
+• Categorization module: Separate a priori probability for schools.
+• School detection module: New criteria: Compactness, Max Sv.
+• Region filtering module is deprecated and will be removed in a future
+  release. Use filtering criteria in school detection module instead.
+
+PROMUS:
+• Let most grow parameters have both min and max limits.
+• Define min and max grow depth in phantom echogram.
+• Sort schools by: Strongest cell value, Shortest distance from ship,
+  Number of fans, Movement speed, Average sphericity, Species assignment.
+• Phantom echogram: Show and select schools.
+
+PROFOS:
+• More accurate use of tilt in horizontal pings.
+• Update data loading to accept newer raw-files from SN90.
+
+________________________________________________________________
+
+Version 2.8.0 - January 2020
+
+LSSS:
+• Option for using bottom from current frequency when resetting
+  the interpretation
+• BB TS(f): Option for selecting fixed TS-axis
+• Ping plot: Option for selecting variable independent of echogram
+• Echogram plot:
+  - Relative frequency response, R(f)
+  - Lower layer boundary
+• Context menu for file list table in configuration 'Data files':
+  - Items for showing processing setup in both DataDir and KoronaDataDir
+  - Less repetition in diffs shown in the processing setup dialog
+
+KORONA:
+• New modules:
+  - Thresholding all channels
+  - Median noise quantification
+  - Median noise acceptance
+• Module editor shows configuration error as label instead of as dialog
+
+________________________________________________________________
+
+Version 2.7.0 - September 2019
+
+LSSS:
+• File list:
+  - Option for grouping files by hour
+  - Settings for sorting and grouping are saved to survey file
+• Option for automatically selecting DETAIL mode when clicking
+  a preferred size button (e.g. 5 nmi)
+• Interpretation module: Save selected quality to survey file
+• School visualizer dialog: Configurable dot sizes
+• Backup survey data: Option for selecting individual directories
+• Database report in ICES format (no. 25) avoids empty data elements
+• Performance improvements when using many data files
+
+PROMUS:
+• PROMUS school visualizer dialog:
+  - By default show volume (uncorrected) vs. sV times volume
+  - Also include Avg Sv (uncorrected)
+• PROMUS school data module: Show Sv distribution for all pings
+  in selected school
+• Performance improvements for many files and schools
+• New database reports format for vertical distribution: no. 21 and 23
+
+________________________________________________________________
+
+Version 2.6.0 - April 2019
+
+LSSS:
+• Echogram:
+  - Depth configuration: For simplicity, only show parameters for
+    min/max depth. Vertical zoom can be changed in the echogram as usual.
+  - Keyboard shortcut Delete for deleting selected schools
+  - Tooltip shows selection rectangle when selecting / zooming
+  - Eraser tool has independent sizes in the different modes
+  - In zoom mode: Press Spacebar to toggle between zoom and pan
+  - In add region mode: Added penetrating horizontal boundary
+    (Hold down Ctrl to change from normal to penetrating boundary)
+• Region menu:
+  - Setting lower boundary from coordinated bottom
+  - Deleting data from lower integration line up to bottom
+  - School visualizer dialog for exploring school parameters
+• Map tooltip shows selection rectangle when zooming
+• Help system is now displayed in a web browser
+• Database type Firebird is removed
+
+KORONA:
+• Added a 'Comment' parameter to all modules
+• Horizontal offset correction module: Fixed error causing complex data
+  to be converted to real data. Now it only operates on real data.
+• Categorization library can define geographical a priori probabilities
+• KoronaBatch.bat is replaced with KoronaCli.bat batch
+
+Deep Vision:
+• Added support for images in zip files
+
+PROMUS:
+• New module: PROMUS numerical view
+• PROMUS slice:
+  - Tooltip shows selection rectangle when zooming
+  - Tooltip shows Sv
+  - Uses configured transducer orientation
+• PROMUS ping: Keyboard shortcut Delete for deleting selected schools
+• PROMUS phantom echogram: F2 toggles display of stored mask
+• PROMUS interpretation: School table context menu has entry for showing
+  school visualizer dialog for exploring school parameters
+• Option for storing to database in native resolution
+
+ ________________________________________________________________
+
+Version 2.5.1 - March 2019
+
+This is a bug fix release:
+• Fix bug where inconsistent layers causes loss of work file contents
+• Corrections to the database report in ICES format (no. 25)
+
+________________________________________________________________
+
+Version 2.5.0 - January 2019
+
+Java 11 is required. LSSS includes a version of the Java runtime,
+so a separate Java installer is no longer needed.
+Only 64-bit systems are supported. The Windows installer by default uses
+'C:\Program Files\Marec' instead of 'C:\Program Files (x86)\Marec'.
+
+LSSS:
+• Improved support for HiDPI displays
+• More icons used in menus
+• Continuous layout when moving split pane dividers
+• The echogram colormap is stored in the survey configuration
+• Configuration of what LSSS should do:
+  - at application start. (For example, open last survey)
+  - when opening a survey. (For example, open selected files)
+• Improved handling of data without bot-files
+• Changes to the LSSS database:
+  - New table SurveyInfo (used for ICES acoustic metadata)
+  - PlatformCodes and PlatformName uses a different set of columns in
+    the primary key (only for new databases)
+• Changes when storing to the database:
+  - The entire vertical range is stored, not just the zoomed area
+  - Conditional masking is converted to frequency-dependent deletion
+• New database report in ICES format (no. 25)
+• New section in configuration dialog for ICES acoustic metadata
+• Database type Firebird is scheduled for removal
+
+________________________________________________________________
+
+Version 2.4.0 - September 2018
+
+LSSS:
+• Menu "File/Reopen survey" also shows survey titles
+• Map: Keyboard shortcuts for going back/forward in zoom levels
+• Add school by growing (click in echogram)
+• Functionality for showing R(f) in echogram
+• Functionality for showing non-pulse-compressed broadband data in echogram
+• New module: Scatter plot
+• Preprocessing setup: Optional synchronization of directories
+• Database configuration: Added indicator of database connection
+• Database reports: Generate reports for many surveys at once
+• Editing of tracks: Delete, split, merge, extend, semi-automatic drawing
+• Interpretation view: New parameter for showing quality options inline
+• Reload button (in toolbar) also reloads ctd, file draw, ref log and trawl
+• File parameters have a button "☰" containing a context menu
+• School parameter export: Extended with time, acoustic categories, file name,
+  geographical position, sample count, min/max sv, min/max depth, ++
+• Export of KORONA regions is removed. Instead, use school parameters export
+• KORONA regions can be converted to LSSS regions multiple times
+
+KORONA:
+• Bottom detection module: Added parameter for not using specified frequencies
+• Noise quantification module: New option for using a quantile of fallback noise
+• Complex to real module: Added parameter for keeping broadband data
+• Broadband splitter module: Make it possible to use an entire band
+• Tracking module: Also do tracking on data without angles
+
+________________________________________________________________
+
+Version 2.3.0 - January 2018
+
+LSSS:
+• "BB TS(f) positions" renamed to "TS positions".
+  Also shows positions for TS distribution and selected tracks,
+  and optionally for mouse position
+• Data file table indicates broadband data in tooltip by appending
+  "FM" to frequency
+• New module: KORONA experimentation. Launches a secondary LSSS frame
+  with KORONA processing results
+• New export: Echogram plot
+• Echogram plot: Added variables bottom depth and EK80 impedance phase
+• BB TS(f) export, BB TS(f) tracks export: Renamed ts to tsc
+  to make it clear that ts is beam compensated
+• BB TS(f) tracks export:
+  - Added position relative to transducer
+  - Modified data structure
+• Editing of detected tracks. Tracks can be merged, split and deleted
+• calibration.xml can reference EK80 calibration files
+• LSSS scripting server: Numerous additions to the API
+
+KORONA:
+• New module: Pulse compression filter
+  Modifies pulse compression filters for broadband data
+• Tracking module: Fixed bug causing wrong test on min/max TS
+  for broadband data
+
+________________________________________________________________
+
+Version 2.2.0 - August 2017
+
+LSSS:
+• Read broadband data with linear downsweep
+• Echogram plot: Added variables EK80 impedance, vessel distance
+• Ping plot: Use z as vertical axis when mouse is in bottom echogram
+• Schools with same object number across work files are now automatically merged
+• Computation and export of school parameters
+• Added search/filter text field to configuration dialog
+
+KORONA:
+• Plankton inversion module:
+  - Use available frequencies at depths where only some frequencies are available
+  - Added parameters for specifying bin height as length or duration
+• Module editor: Using keystrokes Home, End, Up, Down
+
+________________________________________________________________
+
+Version 2.1.0 - May 2017
+
+LSSS:
+• Fixed wrong cursor hot spots on HiDPI displays
+• Fixed wrong Unicode characters in help PDSs
+• Configuration dialog and window menu lists modules and overlays alphabetically
+• Option to insert new layer boundary at offset from layer boundary or file draw line
+• Ping plot: Use the variable shown in the echogram (Sv, TSU, TSC, ...)
+• Preprocessing configuration: Button for copying more config files
+• Survey list: Text field for filtering the listed surveys
+• Tracks detected by the KORONA tracking module can be selected and labelled
+• TS distribution:
+  - New detector type for complex narrowband data
+  - Fixed a bug that could cause fewer detections than in version 1.11.1
+• New module: Echogram plot
+• New export: Broadband bottom data
+
+KORONA:
+• Module editor:
+  - Modules can be moved by dragging the mouse
+  - Cut and paste of modules by Ctrl-C, Ctrl-V, Ctrl-X
+• KORONA relay: Option to not process last file
+• KORONA batch: Don't change current directory so relative paths can be used
+• Example setup for reducing size of CW-data: KoronaModuleSetup_Example10__MINIMAL.cds
+• New module: Channel removal module
+• Angle deletion module: Also works on complex broadband and narrowband data
+• Bottom detection module: Detect bottom on all frequencies and modify the BOT0 datagram
+• Noise quantification module: Use time dependent fallback noise
+• Noise visualization module: Turn on/off individual frequencies
+• Region module: Renamed to School detection module
+• Remove bottom module: Added option for removing non-bottom
+• Smoother module: Added option for excluding samples below second bottom echo
+• Spike filter module: Specify search window sizes in duration
+• Tracking module: New tracker type for complex narrowband data
+
+________________________________________________________________
+
+Version 2.0.0 - January 2017
+
+This release has support for broadband data from Simrad EK80.
+
+LSSS:
+• Broadband support:
+  - Views: BB Sv(f), BB TS(f), BB TS(f) histogram, BB TS(f) positions, BB calibration plot
+  - Exports: BB Sv(f), BB TS(f), BB TS(f) tracks, BB sample data
+• Default memory allocation on 64-bit systems is now 2/3 of total physical memory
+• It is now possible to add a horizontal layer boundary above or below existing layers
+• On the fly processing using KORONA modules that process pings independently
+• The refresh button in the toolbar now triggers reloading of echogram data
+• Freeze selected ping (Ctrl-F) to allow copying text from the numerical view
+• Sv distribution view can optionally not use TVG
+
+KORONA:
+• Broadband support:
+  - Broadband splitter module
+  - Broadband notch filter module
+  - Complex to real module
+• Interpolation of configured transducer ranges
+• Comment module: Added options for labels and line breaks in the module editor
+• Copy and paste of parameter values: Can for example be used to synchronize
+  settings between the KORONA tracking module and the LSSS TS views
+
+________________________________________________________________
+
+Version 1.11.1 - November 2016
+
+This is a bug fix release:
+• TVG is now calculated with half the pulse length subtracted from the range
+
+________________________________________________________________
+
+Version 1.11.0 - August 2016
+
+Important note:
+• This version fixes a bug where interpretation could be lost if done
+  on a file still being written to by the echo sounder.
+
+LSSS:
+• The default installation location is now different for new versions of LSSS,
+  thereby eliminating problems caused when installing on top of a previous version
+• Help menu item for showing release notes and log file
+• Drawing of region lines continues when cursor leaves echogram window
+• Many improvements to database export, import and use of survey local database
+• No longer use 'comment' as a name for database tables and columns
+• Added button for deleting platform from database
+• New survey wizard contains a step for changing the survey directory
+• Snap files are updated with edits to parts not stored to the database
+• Frequency response plot sorts by frequency
+• File list includes symbol to indicate which files have same set of frequencies
+• File list can optionally be sorted by time and collapsed day by day
+• Possibility for specifying more than one preprocessing module setup when creating a new survey
+• Open survey / List: Option for scanning for survey files in non-standard locations
+
+KORONA:
+• SmootherModule: Option for processing only last channel
+• DataReductionModule: Added parameters for min/max range/depth
+• New module DownsamplingModule: Reduces vertical resolution
+• New module PingThinningModule: Keeps only every n-th ping
+• New module PingCollapsingModule: Collapses sequential pinging
+• New module ChannelDataRemovalModule: Removes data on specified channels
+• New module EmptyPingRemovalModule: Removes pings with no sample data
+• Support for NMEA datagrams of type VLW
+• Training dialog, frequency plot: Option to select different axes mappings
+• New script KoronaBatch.bat: For automated KORONA processing
+
+________________________________________________________________
+
+Version 1.10.0 - January 2016
+
+LSSS:
+• Optionally configuration of multiple preferred distance buttons
+• Go to trawl station by writing station number
+• License acceptance dialog shown only once per LSSS version
+• Database types Ingres and MySQL scheduled for removal
+
+________________________________________________________________
+
+Version 1.9.2 - September 2015
+
+LSSS:
+• Labelling of regions and functionality for selecting regions based on labels
+• Keyboard shortcuts for scrolling echogram small amounts:
+  Ctrl + Shift + Arrow keys / Alt + Shift + Arrow keys
+• Entry in Go menu for navigating to a specified vessel distance
+• Show file name and higher resolution time in tooltip and in numerical view
+• Refresh button in CTD view for reloading data files
+• File list context menu entry for displaying summary of KORONA module setup for selected files
+• Preliminary version of HTTP scripting functionality
+• New database report (no. 40)
+
+________________________________________________________________
+
+Version 1.9.1 - March 2015
+
+This is a bug fix release:
+• A memory leak caused slow storing to the database of long surveys
+• Additional calibration parameters introduced in 1.9.0 worked only in KORONA and not in LSSS
+
+________________________________________________________________
+
+Version 1.9.0 - January 2015
+
+Java 8 is now required.
+
+LSSS:
+• Export of sample values (Sv) from selected region
+• calibration.xml can modify several additional parameters
+• Improved documentation of the file draw data format
+• Keyboard shortcuts in echogram for next (F) and previous (D) frequency
+• Context menu on echogram entry for starting KORONA on visible files
+• Display mean Sv in Sv distribution window
+• Preprocessing (KORONA) help integrated into LSSS help
+
+KORONA:
+• CategorizationModule: configurable upper and lower category-dependent Sv threshold
+• DepthModule: Parameters for min and max kHz
+
+________________________________________________________________
+
+Version 1.8.1 - September 2014
+
+LSSS:
+• Functionality for creating database comments from TAG0 datagrams
+• Option for exporting echogram data only from vertically zoomed range
+• Keyboard shortcut N in echogram to select next region
+• Display vessel speed in echogram tooltip and in numerical view
+• Ping plot has option to use all visible vertical range
+• Configuration of minimum similarity/probability for categorization results
+• New database report (no. 24)
+
+KORONA:
+• CategorizationModule: configurable category-dependent Sv threshold
+• RegionCategorizationModule: parameter for excluding pixels near edges based on distance in pings
+• DepthModule: parameters for the minimum and maximum bottom depth
+• Status bar shows number of files remaining to process
+
+________________________________________________________________
+
+Version 1.8.0 - January 2014
+
+LSSS:
+• Help pages available as PDF documents
+• Option for selecting regions that are not 100% interpreted
+• Calibration using calibration.xml in raw data directory
+• New database report (no. 9)
+
+KORONA:
+• CalibrationModule is deprecated (replaced by calibration.xml in raw data directory)
+• Multiple alternative expressions in ExpressionModule
+• Deleted previously deprecated modules
+
+________________________________________________________________
+
+Version 1.7.2 - September 2013
+
+LSSS:
+• Possibility to have multiple buttons under colorbar for setting lower threshold
+• Set upper layer boundary to fixed range from transducer
+• Added horizontal mode to the eraser tool for frequency-dependent deletion
+• Keyboard shortcut F4 for toggling display of plankton inversion
+• Deletion of survey from database
+• Button in the survey edit dialog for computing time and geographical bounds from available data
+
+KORONA:
+• WriterModule can specify directory relative to KORONA relay output
+
+________________________________________________________________
+
+Version 1.7.1 - July 2013
+
+This is a bug fix release:
+• PrintUser8 did not include last depth-channel in summation
+
+________________________________________________________________
+
+Version 1.7.0 - February 2013
+
+• Configurable directory structure (relative paths) when creating new surveys
+  and when backing up existing surveys
+• New color scales for enhanced perception of structures in the data
+• Bug fixes
+
+________________________________________________________________
+
+Version 1.6.2 - September 2012
+
+Fixed a regression in 1.6.1: School categorization was not displayed in LSSS.
+
+________________________________________________________________
+
+Version 1.6.1 - August 2012
+
+Java 7 is now required.
+
+LSSS:
+• Vertical scrollbar
+• Keyboard shortcuts for moving half a screen
+• Functionality for defining lower layer boundary (i.e. "bottom") from colour scale
+• Data can be excluded by use of the map window
+• Export from selected regions
+• New window for displaying one ping
+• Option to create survey in database when opening a survey file
+• PGNAPES database reports available
+• Generic database plugin
+• Faster data loading
+
+KORONA:
+• Added help pages with examples of processing setups
+• New modules for doing temporary computations
+• New module for removing spot-noise
+• New module for eroding low values
+• New module for adding a comment
+
+________________________________________________________________
+
+Version 1.6 - January 2012
+
+LSSS:
+• Survey local database using Java DB with files located in the survey directory
+• New color scale for displaying TS (optionally corrected using split beam angles)
+• Visualization of KORONA categories in frequency response window
+• Thresholds are remembered per ping, and saved to the work files
+• Extended functionality for erasing data
+• Help system can be started without dongle
+
+KORONA:
+• New module for tracking individual fish or plankton
+
+________________________________________________________________
+
+Version 1.5.1 - September 2011
+
+This is primarily a bug fix release.
+
+________________________________________________________________
+
+Version 1.5 - January 2011
+
+LSSS:
+• Support for seabed mounted transducers
+• New functions for editing schools:
+  - Manually expand / reduce the size of a school
+  - Split a school in two by drawing a separation line
+  - Draw school boundary close to another school
+• New options for multiple assignments in one operation when interpreting:
+  - Use KORONA categories or a specified frequency response function
+  - Apply to the selected frequency or all frequencies
+  - Apply to one acoustic category or to all acoustic categories
+• Echogram masking: Possibility to remove more than one KORONA category
+• Option for submitting bug report from error dialog
+
+KORONA:
+• Start KoronaPlaybox from KoronaRelay for visual experimentation of the processing results
+
+________________________________________________________________
+
+Version 1.4 - December 2009
+
+This version has support for 64-bit Linux.
+
+LSSS:
+• Echogram masking based on categorization
+• When listing available surveys:
+  - The directory LSSS_DATA is scanned for all drives (C:, D:, E: etc.)
+  - Tooltip with details about each survey
+• Using relative paths in survey configuration, so that a survey directory
+  can be moved to another location
+• Export from LSSS of KORONA school parameters to text files
+
+KORONA:
+• Multiple instances of KoronaRelay (possibly on different machines)
+  can simultaneously process the same directory
+• Configurable requirements for categories on available features,
+  e.g. Mackerel can require 200 kHz
+• Possibility for using each model more than once in PlanktonInversionModule
+
+________________________________________________________________
+
+Version 1.3 - March 2009
+
+• Improved handling of config files
+• New report types in report generator
+• Some new database tables (requires database upgrade)
+• New KORONA modules:
+  - TowfishModule: Merges data from towfish with main echosounder data
+  - DataReductionModule: Deletes data below configured transducer range
+  - AngleDeletionModule: Deletes angles from raw datagrams
+
+________________________________________________________________
+
+Version 1.2 - December 2007
+
+• Significant optimizations in report generator
+• Support for EK500 / BEI data and conversion of work files
+• Plankton inversion:
+  - New model: SDWBA
+  - Echogram visualization of bio volume and residual error
+• Numerous bug fixes, performance enhancements and usability improvements
+
+________________________________________________________________
+
+Version 1.1 - December 2006
+
+• Improved integration with the preprocessing system
+• New preprocessing modules:
+  - Transducer offset correction
+  - Plankton inversion
+• Upgraded database model
+• Support for database engines Firebird and JavaDB
+• Numerous bug fixes, performance enhancements and usability improvements
+
+________________________________________________________________
+
+Version 1.0 - March 2006
+
+Features:
+• Pelagic and bottom echogram window
+• Map window with overlaid survey line and other survey information
+• Interpretation window for assigning area backscatter to acoustic categories, and storing to database
+• Frequency response window
+• Threshold response window
+• Target strength (TS) window for detected single targets
+• Trawl data window
+• CTD window
+• Numerical information window
+• Region editing of layer regions and school regions
+• Support for the following database systems: HSQLDB, Ingres, PostgreSQL and MySQL
+
+Known issues:
+• Editing of large school regions can be slow
+• School region editing can in some cases lead to self-intersecting schools
+• The database model will be further modified. We do not guarantee that future versions
+  of LSSS will be backwards compatible with the existing model.
+
+Future plans:
+• Module for plankton inversion to compute size distribution of plankton inside regions
+• Closer integration with the pre-processing system:
+  - Starting and controlling the preprocessing from within the LSSS program
+  - Taking advantage of the categorization in the interpretation module
+• Transparent conversion between the LSSS raw data format and other formats
+  like BEI and HAC variants
+• Enable data calibration after data collection
+• Manipulation of data offset between transducers
+• Show position of towed vehicles in echogram window
+• Show frequency response along echogram
+• Show frequency response as a function of depth
+• Show sun and moon phase
+• Update the database model
+• Further work on the documentation

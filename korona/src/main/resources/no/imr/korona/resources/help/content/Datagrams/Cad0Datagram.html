@@ -1,0 +1,40 @@
+<h1>CAD0: Categorization data datagram</h1>
+<p>
+   This datagram contains categorization data for each sample in each ping.
+   The categories are defined in the initial
+   <a href="Cac0Datagram.html">categorization configuration datagram</a>.
+</p>
+
+<h2 id="Occurrences">Occurrences</h2>
+<p>
+   Once per ping.
+</p>
+
+<h2 id="Source">Source</h2>
+<ul>
+   <li><a href="../Modules/categorization/CategorizationModule.html">Categorization module</a>.</li>
+</ul>
+
+<h2 id="Contents">Contents</h2>
+<pre>
+struct Cad0Datagram {
+   DatagramHeader header; <span class="marec-comment">// CAD0</span>
+   byte categoryCount;    <span class="marec-comment">// Number of categories per sample</span>
+   int sampleCount;       <span class="marec-comment">// Number of samples</span>
+   float sampleDistance;  <span class="marec-comment">// Vertical distance [m] between samples</span>
+   float firstDepth;      <span class="marec-comment">// Depth [m] of the first sample</span>
+   byte[categoryCount][sampleCount] categories;    <span class="marec-comment">// Category numbers defined in the <a href="Cac0Datagram.html">Categorization configuration datagram</a></span>
+   byte[categoryCount][sampleCount] discriminants;
+   byte[categoryCount][sampleCount] probabilities;
+};
+</pre>
+<p>
+   The categories array loops over all included categories and all samples.
+   If a sample has fewer than <code>categoryCount</code> categories, the unknown category is used
+   for remaining entries.
+   The discriminants and probabilities arrays use the same ordering as the categories array.
+</p>
+<p>
+   The byte values of the discriminants and probabilities arrays represent floating point numbers between 0 and 1,
+   converted using the formula <code>floatValue = (0xff & byteValue) / 255.0</code>.
+</p>

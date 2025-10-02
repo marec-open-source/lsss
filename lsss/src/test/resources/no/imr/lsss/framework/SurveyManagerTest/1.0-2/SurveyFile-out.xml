@@ -1,0 +1,86 @@
+<survey version="2">
+   <configuration>
+      <unit name="SurveyConfiguration" version="2">
+         <configuration>
+            <parameters/>
+         </configuration>
+         <unit name="SurveyConf">
+            <configuration>
+               <parameters>
+                  <parameter name="UseLocalDatabase">false</parameter>
+                  <parameter name="Nation">Norway</parameter>
+                  <parameter name="PlatformId">9999</parameter>
+                  <parameter name="Platform">inge (9999)</parameter>
+                  <parameter name="SurveyId">2005114</parameter>
+                  <parameter name="Survey">LSSS_DEMO_DATA (2005114)</parameter>
+                  <parameter name="StartDate">2018-03-23</parameter>
+                  <parameter name="StartTime">00:00</parameter>
+                  <parameter name="StopDate">2018-03-23</parameter>
+                  <parameter name="StopTime">23:59</parameter>
+                  <parameter name="BoundaryNorth">0</parameter>
+                  <parameter name="BoundarySouth">0</parameter>
+                  <parameter name="BoundaryWest">0</parameter>
+                  <parameter name="BoundaryEast">0</parameter>
+                  <parameter name="Comment"/>
+               </parameters>
+            </configuration>
+         </unit>
+      </unit>
+   </configuration>
+
+      <display>
+         <moduleManager name="SouthModuleManager" divider="0.688">
+            <module name="MapModule" visible="true" floating="true" relativeSize="1.438">
+<window x="360" y="624" width="321" height="212"/>
+</module>
+            <module name="DeepVisionImageViewModule" visible="true" floating="false" relativeSize="0.645"/>
+            <module name="ProfosOmniDisplayModule" visible="false" floating="false" relativeSize="0.12118115313271893"/>
+            <module name="ProfosVerticalDisplayModule" visible="false" floating="false" relativeSize="0.05000000000000002"/>
+            <module name="ProfosInterpretationModule" visible="false" floating="false" relativeSize="0.05000000000000002"/>
+            <module name="ProfosTrendModule" visible="false" floating="false" relativeSize="0.04999999999999998"/>
+            <module name="Prombe2DModule" visible="false" floating="false" relativeSize="0.03142786662282601"/>
+            <module name="Prombe3DModule" visible="false" floating="false" relativeSize="0.03141804848267517"/>
+            <module name="PrombeInterpretationModule" visible="false" floating="false" relativeSize="1"/>
+            <module name="PromusSchoolDataModule" visible="false" floating="false" relativeSize="0.04999999999999998"/>
+            <module name="PromusSchoolAnalysisModule" visible="false" floating="false" relativeSize="0.05000000000000003"/>
+            <module name="FrequencyResponseModule" visible="true" floating="false" relativeSize="1.39"/>
+            <module name="ScatterPlotModule" visible="false" floating="false" relativeSize="0.6462"/>
+            <module name="ThresholdResponseModule" visible="true" floating="false" relativeSize="0.99"/>
+            <module name="TSModule" visible="true" floating="false" relativeSize="0.785"/>
+            <module name="TsPositionsModule" visible="false" floating="false" relativeSize="0.6636"/>
+            <module name="PlanktonModule" visible="false" floating="false" relativeSize="1.1667"/>
+            <module name="SvDistributionModule" visible="true" floating="false" relativeSize="0.51"/>
+            <module name="InterpretationModule" visible="true" floating="false" relativeSize="2.25"/>
+            <module name="BroadbandSvModule" visible="false" floating="false" relativeSize="0.02216590288438919"/>
+            <module name="BroadbandTsModule" visible="false" floating="false" relativeSize="0.02314537638217786"/>
+            <module name="BroadbandTsHistogramModule" visible="false" floating="false" relativeSize="0.024265538396967268"/>
+            <module name="KoronaExperimentationModule" visible="false" floating="false" relativeSize="1.3389"/>
+            <module name="MagnifierModule" visible="true" floating="false" relativeSize="0.43"/>
+            <module name="CorrelationModule" visible="false" floating="false" relativeSize="1"/>
+            <module name="CategorizationAnalysisModule" visible="false" floating="false" relativeSize="0.038461538461538505"/>
+            <module name="StressModule" visible="false" floating="false" relativeSize="0.8407"/>
+            <module name="DebugModule" visible="false" floating="false" relativeSize="0.07121059971467136"/>
+            <module name="BottomResponseModule" visible="false" floating="false" relativeSize="0.02426953011300743"/>
+            <module name="TrackingExplorerModule" visible="false" floating="false" relativeSize="0.04412886823093773"/>
+         </moduleManager>
+         <moduleManager name="EastModuleManager" divider="0.5462">
+            <module name="NumericalViewModule" visible="false" floating="false" relativeSize="0.9434"/>
+            <module name="SystemInfoModule" visible="false" floating="false" relativeSize="0.11133500220075938"/>
+            <module name="CTDViewModule" visible="true" floating="false" relativeSize="0.9422"/>
+            <module name="TrawlModule" visible="true" floating="false" relativeSize="1.0578"/>
+            <module name="PingPlotModule" visible="false" floating="false" relativeSize="1.0566"/>
+            <module name="BroadbandCalibrationPlotModule" visible="false" floating="false" relativeSize="0.14379279969673078"/>
+            <module name="ProfosNumericalViewModule" visible="false" floating="false" relativeSize="1"/>
+            <module name="PrombeNumericalViewModule" visible="false" floating="false" relativeSize="1"/>
+            <module name="PromusNumericalViewModule" visible="false" floating="false" relativeSize="1"/>
+            <module name="PromusPingDisplayModule" visible="false" floating="false" relativeSize="0.14285714285714282"/>
+            <module name="PromusSliceDisplayModule" visible="false" floating="false" relativeSize="0.1428571428571429"/>
+         </moduleManager>
+         <moduleManager name="BelowEchogram" divider="0.8094">
+            <module name="EchogramPlotModule" visible="true" floating="false" relativeSize="0.5"/>
+            <module name="PrombePhantomEchogramModule" visible="false" floating="false" relativeSize="1"/>
+            <module name="PromusPhantomEchogramModule" visible="false" floating="false" relativeSize="1"/>
+         </moduleManager>
+      </display>
+
+</survey>

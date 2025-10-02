@@ -1,0 +1,54 @@
+<h1>Platform</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>Platform</strong> - Information about observation platforms
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct Platform {
+  short Nation;
+  short Platform;
+  short PlatformType;
+  short PlatformSubType;
+  int   FirstValidDate;
+  int   LastValidDate;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table contains the mapping from the name of the observation platform to nation code and
+   platform code. The observation platform is often a ship.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the <a href="Nation.html">Nation</a>
+      database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Platform">Platform</span> - Platform identification code. This information must be unique for the
+      corresponding Nation code.
+   </li>
+   <li><span class="marec-parameter-def" id="PlatformType">PlatformType</span> - Type of observation platform, e.g. Ship.</li>
+   <li><span class="marec-parameter-def" id="PlatformSubtype">PlatformSubtype</span> - E.g. research ship.</li>
+   <li><span class="marec-parameter-def" id="FirstValidDate">FirstValidDate</span> - [YYYYMMDD] First date the observation
+      platform was operational.
+   </li>
+   <li><span class="marec-parameter-def" id="LastValidDate">LastValidDate</span> - [YYYYMMDD] Last date the observation
+      platform was operational.
+   </li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="RelatedDatabaseTables">Related database tables</h2>
+<p>
+   The database table <a href="PlatformName.html">PlatformName</a> contains names of observation platforms.<br>
+   The database table <a href="PlatformType.html">PlatformType</a> contains info about types of platforms.<br>
+   The database table <a href="PlatformCodes.html">PlatformCodes</a> contains platform codes in other coding systems.
+</p>

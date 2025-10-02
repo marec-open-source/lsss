@@ -1,0 +1,60 @@
+<h1>BiologicalSpecies</h1>
+
+<h2 id="Name">Name</h2>
+<p>
+   <strong>BiologicalSpecies</strong> - Species of the database
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+<pre>
+struct BiologicalSpecies {
+  short Nation;
+  int   BiologicalSpecies;
+  char  Initials[5];
+  char  CommonName[80];
+  char  EnglishName[80];
+  char  LatinName[80];
+  char  NODC[12];
+  int   ITIS;
+};
+</pre>
+
+<h2 id="Description">Description</h2>
+<p>
+   This table contains information characterizing individual species - name, identification code, etc.
+   The species are biological species. Since the content of the database table is seldom expanded,
+   there is no GUI in LSSS to insert content.
+</p>
+
+<h2 id="Parameters">Parameters</h2>
+<ul>
+   <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the <a href="Nation.html">Nation</a>
+      database table.
+   </li>
+   <li><span class="marec-parameter-def" id="Category">Category</span> - Unique identifier for acoustic category.</li>
+   <li><span class="marec-parameter-def" id="Composite">Composite</span> - Flag indicating if the acoustic category given by <b>Nation-Category</b>
+      is a composition of several acoustic categories or not. If subcategories are assigned this
+      parameter is set to 1, and with no subcategories it is set to 0.
+   </li>
+   <li><span class="marec-parameter-def" id="Initials">Initials</span> - Short form category name used by the Interpretation window and the printout programs.</li>
+   <li><span class="marec-parameter-def" id="CommonName">CommonName</span> - Complete category name in native language. Note that number of characters is limited.</li>
+   <li><span class="marec-parameter-def" id="EnglishName">EnglishName</span> - Complete category name in English. Note that number of characters is limited.</li>
+   <li><span class="marec-parameter-def" id="LatinName">LatinName</span> - Complete category name in Latin. Note that number of characters is limited.</li>
+   <li><span class="marec-parameter-def" id="NODC">NODC</span> - Internationally standardized species code (National Oceanographic Data Center).</li>
+   <li><span class="marec-parameter-def" id="ITIS">ITIS</span> - International standard species code (Integrated Taxonomic Information System).</li>
+</ul>
+
+<h2 id="RelatedTopics">Related topics</h2>
+<p>
+   <a href="../Database.html">Database</a>
+</p>
+
+<h2 id="References">References</h2>
+<ol>
+   <li><i>National oceanographic data center taxonomic code, Volume 2 - Alphabetical
+      (scientific name order) listing Key to Oceanographic Records Documentation, Number 15, U.S.
+      Department of Commerce, National Oceanic and Atmospheric Administration, National
+      Oceanographic Data Center, Washington D.C., 1984.</i></li>
+   <li><i>K.G.Foote - Fish target strengths for use in echo integrator surveys, Journal of the
+      Acoustical Society of America, Volume 82, Number 3, pages 981-987, September 1987.</i></li>
+</ol>
