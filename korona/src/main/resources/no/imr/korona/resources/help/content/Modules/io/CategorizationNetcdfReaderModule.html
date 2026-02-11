@@ -12,9 +12,13 @@
       If the module is not active, then all datagrams pass unaltered through it.
    </li>
    <li><span class="marec-parameter-def" id="InputFile">Input file:</span>
-      The netCDF data is read from this file.
+      The netCDF data is read from this file / directory.
+      If it is a directory, then the file in that directory with a name corresponding
+      to the raw data file will be used, if it exists.
    </li>
    <li><span class="marec-parameter-def" id="MainFrequency">Main frequency:</span>
+      A comma-separated list of prioritized candidates for the main frequency.
+      If unspecified, the first channel is used.
       The channel with the main frequency is used for converting range to depth.
    </li>
 </ul>

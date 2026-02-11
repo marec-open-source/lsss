@@ -1,10 +1,27 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import no.imr.tools.database.ColumnOrder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "acousticCategory",
+      "area",
+
+      // Properties:
+      // <none>
+})
 public class AreaOfAcousticCategory implements BasePlatformObject<AreaOfAcousticCategoryPK> {
    private AreaOfAcousticCategoryPK compId;
 
@@ -33,6 +50,12 @@ public class AreaOfAcousticCategory implements BasePlatformObject<AreaOfAcoustic
       this.compId = compId;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "area", referencedColumnName = "area")
+   })
    public Area getArea() {
       return area;
    }
@@ -41,6 +64,13 @@ public class AreaOfAcousticCategory implements BasePlatformObject<AreaOfAcoustic
       this.area = area;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "acousticCategory", referencedColumnName = "acousticCategory")
+   })
    public AcousticCategory getAcousticCategory() {
       return acousticCategory;
    }

@@ -1,9 +1,9 @@
 package no.imr.tools.misc;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 
-import java.io.IOException;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public final class JsonWriter {
    private final JsonGenerator json;
@@ -12,29 +12,29 @@ public final class JsonWriter {
       this.json = json;
    }
 
-   public void writeObjectField(String fieldName, ThrowingRunnable<IOException> contentWriter) throws IOException {
-      json.writeFieldName(fieldName);
+   public void writeObjectField(String fieldName, Runnable contentWriter) {
+      json.writeName(fieldName);
       writeObject(contentWriter);
    }
 
-   public void writeObject(ThrowingRunnable<IOException> contentWriter) throws IOException {
+   public void writeObject(Runnable contentWriter) {
       json.writeStartObject();
       contentWriter.run();
       json.writeEndObject();
    }
 
-   public <T> void writeArrayField(String fieldName, Collection<T> values, ThrowingConsumer<T, IOException> contentWriter) throws IOException {
-      json.writeFieldName(fieldName);
+   public <T> void writeArrayField(String fieldName, Collection<T> values, Consumer<T> contentWriter) {
+      json.writeName(fieldName);
       writeArray(values, contentWriter);
    }
 
-   public void writeArray(ThrowingRunnable<IOException> contentWriter) throws IOException {
+   public void writeArray(Runnable contentWriter) {
       json.writeStartArray();
       contentWriter.run();
       json.writeEndArray();
    }
 
-   public <T> void writeArray(Collection<T> values, ThrowingConsumer<T, IOException> contentWriter) throws IOException {
+   public <T> void writeArray(Collection<T> values, Consumer<T> contentWriter) {
       json.writeStartArray();
       for (T value : values) {
          contentWriter.accept(value);

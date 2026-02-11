@@ -1,11 +1,30 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "survey",
+      "infoKey",
+      "infoIndex",
+
+      // Properties:
+      "infoValue",
+})
 public class SurveyInfo implements BaseSurveyObject<SurveyInfoPK> {
    private SurveyInfoPK compId;
 
@@ -34,6 +53,7 @@ public class SurveyInfo implements BaseSurveyObject<SurveyInfoPK> {
       this.compId = compId;
    }
 
+   @Column(length = 30_000)
    public String getInfoValue() {
       return infoValue;
    }
@@ -42,6 +62,13 @@ public class SurveyInfo implements BaseSurveyObject<SurveyInfoPK> {
       this.infoValue = DatabaseUtils.nullToEmpty(infoValue);
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "survey", referencedColumnName = "survey")
+   })
    public Survey getSurvey() {
       return survey;
    }

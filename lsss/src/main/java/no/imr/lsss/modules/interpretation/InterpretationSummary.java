@@ -19,6 +19,7 @@ import no.imr.lsss.database.tables.hibernate.SurveyPK;
 import no.imr.lsss.database.util.DatabaseTime;
 import no.imr.lsss.util.LsssUtils;
 import no.imr.tools.Utils;
+import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import no.imr.tools.database.queries.DeleteQuery;
 import no.imr.tools.listening.ChangeManager;
 import no.imr.tools.listening.Listener;
@@ -29,7 +30,7 @@ import no.imr.tools.range.Range;
 import no.imr.tools.range.RangeSet;
 import no.imr.tools.range.RangeUtils;
 import no.imr.tools.swing.WorkerDialog;
-import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -64,7 +65,7 @@ public final class InterpretationSummary {
    }
 
    public void setup() {
-      lsss.getConfigurationManager().getSurveyConf().mSurvey.subscribe(__ -> {
+      lsss.getConfigurationManager().getSurveyConf().mSurvey.subscribe(_ -> {
          new WorkerDialog(lsss::getReferenceComponent, "Fetching interpretation summary from database...")
                .startWithoutCancel(this::initFromDatabase);
       });
@@ -80,7 +81,7 @@ public final class InterpretationSummary {
       if (survey == null) {
          notifyListeners();
       } else {
-         lsss.getDatabaseManager().getDatabaseConnection().executeQuery(session -> {
+         lsss.getDatabaseManager().getDatabaseConnection().executeStatelessQuery(session -> {
             List<ScatterObject> scatterObjects = LsssQuery.fetch(ScatterObject.class, survey).executeAndGetValue(session);
             scatterObjects.forEach(scatterObject -> scatterObjectInfos.put(scatterObject.getCompId().getObject(), new ScatterObjectInfo(scatterObject)));
 
@@ -162,11 +163,11 @@ public final class InterpretationSummary {
 
       ScatterObjectsUpdater scatterObjectsUpdater = new ScatterObjectsUpdater(this, scatterObjectNumbers);
 
-      lsss.getDatabaseManager().getDatabaseConnection().asyncExecuteQuery(session -> {
+      lsss.getDatabaseManager().getDatabaseConnection().asyncExecuteStatelessQuery(session -> {
          scatterObjectsUpdater.execute(session);
-         result.observations.values().forEach(session::saveOrUpdate);
-         result.scatters.forEach(session::save);
-         result.scatterDatas.forEach(session::save);
+         session.upsertMultiple(new ArrayList<>(result.observations.values()));
+         session.insertMultiple(result.scatters);
+         session.insertMultiple(result.scatterDatas);
       });
 
       addScatters(result.scatters);
@@ -178,6 +179,7 @@ public final class InterpretationSummary {
       private final Set<ObservationPK> deleteIfEmptyObservationPKs = new HashSet<>();
 
       private final List<ScatterObject> storeScatterObjects = new ArrayList<>();
+      private final List<BaseDatabaseObject> storeSubTableObjects = new ArrayList<>();
       private final List<ScatterObject> deleteScatterObjects = new ArrayList<>();
 
       private ScatterObjectsUpdater(InterpretationSummary interpretationSummary, Set<Integer> scatterObjectNumbers) {
@@ -198,30 +200,28 @@ public final class InterpretationSummary {
                   }
                   storeObservations.add(newObservation);
                }
-
-               ScatterObject scatterObjectCopy = new ScatterObject(scatterObject);
-               possiblyUpdateScatterObjectSubTables(scatterObjectCopy, scatterObjectInfo.scatters);
-               storeScatterObjects.add(scatterObjectCopy);
+               storeScatterObjects.add(scatterObject);
+               storeSubTableObjects.addAll(createSubTableObjects(scatterObject, scatterObjectInfo.scatters));
             }
          }
       }
 
-      private void execute(Session session) {
-         storeObservations.forEach(session::saveOrUpdate);
-         storeScatterObjects.forEach(session::saveOrUpdate);
+      private void execute(StatelessSession session) {
+         session.upsertMultiple(new ArrayList<>(storeObservations));
+         session.upsertMultiple(storeScatterObjects);
+         for (ScatterObject scatterObject : storeScatterObjects) {
+            ScatterObjectSubTables.deleteForScatterObject(scatterObject, session);
+         }
+         session.insertMultiple(storeSubTableObjects);
 
-         session.flush(); // Must call Session::flush before using Session::getReference
-
-         deleteScatterObjects.forEach(deleteScatterObject -> {
-            ScatterObject scatterObject = session.getReference(ScatterObject.class, deleteScatterObject.getCompId());
-            session.delete(scatterObject);
-         });
-
-         session.flush(); // Must call Session::flush before using Session::getReference
-         session.clear(); // Otherwise observation.getScatterObjects() could return null (if also in storeObservations)
+         for (ScatterObject scatterObject : deleteScatterObjects) {
+            ScatterObjectSubTables.deleteForScatterObject(scatterObject, session);
+         }
+         session.deleteMultiple(deleteScatterObjects);
 
          deleteIfEmptyObservationPKs.forEach(deleteIfEmptyObservationPK -> {
-            Observation observation = session.getReference(Observation.class, deleteIfEmptyObservationPK);
+            Observation observation = session.get(Observation.class, deleteIfEmptyObservationPK);
+            session.fetch(observation.getScatterObjects());
             if (observation.getScatterObjects().isEmpty()) {
                session.delete(observation);
                deleteObservationPKs.remove(deleteIfEmptyObservationPK);
@@ -231,10 +231,11 @@ public final class InterpretationSummary {
       }
    }
 
-   private static void possiblyUpdateScatterObjectSubTables(ScatterObject scatterObject, NavigableSet<Scatter> scatters) {
+   private static List<? extends BaseDatabaseObject> createSubTableObjects(ScatterObject scatterObject, NavigableSet<Scatter> scatters) {
       if (scatterObject.getObservationType() == ObservationTypeEnum.SCATTER_OBJECT_SCHOOL.getValue()) {
-         ScatterObjectSubTables.update(scatterObject, scatters);
+         return ScatterObjectSubTables.createSubTableObjects(scatterObject, scatters);
       }
+      return List.of();
    }
 
    private Observation createObservation(ScatterObject scatterObject) {
@@ -281,24 +282,24 @@ public final class InterpretationSummary {
       SurveyPK surveyPK = survey.getCompId();
       DatabaseTime min = new DatabaseTime(minMillis);
       DatabaseTime max = new DatabaseTime(maxMillis);
-      DeleteQuery deleteScatterDataQuery = StoreUtils.createDeleteQuery(ScatterData.class, surveyPK, min, max);
-      DeleteQuery deleteScatterQuery = StoreUtils.createDeleteQuery(Scatter.class, surveyPK, min, max);
-      DeleteQuery deleteScatterObservationQuery = new DeleteQuery(StoreUtils.createDeleteQueryBuilder(Observation.class, surveyPK, min, max).and()
+      DeleteQuery deleteScatterDataQuery = StoreUtils.deleteQuery(ScatterData.class, surveyPK, min, max);
+      DeleteQuery deleteScatterQuery = StoreUtils.deleteQuery(Scatter.class, surveyPK, min, max);
+      DeleteQuery deleteScatterObservationQuery = StoreUtils.deleteQueryBuilder(Observation.class, surveyPK, min, max).and()
             .parenthesisBegin()
             /**/ .eq(DatabaseData.OBSERVATION_TYPE, ObservationTypeEnum.SCATTERED_FISH_DATA.getValue()).or()
             /**/ .eq(DatabaseData.OBSERVATION_TYPE, ObservationTypeEnum.SCHOOL_OF_FISH_DATA.getValue())
             .parenthesisEnd()
-            .getQuery());
+            .build();
       DatabaseTime navigationMin = new DatabaseTime(minMillis + 10); // NAVIGATION_DATA_INPUT is added at end of each scatter
       DatabaseTime navigationMax = new DatabaseTime(endMillis);
-      DeleteQuery deleteNavigationObservationQuery = new DeleteQuery(StoreUtils.createDeleteQueryBuilder(Observation.class, surveyPK, navigationMin, navigationMax).and()
+      DeleteQuery deleteNavigationObservationQuery = StoreUtils.deleteQueryBuilder(Observation.class, surveyPK, navigationMin, navigationMax).and()
             .parenthesisBegin()
             /**/ .eq(DatabaseData.OBSERVATION_TYPE, ObservationTypeEnum.NAVIGATION_DATA_INPUT.getValue())
             .parenthesisEnd()
-            .getQuery());
+            .build();
       ScatterObjectsUpdater scatterObjectsUpdater = new ScatterObjectsUpdater(this, updatedScatterObjectNumbers);
 
-      lsss.getDatabaseManager().getDatabaseConnection().asyncExecuteQuery(session -> {
+      lsss.getDatabaseManager().getDatabaseConnection().asyncExecuteStatelessQuery(session -> {
          deleteScatterDataQuery.execute(session);
          deleteScatterQuery.execute(session);
          deleteScatterObservationQuery.execute(session);
@@ -379,16 +380,16 @@ public final class InterpretationSummary {
 
                NavigableSet<Scatter> subScatters = scatters.subSet(beginScatter, true, endScatter, false);
                while (true) {
-                  // Must loop since more than one scatter may be partially included in tingRange for school grids.
+                  // Must loop since more than one scatter may be partially included in timeRange for school grids.
                   Scatter lastScatter = Utils.nextOrNull(subScatters.descendingIterator());
                   if (lastScatter == null) {
                      break;
                   }
                   if (DatabaseTime.toMillis(lastScatter) + 10L * lastScatter.getDuration() > timeRange.end()) {
-                     // Last scatter is NOT completely contained in tingRange.
+                     // Last scatter is NOT completely contained in timeRange.
                      subScatters = scatters.subSet(beginScatter, true, lastScatter, false);
                   } else {
-                     // Last scatter IS completely contained in tingRange.
+                     // Last scatter IS completely contained in timeRange.
                      break;
                   }
                }
@@ -512,7 +513,7 @@ public final class InterpretationSummary {
 
       private NavigableSet<Scatter> getScatterSet(ScatterTypeEnum scatterTypeEnum, Integer frequency) {
          Map<Integer, NavigableSet<Scatter>> scatterMap = typeToScatterMap.get(scatterTypeEnum);
-         return scatterMap.computeIfAbsent(frequency, k -> createNavigableScatterSet());
+         return scatterMap.computeIfAbsent(frequency, _ -> createNavigableScatterSet());
       }
 
       private static NavigableSet<Scatter> createNavigableScatterSet() {

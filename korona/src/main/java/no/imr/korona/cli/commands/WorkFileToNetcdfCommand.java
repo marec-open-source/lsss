@@ -34,7 +34,7 @@ public final class WorkFileToNetcdfCommand extends CliCommand {
          .defaultsTo(Runtime.getRuntime().availableProcessors());
 
    private final OptionSpec<Integer> frequency = parser.accepts("frequency",
-               "The frequency [kHz] to use")
+               "The frequency [kHz] to use, can be specified multiple times in prioritized order")
          .withRequiredArg()
          .ofType(Integer.class)
          .defaultsTo(38);
@@ -64,7 +64,7 @@ public final class WorkFileToNetcdfCommand extends CliCommand {
             options.valueOf(maxParallel),
             new WorkFileNetcdfWriter(
                   options.valueOf(outputDir),
-                  options.valueOf(frequency),
+                  options.valuesOf(frequency),
                   options.valueOf(deltaRange),
                   options.valueOf(maxRange)
             )

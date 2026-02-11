@@ -140,7 +140,7 @@ public final class FileUtils {
    public static long sizeOr0(Path file) {
       try {
          return Files.size(file);
-      } catch (IOException e) {
+      } catch (IOException _) {
          return 0;
       }
    }
@@ -156,7 +156,7 @@ public final class FileUtils {
    public static long lastModifiedOr0(Path file) {
       try {
          return lastModified(file);
-      } catch (IOException e) {
+      } catch (IOException _) {
          return 0;
       }
    }
@@ -184,7 +184,7 @@ public final class FileUtils {
          } else {
             return new LastModifiedAndSize(attributes);
          }
-      } catch (IOException e) {
+      } catch (IOException _) {
          return LastModifiedAndSize.ZERO;
       }
    }
@@ -192,7 +192,7 @@ public final class FileUtils {
    public static boolean equals(Path file, byte[] bytes) {
       try {
          return Arrays.equals(Files.readAllBytes(file), bytes);
-      } catch (IOException e) {
+      } catch (IOException _) {
          return false;
       }
    }
@@ -200,7 +200,7 @@ public final class FileUtils {
    public static boolean equals(Path fileA, Path fileB) {
       try {
          return Arrays.equals(Files.readAllBytes(fileA), Files.readAllBytes(fileB));
-      } catch (IOException e) {
+      } catch (IOException _) {
          return false;
       }
    }
@@ -332,7 +332,7 @@ public final class FileUtils {
          Path path = file.toAbsolutePath().normalize();
          Path referencePath = referenceDirectory.toAbsolutePath().normalize();
          return referencePath.relativize(path).toString();
-      } catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException _) {
          return null;
       }
    }
@@ -448,7 +448,7 @@ public final class FileUtils {
                // It is a symbolic link to a directory (#887)
                return;
             }
-         } catch (IOException ignore) {
+         } catch (IOException _) {
             // Ignore this exception and instead throw the first exception.
          }
          throw e;
@@ -465,8 +465,8 @@ public final class FileUtils {
       if (isEmptyDirectory(dir)) {
          try {
             Files.deleteIfExists(dir);
-         } catch (DirectoryNotEmptyException e) {
-            // Maybe a file was created since calling isEmptyDirectory
+         } catch (DirectoryNotEmptyException _) {
+            // Maybe a file was created since calling isEmptyDirectory.
          }
       }
    }
@@ -508,13 +508,13 @@ public final class FileUtils {
                files.add(file);
             }
          }
-      } catch (NotDirectoryException e) {
-         // Not directory => return empty list
+      } catch (NotDirectoryException _) {
+         // Not directory => return empty list.
       } catch (IOException e) {
          if (Files.isDirectory(dir)) {
             throw e;
          }
-         // Not directory => return empty list
+         // Not directory => return empty list.
       }
       return files;
    }
@@ -528,7 +528,7 @@ public final class FileUtils {
    }
 
    public static List<FileInfo> listFilesWithAttributes(Path dir, AsyncHandle asyncHandle) throws IOException {
-      return listFilesWithAttributes(dir, asyncHandle, fileInfo -> true);
+      return listFilesWithAttributes(dir, asyncHandle, _ -> true);
    }
 
    public static List<FileInfo> listFilesWithAttributes(Path dir, AsyncHandle asyncHandle, Predicate<FileInfo> predicate) throws IOException {
@@ -562,7 +562,7 @@ public final class FileUtils {
          if (Files.isDirectory(dir)) {
             throw e;
          }
-         // Not directory => return empty list
+         // Not directory => return empty list.
       }
       return fileInfos;
    }
@@ -586,8 +586,8 @@ public final class FileUtils {
    public static @Nullable Path toPath(@Nullable File file) {
       try {
          return file != null ? file.toPath() : null;
-      } catch (InvalidPathException e) {
-         // Happens on Windows when going up one level from list of drives
+      } catch (InvalidPathException _) {
+         // Happens on Windows when going up one level from list of drives.
          return null;
       }
    }
@@ -673,7 +673,7 @@ public final class FileUtils {
          Path file = dir.resolve(fileName);
          Files.write(file, content, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
          return file;
-      } catch (IOException e) {
+      } catch (IOException _) {
          // If failure, then do it safer (and slower) using more IO operations.
          createDirectories(dir);
          Path file = Files.createTempFile(dir, fileNamePrefix, fileNameSuffix);

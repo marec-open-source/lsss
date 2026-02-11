@@ -25,7 +25,7 @@ public interface ProgressHandler {
    }
 
    static ProgressHandler ignore() {
-      return fraction -> {
+      return _ -> {
       };
    }
 }

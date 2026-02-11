@@ -109,7 +109,7 @@ public final class CalibrationGenerator {
          float[] saCorrectionTable = transducer.getSaCorrectionTable();
          builder.saCorrections = IntStream.range(0, pulseDurationTable.length)
                .boxed()
-               .collect(ImmutableMap.toImmutableMap(i -> pulseDurationTable[i], i -> saCorrectionTable[i], (a, b) -> a));
+               .collect(ImmutableMap.toImmutableMap(i -> pulseDurationTable[i], i -> saCorrectionTable[i], (a, _) -> a));
 
          if (xml0Info != null) {
             // No absorptionCoefficient in this case.

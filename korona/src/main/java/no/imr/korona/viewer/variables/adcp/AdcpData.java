@@ -23,23 +23,30 @@ public final class AdcpData {
    private static final LoadingCache<Path, AdcpData> DIR_TO_ADCP_DATA = CacheBuilder.newBuilder()
          .maximumSize(1)
          .<Path, AdcpData>removalListener(notification -> {
-            AdcpData adcpData = notification.getValue();
-            if (adcpData != null) {
-               adcpData.close();
-            }
+            notification.getValue().close();
          })
-         .build(new CacheLoader<>() {
-            @Override
-            public AdcpData load(Path dir) throws Exception {
-               return new AdcpData(dir);
-            }
-         });
+         .build(CacheLoader.from(AdcpData::forDirectory));
 
    private final List<AdcpFile> adcpFiles;
    private final RangeMap<Long, AdcpFile> netcdfTimeToAdcpFile = new ArrayRangeMap<>();
 
-   private AdcpData(Path dir) throws IOException {
-      adcpFiles = FileUtils.listFiles(dir, FilePredicates.endsWith(".nc")).stream()
+   private AdcpData(List<AdcpFile> adcpFiles) {
+      this.adcpFiles = adcpFiles;
+      for (AdcpFile adcpFile : adcpFiles) {
+         long[] pingTimes = adcpFile.getPingTime();
+         netcdfTimeToAdcpFile.put(pingTimes[0], pingTimes[pingTimes.length - 1] + 1, adcpFile);
+      }
+   }
+
+   private static AdcpData forDirectory(Path dir) {
+      List<Path> files;
+      try {
+         files = FileUtils.listFiles(dir, FilePredicates.endsWith(".nc"));
+      } catch (IOException e) {
+         Log.global.log(Level.WARNING, "Error listing files in " + dir, e);
+         return new AdcpData(List.of());
+      }
+      List<AdcpFile> adcpFiles = files.stream()
             .map(file -> {
                try {
                   AdcpFile adcpFile = AdcpFile.open(file);
@@ -59,10 +66,7 @@ public final class AdcpData {
             })
             .filter(Objects::nonNull)
             .toList();
-      for (AdcpFile adcpFile : adcpFiles) {
-         long[] pingTimes = adcpFile.getPingTime();
-         netcdfTimeToAdcpFile.put(pingTimes[0], pingTimes[pingTimes.length - 1] + 1, adcpFile);
-      }
+      return new AdcpData(adcpFiles);
    }
 
    private void close() {

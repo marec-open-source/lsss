@@ -101,9 +101,9 @@ public final class BroadbandChannelInfoAccumulator {
       private void accumulate(BroadbandData broadbandData) {
          // Broadband data can be accumulated in any order and possibly repeatedly
 
-         map.computeIfAbsent(broadbandData.getTimeInMillis(), t -> {
+         map.computeIfAbsent(broadbandData.getTimeInMillis(), _ -> {
             ExportChannelInfoParameters channelParameters = rawToChannelParameters(broadbandData);
-            return canonicalChannelParametersMap.computeIfAbsent(channelParameters, key -> channelParameters);
+            return canonicalChannelParametersMap.computeIfAbsent(channelParameters, _ -> channelParameters);
          });
       }
 

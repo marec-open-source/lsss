@@ -51,6 +51,16 @@ public final class RegionManager {
    private static final String XML_NUMBER_OF_PINGS = "numberOfPings";
 
    private final RegionConfiguration regionConfiguration;
+
+   private final ListenableProperty<List<Region>> selectedRegions = new ListenableProperty<>(List.of());
+   private final ArgChangeManager<ConditionalPingMask> conditionalPingMaskChangeManager = new ArgChangeManager<>();
+   private final ArgChangeManager<RegionEvent> regionBoundaryChangeManager = new ArgChangeManager<>();
+   private final ArgChangeManager<RegionEvent> regionDefinitionChangeManager = new ArgChangeManager<>();
+   private final ArgChangeManager<Collection<? extends Region>> regionDeletedChangeManager = new ArgChangeManager<>();
+   private final ArgChangeManager<Region> labelsChangeManager = new ArgChangeManager<>();
+   private final ArgChangeManager<EchogramSelection> echogramSelectionChangeManager = new ArgChangeManager<>();
+   private final ArgChangeManager<Object> interpretationChangeManager = new ArgChangeManager<>();
+
    private final LayerManager layerManager = new LayerManager(this);
    private final SchoolManager schoolManager = new SchoolManager(this);
    private final MaskingManager maskingManager = new MaskingManager(this);
@@ -61,18 +71,8 @@ public final class RegionManager {
    private final ThresholdManager thresholdManager = new ThresholdManager(this);
    private final StoringConfigManager storingConfigManager = new StoringConfigManager(this);
 
-   private final ListenableProperty<List<Region>> selectedRegions = new ListenableProperty<>(List.of());
-   private final ArgChangeManager<ConditionalPingMask> conditionalPingMaskChangeManager = new ArgChangeManager<>();
-   private final ArgChangeManager<RegionEvent> regionBoundaryChangeManager = new ArgChangeManager<>();
-   private final ArgChangeManager<RegionEvent> regionDefinitionChangeManager = new ArgChangeManager<>();
-   private final ArgChangeManager<Collection<? extends Region>> regionDeletedChangeManager = new ArgChangeManager<>();
-   private final ArgChangeManager<Region> labelsChangeManager = new ArgChangeManager<>();
-   private final ArgChangeManager<EchogramSelection> echogramSelectionChangeManager = new ArgChangeManager<>();
-
    private boolean skipNotifications;
    private @Nullable EchogramPoint selectedRegionsReferencePoint;
-
-   private final ArgChangeManager<Object> interpretationChangeManager = new ArgChangeManager<>();
 
    public RegionManager(RegionConfiguration regionConfiguration) {
       this.regionConfiguration = regionConfiguration;
@@ -144,11 +144,13 @@ public final class RegionManager {
    private void shiftSelectedRegion(int step) {
       Comparator<Region> regionComparator = this::compareRegions;
 
-      List<Layer> visibleLayers = layerManager.getLayersIntersectingPingRange(getVisiblePingRange());
-      visibleLayers.sort(regionComparator);
+      List<Layer> visibleLayers = layerManager.regionsIntersectingPingRange(getVisiblePingRange())
+            .sorted(regionComparator)
+            .toList();
 
-      List<School> visibleSchools = schoolManager.getSchoolsIntersectingPingRange(getVisiblePingRange());
-      visibleSchools.sort(regionComparator);
+      List<School> visibleSchools = schoolManager.regionsIntersectingPingRange(getVisiblePingRange())
+            .sorted(regionComparator)
+            .toList();
 
       List<Region> visibleRegions = new UnionList<>(visibleSchools, visibleLayers);
 
@@ -236,14 +238,17 @@ public final class RegionManager {
       if (skipNotifications) {
          return;
       }
-      List<Region> regions = Stream.concat(
-                  layerManager.getSelectedRegions().stream(),
-                  schoolManager.getSelectedRegions().stream())
-            .toList();
+      List<Region> regions = Utils.toList(
+            layerManager.getSelectedRegions(),
+            schoolManager.getSelectedRegions()
+      );
       if (!regions.isEmpty()) {
          selectedRegionsReferencePoint = regions.stream()
                .max(this::compareRegions)
-               .map(region -> new EchogramPoint(region.getPingRange().begin(), region.getRepresentativeMinDepth(region.getPingRange().begin())))
+               .map(region -> {
+                  PingIndex pingIndex = region.getPingRange().begin();
+                  return new EchogramPoint(pingIndex, region.getRepresentativeMinDepth(pingIndex));
+               })
                .orElse(null);
       }
       selectedRegions.setValue(regions);
@@ -341,7 +346,8 @@ public final class RegionManager {
    }
 
    private List<Region> getIntersectingRegions(EchogramRectangle echogramRectangle) {
-      return getVisibleRegions().parallelStream()
+      return visibleRegions()
+            .parallel()
             .filter(region -> {
                PingRange intersectingPingRange = region.getPingRange().intersection(echogramRectangle.pingRange());
                return getPingContainer().getPingIndexStream(intersectingPingRange).anyMatch(pingIndex -> {
@@ -353,7 +359,8 @@ public final class RegionManager {
    }
 
    public List<Region> getGeoIntersectingRegions(Rectangle2D geoRect) {
-      return getVisibleRegions().parallelStream()
+      return visibleRegions()
+            .parallel()
             .filter(region -> {
                PingRange intersectingPingRange = region.getPingRange().intersection(getVisiblePingRange());
                return getPingContainer().getPingIndexStream(intersectingPingRange).anyMatch(pingIndex -> {
@@ -391,24 +398,29 @@ public final class RegionManager {
    }
 
    public List<Region> getVisibleRegions() {
-      return intersectingRegions(getVisiblePingRange()).toList();
+      return visibleRegions().toList();
+   }
+
+   public Stream<Region> visibleRegions() {
+      return intersectingRegions(getVisiblePingRange());
    }
 
    private Stream<Region> intersectingRegions(PingRange pingRange) {
       return Stream.concat(
-            layerManager.layersIntersectingPingRange(pingRange),
-            schoolManager.schoolsIntersectingPingRange(pingRange)
+            layerManager.regionsIntersectingPingRange(pingRange),
+            schoolManager.regionsIntersectingPingRange(pingRange)
       );
    }
 
-   public List<School> getVisibleSchools() {
-      return schoolManager.getSchoolsIntersectingPingRange(getVisiblePingRange());
+   public Stream<School> visibleSchools() {
+      return schoolManager.regionsIntersectingPingRange(getVisiblePingRange());
    }
 
    public Stream<Region> regionStream() {
       return Stream.concat(
             layerManager.getLayers().stream(),
-            schoolManager.getSchools().stream());
+            schoolManager.getSchools().stream()
+      );
    }
 
    /**
@@ -426,11 +438,9 @@ public final class RegionManager {
    }
 
    public static PingRange getPingRange(Collection<? extends Region> regions) {
-      PingRange pingRange = PingRange.EMPTY_RANGE;
-      for (Region region : regions) {
-         pingRange = pingRange.union(region.getPingRange());
-      }
-      return pingRange;
+      return regions.parallelStream()
+            .map(Region::getPingRange)
+            .reduce(PingRange.EMPTY_RANGE, PingRange::union);
    }
 
    public FloatRange getDepthRange(Collection<? extends Region> regions) {
@@ -515,15 +525,9 @@ public final class RegionManager {
             if (depthRange.isEmpty()) {
                yield FloatRangeSet.of();
             }
-            long pingNumber = pingIndex.getPingNumber();
-            FloatRangeSet result = FloatRangeSet.of(depthRange);
-            // Subtract depth range for schools
-            for (School school : schoolManager.getSchools()) {
-               if (school.getPingRange().containsPingNumber(pingNumber)) {
-                  result = result.subtract(school.getDepthRanges(pingIndex));
-               }
-            }
-            yield result;
+            FloatRangeSet layerDepths = FloatRangeSet.of(depthRange);
+            FloatRangeSet schoolDepths = schoolManager.depthRangesForPingIndex(pingIndex);
+            yield layerDepths.subtract(schoolDepths);
          }
          case School school -> school.getDepthRanges(pingIndex);
       };
@@ -532,16 +536,14 @@ public final class RegionManager {
    public Map<Region, FloatRangeSet> getNonMaskedRegionDepthRanges(PingIndex pingIndex) {
       List<FloatRange> allSchoolRanges = new ArrayList<>();
       Map<Region, FloatRangeSet> result = new HashMap<>();
-      schoolManager.getSchools().stream()
-            .filter(school -> school.getPingRange().contains(pingIndex))
+      schoolManager.regions(pingIndex)
             .forEach(school -> {
                FloatRangeSet schoolRanges = school.getDepthRanges(pingIndex);
                allSchoolRanges.addAll(schoolRanges.getFloatRanges());
                result.put(school, schoolRanges);
             });
       FloatRangeSet allSchoolRangeSet = FloatRangeSet.of(allSchoolRanges);
-      layerManager.getLayers().stream()
-            .filter(layer -> layer.getPingRange().contains(pingIndex))
+      layerManager.regions(pingIndex)
             .forEach(layer -> {
                FloatRangeSet layerRangeSet = layer.getDepthRanges(pingIndex).subtract(allSchoolRangeSet);
                result.put(layer, layerRangeSet);
@@ -612,10 +614,14 @@ public final class RegionManager {
    }
 
    public void addVerticalDivider(PingIndex pingIndex) {
+      addVerticalDivider(pingIndex, true);
+   }
+
+   public void addVerticalDivider(PingIndex pingIndex, boolean splitSchools) {
       if (isReadOnlyExcludingBegin(pingIndex)) {
          throw new IllegalEditException();
       }
-      addVerticalDivider(pingIndex, false, true);
+      addVerticalDivider(pingIndex, false, splitSchools);
    }
 
    private void addVerticalDivider(PingIndex pingIndex, boolean inheritVisitedStatus, boolean splitSchools) {
@@ -724,7 +730,7 @@ public final class RegionManager {
    }
 
    public List<String> mergeSelectedSchools() {
-      Set<School> schools = schoolManager.selectedRegions;
+      Set<School> schools = schoolManager.getSelectedRegions();
       int schoolCount = schools.size(); // Save this before modifying selected regions
       if (schoolCount < 2) {
          return List.of("Select at least two schools");
@@ -783,7 +789,7 @@ public final class RegionManager {
       if (skipNotifications) {
          return;
       }
-      RegionEvent regionEvent = new RegionEvent(pingRange, layerManager.layersIntersectingPingRange(pingRange).toList());
+      RegionEvent regionEvent = new RegionEvent(pingRange, layerManager.regionsIntersectingPingRange(pingRange).toList());
       notifyRegionListenersRegionChanged(regionEvent);
    }
 
@@ -853,16 +859,18 @@ public final class RegionManager {
       thresholdManager.reset(pingRange);
       storingConfigManager.remove(pingRange);
 
-      replaceSelectedRegions(schoolManager.getSchoolsIntersectingPingRange(pingRange));
+      replaceSelectedRegions(schoolManager.regionsIntersectingPingRange(pingRange).toList());
       deleteSelectedSchools();
-      replaceSelectedRegions(layerManager.getLayersIntersectingPingRange(pingRange));
+      replaceSelectedRegions(layerManager.regionsIntersectingPingRange(pingRange).toList());
       layerManager.mergeSelectedLayers();
 
-      Layer layer = layerManager.getLayersIntersectingPingRange(pingRange).getFirst();
+      Layer layer = layerManager.regionsIntersectingPingRange(pingRange)
+            .findFirst()
+            .orElseThrow();
       layer.getInterpretation().reset();
 
       // First edit the lower boundary to make sure it does not block editing of the upper boundary:
-      layerManager.editBoundary(pingRange, __ -> Float.POSITIVE_INFINITY, layer.getLowerCurveBoundaries().getFirst());
+      layerManager.editBoundary(pingRange, _ -> Float.POSITIVE_INFINITY, layer.getLowerCurveBoundaries().getFirst());
       layerManager.editBoundary(pingRange, upperDepth, layer.getUpperCurveBoundaries().getFirst());
       layerManager.editBoundary(pingRange, lowerDepth, layer.getLowerCurveBoundaries().getFirst());
    }
@@ -885,6 +893,11 @@ public final class RegionManager {
    }
 
    public Element toXml(PingRange pingRange) {
+      return toXml(pingRange, layerManager.getLayers(), schoolManager.getSchools());
+   }
+
+   public Element toXml(PingRange pingRange, Collection<Layer> layers, Collection<School> schools) {
+
       Element interpretation = DocumentHelper.createElement(XML_REGION_INTERPRETATION)
             .addAttribute(XmlUtils.VERSION, WorkFile.XML_NEWEST_VERSION);
 
@@ -894,8 +907,8 @@ public final class RegionManager {
       interpretation.add(maskingManager.toXml(pingRange));
       interpretation.add(thresholdManager.toXml(pingRange));
       interpretation.add(storingConfigManager.toXml(pingRange));
-      interpretation.add(layerManager.toXml(pingRange));
-      interpretation.add(schoolManager.toXml(pingRange));
+      interpretation.add(LayerManager.toXml(pingRange, layers));
+      interpretation.add(SchoolManager.toXml(pingRange, schools));
 
       return interpretation;
    }
@@ -920,7 +933,7 @@ public final class RegionManager {
       if (totalRange.begin().getPingNumber() < pingRange.begin().getPingNumber()) {
          // Work xml is missing something at the beginning.
          Layer layer = new Layer(this);
-         layerManager.getIntersectingVerticalBoundaries(PingRange.ofSinglePing(pingRange.begin(), getPingContainer())).forEach(layer::addVerticalBoundary);
+         layerManager.getVerticalBoundariesAtPingIndex(pingRange.begin()).forEach(layer::addVerticalBoundary);
          LayerConnector upperConnector = new LayerConnector(new EchogramPoint(totalRange.begin(), 0));
          LayerConnector lowerConnector = new LayerConnector(new EchogramPoint(totalRange.begin(), 0));
          layer.addVerticalBoundary(new VerticalBoundary(upperConnector, lowerConnector));
@@ -932,7 +945,7 @@ public final class RegionManager {
       if (pingRange.end().getPingNumber() < totalRange.end().getPingNumber()) {
          // Work xml is missing something at the end.
          Layer layer = new Layer(this);
-         layerManager.getIntersectingVerticalBoundaries(PingRange.ofSinglePing(pingRange.end(), getPingContainer())).forEach(layer::addVerticalBoundary);
+         layerManager.getVerticalBoundariesAtPingIndex(pingRange.end()).forEach(layer::addVerticalBoundary);
          LayerConnector upperConnector = new LayerConnector(new EchogramPoint(totalRange.end(), 0));
          LayerConnector lowerConnector = new LayerConnector(new EchogramPoint(totalRange.end(), 0));
          layer.addVerticalBoundary(new VerticalBoundary(upperConnector, lowerConnector));

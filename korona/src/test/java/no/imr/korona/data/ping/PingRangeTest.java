@@ -33,7 +33,7 @@ final class PingRangeTest {
    }
 
    @Test
-   void testIsEmpty() {
+   void isEmpty() {
       assertFalse(totalRange.isEmpty());
       assertFalse(firstHalf.isEmpty());
       assertFalse(secondHalf.isEmpty());
@@ -43,7 +43,7 @@ final class PingRangeTest {
    }
 
    @Test
-   void testEquals() {
+   void equals() {
       assertEquals(totalRange, totalRange);
       assertEquals(totalRange, PingRange.of(totalRange.begin(), totalRange.end()));
       assertNotEquals(PingRange.EMPTY_RANGE, PingRange.of(new DefaultPingIndex(), new DefaultPingIndex()));
@@ -54,7 +54,7 @@ final class PingRangeTest {
    }
 
    @Test
-   void testPingCount() {
+   void pingCount() {
       assertEquals(0, PingRange.EMPTY_RANGE.getPingCount());
       assertEquals(0, PingRange.of(totalRange.begin(), totalRange.begin()).getPingCount());
 
@@ -66,7 +66,7 @@ final class PingRangeTest {
    }
 
    @Test
-   void testContains() {
+   void contains() {
       assertTrue(totalRange.contains(firstHalf));
       assertFalse(firstHalf.contains(totalRange));
 
@@ -75,7 +75,18 @@ final class PingRangeTest {
    }
 
    @Test
-   void testIntersection() {
+   void intersectsVesselDistanceRange() {
+      double a = totalRange.begin().getVesselDistance();
+      double b = totalRange.end().getVesselDistance();
+      assertTrue(totalRange.intersectsVesselDistanceRange(a - 0.1, a + 0.1));
+      assertTrue(totalRange.intersectsVesselDistanceRange(b - 0.1, b + 0.1));
+      assertFalse(totalRange.intersectsVesselDistanceRange(a, a));
+      assertFalse(totalRange.intersectsVesselDistanceRange((a + b) / 2, (a + b) / 2));
+      assertFalse(totalRange.intersectsVesselDistanceRange(b, b));
+   }
+
+   @Test
+   void intersects() {
       assertTrue(totalRange.intersects(totalRange));
 
       assertTrue(totalRange.intersects(firstHalf));
@@ -86,14 +97,17 @@ final class PingRangeTest {
 
       assertFalse(firstHalf.intersects(secondHalf));
       assertFalse(secondHalf.intersects(firstHalf));
+   }
 
+   @Test
+   void intersection() {
       assertTrue(firstHalf.intersection(secondHalf).isEmpty());
       assertEquals(firstHalf, totalRange.intersection(firstHalf));
       assertEquals(secondHalf, totalRange.intersection(secondHalf));
    }
 
    @Test
-   void testUnion() {
+   void union() {
       assertEquals(totalRange, totalRange.union(totalRange));
       assertEquals(totalRange, PingRange.EMPTY_RANGE.union(totalRange));
       assertEquals(totalRange, totalRange.union(secondHalf));
@@ -101,7 +115,7 @@ final class PingRangeTest {
    }
 
    @Test
-   void testClamp() {
+   void clamp() {
       assertEquals(totalRange.begin(), totalRange.clamp(totalRange.begin()));
       assertEquals(secondHalf.begin(), totalRange.clamp(secondHalf.begin()));
       assertEquals(secondHalf.begin(), secondHalf.clamp(totalRange.begin()));

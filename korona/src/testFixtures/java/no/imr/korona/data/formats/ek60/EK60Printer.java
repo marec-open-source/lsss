@@ -9,17 +9,20 @@ import no.imr.korona.data.datagrams.Nme0Datagram;
 import no.imr.korona.data.datagrams.PerChannelDatagram;
 import no.imr.korona.data.datagrams.Raw0Datagram;
 import no.imr.korona.data.datagrams.UnknownDatagram;
-import no.imr.korona.data.formats.DataFormatPrinter;
 import no.imr.korona.data.formats.ek60.io.FileDatagramReader;
 import no.imr.korona.data.formats.ek60.io.RandomAccessDatagramReader;
 import no.imr.korona.data.util.DataUtils;
 import no.imr.korona.data.util.Nmea;
+import no.imr.korona.viewer.DataFilePreview;
 import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.parameter.Name;
+import no.imr.tools.swing.SuffixFileFilter;
+import no.imr.tools.test.BaseFileMain;
 import no.imr.tools.time.NTDate;
 import org.jspecify.annotations.Nullable;
 
+import javax.swing.JFileChooser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,15 +34,21 @@ import java.util.Set;
 import java.util.TreeSet;
 
 @SuppressWarnings("PMD.SystemPrintln")
-final class EK60Printer extends DataFormatPrinter<EK60DataFormatPlugin> {
+final class EK60Printer extends BaseFileMain {
    private static final String[] HEADER = {"IDX counter", "Ping number", "        IDX NTDate", "   Datagram NTDate", "Raw offset", "Type"};
    private static final DateTimeFormatter TIME_FORMATTER = Utils.createUTCDateTimeFormatter("yyyy.MM.dd HH:mm:ss.SSS");
    private static final DatagramTypeManager DATAGRAM_TYPE_MANAGER = new DatagramTypeManager();
 
+   private final EK60DataFormatPlugin dataFormatPlugin = new EK60DataFormatPlugin(new Name("EK60"), DATAGRAM_TYPE_MANAGER);
    private final Set<String> unknownDatagramTypes = new TreeSet<>();
 
    private EK60Printer() {
-      super(new EK60DataFormatPlugin(new Name("EK60"), DATAGRAM_TYPE_MANAGER));
+   }
+
+   @Override
+   protected void customizeFileChooser(JFileChooser fileChooser) {
+      fileChooser.setFileFilter(new SuffixFileFilter(dataFormatPlugin.getDescription(), dataFormatPlugin.getMainSuffixes()));
+      DataFilePreview.install(fileChooser);
    }
 
    @Override
@@ -165,14 +174,14 @@ final class EK60Printer extends DataFormatPrinter<EK60DataFormatPlugin> {
 
    private static void printNmea(Nme0Datagram nme0) {
       Nmea nmea = Nmea.of(nme0.getNmea());
-      System.out.print('"' + nme0.getNmea() + "\" " + nmea.getMeterPerSec() + ' ' + nmea.getGeographicalPosition());
+      System.out.print('"' + nme0.getNmea() + "\" " + nmea.getKnots() + ' ' + nmea.getGeographicalPosition());
    }
 
    private static void printCac(Cac0Datagram cac0) {
       System.out.print(cac0.getCategories());
    }
 
-   public static void main(String[] args) {
+   static void main() {
       new EK60Printer().start();
    }
 

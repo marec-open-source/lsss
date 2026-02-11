@@ -69,7 +69,7 @@ public abstract class UpgradableDatabaseContent extends DatabaseContent {
          getUpgradeEngine(referenceComponent).upgrade(databaseConnection);
          String upgradedVersion = getVersionOf(databaseConnection);
          Log.global.info("Upgraded " + name + " database from " + currentVersion + " to " + upgradedVersion);
-      } catch (CancellationException e) {
+      } catch (CancellationException _) {
          return UpgradeResult.CANCELLED;
       }
       return UpgradeResult.OK;

@@ -102,10 +102,10 @@ final class WindowHandler extends HandlerAdapter {
 
       private JComponent createBottomPanel() {
          JButton clearButton = new JButton("Clear");
-         clearButton.addActionListener(e -> clear());
+         clearButton.addActionListener(_ -> clear());
 
          JButton clearAndCloseButton = new JButton("Clear and close");
-         clearAndCloseButton.addActionListener(e -> {
+         clearAndCloseButton.addActionListener(_ -> {
             clear();
             frame.setVisible(false);
          });

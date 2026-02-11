@@ -12,7 +12,6 @@ import no.imr.lsss.database.tables.hibernate.PlatformNamePK;
 import no.imr.lsss.database.tables.hibernate.PlatformPK;
 import no.imr.lsss.database.tables.hibernate.PlatformType;
 import no.imr.lsss.database.tables.hibernate.PlatformTypePK;
-import no.imr.tools.database.queries.FetchQuery;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.DateParameter;
 import no.imr.tools.parameter.IntParameter;
@@ -76,7 +75,7 @@ public final class PlatformEditor implements ParameterContainer {
    PlatformEditor(LSSS aLSSS, Nation aNation, @Nullable Platform aPlatform) {
       mLSSS = aLSSS;
 
-      List<PlatformType> platformTypes = aLSSS.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(PlatformType.class));
+      List<PlatformType> platformTypes = aLSSS.getDatabaseManager().getDatabaseConnection().executeFetchQuery(LsssQuery.fetch(PlatformType.class));
       platformTypes.sort(Comparator.comparing(PlatformEditor::platformTypeToString));
       Map<PlatformTypePK, PlatformType> platformTypeMap = platformTypes.stream()
             .collect(Collectors.toMap(PlatformType::getCompId, Function.identity()));
@@ -191,7 +190,7 @@ public final class PlatformEditor implements ParameterContainer {
 
    private JPanel createButtonsPanel() {
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          if (!nameTableGui.stopEditing()) {
             return;
          }
@@ -206,7 +205,7 @@ public final class PlatformEditor implements ParameterContainer {
       mDialog.getRootPane().setDefaultButton(okButton);
 
       JButton cancelButton = new JButton("Cancel");
-      cancelButton.addActionListener(e -> mDialog.dispose());
+      cancelButton.addActionListener(_ -> mDialog.dispose());
 
       JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       panel.add(okButton);
@@ -278,7 +277,7 @@ public final class PlatformEditor implements ParameterContainer {
             mLSSS.showError(mDialog, "First date > last date for platform code: " + codeSysName + " = " + platformCode);
             return false;
          }
-         RangeSet<Integer> codeDateSet = codeDateSets.computeIfAbsent(codeSysName, k -> new ArrayRangeSet<>());
+         RangeSet<Integer> codeDateSet = codeDateSets.computeIfAbsent(codeSysName, _ -> new ArrayRangeSet<>());
          Range<Integer> dateRange = new DefaultRange<>(first, effectiveEnd);
          if (codeDateSet.containsAny(dateRange)) {
             mLSSS.showError(mDialog, "Overlapping dates for platform code: " + codeSysName + " = " + platformCode);
@@ -294,12 +293,12 @@ public final class PlatformEditor implements ParameterContainer {
       mPlatform.setLastValidDate(mLastDate.getIntValue());
       mPlatform.setPlatformNames(platformNames);
 
-      mLSSS.getDatabaseManager().getDatabaseConnection().executeQuery(session -> {
+      mLSSS.getDatabaseManager().getDatabaseConnection().executeStatelessQuery(session -> {
          LsssQuery.delete(PlatformName.class, mPlatform).execute(session);
          LsssQuery.delete(PlatformCodes.class, mPlatform).execute(session);
-         session.saveOrUpdate(mPlatform);
-         platformNames.forEach(session::save);
-         platformCodes.forEach(session::save);
+         session.upsert(mPlatform);
+         session.insertMultiple(new ArrayList<>(platformNames));
+         session.insertMultiple(new ArrayList<>(platformCodes));
       });
 
       mStoredPlatform = mPlatform;

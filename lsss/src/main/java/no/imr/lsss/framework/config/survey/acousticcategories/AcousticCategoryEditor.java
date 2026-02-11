@@ -16,7 +16,6 @@ import no.imr.lsss.database.tables.hibernate.BiologicalSpecies;
 import no.imr.lsss.database.tables.hibernate.Platform;
 import no.imr.lsss.resources.LsssHelp;
 import no.imr.tools.Utils;
-import no.imr.tools.database.queries.FetchQuery;
 import no.imr.tools.parameter.IntParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.StringParameter;
@@ -236,9 +235,10 @@ final class AcousticCategoryEditor {
 
    private List<BiologicalSpecies> findAllBiologicalSpecies() {
       List<BiologicalSpecies> all = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(
-            new FetchQuery<>(BiologicalSpecies.class, DatabaseData.NATION, platform.getCompId().getNation()));
-      all.sort(null);
-      return all;
+            LsssQuery.fetch(BiologicalSpecies.class, DatabaseData.NATION, platform.getCompId().getNation()));
+      return all.stream()
+            .sorted()
+            .toList();
    }
 
    private List<BiologicalSpecies> findSelectedBiologicalSpecies() {
@@ -261,12 +261,12 @@ final class AcousticCategoryEditor {
 
    private JPanel createButtonPanel() {
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> ok());
+      okButton.addActionListener(_ -> ok());
       dialog.getRootPane().setDefaultButton(okButton);
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      cancelButton.addActionListener(e -> close());
+      cancelButton.addActionListener(_ -> close());
 
       JButton helpButton = new JButton("Help");
       LsssHelp.ACOUSTIC_CATEGORY_CONF_CREATE_OR_EDIT_AC_CAT.enableHelpKeyOnButton(helpButton);
@@ -298,9 +298,9 @@ final class AcousticCategoryEditor {
             commonName.getValue(),
             englishName.getValue());
 
-      lsss.getDatabaseManager().getDatabaseConnection().executeQuery(session -> {
+      lsss.getDatabaseManager().getDatabaseConnection().executeStatelessQuery(session -> {
 
-         session.saveOrUpdate(storedAcousticCategory);
+         session.upsert(storedAcousticCategory);
 
          if (acousticCategory != null) {
             // Delete the old entries
@@ -316,7 +316,7 @@ final class AcousticCategoryEditor {
                         platform.getCompId().getPlatform(),
                         newAcousticCategoryID,
                         biologicalSpecies.getCompId().getBiologicalSpecies());
-            session.save(new AcCatToBiologicalSpecies(acCatToBiologicalSpeciesPK));
+            session.insert(new AcCatToBiologicalSpecies(acCatToBiologicalSpeciesPK));
          }
          for (AcousticCategory iter : selectedNonCompositeAcousticCategories) {
             AcousticCategoryCompositePK acCatCompPK =
@@ -325,7 +325,7 @@ final class AcousticCategoryEditor {
                         platform.getCompId().getPlatform(),
                         newAcousticCategoryID,
                         iter.getCompId().getAcousticCategory());
-            session.save(new AcousticCategoryComposite(acCatCompPK));
+            session.insert(new AcousticCategoryComposite(acCatCompPK));
          }
          for (Area area : selectedAreas) {
             AreaOfAcousticCategoryPK aPK = new AreaOfAcousticCategoryPK(
@@ -333,7 +333,7 @@ final class AcousticCategoryEditor {
                   platform.getCompId().getPlatform(),
                   storedAcousticCategory.getCompId().getAcousticCategory(),
                   area.getCompId().getArea());
-            session.save(new AreaOfAcousticCategory(aPK));
+            session.insert(new AreaOfAcousticCategory(aPK));
          }
       });
 
@@ -405,7 +405,7 @@ final class AcousticCategoryEditor {
 
       @Override
       protected void initAddButton() {
-         addButton.addActionListener(e -> {
+         addButton.addActionListener(_ -> {
             for (BiologicalSpecies biologicalSpecies : allOptionsJList.getSelectedValuesList()) {  //Not the most efficient, but do not want to show warning if user tries to add
                //the already selected species.
                if (!selectedOptionsList.contains(biologicalSpecies)) {

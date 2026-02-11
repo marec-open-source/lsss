@@ -10,7 +10,7 @@ import no.imr.lsss.database.tables.hibernate.AreaOfAcousticCategoryPK;
 import no.imr.lsss.database.tables.hibernate.AreaPK;
 import no.imr.lsss.database.tables.hibernate.Platform;
 import no.imr.lsss.resources.LsssHelp;
-import no.imr.tools.database.queries.FetchQuery;
+import no.imr.tools.database.queries.QueryBuilder;
 import no.imr.tools.parameter.IntParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.StringParameter;
@@ -130,12 +130,12 @@ final class AreaEditor {
 
    private JPanel createButtonPanel() {
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> ok());
+      okButton.addActionListener(_ -> ok());
       dialog.getRootPane().setDefaultButton(okButton);
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      cancelButton.addActionListener(e -> close());
+      cancelButton.addActionListener(_ -> close());
 
       JButton helpButton = new JButton("Help");
       LsssHelp.ACOUSTIC_CATEGORY_CONF_CREATE_OR_EDIT_AREA.enableHelpKeyOnButton(helpButton);
@@ -149,15 +149,18 @@ final class AreaEditor {
 
    private void ok() {
       int newAreaID = areaID.getIntValue();
-      lsss.getDatabaseManager().getDatabaseConnection().executeQuery(session -> {
+      lsss.getDatabaseManager().getDatabaseConnection().executeStatelessQuery(session -> {
          if (area != null) {
             // Delete the old entries in AreaOfAcousticCategory for the current area
-            LsssQuery.delete(AreaOfAcousticCategory.class, platform, area).execute(session);
+            LsssQuery.forPlatform(QueryBuilder.delete(AreaOfAcousticCategory.class), platform.getCompId()).and()
+                  .eq(DatabaseData.AREA, area.getCompId().getArea())
+                  .build()
+                  .execute(session);
          }
 
          // Store new or edited area
          storedArea = new Area(new AreaPK(platform.getNation().getNation(), newAreaID), areaName.getValue());
-         session.saveOrUpdate(storedArea);
+         session.upsert(storedArea);
 
          // Store entries in AreaOfAcousticCategory
          for (AcousticCategory acousticCategory : selectedAcousticCategories) {
@@ -166,7 +169,7 @@ final class AreaEditor {
                   platform.getCompId().getPlatform(),
                   acousticCategory.getCompId().getAcousticCategory(),
                   newAreaID);
-            session.save(new AreaOfAcousticCategory(areaOfAcousticCategoryPK));
+            session.insert(new AreaOfAcousticCategory(areaOfAcousticCategoryPK));
          }
       });
       lsss.getDatabaseManager().getDatabaseData().refreshAreas();
@@ -196,11 +199,9 @@ final class AreaEditor {
       List<AcousticCategory> acousticCategories = new ArrayList<>();
       if (area != null) {
          List<AreaOfAcousticCategory> acCatToAreaList = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(
-               new FetchQuery<>(
-                     AreaOfAcousticCategory.class,
-                     DatabaseData.NATION, platform.getCompId().getNation(),
-                     DatabaseData.PLATFORM, platform.getCompId().getPlatform(),
-                     DatabaseData.AREA, area.getCompId().getArea()));
+               LsssQuery.forPlatform(QueryBuilder.fetch(AreaOfAcousticCategory.class), platform.getCompId()).and()
+                     .eq(DatabaseData.AREA, area.getCompId().getArea())
+                     .build());
 
          Set<Integer> ids = new HashSet<>();
          for (AreaOfAcousticCategory iter : acCatToAreaList) {

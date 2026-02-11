@@ -17,15 +17,4 @@ public record LinearTransferFunction(
       Complex complexFrequency = Complex.ofCartesian(0, frequency);
       return numerator.eval(complexFrequency).divide(denominator.eval(complexFrequency));
    }
-
-   @Override
-   public TransferFunction multiply(TransferFunction otherTransferFunction) {
-      if (otherTransferFunction instanceof LinearTransferFunction otherLinearTransferFunction) {
-         return new LinearTransferFunction(
-               numerator.multiply(otherLinearTransferFunction.numerator),
-               denominator.multiply(otherLinearTransferFunction.denominator)
-         );
-      }
-      return TransferFunction.super.multiply(otherTransferFunction);
-   }
 }

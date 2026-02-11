@@ -1,8 +1,8 @@
 package no.imr.korona.cli.commands;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import no.imr.korona.Korona;
 import no.imr.korona.cli.commands.pojo.AnnotationCoordinates;
+import no.imr.korona.computation.netcdf.NcAnnotation;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.datamanager.DataManager;
 import no.imr.korona.data.ping.Ping;
@@ -11,6 +11,7 @@ import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.ping.PingRangeBuilder;
 import no.imr.korona.data.ping.items.channel.ChannelData;
 import no.imr.korona.data.ping.items.channel.PowerData;
+import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import no.imr.korona.region.Layer;
 import no.imr.korona.region.Mask;
 import no.imr.korona.region.Region;
@@ -18,6 +19,7 @@ import no.imr.korona.region.RegionManager;
 import no.imr.korona.region.School;
 import no.imr.korona.region.ThresholdManager;
 import no.imr.tools.Utils;
+import no.imr.tools.logging.Log;
 import no.imr.tools.misc.JsonUtils;
 import no.imr.tools.netcdf.NcWrite;
 import no.imr.tools.range.FloatRange;
@@ -52,35 +54,17 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 final class WorkFileNetcdfWriter implements WorkFileProcessor {
-   private static final String NC_CATEGORY = "category";
-   private static final String NC_PING_TIME = "ping_time";
-   private static final String NC_RANGE = "range";
-
-   private static final String NC_ANNOTATION = "annotation";
-   private static final String NC_OBJECT_NUMBER = "object_number";
-   private static final String NC_OBJECT_TYPE = "object_type";
-   private static final String NC_LOWER_THRESHOLD = "lower_threshold";
-   private static final String NC_UPPER_THRESHOLD = "upper_threshold";
-
-   private static final int OBJECT_NUMBER_NOTHING = -1;
-
-   private static final int OBJECT_TYPE_LAYER = 3;
-   private static final int OBJECT_TYPE_SCHOOL = 2;
-   private static final int OBJECT_TYPE_DELETION = 1;
-   private static final int OBJECT_TYPE_EXCLUSION = 0;
-   private static final int OBJECT_TYPE_NOTHING = -1;
-
    private final Path outputDir;
-   private final float frequency;
+   private final List<Integer> frequencies;
    private final float deltaRange;
 
    private final int rangeLength;
 
    private final AtomicInteger keyCounter = new AtomicInteger();
 
-   WorkFileNetcdfWriter(Path outputDir, float frequency, float deltaRange, float maxRange) {
+   WorkFileNetcdfWriter(Path outputDir, List<Integer> frequencies, float deltaRange, float maxRange) {
       this.outputDir = outputDir;
-      this.frequency = frequency;
+      this.frequencies = frequencies;
       this.deltaRange = deltaRange;
 
       rangeLength = (int) Math.floor(maxRange / deltaRange);
@@ -89,10 +73,14 @@ final class WorkFileNetcdfWriter implements WorkFileProcessor {
    @Override
    public void process(DataManager dataManager, RegionManager regionManager, String workFileBaseName, @Nullable Element originalXml) throws IOException {
       DataFileSet dataFileSet = dataManager.getDataFileSet();
-      int channel = dataFileSet.firstChannelClosestTo(frequency * 1000);
-      if (channel < 0) {
-         throw new IOException("No channel with frequency " + frequency);
-      }
+      int channel = frequencies.stream()
+            .map(frequency -> dataFileSet.firstChannelClosestTo(frequency * 1000))
+            .filter(ch -> ch > 0)
+            .findFirst()
+            .orElseThrow(() -> new IOException("No channel with frequency " + frequencies + " kHz"));
+      RawFileTransducer transducer = dataFileSet.getRawFileConfiguration().getTransducers().get(channel - 1);
+      Log.global.info("Using frequency " + transducer.getKHz() + " kHz, channel ID \""
+            + transducer.getChannelId() + "\", when writing " + workFileBaseName + ".nc");
       List<Integer> categories = regionManager.regionStream()
             .flatMap(region -> region.getInterpretation().getChannelInterpretation(channel).getAssignments().keySet().stream())
             .distinct()
@@ -129,32 +117,32 @@ final class WorkFileNetcdfWriter implements WorkFileProcessor {
             .addAttribute(new Attribute("version", Korona.VERSION))
             .addAttribute(new Attribute("git_commit", Utils.GIT_COMMIT));
 
-      Dimension categoryDim = fileBuilder.addDimension(NC_CATEGORY, categories.size());
-      Dimension pingTimeDim = fileBuilder.addDimension(NC_PING_TIME, pingIndices.size());
-      Dimension rangeDim = fileBuilder.addDimension(NC_RANGE, rangeLength);
+      Dimension categoryDim = fileBuilder.addDimension(NcAnnotation.CATEGORY, categories.size());
+      Dimension pingTimeDim = fileBuilder.addDimension(NcAnnotation.PING_TIME, pingIndices.size());
+      Dimension rangeDim = fileBuilder.addDimension(NcAnnotation.RANGE, rangeLength);
 
-      fileBuilder.addVariable(NC_CATEGORY, DataType.LONG, List.of(categoryDim));
-      fileBuilder.addVariable(NC_PING_TIME, DataType.LONG, List.of(pingTimeDim))
+      fileBuilder.addVariable(NcAnnotation.CATEGORY, DataType.LONG, List.of(categoryDim));
+      fileBuilder.addVariable(NcAnnotation.PING_TIME, DataType.LONG, List.of(pingTimeDim))
             .addAttribute(new Attribute(CF.CALENDAR, "proleptic_gregorian"))
             .addAttribute(new Attribute(CF.UNITS, "nanoseconds since " + Instant.ofEpochMilli(referenceTimeInMillis)));
-      fileBuilder.addVariable(NC_RANGE, DataType.DOUBLE, List.of(rangeDim));
+      fileBuilder.addVariable(NcAnnotation.RANGE, DataType.DOUBLE, List.of(rangeDim));
 
-      NcWrite.addFloatVariable(rootGroupBuilder, NC_ANNOTATION, List.of(categoryDim, pingTimeDim, rangeDim), List.of());
-      NcWrite.addVariable(rootGroupBuilder, NC_OBJECT_NUMBER, DataType.LONG, List.of(pingTimeDim, rangeDim));
-      NcWrite.addVariable(rootGroupBuilder, NC_OBJECT_TYPE, DataType.LONG, List.of(pingTimeDim, rangeDim));
-      NcWrite.addFloatVariable(rootGroupBuilder, NC_LOWER_THRESHOLD, List.of(pingTimeDim), List.of());
-      NcWrite.addFloatVariable(rootGroupBuilder, NC_UPPER_THRESHOLD, List.of(pingTimeDim), List.of());
+      NcWrite.addFloatVariable(rootGroupBuilder, NcAnnotation.ANNOTATION, List.of(categoryDim, pingTimeDim, rangeDim), List.of());
+      NcWrite.addVariable(rootGroupBuilder, NcAnnotation.OBJECT_NUMBER, DataType.LONG, List.of(pingTimeDim, rangeDim));
+      NcWrite.addVariable(rootGroupBuilder, NcAnnotation.OBJECT_TYPE, DataType.LONG, List.of(pingTimeDim, rangeDim));
+      NcWrite.addFloatVariable(rootGroupBuilder, NcAnnotation.LOWER_THRESHOLD, List.of(pingTimeDim), List.of());
+      NcWrite.addFloatVariable(rootGroupBuilder, NcAnnotation.UPPER_THRESHOLD, List.of(pingTimeDim), List.of());
 
       try (NetcdfFormatWriter writer = fileBuilder.build()) {
-         Variable categoryVar = writer.findVariable(NC_CATEGORY);
-         Variable pingTimeVar = writer.findVariable(NC_PING_TIME);
-         Variable rangeVar = writer.findVariable(NC_RANGE);
+         Variable categoryVar = writer.findVariable(NcAnnotation.CATEGORY);
+         Variable pingTimeVar = writer.findVariable(NcAnnotation.PING_TIME);
+         Variable rangeVar = writer.findVariable(NcAnnotation.RANGE);
 
-         Variable annotationVar = writer.findVariable(NC_ANNOTATION);
-         Variable objectNumberVar = writer.findVariable(NC_OBJECT_NUMBER);
-         Variable objectTypeVar = writer.findVariable(NC_OBJECT_TYPE);
-         Variable lowerThresholdVar = writer.findVariable(NC_LOWER_THRESHOLD);
-         Variable upperThresholdVar = writer.findVariable(NC_UPPER_THRESHOLD);
+         Variable annotationVar = writer.findVariable(NcAnnotation.ANNOTATION);
+         Variable objectNumberVar = writer.findVariable(NcAnnotation.OBJECT_NUMBER);
+         Variable objectTypeVar = writer.findVariable(NcAnnotation.OBJECT_TYPE);
+         Variable lowerThresholdVar = writer.findVariable(NcAnnotation.LOWER_THRESHOLD);
+         Variable upperThresholdVar = writer.findVariable(NcAnnotation.UPPER_THRESHOLD);
 
          long[] categoryArray = categories.stream()
                .mapToLong(Integer::intValue)
@@ -199,13 +187,13 @@ final class WorkFileNetcdfWriter implements WorkFileProcessor {
          for (int pingTimeIndex = 0; pingTimeIndex < pingIndices.size(); pingTimeIndex++) {
             PingIndex pingIndex = pingIndices.get(pingTimeIndex);
 
-            Arrays.fill(objectNumbers, OBJECT_NUMBER_NOTHING);
-            Arrays.fill(objectTypes, OBJECT_TYPE_NOTHING);
+            Arrays.fill(objectNumbers, NcAnnotation.OBJECT_NUMBER_NOTHING);
+            Arrays.fill(objectTypes, NcAnnotation.OBJECT_TYPE_NOTHING);
             Utils.fill(annotations, 0);
 
             if (regionManager.getExclusionManager().isExcluded(pingIndex)) {
                Arrays.fill(objectNumbers, exclusionObjectNumber);
-               Arrays.fill(objectTypes, OBJECT_TYPE_EXCLUSION);
+               Arrays.fill(objectTypes, NcAnnotation.OBJECT_TYPE_EXCLUSION);
             } else {
                Ping ping = dataFileSet.getPing(pingIndex);
                ChannelData channelData = ping.getChannelData(channel);
@@ -217,7 +205,7 @@ final class WorkFileNetcdfWriter implements WorkFileProcessor {
                if (!maskedDepthRanges.isEmpty()) {
                   List<IntRange> maskedIndexRanges = depthRangesToIndexRanges(maskedDepthRanges, channelData);
                   fill(objectNumbers, maskedIndexRanges, deletionObjectNumber);
-                  fill(objectTypes, maskedIndexRanges, OBJECT_TYPE_DELETION);
+                  fill(objectTypes, maskedIndexRanges, NcAnnotation.OBJECT_TYPE_DELETION);
                }
 
                regionManager.regionStream().forEach(region -> {
@@ -244,7 +232,7 @@ final class WorkFileNetcdfWriter implements WorkFileProcessor {
    }
 
    private String getAnnotationCoordinates(RegionManager regionManager, DataFileSet dataFileSet, int channel,
-                                           int exclusionObjectNumber, int deletionObjectNumber) throws JsonProcessingException {
+                                           int exclusionObjectNumber, int deletionObjectNumber) {
       Map<String, AnnotationCoordinates> keyToAnnotationCoordinates = new LinkedHashMap<>();
       regionManager.regionStream()
             .sorted(Comparator.comparingInt(Region::getObjectNumber))
@@ -265,8 +253,8 @@ final class WorkFileNetcdfWriter implements WorkFileProcessor {
                return new AnnotationCoordinates(
                      "OK",
                      switch (region) {
-                        case Layer __ -> "Layer";
-                        case School __ -> "School";
+                        case Layer _ -> "Layer";
+                        case School _ -> "School";
                      },
                      region.getObjectNumber(),
                      new AnnotationCoordinates.BoundingBox(
@@ -352,8 +340,8 @@ final class WorkFileNetcdfWriter implements WorkFileProcessor {
 
    private static int objectType(Region region) {
       return switch (region) {
-         case Layer __ -> OBJECT_TYPE_LAYER;
-         case School __ -> OBJECT_TYPE_SCHOOL;
+         case Layer _ -> NcAnnotation.OBJECT_TYPE_LAYER;
+         case School _ -> NcAnnotation.OBJECT_TYPE_SCHOOL;
       };
    }
 
@@ -374,7 +362,7 @@ final class WorkFileNetcdfWriter implements WorkFileProcessor {
    }
 
    private List<IntRange> depthRangesToIndexRanges(FloatRangeSet depthRanges, ChannelData channelData) {
-      return depthRanges.getFloatRanges().stream()
+      return depthRanges.stream()
             .map(depthRange -> depthRangeToIndexRange(channelData, depthRange))
             .toList();
    }

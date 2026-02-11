@@ -52,7 +52,7 @@ public final class MaskingManager {
    }
 
    public Mask getMask(int channel) {
-      return channelToMaskMap.computeIfAbsent(channel, k -> new Mask());
+      return channelToMaskMap.computeIfAbsent(channel, _ -> new Mask());
    }
 
    public void mask(Map<PingIndex, FloatRangeSet> mask, Collection<Integer> channels) {

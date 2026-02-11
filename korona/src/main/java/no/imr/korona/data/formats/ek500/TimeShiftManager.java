@@ -20,12 +20,7 @@ final class TimeShiftManager {
 
    private static final LoadingCache<Path, DirectoryTimeShift> CACHE = CacheBuilder.newBuilder()
          .maximumSize(10)
-         .build(new CacheLoader<>() {
-            @Override
-            public DirectoryTimeShift load(Path directory) {
-               return new DirectoryTimeShift(directory);
-            }
-         });
+         .build(CacheLoader.from(DirectoryTimeShift::new));
 
    private TimeShiftManager() {
    }
@@ -68,7 +63,7 @@ final class TimeShiftManager {
                      int transceiver = Integer.parseInt(matcher.group(3));
 
                      int key = getKey(frequency, transceiver);
-                     List<Long> timeShifts = map.computeIfAbsent(key, k -> new ArrayList<>());
+                     List<Long> timeShifts = map.computeIfAbsent(key, _ -> new ArrayList<>());
                      if (timeShifts.size() > MAX_FILES_PER_FREQUENCY) {
                         continue;
                      }

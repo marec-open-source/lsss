@@ -9,7 +9,7 @@ import java.util.List;
  * Region borders.
  */
 public final class RegionBorderDatagram extends DatagramPingItem implements Comparable<RegionBorderDatagram> {
-   public static final DatagramType TYPE = new DatagramType.Simple("RBR0", RegionBorderDatagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("RBR0", RegionBorderDatagram::new);
 
    private final int channel;
    private final float threshold;

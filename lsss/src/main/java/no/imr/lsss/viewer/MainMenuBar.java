@@ -2,7 +2,6 @@ package no.imr.lsss.viewer;
 
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingMapping;
-import no.imr.korona.region.ChannelInterpretation;
 import no.imr.korona.region.Region;
 import no.imr.korona.region.RegionManager;
 import no.imr.korona.resources.KoronaHelp;
@@ -68,10 +67,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -122,7 +121,7 @@ final class MainMenuBar {
          saveSurveyAsItem.setToolTipText("<html>Save survey configuration files and interpretation work files as...<br>NB: Database is not stored");
          saveSurveyAsItem.setMnemonic(KeyEvent.VK_A);
          saveSurveyAsItem.setDisplayedMnemonicIndex(saveSurveyAsItem.getText().indexOf("as"));
-         saveSurveyAsItem.addActionListener(e -> lsss.getSurveyManager().saveAs());
+         saveSurveyAsItem.addActionListener(_ -> lsss.getSurveyManager().saveAs());
 
          JMenuItem recentlyOpenedSurveysMenu = fileMenu.add(recentlyOpenedSurveys.getMenu());
          recentlyOpenedSurveysMenu.setEnabled(lsss.getLsssConfig().isPrimaryLSSS);
@@ -140,23 +139,23 @@ final class MainMenuBar {
          reportItem.setToolTipText("Generate database report");
          reportItem.setMnemonic(KeyEvent.VK_R);
          reportItem.setDisplayedMnemonicIndex(reportItem.getText().indexOf("report"));
-         reportItem.addActionListener(e -> new ReportGenerator(lsss));
+         reportItem.addActionListener(_ -> new ReportGenerator(lsss));
 
          JMenuItem importDbItem = MiscIcons.IMPORT.on(fileMenu.add("Import DB..."));
          importDbItem.setEnabled(connectedToDatabase);
          importDbItem.setToolTipText("Import database");
-         importDbItem.addActionListener(e -> new DatabaseImportGUI(lsss, mainDisplay.getFrame()));
+         importDbItem.addActionListener(_ -> new DatabaseImportGUI(lsss, mainDisplay.getFrame()));
 
          JMenuItem exportDbItem = MiscIcons.EXPORT.on(fileMenu.add("Export DB..."));
          exportDbItem.setEnabled(connectedToDatabase);
          exportDbItem.setToolTipText("Export database to DB directory");
-         exportDbItem.addActionListener(e -> new DatabaseExportGUI(lsss, mainDisplay.getFrame()));
+         exportDbItem.addActionListener(_ -> new DatabaseExportGUI(lsss, mainDisplay.getFrame()));
 
          fileMenu.addSeparator();
 
          JMenuItem exportFilesItem = fileMenu.add("Export to files...");
          exportFilesItem.setMnemonic(KeyEvent.VK_P);
-         exportFilesItem.addActionListener(e -> {
+         exportFilesItem.addActionListener(_ -> {
             ExportDialog.show(lsss, mainDisplay.getFrame(), lsss.getExportManager().getExporters(),
                   lsss.getConfigurationManager().getDataConf().getDir(DataConfLSSS.EXPORT_SUB_DIR).getFile(), lsss.getExportManager().getExportSettings());
          });
@@ -169,7 +168,7 @@ final class MainMenuBar {
          backupFilesItem.setToolTipText("Copy files to backup directory");
          backupFilesItem.setMnemonic(KeyEvent.VK_B);
          if (surveyFile != null) {
-            backupFilesItem.addActionListener(e -> new BackupFilesGui(lsss, surveyFile));
+            backupFilesItem.addActionListener(_ -> new BackupFilesGui(lsss, surveyFile));
          } else {
             backupFilesItem.setEnabled(false);
          }
@@ -178,7 +177,7 @@ final class MainMenuBar {
          copyRemoteFilesItem.setToolTipText("Copy raw-data files to local directory structure");
          copyRemoteFilesItem.setMnemonic(KeyEvent.VK_C);
          if (surveyFile != null) {
-            copyRemoteFilesItem.addActionListener(e -> new CopyRemoteFilesGui(lsss, surveyFile));
+            copyRemoteFilesItem.addActionListener(_ -> new CopyRemoteFilesGui(lsss, surveyFile));
          } else {
             copyRemoteFilesItem.setEnabled(false);
          }
@@ -187,7 +186,7 @@ final class MainMenuBar {
 
          JMenuItem exitItem = MiscIcons.POWER.on(fileMenu.add("Exit"));
          exitItem.setMnemonic(KeyEvent.VK_X);
-         exitItem.addActionListener(e -> mainDisplay.shutDownIfUnmodifiedOrUserApproved());
+         exitItem.addActionListener(_ -> mainDisplay.shutDownIfUnmodifiedOrUserApproved());
       });
 
       return fileMenu;
@@ -262,7 +261,7 @@ final class MainMenuBar {
          JMenuItem goToVesselDistanceItem = goMenu.add("Go to vessel distance...");
          goToVesselDistanceItem.setMnemonic(KeyEvent.VK_D);
          goToVesselDistanceItem.setEnabled(!lsss.getInterpretationSettings().getDataFileSet().isEmpty());
-         goToVesselDistanceItem.addActionListener(e -> {
+         goToVesselDistanceItem.addActionListener(_ -> {
             String text = Utils.format("%.3f", lsss.getInterpretationSettings().getCenter().getVesselDistance());
             new SimpleInputDialog<>("Go to vessel distance", "Vessel distance", text, Double::parseDouble)
                   .setUnit(Unit.NAUTICAL_MILES)
@@ -289,6 +288,7 @@ final class MainMenuBar {
          menu.add(createRegionsLabelMenu());
          menu.addSeparator();
          add(menu, lsss.getActions().resetInterpretation, KeyEvent.VK_R);
+         add(menu, lsss.getActions().excludeLowSpeed, KeyEvent.VK_E);
          add(menu, lsss.getActions().mergeLayersWithSameInterpretation, KeyEvent.VK_M);
          menu.addSeparator();
          add(menu, lsss.getActions().setUpperBoundaryFromRange, KeyEvent.VK_U);
@@ -313,19 +313,22 @@ final class MainMenuBar {
       menu.setMnemonic(KeyEvent.VK_W);
       GuiUtils.autoCreateContentMenu(menu, () -> {
          Map<Integer, AcousticCategory> map = lsss.getConfigurationManager().getSurveyConfiguration().getAcousticCategoryConf().getAcousticCategoryMap();
-         List<AcousticCategory> acousticCategories = new ArrayList<>();
-         for (Integer id : getAcousticCategories(lsss.getRegionManager().getVisibleRegions())) {
-            AcousticCategory acousticCategory = map.get(id);
-            if (acousticCategory != null) {
-               acousticCategories.add(acousticCategory);
-            }
-         }
-         acousticCategories.sort(lsss.getConfigurationManager().getLanguageUtils().acousticCategoryComparator());
+         List<AcousticCategory> acousticCategories = lsss.getRegionManager().visibleRegions()
+               .flatMap(region -> Stream.concat(
+                     region.getInterpretation().getRestSpecies().stream(),
+                     region.getInterpretation().getChannelInterpretations().stream()
+                           .flatMap(channelInterpretation -> channelInterpretation.getAssignments().keySet().stream())
+               ))
+               .distinct()
+               .map(map::get)
+               .filter(Objects::nonNull)
+               .sorted(lsss.getConfigurationManager().getLanguageUtils().acousticCategoryComparator())
+               .toList();
          for (AcousticCategory acousticCategory : acousticCategories) {
             Integer id = acousticCategory.getCompId().getAcousticCategory();
             JMenuItem item = MiscIcons.EMPTY.on(menu.add(AcousticCategoryConf.acousticCategoryToListText(acousticCategory, lsss.getConfigurationManager().getLanguageUtils())));
-            item.addActionListener(e -> {
-               List<Region> regions = lsss.getRegionManager().getVisibleRegions().stream()
+            item.addActionListener(_ -> {
+               List<Region> regions = lsss.getRegionManager().visibleRegions()
                      .filter(region -> region.getInterpretation().containsAcousticCategory(id))
                      .toList();
                lsss.getRegionManager().replaceSelectedRegions(regions);
@@ -335,25 +338,14 @@ final class MainMenuBar {
             menu.addSeparator();
          }
          JMenuItem noCategoryItem = MiscIcons.EMPTY.on(menu.add("No category"));
-         noCategoryItem.addActionListener(e -> {
-            List<Region> regions = lsss.getRegionManager().getVisibleRegions().stream()
+         noCategoryItem.addActionListener(_ -> {
+            List<Region> regions = lsss.getRegionManager().visibleRegions()
                   .filter(region -> region.getInterpretation().isEmpty())
                   .toList();
             lsss.getRegionManager().replaceSelectedRegions(regions);
          });
       });
       return menu;
-   }
-
-   private static Set<Integer> getAcousticCategories(List<Region> regions) {
-      Set<Integer> ids = new HashSet<>();
-      for (Region region : regions) {
-         ids.addAll(region.getInterpretation().getRestSpecies());
-         for (ChannelInterpretation channelInterpretation : region.getInterpretation().getChannelInterpretations()) {
-            ids.addAll(channelInterpretation.getAssignments().keySet());
-         }
-      }
-      return ids;
    }
 
    private JMenu createRegionsLabelMenu() {
@@ -382,29 +374,29 @@ final class MainMenuBar {
 
          if (!allLabels.isEmpty()) {
             allLabels.forEach(label -> {
-               MenuUtils.addItem(addMenu, label, e -> LabelUtils.add(selectedRegions, label));
-               MenuUtils.addItem(selectMenu, label, e -> LabelUtils.select(regionManager, label));
+               MenuUtils.addItem(addMenu, label, _ -> LabelUtils.add(selectedRegions, label));
+               MenuUtils.addItem(selectMenu, label, _ -> LabelUtils.select(regionManager, label));
             });
             addMenu.addSeparator();
          }
 
-         MenuUtils.addItem(addMenu, "New label...", KeyEvent.VK_N, e -> {
+         MenuUtils.addItem(addMenu, "New label...", KeyEvent.VK_N, _ -> {
             new SimpleInputDialog<>("Add new label", "Label", "", Function.identity())
                   .show(mainDisplay.getFrame())
                   .ifPresent(label -> LabelUtils.add(selectedRegions, label));
          });
          addMenu.addSeparator();
-         JMenuItem acousticCategoriesItem = MenuUtils.addItem(addMenu, "Acoustic categories", KeyEvent.VK_A, e -> LabelUtils.addAcousticCategories(selectedRegions, lsss));
+         JMenuItem acousticCategoriesItem = MenuUtils.addItem(addMenu, "Acoustic categories", KeyEvent.VK_A, _ -> LabelUtils.addAcousticCategories(selectedRegions, lsss));
          acousticCategoriesItem.setToolTipText("<html>For each region add labels for<br>acoustic categories assigned on current channel");
 
          selectedLabels.forEach(label -> {
-            MenuUtils.addItem(removeMenu, label, e -> LabelUtils.remove(selectedRegions, label));
-            MenuUtils.addItem(deselectMenu, label, e -> LabelUtils.deselect(regionManager, label));
-            MenuUtils.addItem(retainMenu, label, e -> LabelUtils.retain(regionManager, label));
+            MenuUtils.addItem(removeMenu, label, _ -> LabelUtils.remove(selectedRegions, label));
+            MenuUtils.addItem(deselectMenu, label, _ -> LabelUtils.deselect(regionManager, label));
+            MenuUtils.addItem(retainMenu, label, _ -> LabelUtils.retain(regionManager, label));
          });
 
          removeMenu.addSeparator();
-         MenuUtils.addItem(removeMenu, "All labels", KeyEvent.VK_A, e -> LabelUtils.removeAll(selectedRegions));
+         MenuUtils.addItem(removeMenu, "All labels", KeyEvent.VK_A, _ -> LabelUtils.removeAll(selectedRegions));
       });
 
       return menu;
@@ -427,9 +419,9 @@ final class MainMenuBar {
          tracksMenu.addSeparator();
 
          UndoManager undoManager = trackInfoModule.getTrackEditing().getUndoManager();
-         JMenuItem undoItem = MiscIcons.UNDO.on(MenuUtils.addItem(tracksMenu, "Undo track edit", KeyEvent.VK_U, e -> undoManager.undo()));
+         JMenuItem undoItem = MiscIcons.UNDO.on(MenuUtils.addItem(tracksMenu, "Undo track edit", KeyEvent.VK_U, _ -> undoManager.undo()));
          undoItem.setEnabled(undoManager.canUndo());
-         JMenuItem redoItem = MiscIcons.REDO.on(MenuUtils.addItem(tracksMenu, "Redo track edit", KeyEvent.VK_R, e -> undoManager.redo()));
+         JMenuItem redoItem = MiscIcons.REDO.on(MenuUtils.addItem(tracksMenu, "Redo track edit", KeyEvent.VK_R, _ -> undoManager.redo()));
          redoItem.setEnabled(undoManager.canRedo());
 
          tracksMenu.addSeparator();
@@ -456,20 +448,11 @@ final class MainMenuBar {
                .sorted(Utils.comparingIgnoringCase(BaseLsssModule::getDisplayName))
                .collect(Collectors.groupingBy(module -> module.getPlugin().getMainPluginId()));
 
-         final class MenuItemGroup {
-            private final JPopupMenu.Separator separator;
-            private final JLabel label;
-            private final List<JMenuItem> items;
-
-            private MenuItemGroup(JPopupMenu.Separator separator, JLabel label, List<JMenuItem> items) {
-               this.separator = separator;
-               this.label = label;
-               this.items = items;
-            }
+         record MenuItemGroup(JPopupMenu.Separator separator, JLabel label, List<JMenuItem> items) {
          }
 
          List<MenuItemGroup> groups = new ArrayList<>();
-         HierarchyListener hierarchyListener = e -> {
+         HierarchyListener hierarchyListener = _ -> {
             boolean previousVisible = false;
             for (MenuItemGroup group : groups) {
                boolean visible = group.items.stream().anyMatch(JMenuItem::isVisible);
@@ -498,7 +481,7 @@ final class MainMenuBar {
                            .html("<p>")
                            .text(module.getDescription())
                            .build());
-                     item.addActionListener(__ -> module.setEnabled(!module.isEnabled()));
+                     item.addActionListener(_ -> module.setEnabled(!module.isEnabled()));
                      item.addHierarchyListener(hierarchyListener);
                      return item;
                   })
@@ -528,11 +511,11 @@ final class MainMenuBar {
             for (String name : windowSelections.sortedNames()) {
                JMenuItem restoreItem = windowSelectionsMenu.add(name);
                restoreItem.setToolTipText("Restores the previously saved \"" + name + "\" window selection");
-               restoreItem.addActionListener(e -> {
+               restoreItem.addActionListener(_ -> {
                   mainDisplay.fromXml(windowSelections.nameToDisplayElement.get(name));
                });
                JMenuItem deleteItem = deleteMenu.add(name);
-               deleteItem.addActionListener(e -> {
+               deleteItem.addActionListener(_ -> {
                   windowSelections.nameToDisplayElement.remove(name);
                   windowSelections.save();
                });
@@ -542,7 +525,7 @@ final class MainMenuBar {
 
          JMenuItem saveCurrentItem = MiscIcons.SAVE.on(windowSelectionsMenu.add("Save current window selection..."));
          saveCurrentItem.setToolTipText("Saves the current window selection so it can be restored later");
-         saveCurrentItem.addActionListener(e -> {
+         saveCurrentItem.addActionListener(_ -> {
             new SimpleInputDialog<>("Save the current window selection", "Name", "", Function.identity())
                   .show(mainDisplay.getFrame())
                   .ifPresent(name -> {
@@ -608,9 +591,9 @@ final class MainMenuBar {
       GuiUtils.autoCreateContentMenu(helpMenu, () -> {
          helpMenu.add(lsss.getHelpSystem().createHelpMenuItem());
 
-         MenuUtils.addItem(helpMenu, "Context help", KeyEvent.VK_C, e -> ContextSensitiveHelp.run());
+         MenuUtils.addItem(helpMenu, "Context help", KeyEvent.VK_C, _ -> ContextSensitiveHelp.run());
 
-         MenuUtils.addItem(helpMenu, "Preprocessing (KORONA) help", KeyEvent.VK_P, e -> KoronaHelp.HELP_SET.getTopHelpID().show());
+         MenuUtils.addItem(helpMenu, "Preprocessing (KORONA) help", KeyEvent.VK_P, _ -> KoronaHelp.HELP_SET.getTopHelpID().show());
 
          helpMenu.addSeparator();
 
@@ -627,7 +610,7 @@ final class MainMenuBar {
             helpMenu.addSeparator();
          }
 
-         MenuUtils.addItem(helpMenu, "Run LSSS setup wizard...", e -> new ApplicationSetupWizard(lsss).show());
+         MenuUtils.addItem(helpMenu, "Run LSSS setup wizard...", _ -> new ApplicationSetupWizard(lsss).show());
 
          helpMenu.addSeparator();
 
@@ -705,7 +688,9 @@ final class MainMenuBar {
             JMenuItem menuItem = userDefinedPackage.uiInfoToIcon(info).orElse(MiscIcons.EMPTY).on(menu.add(userDefinedPackage.uiInfoToEffectiveText(info)));
             setMnemonic(menuItem, info);
             menuItem.setToolTipText(userDefinedPackage.uiInfoToToolTip(info));
-            menuItem.addActionListener(e -> userDefinedPackage.runAction(info, new ActionArgument(e)));
+            menuItem.addActionListener(e -> {
+               userDefinedPackage.runAction(info, new ActionArgument(e));
+            });
          }
       }
    }

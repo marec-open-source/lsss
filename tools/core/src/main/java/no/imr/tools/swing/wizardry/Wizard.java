@@ -1,5 +1,6 @@
 package no.imr.tools.swing.wizardry;
 
+import no.imr.tools.misc.HtmlStringBuilder;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.icons.MiscIcons;
 import org.jspecify.annotations.Nullable;
@@ -47,17 +48,17 @@ public final class Wizard {
 
       dialog = new JDialog(window, title, Dialog.ModalityType.DOCUMENT_MODAL);
 
-      previousButton.addActionListener(e -> setStepIndex(stepIndex - 1));
+      previousButton.addActionListener(_ -> setStepIndex(stepIndex - 1));
 
       nextButton.setHorizontalTextPosition(JButton.LEFT);
-      nextButton.addActionListener(e -> next());
+      nextButton.addActionListener(_ -> next());
 
       JButton cancelButton = new JButton("Cancel");
-      cancelButton.addActionListener(e -> cancel());
+      cancelButton.addActionListener(_ -> cancel());
       GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
 
       JButton helpButton = new JButton("Help");
-      helpButton.addActionListener(e -> getCurrentWizardStep().getHelpID().show());
+      helpButton.addActionListener(_ -> getCurrentWizardStep().getHelpID().show());
       GuiUtils.setAccelerator(helpButton, KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
 
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -137,19 +138,18 @@ public final class Wizard {
    }
 
    private void updateIndexText() {
-      StringBuilder sb = new StringBuilder("<html><table cellpadding=0 cellspacing=0>");
+      HtmlStringBuilder sb = new HtmlStringBuilder()
+            .html("<table cellpadding=0 cellspacing=0>");
       for (int i = 0; i < wizardSteps.size(); i++) {
          WizardStep wizardStep = wizardSteps.get(i);
-         sb.append("<tr><td style='margin-right: 5px;'>").append(i == stepIndex ? "→" : "").append("</td>");
-         if (wizardStep.isIndented()) {
-            sb.append("<td></td>");
-         }
-         sb.append("<td align=right>").append(i + 1).append(".</td>");
-         sb.append("<td style='white-space: nowrap; padding-left: 5px'" + (wizardStep.isIndented() ? "" : " colspan=2") + ">")
-               .append(wizardStep.getTitle()).append("</td>");
-         sb.append("</tr>");
+         sb.html("<tr><td style='margin-right: 5px;'>").text(i == stepIndex ? "→" : "").html("</td>")
+               .html(wizardStep.isIndented() ? "<td></td>" : "")
+               .html("<td align=right>").text(i + 1).html(".</td>")
+               .html("<td style='white-space: nowrap; padding-left: 5px'").html(wizardStep.isIndented() ? "" : " colspan=2").html(">")
+               /* */ .text(wizardStep.getTitle()).html("</td>")
+               .html("</tr>");
       }
-      sb.append("</table>");
+      sb.html("</table>");
       indexLabel.setText(sb.toString());
    }
 

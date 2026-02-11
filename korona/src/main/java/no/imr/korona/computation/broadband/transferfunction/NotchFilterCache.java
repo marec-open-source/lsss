@@ -13,12 +13,7 @@ public final class NotchFilterCache {
    private static final LoadingCache<NotchFilterConfig, TransferFunction> CACHE = CacheBuilder.newBuilder()
          .maximumSize(100)
          .expireAfterAccess(5, TimeUnit.MINUTES)
-         .build(new CacheLoader<>() {
-            @Override
-            public TransferFunction load(NotchFilterConfig config) {
-               return TransferFunctionUtils.generateNotchFilterFromConfigList(config.broadbandNotchFilterConfigs(), config.frequencyRange());
-            }
-         });
+         .build(CacheLoader.from(TransferFunctionUtils::generateNotchFilterFromConfig));
 
    private NotchFilterCache() {
    }

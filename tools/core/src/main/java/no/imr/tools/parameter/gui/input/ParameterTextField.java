@@ -27,7 +27,7 @@ final class ParameterTextField extends ParameterComponent {
 
       textField.setColumns(guiConfig.getTextInputColumns());
       textField.setHorizontalAlignment(guiConfig.getTextAlignment().apply(parameter).getTextFieldHorizontalAlignment());
-      textField.addActionListener(e -> updateParameter());
+      textField.addActionListener(_ -> updateParameter());
       textField.addFocusListener(new FocusAdapter() {
          @Override
          public void focusGained(FocusEvent e) {

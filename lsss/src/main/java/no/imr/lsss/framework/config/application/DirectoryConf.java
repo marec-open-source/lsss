@@ -88,11 +88,11 @@ public final class DirectoryConf extends ConfigurationUnit {
 
       updateAllowedSurveyDirStructures();
 
-      surveyDirStructure.subscribe(__ -> {
+      surveyDirStructure.subscribe(_ -> {
          selectedSurveyDirStructure = null;
          viewHolder.ifView(View::update);
       });
-      backupDirStructure.subscribe(__ -> {
+      backupDirStructure.subscribe(_ -> {
          selectedBackupDirStructure = null;
          viewHolder.ifView(View::update);
       });

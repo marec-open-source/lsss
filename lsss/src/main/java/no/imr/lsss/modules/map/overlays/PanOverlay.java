@@ -44,10 +44,24 @@ public final class PanOverlay extends BaseMapOverlay {
 
    @Override
    public void onActivate() {
+      updateCursor();
+   }
+
+   private void updateCursor() {
       Point2D mousePosition = getMapModule().getMousePosition();
       if (mousePosition != null) {
          setCursor(findDirection(mousePosition).cursor);
       }
+   }
+
+   @Override
+   public void mouseMoved(MouseEvent mouseEvent) {
+      updateCursor();
+   }
+
+   @Override
+   public void mouseDragged(MouseEvent mouseEvent) {
+      updateCursor();
    }
 
    @Override

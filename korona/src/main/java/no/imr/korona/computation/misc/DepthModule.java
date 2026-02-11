@@ -101,6 +101,11 @@ public final class DepthModule extends SimplePingModule {
          List.of(), Unit.KHZ,
          "Comma-separated list of frequencies to not use");
 
+   public final FloatParameter coordinatedBottomOffset = new FloatParameter(
+         new Name("CoordinatedBottomOffset", "Coordinated bottom offset"),
+         0, Unit.METER,
+         "Additional offset for coordinated bottom (a positive offset means smaller depth)");
+
    public DepthModule() {
    }
 
@@ -125,7 +130,8 @@ public final class DepthModule extends SimplePingModule {
             preferredKHz,
             minKHz,
             maxKHz,
-            doNotUseKHz
+            doNotUseKHz,
+            coordinatedBottomOffset
       );
    }
 

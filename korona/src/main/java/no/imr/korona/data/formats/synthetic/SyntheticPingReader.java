@@ -12,19 +12,15 @@ import java.nio.file.Path;
 /**
  * A synthetic ping reader.
  */
-public final class SyntheticPingReader implements PingReader {
+final class SyntheticPingReader implements PingReader {
    private final Path file;
-   private final SyntheticData syntheticData;
+   private final SyntheticDataFile syntheticDataFile;
    private long pingNumber;
 
-   public SyntheticPingReader(SyntheticData syntheticData) {
-      this(new SyntheticDataFile(syntheticData));
-   }
-
-   SyntheticPingReader(SyntheticDataFile syntheticDataFile) {
-      file = syntheticDataFile.getFile();
-      syntheticData = syntheticDataFile.getSyntheticData();
-      pingNumber = syntheticData.getFirstPingNumber();
+   SyntheticPingReader(Path file, SyntheticDataFile syntheticDataFile) {
+      this.file = file;
+      this.syntheticDataFile = syntheticDataFile;
+      pingNumber = syntheticDataFile.getFirstPingNumber();
    }
 
    @Override
@@ -34,25 +30,25 @@ public final class SyntheticPingReader implements PingReader {
 
    @Override
    public PingConfiguration getPingConfiguration() {
-      return syntheticData.getPingConfiguration();
+      return syntheticDataFile.getPingConfiguration();
    }
 
    @Override
    public float getReadFraction() {
-      return (float) (pingNumber - syntheticData.getFirstPingNumber()) / (float) syntheticData.getPingCount();
+      return (float) (pingNumber - syntheticDataFile.getFirstPingNumber()) / (float) syntheticDataFile.getPingCount();
    }
 
    @Override
    public @Nullable Ping nextPing(AsyncHandle asyncHandle) {
-      if (pingNumber > syntheticData.getLastPingNumber()) {
+      if (pingNumber > syntheticDataFile.getLastPingNumber()) {
          return null;
       }
-      PingIndex pingIndex = syntheticData.createPingIndex(pingNumber++);
-      return syntheticData.createPing(pingIndex);
+      PingIndex pingIndex = syntheticDataFile.createPingIndex(pingNumber++);
+      return syntheticDataFile.createPing(pingIndex);
    }
 
    @Override
    public void close() {
-      pingNumber = syntheticData.getLastPingNumber() + 1;
+      pingNumber = syntheticDataFile.getLastPingNumber() + 1;
    }
 }

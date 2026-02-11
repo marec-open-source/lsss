@@ -107,22 +107,6 @@ final class FloatRangeTest {
    }
 
    @Test
-   void touches() {
-      FloatRange range1 = FloatRange.of(5, 15);
-      FloatRange range2 = FloatRange.of(15.1f, 20);
-      assertFalse(range1.touches(range2));
-      assertFalse(range2.touches(range1));
-
-      FloatRange range3 = FloatRange.of(15, 20);
-      assertTrue(range1.touches(range3));
-      assertTrue(range3.touches(range1));
-
-      FloatRange range4 = FloatRange.of(10, 11);
-      assertTrue(range1.touches(range4));
-      assertTrue(range4.touches(range1));
-   }
-
-   @Test
    void distanceTo() {
       FloatRange r = FloatRange.of(2, 3);
       assertEquals(2, r.distanceTo(0));
@@ -143,6 +127,13 @@ final class FloatRangeTest {
 
       FloatRange r = FloatRange.of(-34, 5);
       assertEquals(4.5, r.fractionToValue(r.valueToFraction(4.5f)));
+   }
+
+   @Test
+   void expandToMultipleOf() {
+      assertEquals(FloatRange.of(0, 2), FloatRange.of(1, 1).expandToMultipleOf(2));
+      assertEquals(FloatRange.of(0, 2), FloatRange.of(0, 2).expandToMultipleOf(2));
+      assertEquals(FloatRange.of(-10, 20), FloatRange.of(-1, 11).expandToMultipleOf(10));
    }
 
    @Test

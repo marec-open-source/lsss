@@ -38,7 +38,7 @@ public final class ResourceUtils {
 
    public static <T> T getJson(String resource, Class<T> clazz) {
       try {
-         return JsonUtils.JSON_MAPPER.readValue(getUrl(resource), clazz);
+         return JsonUtils.readValue(getUrl(resource), clazz);
       } catch (IOException e) {
          throw new IllegalArgumentException("Error reading resource: " + resource, e);
       }

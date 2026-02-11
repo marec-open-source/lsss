@@ -6,7 +6,7 @@ final class KoronaRelayMain {
    private KoronaRelayMain() {
    }
 
-   public static void main(String[] args) {
+   static void main(String[] args) {
       KoronaRelay.main(args);
    }
 }

@@ -18,7 +18,7 @@ public final class FileOpenRequest {
    private final List<SegmentHandle> segmentHandles;
    private final boolean checkCompatibility;
    private final RequestObserver observer;
-   private OnTheFlyProcessing onTheFlyProcessing = (segmentData, segmentHandle) -> segmentData;
+   private OnTheFlyProcessing onTheFlyProcessing = (segmentData, _) -> segmentData;
    private final AsyncHandle asyncHandle = new AsyncHandle();
 
    public FileOpenRequest(List<SegmentHandle> segmentHandles) {

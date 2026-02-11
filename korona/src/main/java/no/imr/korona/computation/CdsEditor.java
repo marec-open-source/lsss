@@ -45,7 +45,7 @@ public final class CdsEditor extends ConfigFileParameterEditor {
    public boolean edit(@Nullable Component referenceComponent, boolean editable) {
       ModuleContainer moduleContainer = new WorkerDialog(referenceComponent, "Loading module configuration...")
             .setWaitUntilFinishedIfCancelled(false)
-            .startMakeValue(asyncHandle -> loadModuleContainer(cdsFileParameter.getFile()));
+            .startMakeValue(_ -> loadModuleContainer(cdsFileParameter.getFile()));
       if (moduleContainer == null) {
          return false;
       }

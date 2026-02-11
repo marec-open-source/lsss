@@ -1,12 +1,12 @@
 package no.imr.korona.data.datamanager;
 
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.formats.synthetic.TestSyntheticData;
 import no.imr.korona.data.ping.DefaultPingIndex;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.ping.WrapAround;
-import no.imr.korona.data.track.SegmentHandle;
 import no.imr.korona.test.data.ConstantSyntheticData;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -16,13 +16,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class DataFileSetTest {
-   private static DataFileSet load(SegmentHandle... segmentHandles) {
-      return new DataFileSet(new DefaultDataConfiguration(), new FileOpenRequest(List.of(segmentHandles)));
-   }
-
    @Test
    void testGetIdxDatagram() {
-      DataFileSet dataFileSet = load(new TestSyntheticData().toSegmentHandle(1, 1000));
+      DataFileSet dataFileSet = DataManagerTestUtils.load(new TestSyntheticData().withFirstAndLastPingNumber(1, 1000).toSegmentHandle());
 
       PingIndex firstIdx = dataFileSet.getTotalRange().begin();
       PingIndex lastIdx = dataFileSet.getTotalRange().end();
@@ -37,7 +33,7 @@ final class DataFileSetTest {
 
    @Test
    void getPingIndices() {
-      DataFileSet dataFileSet = load(new TestSyntheticData().toSegmentHandle(1, 1000));
+      DataFileSet dataFileSet = DataManagerTestUtils.load(new TestSyntheticData().withFirstAndLastPingNumber(1, 1000).toSegmentHandle());
 
       PingRange totalRange = dataFileSet.getTotalRange();
       long pingNumber = totalRange.begin().getPingNumber();
@@ -55,7 +51,7 @@ final class DataFileSetTest {
 
    @Test
    void testIdx() {
-      DataFileSet dataFileSet = load(new TestSyntheticData().toSegmentHandle(1, 1000));
+      DataFileSet dataFileSet = DataManagerTestUtils.load(new TestSyntheticData().withFirstAndLastPingNumber(1, 1000).toSegmentHandle());
 
       for (DataFile dataFile : dataFileSet.getDataFiles()) {
          long firstPingNumber = dataFile.getPingRange().begin().getPingNumber();
@@ -70,10 +66,11 @@ final class DataFileSetTest {
    void getContainingDataFileIndex() {
       assertEquals(0, DataFileSet.empty().getContainingDataFileIndex(new DefaultPingIndex(0, 0, 0, null)));
 
-      DataFileSet dataFileSet = load(
-            new TestSyntheticData().toSegmentHandle(1, 10),
-            new TestSyntheticData().toSegmentHandle(11, 20),
-            new TestSyntheticData().toSegmentHandle(21, 30));
+      DataFileSet dataFileSet = DataManagerTestUtils.load(
+            new TestSyntheticData().withFirstAndLastPingNumber(1, 10).toSegmentHandle(),
+            new TestSyntheticData().withFirstAndLastPingNumber(11, 20).toSegmentHandle(),
+            new TestSyntheticData().withFirstAndLastPingNumber(21, 30).toSegmentHandle()
+      );
       assertEquals(3, dataFileSet.getDataFiles().size());
       assertEquals(-1, dataFileSet.getContainingDataFileIndex(new DefaultPingIndex(0, 0, 0, null)));
       assertEquals(0, dataFileSet.getContainingDataFileIndex(dataFileSet.getPingIndex(1)));
@@ -100,10 +97,10 @@ final class DataFileSetTest {
 
    @Test
    void testDataFileRangeMaps() {
-      DataFileSet dataFileSet = load(
-            new DataFileSetTestSyntheticData().toSegmentHandle(1, 100),
-            new DataFileSetTestSyntheticData().toSegmentHandle(101, 200));
-
+      DataFileSet dataFileSet = DataManagerTestUtils.load(
+            new DataFileSetTestSyntheticData().withFirstAndLastPingNumber(1, 100).toSegmentHandle(),
+            new DataFileSetTestSyntheticData().withFirstAndLastPingNumber(101, 200).toSegmentHandle()
+      );
       assertEquals(200, dataFileSet.getTotalRange().getPingCount());
       assertNotNull(dataFileSet.getContainingPingIndex(1, PingMapping.DISTANCE));
       assertNotNull(dataFileSet.getContainingPingIndex(1.01, PingMapping.DISTANCE));
@@ -111,25 +108,28 @@ final class DataFileSetTest {
    }
 
    private static final class WrapAroundTestSyntheticData extends ConstantSyntheticData {
-      private static final long WRAP_PING_NUMBER = 1000000;
-      private static final double WRAP = 10000;
+      private static final long WRAP_PING_NUMBER = 1_000_000;
+      private static final double WRAP = 10_000;
 
-      private WrapAroundTestSyntheticData() {
+      private final boolean subtractWrap;
+
+      private WrapAroundTestSyntheticData(boolean subtractWrap) {
+         this.subtractWrap = subtractWrap;
       }
 
       @Override
       protected double getVesselDistance(long pingNumber) {
          double vesselDistance = 0.01 * pingNumber;
-         if (getFirstPingNumber() >= WRAP_PING_NUMBER) {
+         if (subtractWrap) {
             vesselDistance -= WRAP;
          }
          return vesselDistance;
       }
 
       @Override
-      protected @Nullable WrapAround getWrapAround() {
-         if (getFirstPingNumber() < WRAP_PING_NUMBER && WRAP_PING_NUMBER <= getLastPingNumber()) {
-            return new WrapAround(createPingIndex(WRAP_PING_NUMBER), WRAP);
+      protected @Nullable WrapAround getWrapAround(SyntheticDataFile syntheticDataFile) {
+         if (syntheticDataFile.getFirstPingNumber() < WRAP_PING_NUMBER && WRAP_PING_NUMBER <= syntheticDataFile.getLastPingNumber()) {
+            return new WrapAround(syntheticDataFile.createPingIndex(WRAP_PING_NUMBER), WRAP);
          } else {
             return null;
          }
@@ -138,29 +138,29 @@ final class DataFileSetTest {
 
    @Test
    void testWrapAroundInFile() {
-      DataFileSet dataFileSet = load(
-            new WrapAroundTestSyntheticData().toSegmentHandle(999990, 1000010),
-            new WrapAroundTestSyntheticData().toSegmentHandle(1000011, 1000020));
-
-      assertEquals(9999.99, dataFileSet.getVesselDistanceUncorrectedForWrapAround(dataFileSet.getPingIndex(999999)));
-      assertEquals(10000, dataFileSet.getPingIndex(1000000).getVesselDistance());
-      assertEquals(0, dataFileSet.getVesselDistanceUncorrectedForWrapAround(dataFileSet.getPingIndex(1000000)));
-      assertEquals(10000.11, dataFileSet.getPingIndex(1000011).getVesselDistance());
-      assertEquals(0.11, dataFileSet.getVesselDistanceUncorrectedForWrapAround(dataFileSet.getPingIndex(1000011)), 1e-12);
+      DataFileSet dataFileSet = DataManagerTestUtils.load(
+            new WrapAroundTestSyntheticData(false).withFirstAndLastPingNumber(999_990, 1_000_010).toSegmentHandle(),
+            new WrapAroundTestSyntheticData(true).withFirstAndLastPingNumber(1_000_011, 1_000_020).toSegmentHandle()
+      );
+      assertEquals(9_999.99, dataFileSet.getVesselDistanceUncorrectedForWrapAround(dataFileSet.getPingIndex(999_999)));
+      assertEquals(10_000, dataFileSet.getPingIndex(1_000_000).getVesselDistance());
+      assertEquals(0, dataFileSet.getVesselDistanceUncorrectedForWrapAround(dataFileSet.getPingIndex(1_000_000)));
+      assertEquals(10_000.11, dataFileSet.getPingIndex(1_000_011).getVesselDistance());
+      assertEquals(0.11, dataFileSet.getVesselDistanceUncorrectedForWrapAround(dataFileSet.getPingIndex(1_000_011)), 1e-12);
    }
 
    @Test
    void testWrapAroundBetweenFiles() {
-      DataFileSet dataFileSet = load(
-            new WrapAroundTestSyntheticData().toSegmentHandle(999990, 999999),
-            new WrapAroundTestSyntheticData().toSegmentHandle(1000000, 1000010));
-
+      DataFileSet dataFileSet = DataManagerTestUtils.load(
+            new WrapAroundTestSyntheticData(false).withFirstAndLastPingNumber(999_990, 999_999).toSegmentHandle(),
+            new WrapAroundTestSyntheticData(true).withFirstAndLastPingNumber(1_000_000, 1_000_010).toSegmentHandle()
+      );
       assertEquals(2, dataFileSet.getDataFiles().size());
       for (DataFile dataFile : dataFileSet.getDataFiles()) {
          assertNull(dataFile.getWrapAround());
       }
-      assertEquals(9999.99, dataFileSet.getVesselDistanceUncorrectedForWrapAround(dataFileSet.getPingIndex(999999)));
-      assertEquals(10000, dataFileSet.getPingIndex(1000000).getVesselDistance());
-      assertEquals(0, dataFileSet.getVesselDistanceUncorrectedForWrapAround(dataFileSet.getPingIndex(1000000)));
+      assertEquals(9_999.99, dataFileSet.getVesselDistanceUncorrectedForWrapAround(dataFileSet.getPingIndex(999_999)));
+      assertEquals(10_000, dataFileSet.getPingIndex(1_000_000).getVesselDistance());
+      assertEquals(0, dataFileSet.getVesselDistanceUncorrectedForWrapAround(dataFileSet.getPingIndex(1_000_000)));
    }
 }

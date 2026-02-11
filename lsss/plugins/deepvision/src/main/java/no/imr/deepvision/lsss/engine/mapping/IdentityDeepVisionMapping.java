@@ -11,7 +11,7 @@ import java.util.List;
 final class IdentityDeepVisionMapping extends DeepVisionMapping {
    IdentityDeepVisionMapping(List<DeepVisionFileInfo> deepVisionFileInfos, DataFileSet lsssDataFileSet, float distanceBehindShip) {
       double distanceNmi = Utils.meterToNmi(distanceBehindShip);
-      ClosestPingIndexFinder closestPingIndexFinder = (deepVisionTime, deepVisionGeoPos, prevLsssIndex) -> {
+      ClosestPingIndexFinder closestPingIndexFinder = (deepVisionTime, _, _) -> {
          PingIndex closestPingIndex = lsssDataFileSet.getContainingPingIndex(PingMapping.millisToTimeValue(deepVisionTime), PingMapping.TIME);
          if (closestPingIndex == null) {
             return null;

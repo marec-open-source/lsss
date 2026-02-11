@@ -118,7 +118,7 @@ public final class TargetTracker {
       for (TargetCandidate targetCandidate : targetCandidates) {
          Track track = targetCandidate.getTrack();
          if (track != null) {
-            List<TargetCandidate> trackTargetCandidates = map.computeIfAbsent(track, k -> new ArrayList<>());
+            List<TargetCandidate> trackTargetCandidates = map.computeIfAbsent(track, _ -> new ArrayList<>());
             trackTargetCandidates.add(targetCandidate);
          }
       }

@@ -158,7 +158,7 @@ final class PackagesConfView implements ViewHolder.View {
    }
 
    private void addPackages(GridBag gridBag, @Nullable UserDefinedPackage userDefinedPackage) {
-      JButton addButton = newButton(MiscIcons.ADD, "Add new package", e -> {
+      JButton addButton = newButton(MiscIcons.ADD, "Add new package", _ -> {
          UserDefinedPackage definedPackage = new UserDefinedPackage(packagesConf);
          boolean ok = editPackage(definedPackage, "New package");
          if (ok) {
@@ -166,21 +166,21 @@ final class PackagesConfView implements ViewHolder.View {
          }
       });
 
-      JButton importButton = newButton(MiscIcons.IMPORT, "Import package from zip file", e -> importPackage());
+      JButton importButton = newButton(MiscIcons.IMPORT, "Import package from zip file", _ -> importPackage());
 
-      JButton reloadButton = newButton(MiscIcons.REFRESH, "Reload packages", e -> packagesConf.reloadPackages());
+      JButton reloadButton = newButton(MiscIcons.REFRESH, "Reload packages", _ -> packagesConf.reloadPackages());
 
       JButton exampleButton = newButton(MiscIcons.MENU, "Menu");
       GuiUtils.addPopupMenuToButton(exampleButton, popupMenu -> {
          JMenuItem exampleItem = MiscIcons.ADD.on(popupMenu.add("Create example package"));
-         exampleItem.addActionListener(e -> createExamplePackage());
+         exampleItem.addActionListener(_ -> createExamplePackage());
       });
 
       addHeader(gridBag, "Packages", addButton, importButton, reloadButton, exampleButton);
 
       JButton deleteButton = newButton(MiscIcons.DELETE, "Delete");
       if (userDefinedPackage != null) {
-         deleteButton.addActionListener(e -> {
+         deleteButton.addActionListener(_ -> {
             int deleteAnswer = GuiUtils.showOptionDialog(deleteButton, "Question", "Delete package and associated files?", new String[]{"Delete", "Cancel"});
             if (deleteAnswer != 0) {
                return;
@@ -193,7 +193,7 @@ final class PackagesConfView implements ViewHolder.View {
 
       JButton editButton = newButton(MiscIcons.EDIT, "Edit");
       if (userDefinedPackage != null) {
-         editButton.addActionListener(e -> {
+         editButton.addActionListener(_ -> {
             boolean ok = editPackage(userDefinedPackage, "Edit package");
             if (ok) {
                packagesConf.sortPackages();
@@ -206,7 +206,7 @@ final class PackagesConfView implements ViewHolder.View {
 
       JButton showDocButton = newButton(MiscIcons.HELP, "Show package documentation");
       if (userDefinedPackage != null) {
-         showDocButton.addActionListener(e -> {
+         showDocButton.addActionListener(_ -> {
             Path indexHtml = userDefinedPackage.getDir().resolve("doc").resolve("index.html");
             if (Files.exists(indexHtml)) {
                URI uri = URI.create(packagesConf.getLsssServerConf().getServerBaseUri() + "/lsss/package/" + userDefinedPackage.id + "/file/doc/index.html");
@@ -221,14 +221,14 @@ final class PackagesConfView implements ViewHolder.View {
 
       JButton browseButton = newButton(MiscIcons.OPEN, "Browse package directory");
       if (userDefinedPackage != null) {
-         browseButton.addActionListener(e -> GuiUtils.desktopBrowse(userDefinedPackage.getDir().toUri(), mainPanel));
+         browseButton.addActionListener(_ -> GuiUtils.desktopBrowse(userDefinedPackage.getDir().toUri(), mainPanel));
       } else {
          browseButton.setEnabled(false);
       }
 
       JButton exportButton = newButton(MiscIcons.EXPORT, "Export package to zip file");
       if (userDefinedPackage != null) {
-         exportButton.addActionListener(e -> exportPackage(userDefinedPackage));
+         exportButton.addActionListener(_ -> exportPackage(userDefinedPackage));
       } else {
          exportButton.setEnabled(false);
       }
@@ -252,7 +252,7 @@ final class PackagesConfView implements ViewHolder.View {
             return super.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
          }
       });
-      comboBox.addActionListener(e -> {
+      comboBox.addActionListener(_ -> {
          packagesConf.setCurrentUserDefinedPackage((UserDefinedPackage) comboBox.getSelectedItem());
          update();
       });
@@ -275,7 +275,7 @@ final class PackagesConfView implements ViewHolder.View {
    }
 
    private void addActions(GridBag gridBag, UserDefinedPackage userDefinedPackage) {
-      JButton addButton = newButton(MiscIcons.ADD, "Add new action", e -> {
+      JButton addButton = newButton(MiscIcons.ADD, "Add new action", _ -> {
          UserDefinedAction userDefinedAction = new UserDefinedAction(userDefinedPackage);
          boolean ok = editAction(userDefinedAction, "New action");
          if (ok) {
@@ -297,10 +297,10 @@ final class PackagesConfView implements ViewHolder.View {
             userDefinedAction.execute(new ActionArgument(e, input.get()));
          });
 
-         JButton browseActionButton = newButton(MiscIcons.OPEN, "Browse action directory", e -> GuiUtils.desktopBrowse(userDefinedAction.getDir().toUri(), mainPanel));
+         JButton browseActionButton = newButton(MiscIcons.OPEN, "Browse action directory", _ -> GuiUtils.desktopBrowse(userDefinedAction.getDir().toUri(), mainPanel));
 
          JButton deleteButton = newButton(MiscIcons.DELETE, "Delete");
-         deleteButton.addActionListener(e -> {
+         deleteButton.addActionListener(_ -> {
             int deleteAnswer = GuiUtils.showOptionDialog(deleteButton, "Question", "Delete action and associated files?", new String[]{"Delete", "Cancel"});
             if (deleteAnswer != 0) {
                return;
@@ -315,7 +315,7 @@ final class PackagesConfView implements ViewHolder.View {
             userDefinedPackage.deleteUserDefinedAction(userDefinedAction);
          });
 
-         JButton editButton = newButton(MiscIcons.EDIT, "Edit", e -> {
+         JButton editButton = newButton(MiscIcons.EDIT, "Edit", _ -> {
             String oldActionId = userDefinedAction.id;
             boolean ok = editAction(userDefinedAction, "Edit action");
             if (ok) {
@@ -337,7 +337,7 @@ final class PackagesConfView implements ViewHolder.View {
    }
 
    private void addCallbacks(GridBag gridBag, UserDefinedPackage userDefinedPackage) {
-      JButton addButton = newButton(MiscIcons.ADD, "Add new callback", e -> {
+      JButton addButton = newButton(MiscIcons.ADD, "Add new callback", _ -> {
          CallbackInfo callbackInfo = new CallbackInfo();
          boolean ok = editCallback(userDefinedPackage, callbackInfo, "Add callback");
          if (ok) {
@@ -356,13 +356,13 @@ final class PackagesConfView implements ViewHolder.View {
             .sorted(Comparator.<CallbackInfo, String>comparing(c -> c.event).thenComparing(c -> c.actionId))
             .toList();
       for (CallbackInfo callbackInfo : callbackInfos) {
-         JButton deleteButton = newButton(MiscIcons.DELETE, "Delete", e -> {
+         JButton deleteButton = newButton(MiscIcons.DELETE, "Delete", _ -> {
             userDefinedPackage.info.callbacks.remove(callbackInfo);
             userDefinedPackage.savePackageInfo();
             packagesConf.getChangeManager().notifyListeners();
          });
 
-         JButton editButton = newButton(MiscIcons.EDIT, "Edit", e -> {
+         JButton editButton = newButton(MiscIcons.EDIT, "Edit", _ -> {
             boolean ok = editCallback(userDefinedPackage, callbackInfo, "Edit callback");
             if (ok) {
                userDefinedPackage.savePackageInfo();
@@ -380,7 +380,7 @@ final class PackagesConfView implements ViewHolder.View {
    }
 
    private void addKeyStrokes(GridBag gridBag, UserDefinedPackage userDefinedPackage) {
-      JButton addButton = newButton(MiscIcons.ADD, "Add new keystroke", e -> {
+      JButton addButton = newButton(MiscIcons.ADD, "Add new keystroke", _ -> {
          KeyStrokeInfo keyStrokeInfo = new KeyStrokeInfo();
          boolean ok = editKeyStrokeInfo(userDefinedPackage, keyStrokeInfo, "Add keystroke");
          if (ok) {
@@ -402,14 +402,14 @@ final class PackagesConfView implements ViewHolder.View {
                   .thenComparing(c -> c.actionId))
             .toList();
       for (KeyStrokeInfo keyStrokeInfo : keyStrokeInfos) {
-         JButton deleteButton = newButton(MiscIcons.DELETE, "Delete", e -> {
+         JButton deleteButton = newButton(MiscIcons.DELETE, "Delete", _ -> {
             userDefinedPackage.info.keyStrokes.remove(keyStrokeInfo);
             userDefinedPackage.savePackageInfo();
             userDefinedPackage.update();
             packagesConf.getChangeManager().notifyListeners();
          });
 
-         JButton editButton = newButton(MiscIcons.EDIT, "Edit", e -> {
+         JButton editButton = newButton(MiscIcons.EDIT, "Edit", _ -> {
             boolean ok = editKeyStrokeInfo(userDefinedPackage, keyStrokeInfo, "Edit keystroke");
             if (ok) {
                userDefinedPackage.savePackageInfo();
@@ -429,7 +429,7 @@ final class PackagesConfView implements ViewHolder.View {
    }
 
    private void addToolbarButtons(GridBag gridBag, UserDefinedPackage userDefinedPackage) {
-      JButton addButton = newButton(MiscIcons.ADD, "Add new toolbar button", e -> {
+      JButton addButton = newButton(MiscIcons.ADD, "Add new toolbar button", _ -> {
          ToolbarButtonInfo toolbarButtonInfo = new ToolbarButtonInfo();
          boolean ok = editToolbarButtonInfo(userDefinedPackage, toolbarButtonInfo, "Add toolbar button");
          if (ok) {
@@ -441,13 +441,13 @@ final class PackagesConfView implements ViewHolder.View {
       addHeader(gridBag, "Toolbar buttons", addButton);
 
       for (ToolbarButtonInfo toolbarButtonInfo : userDefinedPackage.info.toolbarButtons) {
-         JButton deleteButton = newButton(MiscIcons.DELETE, "Delete", e -> {
+         JButton deleteButton = newButton(MiscIcons.DELETE, "Delete", _ -> {
             userDefinedPackage.info.toolbarButtons.remove(toolbarButtonInfo);
             userDefinedPackage.savePackageInfo();
             packagesConf.getChangeManager().notifyListeners();
          });
 
-         JButton editButton = newButton(MiscIcons.EDIT, "Edit", e -> {
+         JButton editButton = newButton(MiscIcons.EDIT, "Edit", _ -> {
             boolean ok = editToolbarButtonInfo(userDefinedPackage, toolbarButtonInfo, "Edit toolbar button");
             if (ok) {
                userDefinedPackage.savePackageInfo();
@@ -471,7 +471,7 @@ final class PackagesConfView implements ViewHolder.View {
    }
 
    private void addMenus(GridBag gridBag, UserDefinedPackage userDefinedPackage) {
-      JButton addButton = newButton(MiscIcons.ADD, "Add new menu", e -> {
+      JButton addButton = newButton(MiscIcons.ADD, "Add new menu", _ -> {
          MenuItemInfo menuItemInfo = new MenuItemInfo();
          boolean ok = editMenuItemInfo(userDefinedPackage, menuItemInfo, "Add menu", true);
          if (ok) {
@@ -490,13 +490,13 @@ final class PackagesConfView implements ViewHolder.View {
                                  boolean parentIsDragged, AtomicInteger row) {
       for (int i = 0; i < menuItemInfos.size(); i++) {
          MenuItemInfo menuItemInfo = menuItemInfos.get(i);
-         JButton deleteButton = newButton(MiscIcons.DELETE, "Delete", e -> {
+         JButton deleteButton = newButton(MiscIcons.DELETE, "Delete", _ -> {
             menuItemInfos.remove(menuItemInfo);
             userDefinedPackage.savePackageInfo();
             packagesConf.getChangeManager().notifyListeners();
          });
 
-         JButton editButton = newButton(MiscIcons.EDIT, "Edit", e -> {
+         JButton editButton = newButton(MiscIcons.EDIT, "Edit", _ -> {
             String title = menuItemInfo.isMenu() ? "Edit menu" : "Edit menu item";
             boolean ok = editMenuItemInfo(userDefinedPackage, menuItemInfo, title, menuItemInfo.isMenu());
             if (ok) {
@@ -547,7 +547,7 @@ final class PackagesConfView implements ViewHolder.View {
             menuLabel.putClientProperty("InvisibleDuringDrag", true);
             panel.add(menuLabel, BorderLayout.EAST);
 
-            JButton addActionButton = newButton(MiscIcons.ADD, "Add action item", e -> {
+            JButton addActionButton = newButton(MiscIcons.ADD, "Add action item", _ -> {
                MenuItemInfo newMenuItemInfo = new MenuItemInfo();
                boolean ok = editMenuItemInfo(userDefinedPackage, newMenuItemInfo, "Add action item", false);
                if (ok) {
@@ -558,7 +558,7 @@ final class PackagesConfView implements ViewHolder.View {
             });
             addActionButton.setText("Action");
 
-            JButton addSubmenuButton = newButton(MiscIcons.ADD, "Add submenu", e -> {
+            JButton addSubmenuButton = newButton(MiscIcons.ADD, "Add submenu", _ -> {
                MenuItemInfo newMenuItemInfo = new MenuItemInfo();
                boolean ok = editMenuItemInfo(userDefinedPackage, newMenuItemInfo, "Add submenu", true);
                if (ok) {
@@ -741,7 +741,7 @@ final class PackagesConfView implements ViewHolder.View {
          }
       }
       WorkerDialog.Result result = new WorkerDialog(scrollPane, "Importing package from zip file\n" + zipFile)
-            .start(asyncHandle -> {
+            .start(_ -> {
                FileUtils.deleteRecursively(packageDir);
                try (InputStream in = FileUtils.newBufferedInputStream(zipFile);
                     ZipInputStream zipInputStream = new ZipInputStream(in)) {
@@ -778,7 +778,7 @@ final class PackagesConfView implements ViewHolder.View {
             .start(asyncHandle -> {
                try (OutputStream out = Files.newOutputStream(zipFile);
                     ZipOutputStream zipOutputStream = new ZipOutputStream(out)) {
-                  FileUtils.zip("", zipOutputStream, packageDir, asyncHandle, fileInfo -> true);
+                  FileUtils.zip("", zipOutputStream, packageDir, asyncHandle, _ -> true);
                }
             });
       if (result.success()) {
@@ -956,13 +956,15 @@ final class PackagesConfView implements ViewHolder.View {
          }
          dragItem = uiItemInfo;
 
-         Utils.getAllOfType(GuiUtils.hierarchyStream(dragComponent), JComponent.class).forEach(component -> {
-            component.setOpaque(false);
-            if (component.getClientProperty("InvisibleDuringDrag") != null) {
-               component.setForeground(new Color(0, true));
-               ((JLabel) component).setIcon(null);
-            }
-         });
+         GuiUtils.hierarchyStream(dragComponent)
+               .gather(Utils.allOfType(JComponent.class))
+               .forEach(component -> {
+                  component.setOpaque(false);
+                  if (component.getClientProperty("InvisibleDuringDrag") != null) {
+                     component.setForeground(new Color(0, true));
+                     ((JLabel) component).setIcon(null);
+                  }
+               });
 
          JDialog dialog = packagesConf.getConfigurationManager().getDialog();
          Component originalGlassPane = dialog.getGlassPane();

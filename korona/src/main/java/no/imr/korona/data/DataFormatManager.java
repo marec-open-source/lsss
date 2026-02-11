@@ -44,12 +44,13 @@ public final class DataFormatManager {
 
    public @Nullable SegmentHandle createSegmentHandle(Path file) {
       for (DataFormatPlugin dataFormatPlugin : dataFormatPlugins) {
-         if (dataFormatPlugin.canCreateSegmentHandle(file)) {
-            try {
-               return dataFormatPlugin.createSegmentHandle(file);
-            } catch (IOException e) {
-               Log.global.log(Level.WARNING, "Error with data format " + dataFormatPlugin.getDescription(), e);
+         try {
+            SegmentHandle segmentHandle = dataFormatPlugin.createSegmentHandle(file);
+            if (segmentHandle != null) {
+               return segmentHandle;
             }
+         } catch (IOException e) {
+            Log.global.log(Level.WARNING, "Error with data format " + dataFormatPlugin.getDescription(), e);
          }
       }
       return null;

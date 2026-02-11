@@ -46,7 +46,7 @@ final class BroadbandCalibrationPlotView extends BaseViewModule.BaseView {
          JCheckBox checkBox = new JCheckBox(parameter.shortName, module.isSelected(parameter));
          checkBox.setBackground(Color.WHITE);
          checkBox.setToolTipText(Utils.nameAndUnit(parameter.fullName, parameter.unit));
-         checkBox.addItemListener(e -> module.setSelected(parameter, checkBox.isSelected()));
+         checkBox.addItemListener(_ -> module.setSelected(parameter, checkBox.isSelected()));
          panel.add(checkBox);
       }
       return panel;

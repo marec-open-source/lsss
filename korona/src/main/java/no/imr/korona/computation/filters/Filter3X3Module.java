@@ -7,6 +7,7 @@ import no.imr.korona.data.ping.PingSource;
 import no.imr.tools.UnionList;
 import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
+import no.imr.tools.math.ArrayMath;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.FloatParameter;
 import no.imr.tools.parameter.Name;
@@ -110,15 +111,11 @@ public final class Filter3X3Module extends BaseMatrixModule {
          if (filterNumber == 0) {
             setUserDefinedMatrix();
          } else {
-            setMatrix(filterNumber - 1);
+            setMatrix(M_LIST[filterNumber - 1]);
          }
-      }
-
-      private static void normalize(float[][] normInOut, float div) {
-         for (int i = 0; i < normInOut.length; i++) {
-            for (int j = 0; j < normInOut[i].length; j++) {
-               normInOut[i][j] = normInOut[i][j] / div;
-            }
+         float sum = sum(matrix);
+         if (sum != 0) {
+            divide(matrix, sum);
          }
       }
 
@@ -145,24 +142,23 @@ public final class Filter3X3Module extends BaseMatrixModule {
          return returnValue;
       }
 
-      private static float sum(float[][] M) {
-         float sum = 0;
-         for (float[] row : M) {
-            for (float v : row) {
-               sum += v;
-            }
+      private static float sum(float[][] m) {
+         double sum = 0;
+         for (float[] row : m) {
+            sum += ArrayMath.sum(row);
          }
-         return sum;
+         return (float) sum;
       }
 
-      private void setMatrix(int mat) {
-         for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-               matrix[i][j] = M_LIST[mat][i][j];
-            }
+      private static void divide(float[][] m, float divisor) {
+         for (float[] row : m) {
+            ArrayMath.divide(row, divisor);
          }
-         if (sum(matrix) != 0) {
-            normalize(matrix, sum(matrix));
+      }
+
+      private void setMatrix(float[][] m) {
+         for (int i = 0; i < 3; i++) {
+            System.arraycopy(m[i], 0, matrix[i], 0, 3);
          }
       }
 
@@ -171,9 +167,6 @@ public final class Filter3X3Module extends BaseMatrixModule {
             for (int j = 0; j < 3; j++) {
                matrix[i][j] = module.allParameters.get(i * 3 + j).getFloatValue();
             }
-         }
-         if (sum(matrix) != 0) {
-            normalize(matrix, sum(matrix));
          }
       }
    }

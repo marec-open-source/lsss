@@ -14,7 +14,7 @@ import java.nio.FloatBuffer;
  * Channel data with power, and possibly angles.
  */
 public final class Raw0Datagram extends BaseDatagram implements PerChannelDatagram {
-   public static final DatagramType TYPE = new DatagramType.Simple("RAW0", Raw0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("RAW0", Raw0Datagram::new);
 
    public static final int DATA_TYPE_POWER = 1;
    public static final int DATA_TYPE_ANGLES = 2;

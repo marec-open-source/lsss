@@ -203,7 +203,7 @@ public final class TrackPingBuffer extends PingBuffer {
                   updateTarget(pingIndex);
                }
                didStep = step();
-            } catch (InterruptedException e) {
+            } catch (InterruptedException _) {
                Thread.currentThread().interrupt();
                break;
             } catch (IOException e) {
@@ -271,7 +271,7 @@ public final class TrackPingBuffer extends PingBuffer {
       }
 
       private @Nullable Ping loadPing(long pingNumber) throws IOException {
-         PingIndex pingIndex = track.getContainingPingIndex(pingNumber, PingMapping.NUMBER);
+         PingIndex pingIndex = track.getPingIndexOrNullExcludingEnd(pingNumber);
          if (pingIndex == null) {
             return null;
          }

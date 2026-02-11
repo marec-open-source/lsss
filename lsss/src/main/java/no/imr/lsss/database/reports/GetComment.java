@@ -1,7 +1,8 @@
 package no.imr.lsss.database.reports;
 
 import no.imr.lsss.database.tables.hibernate.ObservationComment;
-import no.imr.lsss.database.tables.hibernate.ObservationPK;
+import no.imr.lsss.database.tables.hibernate.StandardComment;
+import no.imr.lsss.database.tables.hibernate.StandardCommentPK;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
 import org.hibernate.ScrollMode;
@@ -12,6 +13,8 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -27,13 +30,15 @@ final class GetComment {
          Path aCommentFile,
          Charset aCharset) {
 
-      try (ScrollableResults observationCommentResults = aSession.createQuery(aQuery)
+      Map<StandardCommentPK, StandardComment> pkToStandardComment = new HashMap<>();
+
+      try (ScrollableResults<ObservationComment> observationCommentResults = aSession.createSelectionQuery(aQuery, ObservationComment.class)
             .setReadOnly(true)
             .scroll(ScrollMode.FORWARD_ONLY);
            PrintWriter f = FileUtils.newPrintWriter(aCommentFile, aCharset)) {
 
          while (observationCommentResults.next()) {
-            ObservationComment observationComment = (ObservationComment) observationCommentResults.get(0);
+            ObservationComment observationComment = observationCommentResults.get();
 
             f.printf("%d ", observationComment.getCompId().getNation());
             f.printf("%d ", observationComment.getCompId().getPlatform());
@@ -44,7 +49,16 @@ final class GetComment {
             f.printf("%d ", observationComment.getMantissa());
             f.printf("%d ", observationComment.getExp());
             if (observationComment.getText().isEmpty()) {
-               f.printf("%s ", observationComment.getReferencedStandardComment().getText());
+               StandardCommentPK standardCommentPK = new StandardCommentPK(
+                     observationComment.getCompId().getNation(),
+                     observationComment.getCompId().getPlatform(),
+                     observationComment.getStandardComment()
+               );
+               StandardComment standardComment = pkToStandardComment.computeIfAbsent(standardCommentPK, _ -> {
+                  aSession.fetch(observationComment.getReferencedStandardComment());
+                  return observationComment.getReferencedStandardComment();
+               });
+               f.printf("%s ", standardComment.getText());
             } else {
                f.printf("%s ", observationComment.getText().replace('\n', ' '));   //Line feed generates problems
             }
@@ -62,35 +76,32 @@ final class GetComment {
       int stopIndex;
       int mantissa;
       int exponent;
-      ObservationPK obsPK = new ObservationPK();
 
       try {
          if ((line = f.readLine()) != null) {
             startIndex = 0;
             stopIndex = line.indexOf(' ', startIndex);
-            obsPK.setNation(Short.parseShort(line.substring(startIndex, stopIndex)));
+            aObservationComment.getCompId().setNation(Short.parseShort(line.substring(startIndex, stopIndex)));
 
             startIndex = stopIndex + 1;
             stopIndex = line.indexOf(' ', startIndex);
-            obsPK.setPlatform(Short.parseShort(line.substring(startIndex, stopIndex)));
+            aObservationComment.getCompId().setPlatform(Short.parseShort(line.substring(startIndex, stopIndex)));
 
             startIndex = stopIndex + 1;
             stopIndex = line.indexOf(' ', startIndex);
-            obsPK.setSurvey(Integer.parseInt(line.substring(startIndex, stopIndex)));
+            aObservationComment.getCompId().setSurvey(Integer.parseInt(line.substring(startIndex, stopIndex)));
 
             startIndex = stopIndex + 1;
             stopIndex = line.indexOf(' ', startIndex);
-            obsPK.setObservationDate(Integer.parseInt(line.substring(startIndex, stopIndex)));
+            aObservationComment.getCompId().setObservationDate(Integer.parseInt(line.substring(startIndex, stopIndex)));
 
             startIndex = stopIndex + 1;
             stopIndex = line.indexOf(' ', startIndex);
-            obsPK.setObservationTime(Integer.parseInt(line.substring(startIndex, stopIndex)));
+            aObservationComment.getCompId().setObservationTime(Integer.parseInt(line.substring(startIndex, stopIndex)));
 
             startIndex = stopIndex + 1;
             stopIndex = line.indexOf(' ', startIndex);
-            obsPK.setObservationType(Short.parseShort(line.substring(startIndex, stopIndex)));
-
-            aObservationComment.setCompId(obsPK);
+            aObservationComment.getCompId().setObservationType(Short.parseShort(line.substring(startIndex, stopIndex)));
 
             startIndex = stopIndex + 1;
             stopIndex = line.indexOf(' ', startIndex);

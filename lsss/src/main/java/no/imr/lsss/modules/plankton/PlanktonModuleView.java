@@ -2,7 +2,6 @@ package no.imr.lsss.modules.plankton;
 
 import no.imr.korona.computation.plankton.editor.PlanktonGUI;
 import no.imr.korona.data.datagrams.Pic0Datagram;
-import no.imr.lsss.framework.config.ConfigurationManager;
 import no.imr.lsss.modules.BaseViewModule;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.icons.ColorIcon;
@@ -38,7 +37,7 @@ final class PlanktonModuleView extends BaseViewModule.BaseView {
 
       JButton editButton = new JButton("Edit...");
       editButton.setToolTipText("Shows editor for initial size distribution");
-      editButton.addActionListener(e -> edit());
+      editButton.addActionListener(_ -> edit());
 
       JPanel bottomPanel = new JPanel(new BorderLayout());
       bottomPanel.setBackground(Color.WHITE);
@@ -64,9 +63,7 @@ final class PlanktonModuleView extends BaseViewModule.BaseView {
          Path file = module.getPlanktonFile();
          if (file == null) {
             JOptionPane.showMessageDialog(mainPanel, "No plankton file is configured", "Error", JOptionPane.ERROR_MESSAGE);
-
-            ConfigurationManager configurationManager = module.getLSSS().getConfigurationManager();
-            configurationManager.showDialog(configurationManager.getSurveyConfiguration().getPreprocessingConf());
+            module.getLSSS().getConfigurationManager().getSurveyConfiguration().getPreprocessingConf().showInConfigurationDialog();
          } else {
             PlanktonGUI.showDialog(mainPanel, file, true);
          }
@@ -96,7 +93,7 @@ final class PlanktonModuleView extends BaseViewModule.BaseView {
             }
          }
 
-         tabbedPane.addChangeListener(e -> {
+         tabbedPane.addChangeListener(_ -> {
             int i = tabbedPane.getSelectedIndex();
             if (i != -1) {
                selectedCategory = histogramDisplays.get(i).getPlanktonCategory().getLegend();

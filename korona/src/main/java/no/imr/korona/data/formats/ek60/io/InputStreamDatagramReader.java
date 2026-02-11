@@ -21,7 +21,7 @@ public final class InputStreamDatagramReader extends ChannelDatagramReader {
    protected void skipBytesFromChannel(int bytesToSkip) throws IOException {
       try {
          inputStream.skipNBytes(bytesToSkip);
-      } catch (EOFException e) {
+      } catch (EOFException _) {
          throw new BufferUnderflowException();
       }
    }

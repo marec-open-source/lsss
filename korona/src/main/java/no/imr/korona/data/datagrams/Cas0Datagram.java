@@ -9,10 +9,7 @@ import org.jspecify.annotations.Nullable;
 import java.nio.ByteBuffer;
 
 /**
- * Cas0Datagram - Categorization School Datagram
- * <p>
- * Result of school categorization. The datagram keeps a reference to the RegionInfoDatagram it
- * was created from.
+ * Result of school categorization.
  */
 public class Cas0Datagram extends DatagramPingItem {
    private final int regionId;
@@ -51,8 +48,8 @@ public class Cas0Datagram extends DatagramPingItem {
       byteBuffer.get(probabilities);
    }
 
-   public void setCategory(int categoryPriority, int category, float discriminant, float probability) {
-      categories[categoryPriority] = (byte) category;
+   public void setCategory(int categoryPriority, byte category, float discriminant, float probability) {
+      categories[categoryPriority] = category;
       discriminants[categoryPriority] = Cad0Datagram.floatToByte(discriminant);
       probabilities[categoryPriority] = Cad0Datagram.floatToByte(probability);
    }
@@ -86,7 +83,7 @@ public class Cas0Datagram extends DatagramPingItem {
     * @param categoryPriority the rank of the category, 0 is the best fit
     * @return the category type
     */
-   public int getCategory(int categoryPriority) {
+   public byte getCategory(int categoryPriority) {
       return categories[categoryPriority];
    }
 

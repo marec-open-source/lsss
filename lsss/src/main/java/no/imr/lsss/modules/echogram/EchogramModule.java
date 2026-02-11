@@ -122,7 +122,7 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
 
       Listener updateMouseEchogramPointListener = newCoalescingExecListener(this::updateMouseEchogramPoint);
       registry.add(mousePosition(), updateMouseEchogramPointListener);
-      registry.add(getInterpretationSettings().mouseover().frozen(), __ -> {
+      registry.add(getInterpretationSettings().mouseover().frozen(), _ -> {
          if (getMousePosition() != null) {
             updateMouseEchogramPointListener.listen();
          }
@@ -304,7 +304,7 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
       tabbedPane.add("Tooltip", createTooltipEditor());
       tabbedPane.add("Parameters", super.createConfigurationEditor());
       tabbedPane.setSelectedIndex(editorTabIndex);
-      tabbedPane.addChangeListener(e -> editorTabIndex = tabbedPane.getSelectedIndex());
+      tabbedPane.addChangeListener(_ -> editorTabIndex = tabbedPane.getSelectedIndex());
       return tabbedPane;
    }
 
@@ -312,12 +312,12 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
       ParameterEditor toolTipEditor = new ParameterEditor(toolTipGenerator.getParameters());
 
       JButton allOnButton = new JButton("All on");
-      allOnButton.addActionListener(e -> {
+      allOnButton.addActionListener(_ -> {
          Utils.getAllOfType(toolTipGenerator.getParameters(), BooleanParameter.class).forEach(BooleanParameter::setTrue);
       });
 
       JButton allOffButton = new JButton("All off");
-      allOffButton.addActionListener(e -> {
+      allOffButton.addActionListener(_ -> {
          Utils.getAllOfType(toolTipGenerator.getParameters(), BooleanParameter.class).forEach(BooleanParameter::setFalse);
       });
 
@@ -384,7 +384,7 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
 
          boolean pelagicMode = lsss.getConfigurationManager().getSurveyMiscConf().pelagicMode.getBooleanValue();
          JMenuItem pelagicModeItem = MiscIcons.checkBox(pelagicMode).on(mainPopupMenu.add("Pelagic mode"));
-         pelagicModeItem.addActionListener(e -> lsss.getConfigurationManager().getSurveyMiscConf().pelagicMode.toggle());
+         pelagicModeItem.addActionListener(_ -> lsss.getConfigurationManager().getSurveyMiscConf().pelagicMode.toggle());
 
          mainPopupMenu.addSeparator();
 
@@ -401,7 +401,7 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
          for (PingMapping pingMapping : PingMapping.values()) {
             boolean selected = pingMapping == lsss.getInterpretationSettings().getPingMapping();
             JMenuItem pingMappingItem = MiscIcons.check(selected).on(pingMappingPopupMenu.add(pingMapping.toString()));
-            pingMappingItem.addActionListener(e -> lsss.getInterpretationSettings().setPingMapping(pingMapping));
+            pingMappingItem.addActionListener(_ -> lsss.getInterpretationSettings().setPingMapping(pingMapping));
          }
 
          JMenu channelPopupMenu = new JMenu("Frequency");
@@ -415,7 +415,7 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
                boolean selected = channel == lsss.getInterpretationSettings().getChannel();
                JMenuItem channelItem = MiscIcons.check(selected).on(channelPopupMenu.add(kHz + " kHz"));
                int finalChannel = channel;
-               channelItem.addActionListener(e -> lsss.getInterpretationSettings().setChannel(finalChannel));
+               channelItem.addActionListener(_ -> lsss.getInterpretationSettings().setChannel(finalChannel));
             }
          }
 
@@ -424,7 +424,7 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
          for (DataLoadingMode mode : DataLoadingMode.values()) {
             boolean selected = mode == lsss.getInterpretationSettings().getDataLoadingMode();
             JMenuItem modeItem = MiscIcons.check(selected).on(modePopupMenu.add(mode.toString()));
-            modeItem.addActionListener(e -> lsss.getInterpretationSettings().setDataLoadingMode(mode));
+            modeItem.addActionListener(_ -> lsss.getInterpretationSettings().setDataLoadingMode(mode));
          }
 
          addToPopupMenu(mainPopupMenu);
@@ -443,7 +443,7 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
          if (echogramPoint == null) {
             tag0ToCommentItem.setEnabled(false);
          } else {
-            tag0ToCommentItem.addActionListener(e -> commentDataModule.createCommentsFromTag0Datagrams());
+            tag0ToCommentItem.addActionListener(_ -> commentDataModule.createCommentsFromTag0Datagrams());
          }
 
          mainPopupMenu.addSeparator();
@@ -451,23 +451,23 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
          JMenuItem mergeLayersItem = mainPopupMenu.add("Merge selected layers");
          mergeLayersItem.setEnabled(lsss.getRegionManager().getLayerManager().getSelectedRegions().size() > 1);
          mergeLayersItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0));
-         mergeLayersItem.addActionListener(e -> LsssUtils.mergeSelectedLayers(lsss));
+         mergeLayersItem.addActionListener(_ -> LsssUtils.mergeSelectedLayers(lsss));
 
          JMenuItem deleteSchoolsItem = MiscIcons.DELETE.on(mainPopupMenu.add("Delete selected schools"));
          deleteSchoolsItem.setEnabled(!lsss.getRegionManager().getSchoolManager().getSelectedRegions().isEmpty());
          deleteSchoolsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
-         deleteSchoolsItem.addActionListener(e -> LsssUtils.deleteSelectedSchools(lsss));
+         deleteSchoolsItem.addActionListener(_ -> LsssUtils.deleteSelectedSchools(lsss));
 
          JMenuItem mergeSchoolsItem = mainPopupMenu.add("Merge selected schools");
          mergeSchoolsItem.setEnabled(lsss.getRegionManager().getSchoolManager().getSelectedRegions().size() > 1);
-         mergeSchoolsItem.addActionListener(e -> LsssUtils.mergeSelectedSchools(lsss));
+         mergeSchoolsItem.addActionListener(_ -> LsssUtils.mergeSelectedSchools(lsss));
 
          RegionEditOverlay regionEditOverlay = module.getBackgroundOverlay(RegionEditOverlay.class);
          if (regionEditOverlay != null) {
             CurveBoundary activeCurveBoundary = regionEditOverlay.getActiveCurveBoundary();
             if (activeCurveBoundary != null && echogramPoint != null) {
                JMenuItem addHorizontalLayerBoundaryItem = mainPopupMenu.add("Add horizontal layer boundary...");
-               addHorizontalLayerBoundaryItem.addActionListener(e -> {
+               addHorizontalLayerBoundaryItem.addActionListener(_ -> {
                   new SimpleInputDialog<>("Insert horizontal layer boundary", "Depth offset to existing layer boundary", "", Float::parseFloat)
                         .setUnit(Unit.METER)
                         .setBelowText("A positive offset means deeper.")
@@ -487,7 +487,7 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
          if (region == null) {
             excludeItem.setEnabled(false);
          } else {
-            excludeItem.addActionListener(e -> {
+            excludeItem.addActionListener(_ -> {
                lsss.getRegionManager().getExclusionManager().excludeRange(lsss.getInterpretationSettings().getPingRange().intersection(region.getPingRange()));
             });
          }
@@ -496,7 +496,7 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
          if (region == null) {
             includeItem.setEnabled(false);
          } else {
-            includeItem.addActionListener(e -> {
+            includeItem.addActionListener(_ -> {
                lsss.getRegionManager().getExclusionManager().includeRange(lsss.getInterpretationSettings().getPingRange().intersection(region.getPingRange()));
             });
          }
@@ -508,7 +508,7 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
 
          JMenuItem processingStartItem = LsssIcons.KORONA.on(mainPopupMenu.add("Start preprocessing on visible files"));
          processingStartItem.setEnabled(echogramPoint != null);
-         processingStartItem.addActionListener(e -> {
+         processingStartItem.addActionListener(_ -> {
             PingRange pingRange = lsss.getInterpretationSettings().getPingRange();
             List<DataFile> dataFiles = lsss.getConfigurationManager().getDataConf().getDataSetManager().getDataFileSet(DataType.RAW).getDataFiles(pingRange);
             SegmentHandle first = dataFiles.getFirst().getSegmentHandle();

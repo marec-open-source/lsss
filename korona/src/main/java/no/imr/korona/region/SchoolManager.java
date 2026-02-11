@@ -28,10 +28,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 
 public final class SchoolManager extends BaseRegionManager<School> {
    private static final String XML_SCHOOL_INTERPRETATION = "schoolInterpretation";
@@ -134,7 +134,7 @@ public final class SchoolManager extends BaseRegionManager<School> {
    void deleteSchoolWithoutUndoEdit(School school) {
       schools.remove(school);
       school.setSelected(false);
-      if (selectedRegions.remove(school)) {
+      if (getSelectedRegions().remove(school)) {
          getRegionManager().notifyRegionListenersSelectedRegions();
       }
       getRegionManager().notifyRegionListenersRegionDeleted(school);
@@ -149,24 +149,10 @@ public final class SchoolManager extends BaseRegionManager<School> {
       return schools;
    }
 
-   public Stream<School> schoolsIntersectingPingRange(PingRange pingRange) {
-      return schools.stream()
-            .filter(school -> school.intersectsPingRange(pingRange));
-   }
-
-   public List<School> getSchoolsIntersectingPingRange(PingRange pingRange) {
-      List<School> result = new ArrayList<>();
-      for (School school : schools) {
-         if (school.intersectsPingRange(pingRange)) {
-            result.add(school);
-         }
-      }
-      return result;
-   }
-
    void removeAllSchools() {
-      getRegionManager().notifyRegionListenersRegionsDeleted(schools);
+      List<School> deletedSchools = List.copyOf(schools);
       schools.clear();
+      getRegionManager().notifyRegionListenersRegionsDeleted(deletedSchools);
    }
 
    private School mergeSchoolsNew(School school1, School school2) {
@@ -276,21 +262,21 @@ public final class SchoolManager extends BaseRegionManager<School> {
       getRegionManager().notifyLayersInPingRange(adjustRange);
    }
 
-   void constrainSchools(PingRange pingRange) {
-      List<School> changedSchools = new ArrayList<>();
-      PingRange unionRange = PingRange.EMPTY_RANGE;
-      for (School school : getSchoolsIntersectingPingRange(pingRange)) {
-         if (school.constrain()) {
-            if (school.isEmpty()) {
-               getRegionManager().deleteSchoolWithoutUndo(school);
-            } else {
-               changedSchools.add(school);
-               unionRange = unionRange.union(school.getPingRange());
-            }
-         }
-      }
+   void constrainSchoolsAfterLayerEdit(PingRange pingRange) {
+      List<School> changedSchools = regionsIntersectingPingRange(pingRange)
+            .filter(School::constrainToLayers)
+            .map(school -> {
+               if (school.isEmpty()) {
+                  getRegionManager().deleteSchoolWithoutUndo(school);
+                  return null;
+               } else {
+                  return school;
+               }
+            })
+            .filter(Objects::nonNull)
+            .toList();
       if (!changedSchools.isEmpty()) {
-         getRegionManager().notifyRegionBoundaryChanged(unionRange, changedSchools);
+         getRegionManager().notifyRegionBoundaryChanged(pingRange, changedSchools);
       }
    }
 
@@ -332,73 +318,38 @@ public final class SchoolManager extends BaseRegionManager<School> {
    public @Nullable Pair<School, SchoolBoundaryIntersectionInfo> findClosestVisibleWritableSchool(EchogramPoint point, EchogramPingSettings pingSettings, EchogramZSettings zSettings, @Nullable School closeCandidate) {
       PingRange visiblePingRange = getVisiblePingRange();
       double x = pingSettings.pingIndexToX(point.pingIndex());
-      double closest = Double.POSITIVE_INFINITY;
+      double closestDistSq = Double.POSITIVE_INFINITY;
       Pair<School, SchoolBoundaryIntersectionInfo> closestSchool = null;
       if (closeCandidate != null && closeCandidate.isWritable() && closeCandidate.intersectsPingRange(visiblePingRange)) {
-         SchoolBoundaryIntersectionInfo intersectionInfo = closeCandidate.distanceFrom(point, pingSettings, zSettings);
-         closest = intersectionInfo.distanceSquared();
-         closestSchool = new Pair<>(closeCandidate, intersectionInfo);
+         SchoolBoundaryIntersectionInfo intersectionInfo = closeCandidate.distanceFrom(point, pingSettings, zSettings, closestDistSq);
+         if (intersectionInfo != null) {
+            closestDistSq = intersectionInfo.distanceSquared();
+            closestSchool = new Pair<>(closeCandidate, intersectionInfo);
+         }
       }
       for (School school : schools) {
-         if (!school.intersectsPingRange(visiblePingRange)) {
-            continue;
+         PingRange schoolPingRange = school.getPingRange();
+         if (schoolPingRange.end().getPingNumber() < point.pingIndex().getPingNumber()) {
+            // Entire school is to the left.
+            if (closestDistSq <= Utils.sq(x - pingSettings.pingIndexToX(schoolPingRange.end()))) {
+               continue;
+            }
+         } else if (schoolPingRange.begin().getPingNumber() > point.pingIndex().getPingNumber()) {
+            // Entire school is to the right.
+            if (closestDistSq <= Utils.sq(x - pingSettings.pingIndexToX(schoolPingRange.begin()))) {
+               continue;
+            }
          }
          if (school.isReadOnly()) {
             continue;
          }
-         PingRange schoolPingRange = school.getPingRange();
-         if (schoolPingRange.end().compareTo(point.pingIndex()) < 0) {
-            // Entire school is to the left.
-            if (closest <= Utils.sq(x - pingSettings.pingIndexToX(schoolPingRange.end()))) {
-               continue;
-            }
-         } else if (schoolPingRange.begin().compareTo(point.pingIndex()) > 0) {
-            // Entire school is to the right.
-            if (closest <= Utils.sq(x - pingSettings.pingIndexToX(schoolPingRange.begin()))) {
-               continue;
-            }
-         }
-         SchoolBoundaryIntersectionInfo intersectionInfo = school.distanceFrom(point, pingSettings, zSettings);
-         double dist = intersectionInfo.distanceSquared();
-         if (dist < closest) {
-            closest = dist;
+         SchoolBoundaryIntersectionInfo intersectionInfo = school.distanceFrom(point, pingSettings, zSettings, closestDistSq);
+         if (intersectionInfo != null) {
+            closestDistSq = intersectionInfo.distanceSquared();
             closestSchool = new Pair<>(school, intersectionInfo);
          }
       }
       return closestSchool;
-   }
-
-   public void checkValidity() throws WorkaroundRegionException {
-      Set<Integer> objectNumbers = new HashSet<>();
-      for (School school : schools) {
-         if (school.hasObjectNumber() && !objectNumbers.add(school.getObjectNumber())) {
-            throw new WorkaroundRegionException("Duplicate object number: " + school.getObjectNumber());
-         }
-         if (school.getPointCount() <= 2) {
-            throw new WorkaroundRegionException();
-         }
-         for (FloatRangeSet rangeSet : school.getSchoolMaskRepresentation().values()) {
-            if (rangeSet.isEmpty()) {
-               throw new WorkaroundRegionException();
-            }
-         }
-         for (School otherSchool : getSchoolsIntersectingPingRange(school.getPingRange())) {
-            if (otherSchool != school && MaskUtils.intersects(otherSchool.getSchoolMaskRepresentation(), school.getSchoolMaskRepresentation())) {
-               throw new WorkaroundRegionException();
-            }
-         }
-         // Check that distance in ping direction between successive points is max 1
-         for (SchoolBoundaryObject boundaryObject : school.getBoundaryObjects()) {
-            List<EchogramPoint> points = boundaryObject.getBoundary();
-            for (int i = 0; i < points.size(); i++) {
-               EchogramPoint p = points.get(i);
-               EchogramPoint q = points.get((i + 1) % points.size());
-               if (Math.abs(p.pingIndex().getPingNumber() - q.pingIndex().getPingNumber()) > 1) {
-                  throw new WorkaroundRegionException();
-               }
-            }
-         }
-      }
    }
 
    private SingleSchoolEdit createUndoCopy(School school) {
@@ -470,13 +421,14 @@ public final class SchoolManager extends BaseRegionManager<School> {
       }
    }
 
-   Element toXml(PingRange pingRange) {
+   static Element toXml(PingRange pingRange, Collection<School> schoolsToSave) {
       Element interpretation = DocumentHelper.createElement(XML_SCHOOL_INTERPRETATION);
-      List<School> intersectingSchools = getSchoolsIntersectingPingRange(pingRange);
-      intersectingSchools.sort(Comparator.comparingInt(School::getObjectNumber));
-      for (School school : intersectingSchools) {
-         interpretation.add(school.toXml(pingRange));
-      }
+      schoolsToSave.stream()
+            .filter(school -> school.intersectsPingRange(pingRange))
+            .sorted(Comparator.comparingInt(School::getObjectNumber))
+            .forEach(school -> {
+               interpretation.add(school.toXml(pingRange));
+            });
       return interpretation;
    }
 
@@ -610,7 +562,7 @@ public final class SchoolManager extends BaseRegionManager<School> {
       public void redo() {
          super.redo();
          getRegionManager().redoAddSchool(school);
-         school.constrain();
+         school.constrainAfterUndoRedo();
       }
    }
 
@@ -623,7 +575,7 @@ public final class SchoolManager extends BaseRegionManager<School> {
       public void undo() {
          super.undo();
          getRegionManager().redoAddSchool(school);
-         school.constrain();
+         school.constrainAfterUndoRedo();
       }
 
       @Override

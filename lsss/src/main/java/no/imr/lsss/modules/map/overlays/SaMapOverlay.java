@@ -99,7 +99,7 @@ public final class SaMapOverlay extends BaseMapOverlay implements PojoDataContai
    @Override
    protected @Nullable OverlayDisplayData recomputeDisplayData() {
       SaCurve saCurve = computeSaCurve();
-      if (saCurve.getPoints().isEmpty()) {
+      if (saCurve.points().isEmpty()) {
          return null;
       }
 
@@ -109,12 +109,12 @@ public final class SaMapOverlay extends BaseMapOverlay implements PojoDataContai
       float maxDiameter = 50;
       int scaleCount = 4;
 
-      List<Ellipse2D.Float> circles = new ArrayList<>(saCurve.getPoints().size() + scaleCount);
+      List<Ellipse2D.Float> circles = new ArrayList<>(saCurve.points().size() + scaleCount);
       List<GuiText> texts = new ArrayList<>(scaleCount + 1);
 
-      float maxSa = saCurve.getMaxSa();
+      float maxSa = saCurve.maxSa();
       if (maxSa > 0) {
-         for (SaCurve.Point point : saCurve.getPoints()) {
+         for (SaCurve.Point point : saCurve.points()) {
             GeoPoint geoPos = point.pingIndex().getGeographicalPosition();
             if (geoPos == null) {
                continue;
@@ -167,7 +167,7 @@ public final class SaMapOverlay extends BaseMapOverlay implements PojoDataContai
 
    @Override
    public PojoData getPojoData() {
-      List<SaCurve.Point> points = computeSaCurve().getPoints();
+      List<SaCurve.Point> points = computeSaCurve().points();
       ParameterExport longitudeExport = new ParameterExport("longitude", Unit.DEGREES, ExportRounding.geoPos());
       ParameterExport latitudeExport = new ParameterExport("latitude", Unit.DEGREES, ExportRounding.geoPos());
       ParameterExport saExport = new ParameterExport("sa", Unit.SA, ExportRounding.sa());

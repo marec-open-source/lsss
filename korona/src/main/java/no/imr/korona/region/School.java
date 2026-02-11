@@ -5,7 +5,6 @@ import no.imr.korona.data.datamanager.PingContainer;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.geometry.EchogramPoint;
-import no.imr.korona.data.util.geometry.EchogramUtils;
 import no.imr.korona.data.util.geometry.depth.DepthTransform;
 import no.imr.korona.data.util.mask.MaskOutlineTracer;
 import no.imr.korona.data.util.mask.MaskUtils;
@@ -27,7 +26,6 @@ import org.dom4j.Element;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -47,14 +45,18 @@ public final class School extends Region {
    private static final String XML_PARAMETER_DATA_PROCESSED = "dataProcessed";
    private static final String XML_PARAMETER_NAME = "name";
 
-   private SchoolMaskRepresentation schoolMaskRepresentation = SchoolMaskRepresentation.EMPTY;
-   private List<SchoolBoundaryObject> schoolBoundaries = List.of();
+   private SchoolMaskRepresentation schoolMaskRepresentation;
+   private List<SchoolBoundaryObject> boundaryObjects;
    private @Nullable EchogramPoint centerPoint;
    private SchoolParameters parameters = SchoolParameters.EMPTY;
    private @Nullable SchoolEditor editor;
 
-   private School(RegionManager regionManager) {
+   private School(RegionManager regionManager, NavigableMap<PingIndex, FloatRangeSet> mask) {
       super(regionManager);
+
+      schoolMaskRepresentation = new SchoolMaskRepresentation(mask, getPingContainer());
+      boundaryObjects = schoolMaskRepresentation.computeBoundaryObjects(getPingContainer());
+      centerPoint = schoolMaskRepresentation.computeCenterPoint(getPingContainer());
    }
 
    static School createFromXml(RegionManager regionManager, PingIndex referencePingIndex, Element element) {
@@ -66,29 +68,31 @@ public final class School extends Region {
    }
 
    static School create(RegionManager regionManager, NavigableMap<PingIndex, FloatRangeSet> mask) {
-      School school = new School(regionManager);
-      school.setMask(mask);
-      return school;
+      mask = constrainMask(mask, null, regionManager);
+      return new School(regionManager, mask);
    }
 
    static School createUnconstrained(RegionManager regionManager, NavigableMap<PingIndex, FloatRangeSet> mask) {
-      School school = new School(regionManager);
-      school.setSchoolMaskRepresentation(mask);
-      return school;
+      return new School(regionManager, mask);
    }
 
-   void setMask(NavigableMap<PingIndex, FloatRangeSet> schoolMask) {
-      schoolMask = constrainMaskToWritablePings(schoolMask);
-      schoolMask = constrainMaskToOtherRegions(schoolMask);
-      setSchoolMaskRepresentation(schoolMask);
+   void setMask(NavigableMap<PingIndex, FloatRangeSet> mask) {
+      mask = constrainMask(mask, this, getRegionManager());
+      setSchoolMaskRepresentation(mask);
    }
 
    private void setSchoolMaskRepresentation(NavigableMap<PingIndex, FloatRangeSet> schoolMask) {
       schoolMaskRepresentation = new SchoolMaskRepresentation(schoolMask, getPingContainer());
-      schoolBoundaries = schoolMaskRepresentation.computeSchoolBoundaries(getPingContainer());
+      boundaryObjects = schoolMaskRepresentation.computeBoundaryObjects(getPingContainer());
       centerPoint = schoolMaskRepresentation.computeCenterPoint(getPingContainer());
    }
 
+   @Override
+   public boolean contains(PingIndex pingIndex) {
+      return getCurrentMask().contains(pingIndex);
+   }
+
+   @Override
    public boolean intersectsPingRange(PingRange pingRange) {
       return getCurrentMask().intersectsPingRange(pingRange);
    }
@@ -162,25 +166,18 @@ public final class School extends Region {
       return rep;
    }
 
-   private boolean hasUpToDateParameters() {
-      if (parameters.getValues().isEmpty() && parameters.getPerChannelValues().isEmpty()) {
-         return false;
-      }
-      return parameters.isUpToDate();
-   }
-
    private void parametersToXml(Element element) {
-      if (!hasUpToDateParameters()) {
+      if (!parameters.isUpToDate()) {
          return;
       }
       Element parameterElement = element.addElement(XML_PARAMETERS);
-      addParameterValues(parameterElement, parameters.getValues());
+      addParameterValues(parameterElement, parameters.values());
       PingContainer pingContainer = getPingContainer();
-      parameters.getPerChannelValues().forEach((channel, channelValues) -> {
+      parameters.perChannelValues().forEach((channel, channelValues) -> {
          int kHz = Utils.hzToKHz(pingContainer.getFrequency(channel));
          Element channelParameter = parameterElement.addElement(XML_PARAMETER_CHANNEL_PARAMETERS)
                .addAttribute(XML_PARAMETER_FREQUENCY, Integer.toString(kHz))
-               .addAttribute(XML_PARAMETER_DATA_PROCESSED, Boolean.toString(parameters.isDataProcessed()));
+               .addAttribute(XML_PARAMETER_DATA_PROCESSED, Boolean.toString(parameters.dataProcessed()));
          addParameterValues(channelParameter, channelValues);
       });
    }
@@ -210,40 +207,58 @@ public final class School extends Region {
                }
             }
          });
-         setParameters(SchoolParameters.of(dataProcessed, values, perChannelValues.build()));
+         setParameters(new SchoolParameters(dataProcessed, values, perChannelValues.build()));
       }
    }
 
    private static ImmutableMap<String, Float> xmlToParameterValues(Element element) {
       ImmutableMap.Builder<String, Float> values = ImmutableMap.builder();
       element.elements(XML_PARAMETER).forEach(parameterElement -> {
-         String key = parameterElement.attributeValue(XML_PARAMETER_NAME).intern();
+         String key = Utils.intern(parameterElement.attributeValue(XML_PARAMETER_NAME));
          float value = Float.parseFloat(parameterElement.getText());
          values.put(key, value);
       });
       return values.build();
    }
 
-   boolean constrain() {
-      NavigableMap<PingIndex, FloatRangeSet> schoolMask = constrainMaskToOtherRegions(schoolMaskRepresentation.getSchoolMask());
-      if (schoolMask.equals(schoolMaskRepresentation.getSchoolMask())) {
+   boolean constrainToLayers() {
+      var mask = schoolMaskRepresentation.getSchoolMask();
+      LayerManager layerManager = getRegionManager().getLayerManager();
+      if (MaskUtils.isContainedIn(mask, layerManager::getBoundaryDepthRange)) {
          return false;
       }
-      setSchoolMaskRepresentation(schoolMask);
+      var newMask = MaskUtils.intersection(mask, layerManager::getBoundaryDepthRange);
+      setSchoolMaskRepresentation(newMask);
       return true;
    }
 
-   private NavigableMap<PingIndex, FloatRangeSet> constrainMaskToOtherRegions(NavigableMap<PingIndex, FloatRangeSet> schoolMask) {
-      PingRange pingRange = PingRange.from(schoolMask, getPingContainer());
-      List<School> otherSchools = getSchoolManager().getSchools().stream()
-            .filter(school -> school.intersectsPingRange(pingRange) && school != this)
-            .toList();
+   void constrainAfterUndoRedo() {
+      NavigableMap<PingIndex, FloatRangeSet> newMask = constrainMaskToOtherRegions(schoolMaskRepresentation.getSchoolMask());
+      setSchoolMaskRepresentation(newMask);
+   }
 
-      LayerManager layerManager = getRegionManager().getLayerManager();
+   private static NavigableMap<PingIndex, FloatRangeSet> constrainMask(NavigableMap<PingIndex, FloatRangeSet> mask,
+                                                                       @Nullable School thisSchool, RegionManager regionManager) {
+      mask = constrainMaskToWritablePings(mask, regionManager);
+      mask = constrainMaskToOtherRegions(mask, thisSchool, regionManager);
+      return mask;
+   }
+
+   private NavigableMap<PingIndex, FloatRangeSet> constrainMaskToOtherRegions(NavigableMap<PingIndex, FloatRangeSet> schoolMask) {
+      return constrainMaskToOtherRegions(schoolMask, this, getRegionManager());
+   }
+
+   private static NavigableMap<PingIndex, FloatRangeSet> constrainMaskToOtherRegions(NavigableMap<PingIndex, FloatRangeSet> mask,
+                                                                                     @Nullable School thisSchool, RegionManager regionManager) {
+      PingRange pingRange = PingRange.from(mask, regionManager.getPingContainer());
+      List<School> schools = regionManager.getSchoolManager().regionsIntersectingPingRange(pingRange)
+            .filter(school -> school != thisSchool)
+            .toList();
+      LayerManager layerManager = regionManager.getLayerManager();
       NavigableMap<PingIndex, FloatRangeSet> result = new TreeMap<>();
-      schoolMask.forEach((pingIndex, value) -> {
-         for (School otherSchool : otherSchools) {
-            value = value.subtract(otherSchool.getDepthRanges(pingIndex));
+      mask.forEach((pingIndex, value) -> {
+         for (School school : schools) {
+            value = value.subtract(school.getDepthRanges(pingIndex));
          }
          value = value.intersection(layerManager.getBoundaryDepthRange(pingIndex));
          if (!value.isEmpty()) {
@@ -253,20 +268,15 @@ public final class School extends Region {
       return result;
    }
 
-   private NavigableMap<PingIndex, FloatRangeSet> constrainMaskToWritablePings(NavigableMap<PingIndex, FloatRangeSet> schoolMask) {
-      NavigableMap<PingIndex, FloatRangeSet> result = new TreeMap<>(schoolMask);
-      RangeSet<PingIndex> readOnlyPings = getRegionManager().getRegionConfiguration().getReadOnlyPings();
+   private static NavigableMap<PingIndex, FloatRangeSet> constrainMaskToWritablePings(NavigableMap<PingIndex, FloatRangeSet> mask, RegionManager regionManager) {
+      NavigableMap<PingIndex, FloatRangeSet> result = new TreeMap<>(mask);
+      RangeSet<PingIndex> readOnlyPings = regionManager.getRegionConfiguration().getReadOnlyPings();
       result.keySet().removeIf(readOnlyPings::contains);
       return result;
    }
 
    public boolean isEmpty() {
       return getCurrentMask().isEmpty();
-   }
-
-   @Override
-   public boolean contains(EchogramPoint point) {
-      return MaskUtils.contains(getCurrentMask().getSchoolMask(), point);
    }
 
    @Override
@@ -322,7 +332,7 @@ public final class School extends Region {
    }
 
    public List<SchoolBoundaryObject> getBoundaryObjects() {
-      return schoolBoundaries;
+      return boundaryObjects;
    }
 
    public @Nullable SchoolEditor getEditor() {
@@ -488,15 +498,16 @@ public final class School extends Region {
       return true;
    }
 
-   public SchoolBoundaryIntersectionInfo distanceFrom(EchogramPoint point, EchogramPingSettings pingSettings, EchogramZSettings zSettings) {
+   public @Nullable SchoolBoundaryIntersectionInfo distanceFrom(EchogramPoint point, EchogramPingSettings pingSettings, EchogramZSettings zSettings,
+                                                                double closestDistSq) {
       SchoolBoundaryIntersectionInfo bestIntersectionInfo = null;
-      for (SchoolBoundaryObject boundaryObject : schoolBoundaries) {
+      for (SchoolBoundaryObject boundaryObject : boundaryObjects) {
          SchoolBoundaryIntersectionInfo intersectionInfo = boundaryObject.getClosestIntersection(point, pingSettings, zSettings);
-         if (bestIntersectionInfo == null || intersectionInfo.distanceSquared() < bestIntersectionInfo.distanceSquared()) {
+         if (intersectionInfo.distanceSquared() < closestDistSq) {
+            closestDistSq = intersectionInfo.distanceSquared();
             bestIntersectionInfo = intersectionInfo;
          }
       }
-      assert bestIntersectionInfo != null : point + ", " + schoolBoundaries + "\n---\n" + schoolBoundaries;
       return bestIntersectionInfo;
    }
 
@@ -512,22 +523,7 @@ public final class School extends Region {
       return centerPoint;
    }
 
-   int getPointCount() {
-      int result = 0;
-      for (SchoolBoundaryObject boundaryObject : schoolBoundaries) {
-         result += boundaryObject.getBoundary().size();
-      }
-      return result;
-   }
-
-   @Override
-   public String toString() {
-      return "Ping range " + schoolMaskRepresentation.getPingRange() + " Points: " + getPointCount();
-   }
-
    public static final class SchoolMaskRepresentation {
-      private static final SchoolMaskRepresentation EMPTY = new SchoolMaskRepresentation(Collections.emptyNavigableMap(), EchogramUtils.emptyPingContainer());
-
       private final NavigableMap<PingIndex, FloatRangeSet> schoolMask;
       private final PingRange pingRange;
       private final @Nullable RangeSet<PingIndex> pingRangeSetWithGaps; // null if no gaps.
@@ -570,15 +566,16 @@ public final class School extends Region {
          return schoolMask.isEmpty();
       }
 
+      private boolean contains(PingIndex pingIndex) {
+         if (pingRangeSetWithGaps == null) {
+            return pingRange.contains(pingIndex);
+         }
+         return pingRangeSetWithGaps.contains(pingIndex);
+      }
+
       private boolean intersectsPingRange(PingRange range) {
          if (pingRangeSetWithGaps == null) {
             return range.intersects(pingRange);
-         }
-         if (!range.intersects(pingRange)) {
-            return false;
-         }
-         if (range.contains(pingRange)) {
-            return true;
          }
          return pingRangeSetWithGaps.containsAny(range);
       }
@@ -600,15 +597,14 @@ public final class School extends Region {
          if (entry == null) {
             return null;
          }
-         FloatRange largestDepthRange = entry.getValue().getFloatRanges().stream()
+         FloatRange largestDepthRange = entry.getValue().stream()
                .max(Comparator.comparing(FloatRange::getSize))
                .orElseThrow();
          return new EchogramPoint(entry.getKey(), largestDepthRange.getCenter());
       }
 
-      private List<SchoolBoundaryObject> computeSchoolBoundaries(PingContainer pingContainer) {
-         Set<CyclicList<EchogramPoint>> boundaries = MaskOutlineTracer.createBoundary(schoolMask, pingContainer);
-         return boundaries.stream()
+      private List<SchoolBoundaryObject> computeBoundaryObjects(PingContainer pingContainer) {
+         return MaskOutlineTracer.createBoundary(schoolMask, pingContainer).stream()
                .map(boundary -> new SchoolBoundaryObject(boundary, pingContainer))
                .toList();
       }

@@ -1,12 +1,22 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "parName",
+
+      // Properties:
+      "parValue",
+})
 public class DBParameter implements BaseDatabaseObject {
    private String parName;
 
@@ -30,6 +40,7 @@ public class DBParameter implements BaseDatabaseObject {
    }
 
    @Id
+   @Column(length = 40)
    public String getParName() {
       return parName;
    }
@@ -38,6 +49,7 @@ public class DBParameter implements BaseDatabaseObject {
       this.parName = DatabaseUtils.nullToEmpty(parName);
    }
 
+   @Column(length = 200)
    public String getParValue() {
       return parValue;
    }

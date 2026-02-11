@@ -1,6 +1,5 @@
 package no.imr.lsss.database.reports;
 
-import no.imr.lsss.modules.echogramplot.functions.PingFunction;
 import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedWriter;

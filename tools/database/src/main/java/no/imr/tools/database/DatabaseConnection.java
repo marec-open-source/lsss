@@ -11,13 +11,15 @@ import no.imr.tools.database.queries.StatelessValuedDatabaseQuery;
 import no.imr.tools.database.queries.ValuedDatabaseQuery;
 import no.imr.tools.listening.ChangeManager;
 import no.imr.tools.logging.Log;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
+import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -58,6 +60,7 @@ public final class DatabaseConnection {
       DatabaseUtils.addClasses(configuration, databaseClasses);
       if (connectionType == ConnectionType.INITIALIZE) {
          DatabaseUtils.addCreateProperty(configuration);
+         configuration.setColumnOrderingStrategy(new ColumnOrderOrderingStrategy(databaseClasses));
       }
       if (sessionFactory != null) {
          disconnect();
@@ -67,15 +70,6 @@ public final class DatabaseConnection {
             .applySettings(configuration.getProperties())
             .build();
       sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-
-      try {
-         executeQuery(session -> {
-            // Connection OK
-         });
-      } catch (RuntimeException e) {
-         disconnect();
-         throw e;
-      }
    }
 
    public void disconnect() {
@@ -104,6 +98,10 @@ public final class DatabaseConnection {
       executor.execute(asyncHandle.createManagedRunnable(() -> executeQuery(databaseQuery)));
    }
 
+   public void asyncExecuteStatelessQuery(StatelessDatabaseQuery databaseQuery) {
+      executor.execute(asyncHandle.createManagedRunnable(() -> executeStatelessQuery(databaseQuery)));
+   }
+
    /**
     * Synchronous execution of a database fetch query.
     *
@@ -112,12 +110,13 @@ public final class DatabaseConnection {
     */
    public <T extends BaseDatabaseObject> List<T> executeFetchQuery(FetchQuery<T> fetchQuery) {
       if (sessionFactory == null) {
-         return Collections.emptyList();
+         return List.of();
       }
       return executeStatelessValuedQuery(fetchQuery);
    }
 
    SessionFactory getSessionFactory() {
+      SessionFactory sessionFactory = this.sessionFactory;
       if (sessionFactory == null) {
          throw new IllegalStateException("Not connected to database");
       }
@@ -129,13 +128,18 @@ public final class DatabaseConnection {
    }
 
    public <T> T executeValuedQuery(ValuedDatabaseQuery<T> databaseQuery) {
-      if (sessionFactory == null) {
-         throw new IllegalStateException("Not connected to database");
-      }
       busyCounter.incrementAndGet();
       busyChangeManager.notifyListeners();
-      try (DatabaseQueryRunner databaseQueryRunner = new DatabaseQueryRunner(sessionFactory)) {
-         return databaseQueryRunner.doTransaction(databaseQuery);
+      try (Session session = getSessionFactory().openSession()) {
+         Transaction transaction = session.beginTransaction();
+         try {
+            T value = databaseQuery.executeAndGetValue(session);
+            transaction.commit();
+            return value;
+         } catch (Exception e) {
+            transaction.rollback();
+            throw e;
+         }
       } finally {
          busyCounter.decrementAndGet();
          busyChangeManager.notifyListeners();
@@ -147,13 +151,18 @@ public final class DatabaseConnection {
    }
 
    public <T> T executeStatelessValuedQuery(StatelessValuedDatabaseQuery<T> databaseQuery) {
-      if (sessionFactory == null) {
-         throw new IllegalStateException("Not connected to database");
-      }
       busyCounter.incrementAndGet();
       busyChangeManager.notifyListeners();
-      try (StatelessDatabaseQueryRunner databaseQueryRunner = new StatelessDatabaseQueryRunner(sessionFactory)) {
-         return databaseQueryRunner.doTransaction(databaseQuery);
+      try (StatelessSession session = getSessionFactory().openStatelessSession()) {
+         Transaction transaction = session.beginTransaction();
+         try {
+            T value = databaseQuery.executeAndGetValue(session);
+            transaction.commit();
+            return value;
+         } catch (Exception e) {
+            transaction.rollback();
+            throw e;
+         }
       } finally {
          busyCounter.decrementAndGet();
          busyChangeManager.notifyListeners();

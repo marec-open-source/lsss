@@ -18,13 +18,17 @@ public final class ScaleMaskComputation {
    private final EchogramPingSettings pingSettings;
    private final EchogramZSettings zSettings;
    private final NavigableMap<PingIndex, FloatRangeSet> originalMask;
+   private final boolean isPartOfSmoothing;
+   private final PingRange editPingRange;
 
    public ScaleMaskComputation(PingContainer pingContainer, EchogramPingSettings pingSettings, EchogramZSettings zSettings,
-                               NavigableMap<PingIndex, FloatRangeSet> originalMask) {
+                               NavigableMap<PingIndex, FloatRangeSet> originalMask, boolean isPartOfSmoothing) {
       this.pingContainer = pingContainer;
       this.pingSettings = pingSettings;
       this.zSettings = zSettings;
       this.originalMask = originalMask;
+      this.isPartOfSmoothing = isPartOfSmoothing;
+      editPingRange = isPartOfSmoothing ? PingRange.from(originalMask, pingContainer) : pingContainer.getTotalRange();
    }
 
    public NavigableMap<PingIndex, FloatRangeSet> computeMask(float dz) {
@@ -65,7 +69,7 @@ public final class ScaleMaskComputation {
       float dy = zSettings.zToY(dz) - zSettings.zToY(0);
       Map<PingIndex, FloatRangeSet> result = new HashMap<>();
       originalMask.forEach((pingIndex, ranges) -> {
-         if (firstIsAtEdge && pingIndex.equals(first) || lastIsAtEdge && pingIndex.equals(last)) {
+         if (!isPartOfSmoothing && (firstIsAtEdge && pingIndex.equals(first) || lastIsAtEdge && pingIndex.equals(last))) {
             return;
          }
          FloatRangeSet shrunkRanges = ranges.expandEachRange(-dz);
@@ -73,9 +77,10 @@ public final class ScaleMaskComputation {
             result.put(pingIndex, shrunkRanges);
          }
       });
-      pingContainer.getPingIndices(PingRange.of(begin, end)).forEach(pingIndex -> {
+      PingRange iterationPingRange = PingRange.of(begin, end).intersection(editPingRange);
+      pingContainer.getPingIndices(iterationPingRange).forEach(pingIndex -> {
          FloatRangeSet ranges;
-         if (firstIsAtEdge && pingIndex.equals(first) || lastIsAtEdge && pingIndex.equals(last)) {
+         if (!isPartOfSmoothing && (firstIsAtEdge && pingIndex.equals(first) || lastIsAtEdge && pingIndex.equals(last))) {
             ranges = FloatRangeSet.of(FloatRange.ALL);
          } else {
             ranges = originalMask.getOrDefault(pingIndex, FloatRangeSet.of()).complement();
@@ -95,6 +100,9 @@ public final class ScaleMaskComputation {
          if (other == null) {
             break;
          }
+         if (!editPingRange.contains(other)) {
+            break;
+         }
          float dx = Math.abs(pingSettings.pingIndexToX(other) - x);
          if (dx > dy) {
             break;
@@ -111,30 +119,12 @@ public final class ScaleMaskComputation {
    }
 
    private static void add(Map<PingIndex, FloatRangeSet> result, PingIndex pingIndex, FloatRangeSet addend) {
-      FloatRangeSet ranges = result.get(pingIndex);
-      if (ranges == null) {
-         result.put(pingIndex, addend);
-         return;
-      }
-      if (ranges.contains(addend)) {
-         return;
-      }
-      result.put(pingIndex, ranges.add(addend));
+      result.merge(pingIndex, addend, FloatRangeSet::add);
    }
 
    private static void subtract(Map<PingIndex, FloatRangeSet> result, PingIndex pingIndex, FloatRangeSet subtrahend) {
-      FloatRangeSet ranges = result.get(pingIndex);
-      if (ranges == null) {
-         return;
-      }
-      if (!ranges.intersects(subtrahend)) {
-         return;
-      }
-      FloatRangeSet difference = ranges.subtract(subtrahend);
-      if (difference.isEmpty()) {
-         result.remove(pingIndex);
-      } else {
-         result.put(pingIndex, difference);
-      }
+      result.computeIfPresent(pingIndex, (k, ranges) -> {
+         return ranges.subtract(subtrahend).nullIfEmpty();
+      });
    }
 }

@@ -5,25 +5,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 
-public final class DatagramSubType {
-   private final int intCode;
-   private final String label;
-   private final Reader reader;
-
-   public DatagramSubType(int intCode, String label, Reader reader) {
-      this.intCode = intCode;
-      this.label = label;
-      this.reader = reader;
-   }
-
-   public int getIntCode() {
-      return intCode;
-   }
-
-   public String getLabel() {
-      return label;
-   }
-
+public record DatagramSubType(
+      int intCode,
+      String label,
+      Reader reader
+) {
    @Override
    public boolean equals(@Nullable Object obj) {
       if (this == obj) {

@@ -8,7 +8,8 @@ plugins {
 dependencies {
    api(project(":tools:core"))
 
-   Libraries.hibernate.forEach { api(it) }
+   api(Libraries.hibernate)
+   Libraries.hibernate_runtime.forEach { runtimeOnly(it) }
 
    runtimeOnly(Libraries.hsqldb)
    Libraries.derby.forEach { runtimeOnly(it) }

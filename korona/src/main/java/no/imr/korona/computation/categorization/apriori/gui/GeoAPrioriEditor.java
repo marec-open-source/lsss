@@ -174,13 +174,13 @@ public final class GeoAPrioriEditor {
 
       JMenuItem resetZoomItem = MiscIcons.HOME.on(menu.add("Reset zoom"));
       resetZoomItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0));
-      resetZoomItem.addActionListener(e -> resetZoom());
+      resetZoomItem.addActionListener(_ -> resetZoom());
 
       menu.addSeparator();
 
       JMenuItem editAPrioriItem = MiscIcons.EDIT.on(menu.add("Edit a priori"));
       if (activePolygon != null) {
-         editAPrioriItem.addActionListener(e -> {
+         editAPrioriItem.addActionListener(_ -> {
             APrioriPolygon aPrioriPolygon = geoAPriori.getPolygons().get(activePolygon.polygonIndex);
             new SimpleInputDialog<>("A priori", "A priori", Utils.toString(aPrioriPolygon.getAPrioriValue()), Float::parseFloat)
                   .show(component)
@@ -188,7 +188,7 @@ public final class GeoAPrioriEditor {
          });
       } else if (activePolygonLine == null && activePolygonPoint == null) {
          editAPrioriItem.setText("Edit default a priori");
-         editAPrioriItem.addActionListener(e -> {
+         editAPrioriItem.addActionListener(_ -> {
             new SimpleInputDialog<>("Default a priori", "Default a priori", Utils.toString(geoAPriori.getDefaultAPriori()), Float::parseFloat)
                   .show(component)
                   .ifPresent(geoAPriori::setDefaultAPriori);
@@ -202,7 +202,7 @@ public final class GeoAPrioriEditor {
       JMenuItem deletePointItem = MiscIcons.DELETE.on(menu.add("Delete point"));
       deletePointItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
       if (activePolygonPoint != null && canDelete(activePolygonPoint)) {
-         deletePointItem.addActionListener(e -> deletePoint());
+         deletePointItem.addActionListener(_ -> deletePoint());
       } else {
          deletePointItem.setEnabled(false);
       }
@@ -210,19 +210,19 @@ public final class GeoAPrioriEditor {
       menu.addSeparator();
 
       JMenuItem addPolygonItem = MiscIcons.ADD.on(menu.add("Add polygon"));
-      addPolygonItem.addActionListener(e -> addPolygon());
+      addPolygonItem.addActionListener(_ -> addPolygon());
 
       JMenuItem polygonUpItem = MiscIcons.ARROW_UP.on(menu.add("Move polygon up"));
       polygonUpItem.setEnabled(activePolygon != null && activePolygon.polygonIndex > 0);
-      polygonUpItem.addActionListener(e -> movePolygon(-1));
+      polygonUpItem.addActionListener(_ -> movePolygon(-1));
 
       JMenuItem polygonDownItem = MiscIcons.ARROW_DOWN.on(menu.add("Move polygon down"));
       polygonDownItem.setEnabled(activePolygon != null && activePolygon.polygonIndex < geoAPriori.getPolygons().size() - 1);
-      polygonDownItem.addActionListener(e -> movePolygon(1));
+      polygonDownItem.addActionListener(_ -> movePolygon(1));
 
       JMenuItem deletePolygonItem = MiscIcons.DELETE.on(menu.add("Delete polygon"));
       deletePolygonItem.setEnabled(activePolygon != null);
-      deletePolygonItem.addActionListener(e -> deletePolygon());
+      deletePolygonItem.addActionListener(_ -> deletePolygon());
 
       menu.show(component, mouseEvent.getX(), mouseEvent.getY());
 

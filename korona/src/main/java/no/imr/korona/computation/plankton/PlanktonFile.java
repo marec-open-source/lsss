@@ -50,7 +50,7 @@ public final class PlanktonFile {
    }
 
    public void addEntry(String name, PlanktonRectangle planktonRectangle) {
-      nameToPlanktonRectangles.computeIfAbsent(name, k -> new ArrayList<>()).add(planktonRectangle);
+      nameToPlanktonRectangles.computeIfAbsent(name, _ -> new ArrayList<>()).add(planktonRectangle);
    }
 
    public Element toXml() {

@@ -49,19 +49,19 @@ final class BroadbandPeakDetectionModuleView extends BaseViewModule.BaseView {
       buttonsPanel.setBackground(Color.WHITE);
 
       JButton computePeaks = new JButton("Compute peaks");
-      computePeaks.addActionListener(e -> computePeaks());
+      computePeaks.addActionListener(_ -> computePeaks());
       buttonsPanel.add(computePeaks);
 
       JButton openEditor = new JButton("Edit...");
-      openEditor.addActionListener(e -> openEditor());
+      openEditor.addActionListener(_ -> openEditor());
       buttonsPanel.add(openEditor);
 
       JButton saveAs = new JButton("Save as...");
-      saveAs.addActionListener(e -> saveDialog());
+      saveAs.addActionListener(_ -> saveDialog());
       buttonsPanel.add(saveAs);
 
       JButton saveSpecter = new JButton("Save specter...");
-      saveSpecter.addActionListener(e -> saveSpecterDialog());
+      saveSpecter.addActionListener(_ -> saveSpecterDialog());
       buttonsPanel.add(saveSpecter);
 
       mainPanel.setBackground(Color.WHITE);
@@ -151,7 +151,7 @@ final class BroadbandPeakDetectionModuleView extends BaseViewModule.BaseView {
          try {
             XmlUtils.writeDocument(module.specterToXml(), selectedFile);
          } catch (IOException e) {
-            GuiUtils.showErrorDialog(getComponent(), "Error saving " + selectedFile);
+            GuiUtils.showErrorDialog(getComponent(), "Error saving " + selectedFile, e);
          }
       }
    }

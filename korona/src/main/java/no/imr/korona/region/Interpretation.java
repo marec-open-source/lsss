@@ -32,7 +32,7 @@ public final class Interpretation implements no.marec.lsss.api.regions.Interpret
 
    public Interpretation(int channelCount) {
       channelInterpretations = IntStream.range(0, channelCount)
-            .mapToObj(i -> new ChannelInterpretation())
+            .mapToObj(_ -> new ChannelInterpretation())
             .collect(ImmutableList.toImmutableList());
    }
 

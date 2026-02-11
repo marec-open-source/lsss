@@ -55,7 +55,7 @@ public final class ApiResource {
             Log.global.warning("Cannot find resource " + resource);
             continue;
          }
-         HelpSet helpSet = JsonUtils.JSON_MAPPER.readValue(url, HelpSet.class);
+         HelpSet helpSet = JsonUtils.readValue(url, HelpSet.class);
          config.helpSets.add(helpSet);
       }
       return Response.ok(config, MediaType.APPLICATION_JSON)
@@ -79,7 +79,7 @@ public final class ApiResource {
             Log.global.warning("Cannot find resource " + resource);
             continue;
          }
-         Object lunrIndex = JsonUtils.JSON_MAPPER.readValue(url, Object.class);
+         Object lunrIndex = JsonUtils.readValue(url, Object.class);
          lunrIndexes.add(lunrIndex);
       }
       return Response.ok(lunrIndexes, MediaType.APPLICATION_JSON)

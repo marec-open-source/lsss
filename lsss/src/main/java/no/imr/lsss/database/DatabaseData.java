@@ -17,8 +17,8 @@ import no.imr.lsss.database.tables.hibernate.StandardComment;
 import no.imr.tools.database.DatabaseColumn;
 import no.imr.tools.database.DatabaseConnection;
 import no.imr.tools.database.hibernate.BaseCompDatabaseObject;
-import no.imr.tools.database.queries.FetchQuery;
-import no.imr.tools.database.queries.SaveOrUpdateQuery;
+import no.imr.tools.database.queries.QueryBuilder;
+import no.imr.tools.database.queries.StatelessDatabaseQuery;
 import no.imr.tools.logging.Log;
 import org.jspecify.annotations.Nullable;
 
@@ -128,21 +128,22 @@ public final class DatabaseData {
    }
 
    public static <T extends BaseCompDatabaseObject<? extends BaseNationPK>> List<T> copyFromDefaultNation(DatabaseConnection databaseConnection, Class<T> clazz, short nation) {
-      List<T> defaultEntries = databaseConnection.executeFetchQuery(new FetchQuery<>(clazz, NATION, 0));
+      List<T> defaultEntries = databaseConnection.executeFetchQuery(LsssQuery.fetch(clazz, NATION, 0));
       for (T entry : defaultEntries) {
          entry.getCompId().setNation(nation);
       }
-      databaseConnection.executeQuery(new SaveOrUpdateQuery(defaultEntries));
+      databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.upsert(defaultEntries));
       return defaultEntries;
    }
 
    private static <T extends BaseCompDatabaseObject<? extends BasePlatformPK>> List<T> copyFromDefaultPlatform(DatabaseConnection databaseConnection, Class<T> clazz, PlatformPK platformPK) {
-      List<T> defaultEntries = databaseConnection.executeFetchQuery(new FetchQuery<>(clazz, NATION, 0, PLATFORM, 0));
+      List<T> defaultEntries = databaseConnection.executeFetchQuery(
+            LsssQuery.forPlatform(QueryBuilder.fetch(clazz), (short) 0, (short) 0).build());
       for (T entry : defaultEntries) {
          entry.getCompId().setNation(platformPK.getNation());
          entry.getCompId().setPlatform(platformPK.getPlatform());
       }
-      databaseConnection.executeQuery(new SaveOrUpdateQuery(defaultEntries));
+      databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.upsert(defaultEntries));
       return defaultEntries;
    }
 
@@ -152,11 +153,12 @@ public final class DatabaseData {
       private final ImmutableList<Nation> all;
 
       private Nations(DatabaseConnection databaseConnection) {
-         List<Nation> nations = databaseConnection.executeFetchQuery(new FetchQuery<>(Nation.class));
+         List<Nation> nations = databaseConnection.executeFetchQuery(LsssQuery.fetch(Nation.class));
          Nation defaultNation = getDefaultNation(nations);
-         nations.remove(defaultNation);
-         nations.sort(null);
-         all = ImmutableList.copyOf(nations);
+         all = nations.stream()
+               .filter(nation -> !nation.equals(defaultNation))
+               .sorted()
+               .collect(ImmutableList.toImmutableList());
       }
 
       public List<Nation> getAll() {
@@ -183,12 +185,13 @@ public final class DatabaseData {
       private Areas(DatabaseConnection databaseConnection, @Nullable Nation nation) {
          this.nation = nation;
          if (nation != null) {
-            List<Area> areaTemp = databaseConnection.executeFetchQuery(new FetchQuery<>(Area.class, NATION, nation.getNation()));
+            List<Area> areaTemp = databaseConnection.executeFetchQuery(LsssQuery.fetch(Area.class, NATION, nation.getNation()));
             if (areaTemp.isEmpty()) {
                areaTemp = copyFromDefaultNation(databaseConnection, Area.class, nation.getNation());
             }
-            areaTemp.sort(null);
-            all = ImmutableList.copyOf(areaTemp);
+            all = areaTemp.stream()
+                  .sorted()
+                  .collect(ImmutableList.toImmutableList());
          } else {
             all = ImmutableList.of();
          }
@@ -208,9 +211,8 @@ public final class DatabaseData {
       private StandardComments(DatabaseConnection databaseConnection, @Nullable PlatformPK platformPK) {
          this.platformPK = platformPK;
          if (platformPK != null) {
-            List<StandardComment> standardComments = databaseConnection.executeFetchQuery(new FetchQuery<>(StandardComment.class,
-                  NATION, platformPK.getNation(),
-                  PLATFORM, platformPK.getPlatform()));
+            List<StandardComment> standardComments = databaseConnection.executeFetchQuery(
+                  LsssQuery.forPlatform(QueryBuilder.fetch(StandardComment.class), platformPK).build());
             if (standardComments.isEmpty()) {
                standardComments = copyFromDefaultPlatform(databaseConnection, StandardComment.class, platformPK);
             }
@@ -244,13 +246,15 @@ public final class DatabaseData {
       private AcousticCategories(DatabaseConnection databaseConnection, @Nullable PlatformPK platformPK) {
          this.platformPK = platformPK;
          if (platformPK != null) {
-            List<AcousticCategory> defaultCategories = databaseConnection.executeFetchQuery(new FetchQuery<>(AcousticCategory.class,
-                  NATION, platformPK.getNation(),
-                  PLATFORM, platformPK.getPlatform()));
+            List<AcousticCategory> defaultCategories = databaseConnection.executeFetchQuery(
+                  LsssQuery.forPlatform(QueryBuilder.fetch(AcousticCategory.class), platformPK).build());
             if (defaultCategories.isEmpty()) {
                defaultCategories = copyFromDefaultPlatform(databaseConnection, AcousticCategory.class, platformPK);
-               //Check if BiologicalSpecies exists for current nation
-               if (databaseConnection.executeFetchQuery(new FetchQuery<>(BiologicalSpecies.class, NATION, platformPK.getNation())).isEmpty()) {
+               // Check if BiologicalSpecies exists for current nation.
+               long biologicalSpeciesCount = databaseConnection.executeStatelessValuedQuery(QueryBuilder.count(BiologicalSpecies.class).where()
+                     .eq(NATION, platformPK.getNation())
+                     .build());
+               if (biologicalSpeciesCount == 0) {
                   copyFromDefaultNation(databaseConnection, BiologicalSpecies.class, platformPK.getNation());
                }
                copyFromDefaultPlatform(databaseConnection, AcCatToBiologicalSpecies.class, platformPK);
@@ -258,9 +262,10 @@ public final class DatabaseData {
                copyFromDefaultPlatform(databaseConnection, AreaOfAcousticCategory.class, platformPK);
             }
             rawDataAcousticCategory = getRawDataAcousticCategory(defaultCategories);
-            defaultCategories.remove(rawDataAcousticCategory);
-            defaultCategories.sort(null);
-            all = ImmutableList.copyOf(defaultCategories);
+            all = defaultCategories.stream()
+                  .filter(acousticCategory -> !acousticCategory.equals(rawDataAcousticCategory))
+                  .sorted()
+                  .collect(ImmutableList.toImmutableList());
          } else {
             all = ImmutableList.of();
             rawDataAcousticCategory = null;

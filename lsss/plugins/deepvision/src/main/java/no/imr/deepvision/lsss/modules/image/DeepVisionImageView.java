@@ -88,7 +88,7 @@ final class DeepVisionImageView extends BaseViewModule.BaseView {
       imagesPerSecondSpinner.setToolTipText("Images per second");
       imagesPerSecondSpinner.setPreferredSize(new Dimension(42, 24));
       imagesPerSecondSpinner.setValue(10);
-      imagesPerSecondSpinner.addChangeListener(e -> updatePlayDelay());
+      imagesPerSecondSpinner.addChangeListener(_ -> updatePlayDelay());
       updatePlayDelay();
 
       JPanel navigationButtons = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -116,7 +116,7 @@ final class DeepVisionImageView extends BaseViewModule.BaseView {
 
    private void startPlay(int step, int initialDelay) {
       stopPlay();
-      playTimer = new Timer(playDelay, e -> gotoFrame(step));
+      playTimer = new Timer(playDelay, _ -> gotoFrame(step));
       playTimer.setInitialDelay(initialDelay);
       playTimer.start();
    }

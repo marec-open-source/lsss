@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
  * End of ping.
  */
 public final class Eop0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("EOP0", Eop0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("EOP0", Eop0Datagram::new);
 
    public Eop0Datagram(long ntDate, ByteBuffer byteBuffer) {
       super(ntDate);

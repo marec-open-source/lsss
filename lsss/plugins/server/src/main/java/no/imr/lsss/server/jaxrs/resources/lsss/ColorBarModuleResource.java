@@ -36,7 +36,7 @@ public final class ColorBarModuleResource extends ModuleResource<ColorBarModule>
       if (colormap == null) {
          throw new BadRequestException("Not applicable for current visualization type: " + colorConverterContainer.getColorConverter().getType());
       }
-      return new StringValue(colormap.getName());
+      return new StringValue(colormap.name());
    }
 
    @POST
@@ -55,7 +55,7 @@ public final class ColorBarModuleResource extends ModuleResource<ColorBarModule>
    @Produces(MediaType.APPLICATION_JSON)
    public Stream<String> getColormaps() {
       return Colormaps.ALL.stream()
-            .map(Colormap::getName);
+            .map(Colormap::name);
    }
 
    @GET

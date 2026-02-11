@@ -67,14 +67,14 @@ final class DataConfEK500 {
          assert rawDir != null;
 
          JMenuItem editItem = MiscIcons.SETTINGS.on(popupMenu.add("Edit settings..."));
-         editItem.addActionListener(e -> {
+         editItem.addActionListener(_ -> {
             new EK500SettingsGUI(EK500Settings.getSettingsFileInDirectory(rawDir))
                   .setHelpID(LsssHelp.EK500)
                   .show(GuiUtils.windowForComponent(button));
          });
 
          JMenuItem workItem = popupMenu.add("Convert work files...");
-         workItem.addActionListener(e -> {
+         workItem.addActionListener(_ -> {
             Path workDir = dataConfEK500.dataConf.getDir(DataConfLSSS.WORK_SUB_DIR).getFile();
             if (workDir == null) {
                JOptionPane.showMessageDialog(GuiUtils.windowForComponent(button), "Work directory is not set", "Warning", JOptionPane.ERROR_MESSAGE);

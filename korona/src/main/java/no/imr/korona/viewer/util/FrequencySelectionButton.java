@@ -105,7 +105,7 @@ public final class FrequencySelectionButton {
          button.setBackground(Color.WHITE);
          button.setForeground(color);
          button.setToolTipText(tooltip);
-         button.addItemListener(e -> {
+         button.addItemListener(_ -> {
             if (frequencySelectionButton.frequencySelectionPanel.singleSelection && frequencySelectionButton.selected && !button.isSelected()) {
                button.setSelected(true);
             } else {
@@ -113,7 +113,7 @@ public final class FrequencySelectionButton {
             }
          });
          if (!frequencySelectionButton.frequencySelectionPanel.singleSelection) {
-            button.addMouseListener(new PopupMenuMouseListener(e -> makePopupMenu()));
+            button.addMouseListener(new PopupMenuMouseListener(_ -> makePopupMenu()));
          }
 
          panel.add(button);
@@ -125,26 +125,26 @@ public final class FrequencySelectionButton {
          JPopupMenu menu = new JPopupMenu();
 
          JMenuItem allOff = menu.add("All off");
-         allOff.addActionListener(e -> setAll(1, Integer.MAX_VALUE, false));
+         allOff.addActionListener(_ -> setAll(1, Integer.MAX_VALUE, false));
 
          JMenuItem allOn = menu.add("All on");
-         allOn.addActionListener(e -> setAll(1, Integer.MAX_VALUE, true));
+         allOn.addActionListener(_ -> setAll(1, Integer.MAX_VALUE, true));
 
          menu.addSeparator();
 
          JMenuItem lowerOff = menu.add("Lower off");
-         lowerOff.addActionListener(e -> setAll(1, frequencySelectionButton.channel, false));
+         lowerOff.addActionListener(_ -> setAll(1, frequencySelectionButton.channel, false));
 
          JMenuItem lowerOn = menu.add("Lower on");
-         lowerOn.addActionListener(e -> setAll(1, frequencySelectionButton.channel, true));
+         lowerOn.addActionListener(_ -> setAll(1, frequencySelectionButton.channel, true));
 
          menu.addSeparator();
 
          JMenuItem higherOff = menu.add("Higher off");
-         higherOff.addActionListener(e -> setAll(frequencySelectionButton.channel + 1, Integer.MAX_VALUE, false));
+         higherOff.addActionListener(_ -> setAll(frequencySelectionButton.channel + 1, Integer.MAX_VALUE, false));
 
          JMenuItem higherOn = menu.add("Higher on");
-         higherOn.addActionListener(e -> setAll(frequencySelectionButton.channel + 1, Integer.MAX_VALUE, true));
+         higherOn.addActionListener(_ -> setAll(frequencySelectionButton.channel + 1, Integer.MAX_VALUE, true));
 
          return menu;
       }

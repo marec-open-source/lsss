@@ -68,12 +68,12 @@ public final class ProcessingSetupDialog {
       textPane.setText(text);
 
       JButton saveButton = MiscIcons.SAVE.on(new JButton("Save"));
-      saveButton.addActionListener(e -> save());
+      saveButton.addActionListener(_ -> save());
       saveButton.setEnabled(!segmentHandles.isEmpty());
 
       JButton closeButton = new JButton("Close");
       GuiUtils.setAccelerator(closeButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      closeButton.addActionListener(e -> dialog.dispose());
+      closeButton.addActionListener(_ -> dialog.dispose());
 
       JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       bottomPanel.add(saveButton);
@@ -194,7 +194,7 @@ public final class ProcessingSetupDialog {
          case MultiParameter<?> multiParameter -> multiParameter.getParameters().stream()
                .map(ProcessingSetupDialog::getParameterSetup)
                .collect(Collectors.joining(", ", "{", "}"));
-         case VoidParameter __ -> "<nothing>";
+         case VoidParameter _ -> "<nothing>";
       };
       return parameter.getDisplayName() + ": " + value;
    }

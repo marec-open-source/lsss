@@ -1,5 +1,6 @@
 package no.imr.tools.swing;
 
+import no.imr.tools.test.JUnitUtils;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
@@ -33,5 +34,15 @@ final class ColorUtilsTest {
    void contrastingBlackOrWhite() {
       assertEquals(Color.WHITE, ColorUtils.contrastingBlackOrWhite(Color.BLACK));
       assertEquals(Color.BLACK, ColorUtils.contrastingBlackOrWhite(Color.WHITE));
+   }
+
+   @Test
+   void toRGB() {
+      JUnitUtils.runWithRandom(random -> {
+         float r = random.nextFloat();
+         float g = random.nextFloat();
+         float b = random.nextFloat();
+         assertEquals(new Color(r, g, b).getRGB(), ColorUtils.toRGB(r, g, b));
+      });
    }
 }

@@ -45,14 +45,7 @@ final class GraphicalInfoSubDatagramTest {
    }
 
    private static void testEquals(GraphicalInfoSubDatagram datagram1, GraphicalInfoSubDatagram datagram2) {
-      assertEquals(datagram1.getGraphicalObjects().size(), datagram2.getGraphicalObjects().size());
-      for (int i = 0; i < datagram1.getGraphicalObjects().size(); i++) {
-         OffsetPolygon offsetPolygon1 = (OffsetPolygon) datagram1.getGraphicalObjects().get(i);
-         OffsetPolygon offsetPolygon2 = (OffsetPolygon) datagram2.getGraphicalObjects().get(i);
-         assertEquals(offsetPolygon1.getColor(), offsetPolygon2.getColor());
-         assertEquals(offsetPolygon1.isFilled(), offsetPolygon2.isFilled());
-         assertEquals(offsetPolygon1.getTexts(), offsetPolygon2.getTexts());
-         assertEquals(offsetPolygon1.getPoints(), offsetPolygon2.getPoints());
-      }
+      assertEquals(datagram1.getTexts(), datagram2.getTexts());
+      assertEquals(datagram1.getGraphicalObjects(), datagram2.getGraphicalObjects());
    }
 }

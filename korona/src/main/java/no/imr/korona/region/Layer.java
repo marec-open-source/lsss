@@ -122,36 +122,15 @@ public final class Layer extends Region {
       return verticalBoundaries;
    }
 
-   void addIntersectingCurveBoundaries(PingRange pingRange, Set<CurveBoundary> intersectingCurveBoundaries) {
-      addIntersectingBoundaries(pingRange, intersectingCurveBoundaries, upperCurveBoundaries);
-      addIntersectingBoundaries(pingRange, intersectingCurveBoundaries, lowerCurveBoundaries);
-   }
-
-   void addIntersectingVerticalBoundaries(PingRange pingRange, Set<VerticalBoundary> intersectingVerticalBoundaries) {
-      addIntersectingBoundaries(pingRange, intersectingVerticalBoundaries, verticalBoundaries);
-   }
-
-   private static <T extends LayerBoundary> void addIntersectingBoundaries(PingRange pingRange, Set<T> intersectingBoundaries, Collection<T> boundaries) {
-      boundaries.forEach(boundary -> {
-         if (boundary.touchesPingRange(pingRange)) {
-            intersectingBoundaries.add(boundary);
-         }
-      });
-   }
-
    Set<LayerConnector> getConnectors() {
       Set<LayerConnector> connectors = new HashSet<>();
-      addConnectors(connectors);
-      return connectors;
-   }
-
-   private void addConnectors(Set<LayerConnector> connectors) {
       addConnectors(connectors, upperCurveBoundaries);
       addConnectors(connectors, lowerCurveBoundaries);
       addConnectors(connectors, verticalBoundaries);
+      return connectors;
    }
 
-   static void addConnectors(Set<LayerConnector> connectors, Collection<? extends LayerBoundary> layerBoundaries) {
+   private static void addConnectors(Set<LayerConnector> connectors, Collection<? extends LayerBoundary> layerBoundaries) {
       for (LayerBoundary layerBoundary : layerBoundaries) {
          connectors.add(layerBoundary.getStartConnector());
          connectors.add(layerBoundary.getEndConnector());
@@ -159,8 +138,13 @@ public final class Layer extends Region {
    }
 
    @Override
-   public boolean contains(EchogramPoint point) {
-      return getDepthRange(point.pingIndex()).contains(point.depth());
+   public boolean contains(PingIndex pingIndex) {
+      return getPingRange().contains(pingIndex);
+   }
+
+   @Override
+   public boolean intersectsPingRange(PingRange pingRange) {
+      return getPingRange().intersects(pingRange);
    }
 
    private List<LayerBoundary> getLayerPath(LayerBoundary startBoundary, boolean posDir, LayerConnector stopConnector) {
@@ -450,36 +434,6 @@ public final class Layer extends Region {
       newLayer.getInterpretation().copyFrom(getInterpretation());
       newLayer.setLabels(getLabels());
       return new LayerAndBoundaryPair<>(newLayer, newBoundary);
-   }
-
-   boolean pointAtCurveBoundary(EchogramPoint point) {
-      for (CurveBoundary curveBoundary : getCurveBoundaries()) {
-         if (curveBoundary.getPingRange().contains(point.pingIndex())) {
-            if (curveBoundary.getCurve().getDepth(point.pingIndex()) == point.depth()) {
-               return true;
-            }
-         }
-      }
-      return false;
-   }
-
-   boolean pointAtVerticalBoundary(EchogramPoint point) {
-      for (VerticalBoundary verticalBoundary : verticalBoundaries) {
-         if (verticalBoundary.getPingIndex().equals(point.pingIndex()) &&
-               verticalBoundary.getDepthRange().contains(point.depth())) {
-            return true;
-         }
-      }
-      return false;
-   }
-
-   boolean pingAtVerticalBoundary(PingIndex pingIndex) {
-      for (VerticalBoundary verticalBoundary : verticalBoundaries) {
-         if (verticalBoundary.getPingIndex().equals(pingIndex)) {
-            return true;
-         }
-      }
-      return false;
    }
 
    private @Nullable VerticalBoundary getVerticalBoundaryAbove(VerticalBoundary boundary) {

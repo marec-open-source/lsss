@@ -23,18 +23,15 @@ import java.util.logging.Level;
 final class CalibrationLoader {
    private static final LoadingCache<Path, CalibrationFile> DIR_TO_CALIBRATION_FILE = CacheBuilder.newBuilder()
          .expireAfterAccess(5, TimeUnit.MINUTES)
-         .build(new CacheLoader<>() {
-            @Override
-            public CalibrationFile load(Path dir) {
-               Path file = dir.resolve(CalibrationFile.FILE_NAME);
-               try {
-                  return loadCalibration(file);
-               } catch (Exception e) {
-                  Log.global.log(Level.WARNING, "Error reading calibration file " + file, e);
-                  return new CalibrationFile(file, FileUtils.lastModifiedOr0(file), e);
-               }
+         .build(CacheLoader.from(dir -> {
+            Path file = dir.resolve(CalibrationFile.FILE_NAME);
+            try {
+               return loadCalibration(file);
+            } catch (Exception e) {
+               Log.global.log(Level.WARNING, "Error reading calibration file " + file, e);
+               return new CalibrationFile(file, FileUtils.lastModifiedOr0(file), e);
             }
-         });
+         }));
 
    private CalibrationLoader() {
    }

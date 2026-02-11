@@ -1,10 +1,29 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import no.imr.tools.database.ColumnOrder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "survey",
+      "object",
+      "categorySystem",
+      "category",
+
+      // Properties:
+      // <none>
+})
 public class SchoolCategory implements BaseSurveyObject<SchoolCategoryPK> {
    private SchoolCategoryPK compId;
 
@@ -33,6 +52,11 @@ public class SchoolCategory implements BaseSurveyObject<SchoolCategoryPK> {
       this.compId = compId;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "categorySystem", referencedColumnName = "categorySystem")
+   })
    public SchoolCategorySystem getSchoolCategorySystem() {
       return schoolCategorySystem;
    }
@@ -41,6 +65,14 @@ public class SchoolCategory implements BaseSurveyObject<SchoolCategoryPK> {
       this.schoolCategorySystem = schoolCategorySystem;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "survey", referencedColumnName = "survey"),
+         @JoinColumn(name = "object", referencedColumnName = "object")
+   })
    public ScatterObject getScatterObject() {
       return scatterObject;
    }

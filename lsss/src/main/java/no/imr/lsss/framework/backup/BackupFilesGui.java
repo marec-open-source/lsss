@@ -6,7 +6,6 @@ import no.imr.lsss.database.tables.hibernate.Survey;
 import no.imr.lsss.database.types.DatabasePlugin;
 import no.imr.lsss.framework.SurveyManager;
 import no.imr.lsss.framework.backup.pojo.BackupInfo;
-import no.imr.lsss.framework.config.ConfigurationManager;
 import no.imr.lsss.framework.config.ConfigurationUnit;
 import no.imr.lsss.framework.config.application.DirectoryConf;
 import no.imr.lsss.framework.config.application.SubDir;
@@ -113,10 +112,10 @@ public final class BackupFilesGui {
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE);
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
 
       JButton copyButton = new JButton("Copy current survey");
-      copyButton.addActionListener(e -> {
+      copyButton.addActionListener(_ -> {
          if (!parameterEditor.commitEdits()) {
             return;
          }
@@ -223,8 +222,8 @@ public final class BackupFilesGui {
 
    private static BackupInfo readBackupInfo(Path infoFile) {
       try {
-         return JsonUtils.readValue(infoFile, BackupInfo.class);
-      } catch (IOException e) {
+         return JsonUtils.JSON_MAPPER.readValue(infoFile, BackupInfo.class);
+      } catch (Exception e) {
          // Prior to LSSS 2.16.0 the file contained a single line with a directory.
          BackupInfo backupInfo = new BackupInfo();
          backupInfo.outputDirectory = BackupFilesUtils.getLastUsedDestinationDir(infoFile);
@@ -260,8 +259,7 @@ public final class BackupFilesGui {
                switch (href) {
                   case "dataFiles" -> {
                      dialog.dispose();
-                     ConfigurationManager configurationManager = lsss.getConfigurationManager();
-                     configurationManager.showDialog(configurationManager.getDataConf());
+                     lsss.getConfigurationManager().getDataConf().showInConfigurationDialog();
                   }
                   default -> {
                   }
@@ -324,8 +322,7 @@ public final class BackupFilesGui {
                switch (href) {
                   case "directories" -> {
                      dialog.dispose();
-                     ConfigurationManager configurationManager = lsss.getConfigurationManager();
-                     configurationManager.showDialog(configurationManager.getApplicationConfiguration().getDirectoryConf());
+                     lsss.getConfigurationManager().getApplicationConfiguration().getDirectoryConf().showInConfigurationDialog();
                   }
                   default -> {
                   }

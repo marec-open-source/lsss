@@ -6,7 +6,7 @@ import no.imr.korona.data.ping.items.TableOfContentsPingItem;
 import java.nio.ByteBuffer;
 
 public final class TTC0Datagram extends DatagramPingItem implements TableOfContentsPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("TTC0", TTC0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("TTC0", TTC0Datagram::new);
 
    private final int[] validIds;
    private final long[] ntDates;

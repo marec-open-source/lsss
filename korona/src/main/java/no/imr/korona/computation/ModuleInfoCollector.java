@@ -3,8 +3,8 @@ package no.imr.korona.computation;
 import no.imr.korona.plugins.ModulePlugin;
 import no.imr.tools.parameter.Name;
 
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 public final class ModuleInfoCollector {
    private final ModulePlugin modulePlugin;
@@ -30,11 +30,11 @@ public final class ModuleInfoCollector {
          this.grouping = grouping;
       }
 
-      public Group add(Class<? extends BaseModule> moduleClass, Name name, EnumSet<ModuleCategory> categories, String description) {
+      public Group add(Class<? extends BaseModule> moduleClass, Name name, Set<ModuleCategory> categories, String description) {
          return add(ModuleInfo.State.NORMAL, moduleClass, name, categories, description);
       }
 
-      public Group add(ModuleInfo.State state, Class<? extends BaseModule> moduleClass, Name name, EnumSet<ModuleCategory> categories, String description) {
+      public Group add(ModuleInfo.State state, Class<? extends BaseModule> moduleClass, Name name, Set<ModuleCategory> categories, String description) {
          moduleManager.addModuleInfo(new ModuleInfo(state, modulePlugin, moduleClass, name, categories, description, grouping));
          return this;
       }

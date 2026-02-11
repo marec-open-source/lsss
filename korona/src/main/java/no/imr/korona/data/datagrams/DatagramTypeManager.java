@@ -40,7 +40,7 @@ public final class DatagramTypeManager {
 
    private void addDatagramSubTypes(List<DatagramSubType> datagramSubTypes) {
       for (DatagramSubType datagramSubType : datagramSubTypes) {
-         DatagramSubType old = intCodeToDatagramSubType.put(datagramSubType.getIntCode(), datagramSubType);
+         DatagramSubType old = intCodeToDatagramSubType.put(datagramSubType.intCode(), datagramSubType);
          if (old != null) {
             Log.global.warning("Removed previously registered sub-datagram type: " + datagramSubType);
          }

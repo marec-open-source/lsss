@@ -1,25 +1,24 @@
 package no.imr.tools.database;
 
+import jakarta.persistence.metamodel.Metamodel;
 import no.imr.tools.Utils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import no.imr.tools.database.queries.FetchQuery;
 import no.imr.tools.logging.Log;
-import org.hibernate.Metamodel;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.metamodel.spi.MetamodelImplementor;
+import org.hibernate.metamodel.MappingMetamodel;
+import org.hibernate.metamodel.mapping.AttributeMapping;
+import org.hibernate.metamodel.mapping.internal.BasicAttributeMapping;
 import org.hibernate.persister.entity.EntityPersister;
-import org.hibernate.query.Query;
-import org.hibernate.type.CompositeType;
-import org.hibernate.type.PrimitiveType;
-import org.hibernate.type.StringType;
+import org.hibernate.query.SelectionQuery;
+import org.hibernate.type.BasicType;
+import org.hibernate.type.ComponentType;
 import org.hibernate.type.Type;
 import org.jspecify.annotations.Nullable;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,29 +32,31 @@ public final class DatabaseUtils {
       Map<String, Object> values = new LinkedHashMap<>();
 
       Metamodel metamodel = databaseConnection.getSessionFactory().getMetamodel();
-      MetamodelImplementor metamodelImplementor = (MetamodelImplementor) metamodel;
-      EntityPersister entityPersister = metamodelImplementor.entityPersister(databaseObject.getClass());
+      MappingMetamodel metamodelImplementor = (MappingMetamodel) metamodel;
+      EntityPersister entityPersister = metamodelImplementor.getEntityDescriptor(databaseObject.getClass());
 
-      databaseConnection.executeQuery(session -> {
-         // todo: Why is casting necessary? See https://stackoverflow.com/questions/4275502/why-was-hibernates-classmetadata-getidentifierobject-entitymode-deprecated
-         SharedSessionContractImplementor implementor = (SharedSessionContractImplementor) session;
-         Serializable identifier = entityPersister.getIdentifier(databaseObject, implementor);
+      databaseConnection.executeStatelessQuery(session -> {
+         Object identifier = entityPersister.getIdentifier(databaseObject);
          Type identifierType = entityPersister.getIdentifierType();
-         if (identifierType instanceof PrimitiveType || identifierType instanceof StringType) {
-            values.put(entityPersister.getIdentifierPropertyName(), identifier);
-         } else if (identifierType instanceof CompositeType compositeType) {
-            String[] identifierPropertyNames = compositeType.getPropertyNames();
-            Object[] identifierPropertyValues = compositeType.getPropertyValues(identifier, implementor);
-            for (int i = 0; i < identifierPropertyNames.length; i++) {
-               values.put(identifierPropertyNames[i], identifierPropertyValues[i]);
+         switch (identifierType) {
+            case BasicType<?> _ -> {
+               values.put(entityPersister.getIdentifierPropertyName(), identifier);
             }
-         } else {
-            Log.global.warning("Unsupported type: " + identifierType.getClass());
+            case ComponentType componentType -> {
+               String[] identifierPropertyNames = componentType.getPropertyNames();
+               Object[] identifierPropertyValues = componentType.getPropertyValues(identifier);
+               for (int i = 0; i < identifierPropertyNames.length; i++) {
+                  values.put(identifierPropertyNames[i], identifierPropertyValues[i]);
+               }
+            }
+            default -> {
+               Log.global.warning("Unsupported type: " + identifierType.getClass());
+            }
          }
 
          for (String propertyName : entityPersister.getPropertyNames()) {
-            Type type = entityPersister.getPropertyType(propertyName);
-            if (type instanceof PrimitiveType || type instanceof StringType) {
+            AttributeMapping attributeMapping = entityPersister.findAttributeMapping(propertyName);
+            if (attributeMapping instanceof BasicAttributeMapping) {
                Object propertyValue = entityPersister.getPropertyValue(databaseObject, propertyName);
                values.put(propertyName, propertyValue);
             }
@@ -75,11 +76,11 @@ public final class DatabaseUtils {
     */
    public static <T extends BaseDatabaseObject> void copyByInsert(DatabaseConnection source, FetchQuery<T> fetchQuery, DatabaseConnection destination) {
       source.executeStatelessQuery(sessionFrom -> {
-         Query<T> query = sessionFrom.createQuery(fetchQuery.getQueryString(), fetchQuery.getQueryClass());
-         try (ScrollableResults results = query.scroll(ScrollMode.FORWARD_ONLY)) {
+         SelectionQuery<T> query = sessionFrom.createSelectionQuery(fetchQuery.getQueryString(), fetchQuery.getQueryClass());
+         try (ScrollableResults<T> results = query.scroll(ScrollMode.FORWARD_ONLY)) {
             destination.executeStatelessQuery(sessionTo -> {
                while (results.next()) {
-                  sessionTo.insert(results.get(0));
+                  sessionTo.insert(results.get());
                }
             });
          }
@@ -90,7 +91,7 @@ public final class DatabaseUtils {
       return clazz.getSimpleName();
    }
 
-   public static Configuration createConfiguration(String sqlDialect, String driverClass, String connectionUrl, String username, String password) {
+   public static Configuration createConfiguration(String driverClass, String connectionUrl, String username, String password) {
       try {
          Class.forName(driverClass);
       } catch (ClassNotFoundException e) {
@@ -98,23 +99,23 @@ public final class DatabaseUtils {
       }
 
       Configuration configuration = new Configuration()
-            .setProperty(Environment.DIALECT, sqlDialect)
-            .setProperty(Environment.DRIVER, driverClass)
-            .setProperty(Environment.URL, connectionUrl);
+            // Hibernate 6 selects the dialect automatically.
+            .setProperty(Environment.JAKARTA_JDBC_DRIVER, driverClass)
+            .setProperty(Environment.JAKARTA_JDBC_URL, connectionUrl);
 
       if (!username.isEmpty()) {
-         configuration.setProperty(Environment.USER, username);
+         configuration.setProperty(Environment.JAKARTA_JDBC_USER, username);
       }
 
       if (!password.isEmpty()) {
-         configuration.setProperty(Environment.PASS, password);
+         configuration.setProperty(Environment.JAKARTA_JDBC_PASSWORD, password);
       }
 
       return configuration;
    }
 
    public static void addClasses(Configuration configuration, Collection<Class<? extends BaseDatabaseObject>> databaseClasses) {
-      databaseClasses.forEach(configuration::addClass);
+      databaseClasses.forEach(configuration::addAnnotatedClass);
    }
 
    public static void addCreateProperty(Configuration configuration) {

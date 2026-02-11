@@ -97,7 +97,7 @@ public final class ExtendedSurveyLine {
                if (segmentInfo == null) {
                   return false;
                }
-               PingRange pingRange = segmentInfo.getPingRange();
+               PingRange pingRange = segmentInfo.pingRange();
                return !pingRange.isEmpty()
                      && pingRange.begin().getNTDate() < targetEnd
                      && pingRange.end().getNTDate() > targetBegin;

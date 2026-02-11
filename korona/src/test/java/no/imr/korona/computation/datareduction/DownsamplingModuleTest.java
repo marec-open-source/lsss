@@ -4,6 +4,7 @@ import no.imr.korona.Korona;
 import no.imr.korona.computation.ModuleContainer;
 import no.imr.korona.computation.ModuleContainerComputation;
 import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.items.channel.AngleData;
@@ -19,13 +20,13 @@ final class DownsamplingModuleTest {
    @Test
    void test() throws IOException {
       ModuleContainer moduleContainer = new ModuleContainer(new Korona());
-      SimpleSyntheticData syntheticData = new SimpleSyntheticData();
+      SyntheticDataFile syntheticDataFile = new SimpleSyntheticData().withFirstAndLastPingNumber(0, 9);
 
       DownsamplingModule downsamplingModule = moduleContainer.addModule(new DownsamplingModule());
       downsamplingModule.downsamplingMethod.setValue(DownsamplingModule.Method.FACTOR);
       downsamplingModule.downsamplingFactor.setValue(2);
 
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticData.toPingReader())) {
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
          Ping ping = computation.nextPing();
          assertNotNull(ping);
          PowerData powerData = ping.getPowerData(1);
@@ -39,7 +40,7 @@ final class DownsamplingModuleTest {
 
       downsamplingModule.downsamplingFactor.setValue(3);
 
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticData.toPingReader())) {
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
          Ping ping = computation.nextPing();
          assertNotNull(ping);
          PowerData powerData = ping.getPowerData(1);
@@ -54,7 +55,6 @@ final class DownsamplingModuleTest {
 
    private static final class SimpleSyntheticData extends SyntheticData {
       private SimpleSyntheticData() {
-         setFirstAndLastPingNumber(0, 9);
       }
 
       @Override

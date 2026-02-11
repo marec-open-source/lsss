@@ -42,7 +42,6 @@ import no.imr.tools.parameter.Unit;
 import no.imr.tools.range.ArrayRangeSet;
 import no.imr.tools.range.DoubleRange;
 import no.imr.tools.range.FloatRangeSet;
-import no.imr.tools.range.Range;
 import no.imr.tools.range.RangeSet;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.ProgressView;
@@ -62,7 +61,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -114,7 +112,7 @@ public final class InterpretationModule extends BaseViewModule implements PojoDa
       interpretationSummary = getLSSS().getInterpretationSummary();
       addStoreTask(interpretationModuleStoreTask);
 
-      frequencies.subscribe(__ -> normalizeFrequencies());
+      frequencies.subscribe(_ -> normalizeFrequencies());
    }
 
    @Override
@@ -562,7 +560,27 @@ public final class InterpretationModule extends BaseViewModule implements PojoDa
       if (scatterSet.isEmpty()) {
          return false;
       }
+      RangeSet<PingIndex> storedPingsBefore = interpretationSummary.getStoredPings();
       interpretationSummary.delete(scatterSet);
+      RangeSet<PingIndex> storedPingsAfter = interpretationSummary.getStoredPings();
+      RangeSet<PingIndex> storedPingsDifference = new ArrayRangeSet<>();
+      storedPingsDifference.addAll(storedPingsBefore);
+      storedPingsDifference.removeAll(storedPingsAfter);
+
+      storedPingsDifference.forEach(pingRange -> {
+         PingIndex beginPingIndex = pingRange.begin();
+         PingIndex endPingIndex = pingRange.end();
+         // if there are stored scatters to the left of beginIndex, insert a vertical boundary
+         PingIndex beforeBeginIndex = getInterpretationSettings().getDataFileSet().getPingIndexOrNullExcludingEnd(beginPingIndex.getPingNumber() - 1);
+         if (beforeBeginIndex != null && interpretationSummary.getStoredPings().contains(beforeBeginIndex)) {
+            getRegionManager().addVerticalDivider(beginPingIndex, false);
+         }
+         // if there are stored scatters to the right of endIndex, insert a vertical boundary
+         if (interpretationSummary.getStoredPings().contains(endPingIndex)) {
+            getRegionManager().addVerticalDivider(endPingIndex, false);
+         }
+      });
+
       return true;
    }
 
@@ -643,7 +661,7 @@ public final class InterpretationModule extends BaseViewModule implements PojoDa
       if (exclusions.containsAny(gridColumnInterval.pingRange())) {
          RangeSet<PingIndex> subPingRanges = new ArrayRangeSet<>();
          subPingRanges.add(gridColumnInterval.pingRange());
-         exclusions.forEach((Consumer<Range<PingIndex>>) subPingRanges::remove);
+         exclusions.forEach(subPingRanges::remove);
          GridConf gridConf = getConfigurationManager().getGridConf();
          PingMapping pingMapping = gridConf.horizontalGridUnit.getValue();
          double minHorizontalGridSize = gridConf.minHorizontalGridSize.getDoubleValue();

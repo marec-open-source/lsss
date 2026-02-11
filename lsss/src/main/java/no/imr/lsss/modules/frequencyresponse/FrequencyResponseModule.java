@@ -429,7 +429,7 @@ public final class FrequencyResponseModule extends BaseViewModule implements Poj
       ConfigFileSettings configFileSettings;
       try {
          configFileSettings = getConfigurationManager().getSurveyConfiguration().getPreprocessingConf().getMainSetup().createConfigFileSettings();
-      } catch (IOException e) {
+      } catch (IOException _) {
          return List.of();
       }
       Configurator configurator = new Configurator(configFileSettings, getInterpretationSettings().getDataFileSet().getRawFileConfiguration());

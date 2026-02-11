@@ -70,7 +70,7 @@ final class StoreTasksDialog {
          }
 
          JCheckBox checkBox = new JCheckBox(task.getLongLabel(), task.isActive());
-         checkBox.addItemListener(e -> {
+         checkBox.addItemListener(_ -> {
             task.setActive(checkBox.isSelected());
             onChange.run();
          });
@@ -91,13 +91,13 @@ final class StoreTasksDialog {
    }
 
    private JComponent createButtonsPanel() {
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          dialog.dispose();
          apply();
       });
 
       JButton cancelButton = new JButton("Cancel");
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE);
 
       JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));

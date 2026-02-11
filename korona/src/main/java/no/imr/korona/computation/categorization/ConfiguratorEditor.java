@@ -491,11 +491,11 @@ public final class ConfiguratorEditor {
       categoryTable.setModel(categoryTableModel);
       categoryTable.getTableHeader().setReorderingAllowed(false);
       categoryTable.setPreferredScrollableViewportSize(new Dimension(600, 200));
-      categoryTable.addMouseListener(new PopupMenuMouseListener(mouseEvent -> {
+      categoryTable.addMouseListener(new PopupMenuMouseListener(_ -> {
          JPopupMenu menu = new JPopupMenu();
 
          JMenuItem removeGeoAPrioriItem = MiscIcons.DELETE.on(menu.add("Remove geo a priori from selected categories"));
-         removeGeoAPrioriItem.addActionListener(e -> {
+         removeGeoAPrioriItem.addActionListener(_ -> {
             for (int row : categoryTable.getSelectedRows()) {
                categoryTableModel.rows.get(row).geoAPriori = null;
                categoryTableModel.fireTableRowsUpdated(row, row);
@@ -525,7 +525,7 @@ public final class ConfiguratorEditor {
 
       TableColumn commentColumn = categoryTable.getColumnModel().getColumn(CategoryTableModel.COMMENT_COLUMN);
       commentColumn.setCellRenderer(TableUtils.defaultTableCellRenderer(DefaultTableCellRenderer.CENTER));
-      commentColumn.setCellEditor(new TableCellCallbackEditor((table, row, column) -> editComment(dialog, categoryTableModel, row)));
+      commentColumn.setCellEditor(new TableCellCallbackEditor((_, row, _) -> editComment(dialog, categoryTableModel, row)));
       commentColumn.setMinWidth(45);
       commentColumn.setMaxWidth(45);
 
@@ -533,7 +533,7 @@ public final class ConfiguratorEditor {
       colorColumn.setMinWidth(40);
       colorColumn.setMaxWidth(40);
       colorColumn.setCellRenderer(new TableCellColorRenderer());
-      colorColumn.setCellEditor(new TableCellCallbackEditor((table, row, column) -> editColor(dialog, categoryTableModel, row)));
+      colorColumn.setCellEditor(new TableCellCallbackEditor((_, row, _) -> editColor(dialog, categoryTableModel, row)));
 
       TableColumn typeColumn = categoryTable.getColumnModel().getColumn(CategoryTableModel.TYPE_COLUMN);
       typeColumn.setMinWidth(80);
@@ -556,7 +556,7 @@ public final class ConfiguratorEditor {
       geoAPrioriColumn.setMinWidth(50);
       geoAPrioriColumn.setMaxWidth(50);
       geoAPrioriColumn.setCellRenderer(TableUtils.defaultTableCellRenderer(DefaultTableCellRenderer.CENTER));
-      geoAPrioriColumn.setCellEditor(new TableCellCallbackEditor((table, row, column) -> editGeoAPriori(dialog, categoryTableModel, row)));
+      geoAPrioriColumn.setCellEditor(new TableCellCallbackEditor((_, row, _) -> editGeoAPriori(dialog, categoryTableModel, row)));
 
       TableColumn minSvColumn = categoryTable.getColumnModel().getColumn(CategoryTableModel.MIN_SV_38_COLUMN);
       minSvColumn.setMinWidth(45);
@@ -572,7 +572,7 @@ public final class ConfiguratorEditor {
 
       JButton addButton = MiscIcons.ADD.on(new JButton("Add"));
       addButton.setToolTipText("Add a new category");
-      addButton.addActionListener(e -> {
+      addButton.addActionListener(_ -> {
          if (categoryTable.isEditing()) {
             categoryTable.getCellEditor().stopCellEditing();
             if (!categoryTableModel.lastSetValueOK) {
@@ -588,7 +588,7 @@ public final class ConfiguratorEditor {
 
       JButton removeButton = MiscIcons.DELETE.on(new JButton("Remove"));
       removeButton.setToolTipText("Remove selected categories");
-      removeButton.addActionListener(e -> {
+      removeButton.addActionListener(_ -> {
          if (categoryTable.isEditing()) {
             categoryTable.getCellEditor().cancelCellEditing();
          }
@@ -636,7 +636,7 @@ public final class ConfiguratorEditor {
       //---
 
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          if (categoryTableModel.acceptEdits()) {
             featureTableModel.acceptEdits();
             dialog.dispose();
@@ -645,7 +645,7 @@ public final class ConfiguratorEditor {
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
 
       JButton helpButton = new JButton("Help");
       KoronaHelp.CATEGORIZATION_LIBRARY.enableHelpKeyOnButton(helpButton);
@@ -698,14 +698,14 @@ public final class ConfiguratorEditor {
             "Geographical a priori for " + row.name, Dialog.ModalityType.DOCUMENT_MODAL);
 
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          result.set(editingCopy);
          dialog.dispose();
       });
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
 
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       buttonPanel.add(okButton);

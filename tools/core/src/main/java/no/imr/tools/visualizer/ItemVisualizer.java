@@ -60,19 +60,19 @@ public final class ItemVisualizer<T> {
 
       JToggleButton scatterButton = new JToggleButton("Scatter");
       scatterButton.setMnemonic(KeyEvent.VK_S);
-      scatterButton.addActionListener(e -> setSelectedItemView(itemScatter));
+      scatterButton.addActionListener(_ -> setSelectedItemView(itemScatter));
 
       JToggleButton histogramButton = new JToggleButton("Histogram");
       histogramButton.setMnemonic(KeyEvent.VK_H);
-      histogramButton.addActionListener(e -> setSelectedItemView(itemHistogram));
+      histogramButton.addActionListener(_ -> setSelectedItemView(itemHistogram));
 
       JToggleButton tableButton = new JToggleButton("Table");
       tableButton.setMnemonic(KeyEvent.VK_T);
-      tableButton.addActionListener(e -> setSelectedItemView(itemTable));
+      tableButton.addActionListener(_ -> setSelectedItemView(itemTable));
 
       JToggleButton settingsButton = MiscIcons.SETTINGS.on(new JToggleButton());
       settingsButton.setToolTipText("Settings");
-      settingsButton.addActionListener(e -> {
+      settingsButton.addActionListener(_ -> {
          selectedItemView = null;
          setContent(config.getComponent());
       });
@@ -85,19 +85,19 @@ public final class ItemVisualizer<T> {
       toolBar.addSeparator();
 
       hideSelectedButton.setToolTipText("Hides the current selection");
-      hideSelectedButton.addActionListener(e -> {
+      hideSelectedButton.addActionListener(_ -> {
          hidingItemContainer.hideItems(hidingItemContainer.getSelectedItems());
          update();
       });
 
       keepSelectedButton.setToolTipText("Keeps the current selection");
-      keepSelectedButton.addActionListener(e -> {
+      keepSelectedButton.addActionListener(_ -> {
          hidingItemContainer.hideItems(hidingItemContainer.getUnselectedItems());
          update();
       });
 
       showHiddenButton.setToolTipText("Restores previously hidden items");
-      showHiddenButton.addActionListener(e -> {
+      showHiddenButton.addActionListener(_ -> {
          hidingItemContainer.includeHiddenItems();
          update();
       });
@@ -128,7 +128,7 @@ public final class ItemVisualizer<T> {
                   String text = new HtmlStringBuilder().text(category)
                         .html(" &nbsp; <span style='color:gray;'>").text("(" + items.size() + ")").html("</span>")
                         .build();
-                  menu.add(text).addActionListener(e -> {
+                  menu.add(text).addActionListener(_ -> {
                      hidingItemContainer.addSelectedItems(items);
                   });
                }

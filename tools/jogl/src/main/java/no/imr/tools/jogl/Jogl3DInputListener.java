@@ -39,7 +39,7 @@ public final class Jogl3DInputListener implements MouseListener, MouseMotionList
       int timerDx = Math.clamp(dx, -10, 10);
       int timerDy = Math.clamp(dy, -10, 10);
       int timerDt = Math.max(dt, 50); // Do not allow too fast movement.
-      rotationTimer = new Timer(timerDt, e -> {
+      rotationTimer = new Timer(timerDt, _ -> {
          doRotation(event, timerDx, timerDy);
          modelProvider.repaint();
       });

@@ -1,7 +1,5 @@
 package no.imr.korona.data.ping;
 
-import java.time.Instant;
-
 /**
  * Interface for classes that can be evaluated by a {@link PingMapping}.
  */
@@ -26,8 +24,4 @@ public interface PingMappingArgument {
     * @return the time of this ping in milliseconds since epoch
     */
    long getTimeInMillis();
-
-   default Instant getInstant() {
-      return Instant.ofEpochMilli(getTimeInMillis());
-   }
 }

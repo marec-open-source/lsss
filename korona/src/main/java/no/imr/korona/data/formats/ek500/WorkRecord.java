@@ -172,8 +172,8 @@ public final class WorkRecord {
     * Layer parameters.
     */
    public static final class LayerParameters {
-      private static int sizeOnFile(int SJIKT_LENGDE) {
-         return 2 * 4 + 2 * SJIKT_LENGDE + 4 * SUBSET_COUNT;
+      private static int sizeOnFile(int sjiktLengde) {
+         return 2 * 4 + 2 * sjiktLengde + 4 * SUBSET_COUNT;
       }
 
       public final int number;                                       /* Layer number */

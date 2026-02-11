@@ -1,7 +1,5 @@
 package no.imr.lsss.modules.schoolparameter;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
@@ -20,6 +18,8 @@ import no.imr.tools.misc.JsonWriter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.marec.lsss.api.util.GeoPoint;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,7 +43,7 @@ public final class SchoolParameterExport extends StreamingExporter {
    }
 
    @Override
-   public void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) throws IOException {
+   public void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) {
       PingRange pingRange = getLSSS().getInterpretationSettings().getPingRange();
       if (pingRange.isEmpty()) {
          return;
@@ -60,9 +60,9 @@ public final class SchoolParameterExport extends StreamingExporter {
       try (JsonGenerator json = objectWriter.createGenerator(out)) {
          json.writeStartObject();
 
-         json.writeObjectField("info", getExportInfo());
+         json.writePOJOProperty("info", getExportInfo());
 
-         json.writeFieldName("schools");
+         json.writeName("schools");
          json.writeStartArray();
 
          JsonWriter jsonWriter = new JsonWriter(json);
@@ -76,31 +76,31 @@ public final class SchoolParameterExport extends StreamingExporter {
             progressListener.listen();
 
             jsonWriter.writeObject(() -> {
-               json.writeNumberField("objectNumber", school.getObjectNumber());
-               json.writeBooleanField("dataProcessed", school.getParameters().isDataProcessed());
-               json.writeObjectField("scrutiny", ExportUtils.makeScrutiny(getLSSS(), channels, school.getInterpretation()));
-               json.writeStringField("fileName", dataFileSet.getDataFile(school.getPingRange().begin()).getSegmentHandle().getDisplayName());
+               json.writeNumberProperty("objectNumber", school.getObjectNumber());
+               json.writeBooleanProperty("dataProcessed", school.getParameters().dataProcessed());
+               json.writePOJOProperty("scrutiny", ExportUtils.makeScrutiny(getLSSS(), channels, school.getInterpretation()));
+               json.writeStringProperty("fileName", dataFileSet.getDataFile(school.getPingRange().begin()).getSegmentHandle().getDisplayName());
 
-               json.writeStringField("timeStart", school.getPingRange().begin().getInstant().toString());
-               json.writeStringField("timeEnd", school.getPingRange().end().getInstant().toString());
+               json.writeStringProperty("timeStart", school.getPingRange().begin().getInstant().toString());
+               json.writeStringProperty("timeEnd", school.getPingRange().end().getInstant().toString());
 
                GeoPoint beginGeoPos = school.getPingRange().begin().getGeographicalPosition();
                GeoPoint endGeoPos = school.getPingRange().end().getGeographicalPosition();
-               json.writeNumberField("longitudeStart", ExportRounding.geoPos().applyAsDouble(beginGeoPos != null ? beginGeoPos.getLongitude() : Double.NaN));
-               json.writeNumberField("longitudeEnd", ExportRounding.geoPos().applyAsDouble(endGeoPos != null ? endGeoPos.getLongitude() : Double.NaN));
+               json.writeNumberProperty("longitudeStart", ExportRounding.geoPos().applyAsDouble(beginGeoPos != null ? beginGeoPos.getLongitude() : Double.NaN));
+               json.writeNumberProperty("longitudeEnd", ExportRounding.geoPos().applyAsDouble(endGeoPos != null ? endGeoPos.getLongitude() : Double.NaN));
 
-               json.writeNumberField("latitudeStart", ExportRounding.geoPos().applyAsDouble(beginGeoPos != null ? beginGeoPos.getLatitude() : Double.NaN));
-               json.writeNumberField("latitudeEnd", ExportRounding.geoPos().applyAsDouble(endGeoPos != null ? endGeoPos.getLatitude() : Double.NaN));
+               json.writeNumberProperty("latitudeStart", ExportRounding.geoPos().applyAsDouble(beginGeoPos != null ? beginGeoPos.getLatitude() : Double.NaN));
+               json.writeNumberProperty("latitudeEnd", ExportRounding.geoPos().applyAsDouble(endGeoPos != null ? endGeoPos.getLatitude() : Double.NaN));
 
-               for (Map.Entry<String, Float> entry : school.getParameters().getValues().entrySet()) {
-                  json.writeNumberField(entry.getKey(), entry.getValue());
+               for (Map.Entry<String, Float> entry : school.getParameters().values().entrySet()) {
+                  json.writeNumberProperty(entry.getKey(), entry.getValue());
                }
-               jsonWriter.writeArrayField("channels", school.getParameters().getPerChannelValues().entrySet(), perChannelEntry -> {
+               jsonWriter.writeArrayField("channels", school.getParameters().perChannelValues().entrySet(), perChannelEntry -> {
                   jsonWriter.writeObject(() -> {
                      int channel = perChannelEntry.getKey();
-                     json.writeNumberField("frequency", rawFileConfiguration.getTransducers().get(channel - 1).getFrequency());
+                     json.writeNumberProperty("frequency", rawFileConfiguration.getTransducers().get(channel - 1).getFrequency());
                      for (Map.Entry<String, Float> entry : perChannelEntry.getValue().entrySet()) {
-                        json.writeNumberField(entry.getKey(), entry.getValue());
+                        json.writeNumberProperty(entry.getKey(), entry.getValue());
                      }
                   });
                });

@@ -29,9 +29,9 @@ abstract class ChannelGroupOutputBuilder {
       fullGroupName = groupBuilder.makeFullName();
    }
 
-   Variable findGroupVariable(NcChannelGroupWriter ncChannelGroupWriter, String variable) {
-      return ncChannelGroupWriter.findVariable(fullGroupName + variable);
+   Variable findGroupVariable(NcGridWriter ncGridWriter, String variable) {
+      return ncGridWriter.findVariable(fullGroupName + variable);
    }
 
-   abstract ChannelGroupOutputWriter createWriter(NcChannelGroupWriter ncChannelGroupWriter) throws InvalidRangeException, IOException;
+   abstract ChannelGroupOutputWriter createWriter(NcGridWriter ncGridWriter) throws InvalidRangeException, IOException;
 }

@@ -29,6 +29,8 @@ public abstract sealed class BaseParameter<T> extends Configurable implements Ba
    public static final PropertyKey<Boolean> KEY_MONOSPACED = new PropertyKey<>(false);
    public static final PropertyKey<Boolean> KEY_PERSISTABLE = new PropertyKey<>(true);
    public static final PropertyKey<Integer> KEY_ROWS = new PropertyKey<>(5);
+   public static final PropertyKey<Boolean> KEY_TEXT_SCROLL_PANE = new PropertyKey<>(true);
+   public static final PropertyKey<Boolean> KEY_TEXT_WRAP = new PropertyKey<>(false);
    public static final PropertyKey<Boolean> KEY_VERTICAL_FILL = new PropertyKey<>(false);
    public static final PropertyKey<List<?>> KEY_SUGGESTED_VALUES = new PropertyKey<>(List.of());
 

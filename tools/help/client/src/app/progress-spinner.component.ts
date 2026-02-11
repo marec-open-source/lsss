@@ -5,7 +5,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
    changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-progress-spinner',
    templateUrl: './progress-spinner.component.html',
-   styleUrl: './progress-spinner.component.css',
+   styleUrl: './progress-spinner.component.scss',
    imports: [
       MatProgressSpinnerModule,
    ],

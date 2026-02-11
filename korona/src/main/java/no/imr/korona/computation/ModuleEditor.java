@@ -1,5 +1,7 @@
 package no.imr.korona.computation;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.html.HtmlEscapers;
 import no.imr.korona.computation.misc.CommentModule;
 import no.imr.korona.computation.misc.GroupEndModule;
@@ -11,8 +13,12 @@ import no.imr.korona.config.gui.ContextVisibility;
 import no.imr.korona.plugins.ModulePlugin;
 import no.imr.korona.resources.KoronaHelp;
 import no.imr.korona.util.KoronaPreferences;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.Utils;
+import no.imr.tools.concurrent.Exec;
 import no.imr.tools.help.HelpID;
+import no.imr.tools.io.FileInfo;
+import no.imr.tools.io.FileUtils;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.logging.Log;
 import no.imr.tools.misc.HtmlStringBuilder;
@@ -22,8 +28,10 @@ import no.imr.tools.swing.ColorUtils;
 import no.imr.tools.swing.DeepInputListener;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
+import no.imr.tools.swing.MenuItems;
 import no.imr.tools.swing.MouseAndKeyAdapter;
 import no.imr.tools.swing.PopupMenuMouseListener;
+import no.imr.tools.swing.SuffixFileFilter;
 import no.imr.tools.swing.UiUtils;
 import no.imr.tools.swing.VerticalScrollablePanel;
 import no.imr.tools.swing.WhenShowingListening;
@@ -38,6 +46,7 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -62,6 +71,7 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
@@ -71,12 +81,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -86,8 +96,10 @@ import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -116,7 +128,7 @@ public final class ModuleEditor {
 
    private final boolean editable;
    private ModulePredicate modulePredicate = ModulePredicate.alwaysTrue();
-   private Consumer<Boolean> onClose = __ -> {
+   private Consumer<Boolean> onClose = _ -> {
    };
 
    private final JDialog dialog;
@@ -153,7 +165,7 @@ public final class ModuleEditor {
       backupCfs = moduleContainer.getConfigFileSettings().toXml();
       backupCds = moduleContainer.toXml();
 
-      ModuleUtils.fixGroupEndModules(moduleContainer);
+      ModuleUtils.fixAll(moduleContainer.getModuleList());
 
       List<BaseModule> modules = moduleContainer.getModules();
       if (lastModuleIndex < modules.size() && modules.get(lastModuleIndex).getPersistentName().equals(lastModuleName)) {
@@ -236,9 +248,9 @@ public final class ModuleEditor {
 
    private JComponent makeContent() {
       JButton allActiveButton = new JButton("Set all active");
-      allActiveButton.addActionListener(e -> modulesActive(true));
+      allActiveButton.addActionListener(_ -> modulesActive(true));
       JButton noneActiveButton = new JButton("Set none active");
-      noneActiveButton.addActionListener(e -> modulesActive(false));
+      noneActiveButton.addActionListener(_ -> modulesActive(false));
       multiSelectionPanel.add(allActiveButton);
       multiSelectionPanel.add(noneActiveButton);
 
@@ -390,12 +402,15 @@ public final class ModuleEditor {
    private void makeMenus() {
       for (ModulePlugin modulePlugin : getModuleManager().getModulePlugins()) {
          Node node = new Node();
-         getModuleManager().getModuleInfos(modulePlugin).forEach(moduleInfo -> {
+         for (ModuleInfo moduleInfo : getModuleManager().getModuleInfos(modulePlugin)) {
             if (moduleInfo.moduleClass() == GroupEndModule.class) {
-               return;
+               continue;
+            }
+            if (moduleInfo.moduleClass() == TemporaryComputationsEndModule.class) {
+               continue;
             }
             node.add(moduleInfo);
-         });
+         }
 
          JMenu newMenu = node.makeNewMenuHierarchy(modulePlugin.getName().displayName());
          newMenu.setEnabled(editable);
@@ -403,6 +418,13 @@ public final class ModuleEditor {
          if (modulePlugin instanceof KoronaModulePlugin && getModuleManager().getModulePlugins().size() == 1) {
             newMenu.setText("New");
             newMenu.setMnemonic(KeyEvent.VK_N);
+         }
+
+         JMenu partialSetupsMenu = createPartialSetupsMenu(modulePlugin);
+         if (partialSetupsMenu != null) {
+            newMenu.add(MenuItems.label(MiscIcons.EMPTY, modulePlugin.getName().displayName() + " modules:", true), 0);
+            newMenu.insertSeparator(0);
+            newMenu.insert(partialSetupsMenu, 0);
          }
 
          menuBar.add(newMenu);
@@ -414,7 +436,7 @@ public final class ModuleEditor {
 
       forwardButton.setPreferredSize(BUTTON_DIMENSION);
       forwardButton.setToolTipText("Move selected modules one position forward");
-      forwardButton.addActionListener(e -> moveSelectedModules(-1));
+      forwardButton.addActionListener(_ -> moveSelectedModules(-1));
       GuiUtils.setAccelerator(forwardButton, KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.ALT_DOWN_MASK));
       menuBar.add(forwardButton);
 
@@ -422,7 +444,7 @@ public final class ModuleEditor {
 
       backwardButton.setPreferredSize(BUTTON_DIMENSION);
       backwardButton.setToolTipText("Move selected modules one position backward");
-      backwardButton.addActionListener(e -> moveSelectedModules(1));
+      backwardButton.addActionListener(_ -> moveSelectedModules(1));
       GuiUtils.setAccelerator(backwardButton, KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.ALT_DOWN_MASK));
       menuBar.add(backwardButton);
 
@@ -431,29 +453,167 @@ public final class ModuleEditor {
       JButton menuBarHelpButton = MiscIcons.HELP.on(new JButton());
       menuBarHelpButton.setPreferredSize(BUTTON_DIMENSION);
       menuBarHelpButton.setToolTipText("Show help for module editor");
-      menuBarHelpButton.addActionListener(e -> getModuleEditorHelpID().show());
+      menuBarHelpButton.addActionListener(_ -> getModuleEditorHelpID().show());
       menuBar.add(menuBarHelpButton);
 
       menuBar.add(Box.createHorizontalStrut(25));
 
       deleteButton.setPreferredSize(BUTTON_DIMENSION);
       deleteButton.setToolTipText("Delete selected modules");
-      deleteButton.addActionListener(e -> deleteSelectedModules());
+      deleteButton.addActionListener(_ -> deleteSelectedModules());
       menuBar.add(deleteButton);
 
       menuBar.add(Box.createHorizontalGlue());
    }
 
+   private @Nullable JMenu createPartialSetupsMenu(ModulePlugin modulePlugin) {
+      String moduleConfigurationSubDirName = modulePlugin.getModuleConfigurationSubDirName();
+      if (moduleConfigurationSubDirName == null) {
+         return null;
+      }
+      Path configDir = moduleContainer.getKorona().getKoronaSettings().getKoronaConfigDir().getFile();
+      if (configDir == null) {
+         return null;
+      }
+      JMenu partialSetupsMenu = MiscIcons.EMPTY.on(new JMenu("Partial setups"));
+      partialSetupsMenu.setToolTipText("A partial setup is a sequence of modules that can be reused");
+      Path partialSetupsDir = configDir.resolve(moduleConfigurationSubDirName, "PartialSetups");
+      GuiUtils.autoCreateContentMenu(partialSetupsMenu, () -> {
+         populatePartialSetupsMenu(partialSetupsMenu, partialSetupsDir);
+         if (partialSetupsMenu.getMenuComponentCount() == 0) {
+            JMenuItem noneAvailableItem = partialSetupsMenu.add("<No partial setups available>");
+            noneAvailableItem.setEnabled(false);
+         }
+         partialSetupsMenu.addSeparator();
+         JMenuItem saveItem = MiscIcons.SAVE.on(partialSetupsMenu.add("Save selected modules as a partial setup..."));
+         saveItem.setToolTipText(new HtmlStringBuilder()
+               .html("Partial setups directory:<br>")
+               .text(partialSetupsDir.toString())
+               .build());
+         saveItem.setEnabled(!selectedModules.isEmpty());
+         saveItem.addActionListener(_ -> {
+            try {
+               FileUtils.createDirectories(partialSetupsDir);
+            } catch (IOException e) {
+               GuiUtils.showErrorDialog(dialog, "Error creating directory " + partialSetupsDir, e);
+               return;
+            }
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setCurrentDirectory(partialSetupsDir.toFile());
+            fileChooser.setFileFilter(new SuffixFileFilter(KoronaUtils.CDS_FILE_TYPE));
+            int returnVal = fileChooser.showSaveDialog(dialog);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+               Path selectedFile = KoronaUtils.CDS_FILE_TYPE.ensureSuffix(fileChooser.getSelectedFile().toPath());
+               ModuleContainer tmpModuleContainer = new ModuleContainer(moduleContainer.getKorona());
+               tmpModuleContainer.getModuleList().appendXml(ModuleList.toXml(getSortedModuleMap().values()));
+               ModuleUtils.fixAll(tmpModuleContainer.getModuleList());
+               try {
+                  tmpModuleContainer.writeConfiguration(selectedFile);
+               } catch (IOException e) {
+                  GuiUtils.showErrorDialog(dialog, "Error saving " + selectedFile, e);
+               }
+            }
+         });
+
+         JMenuItem openDirItem = MenuItems.showInFileExplorer(partialSetupsDir);
+         partialSetupsMenu.add(openDirItem);
+         openDirItem.setText("Open partial setups directory");
+         openDirItem.setToolTipText(partialSetupsDir.toString());
+      });
+      return partialSetupsMenu;
+   }
+
+   private void populatePartialSetupsMenu(JMenu menu, Path dir) {
+      try {
+         List<FileInfo> fileInfos = FileUtils.listFilesWithAttributes(dir).stream()
+               .sorted(Utils.comparingIgnoringCase(FileInfo::getFileName))
+               .toList();
+         for (FileInfo fileInfo : fileInfos) {
+            if (fileInfo.isDirectory()) {
+               JMenu submenu = MiscIcons.EMPTY.on(new JMenu(fileInfo.getFileName()));
+               populatePartialSetupsMenu(submenu, fileInfo.file());
+               if (submenu.getMenuComponentCount() > 0) {
+                  menu.add(submenu);
+               }
+            }
+         }
+         for (FileInfo fileInfo : fileInfos) {
+            if (fileInfo.file().toString().endsWith(KoronaUtils.CDS_FILE_SUFFIX)) {
+               JMenuItem fileItem = MiscIcons.EMPTY.on(menu.add(fileInfo.getFileName()));
+               fileItem.setToolTipText(fileInfo.file().toString());
+               fileItem.addActionListener(_ -> {
+                  ModuleContainer tmpModuleContainer = new ModuleContainer(moduleContainer.getKorona());
+                  try {
+                     tmpModuleContainer.readConfiguration(fileInfo.file());
+                     ModuleUtils.fixAll(tmpModuleContainer.getModuleList());
+                     insertModules(tmpModuleContainer.getModules());
+                  } catch (IOException e) {
+                     GuiUtils.showErrorDialog(dialog, "Error reading " + fileInfo.file(), e);
+                  }
+               });
+               Exec.CACHED_THREAD_POOL.submit(() -> {
+                  PartialSetupInfo partialSetupInfo = getPartialSetupInfo(fileInfo);
+                  SwingUtilities.invokeLater(() -> {
+                     fileItem.setIcon(new CategoriesIcon(partialSetupInfo.categories));
+                     fileItem.setToolTipText(new HtmlStringBuilder()
+                           .text(fileInfo.file().toString())
+                           .html("<br><br>Modules:<br>").html(partialSetupInfo.tooltip)
+                           .build());
+                  });
+               });
+            } // else: Ignore this file.
+         }
+      } catch (IOException e) {
+         GuiUtils.showErrorDialog(dialog, "Error accessing directory " + dir, e);
+      }
+   }
+
+   private PartialSetupInfo getPartialSetupInfo(FileInfo fileInfo) {
+      PartialSetupInfo partialSetupInfo = PartialSetupInfo.CACHE.getIfPresent(fileInfo.file());
+      if (partialSetupInfo != null && partialSetupInfo.lastModified == fileInfo.lastModifiedTime().toMillis()) {
+         return partialSetupInfo;
+      }
+      Set<ModuleCategory> categories;
+      String tooltip;
+      try {
+         ModuleContainer tmpModuleContainer = new ModuleContainer(moduleContainer.getKorona());
+         tmpModuleContainer.readConfiguration(fileInfo.file());
+         categories = getAllCategories(tmpModuleContainer.getModules());
+         tooltip = tmpModuleContainer.getModules().stream()
+               .map(module -> {
+                  String colors = module.getModuleInfo().categories().stream()
+                        .filter(category -> category != ModuleCategory.NO_MODIFICATION)
+                        .map(category -> {
+                           return "<span style='color: " + ColorUtils.colorToHex(category.getColor()) + ";'>▍</span>";
+                        })
+                        .collect(Collectors.joining());
+                  return "<span style='white-space: nowrap'>" + colors + (colors.isEmpty() ? "" : "&nbsp;")
+                        + HtmlEscapers.htmlEscaper().escape(module.getDisplayName()) + "</span>";
+               })
+               .collect(Collectors.joining(" ➔ "));
+         if (tmpModuleContainer.getModules().size() > 8) {
+            tooltip = "<div style='width: 600px;'>" + tooltip + "</div>";
+         }
+      } catch (IOException e) {
+         Log.global.log(Level.WARNING, e.getMessage(), e);
+         categories = Set.of();
+         tooltip = HtmlEscapers.htmlEscaper().escape(e.toString());
+      }
+      partialSetupInfo = new PartialSetupInfo(fileInfo.lastModifiedTime().toMillis(), categories, tooltip);
+      PartialSetupInfo.CACHE.put(fileInfo.file(), partialSetupInfo);
+      return partialSetupInfo;
+   }
+
    private JPanel createBottomPanel() {
       okButton.setToolTipText("Accept changes and close window");
-      okButton.addActionListener(e -> accept());
+      okButton.addActionListener(_ -> accept());
 
       cancelButton.setToolTipText("Revert changes and close window");
       GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      cancelButton.addActionListener(e -> cancel());
+      cancelButton.addActionListener(_ -> cancel());
 
       GuiUtils.setAccelerator(helpButton, KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
-      helpButton.addActionListener(e -> getCurrentHelpID().show());
+      helpButton.addActionListener(_ -> getCurrentHelpID().show());
 
       JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       panel.add(okButton);
@@ -501,19 +661,17 @@ public final class ModuleEditor {
 
    private Set<BaseModule> toHighlightedModules(@Nullable BaseModule module) {
       switch (module) {
-         case TemporaryComputationsBeginModule beginModule when beginModule.active.getBooleanValue() -> {
-            TemporaryComputationsEndModule endModule = ModuleUtils.getEndModule(moduleContainer, beginModule);
-            return endModule != null ? Set.of(beginModule, endModule) : Set.of();
+         case TemporaryComputationsBeginModule beginModule -> {
+            return Set.of(beginModule, getTemporaryComputationsEndModule(beginModule));
          }
-         case TemporaryComputationsEndModule endModule when endModule.active.getBooleanValue() -> {
-            TemporaryComputationsBeginModule beginModule = ModuleUtils.getBeginModule(moduleContainer, endModule);
-            return beginModule != null ? Set.of(endModule, beginModule) : Set.of();
+         case TemporaryComputationsEndModule endModule -> {
+            return Set.of(getTemporaryComputationsBeginModule(endModule), endModule);
          }
          case CommentModule commentModule when commentModule.groupStart.getBooleanValue() && !commentModule.groupCollapsed.getBooleanValue() -> {
             return Set.of(commentModule, getEndGroupModule(commentModule));
          }
          case GroupEndModule groupEndModule -> {
-            return Set.of(groupEndModule, getBeginGroupModule(groupEndModule));
+            return Set.of(getBeginGroupModule(groupEndModule), groupEndModule);
          }
          case null, default -> {
             return Set.of();
@@ -535,19 +693,38 @@ public final class ModuleEditor {
          g.setStroke(GuiUtils.STROKE_3);
          g.drawRect(3, 3, button.getWidth() - 7, button.getHeight() - 7);
       }
-      if (!module.active.getBooleanValue()) {
+      float inactiveFraction;
+      if (module instanceof CommentModule commentModule && commentModule.groupCollapsed.getBooleanValue()) {
+         List<BaseModule> groupModules = getGroupModules(commentModule);
+         long inactiveCount = groupModules.stream()
+               .filter(m -> !m.active.getBooleanValue())
+               .count();
+         inactiveFraction = (float) inactiveCount / groupModules.size();
+      } else {
+         inactiveFraction = module.active.getBooleanValue() ? 0 : 1;
+      }
+      if (inactiveFraction > 0) {
+         Shape originalClip = g.getClip();
+         int width = Math.round(button.getWidth() * inactiveFraction);
+         int height = button.getHeight();
+         g.setClip(0, 0, width, height);
          g.setColor(new Color(0, 0, 0, 26));
-         g.fillRect(0, 0, button.getWidth(), button.getHeight());
+         g.fillRect(0, 0, width, height);
          g.setColor(new Color(0, 0, 0, 51));
          g.setStroke(GuiUtils.STROKE_1);
-         int height = button.getHeight();
-         for (int x = -height; x <= button.getWidth(); x += 10) {
+         for (int x = -height; x <= width; x += 10) {
             g.drawLine(x, 0, x + height, height);
          }
+         g.setClip(originalClip);
       }
-      EnumSet<ModuleCategory> categories = module.getModuleInfo().categories();
-      if (!categories.equals(EnumSet.of(ModuleCategory.NO_MODIFICATION))) {
-         int width = 4;
+      Set<ModuleCategory> categories;
+      if (module instanceof CommentModule commentModule && commentModule.groupStart.getBooleanValue()) {
+         categories = getAllCategories(getGroupModules(commentModule));
+      } else {
+         categories = module.getModuleInfo().categories();
+      }
+      if (!categories.isEmpty() && !categories.equals(Set.of(ModuleCategory.NO_MODIFICATION))) {
+         int width = Math.min(4, Math.max(1, 16 / categories.size()));
          int verticalMargin = 2;
          int x = 2;
          for (ModuleCategory category : categories) {
@@ -558,13 +735,18 @@ public final class ModuleEditor {
       }
    }
 
+   private static Set<ModuleCategory> getAllCategories(List<BaseModule> modules) {
+      return modules.stream()
+            .flatMap(module -> module.getModuleInfo().categories().stream())
+            .filter(category -> category != ModuleCategory.NO_MODIFICATION)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+   }
+
    private boolean hasProblems(BaseModule module) {
       if (!module.active.getBooleanValue()) {
          return false;
       }
       return hasUnspecifiedConfigFiles(module)
-            || isUnmatchedTemporaryComputationsBeginModule(module)
-            || isUnmatchedTemporaryComputationsEndModule(module)
             || module.getModuleInfo().isDeprecated();
    }
 
@@ -572,16 +754,6 @@ public final class ModuleEditor {
       return module.getRequiredConfigFileServiceNames().stream()
             .map(moduleContainer.getConfigFileSettings()::getFile)
             .anyMatch(Objects::isNull);
-   }
-
-   private boolean isUnmatchedTemporaryComputationsBeginModule(BaseModule module) {
-      return module instanceof TemporaryComputationsBeginModule beginModule
-            && ModuleUtils.getEndModule(moduleContainer, beginModule) == null;
-   }
-
-   private boolean isUnmatchedTemporaryComputationsEndModule(BaseModule module) {
-      return module instanceof TemporaryComputationsEndModule endModule
-            && ModuleUtils.getBeginModule(moduleContainer, endModule) == null;
    }
 
    private void makeModuleList() {
@@ -634,6 +806,21 @@ public final class ModuleEditor {
          });
          if (module instanceof CommentModule commentModule) {
             boolean groupStart = commentModule.groupStart.getBooleanValue();
+            boolean groupCollapsed = commentModule.groupCollapsed.getBooleanValue();
+            if (groupCollapsed) {
+               collapsedGroupCount++;
+            }
+            if (groupStart && groupCollapsed) {
+               boolean active = commentModule.active.getBooleanValue();
+               WhenShowingListening.connect(button, commentModule.active, () -> {
+                  if (active != commentModule.active.getBooleanValue()) {
+                     for (BaseModule m : getGroupModules(commentModule)) {
+                        m.active.setBooleanValue(commentModule.active.getBooleanValue());
+                     }
+                     rewind();
+                  }
+               });
+            }
             WhenShowingListening.connect(button, commentModule.groupStart, () -> {
                if (groupStart != commentModule.groupStart.getBooleanValue()) {
                   if (commentModule.groupStart.getBooleanValue()) {
@@ -646,10 +833,6 @@ public final class ModuleEditor {
                   rewind();
                }
             });
-            boolean groupCollapsed = commentModule.groupCollapsed.getBooleanValue();
-            if (groupCollapsed) {
-               collapsedGroupCount++;
-            }
             WhenShowingListening.connect(button, commentModule.groupCollapsed, () -> {
                if (groupCollapsed != commentModule.groupCollapsed.getBooleanValue()) {
                   rewind();
@@ -677,10 +860,26 @@ public final class ModuleEditor {
             });
 
             String label = commentModule.label.getValue();
-            String text = groupStart
-                  ? (label.isEmpty() ? "" : label + "   ") + (groupCollapsed ? "(...)" : "(")
-                  : label;
-            button.setText(text);
+            StringBuilder text = new StringBuilder(label);
+            if (!text.isEmpty()) {
+               text.append("   ");
+            }
+            if (commentModule.groupStart.getBooleanValue()) {
+               text.append('(');
+            }
+            if (groupCollapsed) {
+               List<BaseModule> groupModules = getGroupModules(commentModule);
+               long activeCount = groupModules.stream()
+                     .filter(m -> m.active.getBooleanValue())
+                     .count();
+               if (groupModules.size() == activeCount) {
+                  text.append(activeCount);
+               } else {
+                  text.append(activeCount).append('/').append(groupModules.size());
+               }
+               text.append(')');
+            }
+            button.setText(text.toString());
             MiscIcons.COMMENT.on(button);
             WhenShowingListening.connect(button, commentModule.label, () -> {
                if (!label.equals(commentModule.label.getValue())) {
@@ -693,13 +892,35 @@ public final class ModuleEditor {
                int maxLineLength = lines.stream().mapToInt(String::length).max().orElse(0);
                String p = maxLineLength > 120 ? "<p width='500'>" : "";
                String commentAsHtml = lines.stream()
-                     .map(HtmlEscapers.htmlEscaper()::escape)
+                     .map(HtmlEscapers.htmlEscaper().asFunction())
                      .collect(Collectors.joining("<br>"));
                button.setToolTipText("<html>" + p + "Comment:<br>" + commentAsHtml);
             });
          } else {
-            if (module instanceof GroupEndModule) {
-               button.setText(")");
+            switch (module) {
+               case GroupEndModule _ -> {
+                  button.setText(")");
+               }
+               case TemporaryComputationsBeginModule beginModule -> {
+                  boolean active = beginModule.active.getBooleanValue();
+                  WhenShowingListening.connect(button, beginModule.active, () -> {
+                     if (active != beginModule.active.getBooleanValue()) {
+                        getTemporaryComputationsEndModule(beginModule).active.setBooleanValue(beginModule.active.getBooleanValue());
+                        rewind();
+                     }
+                  });
+               }
+               case TemporaryComputationsEndModule endModule -> {
+                  boolean active = endModule.active.getBooleanValue();
+                  WhenShowingListening.connect(button, endModule.active, () -> {
+                     if (active != endModule.active.getBooleanValue()) {
+                        getTemporaryComputationsBeginModule(endModule).active.setBooleanValue(endModule.active.getBooleanValue());
+                        rewind();
+                     }
+                  });
+               }
+               default -> {
+               }
             }
             WhenShowingListening.connect(button, module.comment, () -> {
                HtmlStringBuilder tooltip = new HtmlStringBuilder()
@@ -775,6 +996,26 @@ public final class ModuleEditor {
 
    private @Nullable BaseModule getCurrentModule() {
       return selectedModules.size() == 1 ? selectedModules.iterator().next() : null;
+   }
+
+   private TemporaryComputationsBeginModule getTemporaryComputationsBeginModule(TemporaryComputationsEndModule endModule) {
+      TemporaryComputationsBeginModule beginModule = ModuleUtils.getBeginModule(moduleContainer, endModule);
+      if (beginModule == null) {
+         Log.global.warning("No temporary computations begin module for end module at index " + moduleContainer.getModules().indexOf(endModule));
+         beginModule = new TemporaryComputationsBeginModule();
+         moduleContainer.addModule(0, beginModule);
+      }
+      return beginModule;
+   }
+
+   private TemporaryComputationsEndModule getTemporaryComputationsEndModule(TemporaryComputationsBeginModule beginModule) {
+      TemporaryComputationsEndModule endModule = ModuleUtils.getEndModule(moduleContainer, beginModule);
+      if (endModule == null) {
+         Log.global.warning("No temporary computations end module for begin module at index " + moduleContainer.getModules().indexOf(beginModule));
+         endModule = new TemporaryComputationsEndModule();
+         moduleContainer.addModule(endModule);
+      }
+      return endModule;
    }
 
    private CommentModule getBeginGroupModule(GroupEndModule groupEndModule) {
@@ -910,29 +1151,34 @@ public final class ModuleEditor {
       rewind();
    }
 
-   private void createModule(ModuleInfo moduleInfo) {
+   private void addModule(ModuleInfo moduleInfo) {
       try {
-         BaseModule module = getModuleManager().createModule(moduleInfo.getPersistentName());
-
-         Set<Name> set = new LinkedHashSet<>(module.getRequiredConfigFileServiceNames());
-         set.removeAll(moduleContainer.getConfigFileSettings().getFileServiceNames());
-         if (!set.isEmpty()) {
-            StringBuilder message = new StringBuilder("<html>" + moduleInfo.getDisplayName() + " requires config files not available in current context:<br>");
-            for (Name name : set) {
-               message.append(name.displayName()).append("<br>");
-            }
-            GuiUtils.showErrorDialog(dialog, message.toString());
-            return;
-         }
-
-         int index = getModuleInsertionIndex();
-         moduleContainer.addModule(index, module);
-         selectedModules.clear();
-         selectedModules.add(module);
-         rewind();
+         addModule(getModuleManager().createModule(moduleInfo.getPersistentName()));
       } catch (ModuleCreationException e) {
          GuiUtils.showErrorDialog(dialog, "Could not create module " + moduleInfo.getDisplayName(), e);
       }
+   }
+
+   private void addModule(BaseModule module) {
+      Set<Name> set = new LinkedHashSet<>(module.getRequiredConfigFileServiceNames());
+      set.removeAll(moduleContainer.getConfigFileSettings().getFileServiceNames());
+      if (!set.isEmpty()) {
+         StringBuilder message = new StringBuilder("<html>" + module.getDisplayName() + " requires config files not available in current context:<br>");
+         for (Name name : set) {
+            message.append(name.displayName()).append("<br>");
+         }
+         GuiUtils.showErrorDialog(dialog, message.toString());
+         return;
+      }
+
+      int index = getModuleInsertionIndex();
+      moduleContainer.addModule(index, module);
+      if (module instanceof TemporaryComputationsBeginModule) {
+         moduleContainer.addModule(index + 1, new TemporaryComputationsEndModule());
+      }
+      selectedModules.clear();
+      selectedModules.add(module);
+      rewind();
    }
 
    private int getModuleInsertionIndex() {
@@ -953,10 +1199,14 @@ public final class ModuleEditor {
       if (modulesClipboard == null) {
          return;
       }
-      int insertionIndex = getModuleInsertionIndex();
       ModuleList moduleList = new ModuleList(moduleContainer);
       moduleList.appendXml(modulesClipboard);
-      List<BaseModule> modules = moduleList.getModules();
+      ModuleUtils.fixAll(moduleList);
+      insertModules(moduleList.getModules());
+   }
+
+   private void insertModules(List<BaseModule> modules) {
+      int insertionIndex = getModuleInsertionIndex();
       for (int i = modules.size() - 1; i >= 0; i--) {
          moduleContainer.addModule(insertionIndex, modules.get(i));
       }
@@ -977,8 +1227,18 @@ public final class ModuleEditor {
       }
       Set<BaseModule> deleteModules = getEffectivelySelectedModules(selectedModules);
       for (BaseModule module : selectedModules) {
-         if (module instanceof CommentModule commentModule && commentModule.groupStart.getBooleanValue()) {
-            deleteModules.add(getEndGroupModule(commentModule));
+         switch (module) {
+            case CommentModule commentModule when commentModule.groupStart.getBooleanValue() -> {
+               deleteModules.add(getEndGroupModule(commentModule));
+            }
+            case TemporaryComputationsBeginModule beginModule -> {
+               deleteModules.add(getTemporaryComputationsEndModule(beginModule));
+            }
+            case TemporaryComputationsEndModule endModule -> {
+               deleteModules.add(getTemporaryComputationsBeginModule(endModule));
+            }
+            default -> {
+            }
          }
       }
       if (deleteModules.isEmpty()) {
@@ -1008,12 +1268,20 @@ public final class ModuleEditor {
    }
 
    private void moveModuleButton(ModuleButton moduleButton, int targetIndex) {
-      int maxTargetIndex = moduleButton.module instanceof CommentModule commentModule && commentModule.groupStart.getBooleanValue() && !commentModule.groupCollapsed.getBooleanValue()
-            ? moduleToDisplayedModuleButton.get(getEndGroupModule(commentModule)).buttonIndex - 1
-            : moduleButtons.size() - 1;
-      int minTargetIndex = moduleButton.module instanceof GroupEndModule groupEndModule
-            ? moduleToDisplayedModuleButton.get(getBeginGroupModule(groupEndModule)).buttonIndex + 1
-            : 0;
+      int maxTargetIndex = switch (moduleButton.module) {
+         case CommentModule commentModule when commentModule.groupStart.getBooleanValue() && !commentModule.groupCollapsed.getBooleanValue() -> {
+            yield moduleToDisplayedModuleButton.get(getEndGroupModule(commentModule)).buttonIndex - 1;
+         }
+         case TemporaryComputationsBeginModule beginModule -> {
+            yield moduleToDisplayedModuleButton.get(getTemporaryComputationsEndModule(beginModule)).buttonIndex - 1;
+         }
+         default -> moduleButtons.size() - 1;
+      };
+      int minTargetIndex = switch (moduleButton.module) {
+         case GroupEndModule groupEndModule -> moduleToDisplayedModuleButton.get(getBeginGroupModule(groupEndModule)).buttonIndex + 1;
+         case TemporaryComputationsEndModule endModule -> moduleToDisplayedModuleButton.get(getTemporaryComputationsBeginModule(endModule)).buttonIndex + 1;
+         default -> 0;
+      };
       targetIndex = Math.clamp(targetIndex, minTargetIndex, maxTargetIndex);
       ModuleButton target = moduleButtons.get(targetIndex);
 
@@ -1024,13 +1292,10 @@ public final class ModuleEditor {
       if (shift > 0) {
          shift += getEffectiveModuleCount(target) - getEffectiveModuleCount(moduleButton);
       }
-      moveModules(shift, getEffectivelySelectedModules(Set.of(moduleButton.module)));
-   }
-
-   private void moveModules(int shift, Collection<BaseModule> modules) {
       if (shift == 0) {
          return;
       }
+      Set<BaseModule> modules = getEffectivelySelectedModules(Set.of(moduleButton.module));
       List<BaseModule> sortedModules = new ArrayList<>(getSortedModuleMap(modules).values());
       if (shift > 0) {
          Collections.reverse(sortedModules);
@@ -1084,10 +1349,6 @@ public final class ModuleEditor {
          String errorText;
          if (hasUnspecifiedConfigFiles(currentModule)) {
             errorText = "Required config files not specified";
-         } else if (currentModule.active.getBooleanValue() && isUnmatchedTemporaryComputationsBeginModule(currentModule)) {
-            errorText = "Missing end of temporary computations";
-         } else if (currentModule.active.getBooleanValue() && isUnmatchedTemporaryComputationsEndModule(currentModule)) {
-            errorText = "Missing begin of temporary computations";
          } else {
             errorText = null;
          }
@@ -1112,7 +1373,7 @@ public final class ModuleEditor {
          GuiUtils.replaceContent(parameterEditorPanel, panel);
       } else {
          JScrollPane scrollPane = new JScrollPane(panel);
-         scrollPane.addMouseListener(new PopupMenuMouseListener(e -> parameterEditor.makePopupMenu()));
+         scrollPane.addMouseListener(new PopupMenuMouseListener(_ -> parameterEditor.makePopupMenu()));
          GuiUtils.replaceContent(parameterEditorPanel, scrollPane);
       }
 
@@ -1238,6 +1499,31 @@ public final class ModuleEditor {
       }
    }
 
+   private static final class CategoriesIcon extends AbstractIcon {
+      private final Set<ModuleCategory> categories;
+
+      private CategoriesIcon(Set<ModuleCategory> categories) {
+         super(16, 16);
+
+         this.categories = categories;
+      }
+
+      @Override
+      protected void paintIcon(Component c, Graphics2D g, int x, int y) {
+         if (!categories.isEmpty() && !categories.equals(Set.of(ModuleCategory.NO_MODIFICATION))) {
+            int width = Math.min(4, Math.max(1, getIconWidth() / categories.size()));
+            int height = 12;
+            x += (getIconWidth() - categories.size() * width) / 2;
+            y += (getIconHeight() - height) / 2;
+            for (ModuleCategory category : categories) {
+               g.setColor(category.getColor());
+               g.fillRect(x, y, width, height);
+               x += width;
+            }
+         }
+      }
+   }
+
    /**
     * Hierarchy of module classes.
     */
@@ -1251,7 +1537,7 @@ public final class ModuleEditor {
       private void add(ModuleInfo moduleInfo) {
          Node node = this;
          for (String group : moduleInfo.grouping()) {
-            node = node.subNodes.computeIfAbsent(group, k -> new Node());
+            node = node.subNodes.computeIfAbsent(group, _ -> new Node());
          }
          node.moduleInfos.add(moduleInfo);
       }
@@ -1259,31 +1545,18 @@ public final class ModuleEditor {
       private JMenu makeNewMenuHierarchy(String menuText) {
          JMenu menu = new JMenu(menuText);
          subNodes.forEach((group, node) -> {
-            menu.add(node.makeNewMenuHierarchy(group));
+            menu.add(MiscIcons.EMPTY.on(node.makeNewMenuHierarchy(group)));
          });
          moduleInfos.stream()
                .sorted(Utils.comparingIgnoringCase(ModuleInfo::getDisplayName))
                .forEach(moduleInfo -> {
-                  JMenuItem createModuleItem = menu.add(moduleInfo.getDisplayName());
-                  createModuleItem.setIcon(new AbstractIcon(16, 16) {
-                     @Override
-                     protected void paintIcon(Component c, Graphics2D g, int x, int y) {
-                        EnumSet<ModuleCategory> categories = moduleInfo.categories();
-                        if (!categories.equals(EnumSet.of(ModuleCategory.NO_MODIFICATION))) {
-                           int width = 4;
-                           int height = 12;
-                           x += (getIconWidth() - categories.size() * width) / 2;
-                           y += (getIconHeight() - height) / 2;
-                           for (ModuleCategory category : categories) {
-                              g.setColor(category.getColor());
-                              g.fillRect(x, y, width, height);
-                              x += width;
-                           }
-                        }
-                     }
-                  });
+                  String title = moduleInfo.moduleClass() == TemporaryComputationsBeginModule.class
+                        ? "Temporary computations"
+                        : moduleInfo.getDisplayName();
+                  JMenuItem createModuleItem = menu.add(title);
+                  createModuleItem.setIcon(new CategoriesIcon(moduleInfo.categories()));
                   createModuleItem.setEnabled(modulePredicate.test(moduleInfo));
-                  createModuleItem.addActionListener(e -> createModule(moduleInfo));
+                  createModuleItem.addActionListener(_ -> addModule(moduleInfo));
                   createModuleItem.setToolTipText("<html>" + moduleInfo.description()
                         + "<p>" + categoriesToHtml(moduleInfo.categories(), false));
                   if (moduleInfo.isDeprecated()) {
@@ -1301,5 +1574,15 @@ public final class ModuleEditor {
          }
          return menu;
       }
+   }
+
+   private record PartialSetupInfo(
+         long lastModified,
+         Set<ModuleCategory> categories,
+         String tooltip
+   ) {
+      private static final Cache<Path, PartialSetupInfo> CACHE = CacheBuilder.newBuilder()
+            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .build();
    }
 }

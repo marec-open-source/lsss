@@ -112,11 +112,7 @@ public final class RegionIntegrationModule extends BaseDataModule {
             selectedVisibleRegionPingRange = selectedVisibleRegionPingRange.union(visibleRegionPingRange);
          }
 
-         RegionCache regionCache = internalData.regionMap.get(region);
-         if (regionCache == null) {
-            regionCache = new RegionCache();
-            internalData.regionMap.put(region, regionCache);
-         }
+         RegionCache regionCache = internalData.regionMap.computeIfAbsent(region, _ -> new RegionCache());
 
          for (Ping ping : unprocessedPings) {
             PingIndex pingIndex = ping.getPingIndex();

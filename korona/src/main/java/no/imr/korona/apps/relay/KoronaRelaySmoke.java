@@ -21,7 +21,7 @@ final class KoronaRelaySmoke extends SwingSmokeTestRunnable {
       koronaRelay.shutDown();
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SmokeTestExecutor.execute(KoronaRelay.LOGGING_MANAGER, new ToolsSmoke(), new KoronaRelaySmoke());
    }
 }

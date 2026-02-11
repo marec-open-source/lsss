@@ -244,6 +244,6 @@ public final class RegionsResource {
 
       return predicates.stream()
             .reduce(Predicate::and)
-            .orElse(region -> true);
+            .orElse(_ -> true);
    }
 }

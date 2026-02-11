@@ -165,7 +165,7 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
       Rolling rollingCentered = new Rolling(maxLength);
       Deque<PingIndex> lastPingIndices = new ArrayDeque<>(maxLength);
       float firstDepth = Float.NaN;
-      int transmitMode = -1;
+      short transmitMode = TransmitMode.UNKNOWN;
       for (Region region : regions) {
          for (PingIndex pingIndex : dataFileSet.getPingIndices(region.getPingRange())) {
             if (asyncHandle.isCancelled()) {
@@ -193,7 +193,7 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
             if (Float.isNaN(firstDepth)) {
                firstDepth = depthRanges.getBoundingRange().min();
             }
-            List<BroadbandSvData> svData = depthRanges.getFloatRanges().stream()
+            List<BroadbandSvData> svData = depthRanges.stream()
                   .flatMap(depthRange -> svByFrequency.windowDepthRanges(depthRange,
                         broadbandSvModule.get().depthResolution.getFloatValue(),
                         broadbandSvModule.get().depthMargin.getFloatValue(),
@@ -249,10 +249,11 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
          if (!peakPlotInfos.isEmpty()) {
             for (FrequencyPeakDetector.PeakPlotInfo peakPlotInfo : peakPlotInfos) {
                peaks.addSeparator();
-               peaks.addPoint(j * deltaN + beginPingIndex.getPingNumber(), peakPlotInfo.peakIndex() * deltaFrequency / 1000 + firstFrequencyRange.min() / 1000);
-               peaks.addPoint((j + 1) * deltaN + beginPingIndex.getPingNumber(), peakPlotInfo.peakIndex() * deltaFrequency / 1000 + firstFrequencyRange.min() / 1000);
-               peakInfo.add(new PeakData(new Date(timeFrequencyData.pingIndex().getTimeInMillis()).toString(), timeFrequencyData.pingIndex().getPingNumber(),
-                     peakPlotInfo.peakIndex() * deltaFrequency / 1000 + firstFrequencyRange.min() / 1000,
+               float kHz = (peakPlotInfo.peakIndex() * deltaFrequency + firstFrequencyRange.min()) / 1000;
+               peaks.addPoint(j * deltaN + beginPingIndex.getPingNumber(), kHz);
+               peaks.addPoint((j + 1) * deltaN + beginPingIndex.getPingNumber(), kHz);
+               peakInfo.add(new PeakData(new Date(timeFrequencyData.pingIndex().getTimeInMillis()).toString(),
+                     timeFrequencyData.pingIndex().getPingNumber(), kHz,
                      peakPlotInfo.prominenceData().prominence(), peakPlotInfo.std()));
             }
          }
@@ -411,18 +412,13 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
    private void export(Path file) throws IOException {
       Element root = DocumentHelper.createElement("peaks");
       for (PlotData dataset : datasets) {
-         String transmitMode = switch (dataset.info.transmitMode) {
-            case TransmitMode.ACTIVE -> "active";
-            case TransmitMode.PASSIVE -> "passive";
-            default -> "unknown";
-         };
          root.addElement("id")
                .addAttribute("name", dataset.info.filename)
                .addAttribute("startDate", dataset.info.firstDate)
                .addAttribute("nPings", Integer.toString(dataset.info.nPings))
                .addAttribute("minDepth", Float.toString(dataset.info.firstDepth))
                .addAttribute("nominalFrequency", Float.toString(dataset.info.frequency))
-               .addAttribute("transmitMode", transmitMode);
+               .addAttribute("transmitMode", TransmitMode.getTransmitModeString(dataset.info.transmitMode));
 
          List<PeakData> peakData = dataset.peakInfo().data;
          peakData.sort(Comparator.comparing(PeakData::frequency).thenComparing(PeakData::pingNumber));
@@ -553,11 +549,11 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
          buttonsPanel.setBackground(Color.WHITE);
 
          JButton computePeaks = new JButton("Compute");
-         computePeaks.addActionListener(e -> compute());
+         computePeaks.addActionListener(_ -> compute());
          buttonsPanel.add(computePeaks);
 
          JButton saveAs = new JButton("Save as...");
-         saveAs.addActionListener(e -> save());
+         saveAs.addActionListener(_ -> save());
          buttonsPanel.add(saveAs);
 
          return buttonsPanel;
@@ -569,7 +565,7 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
          panel.setBackground(Color.WHITE);
          JCheckBox checkBox = new JCheckBox("Show peaks", module.showPeaks);
          checkBox.setBackground(Color.WHITE);
-         checkBox.addItemListener(e -> module.setShowPeaks(checkBox.isSelected()));
+         checkBox.addItemListener(_ -> module.setShowPeaks(checkBox.isSelected()));
          panel.add(checkBox);
          return panel;
       }
@@ -612,7 +608,7 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
             try {
                module.export(selectedFile);
             } catch (IOException e) {
-               GuiUtils.showErrorDialog(getComponent(), "Error saving " + selectedFile);
+               GuiUtils.showErrorDialog(getComponent(), "Error saving " + selectedFile, e);
             }
          }
       }
@@ -641,7 +637,7 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
    private record PeakData(String date, long pingNumber, float frequency, float prominence, float std) {
    }
 
-   private record Info(String filename, String firstDate, int nPings, float firstDepth, float frequency, int transmitMode) {
+   private record Info(String filename, String firstDate, int nPings, float firstDepth, float frequency, short transmitMode) {
    }
 
    private record PlotData(Info info, RegularYXToZDataset dataset, Graph peaks, PeakInfo peakInfo) {

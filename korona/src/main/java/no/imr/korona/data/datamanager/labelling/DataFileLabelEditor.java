@@ -60,7 +60,7 @@ public final class DataFileLabelEditor {
          button.setForeground(ColorUtils.contrastingBlackOrWhite(backgroundColor));
       };
       updateButtonColors.run();
-      button.addActionListener(e -> {
+      button.addActionListener(_ -> {
          Color chosenColor = JColorChooser.showDialog(GuiUtils.windowForComponent(button),
                "Color", backgroundColor, false);
          if (chosenColor != null) {

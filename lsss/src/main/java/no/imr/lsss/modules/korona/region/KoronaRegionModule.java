@@ -137,7 +137,7 @@ public final class KoronaRegionModule extends BaseDataModule {
             float firstDepth = Float.parseFloat(element.attributeValue(XML_DEPTH));
             convertedRegions.add(new KoronaRegionIdentifier(dataFileSet, startTime, pingCount, firstDepth));
          } catch (Exception e) {
-            Log.global.warning("Error parsing KORONA region conversion in " + workFile.getFileName() + " (startTime=" + startTimeAttribute + ")");
+            Log.global.warning("Error parsing KORONA region conversion in " + workFile.getFileName() + " (startTime=" + startTimeAttribute + "): " + e);
          }
       }
       for (KoronaRegionLSSS koronaRegion : getKoronaRegions()) {

@@ -1,11 +1,28 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "standardComment",
+
+      // Properties:
+      "text",
+})
 public class StandardComment implements BasePlatformObject<StandardCommentPK> {
    public static final int FREE_TEXT_STANDARD_COMMENT = 0;
 
@@ -40,6 +57,7 @@ public class StandardComment implements BasePlatformObject<StandardCommentPK> {
       this.compId = compId;
    }
 
+   @Column(length = 200)
    public String getText() {
       return text;
    }
@@ -48,6 +66,12 @@ public class StandardComment implements BasePlatformObject<StandardCommentPK> {
       this.text = DatabaseUtils.nullToEmpty(text);
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform")
+   })
    public Platform getPlatform() {
       return platform;
    }

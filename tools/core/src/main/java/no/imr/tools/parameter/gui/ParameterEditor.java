@@ -41,7 +41,7 @@ public final class ParameterEditor {
    }
 
    public void addPopupMenuMouseListener(JComponent component) {
-      component.addMouseListener(new PopupMenuMouseListener(e -> makePopupMenu()));
+      component.addMouseListener(new PopupMenuMouseListener(_ -> makePopupMenu()));
    }
 
    public ChangeManager getParameterChangeManager() {
@@ -126,7 +126,7 @@ public final class ParameterEditor {
 
       JMenuItem copy = MiscIcons.COPY.on(menu.add("Copy parameters"));
       copy.setToolTipText("Copy parameters to clipboard");
-      copy.addActionListener(e -> ParameterClipboard.doCopy(parameters));
+      copy.addActionListener(_ -> ParameterClipboard.doCopy(parameters));
 
       JMenuItem paste = MiscIcons.PASTE.on(menu.add("Paste parameters"));
       paste.setToolTipText("""
@@ -138,7 +138,7 @@ public final class ParameterEditor {
       if (parameterClipboard == null) {
          paste.setEnabled(false);
       } else {
-         paste.addActionListener(e -> {
+         paste.addActionListener(_ -> {
             parameterClipboard.doPaste();
             update();
          });

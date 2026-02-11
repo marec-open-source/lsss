@@ -42,7 +42,7 @@ final class ParameterClipboard {
          Element root = XmlUtils.readDocument(xmlString).getRootElement();
          List<ParameterWrapper> parameterWrappers = findParametersWrappers(root, parameters, parameterGUIs);
          return new ParameterClipboard(parameterWrappers);
-      } catch (Exception e) {
+      } catch (Exception _) {
          return null;
       }
    }
@@ -70,8 +70,8 @@ final class ParameterClipboard {
             case BaseValueParameter<?> baseValueParameter -> {
                try {
                   parameterWrappers.add(wrap(baseValueParameter, parameterGUIs.get(parameter), element));
-               } catch (ParameterException ignore) {
-                  // Ignore this parameter
+               } catch (ParameterException _) {
+                  // Ignore this parameter.
                }
             }
             case MultiParameter<?> multiParameter -> {
@@ -80,7 +80,7 @@ final class ParameterClipboard {
                parameterWrappers.add(wrap(multiParameterGUI, subParametersWrappers.stream().anyMatch(ParameterWrapper::changed)));
                parameterWrappers.addAll(subParametersWrappers);
             }
-            case VoidParameter __ -> {
+            case VoidParameter _ -> {
             }
          }
       }

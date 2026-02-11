@@ -9,7 +9,7 @@ public final class FrequencyResponseFunctionParameterSmoke extends SmokeTestRunn
    }
 
    @Override
-   public void run() throws Exception {
+   public void run() {
       FrequencyResponseFunctionParameter p = new FrequencyResponseFunctionParameter(new Name("Test"));
       p.setStringValue("F + 123");
       checkEquals(10_123.0, p.getFunction().eval(10_000));

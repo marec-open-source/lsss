@@ -53,12 +53,7 @@ public final class CreateMissingBotGUI {
    private void createMissingBotFiles(AsyncHandle asyncHandle) {
       LoadingCache<EK60SegmentHandle, XyzData> xyzDataCache = CacheBuilder.newBuilder()
             .maximumSize(2L * Runtime.getRuntime().availableProcessors())
-            .build(new CacheLoader<>() {
-               @Override
-               public XyzData load(EK60SegmentHandle segmentHandle) {
-                  return loadXyzData(segmentHandle);
-               }
-            });
+            .build(CacheLoader.from(CreateMissingBotGUI::loadXyzData));
 
       missingBotIndexes.parallelStream()
             .forEach(i -> {
@@ -83,7 +78,7 @@ public final class CreateMissingBotGUI {
                try {
                   writeBotFile(segmentHandle.getEK60FileSet().getBot(), xyzData.rawFileConfiguration, xyzData.bot0Datagrams);
                } catch (IOException e) {
-                  Log.global.log(Level.WARNING, "Error writing " + segmentHandle.getEK60FileSet().getBot());
+                  Log.global.log(Level.WARNING, "Error writing " + segmentHandle.getEK60FileSet().getBot(), e);
                }
 
                progressView.incrementMainProgress("");
@@ -104,7 +99,7 @@ public final class CreateMissingBotGUI {
          }
          return new XyzData(segmentData.getRawFileConfiguration(), segmentData.getBot0Datagrams(), channelIdToXyzLines);
       } catch (IOException e) {
-         Log.global.log(Level.WARNING, "Error using xyz-files for " + segmentHandle.getMainFile());
+         Log.global.log(Level.WARNING, "Error using xyz-files for " + segmentHandle.getMainFile(), e);
          return new XyzData(new RawFileConfiguration(0), List.of(), Map.of());
       }
    }

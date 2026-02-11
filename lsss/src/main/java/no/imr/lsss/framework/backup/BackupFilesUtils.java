@@ -20,7 +20,7 @@ final class BackupFilesUtils {
       try {
          String path = Files.readString(settingsFile, Utils.UTF_8).trim();
          return path.isEmpty() ? null : Path.of(path);
-      } catch (Exception e) {
+      } catch (Exception _) {
          return null;
       }
    }

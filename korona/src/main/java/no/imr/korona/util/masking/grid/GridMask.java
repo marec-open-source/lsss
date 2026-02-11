@@ -89,7 +89,7 @@ public final class GridMask {
    }
 
    public Map<Integer, IntRangeSet> getColumnsForI(Integer i) {
-      return columns.computeIfAbsent(i, k -> new HashMap<>());
+      return columns.computeIfAbsent(i, _ -> new HashMap<>());
    }
 
    public void add(GridMask gridMask) {

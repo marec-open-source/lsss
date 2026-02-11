@@ -18,7 +18,6 @@ import no.imr.lsss.LSSS;
 import no.imr.lsss.database.tables.hibernate.Scatter;
 import no.imr.lsss.database.util.DatabaseTime;
 import no.imr.lsss.framework.BaseSystemFeaturePlugin;
-import no.imr.lsss.framework.config.ConfigurationManager;
 import no.imr.lsss.framework.config.application.SubDir;
 import no.imr.lsss.framework.config.survey.data.DataConf;
 import no.imr.lsss.modules.BaseViewModule;
@@ -87,7 +86,7 @@ public final class LsssUtils {
       FileParameter dirParameter = dataConf.getDir(mainSubDir);
       if (dirParameter.getFile() == null) {
          JOptionPane.showMessageDialog(referenceComponent, mainSubDir.parameterName().displayName() + " directory must be configured");
-         lsss.getConfigurationManager().showDialog(dataConf);
+         dataConf.showInConfigurationDialog();
          if (dirParameter.getFile() == null) {
             return null;
          }
@@ -147,8 +146,7 @@ public final class LsssUtils {
                   if (window != null) {
                      window.dispose();
                   }
-                  ConfigurationManager configurationManager = lsss.getConfigurationManager();
-                  configurationManager.showDialog(configurationManager.getSurveyConfiguration().getPreprocessingConf());
+                  lsss.getConfigurationManager().getSurveyConfiguration().getPreprocessingConf().showInConfigurationDialog();
                }
                default -> {
                }

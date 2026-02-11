@@ -97,7 +97,7 @@ final class ByteBufferUtilsTest {
       ByteBufferUtils.writeCountAndShortArray(buffer, values);
       assertEquals(size, buffer.position());
       buffer.flip();
-      assertArrayEquals(values, ByteBufferUtils.readCountAndShorArray(buffer));
+      assertArrayEquals(values, ByteBufferUtils.readCountAndShortArray(buffer));
       assertEquals(size, buffer.position());
    }
 

@@ -138,7 +138,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
       public RawDataDirParameter(String dialogTitle, SubDir subDir, LSSS lsss) {
          super(dialogTitle, subDir, lsss);
 
-         subscribe(__ -> {
+         subscribe(_ -> {
             Path file = getFile();
             Path parentFile = FileUtils.getParent(file);
             if (parentFile != null && !parentFile.equals(FileUtils.getParent(previousFile))) {
@@ -166,7 +166,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
       public ProcessedDataDirParameter(String dialogTitle, SubDir subDir, LSSS lsss) {
          super(dialogTitle, subDir, lsss);
 
-         subscribe(__ -> {
+         subscribe(_ -> {
             Path file = getFile();
             processedUpdateChecker = file != null ? new KoronaRelayUpdateChecker(file) : null;
             checkForUpdatesFromKoronaRelay(processedUpdateChecker, false);
@@ -289,7 +289,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
       );
 
       FileParameter workDirParameter = getConfigurationManager().getDataConf().getDir(DataConfLSSS.WORK_SUB_DIR);
-      workDirParameter.subscribe(__ -> reloadDataFileLabelling());
+      workDirParameter.subscribe(_ -> reloadDataFileLabelling());
 
       GuiUtils.invokeNowOrWait(() -> viewHolder.getView().setup());
    }
@@ -366,7 +366,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
          JMenuItem reCreateStatusXmlItem = menu.add("Re-create status.xml");
          Path dir = parameter.getFile();
          if (dir != null) {
-            reCreateStatusXmlItem.addActionListener(e -> {
+            reCreateStatusXmlItem.addActionListener(_ -> {
                KoronaRelayUtils.showReCreateStatusXmlDialog(viewHolder.getComponent(), dir.resolve(KoronaRelay.STATUS_FILENAME));
             });
          } else {
@@ -441,13 +441,13 @@ public abstract class DataConf extends SurveyDirectoryConf {
 
       JButton yesButton = new JButton("Yes");
       yesButton.setMnemonic(KeyEvent.VK_Y);
-      yesButton.addActionListener(e -> {
+      yesButton.addActionListener(_ -> {
          changeDirectories.set(true);
          dialog.dispose();
       });
       JButton noButton = new JButton("No");
       noButton.setMnemonic(KeyEvent.VK_N);
-      noButton.addActionListener(e -> dialog.dispose());
+      noButton.addActionListener(_ -> dialog.dispose());
       GuiUtils.setAccelerator(noButton, Shortcuts.ESCAPE);
 
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -690,7 +690,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
       // Must do this later so that configuration manager can create a backup of the configuration first,
       // else cancel button doesn't work as it should
       SwingUtilities.invokeLater(() -> selectFiles(files));
-      getConfigurationManager().showDialog(this);
+      showInConfigurationDialog();
    }
 
    private void updateParameterPanel() {
@@ -782,12 +782,12 @@ public abstract class DataConf extends SurveyDirectoryConf {
          if (segmentInfo == null) {
             try {
                segmentInfo = fileRow.getRawSegmentHandle().createSegmentInfo();
-            } catch (IOException e) {
-               // Ignore and try next row instead
+            } catch (IOException _) {
+               // Ignore and try the next row instead.
                continue;
             }
          }
-         if (!segmentInfo.getPingRange().isEmpty()) {
+         if (!segmentInfo.pingRange().isEmpty()) {
             return segmentInfo;
          }
       }
@@ -808,8 +808,8 @@ public abstract class DataConf extends SurveyDirectoryConf {
          return new DefaultRange<>(0L, 0L);
       }
 
-      long beginNTDate = firstSegmentInfo.getPingRange().begin().getNTDate();
-      long endNTDate = lastSegmentInfo.getPingRange().end().getNTDate();
+      long beginNTDate = firstSegmentInfo.pingRange().begin().getNTDate();
+      long endNTDate = lastSegmentInfo.pingRange().end().getNTDate();
       if (beginNTDate > endNTDate) {
          return new DefaultRange<>(0L, 0L);
       }
@@ -954,7 +954,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
    private DataFileSet.Compatibility getSelectionCompatibility() {
       DataFileSet rawDataFileSet = dataSetLoader.getDataFileSet(DataType.RAW);
       DataFileSet processedDataFileSet = dataSetLoader.getDataFileSet(DataType.PROCESSED);
-      return rawDataFileSet.isCompatibleWith(processedDataFileSet);
+      return rawDataFileSet.getCompatibilityWith(processedDataFileSet);
    }
 
    public abstract SurveyDirectoryParameter getRawDir();
@@ -1147,7 +1147,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
    public @Nullable SegmentHandle ntDateToOriginalSegmentHandle(long ntDate) {
       for (DataFileTableModel.FileRow fileRow : view.dataFileTableModel.getFileRows()) {
          SegmentInfo segmentInfo = fileRow.getSegmentInfo();
-         if (segmentInfo != null && segmentInfo.getPingRange().containsNTDate(ntDate)) {
+         if (segmentInfo != null && segmentInfo.pingRange().containsNTDate(ntDate)) {
             return fileRow.getRawSegmentHandle();
          }
       }
@@ -1222,7 +1222,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
       List<DataFileTableModel.FileRow> fileRows = view.dataFileTableModel.getFileRows();
       for (int i = 0; i < fileRows.size(); i++) {
          SegmentInfo segmentInfo = getSegmentInfo(i, i);
-         if (segmentInfo != null && segmentInfo.getPingRange().toNTDateRange().intersects(ntDateRange)) {
+         if (segmentInfo != null && segmentInfo.pingRange().toNTDateRange().intersects(ntDateRange)) {
             String baseName = fileRows.get(i).getRawSegmentHandle().getBaseName();
             if (first.isEmpty()) {
                first = baseName;
@@ -1289,14 +1289,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
       return fileSelections;
    }
 
-   public static final class FileSelection {
-      private final SurveyDirectoryParameter dir;
-      private final List<SegmentHandle> segmentHandles;
-
-      public FileSelection(SurveyDirectoryParameter dir, List<SegmentHandle> segmentHandles) {
-         this.dir = dir;
-         this.segmentHandles = segmentHandles;
-      }
+   public record FileSelection(SurveyDirectoryParameter dir, List<SegmentHandle> segmentHandles) {
    }
 
    private static final class View implements ViewHolder.View {
@@ -1331,13 +1324,13 @@ public abstract class DataConf extends SurveyDirectoryConf {
 
          JButton refreshButton = MiscIcons.REFRESH.on(new JButton());
          refreshButton.setToolTipText("Refresh file list");
-         refreshButton.addActionListener(e -> dataConf.refresh());
+         refreshButton.addActionListener(_ -> dataConf.refresh());
          GuiUtils.setAccelerator(refreshButton, KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
          buttonPanel.add(refreshButton);
 
          createIdxButton.setVisible(false);
          createIdxButton.setToolTipText("Create missing index files");
-         createIdxButton.addActionListener(e -> {
+         createIdxButton.addActionListener(_ -> {
             dataConf.onMissingIdxFileButtonPress(createIdxButton, dataConf.getAllOriginalSegmentHandles());
             dataConf.refresh();
          });
@@ -1345,7 +1338,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
 
          createBotButton.setVisible(false);
          createBotButton.setToolTipText("Create missing .bot files from .xyz files");
-         createBotButton.addActionListener(e -> {
+         createBotButton.addActionListener(_ -> {
             onMissingBotFileButtonPress(createBotButton, dataConf.getAllOriginalSegmentHandles());
             dataConf.refresh();
          });
@@ -1362,12 +1355,12 @@ public abstract class DataConf extends SurveyDirectoryConf {
          koronaButton.setEnabled(false);
          dataConf.getDataSetToggleButtonIcon().on(koronaButton);
          koronaButton.setToolTipText(dataConf.getDataSetToggleButtonTooltip());
-         koronaButton.addActionListener(e1 -> dataConf.setSelectDataType(koronaButton.isSelected() ? DataType.PROCESSED : DataType.RAW));
+         koronaButton.addActionListener(_ -> dataConf.setSelectDataType(koronaButton.isSelected() ? DataType.PROCESSED : DataType.RAW));
 
          JPanel eastButtons = new JPanel(new FlowLayout());
          JButton hideParameterPanelButton = MiscIcons.STEP_UP.on(new JButton());
          hideParameterPanelButton.setToolTipText("Hide directory parameters");
-         hideParameterPanelButton.addActionListener(e -> {
+         hideParameterPanelButton.addActionListener(_ -> {
             boolean visible = !parameterPanel.isVisible();
             parameterPanel.setVisible(visible);
             (visible ? MiscIcons.STEP_UP : MiscIcons.STEP_DOWN).on(hideParameterPanelButton);
@@ -1403,7 +1396,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
             dataConf.selectFiles(first, last);
          });
 
-         dataFileTable.addMouseListener(new PopupMenuMouseListener(e -> createFileTablePopupMenu()));
+         dataFileTable.addMouseListener(new PopupMenuMouseListener(_ -> createFileTablePopupMenu()));
          dataFileTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseExited(MouseEvent e) {
@@ -1430,7 +1423,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
 
          GuiUtils.autoCreateContentMenu(menu, () -> {
             JMenuItem sortByTimeItem = MiscIcons.checkBox(dataConf.sortByTime.getBooleanValue()).on(menu.add("Sort files by time"));
-            sortByTimeItem.addActionListener(e -> {
+            sortByTimeItem.addActionListener(_ -> {
                String firstFile = dataConf.firstSelectedFile.getValue();
                String lastFile = dataConf.lastSelectedFile.getValue();
                dataConf.sortByTime.toggle();
@@ -1442,21 +1435,21 @@ public abstract class DataConf extends SurveyDirectoryConf {
             timeGroupingMenu.setEnabled(dataConf.sortByTime.getBooleanValue());
             for (TimeGrouping timeGrouping : TimeGrouping.values()) {
                JMenuItem item = MiscIcons.check(dataConf.timeGrouping.getValue() == timeGrouping).on(timeGroupingMenu.add(timeGrouping.label));
-               item.addActionListener(e -> dataConf.timeGrouping.setValue(timeGrouping));
+               item.addActionListener(_ -> dataConf.timeGrouping.setValue(timeGrouping));
             }
 
             JMenuItem collapseAllItem = MiscIcons.VERTICAL_COLLAPSE.on(menu.add("Collapse all dates"));
             collapseAllItem.setEnabled(dataConf.sortByTime.getBooleanValue());
-            collapseAllItem.addActionListener(e -> dataFileTableModel.setAllExpanded(false));
+            collapseAllItem.addActionListener(_ -> dataFileTableModel.setAllExpanded(false));
 
             JMenuItem expandAllItem = MiscIcons.VERTICAL_EXPAND.on(menu.add("Expand all dates"));
             expandAllItem.setEnabled(dataConf.sortByTime.getBooleanValue());
-            expandAllItem.addActionListener(e -> dataFileTableModel.setAllExpanded(true));
+            expandAllItem.addActionListener(_ -> dataFileTableModel.setAllExpanded(true));
 
             menu.addSeparator();
 
             JMenuItem visualizerDialogItem = MiscIcons.SCATTER_PLOT.on(menu.add("Data file visualizer dialog"));
-            visualizerDialogItem.addActionListener(e -> new DataFileVisualizerDialog(dataConf));
+            visualizerDialogItem.addActionListener(_ -> new DataFileVisualizerDialog(dataConf));
          });
 
          return menuBar;
@@ -1472,11 +1465,24 @@ public abstract class DataConf extends SurveyDirectoryConf {
          }
 
          JMenuItem selectAllItem = popupMenu.add("Select all files");
-         selectAllItem.addActionListener(e -> dataConf.selectAll());
+         selectAllItem.addActionListener(_ -> dataConf.selectAll());
+
+         if (dataConf instanceof DataConfLSSS) {
+            JMenuItem selectVisibleItem = popupMenu.add("Select files visible in the echogram");
+            selectVisibleItem.addActionListener(_ -> {
+               PingRange pingRange = dataConf.getLSSS().getInterpretationSettings().getPingRange();
+               DataFileSet dataFileSet = dataConf.getLSSS().getInterpretationSettings().getDataFileSet();
+               List<SegmentHandle> segmentHandles = dataFileSet.getDataFiles(pingRange).stream()
+                     .map(DataFile::getSegmentHandle)
+                     .toList();
+               dataConf.selectSegmentHandles(segmentHandles);
+               TableUtils.scrollToSelectedRows(dataFileTable);
+            });
+         }
 
          JMenuItem scrollToSelectionItem = popupMenu.add("Scroll to selected files");
          scrollToSelectionItem.setEnabled(!dataFileTable.getSelectionModel().isSelectionEmpty());
-         scrollToSelectionItem.addActionListener(e -> TableUtils.scrollToSelectedRows(dataFileTable));
+         scrollToSelectionItem.addActionListener(_ -> TableUtils.scrollToSelectedRows(dataFileTable));
 
          for (DataConf otherDataConf : dataConf.getAllDataConfs()) {
             if (otherDataConf == dataConf) {
@@ -1500,7 +1506,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
                showPreprocessingSetupItem.setEnabled(!fileSelection.segmentHandles.isEmpty());
                Path dir = fileSelection.dir.getFile();
                if (dir != null) {
-                  showPreprocessingSetupItem.addActionListener(e -> {
+                  showPreprocessingSetupItem.addActionListener(_ -> {
                      new ProcessingSetupDialog(dataConf.getLSSS(), dir, fileSelection.segmentHandles, dataConf.getLSSS().getReferenceComponent());
                   });
                }
@@ -1536,14 +1542,14 @@ public abstract class DataConf extends SurveyDirectoryConf {
 
          if (!allLabels.isEmpty()) {
             for (DataFileLabel label : allLabels) {
-               addMenu.add(DataFileLabelUtils.menuItem(label, e -> {
+               addMenu.add(DataFileLabelUtils.menuItem(label, _ -> {
                   dataFileLabelling.addLabel(label, selectedSegmentHandles);
                   dataConf.dataFileLabellingChanged();
                }));
             }
             addMenu.addSeparator();
          }
-         MenuUtils.addItem(addMenu, "New label...", KeyEvent.VK_N, e -> {
+         MenuUtils.addItem(addMenu, "New label...", KeyEvent.VK_N, _ -> {
             DataFileLabel emptyLabel = new DataFileLabel("", "", DataFileLabelling.DEFAULT_COLOR);
             DataFileLabel newLabel = new DataFileLabelEditor(dataFileLabelling, emptyLabel)
                   .show(mainPanel, "New label")
@@ -1556,7 +1562,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
          });
 
          for (DataFileLabel label : allLabels) {
-            selectMenu.add(DataFileLabelUtils.menuItem(label, e -> {
+            selectMenu.add(DataFileLabelUtils.menuItem(label, _ -> {
                List<SegmentHandle> segmentHandles = dataFileTableModel.getFileRows().stream()
                      .map(DataFileTableModel.FileRow::getRawSegmentHandle)
                      .filter(segmentHandle -> dataFileLabelling.getLabels(segmentHandle).contains(label))
@@ -1566,19 +1572,19 @@ public abstract class DataConf extends SurveyDirectoryConf {
          }
 
          for (DataFileLabel label : selectedLabels) {
-            removeMenu.add(DataFileLabelUtils.menuItem(label, e -> {
+            removeMenu.add(DataFileLabelUtils.menuItem(label, _ -> {
                dataFileLabelling.removeLabel(label, selectedSegmentHandles);
                dataConf.dataFileLabellingChanged();
             }));
          }
          removeMenu.addSeparator();
-         MenuUtils.addItem(removeMenu, "All labels", KeyEvent.VK_A, e -> {
+         MenuUtils.addItem(removeMenu, "All labels", KeyEvent.VK_A, _ -> {
             dataFileLabelling.removeAllLabels(selectedSegmentHandles);
             dataConf.dataFileLabellingChanged();
          });
 
          for (DataFileLabel label : allLabels) {
-            editMenu.add(DataFileLabelUtils.menuItem(label, e -> {
+            editMenu.add(DataFileLabelUtils.menuItem(label, _ -> {
                DataFileLabel editedLabel = new DataFileLabelEditor(dataFileLabelling, label)
                      .show(mainPanel, "Edit label")
                      .getEditedLabel();
@@ -1590,7 +1596,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
          }
 
          for (DataFileLabel label : allLabels) {
-            deleteMenu.add(DataFileLabelUtils.menuItem(label, e -> {
+            deleteMenu.add(DataFileLabelUtils.menuItem(label, _ -> {
                int answer = GuiUtils.showOptionDialog(mainPanel, "Delete label",
                      "<html>Delete label " + label.toHtml() + "?", new String[]{"Delete", "Cancel"});
                if (answer == 0) {
@@ -1605,7 +1611,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
 
       private static void addSelectItem(JPopupMenu popupMenu, DataConf sourceDataConf, DataConf targetDataConf, SvgIcon icon) {
          JMenuItem item = icon.on(popupMenu.add("Select '" + targetDataConf.getDisplayName() + "' files from '" + sourceDataConf.getDisplayName() + "' selection"));
-         item.addActionListener(e -> {
+         item.addActionListener(_ -> {
             targetDataConf.selectNTDateRange(sourceDataConf.getSelectedNTDateRange());
             TableUtils.scrollToSelectedRows(targetDataConf.view.dataFileTable);
          });
@@ -1653,33 +1659,33 @@ public abstract class DataConf extends SurveyDirectoryConf {
          if (Files.exists(calibrationXmlFile)) {
             JMenuItem editItem = MiscIcons.EDIT.on(popupMenu.add("Edit " + CalibrationFile.FILE_NAME));
             editItem.setToolTipText("Edit " + calibrationXmlFile);
-            editItem.addActionListener(e -> CalibrationGui.edit(rawDir, mainPanel));
+            editItem.addActionListener(_ -> CalibrationGui.edit(rawDir, mainPanel));
 
             JMenuItem generateFromSelectedItem = popupMenu.add("Extend " + CalibrationFile.FILE_NAME
                   + " with values from " + selectedSegmentHandles.size() + " selected data files");
             generateFromSelectedItem.setToolTipText("<html>Extend " + HtmlEscapers.htmlEscaper().escape(calibrationXmlFile.toString())
                   + "<br>Existing entries will not be changed.");
-            generateFromSelectedItem.addActionListener(e -> CalibrationGui.generate(selectedSegmentHandles, mainPanel));
+            generateFromSelectedItem.addActionListener(_ -> CalibrationGui.generate(selectedSegmentHandles, mainPanel));
 
             JMenuItem generateFromAllItem = popupMenu.add("Extend " + CalibrationFile.FILE_NAME
                   + " with values from all " + allSegmentHandles.size() + " data files");
             generateFromAllItem.setToolTipText("<html>Extend " + HtmlEscapers.htmlEscaper().escape(calibrationXmlFile.toString())
                   + "<br>Existing entries will not be changed.");
-            generateFromAllItem.addActionListener(e -> CalibrationGui.generate(allSegmentHandles, mainPanel));
+            generateFromAllItem.addActionListener(_ -> CalibrationGui.generate(allSegmentHandles, mainPanel));
          } else {
             JMenuItem createEmptyItem = MiscIcons.ADD.on(popupMenu.add("Create empty " + CalibrationFile.FILE_NAME));
             createEmptyItem.setToolTipText("Create " + calibrationXmlFile);
-            createEmptyItem.addActionListener(e -> CalibrationGui.createEmptyOrEdit(rawDir, mainPanel));
+            createEmptyItem.addActionListener(_ -> CalibrationGui.createEmptyOrEdit(rawDir, mainPanel));
 
             JMenuItem generateFromSelectedItem = popupMenu.add("Generate " + CalibrationFile.FILE_NAME
                   + " with values from " + selectedSegmentHandles.size() + " selected data files");
             generateFromSelectedItem.setToolTipText("Create " + calibrationXmlFile);
-            generateFromSelectedItem.addActionListener(e -> CalibrationGui.generate(selectedSegmentHandles, mainPanel));
+            generateFromSelectedItem.addActionListener(_ -> CalibrationGui.generate(selectedSegmentHandles, mainPanel));
 
             JMenuItem generateFromAllItem = popupMenu.add("Generate " + CalibrationFile.FILE_NAME
                   + " with values from all " + allSegmentHandles.size() + " data files");
             generateFromAllItem.setToolTipText("Create " + calibrationXmlFile);
-            generateFromAllItem.addActionListener(e -> CalibrationGui.generate(allSegmentHandles, mainPanel));
+            generateFromAllItem.addActionListener(_ -> CalibrationGui.generate(allSegmentHandles, mainPanel));
          }
       }
 

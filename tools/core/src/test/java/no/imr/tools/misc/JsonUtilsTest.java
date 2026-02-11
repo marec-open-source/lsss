@@ -1,11 +1,9 @@
 package no.imr.tools.misc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.exc.InvalidNullException;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class JsonUtilsTest {
    @Test
-   void compactJsonWithoutNewline() throws JsonProcessingException {
+   void compactJsonWithoutNewline() {
       Object object = Map.of("a", "b");
       String json = JsonUtils.JSON_MAPPER.writeValueAsString(object);
       assertFalse(json.contains("\r"), json);
@@ -21,7 +19,7 @@ final class JsonUtilsTest {
    }
 
    @Test
-   void prettyJsonWithoutCarriageReturn() throws JsonProcessingException {
+   void prettyJsonWithoutCarriageReturn() {
       Object object = Map.of("a", "b");
       String json = JsonUtils.PRETTY_PRINTER.writeValueAsString(object);
       assertFalse(json.contains("\r"), json);
@@ -29,13 +27,13 @@ final class JsonUtilsTest {
    }
 
    @Test
-   void parseSet() throws IOException {
+   void parseSet() {
       assertEquals(Set.of(1, 2, 3), JsonUtils.parseSet("[1, 2, 2, 3]", Integer.class));
       assertThrows(InvalidNullException.class, () -> JsonUtils.parseSet("[1, 2, 2, 3, null]", Object.class));
    }
 
    @Test
-   void parseMap() throws IOException {
+   void parseMap() {
       assertEquals(Map.of("a", 1, "b", true), JsonUtils.parseMap("{ \"a\": 1, \"b\": true }"));
       assertThrows(InvalidNullException.class, () -> JsonUtils.parseMap("{ \"a\": 1, \"b\": null }"));
    }

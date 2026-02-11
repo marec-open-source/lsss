@@ -3,6 +3,7 @@ package no.imr.korona.computation.filters;
 import no.imr.korona.Korona;
 import no.imr.korona.computation.ModuleContainer;
 import no.imr.korona.computation.ModuleContainerComputation;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.test.data.ConstantSyntheticData;
@@ -34,7 +35,7 @@ final class FillMissingDataModuleTest {
             return s.charAt(channel - 1) == '#';
          }
       };
-      syntheticData.setFirstAndLastPingNumber(firstPingNumber, firstPingNumber + inputPingInfos.size() - 1);
+      SyntheticDataFile syntheticDataFile = syntheticData.withFirstAndLastPingNumber(firstPingNumber, firstPingNumber + inputPingInfos.size() - 1);
 
       ModuleContainer moduleContainer = new ModuleContainer(new Korona());
 
@@ -42,7 +43,7 @@ final class FillMissingDataModuleTest {
 
       int expectedPingNumber = firstPingNumber;
       List<Integer> channelDataCounts = new ArrayList<>();
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticData.toPingReader())) {
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
          while (true) {
             Ping ping = computation.nextPing();
             if (ping == null) {

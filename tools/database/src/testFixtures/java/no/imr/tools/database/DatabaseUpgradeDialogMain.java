@@ -10,7 +10,7 @@ final class DatabaseUpgradeDialogMain {
    private DatabaseUpgradeDialogMain() {
    }
 
-   public static void main(String[] args) {
+   static void main(String[] args) {
       SwingUtilities.invokeLater(() -> {
          String resource = args.length > 0 ? args[0] : "no/imr/lsss/resources/databaseUpgrade/FromVersion3.sql";
          String sql = ResourceUtils.getString(resource);

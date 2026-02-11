@@ -15,10 +15,13 @@ public final class DataManagerTestUtils {
       return new DataManager(new DefaultDataConfiguration());
    }
 
-   public static void open(DataManager dataManager, SegmentHandle... segmentHandles) {
+   public static DataFileSet load(SegmentHandle... segmentHandles) {
       FileOpenRequest fileOpenRequest = testFileOpenRequest(segmentHandles);
-      dataManager.asyncOpenFiles(fileOpenRequest);
-      fileOpenRequest.getAsyncHandle().waitUntilFinished();
+      return new DataFileSet(new DefaultDataConfiguration(), fileOpenRequest);
+   }
+
+   public static void open(DataManager dataManager, SegmentHandle... segmentHandles) {
+      dataManager.setDataFileSet(load(segmentHandles));
    }
 
    public static FileOpenRequest testFileOpenRequest(SegmentHandle... segmentHandles) {

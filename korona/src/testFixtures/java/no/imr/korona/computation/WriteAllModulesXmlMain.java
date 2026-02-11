@@ -15,7 +15,7 @@ final class WriteAllModulesXmlMain {
    private WriteAllModulesXmlMain() {
    }
 
-   public static void main(String[] args) throws ModuleCreationException, IOException {
+   static void main() throws ModuleCreationException, IOException {
       Korona korona = new Korona();
 
       NavigableSet<String> persistentNames = korona.getModuleManager().getModuleInfos().stream()

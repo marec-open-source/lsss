@@ -37,7 +37,7 @@ public final class ScaleEditor extends SchoolEditor {
       this.zSettings = zSettings;
       maskComputer = new CoalescingExecutor(getRegionManager().getRegionConfiguration().getBackgroundExecutor());
       maskComputationInfo = new ScaleMaskComputation(pingContainer, pingSettings, zSettings,
-            getOriginalSchoolMaskRepresentation().getSchoolMask());
+            getOriginalSchoolMaskRepresentation().getSchoolMask(), false);
    }
 
    @Override

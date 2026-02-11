@@ -56,7 +56,7 @@ public final class BroadbandNotchFilterModuleConfig extends Configurable {
                }
             });
             broadbandTemporalNotchFilterConfigs.add(filter);
-         } catch (ParameterException e) {
+         } catch (ParameterException _) {
             Log.global.warning("Error parsing notch filter: " + XmlUtils.toDefaultString(filterElement));
          }
       });

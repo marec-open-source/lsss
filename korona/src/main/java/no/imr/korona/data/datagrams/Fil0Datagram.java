@@ -8,10 +8,10 @@ import java.nio.ByteBuffer;
 import java.util.StringTokenizer;
 
 /**
- * The EK80 echo sounder filter configuration datagram.
+ * The EK80 echosounder filter configuration datagram.
  */
 public final class Fil0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("FIL0", Fil0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("FIL0", Fil0Datagram::new);
 
    private final short channel;     // Channel, int16
    private final String channelId;   // Channel ID, char 128

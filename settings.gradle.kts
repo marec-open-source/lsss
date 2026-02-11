@@ -37,16 +37,3 @@ fun adaptProject(project: ProjectDescriptor, name: String) {
 }
 
 rootProject.children.forEach { adaptProject(it, it.name) }
-
-// Temporary workaround for https://github.com/dom4j/dom4j/issues/99
-dependencyResolutionManagement {
-   components {
-      withModule("org.dom4j:dom4j") {
-         allVariants {
-            withDependencies {
-               clear()
-            }
-         }
-      }
-   }
-}

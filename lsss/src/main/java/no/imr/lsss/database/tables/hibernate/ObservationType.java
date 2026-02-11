@@ -1,6 +1,10 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import org.jspecify.annotations.Nullable;
@@ -8,6 +12,13 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "observationType",
+
+      // Properties:
+      "observationTypeName",
+})
 public class ObservationType implements BaseDatabaseObject {
    private short observationType;
 
@@ -39,6 +50,7 @@ public class ObservationType implements BaseDatabaseObject {
       this.observationType = observationType;
    }
 
+   @Column(length = 80)
    public String getObservationTypeName() {
       return observationTypeName;
    }
@@ -47,6 +59,7 @@ public class ObservationType implements BaseDatabaseObject {
       this.observationTypeName = DatabaseUtils.nullToEmpty(observationTypeName);
    }
 
+   @OneToMany(mappedBy = "observationType")
    public Set<Observation> getObservations() {
       return observations;
    }

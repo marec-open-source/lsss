@@ -17,6 +17,7 @@ import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.ObjectParameter;
+import no.imr.tools.swing.GuiText;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.icons.MiscIcons;
 import org.jspecify.annotations.Nullable;
@@ -142,32 +143,32 @@ public final class TrackEchogramOverlay extends BaseEchogramOverlay {
       JMenuItem mergeItem = popupMenu.add("Merge selected tracks");
       mergeItem.setMnemonic(KeyEvent.VK_M);
       mergeItem.setEnabled(context.selectedTrackIds.size() > 1);
-      mergeItem.addActionListener(e -> context.merge());
+      mergeItem.addActionListener(_ -> context.merge());
 
       JMenuItem splitItem = popupMenu.add("Split this this track");
       splitItem.setMnemonic(KeyEvent.VK_S);
       splitItem.setEnabled(!context.pingIndex.equals(context.trackPingRange.begin()));
-      splitItem.addActionListener(e -> context.split());
+      splitItem.addActionListener(_ -> context.split());
 
       JMenuItem deleteItem = MiscIcons.DELETE.on(popupMenu.add("Delete selected tracks"));
       deleteItem.setMnemonic(KeyEvent.VK_D);
       deleteItem.setEnabled(!context.selectedTrackIds.isEmpty());
-      deleteItem.addActionListener(e -> context.delete());
+      deleteItem.addActionListener(_ -> context.delete());
 
       popupMenu.addSeparator(); // --------------------------------------------------------------------------------
 
       JMenuItem joinItem = popupMenu.add("Join selected tracks");
       joinItem.setMnemonic(KeyEvent.VK_J);
       joinItem.setEnabled(context.selectedTrackIds.size() > 1);
-      joinItem.addActionListener(e -> context.join());
+      joinItem.addActionListener(_ -> context.join());
 
       JMenuItem extendItem = popupMenu.add("Extend this track (to the " + (context.extendLeft ? "left" : "right") + ") (Min TSU = " + context.minTSU + " [dB])");
       extendItem.setMnemonic(KeyEvent.VK_E);
-      extendItem.addActionListener(e -> context.extend());
+      extendItem.addActionListener(_ -> context.extend());
 
       JMenuItem drawingItem = MiscIcons.checkBox(editMode).on(popupMenu.add("Semi-automatic drawing"));
       drawingItem.setMnemonic(KeyEvent.VK_I);
-      drawingItem.addActionListener(e -> {
+      drawingItem.addActionListener(_ -> {
          editMode = !editMode;
          editModeDraw = true;
       });
@@ -179,17 +180,17 @@ public final class TrackEchogramOverlay extends BaseEchogramOverlay {
       JMenuItem undoItem = MiscIcons.UNDO.on(popupMenu.add("Undo track edit"));
       undoItem.setMnemonic(KeyEvent.VK_U);
       undoItem.setEnabled(undoManager.canUndo());
-      undoItem.addActionListener(e -> context.undo());
+      undoItem.addActionListener(_ -> context.undo());
 
       JMenuItem redoItem = MiscIcons.REDO.on(popupMenu.add("Redo track edit"));
       redoItem.setMnemonic(KeyEvent.VK_R);
       redoItem.setEnabled(undoManager.canRedo());
-      redoItem.addActionListener(e -> context.redo());
+      redoItem.addActionListener(_ -> context.redo());
 
       popupMenu.addSeparator(); // --------------------------------------------------------------------------------
 
       JMenuItem thisTrackItem = popupMenu.add("Create LSSS region for this track");
-      thisTrackItem.addActionListener(e -> trackInfoModule.get().createSchoolsAndSelect(Stream.of(context.trackId)));
+      thisTrackItem.addActionListener(_ -> trackInfoModule.get().createSchoolsAndSelect(Stream.of(context.trackId)));
 
       popupMenu.add(TrackUtils.menuItemCreateRegionsForSelected(trackInfoModule.get()));
 
@@ -483,7 +484,7 @@ public final class TrackEchogramOverlay extends BaseEchogramOverlay {
       }
 
       private EchogramTrackData.@Nullable TrackData toTrackData() {
-         Map<TrackId, EchogramTrackData.TrackData> trackDataMap = echogramTrackData.get().createTrackData((ping, channel) -> {
+         Map<TrackId, EchogramTrackData.TrackData> trackDataMap = echogramTrackData.get().createTrackData((ping, _) -> {
             TrackBorder trackBorder = trackEditingDetection.getTrackBorders().get(ping.getPingIndex());
             return trackBorder != null ? Stream.of(trackBorder.withId(trackId)) : Stream.empty();
          });
@@ -562,8 +563,17 @@ public final class TrackEchogramOverlay extends BaseEchogramOverlay {
       @Override
       public void drawText(Graphics2D g2d) {
          if (showLabels.getBooleanValue()) {
-            unselectedTrackData.forEach(trackData -> trackData.labelText().draw(g2d));
-            selectedTrackData.forEach(trackData -> trackData.labelText().draw(g2d));
+            drawTrackDataText(g2d, unselectedTrackData);
+            drawTrackDataText(g2d, selectedTrackData);
+         }
+      }
+
+      private static void drawTrackDataText(Graphics2D g2d, List<EchogramTrackData.TrackData> trackDatas) {
+         for (EchogramTrackData.TrackData trackData : trackDatas) {
+            GuiText text = trackData.labelText();
+            if (text != null) {
+               text.draw(g2d);
+            }
          }
       }
 

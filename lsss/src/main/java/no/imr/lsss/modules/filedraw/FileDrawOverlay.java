@@ -99,7 +99,7 @@ public final class FileDrawOverlay extends BaseEchogramOverlay {
       if (pingIndex == null || getRegionManager().isReadOnly(pingIndex)) {
          addHorizontalLayerBoundaryItem.setEnabled(false);
       } else {
-         addHorizontalLayerBoundaryItem.addActionListener(e -> {
+         addHorizontalLayerBoundaryItem.addActionListener(_ -> {
             new SimpleInputDialog<>("Add horizontal layer boundary", "Depth offset to file draw line", "", Float::parseFloat)
                   .setUnit(Unit.METER)
                   .setBelowText("A positive offset means deeper.")

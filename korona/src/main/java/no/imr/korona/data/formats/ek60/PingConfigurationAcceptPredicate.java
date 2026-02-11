@@ -19,8 +19,10 @@ public final class PingConfigurationAcceptPredicate implements Predicate<BaseDat
       if (datagram instanceof PerChannelDatagram perChannelDatagram) {
          int channel = perChannelDatagram.getChannel();
          if (channel <= 0 || channel > pingConfiguration.getRawFileConfiguration().getTransducerCount()) {
-            LogOnce.warning("Rejecting " + datagram.getDatagramType().getAsciiQuad() + " datagram with channel " + channel
-                  + " in file " + pingConfiguration.getRawFileConfiguration().getDataFile(), pingConfiguration);
+            // Do not include channel number in warning message to avoid excessive logging, se #1567.
+            LogOnce.warning("Rejecting " + datagram.getDatagramType().getAsciiQuad()
+                  + " datagram with invalid channel number in file "
+                  + pingConfiguration.getRawFileConfiguration().getDataFile(), pingConfiguration);
             return false;
          }
       }

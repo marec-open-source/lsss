@@ -14,7 +14,7 @@ final class EkTestMain {
    private EkTestMain() {
    }
 
-   public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
+   static void main() throws IOException, ExecutionException, InterruptedException {
       EkConnection ekConnection = new EkConnection(InetAddress.getLocalHost(), EKConnectionMain.PORT, System.out::println);
 
       //ekConnection.sendRequest(new GetParameterRequest(ParameterServer.AcousticDeviceSynchroniser.Interval)).get().getValue();

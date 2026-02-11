@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Consumer;
 
@@ -43,7 +44,7 @@ public final class BoundaryDrawEditor extends SchoolEditor {
       super(school, editConfirm);
 
       windingChecker = new CoalescingExecutor(getRegionManager().getRegionConfiguration().getBackgroundExecutor());
-      startEditInfo = school.distanceFrom(point, pingSettings, zSettings);
+      startEditInfo = Objects.requireNonNull(school.distanceFrom(point, pingSettings, zSettings, Double.POSITIVE_INFINITY));
       schoolBoundary = startEditInfo.schoolBoundary();
       this.pingSettings = pingSettings;
       this.zSettings = zSettings;
@@ -165,13 +166,9 @@ public final class BoundaryDrawEditor extends SchoolEditor {
          line = line.subList(1, line.size());
       }
       editPoints.addAll(line);
-      List<EchogramPoint> newConnectionPoints = new ArrayList<>();
-      newConnectionPoints.add(toPoint);
       currentEditInfo = schoolBoundary.getClosestIntersection(toPoint, pingSettings, zSettings);
       EchogramPoint closestConnectionPoint = currentEditInfo.closestPoint();
-      newConnectionPoints.addAll(EchogramUtils.computeLine(zSettings.getDepthTransform(), toPoint, closestConnectionPoint, pingContainer));
-      newConnectionPoints.add(closestConnectionPoint);
-      connectionPoints = newConnectionPoints;
+      connectionPoints = EchogramUtils.computeLine(zSettings.getDepthTransform(), toPoint, closestConnectionPoint, pingContainer);
 
       CyclicList<EchogramPoint> drawnBoundary = getDrawnBoundary();
       windingChecker.execute(createManagedCoalescingRunnable(() -> {

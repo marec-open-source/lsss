@@ -16,7 +16,7 @@ public interface EndOfInputHandler {
    boolean isEndOfInput(long millisWaiting, Comparator<FileInfo> comparator) throws IOException;
 
    static EndOfInputHandler noWait() {
-      return (millisWaiting, comparator) -> true;
+      return (_, _) -> true;
    }
 
    /**

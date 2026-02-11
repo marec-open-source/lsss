@@ -457,11 +457,6 @@ public final class CurveBoundary extends LayerBoundary {
       return pingContainer.previousOrSame(curve.getEndPing());
    }
 
-   @Override
-   boolean touchesPingRange(PingRange pingRange) {
-      return curve.getPingRange().touches(pingRange);
-   }
-
    private void notifyConnectors(@Nullable LayerConnector connector, PingRange pingRange, DepthTransform depthTransform, PingContainer pingContainer) {
       if (getStartConnector() != connector && pingRange.contains(getStartConnector().getPingIndex())) {
          getStartConnector().setPoint(this, depthTransform, pingContainer, curve.getStartPoint());

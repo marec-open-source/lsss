@@ -13,7 +13,7 @@ final class IdealBandPassTransferFunctionMain {
    private IdealBandPassTransferFunctionMain() {
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SwingUtilities.invokeLater(IdealBandPassTransferFunctionMain::run);
    }
 

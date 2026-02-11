@@ -61,7 +61,7 @@ public abstract class BasePhantomEchogramModule extends BaseOverlaidModule<BaseP
 
       Listener updateMouseEchogramPointListener = newCoalescingExecListener(this::updateMouseEchogramPoint);
       registry.add(mousePosition(), updateMouseEchogramPointListener);
-      registry.add(getInterpretationSettings().mouseover().frozen(), __ -> {
+      registry.add(getInterpretationSettings().mouseover().frozen(), _ -> {
          if (getMousePosition() != null) {
             updateMouseEchogramPointListener.listen();
          }

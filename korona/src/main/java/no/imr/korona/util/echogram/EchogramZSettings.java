@@ -1,6 +1,5 @@
 package no.imr.korona.util.echogram;
 
-import no.imr.korona.data.datamanager.DataConfiguration;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.util.geometry.depth.DepthTransform;
 import no.imr.tools.listening.ChangeManager;
@@ -38,14 +37,12 @@ public abstract class EchogramZSettings {
          MIN_DELTA_Z, Unit.METER, ValueConstraints.gteLte(MIN_DELTA_Z, MIN_DELTA_Z),
          "Current maximum z");
 
-   private final DataConfiguration dataConfiguration;
    private int height;
    private float zToYFactor;
    private boolean skipNotify;
    private final ChangeManager zoomedChangeManager = new ChangeManager();
 
-   protected EchogramZSettings(DataConfiguration dataConfiguration) {
-      this.dataConfiguration = dataConfiguration;
+   protected EchogramZSettings() {
       minZ.subscribe(z -> {
          maxZ.setAtLeastTo(z + MIN_DELTA_Z);
          updateAllowedZoomedZRange();
@@ -71,10 +68,6 @@ public abstract class EchogramZSettings {
    }
 
    public abstract DepthTransform getDepthTransform();
-
-   public DataConfiguration getDataConfiguration() {
-      return dataConfiguration;
-   }
 
    public ChangeManager getZoomedChangeManager() {
       return zoomedChangeManager;

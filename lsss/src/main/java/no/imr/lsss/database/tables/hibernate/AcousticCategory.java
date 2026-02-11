@@ -1,7 +1,16 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
 import no.imr.tools.Utils;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -9,6 +18,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "acousticCategory",
+
+      // Properties:
+      "composite",
+      "initials",
+      "englishInitials",
+      "commonName",
+      "englishName",
+})
 public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>, Comparable<AcousticCategory> {
    public static final int RAW_DATA_CATEGORY = 0;
 
@@ -61,6 +83,7 @@ public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>,
       this.composite = composite;
    }
 
+   @Column(length = 5)
    public String getInitials() {
       return initials;
    }
@@ -69,6 +92,7 @@ public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>,
       this.initials = DatabaseUtils.nullToEmpty(initials);
    }
 
+   @Column(length = 5)
    public String getEnglishInitials() {
       return englishInitials;
    }
@@ -77,6 +101,7 @@ public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>,
       this.englishInitials = DatabaseUtils.nullToEmpty(englishInitials);
    }
 
+   @Column(length = 80)
    public String getCommonName() {
       return commonName;
    }
@@ -85,6 +110,7 @@ public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>,
       this.commonName = DatabaseUtils.nullToEmpty(commonName);
    }
 
+   @Column(length = 80)
    public String getEnglishName() {
       return englishName;
    }
@@ -93,6 +119,12 @@ public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>,
       this.englishName = DatabaseUtils.nullToEmpty(englishName);
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform")
+   })
    public Platform getPlatform() {
       return platform;
    }
@@ -101,6 +133,7 @@ public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>,
       this.platform = platform;
    }
 
+   @OneToMany(mappedBy = "acousticCategory")
    public Set<AreaOfAcousticCategory> getAreaOfAcousticCategory() {
       return areaOfAcousticCategory;
    }
@@ -109,6 +142,7 @@ public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>,
       this.areaOfAcousticCategory = areaOfAcousticCategory;
    }
 
+   @OneToMany(mappedBy = "acousticCategoryByNationAndPlatformAndAcousticCategoryMember")
    public Set<AcousticCategoryComposite> getAcousticCategoryCompositesByNationAndPlatformAndAcousticCategoryMember() {
       return acousticCategoryCompositesByNationAndPlatformAndAcousticCategoryMember;
    }
@@ -117,6 +151,7 @@ public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>,
       this.acousticCategoryCompositesByNationAndPlatformAndAcousticCategoryMember = acousticCategoryCompositesByNationAndPlatformAndAcousticCategoryMember;
    }
 
+   @OneToMany(mappedBy = "acousticCategoryByNationAndPlatformAndAcousticCategory")
    public Set<AcousticCategoryComposite> getAcousticCategoryCompositesByNationAndPlatformAndAcousticCategory() {
       return acousticCategoryCompositesByNationAndPlatformAndAcousticCategory;
    }
@@ -125,6 +160,7 @@ public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>,
       this.acousticCategoryCompositesByNationAndPlatformAndAcousticCategory = acousticCategoryCompositesByNationAndPlatformAndAcousticCategory;
    }
 
+   @OneToMany(mappedBy = "acousticCategory")
    public Set<ScatterData> getScatterData() {
       return scatterData;
    }
@@ -133,6 +169,7 @@ public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>,
       this.scatterData = scatterData;
    }
 
+   @OneToMany(mappedBy = "acousticCategory")
    public Set<Purpose> getPurpose() {
       return purpose;
    }
@@ -141,6 +178,7 @@ public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>,
       this.purpose = purpose;
    }
 
+   @OneToMany(mappedBy = "acousticCategory")
    public Set<AcCatToBiologicalSpecies> getAcousticCategoryToBiologicalSpecies() {
       return acousticCategoryToBiologicalSpecies;
    }

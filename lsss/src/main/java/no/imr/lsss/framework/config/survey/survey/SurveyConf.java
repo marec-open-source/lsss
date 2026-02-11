@@ -3,6 +3,7 @@ package no.imr.lsss.framework.config.survey.survey;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import no.imr.lsss.database.DatabaseData;
+import no.imr.lsss.database.LsssQuery;
 import no.imr.lsss.database.tables.hibernate.Nation;
 import no.imr.lsss.database.tables.hibernate.Platform;
 import no.imr.lsss.database.tables.hibernate.PlatformCodes;
@@ -13,7 +14,6 @@ import no.imr.lsss.framework.config.ConfigurationUnit;
 import no.imr.lsss.framework.config.UserProfile;
 import no.imr.tools.Utils;
 import no.imr.tools.database.DatabaseConnection;
-import no.imr.tools.database.queries.FetchQuery;
 import no.imr.tools.listening.ListenableProperty;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
@@ -154,7 +154,7 @@ public final class SurveyConf extends ConfigurationUnit {
          mNation.setPersistable(optionalNation.isPresent());
          mNation.setEnabled(mNation.getAllowedValues().size() > 1);
       });
-      mNation.subscribe(__ -> updateAllowedPlatforms());
+      mNation.subscribe(_ -> updateAllowedPlatforms());
 
       mPlatformId.setVisible(false);
       mPlatformId.subscribe(optionalId -> {
@@ -200,9 +200,9 @@ public final class SurveyConf extends ConfigurationUnit {
          mSurvey.setPersistable(optionalSurvey.isPresent());
          mSurvey.setEnabled(mSurvey.getAllowedValues().size() > 1);
       });
-      mSurvey.subscribe(__ -> updateParametersFromSurvey());
+      mSurvey.subscribe(_ -> updateParametersFromSurvey());
 
-      startDate.subscribe(__ -> updateAllowedPlatformAndNames());
+      startDate.subscribe(_ -> updateAllowedPlatformAndNames());
 
       startDate.setEnabled(false);
       startTime.setEnabled(false);
@@ -271,13 +271,14 @@ public final class SurveyConf extends ConfigurationUnit {
       Nation nation = mNation.getValue().orElse(null);
       if (nation != null) {
          DatabaseConnection databaseConnection = getLSSS().getDatabaseManager().getDatabaseConnection();
-         List<Platform> platforms = databaseConnection.executeFetchQuery(new FetchQuery<>(Platform.class, DatabaseData.NATION, nation.getNation()));
+         List<Platform> platforms = databaseConnection.executeFetchQuery(LsssQuery.fetch(Platform.class, DatabaseData.NATION, nation.getNation()));
          if (platforms.stream().noneMatch(platform -> platform.getCompId().getPlatform() == 0)) {
+            platforms = new ArrayList<>(platforms);
             platforms.addAll(DatabaseData.copyFromDefaultNation(databaseConnection, Platform.class, nation.getNation()));
             DatabaseData.copyFromDefaultNation(databaseConnection, PlatformName.class, nation.getNation());
             DatabaseData.copyFromDefaultNation(databaseConnection, PlatformCodes.class, nation.getNation());
          }
-         List<PlatformName> platformNames = databaseConnection.executeFetchQuery(new FetchQuery<>(PlatformName.class, DatabaseData.NATION, nation.getNation()));
+         List<PlatformName> platformNames = databaseConnection.executeFetchQuery(LsssQuery.fetch(PlatformName.class, DatabaseData.NATION, nation.getNation()));
          SetMultimap<Short, PlatformName> nameMap = HashMultimap.create();
 
          for (PlatformName platformName : platformNames) {
@@ -344,14 +345,12 @@ public final class SurveyConf extends ConfigurationUnit {
    private List<Survey> getSurveysFromDatabase() {
       Platform platform = getPlatform();
       if (platform != null) {
-         List<Survey> surveys = getLSSS().getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(Survey.class,
-               DatabaseData.NATION, platform.getCompId().getNation(),
-               DatabaseData.PLATFORM, platform.getCompId().getPlatform()));
-         surveys.sort(Utils.comparingIgnoringCase(Survey::getSurveyTitle).thenComparingInt(s -> s.getCompId().getSurvey()));
-         for (Survey survey : surveys) {
-            survey.setPlatform(platform);
-         }
-         return surveys;
+         List<Survey> surveys = getLSSS().getDatabaseManager().getDatabaseConnection().executeFetchQuery(
+               LsssQuery.fetch(Survey.class, platform));
+         return surveys.stream()
+               .sorted(Utils.comparingIgnoringCase(Survey::getSurveyTitle).thenComparingInt(s -> s.getCompId().getSurvey()))
+               .peek(survey -> survey.setPlatform(platform))
+               .toList();
       } else {
          return List.of();
       }

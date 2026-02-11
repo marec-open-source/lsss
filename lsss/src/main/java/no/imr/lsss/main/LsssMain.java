@@ -6,7 +6,7 @@ final class LsssMain {
    private LsssMain() {
    }
 
-   public static void main(String[] args) {
+   static void main(String[] args) {
       LSSS.main(args);
    }
 }

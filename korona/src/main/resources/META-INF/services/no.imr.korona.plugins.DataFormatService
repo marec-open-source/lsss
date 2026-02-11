@@ -1,3 +1,4 @@
 no.imr.korona.data.formats.ek60.EK60DataFormatService
 no.imr.korona.data.formats.ek500.EK500DataFormatService
+no.imr.korona.data.formats.netcdf.NetcdfDataFormatService
 no.imr.korona.data.formats.synthetic.SyntheticDataFormatService

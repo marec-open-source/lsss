@@ -3,7 +3,7 @@ package no.imr.lsss.util;
 import no.imr.lsss.LSSS;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.swing.GuiListeners;
-import no.imr.tools.swing.GuiUtils;
+import no.imr.tools.swing.SwingDelayer;
 import no.imr.tools.swing.ToolTipManagerState;
 import org.jspecify.annotations.Nullable;
 
@@ -58,7 +58,7 @@ public final class LsssToolTip implements Listener {
    }
 
    public void update() {
-      GuiUtils.invokeNowOrLater(this::guiUpdate);
+      SwingDelayer.invokeLater(this, this::guiUpdate);
    }
 
    private void guiUpdate() {

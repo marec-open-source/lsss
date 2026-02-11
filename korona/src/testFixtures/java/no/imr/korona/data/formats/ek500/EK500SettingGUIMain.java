@@ -9,7 +9,7 @@ final class EK500SettingGUIMain {
    private EK500SettingGUIMain() {
    }
 
-   public static void main(String[] args) {
+   static void main(String[] args) {
       Utils.init(args, KoronaResource.KORONA_64);
       SwingUtilities.invokeLater(EK500SettingGUIMain::start);
    }

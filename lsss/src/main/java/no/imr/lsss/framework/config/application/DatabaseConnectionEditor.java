@@ -157,15 +157,15 @@ public final class DatabaseConnectionEditor {
 
       rightPanel.add(connectButton);
       connectButton.setToolTipText("Connect to database");
-      connectButton.addActionListener(e -> databaseConnectionManager.openConnection());
+      connectButton.addActionListener(_ -> databaseConnectionManager.openConnection());
 
       rightPanel.add(disconnectButton);
       disconnectButton.setToolTipText("Disconnect from database");
-      disconnectButton.addActionListener(e -> databaseConnectionManager.closeConnection());
+      disconnectButton.addActionListener(_ -> databaseConnectionManager.closeConnection());
 
       rightPanel.add(initializeButton);
       initializeButton.setToolTipText("Create database tables with default content");
-      initializeButton.addActionListener(e -> {
+      initializeButton.addActionListener(_ -> {
          int answer = JOptionPane.showConfirmDialog(mainPanel, """
                      Initialize database?
                      Any existing data will be deleted!
@@ -178,7 +178,7 @@ public final class DatabaseConnectionEditor {
 
       rightPanel.add(createEmptyButton);
       createEmptyButton.setToolTipText("Create database tables, with only content in some key tables");
-      createEmptyButton.addActionListener(e -> {
+      createEmptyButton.addActionListener(_ -> {
          int answer = JOptionPane.showConfirmDialog(mainPanel, """
                      Create empty database?
                      Any existing data will be deleted!

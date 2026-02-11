@@ -119,7 +119,7 @@ public final class DataFileTableModel extends AbstractTableModel {
          return fileRows.stream()
                .map(FileRow::getSegmentInfo)
                .filter(Objects::nonNull)
-               .map(SegmentInfo::getPingRange);
+               .map(SegmentInfo::pingRange);
       }
    }
 
@@ -198,7 +198,7 @@ public final class DataFileTableModel extends AbstractTableModel {
             } else {
                return ImmutableMap.of();
             }
-         } catch (UnsupportedOperationException | IOException e) {
+         } catch (UnsupportedOperationException | IOException _) {
             return ImmutableMap.of();
          }
       }
@@ -208,8 +208,8 @@ public final class DataFileTableModel extends AbstractTableModel {
       }
 
       public Instant getInstant() {
-         return segmentInfo != null && !segmentInfo.getPingRange().isEmpty()
-               ? segmentInfo.getPingRange().begin().getInstant()
+         return segmentInfo != null && !segmentInfo.pingRange().isEmpty()
+               ? segmentInfo.pingRange().begin().getInstant()
                : Instant.MAX;
       }
 
@@ -239,9 +239,9 @@ public final class DataFileTableModel extends AbstractTableModel {
          }
          try {
             segmentInfo = rawSegmentHandle.createSegmentInfo();
-         } catch (MissingIdxFileException e) {
+         } catch (MissingIdxFileException _) {
             dataConf.foundMissingIdx();
-         } catch (DataException e) {
+         } catch (DataException _) {
             // Ignore at this point. Will be registered later if in selection.
          } catch (IOException e) {
             Log.global.log(Level.WARNING, "Could not read " + rawSegmentHandle, e);
@@ -267,7 +267,7 @@ public final class DataFileTableModel extends AbstractTableModel {
          } else {
             String incompatibility = rawDataFile.getPingConfiguration().getIncompatibility(koronaDataFile.getPingConfiguration());
             if (incompatibility != null) {
-               koronaDataExceptionMessage = incompatibility;
+               koronaIncompatibilityWithSelection = incompatibility;
             }
          }
       }
@@ -299,7 +299,7 @@ public final class DataFileTableModel extends AbstractTableModel {
          if (sa < 0) {
             LSSS lsss = dataConf.getLSSS();
             float frequency = lsss.getConfigurationManager().getSurveyMiscConf().mainFrequency.getFloatValue();
-            sa = lsss.getInterpretationSummary().getInterpretedSa(segmentInfo.getPingRange(), frequency);
+            sa = lsss.getInterpretationSummary().getInterpretedSa(segmentInfo.pingRange(), frequency);
          }
          return sa;
       }
@@ -314,12 +314,12 @@ public final class DataFileTableModel extends AbstractTableModel {
          if (segmentInfo == null) {
             return "";
          }
-         String vesselDistance = Utils.format("%.1f", segmentInfo.getPingRange().getVesselDistance());
+         String vesselDistance = Utils.format("%.1f", segmentInfo.pingRange().getVesselDistance());
          if (vesselDistance.length() > maxVesselDistanceStringLength) {
             maxVesselDistanceStringLength = vesselDistance.length();
             updateAllRows();
          }
-         return Utils.format("%.1f", segmentInfo.getPingRange().begin().getVesselDistance()) +
+         return Utils.format("%.1f", segmentInfo.pingRange().begin().getVesselDistance()) +
                "\u2007".repeat(maxVesselDistanceStringLength - vesselDistance.length()) + // Figure space
                " (" + vesselDistance + ')';
       }
@@ -330,7 +330,7 @@ public final class DataFileTableModel extends AbstractTableModel {
             if (segmentInfo == null) {
                return "";
             }
-            if (segmentInfo.getPingRange().isEmpty()) {
+            if (segmentInfo.pingRange().isEmpty()) {
                return columnIndex == PINGS_COLUMN ? "No pings" : "";
             }
          }
@@ -339,8 +339,8 @@ public final class DataFileTableModel extends AbstractTableModel {
             case KORONA_COLUMN -> this;
             case STATUS_COLUMN -> this;
             case FILE_NAME_COLUMN -> this;
-            case PINGS_COLUMN -> segmentInfo.getPingRange();
-            case DURATION_COLUMN -> segmentInfo.getPingRange().getDurationString();
+            case PINGS_COLUMN -> segmentInfo.pingRange();
+            case DURATION_COLUMN -> segmentInfo.pingRange().getDurationString();
             case DISTANCE_COLUMN -> getDistanceString();
             case SA_COLUMN -> AccumulatedSaOverlay.toMinimalString(getSa());
             default -> throw new IllegalArgumentException(Integer.toString(columnIndex));
@@ -374,21 +374,21 @@ public final class DataFileTableModel extends AbstractTableModel {
    }
 
    void setup() {
-      dataConf.getRawDir().subscribe(__ -> update());
+      dataConf.getRawDir().subscribe(_ -> update());
       SurveyDirectoryParameter processedDir = dataConf.getProcessedDir();
       if (processedDir != null) {
-         processedDir.subscribe(__ -> {
+         processedDir.subscribe(_ -> {
             refreshKoronaColumn();
             dataConf.updateSelectedProcessedRows();
          });
       }
-      dataConf.sortByTime.subscribe(__ -> {
+      dataConf.sortByTime.subscribe(_ -> {
          fileRows = fileRows.stream()
                .sorted(currentFileRowComparator())
                .toList();
          fireTableDataChanged();
       });
-      dataConf.timeGrouping.subscribe(__ -> update());
+      dataConf.timeGrouping.subscribe(_ -> update());
    }
 
    DataConf getDataConf() {
@@ -475,7 +475,7 @@ public final class DataFileTableModel extends AbstractTableModel {
          fileRows = newFileRows;
          fireTableDataChanged();
       };
-      Timer timer = new Timer(1000, e -> processUpdates.run());
+      Timer timer = new Timer(1000, _ -> processUpdates.run());
       timer.start();
       Queue<FileRow> fileRowsToInit = new ConcurrentLinkedQueue<>(fileRows);
       for (int i = 0; i < Runtime.getRuntime().availableProcessors(); i++) {

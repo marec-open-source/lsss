@@ -68,7 +68,7 @@ public final class EK500SettingsGUI {
    private JPanel createButtonPanel(JDialog dialog, ParameterTableModel<EK500TransducerSettings> parameterTableModel) {
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          List<EK500TransducerSettings> rows = parameterTableModel.getRows();
          rows.sort(null);
          EK500Settings ek500Settings = new EK500Settings(rows);
@@ -82,11 +82,11 @@ public final class EK500SettingsGUI {
       });
 
       JButton newButton = new JButton("Add transducer");
-      newButton.addActionListener(e -> parameterTableModel.addRow());
+      newButton.addActionListener(_ -> parameterTableModel.addRow());
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
 
       buttonPanel.add(newButton);
       buttonPanel.add(okButton);

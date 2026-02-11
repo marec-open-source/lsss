@@ -10,6 +10,7 @@ import no.imr.korona.data.ping.PingReader;
 import no.imr.korona.data.ping.items.PingItem;
 import no.imr.korona.data.track.SegmentHandle;
 import no.imr.lsss.LSSS;
+import no.imr.lsss.database.tables.hibernate.AcousticCategory;
 import no.imr.lsss.framework.config.survey.preprocessing.PreprocessingSetup;
 import no.imr.lsss.resources.LsssHelp;
 import no.imr.lsss.viewer.Shortcuts;
@@ -142,7 +143,9 @@ final class AcousticToCategoryEditor {
                   int column = TableUtils.pointToModelColumn(getTable(), event.getPoint());
                   if (column > 0) {
                      AcousticToCategory.KoronaMapping koronaMapping = koronaMappings.get(column - 1);
-                     return lsss.getConfigurationManager().getLanguageUtils().getAcCatName(koronaMapping.acousticCategory());
+                     AcousticCategory acousticCategory = koronaMapping.acousticCategory();
+                     return lsss.getConfigurationManager().getLanguageUtils().getAcCatName(acousticCategory)
+                           + " (" + acousticCategory.getCompId().getAcousticCategory() + ")";
                   }
                   return null;
                }
@@ -181,11 +184,11 @@ final class AcousticToCategoryEditor {
 
    private JPanel buttonsPanel() {
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> closeDialog());
+      okButton.addActionListener(_ -> closeDialog());
       dialog.getRootPane().setDefaultButton(okButton);
 
       JButton cancelButton = new JButton("Cancel");
-      cancelButton.addActionListener(e -> cancelAndClose());
+      cancelButton.addActionListener(_ -> cancelAndClose());
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE);
 
       JButton helpButton = new JButton("Help");

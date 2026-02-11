@@ -67,7 +67,7 @@ public final class BottomEchogramModule extends EchogramModule {
             text += "  –  Current channel";
          }
          JMenuItem menuItem = MiscIcons.check(selected).on(new JMenuItem(text));
-         menuItem.addActionListener(e -> {
+         menuItem.addActionListener(_ -> {
             bottomZSettings.setDepthTransformForCurrentChannel(
                   new ChannelBottomDepthTransform(module.getLSSS().getDataManager(), channel));
          });
@@ -77,7 +77,7 @@ public final class BottomEchogramModule extends EchogramModule {
       private JMenuItem createCoordinatedItem() {
          boolean selected = bottomZSettings.getDepthTransform() instanceof CoordinatedBottomDepthTransform;
          JMenuItem menuItem = MiscIcons.check(selected).on(new JMenuItem("Coordinated bottom"));
-         menuItem.addActionListener(e -> {
+         menuItem.addActionListener(_ -> {
             bottomZSettings.setDepthTransformForCurrentChannel(
                   new CoordinatedBottomDepthTransform(module.getLSSS().getDataManager()));
          });
@@ -87,7 +87,7 @@ public final class BottomEchogramModule extends EchogramModule {
       private JMenuItem createLayerItem() {
          boolean selected = bottomZSettings.getDepthTransform() instanceof BottomBoundaryDepthTransform;
          JMenuItem menuItem = MiscIcons.check(selected).on(new JMenuItem("Bottom layer boundary"));
-         menuItem.addActionListener(e -> {
+         menuItem.addActionListener(_ -> {
             bottomZSettings.setDepthTransformForCurrentChannel(
                   new BottomBoundaryDepthTransform(module.getRegionManager().getLayerManager(), module.getLSSS().getDataManager()));
          });

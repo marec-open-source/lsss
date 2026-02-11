@@ -126,7 +126,7 @@ public final class MultiSplitPane {
    private JSplitPane createSplitPane(Component leftComponent, Component rightComponent) {
       JSplitPane splitPane = new JSplitPane(orientation, leftComponent, rightComponent);
 
-      new SplitPositionListener(splitPane, __ -> changeManager.notifyListeners());
+      new SplitPositionListener(splitPane, _ -> changeManager.notifyListeners());
 
       splitPane.setBorder(BorderFactory.createEmptyBorder());
       return splitPane;

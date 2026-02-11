@@ -117,7 +117,7 @@ public final class MapModule extends BaseOverlaidModule<BaseMapOverlay> {
       registry.add(getInterpretationSettings().getMapSettings().getBoundingBoxesChangeManager(), newCoalescingExecListener(this::resetGeoRect));
       Listener updateMouseGeoPosListener = newCoalescingExecListener(this::updateMouseGeoPos);
       registry.add(mousePosition(), updateMouseGeoPosListener);
-      registry.add(getInterpretationSettings().mouseover().frozen(), __ -> {
+      registry.add(getInterpretationSettings().mouseover().frozen(), _ -> {
          if (getMousePosition() != null) {
             updateMouseGeoPosListener.listen();
          }
@@ -279,7 +279,7 @@ public final class MapModule extends BaseOverlaidModule<BaseMapOverlay> {
       tabbedPane.add("Overlays", createOverlayEditor());
       tabbedPane.add("Parameters", super.createConfigurationEditor());
       tabbedPane.setSelectedIndex(editorTabIndex);
-      tabbedPane.addChangeListener(e -> editorTabIndex = tabbedPane.getSelectedIndex());
+      tabbedPane.addChangeListener(_ -> editorTabIndex = tabbedPane.getSelectedIndex());
       return tabbedPane;
    }
 
@@ -376,32 +376,32 @@ public final class MapModule extends BaseOverlaidModule<BaseMapOverlay> {
          JMenuItem resetViewItem = MiscIcons.HOME.on(popupMenu.add("Reset geographical area"));
          resetViewItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0));
          resetViewItem.setToolTipText("Reset to default geographical area");
-         resetViewItem.addActionListener(e -> module.resetGeoRect());
+         resetViewItem.addActionListener(_ -> module.resetGeoRect());
 
          JMenuItem zoomEchogramItem = popupMenu.add("Zoom echogram from map");
          zoomEchogramItem.setToolTipText("Zoom echogram to currently visible survey path");
-         zoomEchogramItem.addActionListener(e -> module.zoomEchogram());
+         zoomEchogramItem.addActionListener(_ -> module.zoomEchogram());
 
          JMenuItem zoomMapItem = popupMenu.add("Zoom map from echogram");
          zoomMapItem.setToolTipText("Zoom map to match currently visible part of echogram");
-         zoomMapItem.addActionListener(e -> module.zoomMapFromEchogram());
+         zoomMapItem.addActionListener(_ -> module.zoomMapFromEchogram());
 
          popupMenu.addSeparator();
 
          JMenuItem excludeItem = LsssIcons.EXCLUDE.on(popupMenu.add("Exclude visible pings"));
          excludeItem.setToolTipText("Exclude all pings visible in map");
-         excludeItem.addActionListener(e -> module.excludePings());
+         excludeItem.addActionListener(_ -> module.excludePings());
 
          JMenuItem includeItem = popupMenu.add("Include visible pings");
          includeItem.setToolTipText("Include all pings visible in map");
-         includeItem.addActionListener(e -> module.includePings());
+         includeItem.addActionListener(_ -> module.includePings());
 
          popupMenu.addSeparator();
 
          JMenuItem undoItem = MiscIcons.ARROW_LEFT.on(popupMenu.add("Go to previous map location"));
          undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0));
          if (module.undoManager.canUndo()) {
-            undoItem.addActionListener(e -> module.undoManager.undo());
+            undoItem.addActionListener(_ -> module.undoManager.undo());
          } else {
             undoItem.setEnabled(false);
          }
@@ -409,7 +409,7 @@ public final class MapModule extends BaseOverlaidModule<BaseMapOverlay> {
          JMenuItem redoItem = MiscIcons.ARROW_RIGHT.on(popupMenu.add("Go to next map location"));
          redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0));
          if (module.undoManager.canRedo()) {
-            redoItem.addActionListener(e -> module.undoManager.redo());
+            redoItem.addActionListener(_ -> module.undoManager.redo());
          } else {
             redoItem.setEnabled(false);
          }
@@ -420,7 +420,7 @@ public final class MapModule extends BaseOverlaidModule<BaseMapOverlay> {
 
          JMenuItem extendSurveyLineItem = popupMenu.add("Extend survey line...");
          extendSurveyLineItem.setToolTipText("Show extended survey line without loading raw data");
-         extendSurveyLineItem.addActionListener(e -> {
+         extendSurveyLineItem.addActionListener(_ -> {
             new SimpleInputDialog<>("Extended survey line", "Additional time backwards [hours]", Utils.toString(extendedSurveyLineHours), Float::parseFloat)
                   .show(getComponent())
                   .ifPresent(hours -> {
@@ -436,7 +436,7 @@ public final class MapModule extends BaseOverlaidModule<BaseMapOverlay> {
 
          JMenuItem removeExtendedSurveyLineItem = popupMenu.add("Remove extended survey line");
          removeExtendedSurveyLineItem.setEnabled(!extendedSurveyLine.getExtendedPingIndices().isEmpty());
-         removeExtendedSurveyLineItem.addActionListener(e -> {
+         removeExtendedSurveyLineItem.addActionListener(_ -> {
             extendedSurveyLine.reset();
          });
 

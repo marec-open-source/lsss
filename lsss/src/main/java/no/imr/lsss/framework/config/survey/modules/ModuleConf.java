@@ -55,7 +55,7 @@ public final class ModuleConf extends ConfigurationUnit {
       JTextPane textPane = createInfoComponent(text.toString());
       GuiUtils.addHrefListener(textPane, href -> {
          int i = Integer.parseInt(href);
-         getConfigurationManager().showDialog(addedUnits.get(i));
+         addedUnits.get(i).showInConfigurationDialog();
       });
 
       JPanel panel = VerticalScrollablePanel.wrap(textPane);

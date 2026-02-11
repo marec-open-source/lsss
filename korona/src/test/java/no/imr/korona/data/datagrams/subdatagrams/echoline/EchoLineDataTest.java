@@ -5,6 +5,7 @@ import no.imr.korona.data.datagrams.DatagramFormatException;
 import no.imr.korona.data.datagrams.DatagramTypeManager;
 import no.imr.korona.data.datagrams.LsssDatagram;
 import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.items.PingConversion;
 import no.imr.korona.data.ping.items.channel.PowerData;
@@ -37,9 +38,10 @@ final class EchoLineDataTest {
             powerData.setSvFromShortPower(power);
          }
       };
+      SyntheticDataFile syntheticDataFile = syntheticData.withFirstAndLastPingNumber(1, 1000);
 
-      PingIndex pingIndex = syntheticData.createPingIndex(1);
-      PowerData powerData = syntheticData.createPowerData(pingIndex, 1);
+      PingIndex pingIndex = syntheticDataFile.createPingIndex(1);
+      PowerData powerData = syntheticDataFile.createPowerData(pingIndex, 1);
       assertNotNull(powerData);
       float[] sv = powerData.getSv();
       EchoLineData echoLineData = new EchoLineData(powerData, List.of(
@@ -51,10 +53,10 @@ final class EchoLineDataTest {
       LsssDatagram lsssDatagram = Utils.getFirstOrThrow(datagrams, LsssDatagram.class);
       ByteBuffer byteBuffer = lsssDatagram.toByteBufferExcludingHeader();
 
-      LsssDatagram lsssDatagram2 = (LsssDatagram) LsssDatagram.TYPE.createDatagram(echoLineData.getNTDate(), byteBuffer, new DatagramTypeManager());
+      LsssDatagram lsssDatagram2 = new LsssDatagram(echoLineData.getNTDate(), byteBuffer, new DatagramTypeManager());
       EchoLineSubDatagram echoLineSubDatagram = (EchoLineSubDatagram) lsssDatagram2.getSubDatagram();
 
-      EchoLineData echoLineData2 = new EchoLineData(echoLineSubDatagram, syntheticData.getPingConfiguration(), powerData.getEffectivePulseDuration());
+      EchoLineData echoLineData2 = new EchoLineData(echoLineSubDatagram, syntheticDataFile.getPingConfiguration(), powerData.getEffectivePulseDuration());
       assertEquals(echoLineData.getEchoLines().size(), echoLineData2.getEchoLines().size());
       for (int i = 0; i < echoLineData.getEchoLines().size(); i++) {
          EchoLineData.EchoLine echoLine = echoLineData.getEchoLines().get(i);
@@ -64,7 +66,7 @@ final class EchoLineDataTest {
       }
       assertArrayEquals(powerData.getSv(), echoLineData2.getPowerData().getSv(), 1e-15f);
 
-      PingConversion pingConversion = new PingConversion(syntheticData.toFile(1, 1), syntheticData.getPingConfiguration(), datagrams, () -> null);
+      PingConversion pingConversion = new PingConversion(syntheticDataFile.toFile(), syntheticDataFile.getPingConfiguration(), datagrams, () -> null);
       PowerData powerData2 = (PowerData) pingConversion.getPingItems().getFirst();
       assertArrayEquals(powerData.getSv(), powerData2.getSv(), 1e-15f);
    }

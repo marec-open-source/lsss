@@ -22,24 +22,26 @@ public final class SyntheticFactory {
    }
 
    static Bot0Datagram createBot0Datagram(SyntheticData syntheticData, PingIndex pingIndex) {
-      double[] channelDepths = new double[syntheticData.getFrequencies().length];
+      double[] channelDepths = new double[syntheticData.getTransducerCount()];
       for (int channelIndex = 0; channelIndex < channelDepths.length; channelIndex++) {
          channelDepths[channelIndex] = syntheticData.getBottomDepth(pingIndex, channelIndex + 1);
       }
       return new Bot0Datagram(pingIndex.getNTDate(), channelDepths);
    }
 
-   public static RawFileConfiguration createRawFileConfiguration(SyntheticData syntheticData) {
-      RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(syntheticData.getNTDate(syntheticData.getFirstPingNumber()));
+   public static RawFileConfiguration createRawFileConfiguration(SyntheticDataFile syntheticDataFile) {
+      SyntheticData syntheticData = syntheticDataFile.getSyntheticData();
+      long ntDate = syntheticData.getNTDate(syntheticDataFile.getFirstPingNumber());
+      RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(ntDate);
       rawFileConfiguration.setSurveyName("LSSS synthetic survey");
       rawFileConfiguration.setTransectName("LSSS synthetic transect");
       rawFileConfiguration.setSounderName("LSSS synthetic sounder");
       rawFileConfiguration.setVersion("LSSS synthetic version");
-      float[] frequencies = syntheticData.getFrequencies();
-      for (int channel = 1; channel <= frequencies.length; channel++) {
-         rawFileConfiguration.getTransducers().add(createRawFileTransducer(frequencies[channel - 1]));
+      int transducerCount = syntheticData.getTransducerCount();
+      for (int channel = 1; channel <= transducerCount; channel++) {
+         rawFileConfiguration.getTransducers().add(createRawFileTransducer(syntheticData.getFrequency(channel)));
       }
-      rawFileConfiguration.setDataFile(new SyntheticDataFile(syntheticData).getFile());
+      rawFileConfiguration.setDataFile(syntheticDataFile.toFile());
       return rawFileConfiguration;
    }
 
@@ -71,10 +73,11 @@ public final class SyntheticFactory {
       System.arraycopy(values, 0, array, 0, array.length);
    }
 
-   static PowerData createPowerData(SyntheticData syntheticData, PingIndex pingIndex, int channel) {
+   static PowerData createPowerData(SyntheticDataFile syntheticDataFile, PingIndex pingIndex, int channel) {
+      SyntheticData syntheticData = syntheticDataFile.getSyntheticData();
       PowerData powerData = new PowerData(pingIndex.getNTDate());
       powerData.setChannel(channel);
-      powerData.setFrequency(syntheticData.getFrequencies()[channel - 1]);
+      powerData.setFrequency(syntheticData.getFrequency(channel));
       powerData.setTransmitPower(syntheticData.getTransmitPower(pingIndex, channel));
       powerData.setTransmitMode(syntheticData.getTransmitMode(pingIndex, channel));
       powerData.setAbsorptionCoefficient(syntheticData.getAbsorptionCoefficient(pingIndex, channel));
@@ -87,7 +90,7 @@ public final class SyntheticFactory {
       powerData.setRoll(syntheticData.getRoll(pingIndex));
       powerData.setPitch(syntheticData.getPitch(pingIndex));
 
-      powerData.setPingConfiguration(syntheticData.getPingConfiguration());
+      powerData.setPingConfiguration(syntheticDataFile.getPingConfiguration());
 
       syntheticData.defineSampleValues(powerData, pingIndex);
 

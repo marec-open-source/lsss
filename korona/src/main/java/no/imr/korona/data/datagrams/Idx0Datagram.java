@@ -11,30 +11,17 @@ import java.time.Instant;
  * Index datagram.
  */
 public final class Idx0Datagram extends DatagramPingItem implements PingIndex {
-   public static final DatagramType TYPE = new DatagramType.Simple("IDX0", Idx0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("IDX0", Idx0Datagram::new);
+
+   public static final int SIZE_ON_FILE = ENVELOPE_AND_HEADER_SIZE + (4 + 8 + 8 + 8 + 8); // NB: ping number is stored as unsigned int on file
 
    private long pingNumber;        // NB: ping number is stored as unsigned int on file
    private double vesselDistance;  // [Nm]
    private @Nullable GeoPoint geographicalPosition;
    private long fileOffset;
 
-   private static final int SIZE_ON_FILE = ENVELOPE_AND_HEADER_SIZE + (4 + 8 + 8 + 8 + 8); // NB: ping number is stored as unsigned int on file
-
-   /**
-    * Returns the size in bytes of an Idx0Datagram on file.
-    *
-    * @return the size in bytes of an Idx0Datagram on file
-    */
-   public static int getSize() {
-      return SIZE_ON_FILE;
-   }
-
-   private Idx0Datagram(long ntDate) {
-      super(ntDate);
-   }
-
    public Idx0Datagram(long ntDate, long pingNumber, double vesselDistance, @Nullable GeoPoint geographicalPosition, long fileOffset) {
-      this(ntDate);
+      super(ntDate);
 
       this.pingNumber = pingNumber;
       this.vesselDistance = vesselDistance;
@@ -52,7 +39,7 @@ public final class Idx0Datagram extends DatagramPingItem implements PingIndex {
    }
 
    public Idx0Datagram(long ntDate, ByteBuffer byteBuffer) {
-      this(ntDate);
+      super(ntDate);
 
       pingNumber = 0xffffffffL & byteBuffer.getInt(); // NB: ping number is stored as unsigned int on file
       vesselDistance = byteBuffer.getDouble();

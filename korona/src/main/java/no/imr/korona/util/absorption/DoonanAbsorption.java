@@ -25,17 +25,17 @@ public final class DoonanAbsorption extends Absorption {
     */
    public DoonanAbsorption(double salinity, double temperature, double depth) {
       double c = 1412.0 + 3.21 * temperature + 1.19 * salinity + 0.0167 * depth;    // Sound speed
-      double A2 = 22.19 * salinity * (1.0 + 0.017 * temperature);
+      double a2 = 22.19 * salinity * (1.0 + 0.017 * temperature);
       double f2 = 1.8 * Math.pow(10, 7.0 - 1518 / (temperature + 273));
-      double P2 = Math.exp(-1.76e-4 * depth);
-      double A3 = 4.937e-4 - 2.59e-5 * temperature + 9.11e-7 * temperature * temperature - 1.5e-8 * temperature * temperature * temperature;
-      double P3 = 1.0 - 3.83e-5 * depth + 4.9e-10 * depth * depth;
+      double p2 = Math.exp(-1.76e-4 * depth);
+      double a3 = 4.937e-4 - 2.59e-5 * temperature + 9.11e-7 * temperature * temperature - 1.5e-8 * temperature * temperature * temperature;
+      double p3 = 1.0 - 3.83e-5 * depth + 4.9e-10 * depth * depth;
 
       // The original formula uses frequency in kHz and calculates absorption in dB / km.
       // The constant factors change to frequency in Hz and absorption in dB / m.
-      a2_p2_f2_by_c = 1e-3 * A2 * P2 * f2 / c;
+      a2_p2_f2_by_c = 1e-3 * a2 * p2 * f2 / c;
       f2_f2 = 1e6 * f2 * f2;
-      a3_p3 = 1e-9 * A3 * P3;
+      a3_p3 = 1e-9 * a3 * p3;
    }
 
    @Override

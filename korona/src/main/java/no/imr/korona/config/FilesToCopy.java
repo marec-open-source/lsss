@@ -12,13 +12,13 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 
-public abstract class FilesToCopy {
+public final class FilesToCopy {
    private final Map<Path, Path> filesToCopy = new TreeMap<>();
    private final Map<Path, Path> existingFiles = new HashMap<>();
    private final long previousLastModified;
    private long nextLastModifiedSource;
 
-   protected FilesToCopy(long previousLastModified) {
+   public FilesToCopy(long previousLastModified) {
       this.previousLastModified = previousLastModified;
    }
 
@@ -34,7 +34,7 @@ public abstract class FilesToCopy {
       return nextLastModifiedSource;
    }
 
-   protected void add(FileInfo sourceFile, Path destFile) {
+   public void add(FileInfo sourceFile, Path destFile) {
       nextLastModifiedSource = Math.max(nextLastModifiedSource, sourceFile.lastModifiedTime().toMillis());
 
       if (Files.exists(destFile)) {

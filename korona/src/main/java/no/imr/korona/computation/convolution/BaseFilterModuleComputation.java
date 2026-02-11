@@ -193,8 +193,8 @@ abstract class BaseFilterModuleComputation extends GeneralPingModuleComputation 
    }
 
    /**
-    * Find next upper limit, i<sub>end</sub>, when filtering horizontally.
-    * That is, the interval [i, i<sub>end</sub>) is such that no array in filterInputs
+    * Find next upper limit, <code>i<sub>end</sub></code>, when filtering horizontally.
+    * That is, the interval <code>[i, i<sub>end</sub>)</code> is such that no array in filterInputs
     * either starts or stops within it.
     *
     * @param filterInputs the list of all filter inputs

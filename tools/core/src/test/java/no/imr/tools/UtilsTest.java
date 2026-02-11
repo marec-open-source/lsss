@@ -11,6 +11,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -173,6 +174,19 @@ final class UtilsTest {
       assertEquals("d", Utils.shift(list, "x", -2));
 
       assertEquals("x", Utils.shift(List.of(), "x", 1));
+   }
+
+   @Test
+   void allOfType() {
+      assertEquals(List.of(1, 2, 3),
+            Utils.getAllOfType(List.of(1.0f, 1, 1.0d, 2, "", 'c', "3", 3), Integer.class)
+                  .toList()
+      );
+      assertEquals(List.of("", "a"),
+            Stream.of(null, "", 0, "a", null, 1)
+                  .gather(Utils.allOfType(String.class))
+                  .toList()
+      );
    }
 
    @Test

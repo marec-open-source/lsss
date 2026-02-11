@@ -34,7 +34,7 @@ final class NnlsTimer {
    private NnlsTimer() {
    }
 
-   public static void main(String[] args) {
+   static void main() {
       new NnlsTimer().run();
    }
 

@@ -100,7 +100,7 @@ public abstract sealed class BaseLsssModule extends ConcurrentObject implements 
 
    public JMenuItem createConfigureMenuItem() {
       JMenuItem configureItem = MiscIcons.SETTINGS.on(new JMenuItem("Configure " + getDisplayName() + "..."));
-      configureItem.addActionListener(e -> getConfigurationManager().showDialog(this));
+      configureItem.addActionListener(_ -> getConfigurationManager().showDialog(this));
       return configureItem;
    }
 

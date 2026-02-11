@@ -195,9 +195,8 @@ public class Track implements PingContainer {
             } finally {
                lock.lock();
             }
-            segment = getLastSegment();
+            segment = pingMappingRangeMaps.get(pingMapping).get(value);
          }
-         assert segment == null ^ totalPingRange.contains(value, pingMapping) : segment;
          return segment;
       } finally {
          lock.unlock();

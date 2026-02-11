@@ -46,7 +46,7 @@ public final class WebHelpDisplayer implements HelpDisplayer {
          for (int port = preferredPort; port <= 65535; port++) {
             try (ServerSocket serverSocket = new ServerSocket(port)) {
                return serverSocket.getLocalPort();
-            } catch (IOException e) {
+            } catch (IOException _) {
                // Try again.
             }
          }

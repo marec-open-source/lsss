@@ -67,6 +67,7 @@ final class GetPgnapes {
                switch (platform.getCompId().getPlatform()) {
                   case 1001 -> "TFEA"; // Bjarni Saemundsson
                   case 1002 -> "TFNA"; // Arni Fridriksson
+                  case 1003 -> "TFBS"; // Thorunn Thordardottir
                   //case ???? -> "TJFA"; // Arni Fridrikson (old)
                   default -> "????";
                };

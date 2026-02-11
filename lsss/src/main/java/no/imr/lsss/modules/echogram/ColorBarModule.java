@@ -99,7 +99,7 @@ public final class ColorBarModule extends BaseViewModule implements PojoDataCont
             case SingleValueColorConverter singleValueColorConverter -> {
                colormap.setValue(singleValueColorConverter.getColormap());
             }
-            case DiscreteColorConverter __ -> {
+            case DiscreteColorConverter _ -> {
                ConditionalPingMask conditionalPingMask = getRegionManager().getConditionalPingMask();
                if (!conditionalPingMask.isEmpty()) {
                   // Set mask again to trigger update for all modules using the current conditional mask.
@@ -159,7 +159,7 @@ public final class ColorBarModule extends BaseViewModule implements PojoDataCont
       ConfigFileSettings configFileSettings;
       try {
          configFileSettings = mainSetup.createConfigFileSettings();
-      } catch (IOException e) {
+      } catch (IOException _) {
          configFileSettings = getLSSS().getKorona().createConfigFileSettings();
       }
       converterContainer.updateEvaluationContext(getInterpretationSettings().getDataFileSet().getPingConfiguration().getConfigurationItems(), configFileSettings);
@@ -227,9 +227,9 @@ public final class ColorBarModule extends BaseViewModule implements PojoDataCont
          FloatRange range = settings.getRange();
          int n = Math.round(range.getSize() / settings.getDelta());
          builder.with("colormap", builder.newBuilder()
-               .with("name", colormap.getName())
-               .with("colorAbove", ColorUtils.colorToHex(colormap.getAboveRGB()))
-               .with("colorBelow", ColorUtils.colorToHex(colormap.getBelowRGB()))
+               .with("name", colormap.name())
+               .with("colorAbove", ColorUtils.colorToHex(colormap.aboveRGB()))
+               .with("colorBelow", ColorUtils.colorToHex(colormap.belowRGB()))
                .with("colors", IntStream.range(0, n)
                      .mapToObj(i -> {
                         float value = i / (float) n;
@@ -282,7 +282,7 @@ public final class ColorBarModule extends BaseViewModule implements PojoDataCont
             popupMenu.addSeparator();
             JMenuItem item = popupMenu.add("Conditional masking...");
             item.setMnemonic(KeyEvent.VK_M);
-            item.addActionListener(e -> {
+            item.addActionListener(_ -> {
                if (currentConditionalMaskingGUI != null) {
                   currentConditionalMaskingGUI.getDialog().toFront();
                } else {

@@ -34,7 +34,7 @@ final class KoronaRelayStatusBar {
       private final ObservableValue<Boolean> processing;
       private final JLabel label = new JLabel("");
       private @Nullable RemainingTimeEstimator remainingTimeEstimator;
-      private final Timer timer = new Timer(1000, e -> update());
+      private final Timer timer = new Timer(1000, _ -> update());
 
       private RemainingProcessingStatus(ObservableValue<Integer> remainingFiles,
                                         ObservableValue<Float> remainingWork,

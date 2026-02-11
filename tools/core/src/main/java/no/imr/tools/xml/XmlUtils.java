@@ -1,6 +1,5 @@
 package no.imr.tools.xml;
 
-import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
 import no.imr.tools.ShouldNotHappenException;
 import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
@@ -15,6 +14,7 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.util.ByteBufferBackedInputStream;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -56,7 +56,7 @@ public final class XmlUtils {
          byte[] fileBytes = Files.readAllBytes(file);
          byte[] documentBytes = toFileBytes(document, FileUtils.isGzip(file), fileBytes.length);
          return Arrays.equals(documentBytes, fileBytes);
-      } catch (IOException e) {
+      } catch (IOException _) {
          return false;
       }
    }

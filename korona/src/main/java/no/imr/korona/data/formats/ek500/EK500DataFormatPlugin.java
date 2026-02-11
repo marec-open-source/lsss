@@ -1,6 +1,5 @@
 package no.imr.korona.data.formats.ek500;
 
-import no.imr.korona.data.DataException;
 import no.imr.korona.data.track.SegmentHandle;
 import no.imr.korona.plugins.DataFormatPlugin;
 import no.imr.tools.concurrent.AsyncHandle;
@@ -32,33 +31,15 @@ public final class EK500DataFormatPlugin extends DataFormatPlugin {
    static final String WORK_SUFFIX = "-Work";
    static final String SNAP_SUFFIX = "-Snap";
 
-   private static final List<String> MAIN_SUFFIXES = List.of(INFO_SUFFIX);
-   private static final List<String> CON_OPEN_SUFFIXES = List.of(INFO_SUFFIX, PING_SUFFIX, TIME_SUFFIX, DATA_SUFFIX);
-
    public EK500DataFormatPlugin(Name name) {
-      super(name);
+      super(name, "EK500 raw file", List.of(INFO_SUFFIX));
    }
 
    @Override
-   public String getDescription() {
-      return "EK500 raw file";
-   }
-
-   @Override
-   public List<String> getMainSuffixes() {
-      return MAIN_SUFFIXES;
-   }
-
-   @Override
-   public List<String> getCanOpenSuffixes() {
-      return CON_OPEN_SUFFIXES;
-   }
-
-   @Override
-   public EK500SegmentHandle createSegmentHandle(Path file) throws IOException {
+   public @Nullable EK500SegmentHandle createSegmentHandle(Path file) throws IOException {
       EK500File ref = toEK500File(file);
       if (ref == null) {
-         throw new DataException("Not EK500 file: " + file);
+         return null;
       }
       List<EK500File> matchingFiles = new ArrayList<>();
       for (Path f : FileUtils.listFiles(file.getParent())) {
@@ -80,7 +61,7 @@ public final class EK500DataFormatPlugin extends DataFormatPlugin {
          if (ek500File == null) {
             continue;
          }
-         NavigableMap<Instant, List<EK500File>> timeToMatchingFiles = nssToTimeToMatchingFiles.computeIfAbsent(ek500File.nss, k -> new TreeMap<>());
+         NavigableMap<Instant, List<EK500File>> timeToMatchingFiles = nssToTimeToMatchingFiles.computeIfAbsent(ek500File.nss, _ -> new TreeMap<>());
 
          Map.Entry<Instant, List<EK500File>> floorEntry = timeToMatchingFiles.floorEntry(ek500File.time);
          if (floorEntry != null && ek500File.isNear(floorEntry.getKey())) {
@@ -94,7 +75,7 @@ public final class EK500DataFormatPlugin extends DataFormatPlugin {
             continue;
          }
 
-         timeToMatchingFiles.computeIfAbsent(ek500File.time, k -> new ArrayList<>()).add(ek500File);
+         timeToMatchingFiles.computeIfAbsent(ek500File.time, _ -> new ArrayList<>()).add(ek500File);
       }
 
       return nssToTimeToMatchingFiles.values().stream()

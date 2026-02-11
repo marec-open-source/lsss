@@ -22,12 +22,12 @@ final class GetOneScatter {
             " and   a.compId.platform = " + aSurvey.getCompId().getPlatform() +
             " and   a.compId.survey = " + aSurvey.getCompId().getSurvey();
 
-      try (ScrollableResults scatterResults = aSession.createQuery(query)
+      try (ScrollableResults<Scatter> scatterResults = aSession.createSelectionQuery(query, Scatter.class)
             .setReadOnly(true)
             .scroll(ScrollMode.FORWARD_ONLY)) {
 
          if (scatterResults.next()) {
-            Scatter scatter = (Scatter) scatterResults.get(0);
+            Scatter scatter = scatterResults.get();
             return scatter.getDistanceInterval();
          }
       } catch (Exception e) {

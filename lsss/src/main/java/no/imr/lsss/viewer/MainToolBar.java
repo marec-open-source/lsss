@@ -87,7 +87,7 @@ final class MainToolBar {
       JButton reloadDataButton = ActionUtils.newButton(lsss.getActions().reloadData);
 
       GuiUtils.setAccelerator(toolTipButton, Shortcuts.TOOLTIP);
-      toolTipButton.addActionListener(e -> lsss.getActions().showTooltip.toggle());
+      toolTipButton.addActionListener(_ -> lsss.getActions().showTooltip.toggle());
 
       JButton editSurveyButton = ActionUtils.newButton(lsss.getActions().editSurvey);
       GuiUtils.setAccelerator(editSurveyButton, Shortcuts.EDIT);
@@ -200,7 +200,7 @@ final class MainToolBar {
       for (double size : gridConf.preferredHorizontalSizes.getValue()) {
          String sizeString = Utils.toString(size) + " " + gridConf.horizontalGridUnit.getValue().getUnitString();
          JButton button = new JButton(sizeString);
-         button.addActionListener(e -> lsss.getInterpretationSettings().gotoPreferredSize(size));
+         button.addActionListener(_ -> lsss.getInterpretationSettings().gotoPreferredSize(size));
          button.setToolTipText("Adjust horizontal segment size to " + sizeString);
          button.setEnabled(!lsss.getInterpretationSettings().getDataFileSet().isEmpty());
          preferredHorizontalSizeButtons.add(button);

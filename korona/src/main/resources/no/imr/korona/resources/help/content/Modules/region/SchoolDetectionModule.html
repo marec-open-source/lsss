@@ -64,7 +64,27 @@
    </li>
 </ul>
 
-<h3 id="AcceptanceSettings">Acceptance settings</h3>
+<h3 id="Postprocessing">Postprocessing</h3>
+<p>
+   Note: The postprocessing will change only some school parameters:
+   Length, Thickness, Area and Perimeter.
+</p>
+<ul>
+   <li><span class="marec-parameter-def" id="FillHoles">Fill holes:</span>
+      If selected, then holes in detected schools will be filled.
+   </li>
+   <li><span class="marec-parameter-def" id="FillVerticalGaps">Fill vertical gaps:</span>
+      Vertical gaps of maximum this size will be filled.
+   </li>
+   <li><span class="marec-parameter-def" id="FillHorizontalGaps">Fill horizontal gaps:</span>
+      Horizontal gaps of maximum this number of pings will be filled.
+   </li>
+   <li><span class="marec-parameter-def" id="BoundarySmoothingIterations">Boundary smoothing iterations:</span>
+      Schools boundaries are smoothed by averaging neighbouring points this many times.
+   </li>
+</ul>
+
+<h3 id="AcceptanceCriteria">Acceptance criteria</h3>
 <ul>
    <li><span class="marec-parameter-def" id="Density">Mean Sv:</span>
       Limits for average Sv in school [dB].
@@ -83,12 +103,5 @@
    </li>
    <li><span class="marec-parameter-def" id="Compactness">Compactness:</span>
       Limits for compactness = Perimeter of circle with same area / Perimeter.
-   </li>
-</ul>
-
-<h3 id="Postprocessing">Postprocessing</h3>
-<ul>
-   <li><span class="marec-parameter-def" id="FillHoles">Fill holes:</span>
-      If selected, then holes in detected schools will be filled.
    </li>
 </ul>

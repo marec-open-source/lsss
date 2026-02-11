@@ -19,8 +19,8 @@ import java.util.List;
  * The datagram types in KORONA.
  */
 public final class KoronaDatagramPlugin extends DatagramPlugin {
-   public static final DatagramType CAS0 = new DatagramType.Simple("CAS0", Cas0Datagram::new);
-   public static final DatagramType CAT0 = new DatagramType.Simple("CAT0", Cat0Datagram::new);
+   public static final DatagramType CAS0 = DatagramType.simple("CAS0", Cas0Datagram::new);
+   public static final DatagramType CAT0 = DatagramType.simple("CAT0", Cat0Datagram::new);
 
    KoronaDatagramPlugin(Name name) {
       super(name);

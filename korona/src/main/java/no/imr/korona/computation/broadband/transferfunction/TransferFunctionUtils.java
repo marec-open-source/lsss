@@ -5,8 +5,6 @@ import no.imr.tools.math.Function1D;
 import no.imr.tools.math.MathUtils;
 import no.imr.tools.range.FloatRange;
 
-import java.util.List;
-
 /**
  * Helper class to generate transfer functions / filters.
  * <p>
@@ -111,10 +109,10 @@ public final class TransferFunctionUtils {
       }
    }
 
-   static TransferFunction generateNotchFilterFromConfigList(List<BroadbandNotchFilterConfig> broadbandNotchFilterConfigs, FloatRange frequencyRange) {
+   static TransferFunction generateNotchFilterFromConfig(NotchFilterConfig config) {
       TransferFunction transferFunction = new IdentityTransferFunction();
-      for (BroadbandNotchFilterConfig broadbandNotchFilterConfig : broadbandNotchFilterConfigs) {
-         transferFunction = transferFunction.multiply(generateNotchFilter(broadbandNotchFilterConfig, frequencyRange));
+      for (BroadbandNotchFilterConfig broadbandNotchFilterConfig : config.broadbandNotchFilterConfigs()) {
+         transferFunction = transferFunction.multiply(generateNotchFilter(broadbandNotchFilterConfig, config.frequencyRange()));
       }
       return transferFunction;
    }

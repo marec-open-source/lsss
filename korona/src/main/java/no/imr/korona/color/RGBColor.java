@@ -1,5 +1,7 @@
 package no.imr.korona.color;
 
+import no.imr.tools.swing.ColorUtils;
+
 import java.awt.Color;
 
 /**
@@ -8,7 +10,7 @@ import java.awt.Color;
 public record RGBColor(float red, float green, float blue) {
 
    public int getRGB() {
-      return getColor().getRGB();
+      return ColorUtils.toRGB(red, green, blue);
    }
 
    public Color getColor() {
@@ -22,6 +24,6 @@ public record RGBColor(float red, float green, float blue) {
       float g = weight * green + otherWeight * other.green;
       float b = weight * blue + otherWeight * other.blue;
 
-      return new Color(r, g, b).getRGB();
+      return ColorUtils.toRGB(r, g, b);
    }
 }

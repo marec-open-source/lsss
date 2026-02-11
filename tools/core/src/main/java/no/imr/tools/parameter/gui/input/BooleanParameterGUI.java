@@ -15,7 +15,7 @@ public final class BooleanParameterGUI extends ParameterGUI<BooleanParameter> {
    BooleanParameterGUI(BooleanParameter parameter, GUIConfig guiConfig) {
       super(parameter, guiConfig);
 
-      checkBox.addItemListener(e -> updateParameter());
+      checkBox.addItemListener(_ -> updateParameter());
       addMouseClickListener(() -> {
          checkBox.requestFocusInWindow();
          checkBox.doClick();

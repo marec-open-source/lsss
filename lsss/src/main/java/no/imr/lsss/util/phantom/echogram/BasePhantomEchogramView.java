@@ -55,7 +55,7 @@ public abstract class BasePhantomEchogramView extends BaseOverlaidModule.BaseOve
             RawFileTransducer transducer = transducers.get(channelIndex);
             boolean selected = module.getPhantomEchogramSettings().getChannel() == channel;
             JMenuItem item = MiscIcons.check(selected).on(menu.add(channel + "  –  " + transducer.getChannelId()));
-            item.addActionListener(e -> module.getPhantomEchogramSettings().setChannel(channel));
+            item.addActionListener(_ -> module.getPhantomEchogramSettings().setChannel(channel));
          }
       }
       return menu;

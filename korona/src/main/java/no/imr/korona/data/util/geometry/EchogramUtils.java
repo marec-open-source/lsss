@@ -8,6 +8,7 @@ import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.DataUtils;
 import no.imr.korona.data.util.geometry.depth.DepthTransform;
+import no.imr.tools.Utils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -44,12 +45,30 @@ public final class EchogramUtils {
       return points;
    }
 
-   public static PingContainer listPingContainer(PingConfiguration pingConfiguration, List<PingIndex> pingIndices) {
-      if (pingIndices.isEmpty()) {
-         return emptyPingContainer();
+   public static double computeCircumference(List<EchogramPoint> boundary) {
+      if (boundary.isEmpty()) {
+         return 0;
       }
+      double distance = 0;
+      EchogramPoint previousPoint = boundary.getLast();
+      for (EchogramPoint point : boundary) {
+         distance += computeDistance(previousPoint, point);
+         previousPoint = point;
+      }
+      return distance;
+   }
+
+   private static double computeDistance(EchogramPoint a, EchogramPoint b) {
+      double horizontalDist = Utils.nmiToMeter(a.pingIndex().getVesselDistance() - b.pingIndex().getVesselDistance());
+      double verticalDist = a.depth() - b.depth();
+      return Utils.hypot(horizontalDist, verticalDist);
+   }
+
+   public static PingContainer listPingContainer(PingConfiguration pingConfiguration, List<PingIndex> pingIndices) {
       return new PingContainer() {
-         private final PingRange totalRange = PingRange.of(pingIndices.getFirst(), ExtrapolatedPingIndex.create(pingIndices));
+         private final PingRange totalRange = pingIndices.isEmpty()
+               ? PingRange.EMPTY_RANGE
+               : PingRange.of(pingIndices.getFirst(), ExtrapolatedPingIndex.create(pingIndices));
 
          @Override
          public PingConfiguration getPingConfiguration() {
@@ -63,7 +82,16 @@ public final class EchogramUtils {
 
          @Override
          public PingIndex getClosestPingIndex(double value, PingMapping pingMapping) {
-            return DataUtils.getClosestPingIndex(pingIndices, value, pingMapping);
+            if (pingIndices.isEmpty()) {
+               return totalRange.end();
+            }
+            PingIndex closest = DataUtils.getClosestPingIndex(pingIndices, value, pingMapping);
+            PingIndex end = totalRange.end();
+            if (closest.getPingNumber() == end.getPingNumber() - 1
+                  && Math.abs(value - pingMapping.valueOf(end)) < Math.abs(value - pingMapping.valueOf(closest))) {
+               return end;
+            }
+            return closest;
          }
 
          @Override
@@ -74,28 +102,6 @@ public final class EchogramUtils {
    }
 
    public static PingContainer emptyPingContainer() {
-      return new PingContainer() {
-         private final PingConfiguration pingConfiguration = PingConfiguration.newEmpty();
-
-         @Override
-         public PingConfiguration getPingConfiguration() {
-            return pingConfiguration;
-         }
-
-         @Override
-         public PingRange getTotalRange() {
-            return PingRange.EMPTY_RANGE;
-         }
-
-         @Override
-         public PingIndex getClosestPingIndex(double value, PingMapping pingMapping) {
-            return PingRange.EMPTY_RANGE.end();
-         }
-
-         @Override
-         public @Nullable PingIndex getContainingPingIndex(double value, PingMapping pingMapping) {
-            return null;
-         }
-      };
+      return listPingContainer(PingConfiguration.newEmpty(), List.of());
    }
 }

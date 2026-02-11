@@ -67,7 +67,7 @@ final class RawFile {
       ByteBuffer byteBuffer = ByteBufferUtils.getThreadLocalByteBuffer(size);
       try {
          FileUtils.read(fileChannel, byteBuffer, startOffset);
-      } catch (ClosedChannelException e) {
+      } catch (ClosedChannelException _) {
          byteBuffer.position(0);
          // Reading cancelled
          return List.of();

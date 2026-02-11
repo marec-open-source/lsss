@@ -24,7 +24,7 @@ import {SearchService} from './search.service';
    changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-help-page',
    templateUrl: './help-page.component.html',
-   styleUrl: './help-page.component.css',
+   styleUrl: './help-page.component.scss',
    imports: [
       RouterOutlet, DecimalPipe, FormsModule,
       MatButtonModule, MatFormFieldModule, MatInputModule, MatTreeModule,

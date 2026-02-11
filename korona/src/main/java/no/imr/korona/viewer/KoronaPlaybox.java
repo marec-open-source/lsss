@@ -107,7 +107,7 @@ public final class KoronaPlaybox {
       SvColorPanel svColorPanel = new SvColorPanel(converterContainer);
       svColorPanel.setUseAdvancedDialog(true);
 
-      getCdsFileParameter().subscribe(__ -> {
+      getCdsFileParameter().subscribe(_ -> {
          Path cdsFile = getCdsFile();
          if (cdsFile != null) {
             setLastCdsFile(cdsFile);
@@ -121,9 +121,9 @@ public final class KoronaPlaybox {
       realtimeFactorSpinner.setToolTipText("Play speed");
       realtimeFactorSpinner.setPreferredSize(new Dimension(50, 24));
       realtimeFactorSpinner.setValue(realtimeFactor);
-      realtimeFactorSpinner.addChangeListener(e -> realtimeFactor = (Integer) realtimeFactorSpinner.getValue());
+      realtimeFactorSpinner.addChangeListener(_ -> realtimeFactor = (Integer) realtimeFactorSpinner.getValue());
 
-      rewindButton.addActionListener(e -> rewind());
+      rewindButton.addActionListener(_ -> rewind());
       rewindButton.setPreferredSize(BUTTON_SIZE);
       rewindButton.setToolTipText("Rewind");
       GuiUtils.setAccelerator(rewindButton, KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK));
@@ -132,7 +132,7 @@ public final class KoronaPlaybox {
       playButton.setPreferredSize(BUTTON_SIZE);
       playButton.setToolTipText("Play");
       GuiUtils.setAccelerator(playButton, KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK));
-      playButton.addActionListener(e -> {
+      playButton.addActionListener(_ -> {
          if (processing != null && processing.displayRunner().isRunning()) {
             stop();
          } else {
@@ -142,7 +142,7 @@ public final class KoronaPlaybox {
 
       fullSpeedCheckBox.setToolTipText("Do processing as fast as possible");
       GuiUtils.setAccelerator(fullSpeedCheckBox, KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
-      fullSpeedCheckBox.addActionListener(e -> {
+      fullSpeedCheckBox.addActionListener(_ -> {
          fullSpeed = fullSpeedCheckBox.isSelected();
          realtimeFactorSpinner.setEnabled(!fullSpeed);
       });

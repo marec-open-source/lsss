@@ -62,7 +62,7 @@ final class RefLogVisualizerDialog implements ItemContainer<LogLine> {
    private static double value(LogLineField field, LogLine logLine) {
       try {
          return Double.parseDouble(string(field, logLine));
-      } catch (NumberFormatException e) {
+      } catch (NumberFormatException _) {
          return Double.NaN;
       }
    }

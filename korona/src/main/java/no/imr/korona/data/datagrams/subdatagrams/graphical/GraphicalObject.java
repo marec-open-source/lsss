@@ -7,12 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract sealed class GraphicalObject permits OffsetPolygon {
-   private final List<String> texts;
-
-   GraphicalObject(List<String> texts) {
-      this.texts = texts;
-   }
+public sealed interface GraphicalObject permits OffsetPolygon {
 
    static List<String> readTexts(ByteBuffer byteBuffer) throws DatagramFormatException {
       int n = ByteBufferUtils.readCount(byteBuffer, 1);
@@ -30,15 +25,13 @@ public abstract sealed class GraphicalObject permits OffsetPolygon {
       }
    }
 
-   protected abstract GraphicalObjectType getType();
+   GraphicalObjectType getType();
 
-   public void write(ByteBuffer byteBuffer) {
+   List<String> texts();
+
+   default void write(ByteBuffer byteBuffer) {
       writeContent(byteBuffer);
    }
 
-   protected abstract void writeContent(ByteBuffer byteBuffer);
-
-   public List<String> getTexts() {
-      return texts;
-   }
+   void writeContent(ByteBuffer byteBuffer);
 }

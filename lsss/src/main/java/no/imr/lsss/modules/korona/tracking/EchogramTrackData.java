@@ -11,7 +11,6 @@ import no.imr.lsss.modules.echogram.EchogramModule;
 import no.imr.tools.concurrent.ConcurrentObject;
 import no.imr.tools.listening.ListenerRegistry;
 import no.imr.tools.listening.ObservableChangeManager;
-import no.imr.tools.swing.Drawable;
 import no.imr.tools.swing.GuiText;
 import no.imr.tools.swing.linestrip.LineStripBuilders;
 import no.marec.lsss.api.util.LineStripBuilder;
@@ -125,7 +124,7 @@ final class EchogramTrackData extends ConcurrentObject {
          TrackId trackId,
          Path2D.Float center,
          Path2D.Float extent,
-         Drawable labelText,
+         @Nullable GuiText labelText,
          Path2D.Float ignoreAnglesCenter) {
    }
 
@@ -183,10 +182,10 @@ final class EchogramTrackData extends ConcurrentObject {
             ignoreAnglesCenterBuilder.endLineStrip();
          }
 
-         Drawable labelText;
+         GuiText labelText;
          ImmutableSet<String> labels = trackInfoModule.getTrackLabelling().getLabels(trackId);
          if (labels.isEmpty()) {
-            labelText = Drawable.nothing();
+            labelText = null;
          } else {
             RangePoint centerRangePoint = rangePoints.get(rangePoints.size() / 2);
             float x = (centerRangePoint.xMin + centerRangePoint.xMax) / 2;

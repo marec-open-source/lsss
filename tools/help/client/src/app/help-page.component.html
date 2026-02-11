@@ -5,8 +5,8 @@
    <input matInput type="text" [(ngModel)]="searchText" (focus)="onSearchFocus()">
    @if (searchText()) {
       <button mat-icon-button matSuffix (click)="searchText.set('')">
-         <svg width="16" height="16" fill="#333333">
-            <path d="M4,3 l -1,1 4,4 -4,4 1,1 4,-4 4,4 1,-1 -4,-4 4,-4-1,-1-4,4 z"></path>
+         <svg width="24" height="24" fill="#333333">
+            <path d="M8,7 l -1,1 4,4 -4,4 1,1 4,-4 4,4 1,-1 -4,-4 4,-4-1,-1-4,4 z"></path>
          </svg>
       </button>
    }
@@ -14,8 +14,8 @@
 
 <div class="marec-all-top">
    <button mat-icon-button class="marec-left-button" (click)="leftVisible.set(!leftVisible())">
-      <svg width="16" height="16" fill="#333333">
-         <path d="M1,2 v2 h14 v-2 z M1,7 v2 h14 v-2 z M1,12 v2 h14 v-2 z"></path>
+      <svg width="24" height="24" fill="#333333">
+         <path d="M5,6 v2 h14 v-2 z m0,5 v2 h14 v-2 z m0,5 v2 h14 v-2 z"></path>
       </svg>
    </button>
    <div class="marec-title">

@@ -321,6 +321,7 @@ is detected. The bottom telegram are kept after TemporaryComputationsEndModule.<
             <parameter name="MinKHz">30</parameter>
             <parameter name="MaxKHz">240</parameter>
             <parameter name="DoNotUseKHz"/>
+            <parameter name="CoordinatedBottomOffset">0</parameter>
          </parameters>
       </module>
       <module name="TemporaryComputationsEndModule">
@@ -548,6 +549,8 @@ and finally the last. The last one is C1 ("channel 1") that always exist. This m
          <parameters>
             <parameter name="Active">true</parameter>
             <parameter name="Comment">The first line will be tried first. If not possible, then the second line, and so on. F38 means Frequency 38 kHz. C1 means the first channel. Commonly C1 is 18 kHz that usually has a wider beam than the others. C1 will always exist.</parameter>
+            <parameter name="ChannelID"/>
+            <parameter name="Frequency"/>
             <parameter name="Expression">
                <value>(F38+3*F200)/4</value>
                <value>(C2+C3+C4+C5)/4</value>
@@ -566,6 +569,10 @@ and finally the last. The last one is C1 ("channel 1") that always exist. This m
             <parameter name="MinDepth">10</parameter>
             <parameter name="MaxDepth"/>
             <parameter name="Threshold">-62</parameter>
+            <parameter name="FillHoles">true</parameter>
+            <parameter name="FillVerticalGaps"/>
+            <parameter name="FillHorizontalGaps"/>
+            <parameter name="BoundarySmoothingIterations"/>
             <parameter name="Density">
                <parameter name="min">-120</parameter>
                <parameter name="max">-20</parameter>
@@ -590,7 +597,6 @@ and finally the last. The last one is C1 ("channel 1") that always exist. This m
                <parameter name="min"/>
                <parameter name="max"/>
             </parameter>
-            <parameter name="FillHoles">true</parameter>
          </parameters>
       </module>
       <module name="TemporaryComputationsEndModule">

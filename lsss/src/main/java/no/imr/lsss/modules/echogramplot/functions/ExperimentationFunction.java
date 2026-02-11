@@ -147,9 +147,9 @@ public final class ExperimentationFunction extends PingFunction {
          int i_min = Math.max(i - maxRadius, 0);
          int i_max = Math.min(i + maxRadius + 1, yCopy.length);
          float timeDiff = (float) (timeInMillis[i_max - 1] - timeInMillis[i_min]) / 1000;
-         float maxDepth = Math.min(Math.max(bottom[i], 1000), 200); //Minimum of bottom depth and 200 m
+         float maxDepth = Math.min(bottom[i], 200); //Minimum of bottom depth and 200 m
 
-         y[i] = Max.of(yCopy, Math.max(i - maxRadius, 0), Math.min(i + maxRadius + 1, yCopy.length));
+         y[i] = Max.of(yCopy, i_min, i_max);
          for (int j = i_min; j < i_max - 1; j++) {
             totalRoll += Math.abs(yCopy[j] - yCopy[j+1]);
          }

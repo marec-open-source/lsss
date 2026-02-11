@@ -7,6 +7,7 @@ import no.imr.korona.computation.ModuleUtils;
 import no.imr.korona.computation.broadband.BroadbandToAngles;
 import no.imr.korona.computation.broadband.BroadbandToSvAtFrequencyBands;
 import no.imr.korona.data.datagrams.Bot0Datagram;
+import no.imr.korona.data.datagrams.PerChannelDatagram;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingConfiguration;
 import no.imr.korona.data.ping.PingSource;
@@ -161,7 +162,7 @@ final class BroadbandSplitterModuleComputation extends ConcurrentPingModuleCompu
       }
 
       ping.getPingItems().stream()
-            .filter(pingItem -> !(pingItem instanceof ChannelData))
+            .filter(pingItem -> !(pingItem instanceof PerChannelDatagram))
             .forEach(newPing::add);
    }
 

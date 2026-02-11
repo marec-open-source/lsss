@@ -19,7 +19,6 @@ public final class Log {
     * This field uses the preferred way to get the global logger.
     */
    public static final Logger global = Logger.getGlobal();
-   private static final Logger ROOT_LOGGER = Logger.getLogger("");
 
    public static final Level SILENT_WARNING = Boolean.parseBoolean(System.getProperty("no.marec.silentWarning"))
          ? new CustomLogLevel("SILENT_WARNING", Level.WARNING.intValue() - 1)
@@ -73,7 +72,7 @@ public final class Log {
       System.setProperty("org.jboss.logging.provider", "jdk"); // See org.jboss.logging.LoggerProviders, used by Hibernate.
 
       initLogger(global, Level.ALL);
-      initLogger(ROOT_LOGGER, Level.WARNING);
+      initLogger(rootLogger(), Level.WARNING);
 
       addHandler(MAX_LEVEL_HANDLER);
       addHandler(CONSOLE_HANDLER);
@@ -90,6 +89,10 @@ public final class Log {
       // Done by static initialization.
    }
 
+   private static Logger rootLogger() {
+      return Logger.getLogger("");
+   }
+
    private static void initLogger(Logger logger, Level level) {
       logger.setLevel(level);
       logger.setUseParentHandlers(false);
@@ -101,7 +104,7 @@ public final class Log {
 
    public static void stop() {
       global.removeHandler(MAIN_HANDLER);
-      ROOT_LOGGER.removeHandler(MAIN_HANDLER);
+      rootLogger().removeHandler(MAIN_HANDLER);
       Thread.setDefaultUncaughtExceptionHandler(null);
    }
 

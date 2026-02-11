@@ -22,10 +22,11 @@ import no.imr.lsss.database.tables.hibernate.ScatterObject;
 import no.imr.lsss.database.tables.hibernate.SchoolData;
 import no.imr.lsss.database.tables.hibernate.SchoolDetect;
 import no.imr.lsss.database.tables.hibernate.SchoolMorphology;
-import no.imr.lsss.database.tables.hibernate.Survey;
+import no.imr.lsss.database.types.JavaDBInMemoryDatabasePlugin;
 import no.imr.lsss.modules.integration.RegionIntegrationModule;
 import no.imr.lsss.test.LsssTestUtils;
-import no.imr.tools.database.queries.FetchQuery;
+import no.imr.tools.database.hibernate.BaseDatabaseObject;
+import no.imr.tools.database.queries.QueryBuilder;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +49,8 @@ final class InterpretationModuleTest {
    @BeforeEach
    void beforeEach() {
       lsss = LsssTestUtils.start(List.of(RegionIntegrationModule.class), List.of(InterpretationModule.class));
-      DatabaseTestUtils.connectToInMemoryDatabase(lsss);
+      JavaDBInMemoryDatabasePlugin.install(lsss);
+      DatabaseTestUtils.resetCompleteTestSurvey(lsss);
       interpretationModule = lsss.getModuleManager().getModule(InterpretationModule.class);
       interpretationModule.frequencies.setValue(List.of(38));
    }
@@ -60,9 +62,8 @@ final class InterpretationModuleTest {
 
    @Test
    void testStore() {
-      Survey survey = DatabaseTestUtils.resetCompleteTestSurvey(lsss);
       double pingsPerNmi = 20;
-      LsssTestUtils.open(lsss, new TestSyntheticData(pingsPerNmi).toSegmentHandle(0, 200));
+      LsssTestUtils.open(lsss, new TestSyntheticData(pingsPerNmi).withFirstAndLastPingNumber(0, 200).toSegmentHandle());
 
       lsss.getConfigurationManager().getSurveyConfiguration().getSurveyMiscConf().pelagicMode.setBooleanValue(false);
       lsss.getConfigurationManager().getSurveyConfiguration().getSurveyMiscConf().topBoundaryOffset.setFloatValue(15);
@@ -74,95 +75,82 @@ final class InterpretationModuleTest {
       //Test store of full ping range, no schools.
       lsss.getRegionManager().setupDefaultBoundaries();
       store(5);
-      assertEquals(4, getScatters(survey).size());
+      assertEquals(4, count(Scatter.class));
       long expectedScatterDataSize = 2 * (9 + 1 + 2 + 1); // 2 grid columns, cells: 9 pelagic, 2 bottom, summary
-      assertEquals(expectedScatterDataSize, getScatterDatas(survey).size()); // Only raw data acoustic category is stored
-      assertEquals(1, getScatterObjects(survey).size());
+      assertEquals(expectedScatterDataSize, count(ScatterData.class)); // Only raw data acoustic category is stored
+      assertEquals(1, count(ScatterObject.class));
       assertEquals(Map.of(
                   //ObservationTypeEnum.NAVIGATION_DATA_INPUT, 2,
                   ObservationTypeEnum.SCATTERED_FISH_DATA, 2,
                   ObservationTypeEnum.SCATTER_OBJECT_PELAGIC, 1),
-            getObservationCounts(survey));
+            getObservationCounts());
 
-      ScatterObject scatterObject = getScatterObjects(survey).getFirst();
+      ScatterObject scatterObject = getScatterObjects().getFirst();
       assertEquals(40000, scatterObject.getDuration());
 
-      List<SchoolMorphology> schoolMorphologies = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolMorphology.class));
-      List<SchoolData> schoolDatas = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolData.class));
-      List<SchoolDetect> schoolDetects = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolDetect.class));
-
-      assertEquals(0, schoolMorphologies.size());
-      assertEquals(0, schoolDatas.size());
-      assertEquals(0, schoolDetects.size());
+      assertEquals(0, count(SchoolMorphology.class));
+      assertEquals(0, count(SchoolData.class));
+      assertEquals(0, count(SchoolDetect.class));
 
       //Delete all.
       delete();
-      assertEmptyDatabase(survey);
+      assertEmptyDatabase();
 
       //Test pelagic mode.
       lsss.getConfigurationManager().getSurveyConfiguration().getSurveyMiscConf().pelagicMode.setBooleanValue(true);
       lsss.getRegionManager().setupDefaultBoundaries();
       store(5);
-      assertEquals(2, getScatters(survey).size());
-      assertEquals(2 * 9, getScatterDatas(survey).size());
-      assertEquals(1, getScatterObjects(survey).size());
+      assertEquals(2, count(Scatter.class));
+      assertEquals(2 * 9, count(ScatterData.class));
+      assertEquals(1, count(ScatterObject.class));
       assertEquals(Map.of(
                   //ObservationTypeEnum.NAVIGATION_DATA_INPUT, 2,
                   ObservationTypeEnum.SCATTERED_FISH_DATA, 2,
                   ObservationTypeEnum.SCATTER_OBJECT_PELAGIC, 1),
-            getObservationCounts(survey));
+            getObservationCounts());
 
-      schoolMorphologies = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolMorphology.class));
-      lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolData.class));
-      schoolDetects = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolDetect.class));
-
-      assertEquals(0, schoolMorphologies.size());
-      assertEquals(0, schoolDatas.size());
-      assertEquals(0, schoolDetects.size());
+      assertEquals(0, count(SchoolMorphology.class));
+      assertEquals(0, count(SchoolData.class));
+      assertEquals(0, count(SchoolDetect.class));
 
       delete();
-      assertEmptyDatabase(survey);
+      assertEmptyDatabase();
 
       //Test partial delete
       lsss.getConfigurationManager().getSurveyConfiguration().getSurveyMiscConf().pelagicMode.setBooleanValue(false);
       lsss.getRegionManager().setupDefaultBoundaries();
       store(5);
-      assertEquals(4, getScatters(survey).size());
+      assertEquals(4, count(Scatter.class));
       expectedScatterDataSize = 2 * (9 + 1 + 2 + 1); // 2 grid columns, cells: 9 pelagic, 2 bottom, summary
-      assertEquals(expectedScatterDataSize, getScatterDatas(survey).size()); // Only raw data acoustic category is stored
-      assertEquals(1, getScatterObjects(survey).size());
+      assertEquals(expectedScatterDataSize, count(ScatterData.class)); // Only raw data acoustic category is stored
+      assertEquals(1, count(ScatterObject.class));
       assertEquals(Map.of(
                   //ObservationTypeEnum.NAVIGATION_DATA_INPUT, 2,
                   ObservationTypeEnum.SCATTERED_FISH_DATA, 2,
                   ObservationTypeEnum.SCATTER_OBJECT_PELAGIC, 1),
-            getObservationCounts(survey));
+            getObservationCounts());
       lsss.getInterpretationSettings().setPingRange(PingRange.of(
             lsss.getDataManager().getDataFileSet().getPingIndex(0),
             lsss.getDataManager().getDataFileSet().getPingIndex(110)));
       delete();
-      assertEquals(2, getScatters(survey).size());
-      assertEquals(9 + 1 + 2 + 1, getScatterDatas(survey).size());
-      List<ScatterObject> scatterObjectList = getScatterObjects(survey);
-      assertEquals(1, scatterObjectList.size());
+      assertEquals(2, count(Scatter.class));
+      assertEquals(9 + 1 + 2 + 1, count(ScatterData.class));
+      assertEquals(1, count(ScatterObject.class));
       assertEquals(Map.of(
                   //ObservationTypeEnum.NAVIGATION_DATA_INPUT, 1,
                   ObservationTypeEnum.SCATTERED_FISH_DATA, 1,
                   ObservationTypeEnum.SCATTER_OBJECT_PELAGIC, 1),
-            getObservationCounts(survey));
+            getObservationCounts());
 
-      schoolMorphologies = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolMorphology.class));
-      lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolData.class));
-      schoolDetects = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolDetect.class));
+      assertEquals(0, count(SchoolMorphology.class));
+      assertEquals(0, count(SchoolData.class));
+      assertEquals(0, count(SchoolDetect.class));
 
-      assertEquals(0, schoolMorphologies.size());
-      assertEquals(0, schoolDatas.size());
-      assertEquals(0, schoolDetects.size());
-
-      ScatterObject scatterObject1 = getScatterObjects(survey).getFirst();
+      ScatterObject scatterObject1 = getScatterObjects().getFirst();
       assertEquals(20000, scatterObject1.getDuration());
       lsss.getInterpretationSettings().setPingRange(lsss.getDataManager().getDataFileSet().getTotalRange());
       delete();
-      assertEmptyDatabase(survey);
+      assertEmptyDatabase();
 
       //Test interpretation
       lsss.getConfigurationManager().getSurveyConfiguration().getSurveyMiscConf().pelagicMode.setBooleanValue(false);
@@ -172,20 +160,15 @@ final class InterpretationModuleTest {
       List<AcousticCategory> selectedSpecies = lsss.getConfigurationManager().getSurveyConfiguration().getAcousticCategoryConf().getSelectedCategories();
       region.getChannelInterpretation(lsss.getInterpretationSettings().getChannel()).setAssignment(selectedSpecies.getFirst().getCompId().getAcousticCategory(), 0.5f);
       store(5);
-      assertEquals(4, getScatters(survey).size());
-      assertEquals(2 * expectedScatterDataSize, // twice as many since one acoustic category is interpreted
-            getScatterDatas(survey).size());
+      assertEquals(4, count(Scatter.class));
+      assertEquals(2 * expectedScatterDataSize, count(ScatterData.class)); // Twice as many since one acoustic category is interpreted.
 
-      schoolMorphologies = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolMorphology.class));
-      lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolData.class));
-      schoolDetects = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolDetect.class));
-
-      assertEquals(0, schoolMorphologies.size());
-      assertEquals(0, schoolDatas.size());
-      assertEquals(0, schoolDetects.size());
+      assertEquals(0, count(SchoolMorphology.class));
+      assertEquals(0, count(SchoolData.class));
+      assertEquals(0, count(SchoolDetect.class));
 
       delete();
-      assertEmptyDatabase(survey);
+      assertEmptyDatabase();
 
       //Test store of region
       lsss.getConfigurationManager().getSurveyConfiguration().getGridConf().schoolVerticalGridSizePelagic.setFloatValue(1);
@@ -202,29 +185,25 @@ final class InterpretationModuleTest {
       school.getChannelInterpretation(lsss.getInterpretationSettings().getChannel()).setAssignment(selectedSpecies.getFirst().getCompId().getAcousticCategory(), 0.5f);
       store(5);
 
-      assertEquals(5, getScatters(survey).size()); //3 in school, 1 pelagic and 1 bottom
-      assertEquals(2, getScatterObjects(survey).size()); //one school, one background
+      assertEquals(5, count(Scatter.class)); //3 in school, 1 pelagic and 1 bottom
+      assertEquals(2, count(ScatterObject.class)); //one school, one background
       assertEquals(Map.of(
                   //ObservationTypeEnum.NAVIGATION_DATA_INPUT, 4,
                   ObservationTypeEnum.SCATTERED_FISH_DATA, 1,
                   ObservationTypeEnum.SCHOOL_OF_FISH_DATA, 3,
                   ObservationTypeEnum.SCATTER_OBJECT_PELAGIC, 1,
                   ObservationTypeEnum.SCATTER_OBJECT_SCHOOL, 1),
-            getObservationCounts(survey));
+            getObservationCounts());
 
       int scatterDataFromSchool = 2 * 3 * 11;
-      assertEquals(scatterDataFromSchool + 12 + 3, getScatterDatas(survey).size());
+      assertEquals(scatterDataFromSchool + 12 + 3, count(ScatterData.class));
 
-      schoolMorphologies = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolMorphology.class));
-      schoolDatas = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolData.class));
-      schoolDetects = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolDetect.class));
-
-      assertEquals(1, schoolMorphologies.size());
-      assertEquals(1, schoolDatas.size());
-      assertEquals(1, schoolDetects.size());
+      assertEquals(1, count(SchoolMorphology.class));
+      assertEquals(1, count(SchoolData.class));
+      assertEquals(1, count(SchoolDetect.class));
 
       delete();
-      assertEmptyDatabase(survey);
+      assertEmptyDatabase();
 
       //Test store of school in two steps.
       lsss.getInterpretationSettings().setPingRange(lsss.getDataManager().getDataFileSet().getTotalRange());
@@ -240,18 +219,18 @@ final class InterpretationModuleTest {
       //Store first part of school
       store(2);
 
-      assertEquals(4, getScatters(survey).size()); //2 in school, 2 in background
-      assertEquals(2, getScatterObjects(survey).size());
+      assertEquals(4, count(Scatter.class)); //2 in school, 2 in background
+      assertEquals(2, count(ScatterObject.class));
       assertEquals(Map.of(
                   //ObservationTypeEnum.NAVIGATION_DATA_INPUT, 2,
                   ObservationTypeEnum.SCATTERED_FISH_DATA, 1,
                   ObservationTypeEnum.SCHOOL_OF_FISH_DATA, 2,
                   ObservationTypeEnum.SCATTER_OBJECT_PELAGIC, 1,
                   ObservationTypeEnum.SCATTER_OBJECT_SCHOOL, 1),
-            getObservationCounts(survey));
-      assertEquals(2 * 2 * 11 + 12 + 3, getScatterDatas(survey).size());
+            getObservationCounts());
+      assertEquals(2 * 2 * 11 + 12 + 3, count(ScatterData.class));
 
-      for (ScatterObject o : getScatterObjects(survey)) {
+      for (ScatterObject o : getScatterObjects()) {
          if (o.getObservationType() == ObservationTypeEnum.SCATTER_OBJECT_SCHOOL.getValue()) {
             assertEquals(2 * 4000, o.getDuration());
             assertEquals(19700101, o.getObservationDate());
@@ -266,18 +245,18 @@ final class InterpretationModuleTest {
       //Store second part of school
       store(2);
 
-      assertEquals(4 + 3, getScatters(survey).size());
-      assertEquals(3, getScatterObjects(survey).size());
+      assertEquals(4 + 3, count(Scatter.class));
+      assertEquals(3, count(ScatterObject.class));
       assertEquals(Map.of(
                   //ObservationTypeEnum.NAVIGATION_DATA_INPUT, 4,
                   ObservationTypeEnum.SCATTERED_FISH_DATA, 2,
                   ObservationTypeEnum.SCHOOL_OF_FISH_DATA, 3,
                   ObservationTypeEnum.SCATTER_OBJECT_PELAGIC, 2,
                   ObservationTypeEnum.SCATTER_OBJECT_SCHOOL, 1),
-            getObservationCounts(survey));
-      assertEquals(2 * 3 * 11 + 2 * (12 + 3), getScatterDatas(survey).size());
+            getObservationCounts());
+      assertEquals(2 * 3 * 11 + 2 * (12 + 3), count(ScatterData.class));
 
-      for (ScatterObject o : getScatterObjects(survey)) {
+      for (ScatterObject o : getScatterObjects()) {
          if (o.getObservationType() == ObservationTypeEnum.SCATTER_OBJECT_SCHOOL.getValue()) {
             assertEquals(3 * 4000, o.getDuration());
             assertEquals(19700101, o.getObservationDate());
@@ -290,18 +269,18 @@ final class InterpretationModuleTest {
             lsss.getDataManager().getDataFileSet().getPingIndex(50)));
       delete();
 
-      assertEquals(3, getScatters(survey).size());
+      assertEquals(3, count(Scatter.class));
       assertEquals(Map.of(
                   //ObservationTypeEnum.NAVIGATION_DATA_INPUT, 2,
                   ObservationTypeEnum.SCATTERED_FISH_DATA, 1,
                   ObservationTypeEnum.SCHOOL_OF_FISH_DATA, 1,
                   ObservationTypeEnum.SCATTER_OBJECT_PELAGIC, 1,
                   ObservationTypeEnum.SCATTER_OBJECT_SCHOOL, 1),
-            getObservationCounts(survey));
-      assertEquals(2, getScatterObjects(survey).size());
-      assertEquals(2 * 11 + 12 + 3, getScatterDatas(survey).size());
+            getObservationCounts());
+      assertEquals(2, count(ScatterObject.class));
+      assertEquals(2 * 11 + 12 + 3, count(ScatterData.class));
 
-      for (ScatterObject o : getScatterObjects(survey)) {
+      for (ScatterObject o : getScatterObjects()) {
          if (o.getObservationType() == ObservationTypeEnum.SCATTER_OBJECT_SCHOOL.getValue()) {
             assertEquals(4000, o.getDuration());
             assertEquals(19700101, o.getObservationDate());
@@ -311,71 +290,64 @@ final class InterpretationModuleTest {
 
       lsss.getInterpretationSettings().setPingRange(lsss.getDataManager().getDataFileSet().getTotalRange());
       delete();
-      assertEmptyDatabase(survey);
+      assertEmptyDatabase();
    }
 
-   private void assertEmptyDatabase(Survey survey) {
-      assertEquals(0, getScatters(survey).size());
-      assertEquals(0, getScatterDatas(survey).size());
-      assertEquals(Map.<ObservationTypeEnum, Integer>of(), getObservationCounts(survey));
-      assertEquals(0, getScatterObjects(survey).size());
+   private void assertEmptyDatabase() {
+      assertEquals(0, count(Scatter.class));
+      assertEquals(0, count(ScatterData.class));
+      assertEquals(Map.of(), getObservationCounts());
+      assertEquals(0, count(ScatterObject.class));
 
-      List<SchoolMorphology> schoolMorphologies = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolMorphology.class));
-      List<SchoolData> schoolDatas = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolData.class));
-      List<SchoolDetect> schoolDetects = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(SchoolDetect.class));
-
-      assertEquals(0, schoolMorphologies.size());
-      assertEquals(0, schoolDatas.size());
-      assertEquals(0, schoolDetects.size());
+      assertEquals(0, count(SchoolMorphology.class));
+      assertEquals(0, count(SchoolData.class));
+      assertEquals(0, count(SchoolDetect.class));
    }
 
    @Test
    void testObjectNumber() {
       double dx = lsss.getConfigurationManager().getSurveyConfiguration().getGridConf().schoolHorizontalGridSize.getDoubleValue();
       float dy = lsss.getConfigurationManager().getSurveyConfiguration().getGridConf().schoolVerticalGridSizePelagic.getFloatValue();
-
-      Survey survey = DatabaseTestUtils.resetCompleteTestSurvey(lsss);
       double pingsPerNmi = 10 / dx; // 10 pings per grid column
-      LsssTestUtils.open(lsss, new TestSyntheticData(pingsPerNmi).toSegmentHandle(0, (int) Math.ceil(pingsPerNmi * 5)));
+      LsssTestUtils.open(lsss, new TestSyntheticData(pingsPerNmi).withFirstAndLastPingNumber(0, (int) Math.ceil(pingsPerNmi * 5)).toSegmentHandle());
 
       lsss.getRegionManager().setupDefaultBoundaries();
 
       float y = 20;
       addSchool(15, y, 25, y + 1.5f * dy);
       addSchool(25, y + 1.5f * dy, 35, y + 3 * dy);
-      assertEquals(2, lsss.getRegionManager().getVisibleSchools().size());
+      assertEquals(2, lsss.getRegionManager().visibleSchools().count());
 
-      assertEquals(0, getScatters(survey).size());
-      assertEquals(0, getScatterObjects(survey).size());
+      assertEquals(0, count(Scatter.class));
+      assertEquals(0, count(ScatterObject.class));
 
       store(5);
 
       assertEquals(4, getScatterSetSchools().size());
-      assertEquals(3, getScatterObjects(survey).size());
+      assertEquals(3, count(ScatterObject.class));
 
-      assertEquals(2 + 4, getScatters(survey).size()); // 2 = pelagic and bottom echogram scatters
+      assertEquals(2 + 4, count(Scatter.class)); // 2 = pelagic and bottom echogram scatters
 
       delete();
-      assertEmptyDatabase(survey);
+      assertEmptyDatabase();
    }
 
    @Test
    void twoSchoolsDeletingSameObservation() {
-      Survey survey = DatabaseTestUtils.resetCompleteTestSurvey(lsss);
       double pingsPerNmi = 10;
-      LsssTestUtils.open(lsss, new TestSyntheticData(pingsPerNmi).toSegmentHandle(0, 200));
+      LsssTestUtils.open(lsss, new TestSyntheticData(pingsPerNmi).withFirstAndLastPingNumber(0, 200).toSegmentHandle());
 
       lsss.getConfigurationManager().getSurveyConfiguration().getGridConf().schoolHorizontalGridSize.setDoubleValue(1);
       lsss.getRegionManager().setupDefaultBoundaries();
 
       addSchool(10, 10, 30, 20);
       addSchool(10, 30, 20, 40);
-      assertEquals(2, lsss.getRegionManager().getVisibleSchools().size());
+      assertEquals(2, lsss.getRegionManager().visibleSchools().count());
 
       store(1);
 
       assertEquals(3, getScatterSetSchools().size());
-      assertEquals(3, getScatterObjects(survey).size());
+      assertEquals(3, count(ScatterObject.class));
 
       lsss.getInterpretationSettings().setPingRange(PingRange.of(
             lsss.getDataManager().getDataFileSet().getPingIndex(10),
@@ -384,11 +356,11 @@ final class InterpretationModuleTest {
       // This failed with org.hibernate.NonUniqueObjectException: A different object with the same identifier value was already associated with the session
       delete();
       assertEquals(1, getScatterSetSchools().size());
-      assertEquals(2, getScatterObjects(survey).size());
+      assertEquals(2, count(ScatterObject.class));
 
       lsss.getInterpretationSettings().setPingRange(lsss.getDataManager().getDataFileSet().getTotalRange());
       delete();
-      assertEmptyDatabase(survey);
+      assertEmptyDatabase();
    }
 
    /**
@@ -401,10 +373,8 @@ final class InterpretationModuleTest {
    @Test
    void ticket5() {
       double dx = lsss.getConfigurationManager().getSurveyConfiguration().getGridConf().schoolHorizontalGridSize.getDoubleValue();
-
-      Survey survey = DatabaseTestUtils.resetCompleteTestSurvey(lsss);
       double pingsPerNmi = 10 / dx; // 10 pings per grid column
-      LsssTestUtils.open(lsss, new TestSyntheticData(pingsPerNmi).toSegmentHandle(0, (int) Math.ceil(pingsPerNmi * 10)));
+      LsssTestUtils.open(lsss, new TestSyntheticData(pingsPerNmi).withFirstAndLastPingNumber(0, (int) Math.ceil(pingsPerNmi * 10)).toSegmentHandle());
 
       lsss.getRegionManager().setupDefaultBoundaries();
 
@@ -413,7 +383,7 @@ final class InterpretationModuleTest {
       lsss.getInterpretationSettings().setPingRange(PingRange.of(lsss.getDataManager().getDataFileSet().getTotalRange().begin(), pingIndex));
 
       store(5);
-      assertEquals(2, getScatters(survey).size());
+      assertEquals(2, count(Scatter.class));
 
       lsss.getInterpretationSettings().setPingRange(lsss.getDataManager().getDataFileSet().getTotalRange());
       lsss.getInterpretationSettings().waitUntilFinished();
@@ -421,14 +391,13 @@ final class InterpretationModuleTest {
       addSchool(15, 20, 25, 30);
 
       store(5);
-      assertEquals(4, getScatters(survey).size());
+      assertEquals(4, count(Scatter.class));
    }
 
    @Test
    void testInheritInterpretation() {
-      DatabaseTestUtils.resetCompleteTestSurvey(lsss);
       int pingsPerNmi = 20;
-      LsssTestUtils.open(lsss, new TestSyntheticData(pingsPerNmi).toSegmentHandle(0, 10));
+      LsssTestUtils.open(lsss, new TestSyntheticData(pingsPerNmi).withFirstAndLastPingNumber(0, 10).toSegmentHandle());
       lsss.getInterpretationSettings().setChannel(1);
       lsss.getRegionManager().setupDefaultBoundaries();
 
@@ -504,24 +473,20 @@ final class InterpretationModuleTest {
       return lsss.getInterpretationSummary().getScatterSet().getScatters(ScatterTypeEnum.PELAGIC_SCHOOL, lsss.getInterpretationSettings().getFrequency());
    }
 
-   private List<Scatter> getScatters(Survey survey) {
-      return lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(LsssQuery.fetch(Scatter.class, survey));
+   private long count(Class<? extends BaseDatabaseObject> clazz) {
+      return lsss.getDatabaseManager().getDatabaseConnection().executeStatelessValuedQuery(QueryBuilder.count(clazz).build());
    }
 
-   private List<ScatterData> getScatterDatas(Survey survey) {
-      return lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(LsssQuery.fetch(ScatterData.class, survey));
+   private List<ScatterObject> getScatterObjects() {
+      return lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(LsssQuery.fetch(ScatterObject.class));
    }
 
-   private List<ScatterObject> getScatterObjects(Survey survey) {
-      return lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(LsssQuery.fetch(ScatterObject.class, survey));
-   }
-
-   private Map<ObservationTypeEnum, Integer> getObservationCounts(Survey survey) {
-      return lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(LsssQuery.fetch(Observation.class, survey)).stream()
+   private Map<ObservationTypeEnum, Integer> getObservationCounts() {
+      return lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(LsssQuery.fetch(Observation.class)).stream()
             .map(observation -> ObservationTypeEnum.valueToObservationTypeEnum(observation.getCompId().getObservationType()))
             .peek(Objects::requireNonNull)
             .filter(observationTypeEnum -> observationTypeEnum != ObservationTypeEnum.NAVIGATION_DATA_INPUT) // These are not deleted.
-            .collect(Collectors.groupingBy(Function.identity(), Collectors.summingInt(__ -> 1)));
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.summingInt(_ -> 1)));
    }
 
    private static final class TestSyntheticData extends SyntheticData {

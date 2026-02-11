@@ -64,10 +64,10 @@ public final class SimpleInputDialog<T> {
       textField.selectAll();
 
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          try {
             value.set(stringToValue.apply(textField.getText()));
-         } catch (Exception ignore) {
+         } catch (Exception _) {
             // Conversion from string to value failed. Do nothing, try again.
             return;
          }
@@ -76,7 +76,7 @@ public final class SimpleInputDialog<T> {
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
 
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
       buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));

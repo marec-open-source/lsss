@@ -90,7 +90,7 @@ public final class RegionEditOverlay extends BaseEchogramOverlay {
    protected void onEnable(ListenerRegistry registry) {
       regionDisplayOverlay = Utils.getFirstOrNull(getEchogramModule().getOverlays(), RegionDisplayOverlay.class);
 
-      registry.add(getInterpretationSettings().getDataFileChangeManager(), __ -> previousClosestSchool = null);
+      registry.add(getInterpretationSettings().getDataFileChangeManager(), _ -> previousClosestSchool = null);
       registry.add(GuiListeners.coalescingLater(this::updateInteractionAndCursor), List.of(
             getInterpretationSettings().getDataFileChangeManager(),
             getEchogramModule().echogramArea()

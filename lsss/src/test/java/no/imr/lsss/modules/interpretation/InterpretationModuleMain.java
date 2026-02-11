@@ -10,7 +10,7 @@ final class InterpretationModuleMain {
    private InterpretationModuleMain() {
    }
 
-   public static void main(String[] args) {
+   static void main() {
       InterpretationModuleTest interpretationModuleTest = new InterpretationModuleTest();
       interpretationModuleTest.beforeEach();
 

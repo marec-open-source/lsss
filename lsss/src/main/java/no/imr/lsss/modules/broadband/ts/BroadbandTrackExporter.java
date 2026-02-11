@@ -1,7 +1,5 @@
 package no.imr.lsss.modules.broadband.ts;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableSet;
 import no.imr.korona.computation.tracking.data.Measurement;
 import no.imr.korona.computation.tracking.impl.StationaryPositionFunction;
@@ -38,6 +36,8 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.range.FloatRangeSet;
 import no.imr.tools.range.RangeSet;
 import no.marec.lsss.api.util.GeoPoint;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -82,7 +82,7 @@ public final class BroadbandTrackExporter extends StreamingExporter {
    }
 
    @Override
-   public void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) throws IOException {
+   public void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) {
       PingRange pingRange = getLSSS().getInterpretationSettings().getPingRange();
       if (pingRange.isEmpty()) {
          return;
@@ -100,9 +100,9 @@ public final class BroadbandTrackExporter extends StreamingExporter {
       try (JsonGenerator json = objectWriter.createGenerator(out)) {
          json.writeStartObject();
 
-         json.writeObjectField("info", getExportInfo(broadbandTsModule));
+         json.writePOJOProperty("info", getExportInfo(broadbandTsModule));
 
-         json.writeFieldName("tracks");
+         json.writeName("tracks");
          json.writeStartArray();
 
          Map<TrackId, TrackAccumulator> trackMap = new HashMap<>();
@@ -126,14 +126,14 @@ public final class BroadbandTrackExporter extends StreamingExporter {
                   .filter(Objects::nonNull)
                   .forEach(channelInfoAccumulator::accumulate);
 
-            for (TrackBorder trackBorder : Utils.asIterable(trackInfoModule.getTrackEditing().getTrackBorders(ping, channel))) {
+            trackInfoModule.getTrackEditing().getTrackBorders(ping, channel).forEach(trackBorder -> {
                TrackId trackId = trackBorder.trackId();
                TrackAccumulator trackAccumulator = trackMap.get(trackId);
                if (trackAccumulator == null) {
                   ImmutableSet<String> labels = trackInfoModule.getTrackLabelling().getLabels(trackId);
                   TrackInfo trackInfo = trackInfoModule.getTrackInfos().get(trackId);
                   if (trackInfo == null || !activePingRangeSet.containsAll(trackInfo.pingRange())) {
-                     continue;
+                     return;
                   }
                   trackAccumulator = new TrackAccumulator(labels, trackInfo.pingRange(), ping.getPingConfiguration(), channels);
                   trackMap.put(trackId, trackAccumulator);
@@ -142,15 +142,15 @@ public final class BroadbandTrackExporter extends StreamingExporter {
                if (pingIndex.getPingNumber() == trackAccumulator.pingRange.end().getPingNumber() - 1) {
                   trackMap.remove(trackId);
                   if (trackAccumulator.isExportable()) {
-                     json.writeObject(trackAccumulator.perTrack);
+                     json.writePOJO(trackAccumulator.perTrack);
                   }
                }
-            }
+            });
          }
 
          json.writeEndArray();
 
-         json.writeObjectField("channelInfo", channelInfoAccumulator.getChannelInfos());
+         json.writePOJOProperty("channelInfo", channelInfoAccumulator.getChannelInfos());
 
          json.writeEndObject();
       }

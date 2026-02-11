@@ -51,7 +51,7 @@ public final class Toast {
       Timer fadeOutTimer = new Timer(1, null);
       fadeOutTimer.setInitialDelay(displayDuration);
 
-      fadeInTimer.addActionListener(e -> {
+      fadeInTimer.addActionListener(_ -> {
          float opacity = Math.clamp((System.currentTimeMillis() - startFadeInTime) / (float) fadeInDuration, 0, 1);
          dialog.setOpacity(opacity);
          if (opacity >= 1) {
@@ -61,7 +61,7 @@ public final class Toast {
       });
       fadeInTimer.start();
 
-      fadeOutTimer.addActionListener(e -> {
+      fadeOutTimer.addActionListener(_ -> {
          float opacity = 1 - Math.clamp((System.currentTimeMillis() - startFadeOutTime) / (float) fadeOutDuration, 0, 1);
          dialog.setOpacity(opacity);
          if (opacity <= 0) {

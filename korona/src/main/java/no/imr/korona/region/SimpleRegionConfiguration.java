@@ -52,12 +52,12 @@ public final class SimpleRegionConfiguration implements RegionConfiguration {
 
    @Override
    public ToFloatFunction<PingIndex> initialUpperDepth() {
-      return __ -> 0;
+      return _ -> 0;
    }
 
    @Override
    public ToFloatFunction<PingIndex> initialLowerDepth() {
-      return __ -> 1000;
+      return _ -> 1000;
    }
 
    @Override

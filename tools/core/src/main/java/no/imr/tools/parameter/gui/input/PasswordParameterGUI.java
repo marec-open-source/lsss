@@ -23,7 +23,7 @@ public final class PasswordParameterGUI extends ParameterGUI<PasswordParameter> 
             updateParameter();
          }
       });
-      passwordField.addActionListener(e -> updateParameter());
+      passwordField.addActionListener(_ -> updateParameter());
    }
 
    private void updateParameter() {

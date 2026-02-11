@@ -7,6 +7,7 @@ import no.imr.korona.computation.ConcurrentPingModuleComputation;
 import no.imr.korona.computation.ModuleContainer;
 import no.imr.korona.computation.ModuleContainerComputation;
 import no.imr.korona.computation.datareduction.ChannelRemovalModule;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingSource;
@@ -44,9 +45,9 @@ final class TemporaryComputationsTest {
             return 71;
          }
       };
+      SyntheticDataFile syntheticDataFile = syntheticData.withFirstAndLastPingNumber(1, 1000);
 
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticData.toPingReader())) {
-
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
          Ping ping = computation.nextPing();
          assertNotNull(ping);
          assertEquals(6, ping.getPingItems().size());

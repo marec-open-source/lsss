@@ -32,7 +32,7 @@ public final class MenuFilter {
       panel.add(textField);
 
       textField.addKeyListener(new TextFieldKeyListener());
-      textField.getDocument().addDocumentListener(new SimpleDocumentListener(e -> textChanged()));
+      textField.getDocument().addDocumentListener(new SimpleDocumentListener(_ -> textChanged()));
 
       menu.addMenuListener(new MenuAdapter() {
          @Override

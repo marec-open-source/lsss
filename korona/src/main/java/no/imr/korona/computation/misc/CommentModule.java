@@ -62,6 +62,7 @@ public final class CommentModule extends ConcurrentPingModule {
          verticalSpace.setPersistable(isLineBreak);
       });
       textComment.setProperty(BaseParameter.KEY_VERTICAL_FILL, true);
+      textComment.setProperty(BaseParameter.KEY_TEXT_WRAP, true);
 
       // We do not need the baseclass comment parameter since this is a comment module.
       comment.setVisible(false);

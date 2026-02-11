@@ -171,7 +171,7 @@ public final class PreprocessingSetup implements ParameterContainer {
             });
             MiscIcons.check(syncParameter.getValue().equals(syncSource)).on(item);
             item.setEnabled(preprocessingConf.isParameterEnabled(syncParameter));
-            item.addActionListener(e -> syncParameter.setValue(syncSource));
+            item.addActionListener(_ -> syncParameter.setValue(syncSource));
          });
       });
       JMenuBar menuBar = new JMenuBar();
@@ -193,7 +193,7 @@ public final class PreprocessingSetup implements ParameterContainer {
       Path file = fromParameter.getFile();
       JMenuItem item = popupMenu.add("Set to " + fromParameter.getDisplayName() + ": " + (file != null ? file.toString() : "<Not specified>"));
       item.setEnabled(preprocessingConf.isParameterEnabled(parameter));
-      item.addActionListener(e -> parameter.setFile(file));
+      item.addActionListener(_ -> parameter.setFile(file));
    }
 
    /**
@@ -283,7 +283,7 @@ public final class PreprocessingSetup implements ParameterContainer {
 
       try {
          process.waitFor();
-      } catch (InterruptedException e) {
+      } catch (InterruptedException _) {
          Thread.currentThread().interrupt();
          return -2;
       }

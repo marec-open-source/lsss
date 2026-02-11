@@ -43,7 +43,7 @@ final class StatusFileError {
          text.setBackground(ColorUtils.TOMATO);
 
          JButton reCreateButton = new JButton("Re-create status.xml");
-         reCreateButton.addActionListener(e -> statusFileError.reCreateStatusXml.run());
+         reCreateButton.addActionListener(_ -> statusFileError.reCreateStatusXml.run());
 
          JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
          buttonPanel.setBackground(ColorUtils.TOMATO);

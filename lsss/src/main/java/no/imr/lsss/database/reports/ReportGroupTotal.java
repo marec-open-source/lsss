@@ -135,12 +135,12 @@ final class ReportGroupTotal extends ReportGroup {
                   " a.distanceInterval";
 
       reportEngine.getLSSS().getDatabaseManager().getDatabaseConnection().executeStatelessQuery(aSession -> {
-         List<ReportTotalData> dataList = aSession.createQuery(queryGeneral, ReportTotalData.class).list();
+         List<ReportTotalData> dataList = aSession.createSelectionQuery(queryGeneral, ReportTotalData.class).list();
 
-         List<AcCat> acCatList = aSession.createQuery(queryAcousticCategory, AcCat.class).list();
+         List<AcCat> acCatList = aSession.createSelectionQuery(queryAcousticCategory, AcCat.class).list();
          acCatList.forEach(printTotalData::setAcCat);
 
-         List<DistCount> distCountList = aSession.createQuery(queryDistCount, DistCount.class).list();
+         List<DistCount> distCountList = aSession.createSelectionQuery(queryDistCount, DistCount.class).list();
          distCountList.forEach(printTotalData::setDistCount);
 
          for (int i = 0; i < dataList.size(); i++) {

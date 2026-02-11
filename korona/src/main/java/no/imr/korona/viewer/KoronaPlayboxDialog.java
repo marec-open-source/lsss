@@ -62,7 +62,7 @@ public final class KoronaPlayboxDialog {
       if (moduleConfigurationFile == null) {
          editButton.setEnabled(false);
       } else {
-         editButton.addActionListener(e -> {
+         editButton.addActionListener(_ -> {
             if (koronaPlaybox.editCurrentConfiguration()) {
                try {
                   koronaPlaybox.getModuleContainer().writeConfiguration(moduleConfigurationFile);

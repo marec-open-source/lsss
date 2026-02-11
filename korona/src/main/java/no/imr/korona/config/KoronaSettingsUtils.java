@@ -91,9 +91,17 @@ public final class KoronaSettingsUtils {
          return;
       }
 
-      KoronaFilesToCopy filesToCopy = new KoronaFilesToCopy(korona, ConfigFileCopier.getLastModified());
+      FilesToCopy filesToCopy = new FilesToCopy(ConfigFileCopier.getLastModified());
       new WorkerDialog(referenceComponent, "Searching for new config files...")
-            .startWithoutCancel(filesToCopy::search);
+            .startWithoutCancel(() -> {
+               for (ConfigFileService service : korona.createConfigFileSettings().getFileServices()) {
+                  try {
+                     service.addInstallationConfigFilesToCopy(filesToCopy, destDir);
+                  } catch (IOException e) {
+                     Log.global.log(Level.WARNING, "Error accessing installation config files for " + service.getName().persistentName(), e);
+                  }
+               }
+            });
 
       if (filesToCopy.getFilesToCopy().isEmpty() && filesToCopy.getExistingFiles().isEmpty()) {
          // Update last modified in case som source files have newer timestamps, but are equal.
@@ -110,7 +118,7 @@ public final class KoronaSettingsUtils {
          String fileList = filesToCopy.getExistingFiles().keySet().stream()
                .map(Path::toString)
                .sorted()
-               .map(HtmlEscapers.htmlEscaper()::escape)
+               .map(HtmlEscapers.htmlEscaper().asFunction())
                .collect(Collectors.joining("<br>", "<html>", ""));
          JComponent fileListComponent = VerticalScrollablePanel.wrap(new JLabel(fileList));
          fileListComponent.setBorder(GuiUtils.DEFAULT_MARGIN);

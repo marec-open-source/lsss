@@ -404,7 +404,7 @@ public final class BroadbandSvModule extends BaseViewModule implements PojoDataC
          }
       }
 
-      if (plotStdErr.getBooleanValue() && accumulator.hasVar()) {
+      if (plotStdErr.getBooleanValue() && accumulator.hasVariances()) {
          Graph upperGraph = new Graph(label + " (+ std err)")
                .setXYInfo(xyInfo)
                .setDashed()
@@ -415,11 +415,11 @@ public final class BroadbandSvModule extends BaseViewModule implements PojoDataC
                .setDashed()
                .setColor(Color.BLACK);
 
-         float[] stdErr = accumulator.getStdErr();
+         float[] stdErrs = accumulator.getStdErrs();
          for (int i = 0; i < means.length; i++) {
             float kHz = minKHz + i * deltaKHz;
-            upperGraph.addPoint(kHz, svMapping.applyAsFloat(means[i] + stdErr[i]));
-            lowerGraph.addPoint(kHz, svMapping.applyAsFloat(Math.max(0, means[i] - stdErr[i])));
+            upperGraph.addPoint(kHz, svMapping.applyAsFloat(means[i] + stdErrs[i]));
+            lowerGraph.addPoint(kHz, svMapping.applyAsFloat(Math.max(0, means[i] - stdErrs[i])));
          }
 
          graphs.add(upperGraph);

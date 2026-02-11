@@ -61,7 +61,9 @@ public final class OverlaidComponent<O extends Overlay> extends JComponent {
 
       for (Overlay overlay : overlays) {
          if (overlay.isEnabled()) {
-            overlay.draw(graphics2D);
+            Graphics2D tmpG2d = (Graphics2D) graphics2D.create();
+            overlay.draw(tmpG2d);
+            tmpG2d.dispose();
          }
       }
 

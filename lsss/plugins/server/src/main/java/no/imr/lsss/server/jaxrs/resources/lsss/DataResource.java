@@ -14,7 +14,6 @@ import jakarta.ws.rs.core.MediaType;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
-import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.ping.items.NmeaPingItem;
 import no.imr.korona.data.ping.items.channel.BroadbandData;
@@ -132,7 +131,7 @@ public final class DataResource {
       if (pingsRequest.pingCount < 0) {
          throw new BadRequestException("Negative pingCount");
       }
-      PingIndex endPingIndex = dataFileSet.getClosestPingIndex(beginPingIndex.getPingNumber() + pingsRequest.pingCount, PingMapping.NUMBER);
+      PingIndex endPingIndex = dataFileSet.getPingIndexClamped(beginPingIndex.getPingNumber() + pingsRequest.pingCount);
       return dataFileSet.getPingIndexStream(PingRange.of(beginPingIndex, endPingIndex))
             .map(pingIndex -> toPojoPing(pingsRequest, dataFileSet, pingIndex));
    }

@@ -499,10 +499,10 @@ public final class PowerData extends ChannelData implements SvChannelData {
 
    @Override
    public float getTSU(int sampleIndex) {
-      float logSV = getLogSv()[sampleIndex];
+      float logSv = getLogSv()[sampleIndex];
       float r = getTvgRange(sampleIndex);
       float logR = (float) (20 * Math.log10(r));
-      return logSV + logR + svToTsConstant;
+      return logSv + logR + svToTsConstant;
    }
 
    public float getLinearTSU(int sampleIndex) {

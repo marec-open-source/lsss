@@ -22,12 +22,7 @@ import java.util.concurrent.TimeUnit;
 public final class ImageDiffCache {
    private final LoadingCache<DeepVisionFileInfo, CacheData> cache = CacheBuilder.newBuilder()
          .weakKeys()
-         .build(new CacheLoader<>() {
-            @Override
-            public CacheData load(DeepVisionFileInfo key) {
-               return new CacheData(key);
-            }
-         });
+         .build(CacheLoader.from(CacheData::new));
    private final Cache<ImageKey, BufferedImage> images = CacheBuilder.newBuilder()
          .maximumSize(10)
          .expireAfterAccess(10, TimeUnit.SECONDS)
@@ -88,7 +83,7 @@ public final class ImageDiffCache {
          image = frameInfo.deepVisionFileInfo().loadImage(frameInfo, Direction.LEFT);
          images.put(key, image);
          return image;
-      } catch (IOException e) {
+      } catch (IOException _) {
          return null;
       }
    }

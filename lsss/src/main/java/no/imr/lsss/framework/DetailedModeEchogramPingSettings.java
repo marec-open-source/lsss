@@ -2,7 +2,6 @@ package no.imr.lsss.framework;
 
 import no.imr.korona.data.datamanager.PingContainer;
 import no.imr.korona.data.ping.PingIndex;
-import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import org.jspecify.annotations.Nullable;
@@ -37,12 +36,12 @@ final class DetailedModeEchogramPingSettings extends EchogramPingSettings {
 
    @Override
    public PingIndex xToClosestPingIndex(double x) {
-      return getPingContainer().getClosestPingIndex(getPingRange().begin(), x, PingMapping.NUMBER);
+      return getPingContainer().getPingIndexClamped(getPingRange().begin().getPingNumber() + Math.round(x));
    }
 
    @Override
    public @Nullable PingIndex xToContainingPingIndex(double x) {
-      return getPingContainer().getContainingPingIndex(getPingRange().begin(), x, PingMapping.NUMBER);
+      return getPingContainer().getPingIndexOrNullExcludingEnd(getPingRange().begin().getPingNumber() + (long) Math.floor(x));
    }
 
    @Override

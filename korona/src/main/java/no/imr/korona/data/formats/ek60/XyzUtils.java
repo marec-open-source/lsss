@@ -24,8 +24,8 @@ final class XyzUtils {
 
    static NavigableSet<String> toXyzFiles(Set<Path> files) {
       return files.stream()
+            .filter(file -> Utils.endsWithIgnoringCase(file.toString(), EK60DataFormatPlugin.XYZ_SUFFIX))
             .map(file -> file.getFileName().toString())
-            .filter(fileName -> Utils.endsWithIgnoringCase(fileName, EK60DataFormatPlugin.XYZ_SUFFIX))
             .collect(Collectors.toCollection(TreeSet::new));
    }
 

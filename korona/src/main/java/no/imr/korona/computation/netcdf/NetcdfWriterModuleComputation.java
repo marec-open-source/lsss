@@ -12,22 +12,18 @@ import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingConfiguration;
 import no.imr.korona.data.ping.PingSource;
 import no.imr.korona.data.ping.items.channel.BroadbandData;
-import no.imr.korona.data.ping.items.channel.ChannelData;
 import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
-import no.imr.tools.misc.ThrowingSupplier;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.xml.XmlUtils;
-import org.jspecify.annotations.Nullable;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Optional;
 
 final class NetcdfWriterModuleComputation extends SimplePingModuleComputation {
-   private final NcPingWriter ncPingWriter;
+   private final NcGridWriter ncGridWriter;
 
    NetcdfWriterModuleComputation(NetcdfWriterModule module, ComputationContext computationContext, PingSource pingSource) throws IOException {
       super(module, computationContext, pingSource);
@@ -42,13 +38,7 @@ final class NetcdfWriterModuleComputation extends SimplePingModuleComputation {
       Path ncFile = ncDir.resolve(ncFileName);
 
       PingConfiguration pingConfiguration = pingSource.getPingConfiguration();
-      Integer referenceKHz = module.mainFrequency.getValue().orElse(null);
-      int referenceChannel = referenceKHz != null
-            ? pingConfiguration.getRawFileConfiguration().lastChannelWithKHz(referenceKHz)
-            : 1;
-      if (referenceChannel <= 0) {
-         throw new ModuleConfigurationException(module, "Cannot find channel with " + referenceKHz + " kHz");
-      }
+      int referenceChannel = ModuleUtils.getMainChannelOrThrow(this, module.mainFrequency.getValue());
 
       NcOptionalConfig optionalConfig = new NcOptionalConfig();
       Path horizontalOffsetsFile = module.getOptionalConfigFile(HorizontalTransducerOffsetsFileService.NAME);
@@ -60,42 +50,32 @@ final class NetcdfWriterModuleComputation extends SimplePingModuleComputation {
             ? new TransducerParameterManager(TransducerParameters.ParameterType.VERTICAL, XmlUtils.readDocument(verticalOffsetsFile))
             : null;
 
-      ThrowingSupplier<ChannelData, IOException> referenceChannelData = new ThrowingSupplier<>() {
-         private @Nullable ChannelData channelData;
-
-         @Override
-         public ChannelData get() throws IOException {
-            ChannelData channelData = this.channelData;
-            if (channelData == null) {
-               channelData = ModuleUtils.getInputChannelData(NetcdfWriterModuleComputation.this, referenceChannel);
-               if (channelData == null) {
-                  throw new ModuleConfigurationException(module, "Cannot find data on channel " + referenceChannel + " with " + referenceKHz + " kHz");
-               }
-               this.channelData = channelData;
-            }
-            return channelData;
-         }
-      };
-      ThrowingSupplier<Float, IOException> deltaRange = () -> {
-         Optional<Float> optDeltaRange = module.deltaRange.getValue();
-         return optDeltaRange.isPresent() ? optDeltaRange.get() : referenceChannelData.get().getSampleDistance();
-      };
-      ThrowingSupplier<Float, IOException> maxRange = () -> {
-         Optional<Float> optMaxRange = module.maxRange.getValue();
-         return optMaxRange.isPresent() ? optMaxRange.get() : referenceChannelData.get().getMaxRange();
-      };
-
       try {
-         ncPingWriter = switch (module.writerType.getValue()) {
+         LogSvCompressor logSvCompressor = module.compressSv.getBooleanValue()
+               ? new LogSvCompressor(module.compressedLogSvRange.getValue(), module.compressedLogSvDelta.getFloatValue())
+               : null;
+         ncGridWriter = switch (module.writerType.getValue()) {
             case GRIDDED -> {
-               GridOutput gridOutput = switch (module.griddedOutputType.getValue()) {
-                  case EMPTY -> new GridEmptyOutput();
-                  case SV_AND_ANGLES -> new GridSvAndAnglesOutput(module.writeAngles.getBooleanValue());
-                  case PULSE_COMPRESSION -> new GridPulseCompressionOutput();
-                  case BROADBAND_SV -> new GridBroadbandSvOutput(module.fftWindowSize.getFloatValue(),
+               CommonGridOutput commonGridOutput = switch (module.griddedOutputType.getValue()) {
+                  case EMPTY -> new CommonGridEmptyOutput();
+                  case SV_AND_ANGLES -> new CommonGridSvAndAnglesOutput(module.writeAngles.getBooleanValue(), logSvCompressor);
+                  case PULSE_COMPRESSION -> new CommonGridPulseCompressionOutput();
+                  case BROADBAND_SV -> new CommonGridBroadbandSvOutput(module.fftWindowSize.getFloatValue(),
                         totalBroadbandFrequencyRange(), module.deltaFrequency.getFloatValue() * 1000);
                };
-               yield new NcGridWriter(ncFile, pingConfiguration, referenceChannel, deltaRange.get(), maxRange.get(), gridOutput, optionalConfig);
+
+               Optional<Float> optDeltaRange = module.deltaRange.getValue();
+               float deltaRange = optDeltaRange.isPresent()
+                     ? optDeltaRange.get()
+                     : ModuleUtils.getInputChannelDataOrThrow(this, referenceChannel).getSampleDistance();
+
+               Optional<Float> optMaxRange = module.maxRange.getValue();
+               float maxRange = optMaxRange.isPresent()
+                     ? optMaxRange.get()
+                     : ModuleUtils.getInputChannelDataOrThrow(this, referenceChannel).getMaxRange();
+
+               CommonGridConfig commonGridConfig = new CommonGridConfig(commonGridOutput, deltaRange, maxRange);
+               yield new NcGridWriter(ncFile, pingConfiguration, referenceChannel, commonGridConfig, null, optionalConfig);
             }
             case CHANNEL_GROUPS -> {
                ChannelGroupOutput channelGroupOutput = switch (module.channelGroupOutputType.getValue()) {
@@ -110,8 +90,8 @@ final class NetcdfWriterModuleComputation extends SimplePingModuleComputation {
                         module.deltaFrequency.getFloatValue() * 1000,
                         module.writeAngles.getBooleanValue());
                };
-               Map<Integer, ChannelData> channelToChannelData = ModuleUtils.getInputChannelToChannelData(this);
-               yield new NcChannelGroupWriter(ncFile, pingConfiguration, channelToChannelData, referenceChannel, channelGroupOutput, optionalConfig);
+               ChannelGroupConfig channelGroupConfig = new ChannelGroupConfig(channelGroupOutput, ModuleUtils.getInputChannelToChannelData(this));
+               yield new NcGridWriter(ncFile, pingConfiguration, referenceChannel, null, channelGroupConfig, optionalConfig);
             }
          };
       } catch (InvalidRangeException e) {
@@ -128,7 +108,7 @@ final class NetcdfWriterModuleComputation extends SimplePingModuleComputation {
    @Override
    protected void processPing(Ping ping) throws IOException {
       try {
-         ncPingWriter.writePing(ping);
+         ncGridWriter.writePing(ping);
       } catch (InvalidRangeException e) {
          throw new IOException(e);
       }
@@ -136,6 +116,6 @@ final class NetcdfWriterModuleComputation extends SimplePingModuleComputation {
 
    @Override
    public void close() throws IOException {
-      ncPingWriter.close();
+      ncGridWriter.close();
    }
 }

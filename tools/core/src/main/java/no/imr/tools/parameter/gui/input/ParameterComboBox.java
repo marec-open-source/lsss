@@ -25,7 +25,7 @@ final class ParameterComboBox<V> extends ParameterComponent {
 
       updateComponent();
 
-      Timer timer = new Timer(250, e -> updateParameter());
+      Timer timer = new Timer(250, _ -> updateParameter());
       timer.setRepeats(false);
       comboBox.addItemListener(e -> {
          if (e.getStateChange() == ItemEvent.SELECTED) {

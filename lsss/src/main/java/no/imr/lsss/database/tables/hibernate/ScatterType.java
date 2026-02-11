@@ -1,6 +1,10 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import org.jspecify.annotations.Nullable;
@@ -8,6 +12,13 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "scatterType",
+
+      // Properties:
+      "scatterTypeName",
+})
 public class ScatterType implements BaseDatabaseObject {
    private short scatterType;
 
@@ -39,6 +50,7 @@ public class ScatterType implements BaseDatabaseObject {
       this.scatterType = scatterType;
    }
 
+   @Column(length = 40)
    public String getScatterTypeName() {
       return scatterTypeName;
    }
@@ -47,6 +59,7 @@ public class ScatterType implements BaseDatabaseObject {
       this.scatterTypeName = DatabaseUtils.nullToEmpty(scatterTypeName);
    }
 
+   @OneToMany(mappedBy = "scatterType")
    public Set<Scatter> getScatters() {
       return scatters;
    }

@@ -1,12 +1,23 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "categorySystem",
+
+      // Properties:
+      "categorySystemName",
+      "categorySystemDescription",
+})
 public class SchoolCategorySystem implements BaseDatabaseObject {
    private short categorySystem;
 
@@ -40,6 +51,7 @@ public class SchoolCategorySystem implements BaseDatabaseObject {
       this.categorySystem = categorySystem;
    }
 
+   @Column(length = 40)
    public String getCategorySystemName() {
       return categorySystemName;
    }
@@ -48,6 +60,7 @@ public class SchoolCategorySystem implements BaseDatabaseObject {
       this.categorySystemName = DatabaseUtils.nullToEmpty(categorySystemName);
    }
 
+   @Column(length = 40)
    public String getCategorySystemDescription() {
       return categorySystemDescription;
    }

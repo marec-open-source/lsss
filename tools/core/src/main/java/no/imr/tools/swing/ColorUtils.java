@@ -179,7 +179,7 @@ public final class ColorUtils {
          try {
             int rgb = Integer.parseInt(s, 1, s.length(), 16);
             return new Color(rgb);
-         } catch (NumberFormatException e) {
+         } catch (NumberFormatException _) {
             return null;
          }
       }
@@ -192,7 +192,7 @@ public final class ColorUtils {
       try {
          int rgb = Integer.parseInt(s, 16);
          return new Color(rgb);
-      } catch (NumberFormatException e) {
+      } catch (NumberFormatException _) {
          return null;
       }
    }
@@ -268,6 +268,13 @@ public final class ColorUtils {
          ys1 = ys2;
          yb1 = yb2;
       }
+   }
+
+   public static int toRGB(float red, float green, float blue) {
+      int r = Math.clamp((int) (red * 255 + 0.5), 0, 0xff);
+      int g = Math.clamp((int) (green * 255 + 0.5), 0, 0xff);
+      int b = Math.clamp((int) (blue * 255 + 0.5), 0, 0xff);
+      return (0xff << 24) | (r << 16) | (g << 8) | b;
    }
 
    /**

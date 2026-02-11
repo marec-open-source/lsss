@@ -36,8 +36,8 @@ final class IconSelector implements ViewHolder.View {
       browseButton.setMargin(margin);
       removeButton.setMargin(margin);
 
-      browseButton.addActionListener(e -> browse());
-      removeButton.addActionListener(e -> setPath(""));
+      browseButton.addActionListener(_ -> browse());
+      removeButton.addActionListener(_ -> setPath(""));
 
       updateIconButton();
    }

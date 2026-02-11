@@ -164,14 +164,14 @@ public final class MaskingDisplayOverlay extends BaseEchogramOverlay {
    }
 
    public static void fill(Graphics2D g2d, RangeSet<Integer> xRanges, int height) {
-      xRanges.forEach((x0, x1) -> {
+      xRanges.forEachBeginEnd((x0, x1) -> {
          g2d.fillRect(x0, 0, x1 - x0, height);
       });
    }
 
    public static void drawSlopingLines(Graphics2D g2d, RangeSet<Integer> xRanges, int height) {
       Shape clip = g2d.getClip();
-      xRanges.forEach((x0, x1) -> {
+      xRanges.forEachBeginEnd((x0, x1) -> {
          int width = x1 - x0;
          g2d.setClip(new Rectangle2D.Float(x0, 0, width, height));
          int d = width - 1;
@@ -221,7 +221,7 @@ public final class MaskingDisplayOverlay extends BaseEchogramOverlay {
             rangeSet.add(range);
          }
          updatesQueue.removeIf(updates -> rangeSet.containsAll(updates.xRange));
-         rangeSet.forEach(this::addUpdate);
+         rangeSet.forEachBeginEnd(this::addUpdate);
          repaint();
       });
    }

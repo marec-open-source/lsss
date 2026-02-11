@@ -69,9 +69,9 @@ public final class BroadbandToSvAtFrequencyBands {
       double c = broadbandData.getSoundVelocity();
       double lambda = c / f;
       double psi = broadbandData.getPsi(f);
-      double G = broadbandData.getGain(f);
+      double g = broadbandData.getGain(f);
       double pt = broadbandData.getTransmitPower();
-      double cSv = Math.pow(10, -(2 * G + psi) / 10)
+      double cSv = Math.pow(10, -(2 * g + psi) / 10)
             * (32 * Math.PI * Math.PI)
             / (pt * lambda * lambda * c * tauEff);
       return PowerData.IMR_CONSTANT * broadbandData.getPrxFactor(f) * cSv;

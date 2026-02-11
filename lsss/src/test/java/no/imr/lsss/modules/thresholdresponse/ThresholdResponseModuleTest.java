@@ -22,7 +22,7 @@ final class ThresholdResponseModuleTest {
    @BeforeEach
    void beforeEach() {
       lsss = LsssTestUtils.start(List.of(RegionIntegrationModule.class), List.of(ThresholdResponseModule.class));
-      LsssTestUtils.open(lsss, new TestSyntheticData().toSegmentHandle(1, 1000));
+      LsssTestUtils.open(lsss, new TestSyntheticData().withFirstAndLastPingNumber(1, 1000).toSegmentHandle());
    }
 
    @AfterEach

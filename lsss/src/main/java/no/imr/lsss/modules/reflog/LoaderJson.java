@@ -1,11 +1,9 @@
 package no.imr.lsss.modules.reflog;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.imr.lsss.modules.reflog.pojo.RefLogField;
 import no.imr.lsss.modules.reflog.pojo.RefLogFile;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,8 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 final class LoaderJson {
    private final JsonMapper jsonMapper = JsonMapper.builder()
-         .addModule(new JavaTimeModule())
-         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
          .build();
    private final Map<List<LogLineField>, List<LogLineField>> fieldNamesCache = new ConcurrentHashMap<>();
 
@@ -32,7 +28,7 @@ final class LoaderJson {
       }
    }
 
-   List<LogLine> load(InputStream in) throws IOException {
+   List<LogLine> load(InputStream in) {
       RefLogFile refLogFile = jsonMapper.readValue(in, RefLogFile.class);
 
       int fieldCount = refLogFile.fields.size();

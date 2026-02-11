@@ -60,12 +60,11 @@ public final class ModuleContainer {
    }
 
    public <T extends BaseModule> T addModule(T module) {
-      moduleList.addModule(module);
-      return module;
+      return moduleList.addModule(module);
    }
 
-   public void addModule(int index, BaseModule module) {
-      moduleList.addModule(index, module);
+   public <T extends BaseModule> T addModule(int index, T module) {
+      return moduleList.addModule(index, module);
    }
 
    public <T extends BaseModule> @Nullable T getModule(Class<T> clazz) {
@@ -78,6 +77,10 @@ public final class ModuleContainer {
 
    public List<BaseModule> getModules() {
       return moduleList.getModules();
+   }
+
+   ModuleList getModuleList() {
+      return moduleList;
    }
 
    void removeModule(BaseModule module) {

@@ -7,15 +7,10 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
-final class OffsetValues {
-   final int offset;
-   final float[] values;
-
-   private OffsetValues(int offset, float[] values) {
-      this.offset = offset;
-      this.values = values;
-   }
-
+public record OffsetValues(
+      int offset,
+      float[] values
+) {
    @Override
    public String toString() {
       return "offset: " + offset + ", length:" + values.length;
@@ -63,8 +58,8 @@ final class OffsetValues {
       float endValue = targetRange.fractionToValue((float) targetEndIndex / targetLength);
 
       // Source index range:
-      float valuesBeginIndex = valuesRange.valueToFraction(beginValue) * values.length;
-      float valuesEndIndex = valuesRange.valueToFraction(endValue) * values.length;
+      float valuesBeginIndex = Math.clamp(valuesRange.valueToFraction(beginValue), 0, 1) * values.length;
+      float valuesEndIndex = Math.clamp(valuesRange.valueToFraction(endValue), 0, 1) * values.length;
 
       // Resample:
       float[] resampledValues = ArrayMath.resample(values, valuesBeginIndex, valuesEndIndex, targetEndIndex - targetBeginIndex);

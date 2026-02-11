@@ -4,6 +4,7 @@ import no.imr.korona.Korona;
 import no.imr.korona.computation.ModuleContainer;
 import no.imr.korona.computation.ModuleContainerComputation;
 import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,8 @@ final class ChannelDataRemovalModuleTest {
    }
 
    private static void test(ModuleContainer moduleContainer, SyntheticData syntheticData, List<Integer> expectedKHzs) throws IOException {
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticData.toPingReader())) {
+      SyntheticDataFile syntheticDataFile = syntheticData.withFirstAndLastPingNumber(1, 1);
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
          List<Integer> allKHzs = computation.getPingConfiguration().getRawFileConfiguration().getTransducers().stream()
                .map(RawFileTransducer::getKHz)
                .toList();

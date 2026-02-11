@@ -10,6 +10,7 @@ import no.imr.tools.math.linalg.Matrix4;
 import no.imr.tools.math.linalg.Vec2;
 import no.imr.tools.math.linalg.Vec3;
 import no.imr.tools.misc.FloatPredicate;
+import no.imr.tools.misc.ThrowingConsumer;
 import no.imr.tools.misc.test.TestUtils;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.Element;
@@ -22,7 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Random;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 
 @SuppressWarnings("PMD.SystemPrintln")
@@ -143,11 +143,11 @@ public final class JUnitUtils {
       }
    }
 
-   public static void runWithRandom(Consumer<Random> test) {
+   public static <E extends Exception> void runWithRandom(ThrowingConsumer<Random, E> test) throws E {
       runWithRandom(1, test);
    }
 
-   public static void runWithRandom(int runCount, Consumer<Random> test) {
+   public static <E extends Exception> void runWithRandom(int runCount, ThrowingConsumer<Random, E> test) throws E {
       Random random = new Random();
       for (int i = 0; i < runCount; i++) {
          long seed = RandomUtils.newSeed();

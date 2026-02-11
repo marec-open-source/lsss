@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -223,10 +224,10 @@ public final class NoiseFile extends BaseNoiseFile {
       }
    }
 
-   public @Nullable NavigableMap<Integer, NoiseData> timeToNoiseMap(long timeInMillis) {
+   public NavigableMap<Integer, NoiseData> timeToNoiseMap(long timeInMillis) {
       Map.Entry<Long, NavigableMap<Integer, NoiseData>> entry = noiseFileContent.timeToNoiseMap.floorEntry(timeInMillis);
       if (entry == null || timeInMillis >= entry.getKey() + noiseFileContent.intervalMillis) {
-         return null;
+         return Collections.emptyNavigableMap();
       }
       return entry.getValue();
    }

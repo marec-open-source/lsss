@@ -202,8 +202,8 @@ public final class CTDViewModule extends BaseViewModule implements PojoDataConta
 
          this.module = module;
          chartPanel = PlotUtils.newChartPanel(module.chart);
-         prevButton.addActionListener(e -> module.setCurrentCTDDataIndex(module.currentCTDDataIndex - 1));
-         nextButton.addActionListener(e -> module.setCurrentCTDDataIndex(module.currentCTDDataIndex + 1));
+         prevButton.addActionListener(_ -> module.setCurrentCTDDataIndex(module.currentCTDDataIndex - 1));
+         nextButton.addActionListener(_ -> module.setCurrentCTDDataIndex(module.currentCTDDataIndex + 1));
 
          Insets margin = new Insets(0, 3, 0, 3);
          nextButton.setMargin(margin);
@@ -232,13 +232,13 @@ public final class CTDViewModule extends BaseViewModule implements PojoDataConta
       @Override
       public void addToFloatableModuleMenu(JPopupMenu popupMenu) {
          JMenuItem visualizerItem = MiscIcons.SCATTER_PLOT.on(popupMenu.add("Visualizer dialog..."));
-         visualizerItem.addActionListener(e -> new CTDVisualizerDialog(module.ctdDataModule.get(), mainPanel));
+         visualizerItem.addActionListener(_ -> new CTDVisualizerDialog(module.ctdDataModule.get(), mainPanel));
 
          CTDData ctdData = module.currentCTDData;
          Path file = ctdData != null ? ctdData.file() : null;
          if (file != null) {
             JMenuItem openItem = popupMenu.add("Open " + file.getFileName());
-            openItem.addActionListener(e -> GuiUtils.desktopOpen(file, mainPanel));
+            openItem.addActionListener(_ -> GuiUtils.desktopOpen(file, mainPanel));
          }
       }
 

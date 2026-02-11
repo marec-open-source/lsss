@@ -131,7 +131,7 @@ final class ExtensionFeaturePlugin extends FeaturePlugin {
 
          private static ModuleInfo.@Nullable RelativePosition toRelativePosition(RelativePosition relativePosition) {
             return switch (relativePosition) {
-               case RelativePosition.Default __ -> null;
+               case RelativePosition.Default _ -> null;
                case RelativePosition.Before b -> new ModuleInfo.RelativePosition(Position.BEFORE, b.refId());
                case RelativePosition.After a -> new ModuleInfo.RelativePosition(Position.AFTER, a.refId());
             };

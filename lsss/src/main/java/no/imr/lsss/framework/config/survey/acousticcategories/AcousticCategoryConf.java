@@ -18,7 +18,7 @@ import no.imr.lsss.framework.config.ConfigurationManager;
 import no.imr.lsss.framework.config.ConfigurationUnit;
 import no.imr.lsss.framework.config.ConfigurationUtils;
 import no.imr.lsss.framework.config.UserProfile;
-import no.imr.tools.database.queries.FetchQuery;
+import no.imr.tools.database.queries.QueryBuilder;
 import no.imr.tools.listening.ChangeManager;
 import no.imr.tools.logging.Log;
 import no.imr.tools.misc.HtmlStringBuilder;
@@ -64,6 +64,7 @@ import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -90,7 +91,7 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
    private final AcousticToCategory acousticToCategory;
    private boolean needStoreToDatabase;
    private final ChangeManager acousticCategoryChangeManager = new ChangeManager();
-   private final CopyOnWriteArrayList<AcousticCategory> selectedCategories = new CopyOnWriteArrayList<>();
+   private final List<AcousticCategory> selectedCategories = new CopyOnWriteArrayList<>();
    private @Nullable Area selectedArea;
 
    public AcousticCategoryConf(BaseSystemFeaturePlugin plugin) {
@@ -111,14 +112,14 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
    public void setup() {
       super.setup();
 
-      getConfigurationManager().getSurveyConf().mPlatform.subscribe(__ -> {
+      getConfigurationManager().getSurveyConf().mPlatform.subscribe(_ -> {
          selectedArea = null;
          viewHolder.ifView(View::onPlatformChange);
       });
 
       getConfigurationManager().getAppMiscConf().useEnglish.subscribe(viewHolder.coalescingListener(View::updateAcousticCategoriesList));
 
-      getConfigurationManager().getSurveyConf().mSurvey.subscribe(__ -> {
+      getConfigurationManager().getSurveyConf().mSurvey.subscribe(_ -> {
          purposes.clear();
          selectedCategories.clear();
 
@@ -239,13 +240,14 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
          return;
       }
 
-      getLSSS().getDatabaseManager().getDatabaseConnection().executeQuery(session -> {
-         // Delete existing database objects
-         LsssQuery.delete(Purpose.class, survey).execute(session);
-
-         // Insert new objects
-         for (AcousticCategory acousticCategory : selectedCategories) {
-            session.save(new Purpose(survey, acousticCategory, getPurpose(acousticCategory)));
+      getLSSS().getDatabaseManager().getDatabaseConnection().executeStatelessQuery(session -> {
+         List<Purpose> dbPurposes = LsssQuery.fetch(Purpose.class, survey).executeAndGetValue(session);
+         List<Purpose> newPurposes = selectedCategories.stream()
+               .map(acousticCategory -> new Purpose(survey, acousticCategory, getPurpose(acousticCategory)))
+               .toList();
+         if (!new HashSet<>(dbPurposes).equals(new HashSet<>(newPurposes))) {
+            LsssQuery.delete(Purpose.class, survey).execute(session);
+            session.insertMultiple(newPurposes);
          }
       });
    }
@@ -469,7 +471,7 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
       }
 
       private JPanel createMappingButtonsPanel() {
-         acousticToCategoryMapButton.addActionListener(e -> {
+         acousticToCategoryMapButton.addActionListener(_ -> {
             acousticCategoryConf.acousticToCategory.setAcousticCategories(acousticCategoryConf.selectedCategories);
             new AcousticToCategoryEditor(getLSSS(), acousticCategoryConf.acousticToCategory, mainPanel);
          });
@@ -480,7 +482,7 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
       }
 
       private JPanel createAreaButtonsPanel() {
-         areaNewButton.addActionListener(e -> {
+         areaNewButton.addActionListener(_ -> {
             Nation nation = getConfigurationManager().getSurveyConf().getNation();
             if (nation == null) {
                return;
@@ -498,7 +500,7 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
             }
          });
 
-         areaEditButton.addActionListener(e -> {
+         areaEditButton.addActionListener(_ -> {
             AreaEditor areaEditor = new AreaEditor(getLSSS(), acousticCategoryConf.selectedArea);
             Area storedArea = areaEditor.getStoredArea();
             if (storedArea != null) {
@@ -514,7 +516,7 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
       }
 
       private JPanel createAcCatButtonsPanel() {
-         acousticCategoryNewButton.addActionListener(e -> {
+         acousticCategoryNewButton.addActionListener(_ -> {
             AcousticCategoryEditor edtAcCategory = new AcousticCategoryEditor(getLSSS(), null, false);
             AcousticCategory storedAcousticCategory = edtAcCategory.getStoredAcousticCategory();
             if (storedAcousticCategory != null) {
@@ -524,7 +526,7 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
             }
          });
 
-         acousticCategoryNewCompositeButton.addActionListener(e -> {
+         acousticCategoryNewCompositeButton.addActionListener(_ -> {
             AcousticCategoryEditor edtAcCategory = new AcousticCategoryEditor(getLSSS(), null, true);
             AcousticCategory storedAcousticCategory = edtAcCategory.getStoredAcousticCategory();
             if (storedAcousticCategory != null) {
@@ -534,7 +536,7 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
             }
          });
 
-         acousticCategoryEditButton.addActionListener(e -> {
+         acousticCategoryEditButton.addActionListener(_ -> {
             if (allAcousticCategoriesJList.getSelectedIndices().length == 1) {
                AcousticCategory acCatSelected = allAcousticCategoriesJList.getSelectedValue();
                AcousticCategoryEditor edtAcCategory = new AcousticCategoryEditor(getLSSS(), acCatSelected, acCatSelected.getComposite() != 0);
@@ -571,10 +573,9 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
             acousticCategoriesInArea = new ArrayList<>(acousticCategoryConf.getAllAcousticCategories());
          } else {
             List<AreaOfAcousticCategory> areaOfAcousticCategories = getLSSS().getDatabaseManager().getDatabaseConnection().executeFetchQuery(
-                  new FetchQuery<>(AreaOfAcousticCategory.class,
-                        DatabaseData.NATION, platform.getCompId().getNation(),
-                        DatabaseData.PLATFORM, platform.getCompId().getPlatform(),
-                        DatabaseData.AREA, selectedArea.getCompId().getArea()));
+                  LsssQuery.forPlatform(QueryBuilder.fetch(AreaOfAcousticCategory.class), platform.getCompId()).and()
+                        .eq(DatabaseData.AREA, selectedArea.getCompId().getArea())
+                        .build());
             Set<Integer> ids = areaOfAcousticCategories.stream()
                   .map(areaOfAcousticCategory -> areaOfAcousticCategory.getCompId().getAcousticCategory())
                   .collect(Collectors.toSet());
@@ -600,7 +601,7 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
          button.setHorizontalAlignment(JButton.LEFT);
          button.setToolTipText(tooltipText);
          button.setFocusable(false);
-         button.addActionListener(e -> addAcousticCategory(purpose));
+         button.addActionListener(_ -> addAcousticCategory(purpose));
          return button;
       }
 

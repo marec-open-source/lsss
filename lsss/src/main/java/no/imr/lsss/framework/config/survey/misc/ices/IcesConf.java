@@ -33,6 +33,7 @@ import org.jspecify.annotations.Nullable;
 
 import javax.swing.JComponent;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -43,6 +44,7 @@ import java.util.stream.Stream;
 public final class IcesConf extends ConfigurationUnit {
    private final ViewHolder<IcesConfView> viewHolder = new ViewHolder<>(() -> new IcesConfView(this));
    private final IcesAcousticMetadata icesAcousticMetadata = new IcesAcousticMetadata();
+   private byte @Nullable [] savedHash;
 
    public IcesConf(BaseSystemFeaturePlugin plugin) {
       super(plugin, new Name("SurveyIcesConf", "ICES acoustic metadata"),
@@ -104,7 +106,17 @@ public final class IcesConf extends ConfigurationUnit {
       if (survey == null) {
          return;
       }
-      IcesUtils.acousticMetadataToDatabase(databaseConnection, survey, icesAcousticMetadata);
+      if (savedHash == null) {
+         byte[] savedBytes = IcesUtils.acousticMetadataStringFromDatabase(databaseConnection, survey).getBytes(Utils.UTF_8);
+         savedHash = Utils.getSha256().digest(savedBytes);
+      }
+      byte[] acousticMetadataBytes = XmlUtils.toCompactBytes(icesAcousticMetadata.toXml());
+      byte[] hash = Utils.getSha256().digest(acousticMetadataBytes);
+      if (!Arrays.equals(savedHash, hash)) {
+         String acousticMetadataString = new String(acousticMetadataBytes, Utils.UTF_8);
+         IcesUtils.acousticMetadataStringToDatabase(databaseConnection, survey, acousticMetadataString);
+         savedHash = hash;
+      }
    }
 
    void resetValuesFromSurvey() {
@@ -276,7 +288,8 @@ public final class IcesConf extends ConfigurationUnit {
       return Stream.concat(idRef, other);
    }
 
-   @Nullable Path icesSchemaDir() {
+   @Nullable
+   Path icesSchemaDir() {
       Path mainDir = getConfigurationManager().getApplicationConfiguration().getDirectoryConf().mainDir.getFile();
       if (mainDir == null) {
          return null;

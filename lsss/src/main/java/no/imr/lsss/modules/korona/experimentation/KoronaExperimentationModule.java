@@ -49,7 +49,7 @@ public final class KoronaExperimentationModule extends BaseViewModule {
    public KoronaExperimentationModule(ModuleInfo<BaseSystemFeaturePlugin> moduleInfo) {
       super(moduleInfo);
 
-      preprocessingSetup.subscribe(__ -> validateSetup());
+      preprocessingSetup.subscribe(_ -> validateSetup());
    }
 
    @Override

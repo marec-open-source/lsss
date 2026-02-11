@@ -256,19 +256,19 @@ public final class GaussUtils {
          return;
       }
       double tmp = 1 / (1 - rho * rho);
-      double A = tmp / covXX;
-      double B = -tmp * 2 * covXY / (covXX * covYY);
-      double C = tmp / covYY;
-      double discriminant = B * B - 4 * A * C;
+      double a = tmp / covXX;
+      double b = -tmp * 2 * covXY / (covXX * covYY);
+      double c = tmp / covYY;
+      double discriminant = b * b - 4 * a * c;
       if (discriminant >= 0) {
          Log.global.warning("Unacceptable discriminant = " + discriminant);
          return;
       }
-      double alpha = B == 0 ? 0 : Math.PI / 4 - Math.atan((A - C) / B) / 2;
+      double alpha = b == 0 ? 0 : Math.PI / 4 - Math.atan((a - c) / b) / 2;
       double cos = Math.cos(alpha);
       double sin = Math.sin(alpha);
-      double At = A * cos * cos + B * cos * sin + C * sin * sin;
-      double Ct = A * sin * sin - B * sin * cos + C * cos * cos;
-      drawEllipse(graph, meanX, meanY, quantile / Math.sqrt(At), quantile / Math.sqrt(Ct), alpha);
+      double at = a * cos * cos + b * cos * sin + c * sin * sin;
+      double ct = a * sin * sin - b * sin * cos + c * cos * cos;
+      drawEllipse(graph, meanX, meanY, quantile / Math.sqrt(at), quantile / Math.sqrt(ct), alpha);
    }
 }

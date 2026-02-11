@@ -94,12 +94,7 @@ final class SurveyList {
    private final JTextField filterTextField = new JTextField("", 20);
    private TextFilter filter = new TextFilter("");
    private final LoadingCache<Path, SurveyConfigurationXml> surveyConfigurationXmlCache = CacheBuilder.newBuilder()
-         .build(new CacheLoader<>() {
-            @Override
-            public SurveyConfigurationXml load(Path file) {
-               return createSurveyConfigurationXml(file);
-            }
-         });
+         .build(CacheLoader.from(this::createSurveyConfigurationXml));
 
    SurveyList(LSSS lsss, @Nullable Path lastSurveyFile, Consumer<Path> openAction, Runnable cancelAction) {
       this.lsss = lsss;
@@ -111,21 +106,21 @@ final class SurveyList {
       JButton openButton = new JButton("Open");
       openButton.setEnabled(false);
       GuiUtils.setAccelerator(openButton, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
-      openButton.addActionListener(e -> openSelectedFile());
+      openButton.addActionListener(_ -> openSelectedFile());
 
       JButton scanButton = new JButton("Scan...");
       scanButton.setToolTipText("Scan a directory for survey files");
-      scanButton.addActionListener(e -> scan());
+      scanButton.addActionListener(_ -> scan());
 
       JButton cancelButton = new JButton("Cancel");
-      cancelButton.addActionListener(e -> cancelAction.run());
+      cancelButton.addActionListener(_ -> cancelAction.run());
 
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       buttonPanel.add(openButton);
       buttonPanel.add(scanButton);
       buttonPanel.add(cancelButton);
 
-      filterTextField.getDocument().addDocumentListener(new SimpleDocumentListener(e -> {
+      filterTextField.getDocument().addDocumentListener(new SimpleDocumentListener(_ -> {
          filter = new TextFilter(filterTextField.getText());
          listModel.updateContent();
       }));
@@ -178,7 +173,7 @@ final class SurveyList {
       list.setFocusable(false);
       list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
       list.setCellRenderer(new SurveyListCellRenderer());
-      list.addListSelectionListener(e -> {
+      list.addListSelectionListener(_ -> {
          selectionInited = true;
          Path selectedFile = getSelectedFile();
          openButton.setEnabled(selectedFile != null);
@@ -231,18 +226,18 @@ final class SurveyList {
    static String createToolTipText(Path file, SurveyConfigurationXml xml) {
       return "<html>"
             + "<table border=1 cellspacing=0>"
-            + "<tr><td>File</td><td>" + encodeHTML(file.toString()) + "</td></tr>"
-            + "<tr><td>Nation</td><td>" + encodeHTML(xml.getNation()) + "</td></tr>"
-            + "<tr><td>Platform</td><td>" + encodeHTML(xml.getPlatform()) + "</td></tr>"
-            + "<tr><td>Survey</td><td>" + encodeHTML(xml.getSurveyTitle()) + "</td></tr>"
-            + "<tr><td>Start</td><td>" + encodeHTML(xml.getStartDate()) + "&nbsp;&nbsp;" + encodeHTML(xml.getStartTime()) + "</td></tr>"
-            + "<tr><td>Stop</td><td>" + encodeHTML(xml.getStopDate()) + "&nbsp;&nbsp;" + encodeHTML(xml.getStopTime()) + "</td></tr>"
+            + "<tr><td>File</td><td>" + htmlEscape(file.toString()) + "</td></tr>"
+            + "<tr><td>Nation</td><td>" + htmlEscape(xml.getNation()) + "</td></tr>"
+            + "<tr><td>Platform</td><td>" + htmlEscape(xml.getPlatform()) + "</td></tr>"
+            + "<tr><td>Survey</td><td>" + htmlEscape(xml.getSurveyTitle()) + "</td></tr>"
+            + "<tr><td>Start</td><td>" + htmlEscape(xml.getStartDate()) + "&nbsp;&nbsp;" + htmlEscape(xml.getStartTime()) + "</td></tr>"
+            + "<tr><td>Stop</td><td>" + htmlEscape(xml.getStopDate()) + "&nbsp;&nbsp;" + htmlEscape(xml.getStopTime()) + "</td></tr>"
             + "<tr><td>Boundaries</td><td>"
-            /**/ + "North: " + encodeHTML(xml.getBoundaryNorth()) + "&nbsp;, &nbsp;"
-            /**/ + "South: " + encodeHTML(xml.getBoundarySouth()) + "&nbsp;, &nbsp;"
-            /**/ + "West: " + encodeHTML(xml.getBoundaryWest()) + "&nbsp;, &nbsp;"
-            /**/ + "East: " + encodeHTML(xml.getBoundaryEast()) + "</td></tr>"
-            + "<tr><td>Comment</td><td>" + encodeHTML(xml.getSurveyDescription()).replaceAll("\\n", "<br>") + "</td></tr>"
+            /**/ + "North: " + htmlEscape(xml.getBoundaryNorth()) + "&nbsp;, &nbsp;"
+            /**/ + "South: " + htmlEscape(xml.getBoundarySouth()) + "&nbsp;, &nbsp;"
+            /**/ + "West: " + htmlEscape(xml.getBoundaryWest()) + "&nbsp;, &nbsp;"
+            /**/ + "East: " + htmlEscape(xml.getBoundaryEast()) + "</td></tr>"
+            + "<tr><td>Comment</td><td>" + htmlEscape(xml.getSurveyDescription()).replaceAll("\\n", "<br>") + "</td></tr>"
             + "</table>";
    }
 
@@ -442,7 +437,7 @@ final class SurveyList {
       SwingUtilities.invokeLater(() -> listModel.add(file));
    }
 
-   private static String encodeHTML(@Nullable String string) {
+   private static String htmlEscape(@Nullable String string) {
       return HtmlEscapers.htmlEscaper().escape(string != null ? string : "<Not available>");
    }
 
@@ -451,7 +446,7 @@ final class SurveyList {
          Document document = XmlUtils.readDocument(file);
          listModel.updateContentLater();
          return new SurveyConfigurationXml(document);
-      } catch (IOException e) {
+      } catch (IOException _) {
          return new SurveyConfigurationXml(DocumentHelper.createDocument());
       }
    }
@@ -539,9 +534,9 @@ final class SurveyList {
                ? "color: red;"
                : "";
 
-         String text = "<html><span style='font-family:monospace;" + highlightStyle + "'>" + fileNamePrefix + encodeHTML(fileName) + "</span>"
-               + " &nbsp; &nbsp; <span style='color:black;'>" + encodeHTML(surveyTitle) + "</span>"
-               + " &nbsp; &nbsp; <span style='color:gray;'>" + encodeHTML(surveyDescription) + "</span>";
+         String text = "<html><span style='font-family:monospace;" + highlightStyle + "'>" + fileNamePrefix + htmlEscape(fileName) + "</span>"
+               + " &nbsp; &nbsp; <span style='color:black;'>" + htmlEscape(surveyTitle) + "</span>"
+               + " &nbsp; &nbsp; <span style='color:gray;'>" + htmlEscape(surveyDescription) + "</span>";
          return super.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
       }
    }

@@ -90,7 +90,7 @@ public final class Colormaps {
    }
 
    private static Colormap makeSimpleColormap(String name, Color belowColor, HSBColor start, HSBColor stop) {
-      return new Colormap(name, belowColor, stop.getColor(), ColorInterpolation.linear(start, stop));
+      return new Colormap(name, belowColor.getRGB(), stop.getRGB(), ColorInterpolation.linear(start, stop));
    }
 
    private static Colormap parseStepwiseColormap(String name, String resourceName) {
@@ -117,8 +117,8 @@ public final class Colormaps {
 
       int n = words.length / 3 - 2; // -2 because of belowColor and aboveColor
 
-      Color belowColor = parseRGBColor(words, 0).getColor();
-      Color aboveColor = parseRGBColor(words, n + 1).getColor();
+      int belowRGB = parseRGBColor(words, 0).getRGB();
+      int aboveRGB = parseRGBColor(words, n + 1).getRGB();
 
       List<RGBColor> rgbColors = IntStream.rangeClosed(1, n)
             .mapToObj(i -> parseRGBColor(words, i))
@@ -127,7 +127,7 @@ public final class Colormaps {
       ColorInterpolation colorInterpolation = linearInterpolation
             ? ColorInterpolation.linear(rgbColors)
             : ColorInterpolation.stepwise(rgbColors);
-      return new Colormap(name, belowColor, aboveColor, colorInterpolation);
+      return new Colormap(name, belowRGB, aboveRGB, colorInterpolation);
    }
 
    private static RGBColor parseRGBColor(String[] words, int iColor) {
@@ -140,7 +140,7 @@ public final class Colormaps {
 
    public static @Nullable Colormap getByName(String name) {
       for (Colormap colormap : ALL) {
-         if (colormap.getName().equals(name)) {
+         if (colormap.name().equals(name)) {
             return colormap;
          }
       }

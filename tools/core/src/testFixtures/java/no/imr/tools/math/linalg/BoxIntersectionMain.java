@@ -15,7 +15,7 @@ final class BoxIntersectionMain {
    private BoxIntersectionMain() {
    }
 
-   public static void main(String[] args) {
+   static void main() {
       Random random = new Random();
       int n = 1_000_000;
       int intersectionCount = 0;

@@ -10,6 +10,7 @@ import java.util.List;
 
 public final class ModuleConfigurationFileService extends KoronaConfigFileService {
    public static final Name NAME = new Name("ModuleConfiguration", "Module configuration");
+   public static final String SUB_DIR_NAME = "KoronaModuleSetup";
 
    public ModuleConfigurationFileService() {
       super(NAME);
@@ -17,7 +18,7 @@ public final class ModuleConfigurationFileService extends KoronaConfigFileServic
 
    @Override
    public String getInstallationSubDirName() {
-      return "KoronaModuleSetup";
+      return SUB_DIR_NAME;
    }
 
    @Override

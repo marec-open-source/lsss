@@ -30,13 +30,13 @@ final class RandomInputGenerator {
    private final Map<Integer, Boolean> keys = new LinkedHashMap<>();
    private final Robot robot = new Robot();
    private final Random random = new Random();
-   private final Timer timer = new Timer(1, e -> tick());
+   private final Timer timer = new Timer(1, _ -> tick());
    private Point previousMouseLocation = new Point();
    private int counter;
 
    private RandomInputGenerator(LSSS lsss) throws AWTException {
       pelagicEchogramModule = lsss.getModuleManager().getModule(PelagicEchogramModule.class);
-      button.addActionListener(e -> start());
+      button.addActionListener(_ -> start());
    }
 
    static JComponent create(LSSS lsss) {

@@ -16,7 +16,7 @@ final class EchogramUtilsTest {
    @Test
    void computeLine() {
       DataManager dataManager = DataManagerTestUtils.testDataManager();
-      DataManagerTestUtils.open(dataManager, new ConstantSyntheticData(1000, 0).toSegmentHandle(1, 10));
+      DataManagerTestUtils.open(dataManager, new ConstantSyntheticData(1000, 0).withFirstAndLastPingNumber(1, 10).toSegmentHandle());
 
       DataFileSet dataFileSet = dataManager.getDataFileSet();
       PingIndex p1 = dataFileSet.getTotalRange().begin();

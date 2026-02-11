@@ -13,12 +13,12 @@ final class OnlineAverageAndVarianceTest {
          averageAndVariance.update(new float[]{value, 2 * value}, 1);
       }
       assertArrayEquals(new float[]{1, 2}, averageAndVariance.getMeans());
-      assertArrayEquals(new float[]{0, 0}, averageAndVariance.getVar());
+      assertArrayEquals(new float[]{0, 0}, averageAndVariance.getVariances());
 
       averageAndVariance.update(new float[]{3, 3}, 1);
 
       assertArrayEquals(new float[]{1.4f, 2.2f}, averageAndVariance.getMeans());
-      assertArrayEquals(new float[]{0.8f, 0.2f}, averageAndVariance.getVar());
+      assertArrayEquals(new float[]{0.8f, 0.2f}, averageAndVariance.getVariances());
    }
 
    @Test
@@ -29,11 +29,11 @@ final class OnlineAverageAndVarianceTest {
          averageAndVariance.update(new float[]{value, 2 * value}, 1);
       }
       assertArrayEquals(new float[]{1, 2}, averageAndVariance.getMeans());
-      assertArrayEquals(new float[]{0, 0}, averageAndVariance.getVar());
+      assertArrayEquals(new float[]{0, 0}, averageAndVariance.getVariances());
 
       averageAndVariance.update(new float[]{3, 3}, 4);
 
       assertArrayEquals(new float[]{2, 2.5f}, averageAndVariance.getMeans());
-      assertArrayEquals(new float[]{1.25f, 0.3125f}, averageAndVariance.getVar());
+      assertArrayEquals(new float[]{1.25f, 0.3125f}, averageAndVariance.getVariances());
    }
 }

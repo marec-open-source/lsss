@@ -25,23 +25,20 @@ public final class GrowEngine {
    private final PingContainer pingContainer;
    private final LoadingCache<PingIndex, List<FloatRange>> candidateDepthRangesCache;
    private final Queue<Seed> seeds = new ArrayDeque<>();
-   private Predicate<PingIndex> unusablePings = pingIndex -> false;
+   private Predicate<PingIndex> usablePings = _ -> true;
    private Consumer<Integer> pingCountListener = Utils.emptyConsumer();
 
    public GrowEngine(PingContainer pingContainer, DepthRangeExtractor depthRangeExtractor) {
       this.pingContainer = pingContainer;
       candidateDepthRangesCache = CacheBuilder.newBuilder()
-            .build(new CacheLoader<>() {
-               @Override
-               public List<FloatRange> load(PingIndex pingIndex) {
-                  // Create new list since the growing will remove depth ranges.
-                  return new ArrayList<>(depthRangeExtractor.depthRanges(pingIndex));
-               }
-            });
+            .build(CacheLoader.from(pingIndex -> {
+               // Create new list since the growing will remove depth ranges.
+               return new ArrayList<>(depthRangeExtractor.depthRanges(pingIndex).getFloatRanges());
+            }));
    }
 
-   public GrowEngine setUnusablePings(Predicate<PingIndex> unusablePings) {
-      this.unusablePings = unusablePings;
+   public GrowEngine setUsablePings(Predicate<PingIndex> usablePings) {
+      this.usablePings = usablePings;
       return this;
    }
 
@@ -93,8 +90,8 @@ public final class GrowEngine {
    }
 
    private void addSeedForNeighbouringPing(PingIndex pingIndex, int step, FloatRange depthRange) {
-      PingIndex nextPingIndex = pingContainer.getPingIndexOrNull(pingIndex.getPingNumber() + step);
-      if (nextPingIndex != null && !unusablePings.test(nextPingIndex) && !nextPingIndex.equals(pingContainer.getTotalRange().end())) {
+      PingIndex nextPingIndex = pingContainer.getPingIndexOrNullExcludingEnd(pingIndex.getPingNumber() + step);
+      if (nextPingIndex != null && usablePings.test(nextPingIndex)) {
          seeds.add(new Seed(nextPingIndex, depthRange));
       }
    }

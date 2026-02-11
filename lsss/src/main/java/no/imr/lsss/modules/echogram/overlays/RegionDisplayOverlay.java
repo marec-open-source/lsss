@@ -25,6 +25,7 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.linestrip.BoundedLineStripBuilder;
+import no.imr.tools.swing.linestrip.CountingLineStripBuilder;
 import no.imr.tools.swing.linestrip.LineStripBuilders;
 import no.imr.tools.swing.linestrip.PathLineStripBuilder;
 import no.marec.lsss.api.util.LineStripBuilder;
@@ -63,7 +64,7 @@ public final class RegionDisplayOverlay extends BaseEchogramOverlay {
    public RegionDisplayOverlay(ModuleInfo<BaseSystemFeaturePlugin> moduleInfo, EchogramModule echogramModule) {
       super(moduleInfo, echogramModule);
 
-      selectedLineThickness.subscribe(__ -> {
+      selectedLineThickness.subscribe(_ -> {
          selectedStroke = createStroke();
          repaint();
       });
@@ -110,7 +111,8 @@ public final class RegionDisplayOverlay extends BaseEchogramOverlay {
       private final Set<Object> renderedObjects = new HashSet<>();
 
       private final DisplayData displayData = new DisplayData();
-      private final LineStripBuilder selectedBoundaryPath = LineStripBuilders.piecewiseHorizontal(displayData.selectedBoundaryPath, bounds);
+      private final CountingLineStripBuilder countingSelectedBoundaryPath = new CountingLineStripBuilder(new PathLineStripBuilder(displayData.selectedBoundaryPath));
+      private final LineStripBuilder selectedBoundaryPath = LineStripBuilders.piecewiseHorizontal(countingSelectedBoundaryPath, bounds);
       private final LineStripBuilder unselectedBoundaryPath = LineStripBuilders.piecewiseHorizontal(displayData.unselectedBoundaryPath, bounds);
       private final LineStripBuilder connectorPath = LineStripBuilders.piecewiseHorizontal(displayData.connectorPath, bounds);
       private final LineStripBuilder schoolEditPath = LineStripBuilders.piecewiseHorizontal(displayData.schoolEditPath, bounds);
@@ -128,13 +130,19 @@ public final class RegionDisplayOverlay extends BaseEchogramOverlay {
             }
          }
 
-         List<School> schools = getRegionManager().getVisibleSchools();
-         displayData.manySchools = schools.size() > 2000;
-         schools.forEach(this::renderSchool);
+         int schoolCount = 0;
+         for (School school : getRegionManager().getSchoolManager().getSchools()) {
+            if (school.intersectsPingRange(pingRange)) {
+               schoolCount++;
+               renderSchool(school);
+            }
+         }
+         displayData.longSelectedBoundary = countingSelectedBoundaryPath.getPointCount() > 10_000;
+         displayData.manySchools = schoolCount > 2000;
       }
 
       private void renderLayer(Layer layer, LineStripBuilder pathBuilder) {
-         if (!pingRange.intersects(layer.getPingRange())) {
+         if (!layer.intersectsPingRange(pingRange)) {
             return;
          }
          for (VerticalBoundary boundary : layer.getVerticalBoundaries()) {
@@ -280,6 +288,7 @@ public final class RegionDisplayOverlay extends BaseEchogramOverlay {
       private final Path2D.Float schoolRemovePath = new Path2D.Float();
       private final Path2D.Float selectedSchoolCenterPointPath = new Path2D.Float();
       private final Path2D.Float unselectedSchoolCenterPointPath = new Path2D.Float();
+      private boolean longSelectedBoundary;
       private boolean manySchools;
 
       private DisplayData() {
@@ -291,7 +300,7 @@ public final class RegionDisplayOverlay extends BaseEchogramOverlay {
          g2d.setColor(Color.BLUE);
          g2d.draw(unselectedBoundaryPath);
 
-         g2d.setStroke(selectedStroke);
+         g2d.setStroke(longSelectedBoundary ? GuiUtils.STROKE_1 : selectedStroke);
          g2d.setColor(Color.RED);
          g2d.draw(selectedBoundaryPath);
 

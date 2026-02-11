@@ -17,8 +17,8 @@ final class ValueToColor {
    ValueToColor(ContinuousVariableSettings settings, Colormap colormap) {
       min = settings.getRange().min();
       delta = settings.getDelta();
-      belowRGB = colormap.getBelowRGB();
-      aboveRGB = colormap.getAboveRGB();
+      belowRGB = colormap.belowRGB();
+      aboveRGB = colormap.aboveRGB();
       colorTable = createColorTable(colormap, delta / settings.getRange().getSize());
    }
 

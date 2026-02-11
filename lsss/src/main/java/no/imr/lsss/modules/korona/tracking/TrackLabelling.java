@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import no.imr.korona.data.datamanager.DataFile;
 import no.imr.lsss.framework.WorkFileExtra;
 import no.imr.tools.ImmutableUtils;
+import no.imr.tools.Utils;
 import no.imr.tools.listening.ChangeManager;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.MenuUtils;
@@ -110,17 +111,17 @@ public final class TrackLabelling {
 
          if (!allLabels.isEmpty()) {
             allLabels.forEach(label -> {
-               MenuUtils.addItem(addMenu, label, e -> {
+               MenuUtils.addItem(addMenu, label, _ -> {
                   selectedTrackIds.forEach(trackId -> addLabel(trackId, label));
                });
-               MenuUtils.addItem(selectMenu, label, e -> {
+               MenuUtils.addItem(selectMenu, label, _ -> {
                   trackInfoModule.getTrackSelection().selectByPredicate(trackId -> hasLabel(trackId, label));
                });
             });
             addMenu.addSeparator();
          }
 
-         MenuUtils.addItem(addMenu, "New label...", KeyEvent.VK_N, e -> {
+         MenuUtils.addItem(addMenu, "New label...", KeyEvent.VK_N, _ -> {
             new SimpleInputDialog<>("Add new label", "Label", "", Function.identity())
                   .show(trackInfoModule.getLSSS().getFrame())
                   .ifPresent(label -> {
@@ -129,19 +130,19 @@ public final class TrackLabelling {
          });
 
          selectedLabels.forEach(label -> {
-            MenuUtils.addItem(removeMenu, label, e -> {
+            MenuUtils.addItem(removeMenu, label, _ -> {
                selectedTrackIds.forEach(trackId -> removeLabel(trackId, label));
             });
-            MenuUtils.addItem(deselectMenu, label, e -> {
+            MenuUtils.addItem(deselectMenu, label, _ -> {
                trackInfoModule.getTrackSelection().deselectByPredicate(trackId -> hasLabel(trackId, label));
             });
-            MenuUtils.addItem(retainMenu, label, e -> {
+            MenuUtils.addItem(retainMenu, label, _ -> {
                trackInfoModule.getTrackSelection().deselectByPredicate(trackId -> !hasLabel(trackId, label));
             });
          });
 
          removeMenu.addSeparator();
-         MenuUtils.addItem(removeMenu, "All labels", KeyEvent.VK_A, e -> {
+         MenuUtils.addItem(removeMenu, "All labels", KeyEvent.VK_A, _ -> {
             selectedTrackIds.forEach(trackId -> setLabels(trackId, ImmutableSet.of()));
          });
       });
@@ -191,7 +192,7 @@ public final class TrackLabelling {
          element.elements().forEach(trackElement -> {
             TrackId trackId = TrackId.fromIdString(dataFile.getRawFileConfiguration(), trackElement.attributeValue(XML_ID));
             ImmutableSet<String> labels = trackElement.elements().stream()
-                  .map(labelElement -> labelElement.getText().intern())
+                  .map(labelElement -> Utils.intern(labelElement.getText()))
                   .collect(ImmutableSet.toImmutableSet());
             trackIdToLabels.put(trackId, labels);
          });

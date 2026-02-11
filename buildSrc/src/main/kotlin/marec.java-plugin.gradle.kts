@@ -19,12 +19,6 @@ repositories {
 dependencies {
    testImplementation(Libraries.junit_api)
    Libraries.junit_runtime.forEach { testRuntimeOnly(it) }
-
-   modules {
-      module("org.hibernate:hibernate-core") { // Used by hibernate-c3p0
-         replacedBy("org.hibernate:hibernate-core-jakarta")
-      }
-   }
 }
 
 val marecBuild = extensions.getByType<MarecBuildExtension>()
@@ -39,7 +33,7 @@ tasks.withType<Javadoc>().configureEach {
    options {
       this as StandardJavadocDocletOptions // Needed since `bottom` is not part of `MinimalJavadocOptions`.
       bottom = "Copyright © ${marecBuild.properties.buildYear} NORCE Research AS."
-      addStringOption("Xdoclint:all,-missing", "-quiet") // todo: fix all doclint issues
+      addBooleanOption("Xdoclint:all,-missing", true) // todo: fix all doclint issues
    }
 }
 
@@ -68,4 +62,9 @@ tasks.test {
    maxHeapSize = "1024m"
    systemProperty("java.util.prefs.PreferencesFactory", "no.imr.tools.InMemoryPreferencesFactory")
    systemProperty("java.util.logging.config.class", "no.imr.tools.logging.LogConfig")
+   jvmArgs(
+      "--enable-native-access=ALL-UNNAMED",
+      "-XX:-UseGCOverheadLimit",
+      "-XX:-OmitStackTraceInFastThrow",
+   )
 }

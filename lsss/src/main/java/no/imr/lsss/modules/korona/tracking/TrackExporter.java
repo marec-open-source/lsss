@@ -1,6 +1,5 @@
 package no.imr.lsss.modules.korona.tracking;
 
-import com.fasterxml.jackson.databind.ObjectWriter;
 import no.imr.korona.computation.tracking.data.Measurement;
 import no.imr.korona.computation.tracking.impl.StationaryPositionFunction;
 import no.imr.korona.data.datamanager.DataFileSet;
@@ -23,6 +22,7 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.range.FloatRangeBuilder;
 import no.imr.tools.range.FloatRangeSet;
 import no.imr.tools.range.RangeSet;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -117,14 +117,14 @@ public final class TrackExporter extends StreamingExporter {
          Ping ping = dataFileSet.getPing(pingIndex);
          FloatRangeSet depthRanges = getDepthRanges(selectedRegions, ping, channel);
 
-         for (TrackBorder trackBorder : Utils.asIterable(trackInfoModule.getTrackEditing().getTrackBorders(ping, channel))) {
+         trackInfoModule.getTrackEditing().getTrackBorders(ping, channel).forEach(trackBorder -> {
             DatabaseTime databaseTime = new DatabaseTime(pingIndex.getTimeInMillis());
             TrackId trackId = trackBorder.trackId();
             TrackAccumulator trackAccumulator = trackMap.get(trackId);
             if (trackAccumulator == null) {
                TrackInfo trackInfo = trackInfoModule.getTrackInfos().get(trackId);
                if (trackInfo == null || !visiblePingRangeSet.containsAll(trackInfo.pingRange())) {
-                  continue;
+                  return;
                }
                trackAccumulator = new TrackAccumulator(trackInfo.pingRange());
                trackMap.put(trackId, trackAccumulator);
@@ -137,7 +137,7 @@ public final class TrackExporter extends StreamingExporter {
                   trackAccumulator.writePerTrack(perTrackOut, ping, trackId, channel);
                }
             }
-         }
+         });
       }
    }
 

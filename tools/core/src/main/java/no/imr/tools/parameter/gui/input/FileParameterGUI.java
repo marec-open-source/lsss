@@ -47,7 +47,7 @@ public final class FileParameterGUI extends ParameterGUI<FileParameter> {
       super(parameter, guiConfig);
 
       textField = new ParameterTextField(parameter, guiConfig);
-      textField.getComponent().addMouseListener(new PopupMenuMouseListener(e -> makePopupMenu()));
+      textField.getComponent().addMouseListener(new PopupMenuMouseListener(_ -> makePopupMenu()));
       /* todo: See ticket #677. Setting transfer handler disabled copy / paste.
       textField.getComponent().setTransferHandler(new FileListTransferHandler() {
          @Override
@@ -59,17 +59,17 @@ public final class FileParameterGUI extends ParameterGUI<FileParameter> {
       });
       */
 
-      browseButton.addActionListener(e -> browse());
+      browseButton.addActionListener(_ -> browse());
 
       createButton.setVisible(false);
       createButton.setMargin(new Insets(1, 1, 1, 1));
       createButton.setBackground(ColorUtils.LEMONCHIFFON);
       createButton.setToolTipText("Directory does not exist!");
-      createButton.addActionListener(e -> createDirectory());
+      createButton.addActionListener(_ -> createDirectory());
 
       editor = getParameter().getEditor();
       if (editor != null) {
-         editButton.addActionListener(e -> {
+         editButton.addActionListener(_ -> {
             boolean editable = getGUIConfig().isParameterEnabled(getParameter());
             if (getParameter().exists()) {
                editor.edit(editButton, editable);
@@ -224,13 +224,13 @@ public final class FileParameterGUI extends ParameterGUI<FileParameter> {
 
          JMenuItem copyItem = MiscIcons.COPY.on(menu.add("Copy"));
          copyItem.setEnabled(enabled);
-         copyItem.addActionListener(e -> {
+         copyItem.addActionListener(_ -> {
             copier.copy(textField.getComponent());
          });
 
          JMenuItem moveItem = menu.add("Move");
          moveItem.setEnabled(enabled);
-         moveItem.addActionListener(e -> {
+         moveItem.addActionListener(_ -> {
             copier.move(textField.getComponent());
          });
       }

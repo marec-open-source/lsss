@@ -5,7 +5,7 @@ import no.imr.tools.range.FloatRange;
 import java.nio.ByteBuffer;
 
 public final class TBR0Datagram extends DatagramPingItem implements TrackPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("TBR0", TBR0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("TBR0", TBR0Datagram::new);
 
    private final int id;
    private int channel;

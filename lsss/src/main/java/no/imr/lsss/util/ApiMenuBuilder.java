@@ -81,7 +81,7 @@ public final class ApiMenuBuilder {
       JMenuItem item = menu.add(path);
       item.setEnabled(enabled);
       String url = baseUrl + path;
-      item.addActionListener(e -> openUrl(url));
+      item.addActionListener(_ -> openUrl(url));
       item.setToolTipText(url);
       return this;
    }
@@ -91,12 +91,12 @@ public final class ApiMenuBuilder {
       LsssServerConf lsssServerConf = configurationManager.getAppMiscConf().getLsssServerConf();
       if (!lsssServerConf.getLsssServerPluginEnabled()) {
          JOptionPane.showMessageDialog(referenceComponent, "The LSSS server plugin is not enabled.");
-         configurationManager.showDialog(configurationManager.getApplicationConfiguration().getPluginConf());
+         configurationManager.getApplicationConfiguration().getPluginConf().showInConfigurationDialog();
          return;
       }
       if (!lsssServerConf.serverActive.getBooleanValue()) {
          JOptionPane.showMessageDialog(referenceComponent, "The LSSS server is not started.");
-         configurationManager.showDialog(lsssServerConf);
+         lsssServerConf.showInConfigurationDialog();
          return;
       }
       GuiUtils.desktopBrowse(URI.create(url), referenceComponent);
@@ -107,13 +107,13 @@ public final class ApiMenuBuilder {
 
       JMenuItem docItem = MiscIcons.HELP.on(menu.add("Documentation"));
       String url = baseUrl + "/lsss/doc/commands.html";
-      docItem.addActionListener(e -> openUrl(url));
+      docItem.addActionListener(_ -> openUrl(url));
       docItem.setToolTipText(url);
    }
 
    public ApiMenuBuilder configurationUnitMenu(ConfigurationUnit configurationUnit) {
       return switch (configurationUnit) {
-         case ModuleConf __ -> {
+         case ModuleConf _ -> {
             yield item("/lsss/module");
          }
          case ModuleConfigurationUnit moduleConfigurationUnit -> {
@@ -202,7 +202,7 @@ public final class ApiMenuBuilder {
             Region region = echogramPoint != null ? echogramModule.getLSSS().getRegionManager().getRegion(echogramPoint) : null;
             regionsMenu(region);
          }
-         case InterpretationModule __ -> {
+         case InterpretationModule _ -> {
             databaseMenu();
          }
          default -> {
@@ -232,7 +232,7 @@ public final class ApiMenuBuilder {
 
    private void moduleSpecificItems(BaseLsssModule module) {
       switch (module) {
-         case ColorBarModule __ -> {
+         case ColorBarModule _ -> {
             separator()
                   .item("colormap")
                   .item("colormaps")
@@ -242,7 +242,7 @@ public final class ApiMenuBuilder {
                            .item("min");
                   });
          }
-         case EchogramModule __ -> {
+         case EchogramModule _ -> {
             separator()
                   .item("current-echogram-point")
                   .item("zoom")
@@ -295,11 +295,11 @@ public final class ApiMenuBuilder {
 
    private void surveyConfigSpecificItems(ConfigurationUnit configurationUnit) {
       switch (configurationUnit) {
-         case AcousticCategoryConf __ -> {
+         case AcousticCategoryConf _ -> {
             separator()
                   .item("category");
          }
-         case DataConf __ -> {
+         case DataConf _ -> {
             separator()
                   .item("files")
                   .subMenu("files/", filesBuilder -> {

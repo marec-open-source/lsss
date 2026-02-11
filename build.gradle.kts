@@ -6,7 +6,7 @@ buildscript {
 
 plugins {
    marec.`base-plugin`
-   id("com.github.ben-manes.versions") version "0.52.0"
+   id("com.github.ben-manes.versions") version "0.53.0"
 }
 
 repositories {
@@ -16,6 +16,7 @@ repositories {
 idea {
    module {
       excludeDirs.add(file("misc/node"))
+      excludeDirs.add(file("tmp"))
    }
 }
 

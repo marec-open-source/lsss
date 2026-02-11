@@ -6,7 +6,7 @@ final class ContrastingBlackOrWhiteMain {
    private ContrastingBlackOrWhiteMain() {
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SwingUtilities.invokeLater(() -> {
          new ContrastingColorDialog("Contrasting black or white", ColorUtils::contrastingBlackOrWhite);
       });

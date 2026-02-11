@@ -5,6 +5,7 @@ import no.imr.korona.resources.KoronaResource;
 import no.imr.korona.util.KoronaUtils;
 import no.imr.korona.viewer.KoronaHelpSystem;
 import no.imr.tools.Utils;
+import no.imr.tools.help.HelpSystem;
 import no.imr.tools.logging.Log;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.Document;
@@ -23,7 +24,7 @@ final class ModuleEditorMain {
     *
     * @param args specifies the configuration file (optional)
     */
-   public static void main(String[] args) {
+   static void main(String[] args) {
       Utils.init(args, KoronaResource.KORONA_64);
       SwingUtilities.invokeLater(() -> start(args));
    }
@@ -33,7 +34,7 @@ final class ModuleEditorMain {
       Log.global.info("Using " + cdsFile);
 
       Korona korona = new Korona();
-      KoronaHelpSystem.createHelpSystem(korona);
+      HelpSystem helpSystem = KoronaHelpSystem.createHelpSystem(korona);
       ModuleContainer moduleContainer = new ModuleContainer(korona);
       moduleContainer.getConfigFileSettings().restoreInstallationLocations();
       try {
@@ -62,5 +63,6 @@ final class ModuleEditorMain {
             Log.global.log(Level.WARNING, "Error writing " + cdsFile, e);
          }
       }
+      helpSystem.close();
    }
 }

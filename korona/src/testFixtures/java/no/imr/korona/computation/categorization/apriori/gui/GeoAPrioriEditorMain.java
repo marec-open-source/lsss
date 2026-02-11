@@ -22,7 +22,7 @@ final class GeoAPrioriEditorMain {
    private GeoAPrioriEditorMain() {
    }
 
-   public static void main(String[] args) {
+   static void main(String[] args) {
       Utils.init(args, KoronaResource.KORONA_64);
       SwingUtilities.invokeLater(GeoAPrioriEditorMain::run);
    }

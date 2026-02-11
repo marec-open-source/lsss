@@ -109,10 +109,10 @@ final class Display {
 
       JMenuItem changeDirectionItem = popupMenu.add("Change split direction");
       changeDirectionItem.setEnabled(echogramColorPanels.size() > 1);
-      changeDirectionItem.addActionListener(e -> multiSplitPane.changeSplitDirection());
+      changeDirectionItem.addActionListener(_ -> multiSplitPane.changeSplitDirection());
 
       JMenuItem resetSplittersItem = popupMenu.add("Reset splitters");
       resetSplittersItem.setEnabled(echogramColorPanels.size() > 1);
-      resetSplittersItem.addActionListener(e -> multiSplitPane.distributeEvenly());
+      resetSplittersItem.addActionListener(_ -> multiSplitPane.distributeEvenly());
    }
 }

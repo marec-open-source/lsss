@@ -120,7 +120,9 @@ public final class PingRange extends Range<PingIndex> implements no.marec.lsss.a
    }
 
    public boolean intersectsVesselDistanceRange(double beginVesselDistance, double endVesselDistance) {
-      return begin().getVesselDistance() < endVesselDistance && end().getVesselDistance() > beginVesselDistance;
+      double a = Math.max(begin().getVesselDistance(), beginVesselDistance);
+      double b = Math.min(end().getVesselDistance(), endVesselDistance);
+      return a < b;
    }
 
    public PingRange intersection(Range<PingIndex> pingRange) {

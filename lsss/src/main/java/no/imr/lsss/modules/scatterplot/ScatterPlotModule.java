@@ -259,7 +259,7 @@ public final class ScatterPlotModule extends BaseViewModule implements PojoDataC
    private ConfigFileSettings createConfigFileSettings() {
       try {
          return getConfigurationManager().getSurveyConfiguration().getPreprocessingConf().getMainSetup().createConfigFileSettings();
-      } catch (IOException e) {
+      } catch (IOException _) {
          return getLSSS().getKorona().createConfigFileSettings();
       }
    }

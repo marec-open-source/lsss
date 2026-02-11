@@ -142,7 +142,7 @@ public final class CTDDataModule extends BaseDataModule {
             for (int i = 0; i < row.length; i++) {
                row[i] = Float.parseFloat(parts[i]);
             }
-         } catch (NumberFormatException e) {
+         } catch (NumberFormatException _) {
             Log.global.warning("Error parsing values in CTD file " + file + ": " + line);
             continue;
          }

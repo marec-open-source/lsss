@@ -37,7 +37,7 @@ public final class LsssAccessImpl implements LsssAccess {
       echogram.setup();
    }
 
-   LSSS getLsss() {
+   LSSS getLSSS() {
       return lsss;
    }
 

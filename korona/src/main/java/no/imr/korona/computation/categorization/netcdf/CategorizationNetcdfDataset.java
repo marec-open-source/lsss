@@ -1,5 +1,6 @@
 package no.imr.korona.computation.categorization.netcdf;
 
+import no.imr.korona.computation.netcdf.NcAnnotation;
 import ucar.ma2.DataType;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFiles;
@@ -28,16 +29,16 @@ final class CategorizationNetcdfDataset {
       dataset = NetcdfFiles.open(ncFile.toString());
 
       try {
-         Variable pingTimeVar = findVariable("ping_time");
+         Variable pingTimeVar = findVariable(NcAnnotation.PING_TIME);
          ncTimeVariable = new NcTimeVariable(pingTimeVar);
 
-         Variable rangeVar = findVariable("range");
+         Variable rangeVar = findVariable(NcAnnotation.RANGE);
          ranges = (double[]) rangeVar.read().get1DJavaArray(DataType.DOUBLE);
 
-         Variable categoryVar = findVariable("category");
+         Variable categoryVar = findVariable(NcAnnotation.CATEGORY);
          categories = (int[]) categoryVar.read().get1DJavaArray(DataType.INT);
 
-         annotationVar = findVariable("annotation");
+         annotationVar = findVariable(NcAnnotation.ANNOTATION);
 
       } catch (Exception e) {
          try {

@@ -31,7 +31,7 @@ abstract class BaseLine {
    static int parseInt(String string, int defaultValue) {
       try {
          return parseInt(string);
-      } catch (Exception e) {
+      } catch (Exception _) {
          return defaultValue;
       }
    }
@@ -39,7 +39,7 @@ abstract class BaseLine {
    static double parseDouble(String string, double defaultValue) {
       try {
          return Double.parseDouble(string.trim());
-      } catch (Exception e) {
+      } catch (Exception _) {
          return defaultValue;
       }
    }

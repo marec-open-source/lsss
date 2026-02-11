@@ -18,7 +18,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class ChannelDataSampleFunction extends PingFunction {
-   private static final ComputeFunction COMPUTE_FUNCTION_NAN = (ping, channel) -> Double.NaN;
+   private static final ComputeFunction COMPUTE_FUNCTION_NAN = (_, _) -> Double.NaN;
 
    private final ComputeFunctionForChannelData computeFunctionForChannelData;
    private ComputeFunction computeFunction = COMPUTE_FUNCTION_NAN;

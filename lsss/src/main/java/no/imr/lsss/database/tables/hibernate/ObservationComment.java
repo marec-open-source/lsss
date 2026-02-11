@@ -1,11 +1,35 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "survey",
+      "observationDate",
+      "observationTime",
+      "observationType",
+
+      // Properties:
+      "standardComment",
+      "mantissa",
+      "exp",
+      "text",
+})
 public class ObservationComment implements BaseSurveyObject<ObservationPK> {
    private ObservationPK compId;
 
@@ -20,6 +44,10 @@ public class ObservationComment implements BaseSurveyObject<ObservationPK> {
    private StandardComment referencedStandardComment;
 
    public ObservationComment() {
+   }
+
+   public ObservationComment(ObservationPK compId) {
+      this.compId = compId;
    }
 
    public ObservationComment(ObservationPK compId, int standardComment, int mantissa, int exp, String text) {
@@ -65,6 +93,7 @@ public class ObservationComment implements BaseSurveyObject<ObservationPK> {
       this.exp = exp;
    }
 
+   @Column(length = 200)
    public String getText() {
       return text;
    }
@@ -73,6 +102,16 @@ public class ObservationComment implements BaseSurveyObject<ObservationPK> {
       this.text = DatabaseUtils.nullToEmpty(text);
    }
 
+   @OneToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "survey", referencedColumnName = "survey"),
+         @JoinColumn(name = "observationDate", referencedColumnName = "observationDate"),
+         @JoinColumn(name = "observationTime", referencedColumnName = "observationTime"),
+         @JoinColumn(name = "observationType", referencedColumnName = "observationType")
+   })
    public Observation getObservation() {
       return observation;
    }
@@ -81,6 +120,13 @@ public class ObservationComment implements BaseSurveyObject<ObservationPK> {
       this.observation = observation;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "standardComment", referencedColumnName = "standardComment")
+   })
    public StandardComment getReferencedStandardComment() {
       return referencedStandardComment;
    }

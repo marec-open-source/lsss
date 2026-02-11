@@ -1,6 +1,15 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -9,6 +18,14 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "area",
+
+      // Properties:
+      "areaName",
+})
 public class Area implements BaseNationObject<AreaPK>, Comparable<Area> {
    private AreaPK compId;
 
@@ -42,6 +59,7 @@ public class Area implements BaseNationObject<AreaPK>, Comparable<Area> {
       this.compId = compId;
    }
 
+   @Column(length = 80)
    public String getAreaName() {
       return areaName;
    }
@@ -50,6 +68,7 @@ public class Area implements BaseNationObject<AreaPK>, Comparable<Area> {
       this.areaName = DatabaseUtils.nullToEmpty(areaName);
    }
 
+   @OneToMany(mappedBy = "area")
    public Set<AreaOfAcousticCategory> getAreaOfAcousticCategory() {
       return areaOfAcousticCategory;
    }
@@ -58,6 +77,11 @@ public class Area implements BaseNationObject<AreaPK>, Comparable<Area> {
       this.areaOfAcousticCategory = areaOfAcousticCategory;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation")
+   })
    public Nation getNation() {
       return nation;
    }

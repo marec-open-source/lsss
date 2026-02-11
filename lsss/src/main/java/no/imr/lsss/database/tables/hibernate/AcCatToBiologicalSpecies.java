@@ -1,10 +1,27 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import no.imr.tools.database.ColumnOrder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "acousticCategory",
+      "biologicalSpecies",
+
+      // Properties:
+      // <none>
+})
 public class AcCatToBiologicalSpecies implements BasePlatformObject<AcCatToBiologicalSpeciesPK> {
    private AcCatToBiologicalSpeciesPK compId;
 
@@ -33,6 +50,12 @@ public class AcCatToBiologicalSpecies implements BasePlatformObject<AcCatToBiolo
       this.compId = compId;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "biologicalSpecies", referencedColumnName = "biologicalSpecies")
+   })
    public BiologicalSpecies getBiologicalSpecies() {
       return biologicalSpecies;
    }
@@ -41,6 +64,13 @@ public class AcCatToBiologicalSpecies implements BasePlatformObject<AcCatToBiolo
       this.biologicalSpecies = biologicalSpecies;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "acousticCategory", referencedColumnName = "acousticCategory")
+   })
    public AcousticCategory getAcousticCategory() {
       return acousticCategory;
    }

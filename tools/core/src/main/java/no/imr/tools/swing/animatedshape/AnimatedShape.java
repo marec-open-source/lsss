@@ -12,7 +12,7 @@ public final class AnimatedShape {
 
    public AnimatedShape(Repaintable repaintable, AnimatedRendered animatedRendered) {
       this.animatedRendered = animatedRendered;
-      timer = new Timer(100, e -> {
+      timer = new Timer(100, _ -> {
          animatedRendered.update();
          repaintable.repaint();
       });

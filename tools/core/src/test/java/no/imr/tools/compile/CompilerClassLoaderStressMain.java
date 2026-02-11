@@ -8,7 +8,7 @@ final class CompilerClassLoaderStressMain {
    private CompilerClassLoaderStressMain() {
    }
 
-   public static void main(String[] args) throws CompileException {
+   static void main() throws CompileException {
       // For verifying that dynamically loaded classes get garbage collected.
 
       Map<Object, Boolean> map = new WeakHashMap<>();

@@ -15,8 +15,7 @@ import no.imr.tools.database.JavaDBConnection;
 import no.imr.tools.database.JavaDBUtils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import no.imr.tools.database.queries.FetchQuery;
-import no.imr.tools.database.queries.SaveQuery;
-import no.imr.tools.database.queries.UpdateQuery;
+import no.imr.tools.database.queries.StatelessDatabaseQuery;
 import no.imr.tools.io.FilePredicates;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
@@ -171,7 +170,7 @@ public final class DatabaseImporter {
       statusListener.accept("Checking surveys to import");
       List<Survey> surveysToDelete = new ArrayList<>();
       List<Survey> surveysToImport = new ArrayList<>();
-      for (Survey survey : source.executeFetchQuery(new FetchQuery<>(Survey.class))) {
+      for (Survey survey : source.executeFetchQuery(LsssQuery.fetch(Survey.class))) {
          List<Survey> existingSurveys = destination.executeFetchQuery(LsssQuery.fetch(Survey.class, survey));
          if (existingSurveys.isEmpty()) {
             surveysToImport.add(survey);
@@ -219,13 +218,13 @@ public final class DatabaseImporter {
    }
 
    private <T extends BaseDatabaseObject> boolean doImportTable(DatabaseConnection source, DatabaseConnection destination, Class<T> clazz) {
-      FetchQuery<T> fetchQuery = new FetchQuery<>(clazz);
+      FetchQuery<T> fetchQuery = LsssQuery.fetch(clazz);
       Map<Object, T> destinationObjects = destination.executeFetchQuery(fetchQuery).stream()
             .collect(Collectors.toMap(BaseDatabaseObject::primaryKey, Function.identity()));
       for (T sourceObject : source.executeFetchQuery(fetchQuery)) {
          T destinationObject = destinationObjects.get(sourceObject.primaryKey());
          if (destinationObject == null) {
-            destination.executeQuery(new SaveQuery(sourceObject));
+            destination.executeStatelessQuery(StatelessDatabaseQuery.insert(sourceObject));
             continue;
          }
          if (destinationObject.equals(sourceObject)) {
@@ -256,7 +255,7 @@ public final class DatabaseImporter {
          if (answer == 0) {
             // Keep existing => do nothing
          } else if (answer == 1) {
-            destination.executeQuery(new UpdateQuery(sourceObject));
+            destination.executeStatelessQuery(StatelessDatabaseQuery.update(sourceObject));
          } else {
             return false;
          }

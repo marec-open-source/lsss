@@ -7,13 +7,13 @@ import ucar.nc2.write.NetcdfFormatWriter;
 import java.io.IOException;
 
 abstract class ChannelGroupOutputWriter {
-   final NcChannelGroupWriter ncChannelGroupWriter;
+   final NcGridWriter ncGridWriter;
    final NetcdfFormatWriter writer;
    final int channel;
 
-   ChannelGroupOutputWriter(NcChannelGroupWriter ncChannelGroupWriter, ChannelGroupOutputBuilder channelGroupOutputBuilder) {
-      this.ncChannelGroupWriter = ncChannelGroupWriter;
-      writer = ncChannelGroupWriter.getWriter();
+   ChannelGroupOutputWriter(NcGridWriter ncGridWriter, ChannelGroupOutputBuilder channelGroupOutputBuilder) {
+      this.ncGridWriter = ncGridWriter;
+      writer = ncGridWriter.getWriter();
       channel = channelGroupOutputBuilder.channel;
    }
 

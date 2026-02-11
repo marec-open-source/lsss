@@ -145,13 +145,6 @@ public final class FloatRange implements no.marec.lsss.api.util.FloatRange {
       return of(newMin, newMax);
    }
 
-   public boolean touches(FloatRange range) {
-      if (range.isEmpty()) {
-         return false;
-      }
-      return max >= range.min && range.max >= min;
-   }
-
    /**
     * Clamps a value to the closure of this range.
     *

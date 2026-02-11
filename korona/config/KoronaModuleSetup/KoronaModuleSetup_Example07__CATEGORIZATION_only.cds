@@ -109,6 +109,8 @@ and finally the last. The last one is C1 ("channel 1") that always exist. This m
       <module name="ExpressionModule">
          <parameters>
             <parameter name="Active">true</parameter>
+            <parameter name="ChannelID"/>
+            <parameter name="Frequency"/>
             <parameter name="Expression">
                <value>(C1+C2+C3+C4)/4</value>
                <value>(C1+C2+C3)/3</value>
@@ -125,6 +127,10 @@ and finally the last. The last one is C1 ("channel 1") that always exist. This m
             <parameter name="MinDepth">10</parameter>
             <parameter name="MaxDepth"/>
             <parameter name="Threshold">-62</parameter>
+            <parameter name="FillHoles">true</parameter>
+            <parameter name="FillVerticalGaps"/>
+            <parameter name="FillHorizontalGaps"/>
+            <parameter name="BoundarySmoothingIterations"/>
             <parameter name="Density">
                <parameter name="min">-120</parameter>
                <parameter name="max">-20</parameter>
@@ -149,7 +155,6 @@ and finally the last. The last one is C1 ("channel 1") that always exist. This m
                <parameter name="min"/>
                <parameter name="max"/>
             </parameter>
-            <parameter name="FillHoles">true</parameter>
          </parameters>
       </module>
       <module name="TemporaryComputationsEndModule">

@@ -7,6 +7,7 @@ import no.imr.lsss.database.ices.IcesAcousticMetadata;
 import no.imr.lsss.database.tables.hibernate.Survey;
 import no.imr.lsss.database.tables.hibernate.SurveyInfo;
 import no.imr.tools.database.DatabaseConnection;
+import no.imr.tools.database.queries.QueryBuilder;
 import no.imr.tools.logging.Log;
 import no.imr.tools.xml.XmlUtils;
 import org.jspecify.annotations.Nullable;
@@ -24,18 +25,27 @@ public final class IcesUtils {
    private IcesUtils() {
    }
 
-   static void acousticMetadataToDatabase(DatabaseConnection databaseConnection, Survey survey, IcesAcousticMetadata icesAcousticMetadata) {
-      String infoValue = XmlUtils.toCompactString(icesAcousticMetadata.toXml());
-      List<SurveyInfo> surveyInfos = LsssDatabaseUtils.toSurveyInfos(survey.getCompId(), SURVEY_INFO_KEY, infoValue);
-      databaseConnection.executeQuery(session -> {
-         LsssQuery.delete(SurveyInfo.class, survey, DatabaseData.INFO_KEY, SURVEY_INFO_KEY).execute(session);
-         surveyInfos.forEach(session::save);
+   static void acousticMetadataStringToDatabase(DatabaseConnection databaseConnection, Survey survey, String acousticMetadata) {
+      List<SurveyInfo> surveyInfos = LsssDatabaseUtils.toSurveyInfos(survey.getCompId(), SURVEY_INFO_KEY, acousticMetadata);
+      databaseConnection.executeStatelessQuery(session -> {
+         LsssQuery.forSurvey(QueryBuilder.delete(SurveyInfo.class), survey.getCompId()).and()
+               .eq(DatabaseData.INFO_KEY, SURVEY_INFO_KEY)
+               .build()
+               .execute(session);
+         session.insertMultiple(surveyInfos);
       });
    }
 
+   static String acousticMetadataStringFromDatabase(DatabaseConnection databaseConnection, Survey survey) {
+      List<SurveyInfo> surveyInfos = databaseConnection.executeFetchQuery(
+            LsssQuery.forSurvey(QueryBuilder.fetch(SurveyInfo.class), survey.getCompId()).and()
+                  .eq(DatabaseData.INFO_KEY, SURVEY_INFO_KEY)
+                  .build());
+      return LsssDatabaseUtils.fromSurveyInfos(surveyInfos);
+   }
+
    public static @Nullable IcesAcousticMetadata acousticMetadataFromDatabase(DatabaseConnection databaseConnection, Survey survey) {
-      List<SurveyInfo> surveyInfos = databaseConnection.executeFetchQuery(LsssQuery.fetch(SurveyInfo.class, survey.getCompId(), DatabaseData.INFO_KEY, SURVEY_INFO_KEY));
-      String xml = LsssDatabaseUtils.fromSurveyInfos(surveyInfos);
+      String xml = acousticMetadataStringFromDatabase(databaseConnection, survey);
       if (xml.isEmpty()) {
          return null;
       }

@@ -119,7 +119,7 @@ final class RecentlyOpenedSurveys {
                      if (nonExistentFiles.isEmpty()) {
                         menu.addSeparator();
                         JMenuItem clearNonExistentItem = MiscIcons.DELETE.on(menu.add("Clear non-existent entries"));
-                        clearNonExistentItem.addActionListener(ae -> {
+                        clearNonExistentItem.addActionListener(_ -> {
                            getApplicableFiles().removeAll(nonExistentFiles);
                            updateMenuEnabling();
                            savePreference();
@@ -130,7 +130,7 @@ final class RecentlyOpenedSurveys {
                }
             }
          });
-         fileItem.addActionListener(e -> {
+         fileItem.addActionListener(_ -> {
             if (surveyManager.isUnmodifiedOrUserApproved()) {
                surveyManager.open(file);
             }
@@ -142,7 +142,7 @@ final class RecentlyOpenedSurveys {
       } else {
          menu.addSeparator();
          JMenuItem clearListItem = MiscIcons.DELETE.on(menu.add("Clear list"));
-         clearListItem.addActionListener(e -> {
+         clearListItem.addActionListener(_ -> {
             getApplicableFiles().clear();
             updateMenuEnabling();
             savePreference();

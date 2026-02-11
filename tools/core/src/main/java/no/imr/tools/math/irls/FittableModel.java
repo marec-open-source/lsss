@@ -23,15 +23,15 @@ public interface FittableModel {
     */
    default double computeEffectiveSampleVariance(List<WeightedObservation> observations) {
       int nonZeroWeights = 0;
-      double var = 0;
+      double residualSqSum = 0;
       for (WeightedObservation weightedObservation : observations) {
          if (weightedObservation.getWeight() > Double.MIN_VALUE) {
             nonZeroWeights++;
             Observation observation = weightedObservation.getObservation();
             double residual = evaluate(observation.x()) - observation.y();
-            var += residual * residual;
+            residualSqSum += residual * residual;
          }
       }
-      return nonZeroWeights > 1 ? var / (nonZeroWeights - 1) : 0;
+      return nonZeroWeights > 1 ? residualSqSum / (nonZeroWeights - 1) : 0;
    }
 }

@@ -11,7 +11,7 @@ public interface Function1D {
    }
 
    static Function1D constant(double y) {
-      return x -> y;
+      return _ -> y;
    }
 
    static Function1D linear(double x0, double y0, double dyDx) {

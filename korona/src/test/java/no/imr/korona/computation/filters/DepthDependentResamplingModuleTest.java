@@ -4,6 +4,7 @@ import no.imr.korona.Korona;
 import no.imr.korona.computation.ModuleContainer;
 import no.imr.korona.computation.ModuleContainerComputation;
 import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.items.channel.PowerData;
@@ -28,7 +29,7 @@ final class DepthDependentResamplingModuleTest {
             powerData.setSv(sv.clone());
          }
       };
-      syntheticData.setFirstAndLastPingNumber(1, 1);
+      SyntheticDataFile syntheticDataFile = syntheticData.withFirstAndLastPingNumber(1, 1);
 
       ModuleContainer moduleContainer = new ModuleContainer(new Korona());
 
@@ -36,7 +37,7 @@ final class DepthDependentResamplingModuleTest {
       module.minFrequency.setFloatValue(38);
       module.sampleDistanceAtRange100.setFloatValue(10);
 
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticData.toPingReader())) {
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
          Ping ping = computation.nextPing();
          assertNotNull(ping);
 

@@ -67,17 +67,14 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
-import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.Instant;
@@ -142,7 +139,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
       acousticCategoryButtons = new AcousticCategoryButtons(lsss, interpretationManager);
 
       interpretationTableModel = new InterpretationTableModel(lsss, interpretationManager, acousticCategoryButtons, InterpretationTableModel.ValueType.SA);
-      interpretationTableModel.addTableModelListener(e -> updateStatusTable());
+      interpretationTableModel.addTableModelListener(_ -> updateStatusTable());
       interpretationTable = new InterpretationTable(interpretationTableModel);
 
       JPanel leftPanel = new JPanel(new BorderLayout());
@@ -252,11 +249,11 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
 
    private JComponent createStoreButtonsPanel() {
       storeButton.setMargin(EMPTY_INSETS);
-      storeButton.addActionListener(e -> storeButtonPressed());
+      storeButton.addActionListener(_ -> storeButtonPressed());
       addMouseInsideListener(storeButton, module::setMouseOverStoreButton);
 
       deleteButton.setMargin(EMPTY_INSETS);
-      deleteButton.addActionListener(e -> deleteButtonPressed());
+      deleteButton.addActionListener(_ -> deleteButtonPressed());
       addMouseInsideListener(deleteButton, module::setMouseOverDeleteButton);
 
       nbPanel.setBackground(BACKGROUND_COLOR);
@@ -293,11 +290,11 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
       JMenuItem editItem = MiscIcons.EDIT.on(popupMenu.add("Edit storing settings..."));
       editItem.setToolTipText("Edit the storing settings saved in work files");
       editItem.setEnabled(module.canStoreSaved());
-      editItem.addActionListener(e -> editDatabaseStoringSettings());
+      editItem.addActionListener(_ -> editDatabaseStoringSettings());
 
       JMenuItem deleteByTimeItem = MiscIcons.DELETE.on(popupMenu.add("Delete time range from database..."));
       deleteByTimeItem.setEnabled(!lsss.getInterpretationSummary().getScatterSet().isEmpty());
-      deleteByTimeItem.addActionListener(e -> deleteByTime());
+      deleteByTimeItem.addActionListener(_ -> deleteByTime());
 
       if (LsssIncubatorFeatureToggles.AUTOMATIC_INTERPRETATION) {
          popupMenu.addSeparator();
@@ -306,12 +303,12 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
 
          JMenuItem automaticRegionDefinitionItem = MiscIcons.UNDO.on(popupMenu.add("Automatic region definition"));
          automaticRegionDefinitionItem.setEnabled(!lsss.getInterpretationSettings().getPingRange().isEmpty());
-         automaticRegionDefinitionItem.addActionListener(e -> new AutomaticRegionDefinition(lsss).run(mainPanel));
+         automaticRegionDefinitionItem.addActionListener(_ -> new AutomaticRegionDefinition(lsss).run(mainPanel));
 
          JMenuItem automaticAssignmentsItem = LsssIcons.KORONA.on(popupMenu.add("Automatic assignments of selected regions on selected channels"));
          automaticAssignmentsItem.setToolTipText("Uses KORONA categorization to assign acoustic categories");
          automaticAssignmentsItem.setEnabled(!lsss.getInterpretationSettings().getPingRange().isEmpty());
-         automaticAssignmentsItem.addActionListener(e -> doAutomaticAssignments());
+         automaticAssignmentsItem.addActionListener(_ -> doAutomaticAssignments());
       }
    }
 
@@ -327,7 +324,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
       List<RawFileTransducer> transducers = lsss.getInterpretationSettings().getDataFileSet().getRawFileConfiguration().getTransducers();
       for (RawFileTransducer transducer : transducers) {
          JCheckBox checkBox = new JCheckBox(String.valueOf(transducer.getKHz()));
-         checkBox.addActionListener(e -> {
+         checkBox.addActionListener(_ -> {
             boolean any = frequencyCheckBoxes.stream().anyMatch(AbstractButton::isSelected);
             frequencyKeep.setSelected(!any);
             frequencyEdit.setSelected(any);
@@ -335,7 +332,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
          frequencyPanel.add(checkBox);
          frequencyCheckBoxes.add(checkBox);
       }
-      frequencyKeep.addActionListener(e -> {
+      frequencyKeep.addActionListener(_ -> {
          frequencyCheckBoxes.forEach(checkBox -> checkBox.setSelected(false));
       });
       GuiUtils.createButtonGroup(frequencyKeep, frequencyEdit);
@@ -516,7 +513,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
             checkBox.setToolTipText("Also store/delete " + storeTask.getLongLabel());
             checkBox.setBackground(BACKGROUND_COLOR);
             checkBox.setMargin(EMPTY_INSETS);
-            checkBox.addActionListener(e -> storeTask.setActive(checkBox.isSelected()));
+            checkBox.addActionListener(_ -> storeTask.setActive(checkBox.isSelected()));
             qualityPanel.add(checkBox);
          }
       }
@@ -530,7 +527,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
       radioButton.setToolTipText(toolTipText);
       radioButton.setBackground(BACKGROUND_COLOR);
       radioButton.setMargin(EMPTY_INSETS);
-      radioButton.addActionListener(e -> module.setQuality(qualityEnum));
+      radioButton.addActionListener(_ -> module.setQuality(qualityEnum));
       return radioButton;
    }
 
@@ -559,7 +556,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
          JButton button = new JButton(sizeString);
          button.setMargin(EMPTY_INSETS);
          button.setBackground(BACKGROUND_COLOR);
-         button.addActionListener(e -> lsss.getInterpretationSettings().gotoPreferredSize(size));
+         button.addActionListener(_ -> lsss.getInterpretationSettings().gotoPreferredSize(size));
          button.setToolTipText("Adjust horizontal size to " + sizeString);
          button.setEnabled(!lsss.getInterpretationSettings().getDataFileSet().isEmpty());
          segmentButtonsPanel.add(button);
@@ -577,13 +574,13 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
       List<String> tooltips = new ArrayList<>();
       List<Consumer<JPopupMenu>> popupMenuItems = new ArrayList<>();
 
-      if (!gridConf.doesSchoolGridEventlyDivideEchogramGrid()) {
+      if (!gridConf.doesSchoolGridEvenlyDivideEchogramGrid()) {
          tooltips.add("Horizontal size of the <b>school grid</b> does not evenly divide the <b>echogram grid</b>"
                + "<br>Parts of schools may not be stored to the database");
          popupMenuItems.add(menu -> {
             JMenuItem item = menu.add("Edit grid sizes...");
-            item.addActionListener(e -> {
-               lsss.getConfigurationManager().showDialog(gridConf);
+            item.addActionListener(_ -> {
+               gridConf.showInConfigurationDialog();
             });
          });
       }
@@ -593,7 +590,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
                + "<br>differs from echogram ping mapping <b>" + interpretationSettings.getPingMapping() + "</b>");
          popupMenuItems.add(menu -> {
             JMenuItem item = menu.add("Set echogram ping mapping to " + gridPingMapping);
-            item.addActionListener(e -> {
+            item.addActionListener(_ -> {
                interpretationSettings.setPingMapping(gridPingMapping);
             });
          });
@@ -607,7 +604,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
             tooltips.add("Lower threshold differs from preferred lower threshold: " + preferredLowerThreshold + " dB");
             popupMenuItems.add(menu -> {
                JMenuItem item = menu.add("Set lower threshold to " + preferredLowerThreshold + " dB");
-               item.addActionListener(e -> {
+               item.addActionListener(_ -> {
                   lsss.getRegionManager().getThresholdManager().set(echogramPingRange, null, (float) preferredLowerThreshold, null);
                });
             });
@@ -620,7 +617,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
          tooltips.add("The echogram is zoomed vertically");
          popupMenuItems.add(menu -> {
             JMenuItem item = menu.add("Zoom echogram out vertically");
-            item.addActionListener(e -> {
+            item.addActionListener(_ -> {
                interpretationSettings.getPelagicZSettings().zoomOut();
                if (!surveyMiscConf.pelagicMode.getBooleanValue()) {
                   interpretationSettings.getBottomZSettings().zoomOut();
@@ -636,7 +633,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
          nbPanel.add(label);
          String tooltip = tooltips.stream().collect(Collectors.joining("<br><br>", "<html>", "<br><br>Right-click for options"));
          label.setToolTipText(tooltip);
-         label.addMouseListener(new PopupMenuMouseListener(mouseEvent -> {
+         label.addMouseListener(new PopupMenuMouseListener(_ -> {
             JPopupMenu menu = new JPopupMenu();
             popupMenuItems.forEach(item -> item.accept(menu));
             return menu;
@@ -691,7 +688,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
          frequencyPanel.add(toggleButtonKHz);
          toggleButtonKHz.setBackground(BACKGROUND_COLOR);
          toggleButtonKHz.setMargin(EMPTY_INSETS);
-         toggleButtonKHz.addActionListener(e -> {
+         toggleButtonKHz.addActionListener(_ -> {
             NavigableSet<Integer> storeKHz = new TreeSet<>(module.frequencies.getValue());
             if (toggleButtonKHz.isSelected()) {
                storeKHz.add(kHz);
@@ -751,7 +748,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
             insideListener.accept(false);
          }
       });
-      component.addHierarchyListener(e -> {
+      component.addHierarchyListener(_ -> {
          if (!component.isShowing()) {
             insideListener.accept(false);
          }
@@ -781,19 +778,7 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
          int width = getWidth();
          int height = getHeight();
          if (striped) {
-            Graphics2D g2d = (Graphics2D) g;
-            Stroke savedStroke = g2d.getStroke();
-            g2d.setStroke(GuiUtils.STROKE_3);
-            Composite savedComposite = g2d.getComposite();
-            g2d.setComposite(AlphaComposite.SrcOver.derive(0.6f));
-            g2d.setColor(BACKGROUND_COLOR);
-            g2d.fillRect(0, 0, width, height);
-            g2d.setColor(color);
-            for (int x = -9 * (height / 9); x < width; x += 9) {
-               g2d.drawLine(x, 0, x + height, height);
-            }
-            g2d.setStroke(savedStroke);
-            g2d.setComposite(savedComposite);
+            GuiUtils.renderSlopingLines((Graphics2D) g, width, height, BACKGROUND_COLOR, color);
          } else {
             g.setColor(isEnabled() ? color : BACKGROUND_COLOR);
             g.fillRect(0, 0, width, height);
@@ -979,15 +964,10 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
                      String name = "Bubble corr";
                      NavigableSet<Float> bubbleCorrections = lsss.getRegionManager().getBubbleCorrectionManager().getBubbleCorrections(lsss.getInterpretationSettings().getPingRange());
                      if (bubbleCorrections.size() > 1) {
-                        StringBuilder toolTipText = new StringBuilder("<html>Bubble corrections in visible area:<br>");
-                        int i = 0;
-                        for (float value : bubbleCorrections) {
-                           if (i++ > 0) {
-                              toolTipText.append(", ");
-                           }
-                           toolTipText.append(Utils.numberToString(value));
-                        }
-                        return new TableCellString.RenderSettings(name, toolTipText.toString(), MULTIPLE_VALUES_COLOR);
+                        String toolTipText = bubbleCorrections.stream()
+                              .map(Utils::numberToString)
+                              .collect(Collectors.joining(", ", "<html>Bubble corrections in visible area:<br>", ""));
+                        return new TableCellString.RenderSettings(name, toolTipText, MULTIPLE_VALUES_COLOR);
                      } else {
                         return name;
                      }

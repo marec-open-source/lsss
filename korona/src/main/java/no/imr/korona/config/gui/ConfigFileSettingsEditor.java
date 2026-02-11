@@ -156,7 +156,7 @@ public final class ConfigFileSettingsEditor {
       setEmptyToDefaultButton.setEnabled(editable);
       Path cfsFile = configFileSettings.getFile();
       setEmptyToDefaultButton.setToolTipText("Set default values relative to " + (cfsFile != null ? cfsFile.getParent() : "selected directory"));
-      setEmptyToDefaultButton.addActionListener(e -> {
+      setEmptyToDefaultButton.addActionListener(_ -> {
          Path referenceDir;
          if (cfsFile == null) {
             JFileChooser fileChooser = new JFileChooser();

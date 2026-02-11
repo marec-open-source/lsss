@@ -8,7 +8,6 @@ import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.datamanager.DataFileSetPingReader;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
-import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.CopyingPingReader;
 import no.imr.korona.region.Region;
@@ -150,8 +149,8 @@ final class KoronaExperimentationProcessor {
          return pingRange;
       }
       DataFileSet dataFileSet = sourceLsss.getInterpretationSettings().getDataFileSet();
-      PingIndex begin = dataFileSet.getClosestPingIndex(pingRange.begin().getPingNumber() - module.pingPadding.getIntValue(), PingMapping.NUMBER);
-      PingIndex end = dataFileSet.getClosestPingIndex(pingRange.end().getPingNumber() + module.pingPadding.getIntValue(), PingMapping.NUMBER);
+      PingIndex begin = dataFileSet.getPingIndexClamped(pingRange.begin().getPingNumber() - module.pingPadding.getIntValue());
+      PingIndex end = dataFileSet.getPingIndexClamped(pingRange.end().getPingNumber() + module.pingPadding.getIntValue());
       return PingRange.of(begin, end).intersection(sourceLsss.getInterpretationSettings().getPingRange());
    }
 

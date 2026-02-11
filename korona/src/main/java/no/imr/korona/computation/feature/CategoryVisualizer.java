@@ -77,9 +77,9 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics2D;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -95,11 +95,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.BiFunction;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
@@ -191,7 +193,7 @@ public final class CategoryVisualizer {
 
             setBackground(Color.WHITE);
 
-            addActionListener(e -> {
+            addActionListener(_ -> {
                if (categoryConfiguration.getVisibleNeighborhoods().contains(categoryNeighborhood)) {
                   categoryConfiguration.removeNeighborhood(categoryNeighborhood);
                } else {
@@ -199,7 +201,7 @@ public final class CategoryVisualizer {
                }
                redraw(true);
             });
-            addMouseListener(new PopupMenuMouseListener(e -> makeDeletePopupMenu()));
+            addMouseListener(new PopupMenuMouseListener(_ -> makeDeletePopupMenu()));
          }
 
          private JPopupMenu makeDeletePopupMenu() {
@@ -207,14 +209,14 @@ public final class CategoryVisualizer {
             setEnabled(!categoryNeighborhood.isDeleted());
             if (categoryNeighborhood.isDeleted()) {
                JMenuItem undelete = popup.add("undelete");
-               undelete.addActionListener(e -> {
+               undelete.addActionListener(_ -> {
                   categoryNeighborhood.setDeleted(false);
                   redraw(true);
                   makeDeletePopupMenu();
                });
             } else {
                JMenuItem delete = popup.add("delete");
-               delete.addActionListener(e -> {
+               delete.addActionListener(_ -> {
                   categoryNeighborhood.setDeleted(true);
                   redraw(true);
                   makeDeletePopupMenu();
@@ -256,7 +258,7 @@ public final class CategoryVisualizer {
       private void addThinnedNeighborhood(JComponent component) {
          JCheckBox cb = new JCheckBox("Thinned pointset", categoryConfiguration.isThinnedNeighborhoodVisible());
          cb.setBackground(Color.WHITE);
-         cb.addActionListener(e -> {
+         cb.addActionListener(_ -> {
             categoryConfiguration.setThinnedNeighborhoodVisible(!categoryConfiguration.isThinnedNeighborhoodVisible());
             redraw(true);
          });
@@ -270,7 +272,7 @@ public final class CategoryVisualizer {
       }
    }
 
-   private JCheckBox createCategoryCheckbox(Category category) {
+   private JCheckBox createCategoryCheckBox(Category category, Map<Category, JCheckBox> categoryToCheckBox) {
       CategoryConfiguration categoryConfiguration = categoryConfigMap.get(category);
       JCheckBox checkBox = new JCheckBox(showCategoryNames ? category.getName() : category.getLegend(), categoryConfiguration.isPlottable());
       HtmlStringBuilder tooltip = new HtmlStringBuilder()
@@ -282,33 +284,60 @@ public final class CategoryVisualizer {
       checkBox.setToolTipText(tooltip.build());
       checkBox.setForeground(category.getColor());
       checkBox.setBackground(Color.WHITE);
-      checkBox.addActionListener(e -> {
+      checkBox.addActionListener(_ -> {
          categoryConfiguration.setPlottable(checkBox.isSelected());
          redraw(true);
       });
-      checkBox.addMouseListener(new MouseAdapter() {
-         @Override
-         public void mousePressed(MouseEvent e) {
-            maybeShowPopup(e);
-         }
+      checkBox.addMouseListener(new PopupMenuMouseListener(e -> {
+         JPopupMenu menu = new JPopupMenu();
 
-         @Override
-         public void mouseReleased(MouseEvent e) {
-            maybeShowPopup(e);
-         }
-
-         private void maybeShowPopup(MouseEvent e) {
-            if (e.isPopupTrigger()) {
-               JDialog popup = categoryConfiguration.getPopup();
-               if (popup.isVisible()) {
-                  popup.setVisible(true);
-                  return;
+         BiFunction<Map<Category, CategoryConfiguration>, Boolean, ActionListener> setSelectedActionListener = (map, selected) -> {
+            return _ -> {
+               for (Category c : map.keySet()) {
+                  categoryToCheckBox.get(c).setSelected(selected);
+                  categoryConfigMap.get(c).setPlottable(selected);
                }
-               popup.setLocation(e.getX(), e.getY());
+               redraw(true);
+            };
+         };
+
+         JMenuItem allOffItem = menu.add("All off");
+         allOffItem.addActionListener(setSelectedActionListener.apply(categoryConfigMap, false));
+
+         JMenuItem allOnItem = menu.add("All on");
+         allOnItem.addActionListener(setSelectedActionListener.apply(categoryConfigMap, true));
+
+         menu.addSeparator();
+
+         JMenuItem allBeforeOffItem = menu.add("All before off");
+         allBeforeOffItem.addActionListener(setSelectedActionListener.apply(categoryConfigMap.headMap(category), false));
+
+         JMenuItem allBeforeOnItem = menu.add("All before on");
+         allBeforeOnItem.addActionListener(setSelectedActionListener.apply(categoryConfigMap.headMap(category), true));
+
+         menu.addSeparator();
+
+         JMenuItem allAfterOffItem = menu.add("All after off");
+         allAfterOffItem.addActionListener(setSelectedActionListener.apply(categoryConfigMap.tailMap(category), false));
+
+         JMenuItem allAfterOnItem = menu.add("All after on");
+         allAfterOnItem.addActionListener(setSelectedActionListener.apply(categoryConfigMap.tailMap(category), true));
+
+         menu.addSeparator();
+
+         JMenuItem showTrainingDataItem = menu.add("Show training data");
+         showTrainingDataItem.addActionListener(_ -> {
+            JDialog popup = categoryConfiguration.getPopup();
+            if (popup.isVisible()) {
                popup.setVisible(true);
+               return;
             }
-         }
-      });
+            popup.setLocation(e.getX(), e.getY());
+            popup.setVisible(true);
+         });
+
+         return menu;
+      }));
       return checkBox;
    }
 
@@ -417,7 +446,7 @@ public final class CategoryVisualizer {
 
    private @Nullable Category extractionCategory;
 
-   private final Map<Category, CategoryConfiguration> categoryConfigMap = new TreeMap<>((o1, o2) -> {
+   private final NavigableMap<Category, CategoryConfiguration> categoryConfigMap = new TreeMap<>((o1, o2) -> {
       if (o1 == o2) {
          return 0;
       }
@@ -660,7 +689,7 @@ public final class CategoryVisualizer {
 
       JComboBox<FrequencyMapping> xAxisComboBox = new JComboBox<>(FrequencyMapping.values());
       xAxisComboBox.setSelectedItem(frequencyMapping);
-      xAxisComboBox.addActionListener(e -> {
+      xAxisComboBox.addActionListener(_ -> {
          frequencyMapping = (FrequencyMapping) Objects.requireNonNull(xAxisComboBox.getSelectedItem());
          redraw(false);
       });
@@ -670,7 +699,7 @@ public final class CategoryVisualizer {
 
       JComboBox<FrequencyResponseAxis> yAxisComboBox = new JComboBox<>(FrequencyResponseAxis.values());
       yAxisComboBox.setSelectedItem(frequencyResponseAxis);
-      yAxisComboBox.addActionListener(e -> {
+      yAxisComboBox.addActionListener(_ -> {
          frequencyResponseAxis = (FrequencyResponseAxis) Objects.requireNonNull(yAxisComboBox.getSelectedItem());
          redraw(false);
       });
@@ -681,7 +710,7 @@ public final class CategoryVisualizer {
       JCheckBox drawConfidenceIntervalsCheckBox = new JCheckBox("Draw confidence intervals", drawConfidenceIntervals);
       drawConfidenceIntervalsCheckBox.setBackground(Color.WHITE);
       drawConfidenceIntervalsCheckBox.setSelected(drawConfidenceIntervals);
-      drawConfidenceIntervalsCheckBox.addActionListener(e -> {
+      drawConfidenceIntervalsCheckBox.addActionListener(_ -> {
          drawConfidenceIntervals = drawConfidenceIntervalsCheckBox.isSelected();
          redraw(false);
       });
@@ -713,7 +742,7 @@ public final class CategoryVisualizer {
       JRadioButton button = new JRadioButton(text);
       button.setSelected(distributionLevel == level);
       button.setBackground(Color.WHITE);
-      button.addActionListener(e -> {
+      button.addActionListener(_ -> {
          distributionLevel = level;
          redraw(false);
       });
@@ -729,7 +758,7 @@ public final class CategoryVisualizer {
          JRadioButton button = new JRadioButton(featureName);
          button.setBackground(Color.WHITE);
          button.setSelected(xAxisFeature.equals(featureName));
-         button.addActionListener(e -> {
+         button.addActionListener(_ -> {
             xAxisFeature = featureName;
             redraw(false);
          });
@@ -748,7 +777,7 @@ public final class CategoryVisualizer {
          JRadioButton button = new JRadioButton(featureName);
          button.setBackground(Color.WHITE);
          button.setSelected(yAxisFeature.equals(featureName));
-         button.addActionListener(e -> {
+         button.addActionListener(_ -> {
             yAxisFeature = featureName;
             redraw(false);
          });
@@ -807,7 +836,7 @@ public final class CategoryVisualizer {
       menu.setMnemonic(KeyEvent.VK_F);
 
       JMenuItem saveItem = MiscIcons.SAVE.on(menu.add("Save"));
-      saveItem.addActionListener(e -> {
+      saveItem.addActionListener(_ -> {
          configurator.save();
          didSave = true;
       });
@@ -815,7 +844,7 @@ public final class CategoryVisualizer {
       menu.addSeparator();
 
       JMenuItem closeItem = menu.add("Close");
-      closeItem.addActionListener(e -> mainDialog.dispose());
+      closeItem.addActionListener(_ -> mainDialog.dispose());
 
       return menu;
    }
@@ -925,7 +954,7 @@ public final class CategoryVisualizer {
       menu.setToolTipText("Modify the set of categories");
 
       JMenuItem categorizationConfigurationItem = MiscIcons.SETTINGS.on(menu.add("Categorization configuration..."));
-      categorizationConfigurationItem.addActionListener(e -> {
+      categorizationConfigurationItem.addActionListener(_ -> {
          ConfiguratorEditor.editCategorizationConfiguration(mainPanel, configurator);
          updateCategoryConfiguration();
          refreshPopups();
@@ -933,10 +962,10 @@ public final class CategoryVisualizer {
       });
 
       JMenuItem categorizationParametersItem = menu.add("Categorization parameters...");
-      categorizationParametersItem.addActionListener(e -> showParameterDialog());
+      categorizationParametersItem.addActionListener(_ -> showParameterDialog());
 
       JMenuItem griddingConfigurationItem = menu.add("Gridding configuration...");
-      griddingConfigurationItem.addActionListener(e -> {
+      griddingConfigurationItem.addActionListener(_ -> {
          CollectiveFeatureComputation.editGriddingSettings(mainPanel);
          possiblyChangeAxis();
       });
@@ -946,7 +975,7 @@ public final class CategoryVisualizer {
       JMenuItem addItem = MiscIcons.ADD.on(menu.add("Add to category..."));
       addItem.setEnabled(extractionCategory != null
             && !configurator.getNonSpecialEnabledCategories().isEmpty());
-      addItem.addActionListener(e -> {
+      addItem.addActionListener(_ -> {
          Category category = showCategorySelectionDialog();
          if (category != null) {
             addExtractionToCategory(category);
@@ -967,7 +996,7 @@ public final class CategoryVisualizer {
       JMenuItem clearMarkingItem = menu.add("Clear marking");
       clearMarkingItem.setEnabled(extractionCategory != null);
       clearMarkingItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      clearMarkingItem.addActionListener(e -> {
+      clearMarkingItem.addActionListener(_ -> {
          assert echogramWindow != null;
          echogramWindow.clearMarking();
          redraw(true);
@@ -975,7 +1004,7 @@ public final class CategoryVisualizer {
 
       JMenuItem invertMarkingItem = menu.add("Invert marking");
       invertMarkingItem.setEnabled(extractionCategory != null);
-      invertMarkingItem.addActionListener(e -> {
+      invertMarkingItem.addActionListener(_ -> {
          assert echogramWindow != null;
          echogramWindow.invertMarking();
          redraw(true);
@@ -986,17 +1015,17 @@ public final class CategoryVisualizer {
       JMenuItem deleteMarkedPointsItem = MiscIcons.DELETE.on(menu.add("Delete marked points"));
       deleteMarkedPointsItem.setEnabled(extractionCategory != null);
       deleteMarkedPointsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
-      deleteMarkedPointsItem.addActionListener(e -> deleteMarkedPoints());
+      deleteMarkedPointsItem.addActionListener(_ -> deleteMarkedPoints());
 
       JMenuItem deleteUnmarkedPointsItem = menu.add("Delete unmarked points");
       deleteUnmarkedPointsItem.setEnabled(extractionCategory != null);
       deleteUnmarkedPointsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, KeyEvent.ALT_DOWN_MASK));
-      deleteUnmarkedPointsItem.addActionListener(e -> deleteUnmarkedPoints());
+      deleteUnmarkedPointsItem.addActionListener(_ -> deleteUnmarkedPoints());
 
       menu.addSeparator();
 
       JMenuItem undoItem = MiscIcons.UNDO.on(menu.add("Undo all modifications"));
-      undoItem.addActionListener(e -> {
+      undoItem.addActionListener(_ -> {
          configurator.init();
          if (echogramWindow != null) {
             echogramWindow.clearMarking();
@@ -1035,10 +1064,10 @@ public final class CategoryVisualizer {
             menu.addSeparator();
 
             JMenuItem insideItem = menu.add("Inside track");
-            insideItem.addActionListener(e -> markTrack(trackIds, false, marking));
+            insideItem.addActionListener(_ -> markTrack(trackIds, false, marking));
 
             JMenuItem outsideItem = menu.add("Outside track");
-            outsideItem.addActionListener(e -> markTrack(trackIds, true, marking));
+            outsideItem.addActionListener(_ -> markTrack(trackIds, true, marking));
          }
       }
 
@@ -1058,7 +1087,7 @@ public final class CategoryVisualizer {
          if (category != null) {
             menuItem.setIcon(categoryIcon(category));
          }
-         menuItem.addActionListener(e -> markClassifications(extractionNeighborhood, categories, category, invert, marking));
+         menuItem.addActionListener(_ -> markClassifications(extractionNeighborhood, categories, category, invert, marking));
       }
       return menu;
    }
@@ -1071,7 +1100,7 @@ public final class CategoryVisualizer {
       for (Category category : categoryConfigMap.keySet()) {
          JMenuItem menuItem = menu.add(category.getName());
          menuItem.setIcon(categoryIcon(category));
-         menuItem.addActionListener(e -> {
+         menuItem.addActionListener(_ -> {
             GaussDistribution distribution = category.getPixelCategoryDistribution().getGaussDistribution();
             markOutliers(extractionNeighborhood, distribution, invert, marking);
          });
@@ -1084,7 +1113,7 @@ public final class CategoryVisualizer {
 
       for (float threshold : regionThresholds) {
          JMenuItem menuItem = menu.add("Threshold: " + threshold);
-         menuItem.addActionListener(e -> markRegion(threshold, invert, marking));
+         menuItem.addActionListener(_ -> markRegion(threshold, invert, marking));
       }
       return menu;
    }
@@ -1261,7 +1290,7 @@ public final class CategoryVisualizer {
          for (int i = 0; i < PlotType.values().length; i++) {
             PlotType plotType = PlotType.values()[i];
             JMenuItem plotItem = MiscIcons.check(selectedPlotType == plotType).on(menu.add(plotType.toString()));
-            plotItem.addActionListener(e -> {
+            plotItem.addActionListener(_ -> {
                selectedPlotType = plotType;
                redraw(false);
             });
@@ -1273,7 +1302,7 @@ public final class CategoryVisualizer {
          menu.addSeparator();
 
          JMenuItem namesItem = MiscIcons.checkBox(showCategoryNames).on(menu.add("Show full category names"));
-         namesItem.addActionListener(e -> {
+         namesItem.addActionListener(_ -> {
             showCategoryNames = !showCategoryNames;
             getPreferences().putBoolean("showCategoryNames", showCategoryNames);
             redraw(true);
@@ -1282,7 +1311,7 @@ public final class CategoryVisualizer {
          menu.addSeparator();
 
          JMenuItem misclassificationItem = menu.add("Misclassification matrix...");
-         misclassificationItem.addActionListener(e -> {
+         misclassificationItem.addActionListener(_ -> {
             if (misClassMatrixView == null) {
                misClassMatrixView = new MisClassMatrixView(this, configurator, mainPanel);
             }
@@ -1292,7 +1321,7 @@ public final class CategoryVisualizer {
          menu.addSeparator();
 
          JMenuItem rescaleAxesItem = menu.add("Rescale axes");
-         rescaleAxesItem.addActionListener(e -> redraw(false));
+         rescaleAxesItem.addActionListener(_ -> redraw(false));
       });
 
       return menu;
@@ -1308,9 +1337,12 @@ public final class CategoryVisualizer {
 
    private JPanel categoryToggles() {
       JPanel togglePanel = new JPanel(new WrappingFlowLayout());
+      Map<Category, JCheckBox> categoryToCheckBox = new HashMap<>();
       for (Category category : categoryConfigMap.keySet()) {
          if (!category.getPixelCategoryDistribution().getNeighborhood().getNeighbors().isEmpty()) {
-            togglePanel.add(createCategoryCheckbox(category));
+            JCheckBox checkBox = createCategoryCheckBox(category, categoryToCheckBox);
+            categoryToCheckBox.put(category, checkBox);
+            togglePanel.add(checkBox);
          }
       }
       togglePanel.setBackground(Color.WHITE);
@@ -1441,9 +1473,9 @@ public final class CategoryVisualizer {
          float mean = distribution.getMean(featureName);
          meanGraph.addPoint(x, Math.min(workaroundMaxValue, KoronaUtils.fromDB(mean)));
          if (drawConfidenceIntervals && distribution.isValid(featureName)) {
-            float var = distribution.getVariance(featureName);
+            float variance = distribution.getVariance(featureName);
             float quantile = distribution.getQuantile(configurator.outlierFraction.getFloatValue(), configurator.getEnabledFeatureExtractors());
-            double delta = Math.sqrt(var) * quantile;
+            double delta = Math.sqrt(variance) * quantile;
             stddevGraphA.addPoint(x, Math.min(workaroundMaxValue, KoronaUtils.fromDB(mean + delta)));
             stddevGraphB.addPoint(x, Math.min(workaroundMaxValue, KoronaUtils.fromDB(mean - delta)));
          }

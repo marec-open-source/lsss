@@ -152,7 +152,7 @@ final class DataFileStatusCellRenderer implements TableCellRenderer {
          return null;
       }
       RawFileConfiguration firstRawFileConfiguration = firstRawDataFile.getPingConfiguration().getRawFileConfiguration();
-      if (firstRawFileConfiguration.getIncompatibility(segmentInfo.getRawFileConfigurationInfo()) != null) {
+      if (firstRawFileConfiguration.getIncompatibility(segmentInfo.rawFileConfigurationInfo()) != null) {
          return LsssIcons.FREQUENCY_ERROR;
       } else {
          return LsssIcons.FREQUENCY_OK;

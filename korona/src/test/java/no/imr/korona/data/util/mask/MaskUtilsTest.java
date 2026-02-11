@@ -46,9 +46,49 @@ final class MaskUtilsTest {
    }
 
    @Test
+   void isContainedIn() {
+      DefaultPingIndex p1 = new DefaultPingIndex(1, 1, 0, null);
+      DefaultPingIndex p2 = new DefaultPingIndex(2, 2, 0, null);
+
+      NavigableMap<PingIndex, FloatRangeSet> mask = new TreeMap<>();
+      mask.put(p1, FloatRangeSet.of(FloatRange.of(1, 3)));
+      mask.put(p2, FloatRangeSet.of(List.of(FloatRange.of(1, 3), FloatRange.of(8, 9))));
+
+      assertTrue(MaskUtils.isContainedIn(mask, pingIndex -> FloatRange.of(1, 9)));
+      assertFalse(MaskUtils.isContainedIn(mask, pingIndex -> FloatRange.of(2, 9)));
+      assertFalse(MaskUtils.isContainedIn(mask, pingIndex -> FloatRange.of(1, 8)));
+   }
+
+   @Test
+   void intersectionByFloatRangeFunction() {
+      DefaultPingIndex p1 = new DefaultPingIndex(1, 1, 0, null);
+      DefaultPingIndex p2 = new DefaultPingIndex(2, 2, 0, null);
+
+      NavigableMap<PingIndex, FloatRangeSet> mask = new TreeMap<>();
+      mask.put(p1, FloatRangeSet.of(FloatRange.of(1, 3)));
+      mask.put(p2, FloatRangeSet.of(List.of(FloatRange.of(1, 3), FloatRange.of(6, 9))));
+
+      assertEquals(mask, MaskUtils.intersection(mask, pingIndex -> FloatRange.of(1, 9)));
+      assertEquals(Map.of(), MaskUtils.intersection(mask, pingIndex -> FloatRange.of(3, 6)));
+      assertEquals(
+            Map.of(
+                  p2, FloatRangeSet.of(List.of(FloatRange.of(6, 9)))
+            ),
+            MaskUtils.intersection(mask, pingIndex -> FloatRange.of(4, 9))
+      );
+      assertEquals(
+            Map.of(
+                  p1, FloatRangeSet.of(FloatRange.of(1, 3)),
+                  p2, FloatRangeSet.of(List.of(FloatRange.of(1, 3), FloatRange.of(6, 7)))
+            ),
+            MaskUtils.intersection(mask, pingIndex -> FloatRange.of(1, 7))
+      );
+   }
+
+   @Test
    void incompleteBoundaryToMask() {
       DataManager dataManager = DataManagerTestUtils.testDataManager();
-      DataManagerTestUtils.open(dataManager, new ConstantSyntheticData(1000, 0).toSegmentHandle(1, 10));
+      DataManagerTestUtils.open(dataManager, new ConstantSyntheticData(1000, 0).withFirstAndLastPingNumber(1, 10).toSegmentHandle());
 
       DataFileSet dataFileSet = dataManager.getDataFileSet();
       PingIndex p1 = dataFileSet.getTotalRange().begin();

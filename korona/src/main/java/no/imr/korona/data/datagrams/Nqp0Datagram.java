@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
  * Noise Quantification Parameters.
  */
 public final class Nqp0Datagram extends DatagramPingItem implements PerChannelDatagram {
-   public static final DatagramType TYPE = new DatagramType.Simple("NQP0", Nqp0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("NQP0", Nqp0Datagram::new);
 
    private short channel;
    private final float average; // N_E

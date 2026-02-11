@@ -123,11 +123,11 @@ public final class SvColorPanel {
          thresholdsItem.setEnabled(false);
          limitsItem.setEnabled(false);
       } else {
-         thresholdsItem.addActionListener(e -> {
+         thresholdsItem.addActionListener(_ -> {
             new MinMaxDialog(overlaidComponent, "Thresholds",
                   settings.getRange(), settings.getDelta(), settings.getMaxRange(), settings::setRange);
          });
-         limitsItem.addActionListener(e -> {
+         limitsItem.addActionListener(_ -> {
             new MinMaxDialog(overlaidComponent, "Colour scale limits",
                   settings.getMaxRange(), settings.getDelta(), null, settings::setMaxRange);
          });
@@ -140,7 +140,7 @@ public final class SvColorPanel {
       if (settings == null) {
          clipAboveItem.setEnabled(false);
       } else {
-         clipAboveItem.addActionListener(e -> {
+         clipAboveItem.addActionListener(_ -> {
             settings.setClipAbove(!clipAbove);
          });
       }
@@ -152,7 +152,9 @@ public final class SvColorPanel {
       if (useAdvancedDialog) {
          menu.addSeparator();
          JMenuItem advancedItem = menu.add("Advanced...");
-         advancedItem.addActionListener(e -> new AdvancedDialog(converterContainer, colormaps, overlaidComponent).show());
+         advancedItem.addActionListener(_ -> {
+            new AdvancedDialog(converterContainer, colormaps, overlaidComponent).show();
+         });
       }
 
       for (Consumer<JPopupMenu> popupMenuExtender : popupMenuExtenders) {
@@ -187,13 +189,13 @@ public final class SvColorPanel {
 
    private void addContinuousItem(JPopupMenu popupMenu, boolean useVariableName, ContinuousVariable continuousVariable, Colormap colormap) {
       boolean selected = isSelected(ColorConverterType.CONTINUOUS, null, continuousVariable, colormap);
-      JMenuItem item = MiscIcons.check(selected).on(popupMenu.add(useVariableName ? continuousVariable.getDisplayName() : colormap.getName()));
+      JMenuItem item = MiscIcons.check(selected).on(popupMenu.add(useVariableName ? continuousVariable.getDisplayName() : colormap.name()));
       item.setEnabled(continuousVariable.isUsableInContext());
-      item.addActionListener(e -> {
+      item.addActionListener(_ -> {
          converterContainer.setColorConverter(new SingleValueColorConverter(continuousVariable, colormap));
       });
       if (!useVariableName) {
-         item.addChangeListener(e -> {
+         item.addChangeListener(_ -> {
             if (item.isArmed()) {
                item.setIcon(new ColormapIcon(colormap));
                item.setDisabledIcon(null);
@@ -208,7 +210,7 @@ public final class SvColorPanel {
       boolean selected = isSelected(ColorConverterType.DISCRETE, discreteVariable, null, null);
       JMenuItem item = MiscIcons.check(selected).on(popupMenu.add(discreteVariable.getDisplayName()));
       item.setEnabled(discreteVariable.isUsableInContext());
-      item.addActionListener(e -> {
+      item.addActionListener(_ -> {
          converterContainer.setColorConverter(new CategoryColorConverter(discreteVariable));
       });
    }
@@ -217,7 +219,7 @@ public final class SvColorPanel {
       boolean selected = isSelected(ColorConverterType.DISCRETE_LIGHT, discreteVariable, continuousVariable, null);
       JMenuItem item = MiscIcons.check(selected).on(popupMenu.add(discreteVariable.getDisplayName() + " " + continuousVariable.getDisplayName() + " light"));
       item.setEnabled(discreteVariable.isUsableInContext() && continuousVariable.isUsableInContext());
-      item.addActionListener(e -> {
+      item.addActionListener(_ -> {
          converterContainer.setColorConverter(new LightCategoryColorConverter(discreteVariable, continuousVariable));
       });
    }
@@ -226,7 +228,7 @@ public final class SvColorPanel {
       boolean selected = isSelected(ColorConverterType.DISCRETE_THRESHOLD, discreteVariable, continuousVariable, null);
       JMenuItem item = MiscIcons.check(selected).on(popupMenu.add(discreteVariable.getDisplayName() + " " + continuousVariable.getDisplayName() + " threshold"));
       item.setEnabled(discreteVariable.isUsableInContext() && continuousVariable.isUsableInContext());
-      item.addActionListener(e -> {
+      item.addActionListener(_ -> {
          converterContainer.setColorConverter(new ThresholdCategoryColorConverter(discreteVariable, continuousVariable));
       });
    }
@@ -345,10 +347,10 @@ public final class SvColorPanel {
          });
 
          JButton okButton = new JButton("OK");
-         okButton.addActionListener(e -> dialog.dispose());
+         okButton.addActionListener(_ -> dialog.dispose());
 
          JButton cancelButton = new JButton("Cancel");
-         cancelButton.addActionListener(e -> {
+         cancelButton.addActionListener(_ -> {
             converterContainer.setColorConverter(backupColorConverter);
             dialog.dispose();
          });

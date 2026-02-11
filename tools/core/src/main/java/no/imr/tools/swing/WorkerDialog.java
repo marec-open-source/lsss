@@ -110,7 +110,7 @@ public final class WorkerDialog {
    }
 
    public Result startWithoutCancel(ThrowingRunnable<Exception> task) {
-      return doStart(asyncHandle -> task.run(), false);
+      return doStart(_ -> task.run(), false);
    }
 
    public <T> @Nullable T startMakeValue(ThrowingFunction<AsyncHandle, T, Exception> task) {
@@ -143,7 +143,7 @@ public final class WorkerDialog {
 
       try {
          future.get(hidden ? Integer.MAX_VALUE : delay, TimeUnit.MILLISECONDS);
-      } catch (TimeoutException e) {
+      } catch (TimeoutException _) {
          if (Utils.isMainRun()) {
             GuiUtils.invokeNowOrWait(() -> {
                if (!future.isDone()) {
@@ -151,7 +151,7 @@ public final class WorkerDialog {
                }
             });
          }
-      } catch (CancellationException | InterruptedException | ExecutionException e) {
+      } catch (CancellationException | InterruptedException | ExecutionException _) {
          // Handled in waitForFuture.
       }
 
@@ -160,7 +160,7 @@ public final class WorkerDialog {
 
    private void showDialog(boolean cancellable) {
       JButton cancelButton = new JButton(cancelText);
-      cancelButton.addActionListener(e -> {
+      cancelButton.addActionListener(_ -> {
          asyncHandle.cancel();
          finishCountDownLatch.countDown(); // After asyncHandle is cancelled.
          cancelButton.setFocusable(false);
@@ -199,9 +199,9 @@ public final class WorkerDialog {
          if (!asyncHandle.isCancelled()) {
             success = true;
          }
-      } catch (CancellationException e) {
+      } catch (CancellationException _) {
          // Cancelled.
-      } catch (InterruptedException e) {
+      } catch (InterruptedException _) {
          Thread.currentThread().interrupt();
       } catch (ExecutionException e) {
          onError.accept(e.getCause());

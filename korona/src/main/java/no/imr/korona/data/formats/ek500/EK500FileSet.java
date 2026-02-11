@@ -19,7 +19,7 @@ final class EK500FileSet {
    // Groups:                                               1                    2       3      4             5
    static final Pattern PATTERN = Pattern.compile("^(N\\d+-S\\d+-S\\d+)-F(\\d+)-T(\\d+)-(D\\d+-T\\d+)-(\\w+)$");
    static final DateTimeFormatter DATE_TIME_FORMATTER = Utils.createUTCDateTimeFormatter("'D'yyyyMMdd'-T'HHmmss");
-   static final int MAX_DIFF_MILLIS = 1_000;
+   static final int MAX_DIFF_MILLIS = 2_000;
    static final int MAIN_FREQUENCY = 38_000;
 
    private final String nss;

@@ -1,6 +1,5 @@
 package no.imr.lsss.server.jaxrs.resources.lsss;
 
-import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -19,6 +18,7 @@ import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.web.WebUtils;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.Element;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.util.stream.Stream;

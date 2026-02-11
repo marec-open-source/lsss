@@ -1,11 +1,8 @@
 package no.imr.korona.data.util.geometry.depth;
 
-public final class PerPingSeabedMountedReferencedDepthTransform implements PerPingDepthTransform {
-   private final float seabedMountedReferenceDepth;
-
-   PerPingSeabedMountedReferencedDepthTransform(float seabedMountedReferenceDepth) {
-      this.seabedMountedReferenceDepth = seabedMountedReferenceDepth;
-   }
+record PerPingSeabedMountedReferencedDepthTransform(
+      float seabedMountedReferenceDepth
+) implements PerPingDepthTransform {
 
    @Override
    public float depthToZ(float depth) {

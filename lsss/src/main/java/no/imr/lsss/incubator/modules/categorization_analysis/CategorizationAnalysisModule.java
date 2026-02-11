@@ -8,7 +8,6 @@ import no.imr.korona.data.datagrams.Cas0Datagram;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
-import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.track.SegmentHandle;
@@ -195,9 +194,9 @@ public final class CategorizationAnalysisModule extends BaseViewModule {
    private void analyze(Region region) throws IOException {
       getRegionManager().replaceSelectedRegions(region);
       PingRange pingRange = region.getPingRange();
-      double margin = Math.max(1, 0.05 * pingRange.getPingCount());
-      PingIndex begin = getInterpretationSettings().getDataFileSet().getClosestPingIndex(pingRange.begin().getPingNumber() - margin, PingMapping.NUMBER);
-      PingIndex end = getInterpretationSettings().getDataFileSet().getClosestPingIndex(pingRange.end().getPingNumber() + margin, PingMapping.NUMBER);
+      long margin = Math.max(1, Math.round(0.05 * pingRange.getPingCount()));
+      PingIndex begin = getInterpretationSettings().getDataFileSet().getPingIndexClamped(pingRange.begin().getPingNumber() - margin);
+      PingIndex end = getInterpretationSettings().getDataFileSet().getPingIndexClamped(pingRange.end().getPingNumber() + margin);
       getInterpretationSettings().setPingRange(PingRange.of(begin, end));
 
       DataFileSet dataFileSet = getInterpretationSettings().getDataFileSet();
@@ -380,7 +379,7 @@ public final class CategorizationAnalysisModule extends BaseViewModule {
          FileUtils.createDirectories(outputDirectory);
          List<AnalysisResult> analysisResults = new ArrayList<>();
          for (Path directory : FileUtils.listFiles(outputDirectory, Files::isDirectory)) {
-            analysisResults.add(JsonUtils.JSON_MAPPER.readValue(directory.resolve(ANALYSIS_RESULT_JSON).toFile(), AnalysisResult.class));
+            analysisResults.add(JsonUtils.JSON_MAPPER.readValue(directory.resolve(ANALYSIS_RESULT_JSON), AnalysisResult.class));
          }
          analysisResults.sort(Comparator.comparing(analysisResult -> analysisResult.name));
          double fitSum = 0;
@@ -396,7 +395,7 @@ public final class CategorizationAnalysisModule extends BaseViewModule {
          String js = "var categorizationAnalysisOverallResult = " + JsonUtils.PRETTY_PRINTER.writeValueAsString(overallResult) + ';';
          Files.writeString(outputDirectory.resolve("categorizationAnalysisOverallResult.js"), js, Utils.UTF_8);
          FileUtils.copy(ResourceUtils.getUrl("no/imr/lsss/resources/incubator/modules/categorization_analysis/index.html"), outputDirectory.resolve("index.html"));
-      } catch (IOException e) {
+      } catch (Exception e) {
          Log.global.log(Level.WARNING, "Error making report", e);
       }
    }
@@ -437,17 +436,17 @@ public final class CategorizationAnalysisModule extends BaseViewModule {
          super(module);
 
          JPanel buttonsPanel = new JPanel(new GridLayout(0, 1));
-         buttonsPanel.add(makeButton("Select next file", e -> {
+         buttonsPanel.add(makeButton("Select next file", _ -> {
             ConfigurationManager configurationManager = module.getLSSS().getConfigurationManager();
             configurationManager.getDataConf().selectNextFiles();
             configurationManager.ok();
             module.selectAllSchools();
          }));
-         buttonsPanel.add(makeButton("Select all schools", e -> module.selectAllSchools()));
-         buttonsPanel.add(makeButton("Analyze schools", e -> module.analyzeSchools(panel)));
-         buttonsPanel.add(makeButton("Analyze all files", e -> module.analyseAllFiles(panel)));
-         buttonsPanel.add(makeButton("Make report", e -> module.makeReport()));
-         buttonsPanel.add(makeButton("Open browser", e -> openBrowser(module)));
+         buttonsPanel.add(makeButton("Select all schools", _ -> module.selectAllSchools()));
+         buttonsPanel.add(makeButton("Analyze schools", _ -> module.analyzeSchools(panel)));
+         buttonsPanel.add(makeButton("Analyze all files", _ -> module.analyseAllFiles(panel)));
+         buttonsPanel.add(makeButton("Make report", _ -> module.makeReport()));
+         buttonsPanel.add(makeButton("Open browser", _ -> openBrowser(module)));
 
          panel.setBackground(Color.WHITE);
          panel.add(buttonsPanel);

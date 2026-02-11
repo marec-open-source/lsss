@@ -32,14 +32,14 @@ public final class DatabaseUpgradeDialog {
       textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          sql = textArea.getText();
          ok = true;
          dialog.dispose();
       });
 
       JButton cancelButton = new JButton("Cancel");
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
 
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       buttonPanel.setBorder(BorderFactory.createEtchedBorder());

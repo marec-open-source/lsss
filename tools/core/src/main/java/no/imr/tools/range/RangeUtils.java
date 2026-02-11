@@ -106,6 +106,7 @@ public final class RangeUtils {
 
       @Override
       public void clear() {
+         throw new UnsupportedOperationException();
       }
 
       @Override

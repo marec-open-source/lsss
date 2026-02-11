@@ -1,5 +1,6 @@
 package no.imr.korona.util.echogram;
 
+import no.imr.korona.data.datamanager.DataConfiguration;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.viewer.coloring.PingToColor;
 
@@ -14,4 +15,6 @@ public interface EchogramImageSettings {
    EchogramPingSettings getPingSettings();
 
    EchogramZSettings getZSettings();
+
+   DataConfiguration getDataConfiguration();
 }

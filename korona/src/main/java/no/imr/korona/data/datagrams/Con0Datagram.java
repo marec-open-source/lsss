@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * The EK60 echo sounder configuration datagram.
+ * The EK60 echosounder configuration datagram.
  */
 public final class Con0Datagram extends BaseDatagram {
-   public static final DatagramType TYPE = new DatagramType.Simple("CON0", Con0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("CON0", Con0Datagram::new);
 
    public String surveyName = ""; // "Loch Ness" (128)
    public String transectName = ""; // "L0123"  (128)

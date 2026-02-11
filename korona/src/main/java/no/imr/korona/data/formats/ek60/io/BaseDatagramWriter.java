@@ -41,7 +41,7 @@ public abstract class BaseDatagramWriter implements Closeable {
          try {
             datagramToBuffer(datagram);
             break;
-         } catch (BufferOverflowException e) {
+         } catch (BufferOverflowException _) {
             byteBuffer = ByteBufferUtils.allocate(2 * byteBuffer.capacity());
          }
       }

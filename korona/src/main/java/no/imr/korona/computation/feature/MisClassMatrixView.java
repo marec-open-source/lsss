@@ -42,7 +42,7 @@ import java.util.List;
  * A class for displaying matrices with diagnostic values for
  * misclassification and overlap between categories.
  */
-public final class MisClassMatrixView {
+final class MisClassMatrixView {
    private final Configurator configurator;
    private final CategoryVisualizer categoryVisualizer;
    private Collection<String> misClassEnabledFeatures;
@@ -55,7 +55,7 @@ public final class MisClassMatrixView {
    private final TableCellRenderer addToCategoryMisClassRenderer;
    private final AddToOverlapRenderer addToCategoryOverlapRenderer;
 
-   public MisClassMatrixView(CategoryVisualizer categoryVisualizer, Configurator configurator, JComponent referenceComponent) {
+   MisClassMatrixView(CategoryVisualizer categoryVisualizer, Configurator configurator, JComponent referenceComponent) {
       this.categoryVisualizer = categoryVisualizer;
       this.configurator = configurator;
       misClassEnabledFeatures = CategoryVisualizer.toFeatureNames(configurator.getEnabledFeatureExtractors());
@@ -69,7 +69,7 @@ public final class MisClassMatrixView {
       addToCategoryOverlapRenderer = new AddToOverlapRenderer();
    }
 
-   public void showMisClassDialog() {
+   void showMisClassDialog() {
       JPanel panel = new JPanel(new BorderLayout());
       panel.add(estimatedWrongCategorizationMatrix());
       panel.add(createButtonsPanel(), BorderLayout.SOUTH);
@@ -83,7 +83,7 @@ public final class MisClassMatrixView {
 
    private JComponent createButtonsPanel() {
       JButton closeButton = new JButton("Close");
-      closeButton.addActionListener(e -> misClassDialog.dispose());
+      closeButton.addActionListener(_ -> misClassDialog.dispose());
       misClassDialog.getRootPane().setDefaultButton(closeButton);
       GuiUtils.setAccelerator(closeButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
 
@@ -99,7 +99,7 @@ public final class MisClassMatrixView {
    /**
     * Redraws the matrices.
     */
-   public void redraw() {
+   void redraw() {
       GuiUtils.replaceContent(misClassDialog.getContentPane(), estimatedWrongCategorizationMatrix());
    }
 
@@ -454,6 +454,7 @@ public final class MisClassMatrixView {
       JTable misClassTable = new JTable();
       AbstractTableModel misClassTableModel = misClassTableModel(misClassValues);
       misClassTable.setModel(misClassTableModel);
+      misClassTable.getColumnModel().getColumn(0).setPreferredWidth(160);
 
       JPanel misClassTablePanel = new JPanel(new BorderLayout());
       misClassTablePanel.add(misClassTable.getTableHeader(), BorderLayout.NORTH);
@@ -463,6 +464,8 @@ public final class MisClassMatrixView {
       JTable overlapTable = new JTable();
       AbstractTableModel overlapTableModel = overlapTableModel(overlapValues);
       overlapTable.setModel(overlapTableModel);
+      overlapTable.getColumnModel().getColumn(0).setPreferredWidth(160);
+
       addToCategoryOverlapRenderer.setAddToCategory(recommendationData.addToCandidate != null ?
             recommendationData.addToCandidate.getName() : "");
 
@@ -489,7 +492,7 @@ public final class MisClassMatrixView {
 
       JPanel intendedAction = new JPanel(new FlowLayout());
       JComboBox<String> pullDownActions = new JComboBox<>(actions);
-      pullDownActions.addActionListener(e -> {
+      pullDownActions.addActionListener(_ -> {
          String action = (String) pullDownActions.getSelectedItem();
          if (action != null) {
             setTableRenderers(action, misClassTable, overlapTable);
@@ -542,7 +545,7 @@ public final class MisClassMatrixView {
          @Override
          public String getColumnName(int column) {
             if (column == 0) {
-               return "Point clouds";
+               return "⮟ Point cloud  ╲  Category ⮞";
             } else {
                return columnNames.get(column - 1);
             }
@@ -584,7 +587,7 @@ public final class MisClassMatrixView {
          @Override
          public String getColumnName(int column) {
             if (column == 0) {
-               return "Point clouds";
+               return "⮟ Point cloud  ╲  Category ⮞";
             } else {
                return columnNames.get(column - 1);
             }

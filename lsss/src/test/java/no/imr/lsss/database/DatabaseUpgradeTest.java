@@ -18,8 +18,8 @@ import no.imr.lsss.framework.BaseSystemFeaturePlugin;
 import no.imr.lsss.framework.BaseSystemFeatureService;
 import no.imr.lsss.test.LsssTestUtils;
 import no.imr.tools.database.DatabaseConnection;
-import no.imr.tools.database.queries.FetchQuery;
-import no.imr.tools.database.queries.SaveOrUpdateQuery;
+import no.imr.tools.database.queries.QueryBuilder;
+import no.imr.tools.database.queries.StatelessDatabaseQuery;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.misc.test.UniqueTmpDir;
 import org.junit.jupiter.api.AfterEach;
@@ -67,13 +67,13 @@ final class DatabaseUpgradeTest {
       doUpgradeFromVersion("3");
 
       DatabaseConnection databaseConnection = lsss.getDatabaseManager().getDatabaseConnection();
-      assertEquals(List.of(new Nation((short) 1, "TestNationName")), databaseConnection.executeFetchQuery(new FetchQuery<>(Nation.class)));
-      assertEquals(List.of(new Platform(new PlatformPK((short) 1, (short) 1), (short) 1, (short) 1, 0, 0)), databaseConnection.executeFetchQuery(new FetchQuery<>(Platform.class)));
-      assertEquals(List.of(new PlatformName(new PlatformNamePK((short) 1, (short) 1, 0), 0, "TestPlatformName")), databaseConnection.executeFetchQuery(new FetchQuery<>(PlatformName.class)));
-      assertEquals(List.of(new StandardComment(new StandardCommentPK((short) 1, (short) 1, 1), "TestStandardCommentText")), databaseConnection.executeFetchQuery(new FetchQuery<>(StandardComment.class)));
-      assertEquals(List.of(new Survey(new SurveyPK((short) 1, (short) 1, 1), "TestSurveyTitle", 0, 0, 0, 0, "TestSurveyComment", 0, 0, 0, 0)), databaseConnection.executeFetchQuery(new FetchQuery<>(Survey.class)));
-      assertEquals(List.of(new Observation(new ObservationPK((short) 1, (short) 1, 1, 20160427, 11223344, (short) 1000), 0, 0, 0, 0)), databaseConnection.executeFetchQuery(new FetchQuery<>(Observation.class)));
-      assertEquals(List.of(new ObservationComment(new ObservationPK((short) 1, (short) 1, 1, 20160427, 11223344, (short) 1000), 1, 12, 34, "TestCommentText")), databaseConnection.executeFetchQuery(new FetchQuery<>(ObservationComment.class)));
+      assertEquals(List.of(new Nation((short) 1, "TestNationName")), databaseConnection.executeFetchQuery(LsssQuery.fetch(Nation.class)));
+      assertEquals(List.of(new Platform(new PlatformPK((short) 1, (short) 1), (short) 1, (short) 1, 0, 0)), databaseConnection.executeFetchQuery(LsssQuery.fetch(Platform.class)));
+      assertEquals(List.of(new PlatformName(new PlatformNamePK((short) 1, (short) 1, 0), 0, "TestPlatformName")), databaseConnection.executeFetchQuery(LsssQuery.fetch(PlatformName.class)));
+      assertEquals(List.of(new StandardComment(new StandardCommentPK((short) 1, (short) 1, 1), "TestStandardCommentText")), databaseConnection.executeFetchQuery(LsssQuery.fetch(StandardComment.class)));
+      assertEquals(List.of(new Survey(new SurveyPK((short) 1, (short) 1, 1), "TestSurveyTitle", 0, 0, 0, 0, "TestSurveyComment", 0, 0, 0, 0)), databaseConnection.executeFetchQuery(LsssQuery.fetch(Survey.class)));
+      assertEquals(List.of(new Observation(new ObservationPK((short) 1, (short) 1, 1, 20160427, 11223344, (short) 1000), 0, 0, 0, 0)), databaseConnection.executeFetchQuery(LsssQuery.fetch(Observation.class)));
+      assertEquals(List.of(new ObservationComment(new ObservationPK((short) 1, (short) 1, 1, 20160427, 11223344, (short) 1000), 1, 12, 34, "TestCommentText")), databaseConnection.executeFetchQuery(LsssQuery.fetch(ObservationComment.class)));
    }
 
    @Test
@@ -83,8 +83,11 @@ final class DatabaseUpgradeTest {
       DatabaseConnection databaseConnection = lsss.getDatabaseManager().getDatabaseConnection();
       Survey survey = DatabaseTestUtils.createTestSurvey(databaseConnection);
       String infoValue = "a" + "b".repeat(DatabaseData.MAX_SURVEY_INFO_VALUE_LENGTH);
-      databaseConnection.executeQuery(new SaveOrUpdateQuery(LsssDatabaseUtils.toSurveyInfos(survey.getCompId(), "test", infoValue)));
-      List<SurveyInfo> surveyInfos = databaseConnection.executeFetchQuery(LsssQuery.fetch(SurveyInfo.class, survey.getCompId(), DatabaseData.INFO_KEY, "test"));
+      databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.upsert(LsssDatabaseUtils.toSurveyInfos(survey.getCompId(), "test", infoValue)));
+      List<SurveyInfo> surveyInfos = databaseConnection.executeFetchQuery(
+            LsssQuery.forSurvey(QueryBuilder.fetch(SurveyInfo.class), survey.getCompId()).and()
+                  .eq(DatabaseData.INFO_KEY, "test")
+                  .build());
       assertEquals(2, surveyInfos.size());
       assertEquals(infoValue, LsssDatabaseUtils.fromSurveyInfos(surveyInfos));
    }

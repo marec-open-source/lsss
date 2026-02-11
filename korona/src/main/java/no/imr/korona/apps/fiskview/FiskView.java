@@ -270,7 +270,7 @@ public final class FiskView {
       try {
          moduleContainer.writeConfiguration(cdsFile);
       } catch (IOException e) {
-         GuiUtils.showErrorDialog(frame, "Error saving " + cdsFile);
+         GuiUtils.showErrorDialog(frame, "Error saving " + cdsFile, e);
          return false;
       }
       return true;
@@ -296,7 +296,7 @@ public final class FiskView {
       try {
          configFileSettings.save(cfsFile);
       } catch (IOException e) {
-         GuiUtils.showErrorDialog(frame, "Error saving " + cfsFile);
+         GuiUtils.showErrorDialog(frame, "Error saving " + cfsFile, e);
          return false;
       }
       KoronaPlaybox.setLastCfsFile(cfsFile);

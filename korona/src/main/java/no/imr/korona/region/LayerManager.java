@@ -11,9 +11,7 @@ import no.imr.tools.ShouldNotHappenException;
 import no.imr.tools.ValueOrError;
 import no.imr.tools.logging.Log;
 import no.imr.tools.misc.ToFloatFunction;
-import no.imr.tools.range.ArrayRangeSet;
 import no.imr.tools.range.FloatRange;
-import no.imr.tools.range.RangeSet;
 import org.dom4j.Element;
 import org.jspecify.annotations.Nullable;
 
@@ -50,19 +48,18 @@ public final class LayerManager extends BaseRegionManager<Layer> {
       return getRegion(echogramPoint);
    }
 
-   public Stream<Layer> layersIntersectingPingRange(PingRange pingRange) {
-      return layers.stream()
-            .filter(layer -> layer.getPingRange().intersects(pingRange));
-   }
-
-   public List<Layer> getLayersIntersectingPingRange(PingRange pingRange) {
-      List<Layer> result = new ArrayList<>();
+   Set<VerticalBoundary> getVerticalBoundariesAtPingIndex(PingIndex pingIndex) {
+      Set<VerticalBoundary> verticalBoundaries = new HashSet<>();
       for (Layer layer : layers) {
-         if (layer.getPingRange().intersects(pingRange)) {
-            result.add(layer);
+         if (layer.getPingRange().containsIncludingEnd(pingIndex)) {
+            for (VerticalBoundary verticalBoundary : layer.getVerticalBoundaries()) {
+               if (verticalBoundary.getPingIndex().equals(pingIndex)) {
+                  verticalBoundaries.add(verticalBoundary);
+               }
+            }
          }
       }
-      return result;
+      return verticalBoundaries;
    }
 
    private List<LayerConnector> getConnectorsAtPingIndex(PingIndex pingIndex) {
@@ -80,13 +77,12 @@ public final class LayerManager extends BaseRegionManager<Layer> {
    }
 
    private List<Layer> getLayers(PingIndex pingIndex) {
-      return layers.stream()
-            .filter(layer -> layer.getPingRange().contains(pingIndex))
+      return regions(pingIndex)
             .toList();
    }
 
    public List<String> mergeSelectedLayers() {
-      return mergeLayers(selectedRegions);
+      return mergeLayers(getSelectedRegions());
    }
 
    public List<String> mergeLayers(Collection<Layer> layersToMerge) {
@@ -108,7 +104,7 @@ public final class LayerManager extends BaseRegionManager<Layer> {
             leftSplitLayers.add(layer);
          }
          for (Layer layer1 : leftSplitLayers) {
-            if (layer1.getPingRange().intersects(getVisiblePingRange())) {
+            if (layer1.intersectsPingRange(getVisiblePingRange())) {
                splitLayers.add(layer1);
             }
          }
@@ -124,7 +120,7 @@ public final class LayerManager extends BaseRegionManager<Layer> {
             }
          }
          for (Layer layer1 : rightSplitLayers) {
-            if (layer1.getPingRange().intersects(getVisiblePingRange())) {
+            if (layer1.intersectsPingRange(getVisiblePingRange())) {
                splitLayers.add(layer1);
             }
          }
@@ -204,9 +200,9 @@ public final class LayerManager extends BaseRegionManager<Layer> {
       boolean visitedStatus = layerA.isSelectedAtLeastOnce() && layerB.isSelectedAtLeastOnce() && layerA.hasEqualInterpretationTo(layerB);
 
       layers.remove(layerB);
-      selectedRegions.remove(layerB);
+      getSelectedRegions().remove(layerB);
       layers.remove(layerA);
-      selectedRegions.remove(layerA);
+      getSelectedRegions().remove(layerA);
 
       for (LayerBoundary boundary : toBeRemovedBoundaries) {
          boundary.detach();
@@ -232,7 +228,7 @@ public final class LayerManager extends BaseRegionManager<Layer> {
       layers.add(layerA);
       verifyAndAdjustConnectors(layerA);
       if (layerA.isSelected()) {
-         selectedRegions.add(layerA);
+         getSelectedRegions().add(layerA);
       }
       getRegionManager().notifyRegionListenersRegionDeleted(layerB);
       getRegionManager().notifyRegionBoundaryChanged(getVisiblePingRange(), layerA);
@@ -320,16 +316,12 @@ public final class LayerManager extends BaseRegionManager<Layer> {
       return List.of(layer);
    }
 
-   private void clear() {
-      getRegionManager().notifyRegionListenersRegionsDeleted(layers);
-      layers.clear();
-   }
-
    void setupInitialLayerBoundaries(ToFloatFunction<PingIndex> upperDepth, ToFloatFunction<PingIndex> lowerDepth) {
+      List<Layer> deletedLayers = List.copyOf(layers);
+      getRegionManager().notifyRegionListenersRegionsDeleted(deletedLayers);
+      layers.clear();
+
       PingRange totalPingRange = getPingContainer().getTotalRange();
-
-      clear();
-
       if (totalPingRange.isEmpty()) {
          return;
       }
@@ -361,22 +353,8 @@ public final class LayerManager extends BaseRegionManager<Layer> {
       newLayer.addVerticalBoundary(leftVB);
       newLayer.addVerticalBoundary(rightVB);
       layers.add(newLayer);
-   }
 
-   public Collection<CurveBoundary> getIntersectingCurveBoundaries(PingRange pingRange) {
-      Set<CurveBoundary> intersectingLayerBoundaries = new HashSet<>();
-      for (Layer layer : layers) {
-         layer.addIntersectingCurveBoundaries(pingRange, intersectingLayerBoundaries);
-      }
-      return intersectingLayerBoundaries;
-   }
-
-   public Collection<VerticalBoundary> getIntersectingVerticalBoundaries(PingRange pingRange) {
-      Set<VerticalBoundary> intersectingLayerBoundaries = new HashSet<>();
-      for (Layer layer : layers) {
-         layer.addIntersectingVerticalBoundaries(pingRange, intersectingLayerBoundaries);
-      }
-      return intersectingLayerBoundaries;
+      getRegionManager().notifyRegionBoundaryChanged(totalPingRange, newLayer);
    }
 
    private enum Side {LEFT, RIGHT}
@@ -539,7 +517,7 @@ public final class LayerManager extends BaseRegionManager<Layer> {
       if (splitLayer == null) {
          return addCurveBoundaryOutsideInterior(pingIndex, depthFunction);
       }
-      if (splitLayer.pointAtCurveBoundary(point)) {
+      if (splitLayer.getDepthRange(point.pingIndex()).begin() == point.depth()) {
          return null;
       }
       PingRange pingRange = getVisiblePingRange();
@@ -836,128 +814,6 @@ public final class LayerManager extends BaseRegionManager<Layer> {
             .orElse(null);
    }
 
-   public void checkValidity() throws WorkaroundRegionException {
-      String error = checkForError();
-      if (error != null) {
-         throw new WorkaroundRegionException(error);
-      }
-      PingRange totalRange = getPingContainer().getTotalRange();
-      RangeSet<PingIndex> union = new ArrayRangeSet<>();
-      for (Layer layer : layers) {
-         //check that all boundaries in a layer is connected to another boundary in the same layer
-         for (CurveBoundary curveBoundary : layer.getCurveBoundaries()) {
-            if (!LayerManagerUtils.isConnected(curveBoundary, curveBoundary.getStartConnector(), layer)) {
-               throw new WorkaroundRegionException();
-            }
-            if (!LayerManagerUtils.isConnected(curveBoundary, curveBoundary.getEndConnector(), layer)) {
-               throw new WorkaroundRegionException();
-            }
-         }
-         for (VerticalBoundary verticalBoundary : layer.getVerticalBoundaries()) {
-            LayerConnector startConnector = verticalBoundary.getStartConnector();
-            LayerConnector endConnector = verticalBoundary.getEndConnector();
-            if (!startConnector.getPingIndex().equals(endConnector.getPingIndex())) {
-               throw new WorkaroundRegionException();
-            }
-            if (startConnector.getDepth() > endConnector.getDepth()) {
-               throw new WorkaroundRegionException();
-            }
-            if (!LayerManagerUtils.isConnected(verticalBoundary, startConnector, layer)) {
-               throw new WorkaroundRegionException();
-            }
-            if (!LayerManagerUtils.isConnected(verticalBoundary, endConnector, layer)) {
-               throw new WorkaroundRegionException();
-            }
-         }
-         union.add(layer.getPingRange());
-      }
-      if (!union.containsAll(totalRange)) {
-         throw new WorkaroundRegionException();
-      }
-      for (Layer layer : layers) {
-         for (PingIndex pingIndex : getPingContainer().getPingIndices(layer.getPingRange())) {
-            CurveBoundary upperBoundary = layer.findUpperBoundary(pingIndex);
-            CurveBoundary lowerBoundary = layer.findLowerBoundary(pingIndex);
-            if (upperBoundary == null || lowerBoundary == null) {
-               throw new WorkaroundRegionException();
-            }
-
-            //Check range of a potential new vertical boundary
-            boolean upperIsConnector = !upperBoundary.getPingRange().containsExcludingBegin(pingIndex);
-            boolean lowerIsConnector = !lowerBoundary.getPingRange().containsExcludingBegin(pingIndex);
-
-            float startDepth = !upperIsConnector ?
-                  upperBoundary.getCurve().getDepth(pingIndex) :
-                  (upperBoundary.getPingRange().begin().equals(pingIndex) ?
-                        upperBoundary.getStartConnector().getDepth() : upperBoundary.getEndConnector().getDepth());
-            float endDepth = !lowerIsConnector ?
-                  lowerBoundary.getCurve().getDepth(pingIndex) :
-                  (lowerBoundary.getPingRange().begin().equals(pingIndex) ?
-                        lowerBoundary.getStartConnector().getDepth() : lowerBoundary.getEndConnector().getDepth());
-
-            if (upperIsConnector) {
-               endDepth = Math.max(endDepth, startDepth);
-            }
-            if (lowerIsConnector) {
-               startDepth = Math.min(startDepth, endDepth);
-            }
-            if (endDepth < startDepth) {
-               throw new WorkaroundRegionException();
-            }
-         }
-         //check vertical boundaries
-         for (VerticalBoundary verticalBoundary : layer.getVerticalBoundaries()) {
-            List<VerticalBoundary> allConnected = getAllAffectedBoundaries(verticalBoundary);
-            for (VerticalBoundary boundary : allConnected) {
-               if (boundary.equals(verticalBoundary)) {
-                  continue;
-               }
-               if (verticalBoundary.isBelow(boundary)) {
-                  if (boundary.getMaxDepth() > verticalBoundary.getMinDepth()) {
-                     throw new WorkaroundRegionException();
-                  }
-                  if (boundary.getMinDepth() > verticalBoundary.getMinDepth()) {
-                     throw new WorkaroundRegionException();
-                  }
-               }
-               if (verticalBoundary.isAbove(boundary)) {
-                  if (boundary.getMaxDepth() < verticalBoundary.getMaxDepth()) {
-                     throw new WorkaroundRegionException();
-                  }
-                  if (boundary.getMinDepth() < verticalBoundary.getMaxDepth()) {
-                     throw new WorkaroundRegionException();
-                  }
-               }
-            }
-         }
-         //check that all connectors connect at least two boundaries of different type
-         for (LayerConnector layerConnector : layer.getConnectors()) {
-            if (layerConnector.getPingIndex().compareTo(totalRange.begin()) >= 0 &&
-                  layerConnector.getPingIndex().compareTo(totalRange.end()) <= 0) {
-               if (layerConnector.getBoundaryCount() < 2) {
-                  throw new WorkaroundRegionException();
-               }
-               boolean edgeConnector = layerConnector.getPingIndex().compareTo(totalRange.begin()) == 0 ||
-                     layerConnector.getPingIndex().compareTo(totalRange.end()) == 0;
-               //allow no connection to curve boundary if this connector is at the edge of the check range, otherwise
-               //one boundary if each type is required
-               if ((layerConnector.getCurveBoundaries().isEmpty() && !edgeConnector) || layerConnector.getVerticalBoundaries().isEmpty()) {
-                  throw new WorkaroundRegionException();
-               }
-            }
-         }
-         //check that every vertical boundary is connected to 2 layers, except if the index is the first or the last
-         for (VerticalBoundary verticalBoundary : layer.getVerticalBoundaries()) {
-            if (verticalBoundary.getPingIndex().compareTo(totalRange.begin()) > 0 &&
-                  verticalBoundary.getPingIndex().compareTo(totalRange.end()) < 0) {
-               if (verticalBoundary.getLayers().size() != 2) {
-                  throw new WorkaroundRegionException();
-               }
-            }
-         }
-      }
-   }
-
    public @Nullable CurveBoundary findClosestCurveBoundary(EchogramPoint point, FloatRange depthRange) {
       Layer layer = getLayer(point);
       if (layer == null) {
@@ -1048,7 +904,7 @@ public final class LayerManager extends BaseRegionManager<Layer> {
       if (adjustRange.isEmpty()) {
          return;
       }
-      getRegionManager().getSchoolManager().constrainSchools(adjustRange);
+      getRegionManager().getSchoolManager().constrainSchoolsAfterLayerEdit(adjustRange);
       getRegionManager().notifyRegionBoundaryChanged(adjustRange, curveBoundary.getLayers());
    }
 
@@ -1078,7 +934,7 @@ public final class LayerManager extends BaseRegionManager<Layer> {
 
       ensureAllConnectedVerticalsAreConsistent(connector);
 
-      getRegionManager().getSchoolManager().constrainSchools(adjustRange);
+      getRegionManager().getSchoolManager().constrainSchoolsAfterLayerEdit(adjustRange);
 
       getRegionManager().notifyRegionBoundaryChanged(adjustRange, connector.getLayers());
    }
@@ -1207,7 +1063,7 @@ public final class LayerManager extends BaseRegionManager<Layer> {
       getRegionManager().notifyRegionBoundaryChanged(adjustRange, affectedLayers);
    }
 
-   private static List<VerticalBoundary> getAllAffectedBoundaries(VerticalBoundary verticalBoundary) {
+   static List<VerticalBoundary> getAllAffectedBoundaries(VerticalBoundary verticalBoundary) {
       List<VerticalBoundary> connectedBoundaries = new ArrayList<>();
       connectedBoundaries.add(verticalBoundary);
       //follow startConnector
@@ -1316,8 +1172,12 @@ public final class LayerManager extends BaseRegionManager<Layer> {
       return FloatRange.of(minDepth, maxDepth);
    }
 
-   Element toXml(PingRange pingRange) {
-      return LayerManagerSaver.toXml(pingRange, getLayersIntersectingPingRange(pingRange));
+   static Element toXml(PingRange pingRange, Collection<Layer> layersToSave) {
+      List<Layer> sortedLayersToSave = layersToSave.stream()
+            .filter(layer -> layer.intersectsPingRange(pingRange))
+            .sorted(Comparator.comparingInt(Layer::getObjectNumber))
+            .toList();
+      return LayerManagerSaver.toXml(pingRange, sortedLayersToSave);
    }
 
    void fromXml(Element element, PingRange pingRange) throws WorkFileException {
@@ -1338,7 +1198,7 @@ public final class LayerManager extends BaseRegionManager<Layer> {
          layers.addAll(right.getLayers());
          mergeLayersWithSameInterpretation(connectIndex);
          possiblyUpdateLayerObjectNumbers();
-      } catch (RegionException e) {
+      } catch (WorkFileException e) {
          Log.global.log(java.util.logging.Level.WARNING, e.getMessage(), e);
       }
    }

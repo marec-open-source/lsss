@@ -31,7 +31,7 @@ final class InterpretationModuleStoreTask extends StoreTask {
    private boolean initializeInterpretation;
 
    InterpretationModuleStoreTask(InterpretationModule interpretationModule) {
-      super(interpretationModule.getPlugin(), "Echo sounder", "Echo sounder");
+      super(interpretationModule.getPlugin(), "Echosounder", "Echosounder");
 
       this.interpretationModule = interpretationModule;
    }
@@ -72,7 +72,7 @@ final class InterpretationModuleStoreTask extends StoreTask {
 
          JRadioButton inheritButton = new JRadioButton("Initialize interpretation", initializeInterpretation);
          JRadioButton leaveButton = new JRadioButton("Leave unassigned", !initializeInterpretation);
-         ItemListener itemListener = e -> initializeInterpretation = inheritButton.isSelected();
+         ItemListener itemListener = _ -> initializeInterpretation = inheritButton.isSelected();
          inheritButton.addItemListener(itemListener);
          leaveButton.addItemListener(itemListener);
          GuiUtils.createButtonGroup(inheritButton, leaveButton);
@@ -138,7 +138,7 @@ final class InterpretationModuleStoreTask extends StoreTask {
 
    private JRadioButton createQualityRadioButton(String text, QualityEnum qualityEnum) {
       JRadioButton radioButton = new JRadioButton(text, interpretationModule.getQuality() == qualityEnum);
-      radioButton.addActionListener(e -> interpretationModule.setQuality(qualityEnum));
+      radioButton.addActionListener(_ -> interpretationModule.setQuality(qualityEnum));
       return radioButton;
    }
 

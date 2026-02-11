@@ -1,7 +1,5 @@
 package no.imr.lsss.modules.echogramplot;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
@@ -21,6 +19,8 @@ import no.imr.tools.listening.Listener;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.ExportTransform;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -52,7 +52,7 @@ public final class EchogramPlotExporter extends StreamingExporter {
    }
 
    @Override
-   public void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) throws IOException {
+   public void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) {
       PingRange pingRange = getLSSS().getInterpretationSettings().getPingRange();
       if (pingRange.isEmpty()) {
          return;
@@ -75,7 +75,7 @@ public final class EchogramPlotExporter extends StreamingExporter {
       for (PingFunction pingFunction : pingFunctions) {
          if (plotAllChannels && pingFunction.isChannelDependent()) {
             perChannelResults.add(new PerChannelResult(pingFunction, IntStream.range(0, transducerCount)
-                  .mapToObj(__ -> new float[pingCount])
+                  .mapToObj(_ -> new float[pingCount])
                   .toList()));
          } else {
             results.add(new Result(pingFunction, new float[pingCount]));
@@ -110,16 +110,16 @@ public final class EchogramPlotExporter extends StreamingExporter {
       try (JsonGenerator json = objectWriter.createGenerator(out)) {
          json.writeStartObject();
 
-         json.writeObjectField("info", getExportInfo(pingFunctions, perChannelResults));
+         json.writePOJOProperty("info", getExportInfo(pingFunctions, perChannelResults));
 
-         json.writeObjectField("time", time);
-         json.writeObjectField("vesselDistance", vesselDistance);
-         json.writeObjectField("pingNumber", pingNumber);
+         json.writePOJOProperty("time", time);
+         json.writePOJOProperty("vesselDistance", vesselDistance);
+         json.writePOJOProperty("pingNumber", pingNumber);
          for (Result result : results) {
             float[] values = result.values;
             float[] postprocessedValues = result.pingFunction.postprocess(values, timeInMillis, bottom);
             Object exportValues = toExportValues(result.pingFunction, postprocessedValues);
-            json.writeObjectField(result.pingFunction.getName().persistentName(), exportValues);
+            json.writePOJOProperty(result.pingFunction.getName().persistentName(), exportValues);
          }
          if (!perChannelResults.isEmpty()) {
             List<Object> channels = new ArrayList<>();
@@ -136,7 +136,7 @@ public final class EchogramPlotExporter extends StreamingExporter {
                }
                channels.add(channelMap);
             }
-            json.writeObjectField("channels", channels);
+            json.writePOJOProperty("channels", channels);
          }
 
          json.writeEndObject();
@@ -164,7 +164,7 @@ public final class EchogramPlotExporter extends StreamingExporter {
 
    private static Object toExportValues(PingFunction pingFunction, float[] values) {
       return switch (pingFunction) {
-         case BooleanFunction __ -> {
+         case BooleanFunction _ -> {
             int[] exportValues = new int[values.length];
             for (int i = 0; i < values.length; i++) {
                exportValues[i] = (int) values[i];

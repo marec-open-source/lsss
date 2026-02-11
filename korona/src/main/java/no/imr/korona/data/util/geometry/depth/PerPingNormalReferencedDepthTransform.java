@@ -1,11 +1,8 @@
 package no.imr.korona.data.util.geometry.depth;
 
-public final class PerPingNormalReferencedDepthTransform implements PerPingDepthTransform {
-   private final float referenceDepth;
-
-   PerPingNormalReferencedDepthTransform(float referenceDepth) {
-      this.referenceDepth = referenceDepth;
-   }
+record PerPingNormalReferencedDepthTransform(
+      float referenceDepth
+) implements PerPingDepthTransform {
 
    @Override
    public float depthToZ(float depth) {

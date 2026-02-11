@@ -108,7 +108,7 @@ public final class EchogramImageOverlay extends EchogramOverlay {
    public JPopupMenu getPopupMenu(Point point) {
       JPopupMenu popupMenu = new JPopupMenu();
       JMenuItem menuItem = MiscIcons.SETTINGS.on(popupMenu.add("Configure echogram..."));
-      menuItem.addActionListener(e -> showConfigurationDialog());
+      menuItem.addActionListener(_ -> showConfigurationDialog());
       return popupMenu;
    }
 
@@ -116,7 +116,7 @@ public final class EchogramImageOverlay extends EchogramOverlay {
       JDialog dialog = new JDialog(GuiUtils.windowForComponent(getEchogramDisplay().getComponent()), "Configure echogram", Dialog.ModalityType.DOCUMENT_MODAL);
 
       JButton closeButton = new JButton("Close");
-      closeButton.addActionListener(e -> dialog.dispose());
+      closeButton.addActionListener(_ -> dialog.dispose());
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       buttonPanel.add(closeButton);
 

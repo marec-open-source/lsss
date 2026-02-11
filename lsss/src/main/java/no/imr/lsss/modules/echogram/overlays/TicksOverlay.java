@@ -111,7 +111,7 @@ public final class TicksOverlay extends BaseEchogramOverlay {
       }
       int pathCapacity = 5 * xSet.size();
       Path2D.Float path = new Path2D.Float(Path2D.WIND_NON_ZERO, pathCapacity);
-      xSet.forEach((x0, x1) -> {
+      xSet.forEachBeginEnd((x0, x1) -> {
          GuiUtils.appendRectangle(path, x0, 0, x1, TICK_HEIGHT);
       });
       return new DisplayData(path);

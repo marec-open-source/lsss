@@ -10,14 +10,14 @@ public class PurposePK implements BaseSurveyPK {
    private int survey;
    private int acousticCategory;
 
+   public PurposePK() {
+   }
+
    public PurposePK(short nation, short platform, int survey, int acousticCategory) {
       this.nation = nation;
       this.platform = platform;
       this.survey = survey;
       this.acousticCategory = acousticCategory;
-   }
-
-   public PurposePK() {
    }
 
    @Override

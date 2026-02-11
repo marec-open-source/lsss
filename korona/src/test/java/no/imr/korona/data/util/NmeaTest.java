@@ -1,6 +1,5 @@
 package no.imr.korona.data.util;
 
-import no.imr.korona.util.KoronaUtils;
 import no.marec.lsss.api.util.GeoPoint;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +23,7 @@ final class NmeaTest {
    void speedVGT() {
       Nmea nmea = Nmea.of("$GPVTG,253,T,250,M,007.5,N,014.0,K");
       assertEquals(Nmea.Type.VTG, nmea.getType());
-      assertEquals(OptionalDouble.of(KoronaUtils.knotsToMeterPerSecond(7.5)), nmea.getMeterPerSec());
+      assertEquals(OptionalDouble.of(7.5), nmea.getKnots());
    }
 
    @Test

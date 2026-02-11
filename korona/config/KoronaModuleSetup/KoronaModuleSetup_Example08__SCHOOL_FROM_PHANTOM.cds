@@ -85,6 +85,10 @@
             <parameter name="MinDepth">10</parameter>
             <parameter name="MaxDepth"/>
             <parameter name="Threshold">-60</parameter>
+            <parameter name="FillHoles">true</parameter>
+            <parameter name="FillVerticalGaps"/>
+            <parameter name="FillHorizontalGaps"/>
+            <parameter name="BoundarySmoothingIterations"/>
             <parameter name="Density">
                <parameter name="min">-120</parameter>
                <parameter name="max">-20</parameter>
@@ -109,7 +113,6 @@
                <parameter name="min"/>
                <parameter name="max"/>
             </parameter>
-            <parameter name="FillHoles">true</parameter>
          </parameters>
       </module>
    </modules>

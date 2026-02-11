@@ -15,12 +15,9 @@ final class MathUtilsTest {
    void pow() {
       assertThrows(IllegalArgumentException.class, () -> MathUtils.pow(1, Math::multiplyExact, -1));
       assertThrows(IllegalArgumentException.class, () -> MathUtils.pow(1, Math::multiplyExact, 0));
-      int expected = 1;
-      for (int i = 1; i <= 20; i++) {
-         expected *= 2;
-         assertEquals(expected, MathUtils.pow(2, Math::multiplyExact, i));
+      for (int i = 1; i <= 39; i++) {
+         assertEquals(Math.powExact(3L, i), MathUtils.pow(3L, Math::multiplyExact, i));
       }
-      assertEquals(617673396283947L, MathUtils.pow(3L, Math::multiplyExact, 31));
       assertEquals(Math.pow(1.1, 49), MathUtils.pow(1.1, (x, y) -> x * y, 49), 1e-13);
    }
 }

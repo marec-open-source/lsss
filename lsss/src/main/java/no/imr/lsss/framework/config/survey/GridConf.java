@@ -136,12 +136,12 @@ public final class GridConf extends ConfigurationUnit {
       return UserProfile.SURVEY_SETUP;
    }
 
-   public boolean doesSchoolGridEventlyDivideEchogramGrid() {
+   public boolean doesSchoolGridEvenlyDivideEchogramGrid() {
       BigDecimal schoolGrid = BigDecimal.valueOf(schoolHorizontalGridSize.getDoubleValue());
       BigDecimal echogramGrid = BigDecimal.valueOf(horizontalGridSize.getDoubleValue());
       try {
          return echogramGrid.divide(schoolGrid, RoundingMode.UNNECESSARY).stripTrailingZeros().scale() <= 0;
-      } catch (ArithmeticException e) {
+      } catch (ArithmeticException _) {
          return false;
       }
    }

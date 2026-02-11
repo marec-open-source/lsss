@@ -40,32 +40,32 @@ final class FiskViewMenu {
       JMenuItem loadMenuItem = MiscIcons.OPEN.on(fileMenu.add("Open raw file..."));
       loadMenuItem.setMnemonic(KeyEvent.VK_O);
       loadMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
-      loadMenuItem.addActionListener(e -> fiskView.loadRawFile());
+      loadMenuItem.addActionListener(_ -> fiskView.loadRawFile());
 
       fileMenu.addSeparator();
 
       JMenuItem loadDescMenuItem = fileMenu.add("Load module configuration...");
       loadDescMenuItem.setMnemonic(KeyEvent.VK_M);
       loadDescMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, KeyEvent.CTRL_DOWN_MASK));
-      loadDescMenuItem.addActionListener(e -> fiskView.loadCdsFile());
+      loadDescMenuItem.addActionListener(_ -> fiskView.loadCdsFile());
 
       JMenuItem saveDescMenuItem = fileMenu.add("Save configuration");
       saveDescMenuItem.setMnemonic(KeyEvent.VK_S);
-      saveDescMenuItem.addActionListener(e -> fiskView.saveCdsFile());
+      saveDescMenuItem.addActionListener(_ -> fiskView.saveCdsFile());
 
       JMenuItem saveAsDescMenuItem = fileMenu.add("Save configuration as...");
       saveAsDescMenuItem.setMnemonic(KeyEvent.VK_A);
-      saveAsDescMenuItem.addActionListener(e -> fiskView.saveCdsFileAs());
+      saveAsDescMenuItem.addActionListener(_ -> fiskView.saveCdsFileAs());
 
       JMenuItem editDescMenuItem = fileMenu.add("Edit configuration...");
       editDescMenuItem.setMnemonic(KeyEvent.VK_E);
       editDescMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
-      editDescMenuItem.addActionListener(e -> fiskView.editCurrentConfiguration());
+      editDescMenuItem.addActionListener(_ -> fiskView.editCurrentConfiguration());
 
       JMenuItem newDescMenuItem = fileMenu.add("New configuration...");
       newDescMenuItem.setMnemonic(KeyEvent.VK_N);
       newDescMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
-      newDescMenuItem.addActionListener(e -> {
+      newDescMenuItem.addActionListener(_ -> {
          if (fiskView.isCdsUnmodifiedOrUserApproved()) {
             fiskView.createNewConfiguration();
          }
@@ -74,7 +74,7 @@ final class FiskViewMenu {
       JMenuItem removeDescMenuItem = MiscIcons.DELETE.on(fileMenu.add("Remove all modules"));
       removeDescMenuItem.setMnemonic(KeyEvent.VK_R);
       removeDescMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK));
-      removeDescMenuItem.addActionListener(e -> {
+      removeDescMenuItem.addActionListener(_ -> {
          if (fiskView.isCdsUnmodifiedOrUserApproved()) {
             fiskView.removeConfiguration();
          }
@@ -83,7 +83,9 @@ final class FiskViewMenu {
       fileMenu.addSeparator();
 
       JMenuItem editMainConfigDirItem = fileMenu.add("Edit main config directory...");
-      editMainConfigDirItem.addActionListener(e -> KoronaSettingsUtils.showMainConfigDirDialog(fiskView.getKorona(), fiskView.getFrame(), Path.of("")));
+      editMainConfigDirItem.addActionListener(_ -> {
+         KoronaSettingsUtils.showMainConfigDirDialog(fiskView.getKorona(), fiskView.getFrame(), Path.of(""));
+      });
 
       fileMenu.addSeparator();
 
@@ -93,13 +95,13 @@ final class FiskViewMenu {
 
       JMenuItem saveAllItem = MiscIcons.SAVE.on(fileMenu.add("Save all changes"));
       saveAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
-      saveAllItem.addActionListener(e -> fiskView.saveAll());
+      saveAllItem.addActionListener(_ -> fiskView.saveAll());
 
       fileMenu.addSeparator();
 
       JMenuItem exitItem = MiscIcons.POWER.on(fileMenu.add("Exit"));
       exitItem.setMnemonic(KeyEvent.VK_X);
-      exitItem.addActionListener(e -> fiskView.shutDown());
+      exitItem.addActionListener(_ -> fiskView.shutDown());
 
       return fileMenu;
    }
@@ -110,20 +112,22 @@ final class FiskViewMenu {
 
       JMenuItem cfsLoadItem = MiscIcons.OPEN.on(menu.add("Load..."));
       cfsLoadItem.setMnemonic(KeyEvent.VK_L);
-      cfsLoadItem.addActionListener(e -> fiskView.loadCfsFile());
+      cfsLoadItem.addActionListener(_ -> fiskView.loadCfsFile());
 
       JMenuItem cfsSaveItem = MiscIcons.SAVE.on(menu.add("Save"));
       cfsSaveItem.setMnemonic(KeyEvent.VK_S);
-      cfsSaveItem.addActionListener(e -> fiskView.saveCfsFile());
+      cfsSaveItem.addActionListener(_ -> fiskView.saveCfsFile());
 
       JMenuItem cfsSaveAsItem = menu.add("Save as...");
       cfsSaveAsItem.setMnemonic(KeyEvent.VK_A);
-      cfsSaveAsItem.addActionListener(e -> fiskView.saveCfsFileAs());
+      cfsSaveAsItem.addActionListener(_ -> fiskView.saveCfsFileAs());
 
       JMenuItem cfsEditItem = MiscIcons.SETTINGS.on(menu.add("Edit..."));
       cfsEditItem.setMnemonic(KeyEvent.VK_E);
-      cfsEditItem.addActionListener(e -> ConfigFileSettingsEditor.showDialog(fiskView.getModuleContainer().getConfigFileSettings(), fiskView.getFrame(), true, ContextVisibility.SHOW,
-            KoronaHelp.CONFIG_FILE_SETTINGS));
+      cfsEditItem.addActionListener(_ -> {
+         ConfigFileSettingsEditor.showDialog(fiskView.getModuleContainer().getConfigFileSettings(), fiskView.getFrame(),
+               true, ContextVisibility.SHOW, KoronaHelp.CONFIG_FILE_SETTINGS);
+      });
 
       return menu;
    }

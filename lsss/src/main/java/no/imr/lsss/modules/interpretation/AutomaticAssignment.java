@@ -103,7 +103,7 @@ final class AutomaticAssignment {
          for (PingIndex pingIndex : dataFileSet.getPingIndices(koronaRegionPingRange)) {
             FloatRangeSet depthRanges = koronaRegion.getMask().get(pingIndex);
             if (depthRanges != null) {
-               RangeMap<Float, String> rangeMap = regionCategories.computeIfAbsent(pingIndex, k -> new ArrayRangeMap<>());
+               RangeMap<Float, String> rangeMap = regionCategories.computeIfAbsent(pingIndex, _ -> new ArrayRangeMap<>());
                for (FloatRange depthRange : depthRanges) {
                   rangeMap.put(depthRange.min(), depthRange.max(), category.getName());
                }
@@ -166,7 +166,7 @@ final class AutomaticAssignment {
             .max()
             .orElse(0);
       Map<Region, RegionIntegration> regionToInfo = regions.stream()
-            .collect(Collectors.toMap(Function.identity(), k -> new RegionIntegration(maxChannel, channels)));
+            .collect(Collectors.toMap(Function.identity(), _ -> new RegionIntegration(maxChannel, channels)));
 
       for (PingIndex pingIndex : dataFileSet.getPingIndices(pingRange)) {
          Ping ping = dataFileSet.getPing(pingIndex);
@@ -226,7 +226,7 @@ final class AutomaticAssignment {
                         }
                      }
                      if (koronaCategory != null) {
-                        channelIntegration.koronaCategoryToSvIntegral.computeIfAbsent(koronaCategory, k -> new AtomicDouble())
+                        channelIntegration.koronaCategoryToSvIntegral.computeIfAbsent(koronaCategory, _ -> new AtomicDouble())
                               .addAndGet(sv * sampleArea);
                      }
                   }
@@ -250,7 +250,7 @@ final class AutomaticAssignment {
                }
                double svIntegralPerAcousticCategory = koronaEntry.getValue().get() / acousticCategories.size();
                for (AcousticCategory acousticCategory : acousticCategories) {
-                  acousticCategoryToSvIntegral.computeIfAbsent(acousticCategory.getCompId().getAcousticCategory(), k -> new AtomicDouble())
+                  acousticCategoryToSvIntegral.computeIfAbsent(acousticCategory.getCompId().getAcousticCategory(), _ -> new AtomicDouble())
                         .addAndGet(svIntegralPerAcousticCategory);
                }
             }
@@ -271,7 +271,7 @@ final class AutomaticAssignment {
       Map<String, List<AcousticCategory>> koronaCategoryToAcousticCategories = new HashMap<>();
       for (Map.Entry<AcousticCategory, Set<String>> entry : acousticToCategory.getAcousticCategoryToKoronaCategories().entrySet()) {
          for (String koronaCategory : entry.getValue()) {
-            koronaCategoryToAcousticCategories.computeIfAbsent(koronaCategory, k -> new ArrayList<>()).add(entry.getKey());
+            koronaCategoryToAcousticCategories.computeIfAbsent(koronaCategory, _ -> new ArrayList<>()).add(entry.getKey());
          }
       }
       return koronaCategoryToAcousticCategories;

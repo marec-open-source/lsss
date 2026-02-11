@@ -35,7 +35,7 @@ final class RepeatedCopyGui {
    private final JPanel contentPanel = new JPanel(new BorderLayout());
    private final JButton stopCurrentCopyButton = new JButton("Stop current copy");
    private final JButton startNextCopyButton = new JButton("Start next copy");
-   private final Timer waitTimer = new Timer(1000, e -> waitTimerTick());
+   private final Timer waitTimer = new Timer(1000, _ -> waitTimerTick());
    private final JLabel remainingWaitTimeLabel = new JLabel();
    private Instant nextCopyTime = Instant.now();
    private AsyncHandle asyncHandle = new AsyncHandle();
@@ -56,10 +56,10 @@ final class RepeatedCopyGui {
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE);
-      cancelButton.addActionListener(e -> close());
+      cancelButton.addActionListener(_ -> close());
 
-      stopCurrentCopyButton.addActionListener(e -> stopCopy());
-      startNextCopyButton.addActionListener(e -> startCopy());
+      stopCurrentCopyButton.addActionListener(_ -> stopCopy());
+      startNextCopyButton.addActionListener(_ -> startCopy());
 
       JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       if (repeatInterval != null) {

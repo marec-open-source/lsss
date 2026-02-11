@@ -1,7 +1,7 @@
 package no.imr.korona.data.datagrams;
 
 import no.imr.korona.computation.plankton.SizeHistogram;
-import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.test.data.ConstantSyntheticData;
 import no.imr.tools.test.JUnitUtils;
@@ -57,7 +57,7 @@ final class Pid0DatagramTest {
    @Test
    void testPid0Datagram() {
       int count = 10;
-      SyntheticData syntheticData = new ConstantSyntheticData(count, 100);
+      SyntheticDataFile syntheticDataFile = new ConstantSyntheticData(count, 100).withFirstAndLastPingNumber(0, 0);
 
       SizeHistogram sizeHistogram = new SizeHistogram(new double[]{0, 1 /**/, 1, 2 /**/, 2, 3});
       JUnitUtils.set(sizeHistogram.getAbundances(), 0, 1, 0);
@@ -70,7 +70,7 @@ final class Pid0DatagramTest {
       Pid0Datagram.LengthDistribution lengthDistribution = new Pid0Datagram.LengthDistribution(sizeHistogram.getDividers(), sizeHistogram.getAbundances());
       Pid0Datagram.PlanktonData planktonData = new Pid0Datagram.PlanktonData(testCategory, lengthDistribution, 1.0f, 0);
 
-      PowerData powerData = syntheticData.createPowerData(syntheticData.createPingIndex(0), 1);
+      PowerData powerData = syntheticDataFile.createPowerData(syntheticDataFile.createPingIndex(0), 1);
       assertNotNull(powerData);
       Pid0Datagram pid0 = new Pid0Datagram(powerData, 0);
       pid0.setCategorySamples(0, List.of(planktonData));

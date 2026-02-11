@@ -29,7 +29,7 @@ final class PingSamplerTest {
    @Test
    void testPingSampler() {
       DataManager dataManager = new DataManager(new DefaultDataConfiguration());
-      DataManagerTestUtils.open(dataManager, new TestSyntheticData().toSegmentHandle(1, 1000));
+      DataManagerTestUtils.open(dataManager, new TestSyntheticData().withFirstAndLastPingNumber(1, 1000).toSegmentHandle());
 
       int pingCount = 100;
 

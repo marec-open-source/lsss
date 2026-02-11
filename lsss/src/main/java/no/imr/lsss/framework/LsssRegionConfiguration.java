@@ -56,7 +56,7 @@ public class LsssRegionConfiguration implements RegionConfiguration {
       } else {
          depth = lsss.getConfigurationManager().getSurveyMiscConf().topBoundaryOffset.getFloatValue();
       }
-      return __ -> depth;
+      return _ -> depth;
    }
 
    @Override
@@ -71,10 +71,10 @@ public class LsssRegionConfiguration implements RegionConfiguration {
       if (dataConfiguration.isSeabedMounted()) {
          float topBoundaryOffset = lsss.getConfigurationManager().getSurveyMiscConf().topBoundaryOffset.getFloatValue();
          float depth = dataConfiguration.getSeabedMountedDistanceToSurface() - topBoundaryOffset;
-         return __ -> depth;
+         return _ -> depth;
       }
       if (lsss.getConfigurationManager().getSurveyMiscConf().pelagicMode.getBooleanValue()) {
-         return __ -> pelagicDepth;
+         return _ -> pelagicDepth;
       }
       int channelIndex = lsss.getInterpretationSettings().getChannel() - 1;
       float bottomBoundaryOffset = lsss.getConfigurationManager().getSurveyMiscConf().bottomBoundaryOffset.getFloatValue();

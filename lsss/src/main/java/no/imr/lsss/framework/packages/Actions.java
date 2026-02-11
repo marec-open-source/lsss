@@ -14,6 +14,7 @@ import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.util.geometry.EchogramPoint;
 import no.imr.korona.data.util.geometry.depth.IdentityDepthTransform;
 import no.imr.korona.region.CurveBoundary;
+import no.imr.korona.region.ExclusionDetector;
 import no.imr.korona.region.Layer;
 import no.imr.korona.region.LayerBoundary;
 import no.imr.korona.region.LayerManager;
@@ -49,9 +50,11 @@ import no.imr.tools.parameter.gui.ParameterEditorData;
 import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
+import no.imr.tools.range.RangeSet;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.ProgressView;
+import no.imr.tools.swing.SimpleInputDialog;
 import no.imr.tools.swing.WorkerDialog;
 import no.imr.tools.swing.icons.MiscIcons;
 import no.marec.lsss.api.util.parameters.ValueConstraints;
@@ -82,7 +85,7 @@ public final class Actions {
    private LSSS lsss;
 
    public final LsssAction newSurvey = new TaskLsssAction("newSurvey", "New survey...",
-         a -> GuiUtils.invokeNowOrWait(() -> {
+         _ -> GuiUtils.invokeNowOrWait(() -> {
             if (lsss.getSurveyManager().isUnmodifiedOrUserApproved()) {
                lsss.getSurveyManager().createNew();
             }
@@ -91,7 +94,7 @@ public final class Actions {
          .setIcon(MiscIcons.ADD);
 
    public final LsssAction openSurvey = new TaskLsssAction("openSurvey", "Open survey...",
-         a -> GuiUtils.invokeNowOrWait(() -> {
+         _ -> GuiUtils.invokeNowOrWait(() -> {
             if (lsss.getSurveyManager().isUnmodifiedOrUserApproved()) {
                lsss.getSurveyManager().open();
             }
@@ -100,17 +103,17 @@ public final class Actions {
          .setIcon(MiscIcons.OPEN);
 
    public final LsssAction editSurvey = new TaskLsssAction("editSurvey", "Edit survey...",
-         a -> GuiUtils.invokeNowOrWait(lsss.getConfigurationManager()::showDialog))
+         _ -> GuiUtils.invokeNowOrWait(lsss.getConfigurationManager()::showDialog))
          .setToolTipText("Edit survey configuration")
          .setIcon(MiscIcons.SETTINGS);
 
    public final LsssAction saveSurvey = new TaskLsssAction("saveSurvey", "Save survey",
-         a -> GuiUtils.invokeNowOrWait(lsss.getSurveyManager()::save))
+         _ -> GuiUtils.invokeNowOrWait(lsss.getSurveyManager()::save))
          .setToolTipText("<html>Save survey configuration file and interpretation work files<br>NB: Database is not stored")
          .setIcon(MiscIcons.SAVE);
 
    public final LsssAction closeSurvey = new TaskLsssAction("closeSurvey", "Close survey",
-         a -> GuiUtils.invokeNowOrWait(() -> {
+         _ -> GuiUtils.invokeNowOrWait(() -> {
             if (lsss.getSurveyManager().isUnmodifiedOrUserApproved()) {
                lsss.getSurveyManager().closeByUser();
             }
@@ -118,11 +121,11 @@ public final class Actions {
          .setToolTipText("Close survey configuration file and interpretation work files");
 
    public final LsssAction help = new TaskLsssAction("help", "Help",
-         a -> lsss.getHelpSystem().getMainHelpSet().getTopHelpID().show())
+         _ -> lsss.getHelpSystem().getMainHelpSet().getTopHelpID().show())
          .setIcon(MiscIcons.HELP);
 
    public final LsssAction actionsDialog = new TaskLsssAction("actionsDialog", "Actions dialog",
-         a -> SwingUtilities.invokeLater(() -> new ActionsSearchDialog(lsss)));
+         _ -> SwingUtilities.invokeLater(() -> new ActionsSearchDialog(lsss)));
 
    public final BooleanLsssAction showToolbar = new BooleanLsssAction("showToolbar", "Show toolbar", true);
    public final BooleanLsssAction showStatusBar = new BooleanLsssAction("showStatusBar", "Show status bar", true);
@@ -140,11 +143,11 @@ public final class Actions {
    private boolean colorConverterIsChanging;
 
    public final LsssAction previousSegment = new TaskLsssAction("previousSegment", "Step backward to previous segment",
-         a -> lsss.getInterpretationSettings().gotoPreviousPingRange())
+         _ -> lsss.getInterpretationSettings().gotoPreviousPingRange())
          .setIcon(MiscIcons.STEP_BACK);
 
    public final LsssAction nextSegment = new TaskLsssAction("nextSegment", "Step forward to next segment",
-         a -> lsss.getInterpretationSettings().gotoNextPingRange())
+         _ -> lsss.getInterpretationSettings().gotoNextPingRange())
          .setIcon(MiscIcons.STEP_FORWARD);
 
    public final LsssAction preferredSegmentSize = new TaskLsssAction("preferredSegmentSize", "Adjust segment to preferred size",
@@ -161,48 +164,52 @@ public final class Actions {
          .setIcon(MiscIcons.NAVIGATE_NEXT);
 
    public final LsssAction selectVisibleRegions = new TaskLsssAction("selectVisibleRegions", "Select all visible regions",
-         a -> lsss.getRegionManager().replaceSelectedRegions(lsss.getRegionManager().getVisibleRegions()));
+         _ -> lsss.getRegionManager().replaceSelectedRegions(lsss.getRegionManager().getVisibleRegions()));
 
    public final LsssAction selectVisibleRegionsNot100PercentAssignedOnCurrentFrequency = new TaskLsssAction("selectVisibleRegionsNot100PercentAssignedOnCurrentFrequency",
          "Select visible regions with total assignment ≠ 100% on current frequency",
-         a -> selectVisibleRegionsNot100PercentAssigned(Set.of(lsss.getInterpretationSettings().getChannel())));
+         _ -> selectVisibleRegionsNot100PercentAssigned(Set.of(lsss.getInterpretationSettings().getChannel())));
 
    public final LsssAction selectVisibleRegionsNot100PercentAssignedOnStorableFrequencies = new TaskLsssAction("selectVisibleRegionsNot100PercentAssignedOnStorableFrequencies",
          "Select visible regions with total assignment ≠ 100% on storable frequencies",
-         a -> selectVisibleRegionsNot100PercentAssigned(lsss.getModuleManager().getModule(InterpretationModule.class).getChannelsToStore()));
+         _ -> selectVisibleRegionsNot100PercentAssigned(lsss.getModuleManager().getModule(InterpretationModule.class).getChannelsToStore()));
 
    private boolean resetInterpretationUsingCoordinatedBottom = true;
    public final LsssAction resetInterpretation = new TaskLsssAction("resetInterpretation", "Reset interpretation...",
-         a -> resetInterpretation())
+         _ -> resetInterpretation())
          .setIcon(MiscIcons.UNDO);
 
+   public final LsssAction excludeLowSpeed = new TaskLsssAction("excludeLowSpeed", "Exclude pings with low speed...",
+         _ -> excludeLowSpeed())
+         .setIcon(LsssIcons.EXCLUDE);
+
    public final LsssAction mergeLayersWithSameInterpretation = new TaskLsssAction("mergeLayersWithSameInterpretation", "Merge layers with same interpretation",
-         a -> mergeLayersWithSameInterpretation())
+         _ -> mergeLayersWithSameInterpretation())
          .setToolTipText("Merge visible neighbouring layers with same interpretation and same set of labels");
 
    public final LsssAction setUpperBoundaryFromRange = new TaskLsssAction("setUpperBoundaryFromRange", "Set upper boundary from range",
-         a -> setUpperBoundaryFromRange());
+         _ -> setUpperBoundaryFromRange());
 
    public final LsssAction setUpperBoundaryFromThreshold = new TaskLsssAction("setUpperBoundaryFromThreshold", "Set upper boundary from threshold",
-         a -> setUpperBoundaryFromThreshold());
+         _ -> setUpperBoundaryFromThreshold());
 
    public final LsssAction setLowerBoundaryFromThreshold = new TaskLsssAction("setLowerBoundaryFromRange", "Set lower boundary from threshold",
-         a -> setLowerBoundaryFromThreshold());
+         _ -> setLowerBoundaryFromThreshold());
 
    public final LsssAction setLowerBoundaryFromCoordinatedBottom = new TaskLsssAction("setLowerBoundaryFromCoordinatedBottom", "Set lower boundary from coordinated bottom",
-         a -> setLowerBoundaryFromCoordinatedBottom());
+         _ -> setLowerBoundaryFromCoordinatedBottom());
 
    public final LsssAction setLowerBoundaryFromCurrentFrequencyBottom = new TaskLsssAction("setLowerBoundaryFromCurrentFrequencyBottom",
          "Set lower boundary from bottom on current frequency",
-         a -> setLowerBoundaryFromCurrentFrequencyBottom());
+         _ -> setLowerBoundaryFromCurrentFrequencyBottom());
 
    public final LsssAction deleteBottomDataCurrentFrequency = new TaskLsssAction("deleteBottomDataCurrentFrequency",
          "Delete data above lower integration line and below bottom on current frequency",
-         a -> deleteBottomDataCurrentFrequency())
+         _ -> deleteBottomDataCurrentFrequency())
          .setIcon(MiscIcons.ERASE);
 
    public final LsssAction deleteAssignmentsOnOtherFrequencies = new TaskLsssAction("deleteAssignmentsOnOtherFrequencies", "Delete assignments on other frequencies",
-         a -> {
+         _ -> {
             if (lsss.getInterpretationSettings().isInteractiveMode()) {
                String message = "Delete assignments of acoustic categories for selected regions on all frequencies other than " + Utils.hzToKHz(lsss.getInterpretationSettings().getFrequency()) + " kHz?";
                int answer = JOptionPane.showConfirmDialog(lsss.getFrame(), message, "Delete interpretation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -226,7 +233,7 @@ public final class Actions {
          });
 
    public final LsssAction deleteAssignmentsOnAllFrequencies = new TaskLsssAction("deleteAssignmentsOnAllFrequencies", "Delete assignments on all frequencies",
-         a -> {
+         _ -> {
             if (lsss.getInterpretationSettings().isInteractiveMode()) {
                String message = "Delete assignments of acoustic categories for selected regions on all frequencies?";
                int answer = JOptionPane.showConfirmDialog(lsss.getFrame(), message, "Delete interpretation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -244,11 +251,11 @@ public final class Actions {
          });
 
    public final LsssAction showSchoolVisualizerDialog = new TaskLsssAction("showSchoolVisualizerDialog", "School visualizer dialog...",
-         a -> SwingUtilities.invokeLater(() -> new SchoolVisualizerDialog(lsss, lsss.getFrame())))
+         _ -> SwingUtilities.invokeLater(() -> new SchoolVisualizerDialog(lsss, lsss.getFrame())))
          .setIcon(MiscIcons.SCATTER_PLOT);
 
    public final LsssAction showCategoryEditor = new TaskLsssAction("showCategoryEditor", "Category editor...",
-         a -> SwingUtilities.invokeLater(() -> {
+         _ -> SwingUtilities.invokeLater(() -> {
             try {
                EchogramWindow echogramWindow = LsssUtils.getEchogramWindow(lsss);
                if (echogramWindow != null) {
@@ -261,19 +268,19 @@ public final class Actions {
          }));
 
    public final LsssAction reloadData = new TaskLsssAction("reloadData", "Reload data",
-         a -> lsss.getInterpretationSettings().reloadAllData())
+         _ -> lsss.getInterpretationSettings().reloadAllData())
          .setIcon(MiscIcons.REFRESH);
 
    public final LsssAction undo = new TaskLsssAction("undo", "Undo last school edit",
-         a -> lsss.getRegionManager().undo())
+         _ -> lsss.getRegionManager().undo())
          .setIcon(MiscIcons.UNDO);
 
    public final LsssAction redo = new TaskLsssAction("redo", "Redo last school edit",
-         a -> lsss.getRegionManager().redo())
+         _ -> lsss.getRegionManager().redo())
          .setIcon(MiscIcons.REDO);
 
    public final LsssAction icesResetMetadata = new TaskLsssAction("icesResetMetadata", "Resets ICES metadata from data files",
-         a -> {
+         _ -> {
             IcesConf icesConf = lsss.getConfigurationManager().getSurveyMiscConf().getIcesConf();
             icesConf.resetValuesFromData();
             icesConf.saveToDatabase();
@@ -281,7 +288,7 @@ public final class Actions {
          .setIcon(MiscIcons.UNDO);
 
    public final LsssAction startPreprocessing = new TaskLsssAction("startPreprocessing", "Start KORONA preprocessing",
-         a -> lsss.getConfigurationManager().getSurveyConfiguration().getPreprocessingConf().getMainSetup().start(Optional.empty()))
+         _ -> lsss.getConfigurationManager().getSurveyConfiguration().getPreprocessingConf().getMainSetup().start(Optional.empty()))
          .setIcon(LsssIcons.KORONA);
 
    public Actions(LSSS lsss) {
@@ -318,6 +325,7 @@ public final class Actions {
       lsssPackage.addAction(selectVisibleRegionsNot100PercentAssignedOnCurrentFrequency);
       lsssPackage.addAction(selectVisibleRegionsNot100PercentAssignedOnStorableFrequencies);
       lsssPackage.addAction(resetInterpretation);
+      lsssPackage.addAction(excludeLowSpeed);
       lsssPackage.addAction(mergeLayersWithSameInterpretation);
       lsssPackage.addAction(setUpperBoundaryFromRange);
       lsssPackage.addAction(setLowerBoundaryFromThreshold);
@@ -335,10 +343,10 @@ public final class Actions {
 
       lsssPackage.setKeyStrokeMap(new ConcurrentHashMap<>());
 
-      Map<KeyStroke, List<ActionExecutor>> anywhereKeyStrokeMap = lsssPackage.getKeyStrokeMap().computeIfAbsent(LsssPackage.KEY_STROKE_CONTEXT_ANYWHERE, k -> new ConcurrentHashMap<>());
+      Map<KeyStroke, List<ActionExecutor>> anywhereKeyStrokeMap = lsssPackage.getKeyStrokeMap().computeIfAbsent(LsssPackage.KEY_STROKE_CONTEXT_ANYWHERE, _ -> new ConcurrentHashMap<>());
       anywhereKeyStrokeMap.put(Shortcuts.TOOLTIP, List.of(showTooltip));
 
-      Map<KeyStroke, List<ActionExecutor>> mainWindowKeyStrokeMap = lsssPackage.getKeyStrokeMap().computeIfAbsent(LsssPackage.KEY_STROKE_CONTEXT_MAIN_WINDOW, k -> new ConcurrentHashMap<>());
+      Map<KeyStroke, List<ActionExecutor>> mainWindowKeyStrokeMap = lsssPackage.getKeyStrokeMap().computeIfAbsent(LsssPackage.KEY_STROKE_CONTEXT_MAIN_WINDOW, _ -> new ConcurrentHashMap<>());
       mainWindowKeyStrokeMap.put(Shortcuts.NEW, List.of(newSurvey));
       mainWindowKeyStrokeMap.put(Shortcuts.OPEN, List.of(openSurvey));
       mainWindowKeyStrokeMap.put(Shortcuts.EDIT, List.of(editSurvey));
@@ -488,7 +496,7 @@ public final class Actions {
    }
 
    private void selectVisibleRegionsNot100PercentAssigned(Set<Integer> channels) {
-      List<Region> regions = lsss.getRegionManager().getVisibleRegions().stream()
+      List<Region> regions = lsss.getRegionManager().visibleRegions()
             .filter(region -> !region.getInterpretation().isCompletelyAssigned(channels))
             .toList();
       lsss.getRegionManager().replaceSelectedRegions(regions);
@@ -540,9 +548,24 @@ public final class Actions {
       return true;
    }
 
+   private void excludeLowSpeed() {
+      new SimpleInputDialog<>("Exclude pings with low speed", "Minimum speed", "3", Float::parseFloat)
+            .setUnit(Unit.KNOTS)
+            .setBelowText("The excluded distances are expanded until the speed is stabile.")
+            .show(lsss.getFrame())
+            .ifPresent(minKnots -> {
+               RangeSet<PingIndex> exclusion = ExclusionDetector.fromLowSpeed(
+                     lsss.getInterpretationSettings().getDataFileSet(),
+                     lsss.getInterpretationSettings().getPingRange(),
+                     minKnots
+               );
+               lsss.getRegionManager().getExclusionManager().exclude(exclusion);
+            });
+   }
+
    private void mergeLayersWithSameInterpretation() {
       new WorkerDialog(lsss.getFrame(), "Merging layers with same interpretation")
-            .start(asyncHandle -> {
+            .start(_ -> {
                PingRange pingRange = lsss.getInterpretationSettings().getPingRange();
                LayerManager layerManager = lsss.getRegionManager().getLayerManager();
                while (true) {

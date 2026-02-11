@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 public final class Raw4Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("RAW4", Raw4Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("RAW4", Raw4Datagram::new);
 
    public String channelId;
    public short dataType;

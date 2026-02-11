@@ -3,7 +3,9 @@ package no.imr.korona.computation.dataquality;
 import no.imr.korona.Korona;
 import no.imr.korona.computation.ComputationContext;
 import no.imr.korona.computation.ModuleConfigurationException;
+import no.imr.korona.computation.ModuleUtils;
 import no.imr.korona.computation.SimplePingModuleComputation;
+import no.imr.korona.computation.netcdf.Nc;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingSource;
 import no.imr.tools.Utils;
@@ -45,13 +47,7 @@ final class DataQualityModuleComputation extends SimplePingModuleComputation {
       String ncFileName = FileUtils.baseName(computationContext.getPingReader().getFile()) + ".nc";
       ncFile = ncDir.resolve(ncFileName);
 
-      Integer referenceKHz = module.mainFrequency.getValue().orElse(null);
-      referenceChannel = referenceKHz != null
-            ? pingSource.getPingConfiguration().getRawFileConfiguration().lastChannelWithKHz(referenceKHz)
-            : 1;
-      if (referenceChannel <= 0) {
-         throw new ModuleConfigurationException(module, "Cannot find channel with " + referenceKHz + " kHz");
-      }
+      referenceChannel = ModuleUtils.getMainChannelOrThrow(this, module.mainFrequency.getValue());
 
       dataQualityIndicators.add(new RollIndicator(referenceChannel));
       dataQualityIndicators.add(new ImpedanceIndicator(referenceChannel));
@@ -79,9 +75,9 @@ final class DataQualityModuleComputation extends SimplePingModuleComputation {
 
       long referenceTimeInMillis = getPingConfiguration().getRawFileConfiguration().getTimeInMillis();
 
-      Dimension pingTimeDim = fileBuilder.addDimension("ping_time", timeInMillisList.size());
+      Dimension pingTimeDim = fileBuilder.addDimension(Nc.PING_TIME, timeInMillisList.size());
 
-      fileBuilder.addVariable("ping_time", DataType.LONG, List.of(pingTimeDim))
+      fileBuilder.addVariable(Nc.PING_TIME, DataType.LONG, List.of(pingTimeDim))
             .addAttribute(new Attribute(CF.CALENDAR, "proleptic_gregorian"))
             .addAttribute(new Attribute(CF.UNITS, "nanoseconds since " + Instant.ofEpochMilli(referenceTimeInMillis)));
 
@@ -100,7 +96,7 @@ final class DataQualityModuleComputation extends SimplePingModuleComputation {
                .toArray();
          float[] bottomDepths = Utils.toFloats(bottomDepthList);
 
-         writer.write(writer.findVariable("ping_time"), new int[]{0}, Array.makeFromJavaArray(pingTimes));
+         writer.write(writer.findVariable(Nc.PING_TIME), new int[]{0}, Array.makeFromJavaArray(pingTimes));
 
          for (DataQualityIndicator dataQualityIndicator : dataQualityIndicators) {
             float[] values = dataQualityIndicator.computeResult(timeInMillis, bottomDepths);

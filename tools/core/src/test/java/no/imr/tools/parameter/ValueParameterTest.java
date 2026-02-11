@@ -14,7 +14,7 @@ final class ValueParameterTest {
       AtomicInteger changeCounter = new AtomicInteger();
       ValueParameter<Optional<Float>> p = new ValueParameter<>(new Name("Test"),
             Optional.empty(), Unit.DIMENSIONLESS, ValueConverters.OPTIONAL_FLOAT);
-      p.subscribe(__ -> changeCounter.incrementAndGet());
+      p.subscribe(_ -> changeCounter.incrementAndGet());
       p.setStringValue("2");
       assertEquals(Optional.of(2f), p.getValue());
       assertEquals(1, changeCounter.get());

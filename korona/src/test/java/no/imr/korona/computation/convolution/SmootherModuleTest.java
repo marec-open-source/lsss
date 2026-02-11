@@ -4,6 +4,7 @@ import no.imr.korona.Korona;
 import no.imr.korona.computation.ModuleContainer;
 import no.imr.korona.computation.ModuleContainerComputation;
 import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.items.channel.PowerData;
@@ -27,12 +28,12 @@ final class SmootherModuleTest {
       testConstantData(missingPowerDataDefinition(svValue), svValue, 30);
    }
 
-   private static void testConstantData(SyntheticData syntheticData, float svValue, int expectedPowerDataCount) throws IOException {
+   private static void testConstantData(SyntheticDataFile syntheticDataFile, float svValue, int expectedPowerDataCount) throws IOException {
       ModuleContainer moduleContainer = new ModuleContainer(new Korona());
       moduleContainer.getConfigFileSettings().restoreInstallationLocations();
       moduleContainer.addModule(new SmootherModule());
 
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticData.toPingReader())) {
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
          AtomicInteger powerDataCounter = new AtomicInteger();
          while (true) {
             Ping ping = computation.nextPing();
@@ -50,53 +51,47 @@ final class SmootherModuleTest {
       }
    }
 
-   private static SyntheticData simpleSyntheticData(float svValue) {
-      SyntheticData syntheticData = new ConstantSyntheticData(10, svValue);
-      syntheticData.setFirstAndLastPingNumber(1, 5);
-      return syntheticData;
+   private static SyntheticDataFile simpleSyntheticData(float svValue) {
+      return new ConstantSyntheticData(10, svValue).withFirstAndLastPingNumber(1, 5);
    }
 
-   private static SyntheticData varyingSampleIntervalDefinition(float svValue) {
+   private static SyntheticDataFile varyingSampleIntervalDefinition(float svValue) {
       SyntheticData syntheticData = new ConstantSyntheticData(100, svValue) {
          @Override
          protected float getSampleInterval(PingIndex pingIndex, int channel) {
             return pingIndex.getPingNumber() < 5 ? super.getSampleInterval(pingIndex, channel) * 0.5f : super.getSampleInterval(pingIndex, channel);
          }
       };
-      syntheticData.setFirstAndLastPingNumber(1, 10);
-      return syntheticData;
+      return syntheticData.withFirstAndLastPingNumber(1, 10);
    }
 
-   private static SyntheticData increasingTransducerDepthDefinition(float svValue) {
+   private static SyntheticDataFile increasingTransducerDepthDefinition(float svValue) {
       SyntheticData syntheticData = new ConstantSyntheticData(100, svValue) {
          @Override
          protected float getTransducerDepth(PingIndex pingIndex, int channel) {
             return pingIndex.getPingNumber() < 5 ? 7.5f : 15.0f;
          }
       };
-      syntheticData.setFirstAndLastPingNumber(1, 10);
-      return syntheticData;
+      return syntheticData.withFirstAndLastPingNumber(1, 10);
    }
 
-   private static SyntheticData decreasingTransducerDepthDefinition(float svValue) {
+   private static SyntheticDataFile decreasingTransducerDepthDefinition(float svValue) {
       SyntheticData syntheticData = new ConstantSyntheticData(100, svValue) {
          @Override
          protected float getTransducerDepth(PingIndex pingIndex, int channel) {
             return pingIndex.getPingNumber() < 5 ? 15.0f : 7.5f;
          }
       };
-      syntheticData.setFirstAndLastPingNumber(1, 10);
-      return syntheticData;
+      return syntheticData.withFirstAndLastPingNumber(1, 10);
    }
 
-   private static SyntheticData missingPowerDataDefinition(float svValue) {
+   private static SyntheticDataFile missingPowerDataDefinition(float svValue) {
       SyntheticData syntheticData = new ConstantSyntheticData(100, svValue) {
          @Override
          protected boolean hasPowerData(PingIndex pingIndex, int channel) {
             return (channel + pingIndex.getPingNumber()) % 2 == 0;
          }
       };
-      syntheticData.setFirstAndLastPingNumber(1, 10);
-      return syntheticData;
+      return syntheticData.withFirstAndLastPingNumber(1, 10);
    }
 }

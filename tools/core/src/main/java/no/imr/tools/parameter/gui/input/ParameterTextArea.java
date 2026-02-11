@@ -25,6 +25,10 @@ final class ParameterTextArea extends ParameterComponent {
       updateComponent();
 
       textArea.setRows(parameter.getProperty(BaseParameter.KEY_ROWS));
+      if (parameter.getProperty(BaseParameter.KEY_TEXT_WRAP)) {
+         textArea.setLineWrap(true);
+         textArea.setWrapStyleWord(true);
+      }
       textArea.addFocusListener(new FocusAdapter() {
          @Override
          public void focusGained(FocusEvent e) {

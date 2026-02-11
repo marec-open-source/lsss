@@ -136,7 +136,7 @@ final class EkConnection {
          case AliveResponse aliveResponse -> handleAliveResponse(aliveResponse);
          case RequestResponse requestResponse -> handleRequestResponse(requestResponse);
          case RetransmitResponse retransmitResponse -> handleRetransmitResponse(retransmitResponse);
-         case UnknownResponse __ -> Log.global.info("Unknown response: " + new String(bytes, Utils.ISO_8859_1));
+         case UnknownResponse _ -> Log.global.info("Unknown response: " + new String(bytes, Utils.ISO_8859_1));
          default -> Log.global.info("Unexpected response: " + response);
       }
    }

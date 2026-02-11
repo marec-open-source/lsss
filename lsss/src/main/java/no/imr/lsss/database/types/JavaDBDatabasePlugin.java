@@ -37,7 +37,7 @@ public final class JavaDBDatabasePlugin extends AbstractDatabasePlugin {
                   .map(FileInfo::getFileName)
                   .sorted()
                   .toList();
-         } catch (IOException e) {
+         } catch (IOException _) {
             return List.of();
          }
       }

@@ -87,7 +87,7 @@ public final class ProgressView {
       long totalWork = (long) mainProgressBar.getMaximum() * secondaryProgressBar.getMaximum();
       RemainingTimeEstimator remainingTimeEstimator = new RemainingTimeEstimator(totalWork);
 
-      Timer timer = new Timer(1000, e -> updateTimeText(remainingTimeEstimator));
+      Timer timer = new Timer(1000, _ -> updateTimeText(remainingTimeEstimator));
 
       timeLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
       timeLabel.addHierarchyListener(e -> {

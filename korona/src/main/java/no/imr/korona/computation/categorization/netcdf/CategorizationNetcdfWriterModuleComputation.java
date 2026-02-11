@@ -6,22 +6,29 @@ import no.imr.korona.computation.ModuleConfigurationException;
 import no.imr.korona.computation.ModuleUtils;
 import no.imr.korona.computation.SimplePingModuleComputation;
 import no.imr.korona.computation.categorization.netcdf.pojo.AnnotationConfig;
+import no.imr.korona.computation.netcdf.NcAnnotation;
+import no.imr.korona.data.KoronaRegion;
 import no.imr.korona.data.datagrams.Cac0Datagram;
 import no.imr.korona.data.datagrams.Cad0Datagram;
+import no.imr.korona.data.datagrams.Cas0Datagram;
+import no.imr.korona.data.datagrams.RegionBorderDatagram;
+import no.imr.korona.data.datagrams.RegionInfoDatagram;
+import no.imr.korona.data.datamanager.PingContainer;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingConfiguration;
+import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingSource;
 import no.imr.korona.data.ping.items.channel.ChannelData;
+import no.imr.korona.data.util.geometry.EchogramUtils;
 import no.imr.korona.viewer.ResampleMode;
 import no.imr.korona.viewer.Resampler;
 import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.misc.JsonUtils;
-import no.imr.tools.misc.ThrowingSupplier;
 import no.imr.tools.netcdf.NcWrite;
 import no.imr.tools.range.FloatRange;
-import org.jspecify.annotations.Nullable;
+import no.imr.tools.range.FloatRangeSet;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -35,10 +42,16 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -53,6 +66,8 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
    private final FloatRange rangeRange;
    private final Map<Byte, Integer> categoryNumberToIndex;
    private int pingTimeIndex;
+   private final List<PingIndex> pingIndices = new ArrayList<>();
+   private final NavigableMap<PingIndex, PingInfo> pingInfos = new TreeMap<>();
 
    CategorizationNetcdfWriterModuleComputation(CategorizationNetcdfWriterModule module, ComputationContext computationContext, PingSource pingSource) throws IOException {
       super(module, computationContext, pingSource);
@@ -76,34 +91,18 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
       PingConfiguration pingConfiguration = pingSource.getPingConfiguration();
       referenceTimeInMillis = pingConfiguration.getRawFileConfiguration().getTimeInMillis();
 
-      Integer referenceKHz = module.mainFrequency.getValue().orElse(null);
-      referenceChannel = referenceKHz != null
-            ? pingConfiguration.getRawFileConfiguration().lastChannelWithKHz(referenceKHz)
-            : 1;
-      if (referenceChannel <= 0) {
-         throw new ModuleConfigurationException(module, "Cannot find channel with " + referenceKHz + " kHz");
-      }
+      referenceChannel = ModuleUtils.getMainChannelOrThrow(this, module.mainFrequency.getValue());
 
-      ThrowingSupplier<ChannelData, IOException> referenceChannelData = new ThrowingSupplier<>() {
-         private @Nullable ChannelData channelData;
-
-         @Override
-         public ChannelData get() throws IOException {
-            ChannelData channelData = this.channelData;
-            if (channelData == null) {
-               channelData = ModuleUtils.getInputChannelData(CategorizationNetcdfWriterModuleComputation.this, referenceChannel);
-               if (channelData == null) {
-                  throw new ModuleConfigurationException(module, "Cannot find data on channel " + referenceChannel + " with " + referenceKHz + " kHz");
-               }
-               this.channelData = channelData;
-            }
-            return channelData;
-         }
-      };
       Optional<Float> optDeltaRange = module.deltaRange.getValue();
-      float deltaRange = optDeltaRange.isPresent() ? optDeltaRange.get() : referenceChannelData.get().getSampleDistance();
+      float deltaRange = optDeltaRange.isPresent()
+            ? optDeltaRange.get()
+            : ModuleUtils.getInputChannelDataOrThrow(this, referenceChannel).getSampleDistance();
+
       Optional<Float> optMaxRange = module.maxRange.getValue();
-      float maxRange = optMaxRange.isPresent() ? optMaxRange.get() : referenceChannelData.get().getMaxRange();
+      float maxRange = optMaxRange.isPresent()
+            ? optMaxRange.get()
+            : ModuleUtils.getInputChannelDataOrThrow(this, referenceChannel).getMaxRange();
+
       rangeLength = (int) Math.floor(maxRange / deltaRange);
       rangeRange = FloatRange.of(0, deltaRange * rangeLength);
 
@@ -128,26 +127,26 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
             .addAttribute(new Attribute("producer_git_commit", Utils.GIT_COMMIT))
             .addAttribute(new Attribute("creation_time", Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()));
 
-      Dimension pingTimeDim = fileBuilder.addUnlimitedDimension("ping_time");
-      Dimension rangeDim = fileBuilder.addDimension("range", rangeLength);
-      Dimension categoryDim = fileBuilder.addDimension("category", categories.size());
+      Dimension pingTimeDim = fileBuilder.addUnlimitedDimension(NcAnnotation.PING_TIME);
+      Dimension rangeDim = fileBuilder.addDimension(NcAnnotation.RANGE, rangeLength);
+      Dimension categoryDim = fileBuilder.addDimension(NcAnnotation.CATEGORY, categories.size());
 
-      fileBuilder.addVariable("ping_time", DataType.LONG, List.of(pingTimeDim))
+      fileBuilder.addVariable(NcAnnotation.PING_TIME, DataType.LONG, List.of(pingTimeDim))
             .addAttribute(new Attribute(CF.CALENDAR, "proleptic_gregorian"))
             .addAttribute(new Attribute(CF.UNITS, "nanoseconds since " + Instant.ofEpochMilli(referenceTimeInMillis)));
-      fileBuilder.addVariable("range", DataType.DOUBLE, List.of(rangeDim));
-      fileBuilder.addVariable("category", DataType.INT, List.of(categoryDim));
+      fileBuilder.addVariable(NcAnnotation.RANGE, DataType.DOUBLE, List.of(rangeDim));
+      fileBuilder.addVariable(NcAnnotation.CATEGORY, DataType.INT, List.of(categoryDim));
 
-      NcWrite.addFloatVariable(fileBuilder.getRootGroup(), "annotation", List.of(categoryDim, pingTimeDim, rangeDim), List.of());
+      NcWrite.addFloatVariable(fileBuilder.getRootGroup(), NcAnnotation.ANNOTATION, List.of(categoryDim, pingTimeDim, rangeDim), List.of());
 
       writer = fileBuilder.build();
 
       try {
          try {
-            pingTimeVar = findVariable("ping_time");
-            annotationVar = findVariable("annotation");
+            pingTimeVar = findVariable(NcAnnotation.PING_TIME);
+            annotationVar = findVariable(NcAnnotation.ANNOTATION);
 
-            Variable categoryVar = findVariable("category");
+            Variable categoryVar = findVariable(NcAnnotation.CATEGORY);
             int[] categoryArray = categories.stream()
                   .mapToInt(category -> {
                      return koronaNameToAnnotationId.getOrDefault(category.getName(),
@@ -156,7 +155,7 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
                   .toArray();
             writer.write(categoryVar, new int[]{0}, Array.makeFromJavaArray(categoryArray));
 
-            Variable rangeVar = findVariable("range");
+            Variable rangeVar = findVariable(NcAnnotation.RANGE);
             double[] ranges = new double[rangeLength];
             for (int i = 0; i < rangeLength; i++) {
                ranges[i] = i * deltaRange;
@@ -179,7 +178,7 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
    static AnnotationConfig readAnnotationConfig(Path ncDir) {
       Path file = ncDir.resolve("annotationConfig.json");
       try {
-         return JsonUtils.readValue(file, AnnotationConfig.class);
+         return JsonUtils.JSON_MAPPER.readValue(file, AnnotationConfig.class);
       } catch (Exception e) {
          if (!FileUtils.notExists(e, file)) {
             Log.global.warning("Error reading file " + file + ": " + e);
@@ -190,6 +189,7 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
 
    @Override
    protected void processPing(Ping ping) throws IOException {
+      pingIndices.add(ping.getPingIndex());
       try {
          long t = (ping.getTimeInMillis() - referenceTimeInMillis) * 1_000_000;
          writer.write(pingTimeVar, new int[]{pingTimeIndex}, Array.makeFromJavaArray(new long[]{t}));
@@ -209,24 +209,28 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
          int categoryCount = cad0Datagram.getCategoryCount();
          int pixelCount = cad0Datagram.getPixelCount();
 
-         float[][] annotationData = new float[categoryNumberToIndex.size()][pixelCount];
+         float[][] annotationDataBeforeResampling = new float[categoryNumberToIndex.size()][pixelCount];
          for (int categoryPriority = 0; categoryPriority < categoryCount; categoryPriority++) {
             for (int pixelIndex = 0; pixelIndex < pixelCount; pixelIndex++) {
                byte categoryNumber = cad0Datagram.getCategory(categoryPriority, pixelIndex);
                int categoryIndex = categoryNumberToIndex.get(categoryNumber);
-               float annotationValue = 1.0f / (categoryPriority + 1);
-               // todo: Use probability, discriminant? But they do not preserve order.
-               annotationData[categoryIndex][pixelIndex] = annotationValue;
+               float annotationValue = toAnnotationValue(categoryPriority);
+               annotationDataBeforeResampling[categoryIndex][pixelIndex] = annotationValue;
             }
          }
-
-         float[] outputData = new float[rangeLength];
+         float[][] annotationData = new float[categoryNumberToIndex.size()][rangeLength];
          for (int categoryIndex = 0; categoryIndex < annotationData.length; categoryIndex++) {
-            float[] categoryValues = annotationData[categoryIndex];
+            float[] outputData = annotationData[categoryIndex];
+            float[] categoryValues = annotationDataBeforeResampling[categoryIndex];
             Resampler.sampleFloatData(categoryValues, categoryRangeRange, outputData, rangeRange, ResampleMode.AVERAGE);
-            writer.write(annotationVar, new int[]{categoryIndex, pingTimeIndex, 0},
-                  Array.makeFromJavaArray(new float[][][]{{outputData}}));
          }
+
+         PingInfo pingInfo = new PingInfo(pingTimeIndex, referenceChannelData.getHeaveCorrectedTransducerDepth(), annotationData, new HashSet<>());
+         pingInfos.put(ping.getPingIndex(), pingInfo);
+
+         processRegions(ping);
+
+         writeFinishedPings();
 
          pingTimeIndex++;
 
@@ -235,12 +239,107 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
       }
    }
 
+   private static float toAnnotationValue(int categoryPriority) {
+      // todo: Use probability, discriminant? But they do not preserve order.
+      return 1.0f / (categoryPriority + 1);
+   }
+
+   private void processRegions(Ping ping) {
+      ping.getPingItems(RegionBorderDatagram.class)
+            .flatMap(regionBorderDatagram -> regionBorderDatagram.getBorderInfos().stream())
+            .map(RegionBorderDatagram.BorderInfo::id)
+            .forEach(pingInfos.get(ping.getPingIndex()).borderIds::add);
+
+      Map<Integer, Cas0Datagram> regionIdToCas0 = ping.getPingItems(Cas0Datagram.class)
+            .collect(Collectors.toMap(Cas0Datagram::getRegionId, Function.identity()));
+
+      ping.getPingItems(RegionInfoDatagram.class).forEach(regionInfoDatagram -> {
+         Set<Integer> borderIds = IntStream.of(regionInfoDatagram.getBorderIds())
+               .boxed()
+               .collect(Collectors.toSet());
+         pingInfos.values().forEach(pingInfo -> pingInfo.borderIds.removeAll(borderIds));
+         if (!regionInfoDatagram.isAccepted()) {
+            return;
+         }
+         Cas0Datagram cas0Datagram = regionIdToCas0.get(regionInfoDatagram.getRegionId());
+         if (cas0Datagram == null) {
+            return;
+         }
+         PingContainer pingContainer = EchogramUtils.listPingContainer(getPingConfiguration(), pingIndices);
+         NavigableMap<PingIndex, FloatRangeSet> mask = KoronaRegion.createMask(regionInfoDatagram, pingContainer);
+         mask.forEach((pingIndex, regionDepthRanges) -> {
+            PingInfo pingInfo = pingInfos.get(pingIndex);
+            if (pingInfo == null) {
+               return;
+            }
+            for (FloatRange regionDepthRange : regionDepthRanges) {
+               FloatRange regionRangeRange = regionDepthRange.add(-pingInfo.heaveCorrectedTransducerDepth);
+               int iBegin = Math.round(Math.clamp(rangeRange.valueToFraction(regionRangeRange.min()), 0, 1) * rangeLength);
+               int iEnd = Math.round(Math.clamp(rangeRange.valueToFraction(regionRangeRange.max()), 0, 1) * rangeLength);
+
+               // Remove pixel categorization:
+               for (int categoryIndex = 0; categoryIndex < pingInfo.annotationData.length; categoryIndex++) {
+                  Arrays.fill(pingInfo.annotationData[categoryIndex], iBegin, iEnd, 0);
+               }
+
+               // Use school categorization:
+               int categoryCount = cas0Datagram.getCategoryCount();
+               for (int categoryPriority = 0; categoryPriority < categoryCount; categoryPriority++) {
+                  byte categoryNumber = cas0Datagram.getCategory(categoryPriority);
+                  int categoryIndex = categoryNumberToIndex.get(categoryNumber);
+                  float annotationValue = toAnnotationValue(categoryPriority);
+                  Arrays.fill(pingInfo.annotationData[categoryIndex], iBegin, iEnd, annotationValue);
+               }
+            }
+         });
+      });
+   }
+
+   private void writeFinishedPings() throws IOException {
+      while (true) {
+         Map.Entry<PingIndex, PingInfo> firstEntry = pingInfos.firstEntry();
+         if (firstEntry == null) {
+            break;
+         }
+         PingInfo pingInfo = firstEntry.getValue();
+         if (!pingInfo.borderIds.isEmpty()) {
+            break;
+         }
+         write(pingInfo);
+         pingInfos.remove(firstEntry.getKey());
+      }
+   }
+
+   private void write(PingInfo pingInfo) throws IOException {
+      try {
+         for (int categoryIndex = 0; categoryIndex < pingInfo.annotationData.length; categoryIndex++) {
+            writer.write(annotationVar, new int[]{categoryIndex, pingInfo.pingTimeIndex, 0},
+                  Array.makeFromJavaArray(new float[][][]{{pingInfo.annotationData[categoryIndex]}}));
+         }
+      } catch (InvalidRangeException e) {
+         throw new IOException(e);
+      }
+   }
+
    @Override
    public void close() throws IOException {
+      for (PingInfo pingInfo : pingInfos.values()) {
+         write(pingInfo);
+      }
+      pingInfos.clear();
+
       writer.close();
    }
 
    private Variable findVariable(String name) {
       return Objects.requireNonNull(writer.findVariable(name), name);
+   }
+
+   private record PingInfo(
+         int pingTimeIndex,
+         float heaveCorrectedTransducerDepth,
+         float[][] annotationData,
+         Set<Integer> borderIds
+   ) {
    }
 }

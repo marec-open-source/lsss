@@ -88,20 +88,20 @@ public final class ExportDialog {
       JTextField fileNamePrefix = new JTextField(settings.fileNamePrefix, 20);
 
       JButton settingsButton = new JButton("Settings");
-      settingsButton.addActionListener(e -> showSettingsDialog(dialog, exporters));
+      settingsButton.addActionListener(_ -> showSettingsDialog(dialog, exporters));
       JButton exportButton = new JButton("Export");
       exportButton.setMnemonic(KeyEvent.VK_P);
-      exportButton.addActionListener(e -> {
+      exportButton.addActionListener(_ -> {
          export(dialog, getEnabledExporters(exporters), fileNamePrefix.getText());
          dialog.dispose();
       });
       JButton deleteButton = new JButton("Delete");
       deleteButton.setToolTipText("Delete previously exported files");
       deleteButton.setMnemonic(KeyEvent.VK_D);
-      deleteButton.addActionListener(e -> delete(dialog, getEnabledExporters(exporters)));
+      deleteButton.addActionListener(_ -> delete(dialog, getEnabledExporters(exporters)));
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE);
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
       JButton helpButton = new JButton("Help");
       LsssHelp.EXPORT.enableHelpKeyOnButton(helpButton);
 
@@ -161,9 +161,9 @@ public final class ExportDialog {
       }
 
       JButton allOn = new JButton("All on");
-      allOn.addActionListener(e -> setExportersEnabled(exporters, true));
+      allOn.addActionListener(_ -> setExportersEnabled(exporters, true));
       JButton allOff = new JButton("All off");
-      allOff.addActionListener(e -> setExportersEnabled(exporters, false));
+      allOff.addActionListener(_ -> setExportersEnabled(exporters, false));
 
       JPanel bottomWestPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       bottomWestPanel.add(allOn);

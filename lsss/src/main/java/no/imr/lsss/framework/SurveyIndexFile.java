@@ -130,8 +130,8 @@ public final class SurveyIndexFile {
          SurveyIndexFile surveyIndexFile = new SurveyIndexFile(lsssDataDir);
          surveyIndexFile.add(file);
          surveyIndexFile.saveIfChanged();
-      } catch (IOException e) {
-         // Ignore here
+      } catch (IOException _) {
+         // Ignore here.
       }
    }
 }

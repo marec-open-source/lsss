@@ -15,41 +15,43 @@ import java.util.List;
  * {@link SegmentHandle} for synthetic data.
  */
 final class SyntheticSegmentHandle extends SegmentHandle {
+   private final Path file;
    private final SyntheticDataFile syntheticDataFile;
 
-   SyntheticSegmentHandle(SyntheticDataFile syntheticDataFile) {
-      super(FileUtils.baseName(syntheticDataFile.getFile()));
+   SyntheticSegmentHandle(Path file, SyntheticDataFile syntheticDataFile) {
+      super(FileUtils.baseName(file));
 
+      this.file = file;
       this.syntheticDataFile = syntheticDataFile;
    }
 
    @Override
    public String getDisplayName() {
-      return syntheticDataFile.getFile().getFileName().toString();
+      return file.getFileName().toString();
    }
 
    @Override
    public Path getMainFile() {
-      return syntheticDataFile.getFile();
+      return file;
    }
 
    @Override
    public List<Path> getFiles() {
-      return List.of(syntheticDataFile.getFile());
+      return List.of(file);
    }
 
    @Override
    public SegmentInfo createSegmentInfo() {
-      return SyntheticSegment.createSegmentInfo(syntheticDataFile.getSyntheticData());
+      return new SegmentInfo(syntheticDataFile.getRawFileConfiguration(), syntheticDataFile.toPingRange());
    }
 
    @Override
    public SegmentData createSegmentData(NoticeHandler noticeHandler, AsyncHandle asyncHandle) {
-      return new SyntheticSegmentData(syntheticDataFile.getSyntheticData());
+      return new SyntheticSegmentData(syntheticDataFile);
    }
 
    @Override
    public PingReader createPingReader() {
-      return new SyntheticPingReader(syntheticDataFile);
+      return new SyntheticPingReader(file, syntheticDataFile);
    }
 }

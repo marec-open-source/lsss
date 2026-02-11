@@ -25,16 +25,15 @@ public record DatabaseColumn(
    }
 
    /**
-    * Function for looking up the path to the field of a class.
+    * Appends the path to the field for a given class.
     *
+    * @param stringBuilder the string builder to append to
     * @param clazz the class containing the field
-    * @return the path to the field
     */
-   public String getFieldPath(Class<? extends BaseDatabaseObject> clazz) {
-      if (nonCompIdClasses.contains(clazz)) {
-         return name;
-      } else {
-         return "compId." + name;
+   public void appendFieldPath(StringBuilder stringBuilder, Class<? extends BaseDatabaseObject> clazz) {
+      if (!nonCompIdClasses.contains(clazz)) {
+         stringBuilder.append("compId.");
       }
+      stringBuilder.append(name);
    }
 }

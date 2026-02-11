@@ -17,14 +17,14 @@ final class BaseDatagramTest {
 
    @Test
    void copy() {
-      UnknownDatagram datagram = new UnknownDatagram(0, new UnknownDatagramType(1), ByteBuffer.wrap(new byte[]{3, 4, 5}));
+      UnknownDatagram datagram = new UnknownDatagram(0, UnknownDatagram.type(1), ByteBuffer.wrap(new byte[]{3, 4, 5}));
       UnknownDatagram copy = PingItem.copy(datagram);
       assertEquals(datagram.getNTDate(), copy.getNTDate());
       assertEquals(datagram.getDatagramType(), copy.getDatagramType());
    }
 
    private static final class DummyDatagram extends DatagramPingItem {
-      private static final DatagramType TYPE = new DatagramType.Simple("TEST", DummyDatagram::new);
+      private static final DatagramType TYPE = DatagramType.simple("TEST", DummyDatagram::new);
 
       private DummyDatagram(long ntDate) {
          super(ntDate);

@@ -5,7 +5,7 @@ import no.imr.korona.data.datagrams.BaseDatagram;
 import no.imr.korona.data.datagrams.DatagramFormatException;
 import no.imr.korona.data.datagrams.DatagramType;
 import no.imr.korona.data.datagrams.DatagramTypeManager;
-import no.imr.korona.data.datagrams.UnknownDatagramType;
+import no.imr.korona.data.datagrams.UnknownDatagram;
 import no.imr.tools.concurrent.AsyncHandle;
 import org.jspecify.annotations.Nullable;
 
@@ -44,8 +44,8 @@ public abstract class BaseDatagramReader implements DatagramSource, Closeable {
    static final long MAX_NT_DATE = 2650466880000000000L;
 
    private final DatagramTypeManager datagramTypeManager;
-   private Predicate<DatagramType> readPredicate = x -> true;
-   private Predicate<BaseDatagram> acceptPredicate = x -> true;
+   private Predicate<DatagramType> readPredicate = _ -> true;
+   private Predicate<BaseDatagram> acceptPredicate = _ -> true;
 
    private long totalRead;
    private long bytesSkipped;
@@ -154,13 +154,13 @@ public abstract class BaseDatagramReader implements DatagramSource, Closeable {
 
          DatagramType datagramType = datagramTypeManager.getDatagramType(intCode);
          if (datagramType == null) {
-            datagramType = new UnknownDatagramType(intCode);
+            datagramType = UnknownDatagram.type(intCode);
          }
          if (!readPredicate.test(datagramType)) {
             try {
                skip(datagramSize + 8);
                continue;
-            } catch (BufferUnderflowException e) {
+            } catch (BufferUnderflowException _) {
                // Skip failed
                return null;
             }
@@ -183,8 +183,8 @@ public abstract class BaseDatagramReader implements DatagramSource, Closeable {
          getReadBuffer().position(p + (4 + 4 + 8)); // Skip size + code + date
          BaseDatagram datagram;
          try {
-            datagram = datagramType.createDatagram(ntDate, getReadBuffer(), datagramTypeManager);
-         } catch (DatagramFormatException | BufferUnderflowException e) {
+            datagram = datagramType.getFactory().read(ntDate, getReadBuffer(), datagramTypeManager);
+         } catch (DatagramFormatException | BufferUnderflowException _) {
             // Parsing failed
             datagram = null;
          }

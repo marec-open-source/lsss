@@ -16,33 +16,33 @@ import java.util.List;
 /**
  * The data of a {@link SyntheticSegment}.
  */
-public final class SyntheticSegmentData extends SegmentData {
-   private final SyntheticData syntheticData;
+final class SyntheticSegmentData extends SegmentData {
+   private final SyntheticDataFile syntheticDataFile;
    private final List<PingIndex> pingIndices;
    private final List<Bot0Datagram> bot0Datagrams;
 
-   SyntheticSegmentData(SyntheticData syntheticData) {
-      this.syntheticData = syntheticData;
+   SyntheticSegmentData(SyntheticDataFile syntheticDataFile) {
+      this.syntheticDataFile = syntheticDataFile;
 
-      int pingCount = syntheticData.getPingCount();
+      int pingCount = syntheticDataFile.getPingCount();
       pingIndices = new ArrayList<>(pingCount);
       bot0Datagrams = new ArrayList<>(pingCount);
 
       for (int i = 0; i < pingCount; i++) {
-         long pingNumber = syntheticData.getFirstPingNumber() + i;
-         PingIndex pingIndex = syntheticData.createPingIndex(pingNumber);
+         long pingNumber = syntheticDataFile.getFirstPingNumber() + i;
+         PingIndex pingIndex = syntheticDataFile.createPingIndex(pingNumber);
          pingIndices.add(pingIndex);
-         bot0Datagrams.add(syntheticData.createBot0Datagram(pingIndex));
+         bot0Datagrams.add(syntheticDataFile.createBot0Datagram(pingIndex));
       }
    }
 
-   public void expand(PingIndexShift pingIndexShift) {
-      long newPingNumber = syntheticData.getLastPingNumber() + 1;
-      syntheticData.setFirstAndLastPingNumber(syntheticData.getFirstPingNumber(), newPingNumber);
-      PingIndex newPingIndex = syntheticData.createPingIndex(newPingNumber);
+   void expand(PingIndexShift pingIndexShift) {
+      long newPingNumber = syntheticDataFile.getLastPingNumber() + 1;
+      syntheticDataFile.setLastPingNumber(newPingNumber);
+      PingIndex newPingIndex = syntheticDataFile.createPingIndex(newPingNumber);
       pingIndexShift.apply(newPingIndex);
       pingIndices.add(newPingIndex);
-      bot0Datagrams.add(syntheticData.createBot0Datagram(newPingIndex));
+      bot0Datagrams.add(syntheticDataFile.createBot0Datagram(newPingIndex));
    }
 
    @Override
@@ -56,7 +56,7 @@ public final class SyntheticSegmentData extends SegmentData {
 
    @Override
    public @Nullable WrapAround getWrapAround() {
-      return syntheticData.getWrapAround();
+      return syntheticDataFile.getSyntheticData().getWrapAround(syntheticDataFile);
    }
 
    @Override
@@ -66,15 +66,15 @@ public final class SyntheticSegmentData extends SegmentData {
 
    @Override
    public PingData loadPingData(PingIndex pingIndex, AsyncHandle asyncHandle) {
-      return syntheticData.createPingData(pingIndex);
+      return syntheticDataFile.createPingData(pingIndex);
    }
 
    @Override
    public PingConfiguration getPingConfiguration() {
-      return syntheticData.getPingConfiguration();
+      return syntheticDataFile.getPingConfiguration();
    }
 
-   public SyntheticData getSyntheticData() {
-      return syntheticData;
+   public SyntheticDataFile getSyntheticDataFile() {
+      return syntheticDataFile;
    }
 }

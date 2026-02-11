@@ -52,7 +52,7 @@ final class PreprocessingSetupGUI {
 
    private JButton createStartButton() {
       JButton button = MiscIcons.PLAY.on(new JButton("Start preprocessing (KORONA)"));
-      button.addActionListener(e -> preprocessingSetup.start(Optional.empty()));
+      button.addActionListener(_ -> preprocessingSetup.start(Optional.empty()));
       return button;
    }
 
@@ -60,7 +60,7 @@ final class PreprocessingSetupGUI {
       JButton button = MiscIcons.ARROW_UP.on(new JButton());
       button.setToolTipText("Move up");
       button.setEnabled(preprocessingConf.getPreprocessingSetups().indexOf(preprocessingSetup) > 0);
-      button.addActionListener(e -> {
+      button.addActionListener(_ -> {
          preprocessingConf.moveProcessingSetup(preprocessingSetup, -1);
       });
       return button;
@@ -71,7 +71,7 @@ final class PreprocessingSetupGUI {
       button.setToolTipText("Move down");
       List<PreprocessingSetup> preprocessingSetups = preprocessingConf.getPreprocessingSetups();
       button.setEnabled(preprocessingSetups.indexOf(preprocessingSetup) + 1 < preprocessingSetups.size());
-      button.addActionListener(e -> {
+      button.addActionListener(_ -> {
          preprocessingConf.moveProcessingSetup(preprocessingSetup, 1);
       });
       return button;
@@ -81,7 +81,7 @@ final class PreprocessingSetupGUI {
       JButton button = MiscIcons.DELETE.on(new JButton());
       button.setToolTipText("Remove this setup");
       button.setEnabled(preprocessingConf.getPreprocessingSetups().size() > 1);
-      button.addActionListener(e -> {
+      button.addActionListener(_ -> {
          preprocessingConf.deleteProcessingSetup(preprocessingSetup);
       });
       return button;

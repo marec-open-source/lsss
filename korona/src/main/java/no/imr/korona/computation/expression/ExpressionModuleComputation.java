@@ -59,7 +59,9 @@ final class ExpressionModuleComputation extends ConcurrentPingModuleComputation 
 
       PingConfiguration newPingConfiguration = pingConfiguration.createCopy();
       RawFileConfiguration newRawFileConfiguration = newPingConfiguration.getRawFileConfiguration();
-      newRawFileConfiguration.newChannel(newRawFileConfiguration.getTransducers().get(expressionAppliers.getFirst().getChannelToCopyFrom() - 1));
+      RawFileTransducer newTransducer = newRawFileConfiguration.newChannel(newRawFileConfiguration.getTransducers().get(expressionAppliers.getFirst().getChannelToCopyFrom() - 1));
+      module.channelId.getValue().ifPresent(newTransducer::setChannelId);
+      module.frequency.getValue().ifPresent(newTransducer::setFrequency);
       setNewPingConfiguration(newPingConfiguration);
    }
 

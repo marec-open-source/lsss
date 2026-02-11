@@ -1,21 +1,20 @@
 package no.imr.lsss.modules.echogram.overlays;
 
 import no.imr.korona.data.ping.PingIndex;
+import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.geometry.EchogramPoint;
 import no.imr.korona.data.util.mask.GrowEngine;
 import no.imr.korona.data.util.mask.MaskUtils;
+import no.imr.korona.data.util.mask.SchoolCandidateDepthRangeExtractor;
 import no.imr.korona.region.School;
-import no.imr.korona.region.schooledit.ScaleMaskComputation;
 import no.imr.lsss.framework.BaseSystemFeaturePlugin;
 import no.imr.lsss.framework.EchogramSettings;
 import no.imr.lsss.modules.ModuleInfo;
 import no.imr.lsss.modules.OverlayDisplayData;
 import no.imr.lsss.modules.echogram.EchogramModule;
 import no.imr.lsss.resources.LsssCursors;
-import no.imr.lsss.util.growing.SchoolCandidateDepthRangeExtractor;
 import no.imr.tools.listening.ListenerRegistry;
 import no.imr.tools.range.FloatRange;
-import no.imr.tools.range.FloatRangeSet;
 import no.imr.tools.swing.GuiListeners;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.WorkerDialog;
@@ -32,7 +31,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.NavigableMap;
 
 /**
  * Background overlay for adding layer boundaries.
@@ -136,15 +134,27 @@ public final class RegionAddOverlay extends BaseEchogramOverlay {
                         float nextDepth = getZSettings().yToDepth(mouseEvent.getY() + 1, echogramPoint.pingIndex());
                         // NB: nextDepth < echogramPoint.getDepth() if seabed mounted
                         FloatRange depthRange = FloatRange.ofUnsorted(echogramPoint.depth(), nextDepth);
-                        new GrowEngine(getLSSS().getInterpretationSettings().getDataFileSet(), new SchoolCandidateDepthRangeExtractor(getLSSS()))
-                              .setUnusablePings(getRegionManager()::isReadOnly)
+                        PingRange pingRange = getLSSS().getInterpretationSettings().getPingRange();
+                        SchoolCandidateDepthRangeExtractor depthRangeExtractor = new SchoolCandidateDepthRangeExtractor(
+                              getLSSS().getRegionManager(),
+                              getLSSS().getInterpretationSettings().getDataFileSet(),
+                              getLSSS().getInterpretationSettings().getChannel()
+                        );
+                        new GrowEngine(getLSSS().getInterpretationSettings().getDataFileSet(), depthRangeExtractor)
+                              .setUsablePings(pingIndex -> {
+                                 return pingRange.contains(pingIndex) && !getRegionManager().isReadOnly(pingIndex);
+                              })
                               .addSeed(echogramPoint.pingIndex(), depthRange)
                               .setPingCountListener(GuiListeners.coalescingLater(pingCount -> pingCountLabel.setText(pingCount + " pings")))
                               .growSchoolMask(asyncHandle)
                               .ifPresent(schoolMask -> {
                                  schoolMask = MaskUtils.fillHoles(schoolMask, getInterpretationSettings().getDataFileSet());
-                                 schoolMask = smoothSchoolMask(schoolMask);
-                                 getRegionManager().addSchool(schoolMask);
+                                 schoolMask = MaskUtils.smooth(schoolMask, getConfigurationManager().getSurveyMiscConf().schoolGrowSmoothing.getFloatValue(),
+                                       getInterpretationSettings().getDataFileSet(), getPingSettings(), getZSettings());
+                                 School school = getRegionManager().addSchool(schoolMask);
+                                 if (school != null) {
+                                    getRegionManager().replaceSelectedRegions(school);
+                                 }
                               });
                      });
             }
@@ -152,17 +162,6 @@ public final class RegionAddOverlay extends BaseEchogramOverlay {
       }
 
       echogramSettings.useDefaultIfNotSticky();
-   }
-
-   private NavigableMap<PingIndex, FloatRangeSet> smoothSchoolMask(NavigableMap<PingIndex, FloatRangeSet> schoolMask) {
-      float dz = getConfigurationManager().getSurveyMiscConf().schoolGrowSmoothing.getFloatValue();
-      if (dz != 0) {
-         schoolMask = new ScaleMaskComputation(getInterpretationSettings().getDataFileSet(), getPingSettings(), getZSettings(), schoolMask)
-               .computeMask(dz);
-         schoolMask = new ScaleMaskComputation(getInterpretationSettings().getDataFileSet(), getPingSettings(), getZSettings(), schoolMask)
-               .computeMask(-dz);
-      }
-      return schoolMask;
    }
 
    @Override
@@ -237,6 +236,7 @@ public final class RegionAddOverlay extends BaseEchogramOverlay {
                if (Math.abs(b.getX() - a.getX()) >= MIN_SCHOOL_PIXEL_SIZE && Math.abs(b.getY() - a.getY()) >= MIN_SCHOOL_PIXEL_SIZE) {
                   School school = getRegionManager().addSchool(schoolStartPoint, echogramPoint, getZSettings().getDepthTransform());
                   if (school != null) {
+                     getRegionManager().replaceSelectedRegions(school);
                      echogramSettings.useDefaultIfNotSticky();
                   }
                }

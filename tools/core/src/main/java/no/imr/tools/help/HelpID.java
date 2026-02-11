@@ -52,6 +52,6 @@ public record HelpID(
    }
 
    public void enableHelpOnButton(AbstractButton button) {
-      button.addActionListener(e -> show());
+      button.addActionListener(_ -> show());
    }
 }

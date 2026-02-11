@@ -1,96 +1,60 @@
 package no.imr.tools.database.content;
 
-import no.imr.tools.ShouldNotHappenException;
-import no.imr.tools.Utils;
 import no.imr.tools.database.DatabaseConnection;
 import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
-import no.imr.tools.database.queries.SaveOrUpdateQuery;
-import no.imr.tools.logging.Log;
+import no.imr.tools.database.queries.StatelessDatabaseQuery;
+import no.imr.tools.io.FilePredicates;
+import no.imr.tools.io.FileUtils;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.Element;
-import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 public final class DatabaseXmlContent {
-   private final Map<String, Optional<ClassInfo>> classInfos = new HashMap<>();
    private final Map<Class<? extends BaseDatabaseObject>, List<BaseDatabaseObject>> content = new LinkedHashMap<>();
 
-   public DatabaseXmlContent(Collection<Class<? extends BaseDatabaseObject>> databaseClasses, Path dir) throws IOException {
-      try {
-         for (Class<? extends BaseDatabaseObject> databaseClass : databaseClasses) {
-            ClassInfo classInfo = new ClassInfo(databaseClass);
-            classInfos.put(DatabaseUtils.getTableName(databaseClass).toLowerCase(Locale.ENGLISH), Optional.of(classInfo));
-            content.put(classInfo.databaseClass, new ArrayList<>());
-         }
-      } catch (ReflectiveOperationException e) {
-         throw new ShouldNotHappenException(e);
+   public DatabaseXmlContent(List<Class<? extends BaseDatabaseObject>> databaseClasses, Path dir, Predicate<Class<? extends BaseDatabaseObject>> predicate) throws IOException {
+      Map<String, Path> tableNameToFile = new HashMap<>();
+      for (Path file : FileUtils.listFiles(dir, FilePredicates.endsWith(".xml"))) {
+         tableNameToFile.put(FileUtils.baseName(file), file);
       }
-
-      Files.walkFileTree(dir, new SimpleFileVisitor<>() {
-         @Override
-         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (!Utils.endsWithIgnoringCase(file.getFileName().toString(), ".xml")) {
-               return FileVisitResult.CONTINUE;
+      for (Class<? extends BaseDatabaseObject> databaseClass : databaseClasses) {
+         List<BaseDatabaseObject> databaseObjects = new ArrayList<>();
+         content.put(databaseClass, databaseObjects);
+         if (predicate.test(databaseClass)) {
+            Path file = tableNameToFile.get(DatabaseUtils.getTableName(databaseClass));
+            if (file != null) {
+               try {
+                  ClassInfo classInfo = new ClassInfo(databaseClass);
+                  for (Element element : XmlUtils.readDocument(file).getRootElement().elements()) {
+                     databaseObjects.add(classInfo.newInstance(element));
+                  }
+               } catch (ReflectiveOperationException e) {
+                  throw new IOException("Error creating data in file " + file, e);
+               }
             }
-            try {
-               parse(file);
-            } catch (ReflectiveOperationException e) {
-               throw new IOException(e);
-            }
-            return FileVisitResult.CONTINUE;
          }
-      });
+      }
    }
 
    public Map<Class<? extends BaseDatabaseObject>, List<BaseDatabaseObject>> getContent() {
       return content;
    }
 
-   public void save(DatabaseConnection connection, Predicate<Class<? extends BaseDatabaseObject>> predicate) {
+   public void save(DatabaseConnection connection) {
       content.forEach((c, list) -> {
          if (list.isEmpty()) {
             return;
          }
-         if (predicate.test(c)) {
-            connection.executeQuery(new SaveOrUpdateQuery(list));
-         }
+         connection.executeStatelessQuery(StatelessDatabaseQuery.upsert(list));
       });
-   }
-
-   private void parse(Path file) throws IOException, ReflectiveOperationException {
-      Element rootElement = XmlUtils.readDocument(file).getRootElement();
-      String tableName = rootElement.getName();
-      ClassInfo classInfo = get(classInfos, tableName);
-      if (classInfo == null) {
-         Log.global.warning("Unknown class '" + tableName + "' in file " + file);
-         return;
-      }
-      List<BaseDatabaseObject> databaseObjects = content.get(classInfo.databaseClass);
-      for (Element element : rootElement.elements()) {
-         databaseObjects.add(classInfo.newInstance(element));
-      }
-   }
-
-   static <T> @Nullable T get(Map<String, Optional<T>> map, String key) {
-      Optional<T> value = map.computeIfAbsent(key, k -> {
-         return map.getOrDefault(k.toLowerCase(Locale.ENGLISH), Optional.empty());
-      });
-      return value.orElse(null);
    }
 }

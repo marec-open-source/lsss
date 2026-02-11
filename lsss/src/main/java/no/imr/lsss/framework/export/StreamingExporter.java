@@ -1,11 +1,11 @@
 package no.imr.lsss.framework.export;
 
-import com.fasterxml.jackson.databind.ObjectWriter;
 import no.imr.lsss.plugins.FeaturePlugin;
 import no.imr.tools.ProgressHandler;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.misc.JsonUtils;
 import no.imr.tools.parameter.Name;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -27,5 +27,5 @@ public abstract class StreamingExporter extends Exporter {
       }
    }
 
-   public abstract void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) throws IOException;
+   public abstract void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter);
 }

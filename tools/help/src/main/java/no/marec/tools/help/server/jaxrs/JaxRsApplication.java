@@ -1,12 +1,12 @@
 package no.marec.tools.help.server.jaxrs;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import no.imr.tools.help.HelpSystemInfo;
 import no.imr.tools.misc.JsonUtils;
 import no.marec.tools.help.server.jaxrs.resources.RootResource;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public final class JaxRsApplication {
                }
             })
             .register(RootResource.class)
-            .register(new JacksonXmlBindJsonProvider(JsonUtils.JSON_MAPPER, JacksonXmlBindJsonProvider.DEFAULT_ANNOTATIONS))
+            .register(new JacksonJsonProvider(JsonUtils.JSON_MAPPER))
             .register(ErrorMessageExceptionMapper.class);
    }
 

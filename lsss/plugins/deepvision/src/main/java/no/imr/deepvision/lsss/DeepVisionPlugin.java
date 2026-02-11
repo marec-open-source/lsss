@@ -106,7 +106,7 @@ public final class DeepVisionPlugin extends FeaturePlugin {
       Path deepVisionDir = deepVisionEngine.getDeepVisionDataConf().baseDir.getFile();
       if (deepVisionDir == null) {
          // Directory not configured => Exclude noting.
-         return file -> false;
+         return _ -> false;
       }
 
       Set<Path> activeImageFiles = new HashSet<>();

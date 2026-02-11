@@ -129,14 +129,24 @@ public abstract class ParameterGUI<P extends BaseParameter<?>> {
             Insets insets = gridBag.getConstraints().insets;
             int margin = insets.left + insets.right;
             unitAndDescriptionPanel.setBorder(BorderFactory.createEmptyBorder(0, margin, 0, 0));
-            JPanel panel = new JPanel(new BorderLayout());
-            panel.add(inputComponent, BorderLayout.WEST);
-            panel.add(unitAndDescriptionPanel);
+            GridBag gb = new GridBag();
+            if (gridBag.isHorizontalFillActive()) {
+               gb.activateHorizontalFill();
+               gb.add(inputComponent);
+               gb.deactivateFill();
+            } else {
+               gb.add(inputComponent);
+               gb.activateHorizontalFill();
+            }
+            gb.add(unitAndDescriptionPanel);
             gridBag.activateHorizontalFill();
             gridBag.getConstraints().weightx = Double.MIN_VALUE;
-            addLast(gridBag, panel);
+            addLast(gridBag, gb.getPanel());
+            gridBag.deactivateFill();
          } else {
+            gridBag.activateHorizontalFill();
             addLast(gridBag, inputComponent);
+            gridBag.deactivateFill();
          }
       } else {
          if (someParameterHasDescriptionOrUnit()) {
@@ -144,6 +154,7 @@ public abstract class ParameterGUI<P extends BaseParameter<?>> {
             gridBag.activateHorizontalFill();
             gridBag.getConstraints().weightx = Double.MIN_VALUE;
             addLast(gridBag, unitAndDescriptionPanel);
+            gridBag.deactivateFill();
          } else {
             addLast(gridBag, inputComponent);
          }

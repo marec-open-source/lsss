@@ -199,7 +199,7 @@ public class BaseSystemFeaturePlugin extends FeaturePlugin {
             //    OnStartup.DISABLED, CorrelationModule::new)
             .add(new Name("PlanktonModule", "Plankton"),
                   "Displays the results of plankton inversion done during preprocessing",
-                  OnStartup.ENABLED, PlanktonModule::new)
+                  OnStartup.DISABLED, PlanktonModule::new)
             .add(new Name("SvDistributionModule", "Sv distribution"),
                   "Displays the probability density function of Sv values",
                   OnStartup.DISABLED, SvDistributionModule::new)

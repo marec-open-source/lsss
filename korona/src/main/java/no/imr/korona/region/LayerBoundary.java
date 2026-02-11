@@ -1,6 +1,5 @@
 package no.imr.korona.region;
 
-import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.geometry.EchogramPoint;
 
 import java.util.List;
@@ -62,8 +61,6 @@ public abstract sealed class LayerBoundary permits CurveBoundary, VerticalBounda
    public List<Layer> getLayers() {
       return layers;
    }
-
-   abstract boolean touchesPingRange(PingRange pingRange);
 
    abstract LayerBoundaryAndConnectorPair<?> split(EchogramPoint echogramPoint);
 

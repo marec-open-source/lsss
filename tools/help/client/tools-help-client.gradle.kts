@@ -30,11 +30,6 @@ tasks.register<NpmTask>("npmOutdated") {
    args = listOf("outdated")
 }
 
-tasks.register<NpmTask>("npmUpdate") {
-   group = "marec"
-   args = listOf("update")
-}
-
 tasks.register<NpmTask>("ngBuildDev") {
    group = "marec"
    dependsOn(npmInstall)
@@ -62,11 +57,6 @@ tasks.register<NpmTask>("ngBuildProd") {
 tasks.register<NpmTask>("ngLint") {
    group = "marec"
    args = listOf("run", "lint")
-}
-
-tasks.register<NpmTask>("ngServeDev") {
-   group = "marec"
-   args = listOf("run", "start")
 }
 
 tasks.register<NpmTask>("ngTest") {

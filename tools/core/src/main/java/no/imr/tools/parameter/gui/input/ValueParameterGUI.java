@@ -1,5 +1,6 @@
 package no.imr.tools.parameter.gui.input;
 
+import no.imr.tools.parameter.OptionalStringParameter;
 import no.imr.tools.parameter.StringParameter;
 import no.imr.tools.parameter.ValueParameter;
 import no.imr.tools.swing.GridBag;
@@ -27,8 +28,9 @@ public final class ValueParameterGUI<V, P extends ValueParameter<V>> extends Par
       addName(gridBag);
 
       gridBag.getConstraints().anchor = getGUIConfig().getInputFieldAlignment().getGridBagConstraintsAnchor();
-      if (getGUIConfig().getHorizontalFill(getParameter()) && getParameter() instanceof StringParameter &&
-            (parameterComponent instanceof ParameterTextField || !getParameter().getSuggestedValues().isEmpty())) {
+      if (getGUIConfig().getHorizontalFill(getParameter())
+            && (getParameter() instanceof StringParameter || getParameter() instanceof OptionalStringParameter)
+            && (parameterComponent instanceof ParameterTextField || !getParameter().getSuggestedValues().isEmpty())) {
          gridBag.activateHorizontalFill();
       }
 

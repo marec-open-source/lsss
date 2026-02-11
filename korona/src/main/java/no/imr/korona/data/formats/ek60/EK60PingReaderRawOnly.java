@@ -275,7 +275,7 @@ final class EK60PingReaderRawOnly extends EK60PingReader {
    public float getReadFraction() {
       try {
          return (float) rawReader.getPosition() / (float) rawReader.getSize();
-      } catch (IOException e) {
+      } catch (IOException _) {
          return super.getReadFraction();
       }
    }

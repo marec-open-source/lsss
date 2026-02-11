@@ -20,7 +20,7 @@ final class LsssResetMain {
    private LsssResetMain() {
    }
 
-   public static void main(String[] args) throws BackingStoreException, IOException {
+   static void main(String[] args) throws BackingStoreException, IOException {
       Utils.init(args, LsssResource.LSSS_64);
       Path applicationDataDir = LSSS.getApplicationDataDir();
       String preferencesPath = "no/imr";

@@ -7,13 +7,13 @@ import no.imr.tools.RandomUtils;
 import no.imr.tools.Utils;
 import no.imr.tools.annotations.ReflectionEntryPoint;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * As file: RandomSyntheticData@1-1000.lsss-ss.
@@ -42,9 +42,8 @@ public final class RandomSyntheticData extends SyntheticData {
    private void setSeed(long seed) {
       this.seed = seed;
       Random random = new Random(seed);
-      setFirstAndLastPingNumber(1, random.nextInt(1, 11));
-      List<Double> allFrequencies = Arrays.stream(Utils.toDoubles(super.getFrequencies())).boxed().toList();
-      List<Double> selectedFrequencies = RandomUtils.stream(random, allFrequencies, random.nextInt(allFrequencies.size() + 1)).collect(Collectors.toList());
+      List<Float> allFrequencies = IntStream.rangeClosed(1, super.getTransducerCount()).mapToObj(super::getFrequency).toList();
+      List<Float> selectedFrequencies = RandomUtils.stream(random, allFrequencies, random.nextInt(allFrequencies.size() + 1)).collect(Collectors.toList());
       Collections.shuffle(selectedFrequencies, random);
       frequencies = Utils.toFloats(selectedFrequencies);
       transducerDepthType = RandomUtils.get(random, TransducerDepthType.values());
@@ -55,8 +54,13 @@ public final class RandomSyntheticData extends SyntheticData {
    }
 
    @Override
-   protected float[] getFrequencies() {
-      return frequencies;
+   protected int getTransducerCount() {
+      return frequencies.length;
+   }
+
+   @Override
+   protected float getFrequency(int channel) {
+      return frequencies[channel - 1];
    }
 
    @Override
@@ -82,7 +86,7 @@ public final class RandomSyntheticData extends SyntheticData {
    @Override
    protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
       RawInfo rawInfo = getRawInfo(pingIndex, powerData.getChannel());
-      rawDataType.defineData(new Random(rawInfo.rawDataSeed), powerData, pingIndex, rawInfo);
+      rawDataType.defineData(new Random(rawInfo.rawDataSeed), powerData, rawInfo);
    }
 
    @Override
@@ -91,7 +95,7 @@ public final class RandomSyntheticData extends SyntheticData {
    }
 
    private RawInfo getRawInfo(PingIndex pingIndex, int channel) {
-      Map<Integer, RawInfo> map = rawInfos.computeIfAbsent(pingIndex, k -> new ConcurrentHashMap<>());
+      Map<Integer, RawInfo> map = rawInfos.computeIfAbsent(pingIndex, _ -> new ConcurrentHashMap<>());
 
       RawInfo rawInfo = map.get(channel);
       if (rawInfo == null) {
@@ -105,9 +109,9 @@ public final class RandomSyntheticData extends SyntheticData {
    private RawInfo createRawInfo(PingIndex pingIndex, int channel) {
       Random random = new Random(seed ^ pingIndex.getPingNumber() * 10 + channel);
       return new RawInfo(
-            hasRawType.hasRaw(random, pingIndex, channel),
-            countType.getCount(random, pingIndex, channel),
-            transducerDepthType.getTransducerDepth(random, pingIndex, channel),
+            hasRawType.hasRaw(random),
+            countType.getCount(random),
+            transducerDepthType.getTransducerDepth(random),
             random.nextLong()
       );
    }
@@ -120,89 +124,64 @@ public final class RandomSyntheticData extends SyntheticData {
    }
 
    private enum HasRawType {
-      ALWAYS {
-         @Override
-         boolean hasRaw(Random random, PingIndex pingIndex, int channel) {
-            return true;
-         }
-      },
+      ALWAYS,
+      NEVER,
+      RANDOM;
 
-      NEVER {
-         @Override
-         boolean hasRaw(Random random, PingIndex pingIndex, int channel) {
-            return false;
-         }
-      },
-
-      RANDOM {
-         @Override
-         boolean hasRaw(Random random, PingIndex pingIndex, int channel) {
-            return random.nextBoolean();
-         }
-      };
-
-      abstract boolean hasRaw(Random random, PingIndex pingIndex, int channel);
+      private boolean hasRaw(Random random) {
+         return switch (this) {
+            case ALWAYS -> true;
+            case NEVER -> false;
+            case RANDOM -> random.nextBoolean();
+         };
+      }
    }
 
    private enum CountType {
-      CONSTANT_1000 {
-         @Override
-         int getCount(Random random, PingIndex pingIndex, int channel) {
-            return 1000;
-         }
-      },
+      CONSTANT_1000,
+      RANDOM_10000;
 
-      RANDOM_10000 {
-         @Override
-         int getCount(Random random, PingIndex pingIndex, int channel) {
-            return random.nextInt(10000);
-         }
-      };
-
-      abstract int getCount(Random random, PingIndex pingIndex, int channel);
+      private int getCount(Random random) {
+         return switch (this) {
+            case CONSTANT_1000 -> 1000;
+            case RANDOM_10000 -> random.nextInt(10000);
+         };
+      }
    }
 
    private enum TransducerDepthType {
-      CONSTANT_7_5 {
-         @Override
-         float getTransducerDepth(Random random, PingIndex pingIndex, int channel) {
-            return 7.5f;
-         }
-      },
+      CONSTANT_7_5,
+      RANDOM_25;
 
-      RANDOM_25 {
-         @Override
-         float getTransducerDepth(Random random, PingIndex pingIndex, int channel) {
-            return random.nextFloat(25);
-         }
-      };
-
-      abstract float getTransducerDepth(Random random, PingIndex pingIndex, int channel);
+      private float getTransducerDepth(Random random) {
+         return switch (this) {
+            case CONSTANT_7_5 -> 7.5f;
+            case RANDOM_25 -> random.nextFloat(25);
+         };
+      }
    }
 
    private enum RawDataType {
-      NICE {
-         @Override
-         void defineData(Random random, PowerData powerData, PingIndex pingIndex, RawInfo rawInfo) {
-            float[] sv = new float[rawInfo.count];
-            for (int i = 0; i < sv.length; i++) {
-               sv[i] = Math.max(0, 15000 - 20 * i);
-            }
-            powerData.setSv(sv);
-         }
-      },
+      NICE,
+      RANDOM;
 
-      RANDOM {
-         @Override
-         void defineData(Random random, PowerData powerData, PingIndex pingIndex, RawInfo rawInfo) {
-            float[] logSv = new float[rawInfo.count];
-            for (int i = 0; i < logSv.length; i++) {
-               logSv[i] = random.nextFloat(-200, 10);
+      private void defineData(Random random, PowerData powerData, RawInfo rawInfo) {
+         switch (this) {
+            case NICE -> {
+               float[] sv = new float[rawInfo.count];
+               for (int i = 0; i < sv.length; i++) {
+                  sv[i] = Math.max(0, 15000 - 20 * i);
+               }
+               powerData.setSv(sv);
             }
-            powerData.setLogSv(logSv);
+            case RANDOM -> {
+               float[] logSv = new float[rawInfo.count];
+               for (int i = 0; i < logSv.length; i++) {
+                  logSv[i] = random.nextFloat(-200, 10);
+               }
+               powerData.setLogSv(logSv);
+            }
          }
-      };
-
-      abstract void defineData(Random random, PowerData powerData, PingIndex pingIndex, RawInfo rawInfo);
+      }
    }
 }

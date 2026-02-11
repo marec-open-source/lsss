@@ -74,9 +74,11 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SequencedSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -94,7 +96,7 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
    private static final String XML_NAME = "name";
    private static final String XML_ENABLED = "enabled";
 
-   private static final int RECTANGLE_SIZE = 5;
+   private static final int RECTANGLE_SIZE = 10;
 
    private final Set<Integer> mouseButtons = new HashSet<>();
    private final ListenableProperty<Optional<Point>> mousePosition = new ListenableProperty<>(Optional.empty());
@@ -136,7 +138,7 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
    }
 
    public static Rectangle2D createRectangle(Point point) {
-      return new Rectangle2D.Double(point.x - RECTANGLE_SIZE, point.y - RECTANGLE_SIZE, 2 * RECTANGLE_SIZE + 1, 2 * RECTANGLE_SIZE + 1);
+      return new Rectangle2D.Double(point.x - RECTANGLE_SIZE, point.y - RECTANGLE_SIZE, 2 * RECTANGLE_SIZE, 2 * RECTANGLE_SIZE);
    }
 
    public ChangeManager getSizeChangeManager() {
@@ -191,6 +193,7 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
       backgroundOverlay.set(firstBackgroundOverlay);
       activeOverlay.set(firstBackgroundOverlay);
       setBackgroundOverlay(firstBackgroundOverlay);
+      firstBackgroundOverlay.onActivate();
    }
 
    private void setBackgroundOverlay(O overlay) {
@@ -228,9 +231,9 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
          activeOverlay.set(overlay);
          previous.onDeactivate();
          setCursor(Cursor.getDefaultCursor());
+         overlay.onActivate();
+         updateToolTipText();
       }
-      overlay.onActivate();
-      updateToolTipText();
    }
 
    private @Nullable String getToolTipText(Point position) {
@@ -407,7 +410,7 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
                overlay.setEnabledByUser(e.getStateChange() == ItemEvent.SELECTED);
                getComponent().repaint();
             });
-            checkBox.addMouseListener(new PopupMenuMouseListener(mouseEvent -> {
+            checkBox.addMouseListener(new PopupMenuMouseListener(_ -> {
                JPopupMenu popupMenu = new JPopupMenu();
                new ApiMenuBuilder(getLSSS(), getComponent())
                      .overlayMenu(overlay)
@@ -432,7 +435,7 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
                      .text("Configure ").html("<b>").text(overlay.getDisplayName()).html("</b>")
                      .build());
                configureButton.setFocusable(false);
-               configureButton.addActionListener(e -> getConfigurationManager().showDialog(overlay));
+               configureButton.addActionListener(_ -> getConfigurationManager().showDialog(overlay));
                new DeepInputListener(wrapper, new MouseAndKeyAdapter() {
                   @Override
                   public void mouseEntered(MouseEvent e) {
@@ -460,10 +463,10 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
       MultiColumnLayout.addRelayoutListener(scrollPane, scrollablePanel);
 
       JButton allOnButton = new JButton("All on");
-      allOnButton.addActionListener(e -> setForegroundOverlaysEnabled(checkBoxes, true));
+      allOnButton.addActionListener(_ -> setForegroundOverlaysEnabled(checkBoxes, true));
 
       JButton allOffButton = new JButton("All off");
-      allOffButton.addActionListener(e -> setForegroundOverlaysEnabled(checkBoxes, false));
+      allOffButton.addActionListener(_ -> setForegroundOverlaysEnabled(checkBoxes, false));
 
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       buttonPanel.add(allOnButton);
@@ -498,10 +501,10 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
 
    @Override
    public PojoData getPojoData() {
-      Stream<O> stream = overlays.stream()
+      List<PojoData> overlayData = overlays.stream()
             .filter(ConcurrentObject::isEnabled)
-            .sorted(Comparator.comparing(BaseLsssModule::getPersistentName));
-      List<PojoData> overlayData = Utils.getAllOfType(stream, PojoDataContainer.class)
+            .sorted(Comparator.comparing(BaseLsssModule::getPersistentName))
+            .gather(Utils.allOfType(PojoDataContainer.class))
             .map(PojoDataContainer::getPojoData)
             .toList();
       return PojoData.newBuilder(getPersistentName())
@@ -514,6 +517,7 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
       private final OverlayComponent overlayComponent;
       private final LsssToolTip toolTip;
       private boolean isPopupShowing;
+      private final SequencedSet<BaseModuleOverlay> recentlyHiddenOverlays = new LinkedHashSet<>();
 
       protected BaseOverlaidView(BaseOverlaidModule<?> module) {
          super(module);
@@ -524,6 +528,15 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
          GuiUtils.disableFocusTraversalKeys(overlayComponent);
          ContextSensitiveHelp.setHelpIdProvider(overlayComponent, this::getHelpID);
          toolTip = new LsssToolTip(module.getLSSS(), overlayComponent, module::getToolTipText);
+
+         for (BaseModuleOverlay overlay : module.getOverlays()) {
+            overlay.getEnabledByUserChangeManager().addListener(GuiListeners.later(enabledByUser -> {
+               recentlyHiddenOverlays.remove(overlay);
+               if (!enabledByUser) {
+                  recentlyHiddenOverlays.add(overlay);
+               }
+            }));
+         }
       }
 
       @Override
@@ -618,30 +631,47 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
             String text = (onlyOne ? "Configure overlay " : "") + overlay.getDisplayName() + "...";
             JMenuItem item = new JMenuItem(text);
             item.setToolTipText(overlay.getDescription());
-            item.addActionListener(e -> module.getConfigurationManager().showDialog(overlay));
+            item.addActionListener(_ -> module.getConfigurationManager().showDialog(overlay));
             container.add(item);
          }
       }
 
       public void addDisableOverlaysItems(Point point, JPopupMenu popupMenu) {
          List<BaseModuleOverlay> overlays = findSortedOverlays(point, popupMenu);
-         if (overlays.isEmpty()) {
-            return;
+         if (!overlays.isEmpty()) {
+            boolean onlyOne = overlays.size() == 1;
+            JComponent container;
+            if (onlyOne) {
+               container = popupMenu;
+            } else {
+               container = new JMenu("Hide overlay");
+               popupMenu.add(container);
+            }
+            for (BaseModuleOverlay overlay : overlays) {
+               String text = (onlyOne ? "Hide overlay " : "") + overlay.getDisplayName();
+               JMenuItem item = new JMenuItem(text);
+               item.setToolTipText(overlay.getDescription());
+               item.addActionListener(_ -> overlay.setEnabledByUser(false));
+               container.add(item);
+            }
          }
-         boolean onlyOne = overlays.size() == 1;
-         JComponent container;
-         if (onlyOne) {
-            container = popupMenu;
-         } else {
-            container = new JMenu("Hide overlay");
-            popupMenu.add(container);
-         }
-         for (BaseModuleOverlay overlay : overlays) {
-            String text = (onlyOne ? "Hide overlay " : "") + overlay.getDisplayName();
-            JMenuItem item = new JMenuItem(text);
-            item.setToolTipText(overlay.getDescription());
-            item.addActionListener(e -> overlay.setEnabledByUser(false));
-            container.add(item);
+         if (!recentlyHiddenOverlays.isEmpty()) {
+            JMenu unhideMenu = new JMenu("Unhide overlay");
+            popupMenu.add(unhideMenu);
+            for (BaseModuleOverlay overlay : recentlyHiddenOverlays.reversed()) {
+               JMenuItem item = unhideMenu.add(overlay.getDisplayName());
+               item.setToolTipText(overlay.getDescription());
+               item.addActionListener(_ -> overlay.setEnabledByUser(true));
+            }
+            if (recentlyHiddenOverlays.size() > 1) {
+               unhideMenu.addSeparator();
+               JMenuItem item = unhideMenu.add("All");
+               item.addActionListener(_ -> {
+                  for (BaseModuleOverlay overlay : recentlyHiddenOverlays) {
+                     overlay.setEnabledByUser(true);
+                  }
+               });
+            }
          }
       }
 
@@ -770,10 +800,10 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
                   requestFocusInWindow();
                   module.modifiersEx = e.getModifiersEx();
                   module.mousePosition.setValue(Optional.of(e.getPoint()));
-
                   if (module.shouldUseOverlays()) {
                      module.activeOverlay.get().mouseEntered(e);
                   }
+                  updateToolTipText();
                }
 
                @Override
@@ -792,6 +822,7 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
                   if (forwardEventsToOverlays(e)) {
                      module.activeOverlay.get().mouseDragged(e);
                   }
+                  updateToolTipText();
                }
 
                @Override
@@ -801,10 +832,11 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
                   if (forwardEventsToOverlays()) {
                      module.activeOverlay.get().mouseMoved(e);
                   }
+                  updateToolTipText();
                }
             });
 
-            addHierarchyListener(e -> {
+            addHierarchyListener(_ -> {
                // Needed since componentResized is not called initially for phantom echogram below echogram. WHY?
                module.setSize(getWidth(), getHeight());
             });

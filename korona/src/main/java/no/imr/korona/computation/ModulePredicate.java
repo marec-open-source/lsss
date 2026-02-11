@@ -8,6 +8,6 @@ public interface ModulePredicate extends Predicate<ModuleInfo> {
    boolean test(ModuleInfo moduleInfo);
 
    static ModulePredicate alwaysTrue() {
-      return moduleInfo -> true;
+      return _ -> true;
    }
 }

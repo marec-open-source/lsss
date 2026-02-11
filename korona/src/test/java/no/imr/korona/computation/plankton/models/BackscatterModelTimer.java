@@ -28,7 +28,7 @@ final class BackscatterModelTimer {
       System.out.println();
    }
 
-   public static void main(String[] args) {
+   static void main() {
       timeModel(new GaseousSphereModel());
       timeModel(new HardShelledSphereModel());
       timeModel(new FluidProlateSpheroidModel());

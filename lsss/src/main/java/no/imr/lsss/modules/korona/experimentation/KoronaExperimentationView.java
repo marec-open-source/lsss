@@ -3,7 +3,6 @@ package no.imr.lsss.modules.korona.experimentation;
 import no.imr.korona.computation.ModuleContainer;
 import no.imr.korona.computation.ModuleEditor;
 import no.imr.lsss.LSSS;
-import no.imr.lsss.framework.config.ConfigurationManager;
 import no.imr.lsss.framework.config.survey.preprocessing.PreprocessingSetup;
 import no.imr.lsss.modules.BaseViewModule;
 import no.imr.tools.misc.HtmlStringBuilder;
@@ -48,10 +47,10 @@ final class KoronaExperimentationView extends BaseViewModule.BaseView {
 
       JButton processButton = new JButton("Process");
       processButton.setToolTipText("Start processing on the selected regions");
-      processButton.addActionListener(e -> module.startProcessing());
+      processButton.addActionListener(_ -> module.startProcessing());
 
       editButton.setToolTipText("Edit the selected processing setup");
-      editButton.addActionListener(e -> showEditor());
+      editButton.addActionListener(_ -> showEditor());
 
       preprocessingSetupComboBox.setRenderer(new DefaultListCellRenderer() {
          @Override
@@ -61,7 +60,7 @@ final class KoronaExperimentationView extends BaseViewModule.BaseView {
             return this;
          }
       });
-      preprocessingSetupComboBox.addActionListener(e -> module.preprocessingSetup.setIntValue(preprocessingSetupComboBox.getSelectedIndex() + 1));
+      preprocessingSetupComboBox.addActionListener(_ -> module.preprocessingSetup.setIntValue(preprocessingSetupComboBox.getSelectedIndex() + 1));
 
       progressBar.setStringPainted(true);
       progressBar.setString("");
@@ -138,8 +137,7 @@ final class KoronaExperimentationView extends BaseViewModule.BaseView {
 
       Path cfsFile = moduleContainer.getConfigFileSettings().getFile();
       if (cfsFile == null) {
-         ConfigurationManager configurationManager = lsss.getConfigurationManager();
-         configurationManager.showDialog(configurationManager.getSurveyConfiguration().getPreprocessingConf());
+         lsss.getConfigurationManager().getSurveyConfiguration().getPreprocessingConf().showInConfigurationDialog();
          return;
       }
 

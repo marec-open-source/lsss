@@ -4,6 +4,7 @@ import no.imr.korona.Korona;
 import no.imr.korona.computation.ModuleContainer;
 import no.imr.korona.computation.ModuleContainerComputation;
 import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import org.junit.jupiter.api.Test;
 
@@ -51,12 +52,12 @@ final class ChannelRemovalModuleTest {
 
    @Test
    void skipComputation() throws IOException {
-      SyntheticData syntheticData = new ChannelRemovalData();
+      SyntheticDataFile syntheticDataFile = new ChannelRemovalData().withFirstAndLastPingNumber(1, 1000);
       ModuleContainer moduleContainer = new ModuleContainer(new Korona());
 
       ChannelRemovalModule channelRemovalModule = moduleContainer.addModule(new ChannelRemovalModule());
       // Specify none:
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticData.toPingReader())) {
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
          assertEquals(List.of(), computation.getModuleComputations());
       }
 
@@ -64,13 +65,14 @@ final class ChannelRemovalModuleTest {
       channelRemovalModule.frequencies.setValue(List.of(200, 364));
       channelRemovalModule.transmitMode.setValue(ChannelDataRemovalModule.TransmitModeEnum.ACTIVE);
       channelRemovalModule.keepSpecified.setBooleanValue(true);
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticData.toPingReader())) {
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
          assertEquals(List.of(), computation.getModuleComputations());
       }
    }
 
    private static void test(ModuleContainer moduleContainer, SyntheticData syntheticData, List<Integer> expectedKHzs) throws IOException {
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticData.toPingReader())) {
+      SyntheticDataFile syntheticDataFile = syntheticData.withFirstAndLastPingNumber(1, 1);
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
          List<Integer> actualKHzs = computation.getPingConfiguration().getRawFileConfiguration().getTransducers().stream()
                .map(RawFileTransducer::getKHz)
                .toList();

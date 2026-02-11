@@ -45,16 +45,16 @@ public final class SaOverlay extends BaseEchogramOverlay implements PojoDataCont
    @Override
    protected @Nullable OverlayDisplayData recomputeDisplayData() {
       SaCurve saCurve = computeSaCurve();
-      if (saCurve.getPoints().isEmpty() || saCurve.getMaxSa() == 0) {
+      if (saCurve.points().isEmpty() || saCurve.maxSa() == 0) {
          return null;
       }
 
-      Path2D path = new Path2D.Float(Path2D.WIND_NON_ZERO, saCurve.getPoints().size());
+      Path2D path = new Path2D.Float(Path2D.WIND_NON_ZERO, saCurve.points().size());
       LineStripBuilder pathBuilder = LineStripBuilders.coalescing(path);
 
       double height = getHeight();
-      double fy = height / saCurve.getMaxSa();
-      for (SaCurve.Point point : saCurve.getPoints()) {
+      double fy = height / saCurve.maxSa();
+      for (SaCurve.Point point : saCurve.points()) {
          double x = getPingSettings().pingIndexToX(point.pingIndex());
          double y = height - fy * point.sa();
          pathBuilder.addPoint(x, y);
@@ -70,7 +70,7 @@ public final class SaOverlay extends BaseEchogramOverlay implements PojoDataCont
 
    @Override
    public PojoData getPojoData() {
-      List<SaCurve.Point> points = computeSaCurve().getPoints();
+      List<SaCurve.Point> points = computeSaCurve().points();
       PingMapping pingMapping = getInterpretationSettings().getPingMapping();
       ParameterExport pingMappingExport = PojoDataUtils.getParameterExport(pingMapping);
       ParameterExport saExport = new ParameterExport("sa", Unit.SA, ExportRounding.sa());

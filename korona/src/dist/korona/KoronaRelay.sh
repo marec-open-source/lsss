@@ -14,6 +14,7 @@ if [[ "$KORONA_RELAY_MAX_MEMORY_MB" != "" ]]; then MAX_MEMORY_MB=$KORONA_RELAY_M
 
 "$JAVA" $JAVA_OPTS "-Xmx${MAX_MEMORY_MB}m" -classpath "$TOP_INSTALLATION_DIR/lib/jar/*" \
    "-Djava.library.path=$JAVA_LIBRARY_PATH" "-Djna.library.path=$JAVA_LIBRARY_PATH" \
+   --enable-native-access=ALL-UNNAMED \
    -XX:-UseGCOverheadLimit -XX:-OmitStackTraceInFastThrow \
    "-splash:$TOP_INSTALLATION_DIR/korona/KoronaRelay-splash.png" \
    no.imr.korona.main.KoronaRelayMain "$@"

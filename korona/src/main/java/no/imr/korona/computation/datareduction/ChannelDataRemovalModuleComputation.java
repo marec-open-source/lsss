@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 
 public final class ChannelDataRemovalModuleComputation extends ConcurrentPingModuleComputation {
    private final ChannelDataRemovalModule module;
-   private Predicate<ChannelData> remove = __ -> false;
+   private Predicate<ChannelData> remove = _ -> false;
 
    ChannelDataRemovalModuleComputation(ChannelDataRemovalModule module, ComputationContext computationContext, PingSource pingSource) {
       super(module, computationContext, pingSource);
@@ -37,7 +37,7 @@ public final class ChannelDataRemovalModuleComputation extends ConcurrentPingMod
       Predicate<ChannelData> predicate = predicates.stream()
             .flatMap(Optional::stream)
             .reduce(Predicate::or)
-            .orElse(__ -> false);
+            .orElse(_ -> false);
 
       remove = module.keepSpecified.getBooleanValue() ? predicate.negate() : predicate;
    }

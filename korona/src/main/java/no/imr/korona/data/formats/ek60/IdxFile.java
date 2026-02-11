@@ -13,7 +13,7 @@ import no.imr.korona.data.ping.items.PingConversion;
 import no.imr.korona.data.ping.items.PingItem;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.util.NoticeHandler;
-import no.imr.tools.UnionList;
+import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -26,26 +26,24 @@ import java.util.List;
 /**
  * The EK60 index file.
  */
-public final class IdxFile {
+public record IdxFile(
+      Path file,
+      List<Idx0Datagram> idx0Datagrams,
+      RawFileConfiguration rawFileConfiguration,
+      List<PingItem> otherPingItems,
+      @Nullable WrapAround wrapAround
+) {
    public static boolean useIdxFiles = true;
 
-   private final Path file;
-   private final List<Idx0Datagram> idx0Datagrams;
-   private final RawFileConfiguration rawFileConfiguration;
-   private final List<PingItem> otherPingItems;
-   private final @Nullable WrapAround wrapAround;
-
-   IdxFile(Path file, List<Idx0Datagram> idx0Datagrams, RawFileConfiguration rawFileConfiguration, List<PingItem> otherPingItems, @Nullable WrapAround wrapAround) {
-      this.file = file;
-      this.idx0Datagrams = idx0Datagrams;
-      this.rawFileConfiguration = rawFileConfiguration;
-      this.otherPingItems = otherPingItems;
-      this.wrapAround = wrapAround;
+   @Override
+   public String toString() {
+      return file.toString();
    }
 
-   private IdxFile(NoticeHandler noticeHandler, Path file, DatagramTypeManager datagramTypeManager) throws IOException {
-      this.file = file;
-
+   public static IdxFile load(Path file, DatagramTypeManager datagramTypeManager, NoticeHandler noticeHandler) throws IOException {
+      if (!useIdxFiles) {
+         return MissingIdxFileHandler.load(file);
+      }
       try (RandomAccessDatagramReader datagramReader = new ByteBufferDatagramReader(FileUtils.toByteBuffer(file, ByteOrder.LITTLE_ENDIAN), datagramTypeManager)) {
          List<BaseDatagram> configurationDatagrams = new ArrayList<>();
          List<Idx0Datagram> firstIdx = List.of();
@@ -64,13 +62,12 @@ public final class IdxFile {
          PingConfiguration pingConfiguration;
          try {
             pingConfiguration = PingConfigurationReader.toPingConfiguration(configurationDatagrams, file);
-         } catch (DataException e) {
+         } catch (DataException _) {
             pingConfiguration = PingConfigurationReader.read(new EK60FileSet(file).getRaw(), datagramTypeManager);
          }
-         rawFileConfiguration = pingConfiguration.getRawFileConfiguration();
 
          long remaining = datagramReader.getSize() - datagramReader.getPosition();
-         ArrayList<Idx0Datagram> idxDatagrams = new ArrayList<>(1 + (int) (remaining / Idx0Datagram.getSize()));
+         List<Idx0Datagram> idxDatagrams = new ArrayList<>(1 + (int) (remaining / Idx0Datagram.SIZE_ON_FILE));
 
          IdxCorrectionFilter idxCorrectionFilter = new IdxCorrectionFilter(
                DatagramSource.concat(DatagramSource.ofDatagrams(firstIdx), datagramReader));
@@ -100,49 +97,18 @@ public final class IdxFile {
             noticeHandler.addNotice("Corrected time on " + idxCorrectionFilter.getTimeCorrectionCount() + " pings");
          }
 
-         idxDatagrams.trimToSize();
-         idx0Datagrams = idxDatagrams;
-         otherPingItems = new UnionList<>(pingConfiguration.getOtherConfigurationItems(), new PingConversion(file, idxCorrectionFilter.getOtherDatagrams()).getPingItems());
-         wrapAround = idxCorrectionFilter.getWrapAround();
-      }
-   }
-
-   public static IdxFile load(Path file, DatagramTypeManager datagramTypeManager, NoticeHandler noticeHandler) throws IOException {
-      if (!useIdxFiles) {
-         return MissingIdxFileHandler.load(file);
-      }
-      try {
-         return new IdxFile(noticeHandler, file, datagramTypeManager);
+         return new IdxFile(
+               file,
+               List.copyOf(idxDatagrams),
+               pingConfiguration.getRawFileConfiguration(),
+               Utils.toList(pingConfiguration.getOtherConfigurationItems(), new PingConversion(file, idxCorrectionFilter.getOtherDatagrams()).getPingItems()),
+               idxCorrectionFilter.getWrapAround()
+         );
       } catch (IOException e) {
          if (FileUtils.notExists(e, file)) {
             return MissingIdxFileHandler.load(file);
          }
          throw e;
       }
-   }
-
-   public Path getFile() {
-      return file;
-   }
-
-   public RawFileConfiguration getRawFileConfiguration() {
-      return rawFileConfiguration;
-   }
-
-   public List<Idx0Datagram> getIdx0Datagrams() {
-      return idx0Datagrams;
-   }
-
-   public List<PingItem> getOtherPingItems() {
-      return otherPingItems;
-   }
-
-   public @Nullable WrapAround getWrapAround() {
-      return wrapAround;
-   }
-
-   @Override
-   public String toString() {
-      return file.toString();
    }
 }

@@ -31,10 +31,10 @@ final class OptionalWizardStep extends WizardStep {
       gridBag.addVerticalFiller();
 
       JButton finishButton = MiscIcons.FAST_FORWARD.on(new JButton("Finish with selected settings"));
-      finishButton.addActionListener(e -> getWizard().finish());
+      finishButton.addActionListener(_ -> getWizard().finish());
 
       JButton continueButton = MiscIcons.EDIT.on(new JButton("Continue with optional steps"));
-      continueButton.addActionListener(e -> getWizard().next());
+      continueButton.addActionListener(_ -> getWizard().next());
 
       JPanel buttonPanel = new JPanel(new FlowLayout());
       buttonPanel.add(finishButton);

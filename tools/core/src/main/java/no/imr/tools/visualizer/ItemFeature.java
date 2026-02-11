@@ -56,7 +56,7 @@ public abstract sealed class ItemFeature<T> {
 
    public static final class Text<T> extends ItemFeature<T> {
       public Text(String name, Function<T, String> itemToString) {
-         super(name, Unit.NONE, item -> Double.NaN, itemToString);
+         super(name, Unit.NONE, _ -> Double.NaN, itemToString);
       }
    }
 
@@ -102,7 +102,7 @@ public abstract sealed class ItemFeature<T> {
             if (instant != null) {
                try {
                   return instant.toEpochMilli();
-               } catch (ArithmeticException e) {
+               } catch (ArithmeticException _) {
                   // Cannot be represented as a long.
                }
             }

@@ -43,6 +43,7 @@ public final class FileMarkerEngine {
       this.markerHeight = markerHeight;
       this.lineThickness = lineThickness;
       PingRange pingRange = pingSettings.getPingRange();
+      pingRange = PingRange.of(pingRange.begin(), dataManager.getDataFileSet().nextOrSame(pingRange.end()));
       List<DataFile> dataFiles = dataManager.getDataFileSet().getDataFiles(pingRange);
       if (!dataFiles.isEmpty() && !pingRange.contains(dataFiles.getFirst().getPingRange().begin())) {
          dataFiles = dataFiles.subList(1, dataFiles.size());
@@ -131,7 +132,7 @@ public final class FileMarkerEngine {
          int pathCapacity = 5 * xSet.size();
          backgroundPath = new Path2D.Float(Path2D.WIND_NON_ZERO, pathCapacity);
          foregroundPath = new Path2D.Float(Path2D.WIND_NON_ZERO, pathCapacity);
-         xSet.forEach((x0, x1) -> {
+         xSet.forEachBeginEnd((x0, x1) -> {
             GuiUtils.appendRectangle(foregroundPath, x0, y0, x1, y1);
             GuiUtils.appendRectangle(backgroundPath, x0 - 1, y0 - 1, x1 + 1, y1);
          });

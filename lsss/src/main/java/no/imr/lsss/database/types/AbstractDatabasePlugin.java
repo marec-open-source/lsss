@@ -57,7 +57,7 @@ public abstract class AbstractDatabasePlugin extends DatabasePlugin {
 
       this.lsss = lsss;
 
-      password.subscribe(__ -> passwordInitialized = true);
+      password.subscribe(_ -> passwordInitialized = true);
    }
 
    public abstract String getDescription();
@@ -125,7 +125,7 @@ public abstract class AbstractDatabasePlugin extends DatabasePlugin {
       editorPanel.add(getParameterEditor().getEditorComponent());
 
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> dialog.dispose());
+      okButton.addActionListener(_ -> dialog.dispose());
 
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       buttonPanel.setBorder(BorderFactory.createEtchedBorder());

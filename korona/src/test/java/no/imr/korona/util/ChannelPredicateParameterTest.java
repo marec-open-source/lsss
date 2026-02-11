@@ -19,6 +19,6 @@ final class ChannelPredicateParameterTest {
       assertFalse(predicate.test(70, 1, 10));
       assertTrue(predicate.test(70, 10, 10));
 
-      assertEquals(List.of(1, 2, 6), parameter.selectedChannels(new ConstantSyntheticData().getRawFileConfiguration()));
+      assertEquals(List.of(1, 2, 6), parameter.selectedChannels(new ConstantSyntheticData().withFirstAndLastPingNumber(1, 1).getRawFileConfiguration()));
    }
 }

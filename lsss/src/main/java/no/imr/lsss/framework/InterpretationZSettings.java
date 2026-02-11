@@ -11,14 +11,12 @@ import no.imr.korona.util.echogram.EchogramZSettings;
 import no.imr.lsss.framework.config.survey.GridConf;
 import no.imr.lsss.modules.echogram.BottomBoundaryDepthTransform;
 
-public abstract class InterpretationZSettings extends EchogramZSettings {
+public abstract sealed class InterpretationZSettings extends EchogramZSettings {
    public static final double DEFAULT_MAX_DEPTH_FACTOR = 1.05;
 
    final InterpretationSettings interpretationSettings;
 
-   private InterpretationZSettings(InterpretationSettings interpretationSettings, DataManager dataManager) {
-      super(dataManager.getDataConfiguration());
-
+   private InterpretationZSettings(InterpretationSettings interpretationSettings) {
       this.interpretationSettings = interpretationSettings;
       getZoomedChangeManager().addListener(interpretationSettings.getNavigationHistory()::addCheckPoint);
    }
@@ -31,7 +29,7 @@ public abstract class InterpretationZSettings extends EchogramZSettings {
       private final DepthTransform depthTransform;
 
       Pelagic(InterpretationSettings interpretationSettings, DataManager dataManager) {
-         super(interpretationSettings, dataManager);
+         super(interpretationSettings);
 
          depthTransform = new PelagicDepthTransform(dataManager.getDataConfiguration());
 
@@ -80,7 +78,7 @@ public abstract class InterpretationZSettings extends EchogramZSettings {
       private DepthTransform[] depthTransformsPerChannel = new DepthTransform[0];
 
       Bottom(InterpretationSettings interpretationSettings, DataManager dataManager) {
-         super(interpretationSettings, dataManager);
+         super(interpretationSettings);
 
          this.dataManager = dataManager;
 

@@ -1,6 +1,10 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.database.hibernate.BaseCompDatabaseObject;
 import org.jspecify.annotations.Nullable;
@@ -8,6 +12,15 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "platformType",
+      "platformSubType",
+
+      // Properties:
+      "platformTypeName",
+      "platformSubTypeName",
+})
 public class PlatformType implements BaseCompDatabaseObject<PlatformTypePK> {
    private PlatformTypePK compId;
 
@@ -38,6 +51,7 @@ public class PlatformType implements BaseCompDatabaseObject<PlatformTypePK> {
       this.compId = compId;
    }
 
+   @Column(length = 80)
    public String getPlatformTypeName() {
       return platformTypeName;
    }
@@ -46,6 +60,7 @@ public class PlatformType implements BaseCompDatabaseObject<PlatformTypePK> {
       this.platformTypeName = DatabaseUtils.nullToEmpty(platformTypeName);
    }
 
+   @Column(length = 80)
    public String getPlatformSubTypeName() {
       return platformSubTypeName;
    }
@@ -54,6 +69,7 @@ public class PlatformType implements BaseCompDatabaseObject<PlatformTypePK> {
       this.platformSubTypeName = DatabaseUtils.nullToEmpty(platformSubTypeName);
    }
 
+   @OneToMany(mappedBy = "referencedPlatformType")
    public Set<Platform> getPlatforms() {
       return platforms;
    }

@@ -39,7 +39,7 @@ public interface RangeSet<K extends Comparable<? super K>> extends Iterable<Rang
    void add(K begin, K end);
 
    default void addAll(RangeSet<K> rangeSet) {
-      rangeSet.stream().forEach(this::add);
+      rangeSet.forEach(this::add);
    }
 
    /**
@@ -49,6 +49,10 @@ public interface RangeSet<K extends Comparable<? super K>> extends Iterable<Rang
     */
    default void remove(Range<K> range) {
       remove(range.begin(), range.end());
+   }
+
+   default void removeAll(RangeSet<K> rangeSet) {
+      rangeSet.forEach(this::remove);
    }
 
    /**
@@ -83,7 +87,7 @@ public interface RangeSet<K extends Comparable<? super K>> extends Iterable<Rang
       stream().forEach(action);
    }
 
-   default void forEach(BiConsumer<K, K> action) {
+   default void forEachBeginEnd(BiConsumer<K, K> action) {
       forEach(range -> action.accept(range.begin(), range.end()));
    }
 }

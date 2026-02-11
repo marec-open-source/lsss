@@ -20,8 +20,7 @@ import java.util.OptionalDouble;
  * Corrects the vessel distance and geographical position from {@link NmeaPingItem}.
  */
 public final class PingIndexCorrectionFilter implements PingSource {
-   private static final double MIN_SPEED = 0;
-   private static final double MAX_SPEED = 100;
+   private static final double MAX_SPEED_KNOTS = 100;
 
    private final PingSource pingSource;
 
@@ -30,7 +29,7 @@ public final class PingIndexCorrectionFilter implements PingSource {
 
    private long lastNTDate;
    private boolean speedValid;
-   private double speed;
+   private double speedKnots;
    private double vesselDistance;
    private @Nullable GeoPoint geographicalPosition;
    private long timeOfLastGeoPos;
@@ -143,22 +142,23 @@ public final class PingIndexCorrectionFilter implements PingSource {
          Nmea nmea = nmeaPingItem.getNmea();
          Optional<GeoPoint> geoPos = nmea.getGeographicalPosition();
          if (geographicalPosition != null && geoPos.isPresent() && canUseForGeoPos(nmea.getType())) {
-            double meter = Earth.getApproximateDistance(geographicalPosition, geoPos.get());
             long ntDateDiff = nmeaPingItem.getNTDate() - timeOfLastGeoPos;
             if (ntDateDiff <= 0) {
                return;
             }
-            double seconds = (double) ntDateDiff / (double) NTDate.UNITS_PER_SECOND;
-            updateSpeed(meter / seconds);
+            double hours = ntDateDiff / (3600.0 * NTDate.UNITS_PER_SECOND);
+            double nmi = Utils.meterToNmi(Earth.getApproximateDistance(geographicalPosition, geoPos.get()));
+            double knots = nmi / hours;
+            updateSpeed(knots);
          }
       } else {
-         nmeaPingItem.getMeterPerSec().ifPresent(this::updateSpeed);
+         nmeaPingItem.getKnots().ifPresent(this::updateSpeed);
       }
    }
 
-   private void updateSpeed(double newSpeed) {
-      if (newSpeed >= MIN_SPEED && newSpeed <= MAX_SPEED) {
-         speed = newSpeed;
+   private void updateSpeed(double newSpeedKnots) {
+      if (newSpeedKnots >= 0 && newSpeedKnots <= MAX_SPEED_KNOTS) {
+         speedKnots = newSpeedKnots;
          speedValid = true;
       }
    }
@@ -212,9 +212,9 @@ public final class PingIndexCorrectionFilter implements PingSource {
 
       if (lastNTDate != 0 && speedValid) {
          long ntDateDiff = ping.getNTDate() - lastNTDate;
-         double seconds = (double) ntDateDiff / (double) NTDate.UNITS_PER_SECOND;
-         double meter = speed * seconds;
-         vesselDistance += Utils.meterToNmi(meter);
+         double hours = ntDateDiff / (3600.0 * NTDate.UNITS_PER_SECOND);
+         double nmi = speedKnots * hours;
+         vesselDistance += nmi;
       }
    }
 

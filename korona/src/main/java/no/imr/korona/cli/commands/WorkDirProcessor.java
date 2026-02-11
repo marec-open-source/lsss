@@ -54,7 +54,7 @@ final class WorkDirProcessor extends CliCommandJob {
    }
 
    @Override
-   public void run(InputStream in, PrintStream out) throws Exception {
+   public void run(InputStream in, PrintStream out) throws IOException {
       Log.global.info("Processing work files from " + workDir + " to " + outputDir);
 
       MissingIdxFileHandler.setDatagramTypeManager(korona.getDatagramTypeManager());
@@ -150,7 +150,7 @@ final class WorkDirProcessor extends CliCommandJob {
             regionManager.fromXml(upgradedXml);
          } else {
             originalXml = null;
-            regionManager.setupDefaultBoundaries(__ -> 0, __ -> 0);
+            regionManager.setupDefaultBoundaries(_ -> 0, _ -> 0);
          }
 
          if (firstPass) {

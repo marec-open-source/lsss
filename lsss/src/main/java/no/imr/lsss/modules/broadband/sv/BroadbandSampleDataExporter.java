@@ -1,7 +1,5 @@
 package no.imr.lsss.modules.broadband.sv;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
@@ -25,6 +23,8 @@ import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.range.FloatRange;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -68,7 +68,7 @@ public final class BroadbandSampleDataExporter extends StreamingExporter {
    }
 
    @Override
-   public void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) throws IOException {
+   public void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) {
       PingRange pingRange = getLSSS().getInterpretationSettings().getPingRange();
       if (pingRange.isEmpty()) {
          return;
@@ -82,9 +82,9 @@ public final class BroadbandSampleDataExporter extends StreamingExporter {
       try (JsonGenerator json = objectWriter.createGenerator(out)) {
          json.writeStartObject();
 
-         json.writeObjectField("info", getExportInfo());
+         json.writePOJOProperty("info", getExportInfo());
 
-         json.writeFieldName("regions");
+         json.writeName("regions");
          json.writeStartArray();
          BroadbandChannelInfoAccumulator channelInfoAccumulator = new BroadbandChannelInfoAccumulator();
          List<Region> selectedRegions = getLSSS().getRegionManager().getSelectedRegions();
@@ -99,7 +99,7 @@ public final class BroadbandSampleDataExporter extends StreamingExporter {
          }
          json.writeEndArray();
 
-         json.writeObjectField("channelInfo", channelInfoAccumulator.getChannelInfos());
+         json.writePOJOProperty("channelInfo", channelInfoAccumulator.getChannelInfos());
 
          json.writeEndObject();
       }
@@ -129,7 +129,7 @@ public final class BroadbandSampleDataExporter extends StreamingExporter {
       return exportInfo;
    }
 
-   private void writeRegion(JsonGenerator json, DataFileSet dataFileSet, Region region, List<Integer> channels, BroadbandChannelInfoAccumulator channelInfoAccumulator, AsyncHandle asyncHandle, Listener progressListener) throws IOException {
+   private void writeRegion(JsonGenerator json, DataFileSet dataFileSet, Region region, List<Integer> channels, BroadbandChannelInfoAccumulator channelInfoAccumulator, AsyncHandle asyncHandle, Listener progressListener) {
       PingRange exportablePingRange = region.getPingRange().intersection(getLSSS().getInterpretationSettings().getPingRange());
       Map<Integer, ChannelMetadata> channelToMetadata = new HashMap<>();
       channels.forEach(channel -> channelToMetadata.put(channel, new ChannelMetadata()));
@@ -158,22 +158,22 @@ public final class BroadbandSampleDataExporter extends StreamingExporter {
 
       JsonWriter jsonWriter = new JsonWriter(json);
       jsonWriter.writeObject(() -> {
-         json.writeNumberField("objectNumber", region.getObjectNumber());
+         json.writeNumberProperty("objectNumber", region.getObjectNumber());
          jsonWriter.writeArrayField("labels", region.getLabels(), json::writeString);
-         json.writeObjectField("scrutiny", ExportUtils.makeScrutiny(getLSSS(), channels, region.getInterpretation()));
+         json.writePOJOProperty("scrutiny", ExportUtils.makeScrutiny(getLSSS(), channels, region.getInterpretation()));
          jsonWriter.writeArrayField("channels", channels, channel -> {
             ChannelMetadata channelMetadata = channelToMetadata.get(channel);
             if (channelMetadata.blocks.isEmpty()) {
                return;
             }
             jsonWriter.writeObject(() -> {
-               json.writeStringField("id", channelMetadata.channelId);
-               json.writeNumberField("nominalFrequency", channelMetadata.nominalFrequency);
-               json.writeNumberField("minRange", Utils.round(channelMetadata.rangeRange.min(), 100));
-               json.writeNumberField("maxRange", Utils.round(channelMetadata.rangeRange.max(), 100));
+               json.writeStringProperty("id", channelMetadata.channelId);
+               json.writeNumberProperty("nominalFrequency", channelMetadata.nominalFrequency);
+               json.writeNumberProperty("minRange", Utils.round(channelMetadata.rangeRange.min(), 100));
+               json.writeNumberProperty("maxRange", Utils.round(channelMetadata.rangeRange.max(), 100));
                jsonWriter.writeArrayField("blocks", channelMetadata.blocks, block -> {
                   jsonWriter.writeObject(() -> {
-                     json.writeNumberField("sampleDistance", block.sampleDistance);
+                     json.writeNumberProperty("sampleDistance", block.sampleDistance);
 
                      jsonWriter.writeArrayField("times", block.pingIndices,
                            pingIndex -> json.writeString(pingIndex.getInstant().toString()));

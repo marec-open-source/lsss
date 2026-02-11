@@ -2,6 +2,7 @@ package no.imr.lsss.util.phantom.echogram;
 
 import no.imr.korona.color.Colormap;
 import no.imr.korona.color.Colormaps;
+import no.imr.korona.data.datamanager.DataConfiguration;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.util.echogram.EchogramImageSettings;
 import no.imr.korona.util.echogram.EchogramPingSettings;
@@ -21,14 +22,14 @@ public final class PhantomEchogramImageSettings implements EchogramImageSettings
    public PhantomEchogramImageSettings(LSSS lsss, PhantomEchogramSettings phantomEchogramSettings) {
       this.phantomEchogramSettings = phantomEchogramSettings;
       ColorConverterContainer colorConverterContainer = lsss.getInterpretationSettings().getColorConverterContainer();
-      colorConverterContainer.getChangeManager().addListener(__ -> {
+      colorConverterContainer.getChangeManager().addListener(_ -> {
          Colormap colormap = colorConverterContainer.getColorConverter().getColormap();
          if (colormap != null) {
             colorConverter = new SingleValueColorConverter(phantomSvVariable, colormap);
          }
       });
       ContinuousVariableSettings lsssSvSettings = colorConverterContainer.getSV().getSettings();
-      lsssSvSettings.getChangeManager().addListener(__ -> {
+      lsssSvSettings.getChangeManager().addListener(_ -> {
          ContinuousVariableSettings phantomSvSettings = phantomSvVariable.getSettings();
          phantomSvSettings.setMaxRange(lsssSvSettings.getMaxRange());
          phantomSvSettings.setRange(lsssSvSettings.getRange());
@@ -56,5 +57,10 @@ public final class PhantomEchogramImageSettings implements EchogramImageSettings
    @Override
    public EchogramZSettings getZSettings() {
       return phantomEchogramSettings.getEchogramZSettings();
+   }
+
+   @Override
+   public DataConfiguration getDataConfiguration() {
+      return phantomEchogramSettings.getPhantomDataFileSet().getDataConfiguration();
    }
 }

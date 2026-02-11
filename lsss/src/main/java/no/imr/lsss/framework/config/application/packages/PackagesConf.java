@@ -46,7 +46,7 @@ public final class PackagesConf extends ConfigurationUnit {
       @Override
       public List<Component> makeExtraGuiComponents() {
          JButton testButton = new JButton("Test");
-         testButton.addActionListener(e -> testPython());
+         testButton.addActionListener(_ -> testPython());
          return List.of(testButton);
       }
    };
@@ -277,7 +277,7 @@ public final class PackagesConf extends ConfigurationUnit {
             + " <span style='color: gray;'>(" + HtmlEscapers.htmlEscaper().escape(action.getUserDefinedPackage().getEffectiveLabel()) + ")</span>";
       new WorkerDialog(referenceComponent, message)
             .setWaitUntilFinishedIfCancelled(false)
-            .start(asyncHandle -> {
+            .start(_ -> {
                executeActionScriptWithoutDialog(referenceComponent, action, argument);
             });
    }

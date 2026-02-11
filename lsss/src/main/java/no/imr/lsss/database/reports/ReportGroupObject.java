@@ -91,7 +91,7 @@ final class ReportGroupObject extends ReportGroup {
                      " and ( a.compId.observationDate < " + reportEngine.getStopDate() +
                      "  or  (a.compId.observationDate = " + reportEngine.getStopDate() + " and a.compId.observationTime <= " + reportEngine.getStopTime() + ") )";
 
-         String queryObservation = "from Observation a , Scatter b" + queryGeneral +
+         String queryObservation = "select a from Observation a , Scatter b" + queryGeneral +
                " and   a.compId.platform        = b.compId.platform " +
                " and   a.compId.survey          = b.compId.survey " +
                " and   a.compId.observationDate = b.compId.observationDate " +
@@ -143,10 +143,10 @@ final class ReportGroupObject extends ReportGroup {
          GetComment.generateCommentFile(session, queryComment, commentFile, reportEngine.getCharset());
 
          try (RewindableBufferedReader fObs = new RewindableBufferedReader(observationFile, reportEngine.getCharset());
-              ScrollableResults scatterResults = session.createQuery(queryScatter)
+              ScrollableResults<Scatter> scatterResults = session.createSelectionQuery(queryScatter, Scatter.class)
                     .setReadOnly(true)
                     .scroll(ScrollMode.FORWARD_ONLY);
-              ScrollableResults scatterDataResults = session.createQuery(queryScatterData)
+              ScrollableResults<ScatterData> scatterDataResults = session.createSelectionQuery(queryScatterData, ScatterData.class)
                     .setReadOnly(true)
                     .scroll(ScrollMode.FORWARD_ONLY)) {
 
@@ -157,12 +157,12 @@ final class ReportGroupObject extends ReportGroup {
 
             if (scatExist) {
                // Frequency and transceiver of open files
-               Scatter scat = (Scatter) scatterResults.get(0);
+               Scatter scat = scatterResults.get();
                setCurrent(scat);  //??
 
                aPrintData.setScatter(scat);     //todo: is this needed ?
                if (scat.getBottomActive() == 1) {
-                  aPrintDataBottom.setScatter((Scatter) scatterResults.get(0));
+                  aPrintDataBottom.setScatter(scatterResults.get());
                }
 
                if (!selectedReports.isEmpty()) {
@@ -177,11 +177,11 @@ final class ReportGroupObject extends ReportGroup {
                               aSelectedSurvey.getCompId().getPlatform(),
                               categoryCode);
 
-                        try (ScrollableResults acousticCategoryResults = session.createQuery(query)
+                        try (ScrollableResults<AcousticCategory> acousticCategoryResults = session.createSelectionQuery(query, AcousticCategory.class)
                               .setReadOnly(true)
                               .scroll(ScrollMode.FORWARD_ONLY)) {
                            if (acousticCategoryResults.next()) {
-                              AcousticCategory acousticCategory = (AcousticCategory) acousticCategoryResults.get(0);
+                              AcousticCategory acousticCategory = acousticCategoryResults.get();
                               aPrintData.setAcousticCategoryPrint(acousticCategory);
                               aPrintDataBottom.setAcousticCategoryPrint(acousticCategory);
                            }
@@ -198,11 +198,11 @@ final class ReportGroupObject extends ReportGroup {
                               aPurpose.getCompId().getPlatform(),
                               aPurpose.getCompId().getAcousticCategory());
 
-                        try (ScrollableResults acousticCategoryResults = session.createQuery(query)
+                        try (ScrollableResults<AcousticCategory> acousticCategoryResults = session.createSelectionQuery(query, AcousticCategory.class)
                               .setReadOnly(true)
                               .scroll(ScrollMode.FORWARD_ONLY)) {
                            if (acousticCategoryResults.next()) {
-                              AcousticCategory acousticCategory = (AcousticCategory) acousticCategoryResults.get(0);
+                              AcousticCategory acousticCategory = acousticCategoryResults.get();
                               aPrintData.setAcousticCategoryPrint(acousticCategory);
                               aPrintDataBottom.setAcousticCategoryPrint(acousticCategory);
                            }
@@ -216,7 +216,7 @@ final class ReportGroupObject extends ReportGroup {
             if (!sDataExist) {
                return;  //No need to continue if first fetch does not contain any scatterData
             }
-            ScatterData sData = (ScatterData) scatterDataResults.get(0);
+            ScatterData sData = scatterDataResults.get();
 
             // Clear data
             aPrintData.clearData(ReportMode.NATIVE);
@@ -227,14 +227,14 @@ final class ReportGroupObject extends ReportGroup {
             mainLoop:
             while (scatExist) {   //Enter if data exist
                // Values read from database (really from hibernate object)
-               Scatter scat = (Scatter) scatterResults.get(0);        // Read what scatterResults.next() "points" to
+               Scatter scat = scatterResults.get();        // Read what scatterResults.next() "points" to
 
                // Get Scatter of desired type
                while (scatterTypePelagic != scat.getCompId().getScatterType() &&
                      scatterTypeBottom != scat.getCompId().getScatterType()) {
                   scatExist = scatterResults.next();
                   if (!scatExist) break;
-                  scat = (Scatter) scatterResults.get(0);
+                  scat = scatterResults.get();
                }
 
                setCurrent(scat);
@@ -247,14 +247,14 @@ final class ReportGroupObject extends ReportGroup {
                }
 
                if (sDataExist) {
-                  sData = (ScatterData) scatterDataResults.get(0);    // Read what scatterDataResults.next() "points" to
+                  sData = scatterDataResults.get();    // Read what scatterDataResults.next() "points" to
 
                   // Only desired scatter type: works since SCHOOL_PELAGIC > SCATTER_PELAGIC
                   while (scatterTypePelagic != sData.getCompId().getScatterType() &&
                         scatterTypeBottom != sData.getCompId().getScatterType()) {
                      sDataExist = scatterDataResults.next();
                      if (!sDataExist) break;
-                     sData = (ScatterData) scatterDataResults.get(0);
+                     sData = scatterDataResults.get();
                   }
 
                   // Synchronize: get new scatterData if necessary.
@@ -271,7 +271,7 @@ final class ReportGroupObject extends ReportGroup {
                      scatterTypeBottom != sData.getCompId().getScatterType()) {
                   sDataExist = scatterDataResults.next();
                   if (!sDataExist) break;
-                  sData = (ScatterData) scatterDataResults.get(0);
+                  sData = scatterDataResults.get();
                }  //while - scatterData
 
                // Synchronize: set observation if necessary
@@ -306,7 +306,7 @@ final class ReportGroupObject extends ReportGroup {
                               ScatterTypeEnum.BOTTOM_SCHOOL.getValue() > ScatterTypeEnum.PELAGIC_SCHOOL.getValue())) {
                      scatExist = scatterResults.next();
                      if (scatExist) {
-                        scat = (Scatter) scatterResults.get(0);
+                        scat = scatterResults.get();
                         if (currentCompare(scat) == 0) {
                            // FILL: SCATTER (bottom)
                            aPrintData.setScatter(scat);
@@ -339,7 +339,7 @@ final class ReportGroupObject extends ReportGroup {
 
                   sDataExist = scatterDataResults.next();
                   if (!sDataExist) break;
-                  sData = (ScatterData) scatterDataResults.get(0);
+                  sData = scatterDataResults.get();
 
                   // Break loop when all ScatterData for current frequency, transceiver, date and time are read
                   if (currentCompare(sData) > 0) break;

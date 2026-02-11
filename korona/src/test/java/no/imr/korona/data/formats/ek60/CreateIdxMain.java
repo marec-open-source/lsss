@@ -19,7 +19,7 @@ final class CreateIdxMain extends BaseFileMain {
       new CreateMissingIdxGUI(korona.getDatagramTypeManager(), segmentHandles, new PingIndexCorrectionOptions(), false).start(null);
    }
 
-   public static void main(String[] args) {
+   static void main() {
       new CreateIdxMain().start();
    }
 }

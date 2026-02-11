@@ -1,11 +1,5 @@
 package no.imr.korona.cli.commands;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import no.imr.korona.Korona;
 import no.imr.korona.cli.CliCommandJob;
 import no.imr.korona.cli.CliException;
@@ -14,6 +8,13 @@ import no.imr.korona.data.datagrams.BaseDatagram;
 import no.imr.korona.data.formats.ek60.io.BaseDatagramReader;
 import no.imr.korona.data.formats.ek60.io.FileDatagramReader;
 import no.imr.tools.io.FileUtils;
+import no.imr.tools.misc.JsonUtils;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +35,7 @@ final class RawToJsonCommandJob extends CliCommandJob {
    }
 
    @Override
-   public void run(InputStream in, PrintStream out) throws Exception {
+   public void run(InputStream in, PrintStream out) throws IOException {
       for (Path file : files) {
          if (Files.isDirectory(file)) {
             printDir(out, file);
@@ -52,13 +53,12 @@ final class RawToJsonCommandJob extends CliCommandJob {
    }
 
    private void printFile(PrintStream out, Path file) {
-      JsonMapper jsonMapper = JsonMapper.builder()
+      JsonMapper jsonMapper = JsonUtils.JSON_MAPPER.rebuild()
             .addModule(byteArrayAsArrayModule())
-            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+            .enable(SerializationFeature.INDENT_OUTPUT)
             .build();
       try (BaseDatagramReader datagramReader = new FileDatagramReader(file, korona.getDatagramTypeManager());
            JsonGenerator json = jsonMapper.createGenerator(out)) {
-         json.useDefaultPrettyPrinter();
 
          json.writeStartArray();
          while (true) {
@@ -66,7 +66,7 @@ final class RawToJsonCommandJob extends CliCommandJob {
             if (datagram == null) {
                break;
             }
-            json.writeObject(datagram);
+            json.writePOJO(datagram);
          }
          json.writeEndArray();
       } catch (IOException e) {
@@ -86,10 +86,10 @@ final class RawToJsonCommandJob extends CliCommandJob {
       }
 
       @Override
-      public void serialize(byte[] value, JsonGenerator json, SerializerProvider provider) throws IOException {
+      public void serialize(byte[] value, JsonGenerator json, SerializationContext provider) {
          json.writeStartArray();
          for (byte b : value) {
-            json.writeNumber((int) b);
+            json.writeNumber(b & 0xff);
          }
          json.writeEndArray();
       }

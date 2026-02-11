@@ -14,7 +14,7 @@ public final class ConfigFileCopier {
    private ConfigFileCopier() {
    }
 
-   static void copy(KoronaFilesToCopy filesToCopy, ProgressHandler progressHandler, AsyncHandle asyncHandle) {
+   static void copy(FilesToCopy filesToCopy, ProgressHandler progressHandler, AsyncHandle asyncHandle) {
       updateLastModified(filesToCopy);
       if (filesToCopy.getFilesToCopy().isEmpty()) {
          return;
@@ -23,7 +23,7 @@ public final class ConfigFileCopier {
       FileUtils.copyAllRecursively(filesToCopy.getFilesToCopy(), progressHandler, asyncHandle);
    }
 
-   static void updateLastModified(KoronaFilesToCopy filesToCopy) {
+   static void updateLastModified(FilesToCopy filesToCopy) {
       getPreferences().putLong(PREFERENCE_CONFIG_FILE_LAST_MODIFIED, filesToCopy.getNextLastModifiedSource());
    }
 

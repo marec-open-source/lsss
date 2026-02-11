@@ -24,7 +24,6 @@ import javax.swing.JOptionPane;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 
@@ -68,7 +67,7 @@ public final class DatabaseConnectionManager {
     * Opens a connection to an existing database. Upgrade checks are done by
     * registered FeaturePlugins.
     */
-   public boolean openConnection() {
+   public void openConnection() {
       lsss.setStartupText("Connecting to database...");
 
       if (databaseConnection.isConnected()) {
@@ -77,13 +76,11 @@ public final class DatabaseConnectionManager {
 
       //Before background task since a password dialog may be displayed.
       Configuration configuration = getConfiguration(ConnectionType.CONNECT);
-      String connectionUrl = configuration.getProperty(Environment.URL);
-      AtomicBoolean ok = new AtomicBoolean(true);
+      String connectionUrl = configuration.getProperty(Environment.JAKARTA_JDBC_URL);
 
       new WorkerDialog(lsss.getReferenceComponent(), "Connecting to database")
             .setHidden(lsss.hasStartupDialog())
             .setOnError(e -> {
-               ok.set(false);
                lsss.showError("Failed to connect to database with URL " + connectionUrl +
                      ".\nPlease check that the connection string points to an existing database.", e);
                closeConnection();
@@ -95,8 +92,8 @@ public final class DatabaseConnectionManager {
 
       if (databaseConnection.isConnected()) {
          new WorkerDialog(lsss.getReferenceComponent(), "Upgrading database if necessary")
+               .setHidden(lsss.hasStartupDialog())
                .setOnError(e -> {
-                  ok.set(false);
                   lsss.showError("Error upgrading database. Please check that you are connected to a valid LSSS database." +
                         "\nIf you connected to an empty database, please try to initialize it first.", e);
                   closeConnection();
@@ -105,67 +102,48 @@ public final class DatabaseConnectionManager {
       }
 
       connectionStateChanged();
-
-      return ok.get();
    }
 
    /**
-    * Initializes a new database. Default data are copied into database by
-    * registered FeaturePlugins
+    * Creates a new database and copies the specified default data from registered feature FeaturePlugins.
     */
-   public boolean initializeDatabase() {
+   public void createDatabase(String title, Predicate<Class<? extends BaseDatabaseObject>> predicate) {
       if (databaseConnection.isConnected()) {
          closeConnection();
       }
 
       Configuration configuration = getConfiguration(ConnectionType.INITIALIZE);
-      String connectionUrl = configuration.getProperty(Environment.URL);
-      AtomicBoolean ok = new AtomicBoolean(true);
+      String connectionUrl = configuration.getProperty(Environment.JAKARTA_JDBC_URL);
 
-      new WorkerDialog(lsss.getReferenceComponent(), "Initializing new database")
+      new WorkerDialog(lsss.getReferenceComponent(), title)
             .setOnError(e -> {
-               ok.set(false);
-               lsss.showError("Failed to initialize database with URL " + connectionUrl + ".", e);
+               lsss.showError(title + "failed. URL: " + connectionUrl + ".", e);
             })
             .startWithoutCancel(() -> {
-               Log.global.info("Initializing new database: " + connectionUrl);
+               Log.global.info(title + ": " + connectionUrl);
                databaseConnection.connect(ConnectionType.INITIALIZE, configuration, LsssDatabaseUtils.getDatabaseClasses(lsss));
-               copyDefaultDataFromPlugins(c -> true);
+               copyDefaultDataFromPlugins(predicate);
             });
 
       connectionStateChanged();
-
-      return ok.get();
    }
 
    /**
-    * RJK
-    * Create a new empty database. Default data are copied into database by
-    * registered FeaturePlugins
+    * Creates a new database and copies all default data from registered feature FeaturePlugins.
+    */
+   public void initializeDatabase() {
+      createDatabase("Initializing new database", _ -> true);
+   }
+
+   /**
+    * Creates a new database and copies the minimum needed default data from registered feature FeaturePlugins.
     */
    public void createEmptyDatabase() {
-      if (databaseConnection.isConnected()) {
-         closeConnection();
-      }
+      Set<Class<? extends BaseDatabaseObject>> databaseClasses = new HashSet<>(LsssDatabaseUtils.getSystemClasses(lsss));
+      databaseClasses.add(Nation.class);
+      Predicate<Class<? extends BaseDatabaseObject>> predicate = databaseClasses::contains;
 
-      Configuration configuration = getConfiguration(ConnectionType.INITIALIZE);
-      String connectionUrl = configuration.getProperty(Environment.URL);
-
-      new WorkerDialog(lsss.getReferenceComponent(), "Creating new empty database")
-            .setOnError(e -> {
-               Log.global.log(Level.WARNING, "Error creating database", e);
-               lsss.showError("Failed to create new empty database with URL " + connectionUrl + ".", e);
-            })
-            .startWithoutCancel(() -> {
-               Log.global.info("Creating new empty database: " + connectionUrl);
-               databaseConnection.connect(ConnectionType.INITIALIZE, configuration, LsssDatabaseUtils.getDatabaseClasses(lsss));
-
-               Set<Class<? extends BaseDatabaseObject>> databaseClasses = new HashSet<>(LsssDatabaseUtils.getSystemClasses(lsss));
-               databaseClasses.add(Nation.class);
-               copyDefaultDataFromPlugins(databaseClasses::contains);
-            });
-
-      connectionStateChanged();
+      createDatabase("Creating new empty database", predicate);
    }
 
    private Configuration getConfiguration(ConnectionType connectionType) {
@@ -178,7 +156,7 @@ public final class DatabaseConnectionManager {
       StringBuilder stringBuilder = new StringBuilder("Database connection properties:");
       Properties properties = configuration.getProperties();
       properties.keySet().stream()
-            .filter(key -> !System.getProperties().containsKey(key) && !key.equals(Environment.PASS))
+            .filter(key -> !System.getProperties().containsKey(key) && !key.equals(Environment.JAKARTA_JDBC_PASSWORD))
             .sorted()
             .forEach(key -> stringBuilder.append('\n').append(key).append('=').append(properties.get(key)));
       Log.global.config(stringBuilder.toString());

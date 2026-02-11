@@ -61,7 +61,7 @@ public interface PingIndex extends PingMappingArgument, Comparable<PingIndex>, n
 
    @Override
    default Instant getInstant() {
-      return PingMappingArgument.super.getInstant();
+      return Instant.ofEpochMilli(getTimeInMillis());
    }
 
    /**

@@ -10,7 +10,7 @@ public interface AppEventHandler {
    void handle(Map<String, Object> event);
 
    static AppEventHandler ignore() {
-      return event -> {
+      return _ -> {
       };
    }
 

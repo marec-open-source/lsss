@@ -4,6 +4,7 @@ import no.imr.korona.Korona;
 import no.imr.korona.computation.ModuleContainer;
 import no.imr.korona.computation.ModuleContainerComputation;
 import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.items.channel.PowerData;
@@ -28,7 +29,7 @@ final class CombinationModuleTest {
             return channel == 1 ? firstChannelDepth : normalTransducerDepth; //offset for the first channel
          }
       };
-      syntheticData.setFirstAndLastPingNumber(1, 5);
+      SyntheticDataFile syntheticDataFile = syntheticData.withFirstAndLastPingNumber(1, 5);
 
       ModuleContainer moduleContainer = new ModuleContainer(new Korona());
 
@@ -37,7 +38,7 @@ final class CombinationModuleTest {
       combinationModule.secondOperandChannel.setIntValue(2);
       combinationModule.operation.setValue(CombinationModule.Operation.MEAN);
 
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticData.toPingReader())) {
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
 
          int lastChannel = computation.getPingConfiguration().getRawFileConfiguration().getTransducerCount();
          int pingCount = 0;

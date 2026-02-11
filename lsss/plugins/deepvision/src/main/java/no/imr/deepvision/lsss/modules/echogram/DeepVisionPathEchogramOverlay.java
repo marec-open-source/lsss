@@ -334,7 +334,7 @@ public final class DeepVisionPathEchogramOverlay extends BaseEchogramOverlay {
       Map<Color, Path2D.Float> map = new HashMap<>();
       for (Circle circle : circles) {
          float size = circle.size;
-         map.computeIfAbsent(circle.color, k -> new Path2D.Float())
+         map.computeIfAbsent(circle.color, _ -> new Path2D.Float())
                .append(new Ellipse2D.Float(circle.x - size / 2, circle.y - size / 2, size, size), false);
       }
       return map;

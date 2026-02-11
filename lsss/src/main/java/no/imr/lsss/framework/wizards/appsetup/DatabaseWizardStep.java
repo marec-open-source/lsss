@@ -45,7 +45,7 @@ final class DatabaseWizardStep extends WizardStep {
          defaultRadioButton.setSelected(true);
       }
 
-      ActionListener listener = e -> updateDetailPanel();
+      ActionListener listener = _ -> updateDetailPanel();
       defaultRadioButton.addActionListener(listener);
       customRadioButton.addActionListener(listener);
    }
@@ -122,10 +122,11 @@ final class DatabaseWizardStep extends WizardStep {
          javaDBDatabasePlugin.setPasswordInitialized(true);
          connectionManager.setDatabasePlugin(javaDBDatabasePlugin);
          if (javaDBExists) {
-            return connectionManager.openConnection();
+            connectionManager.openConnection();
          } else {
-            return connectionManager.initializeDatabase();
+            connectionManager.initializeDatabase();
          }
+         return connectionManager.getDatabaseConnection().isConnected();
       } else {
          if (connectionManager.getDatabaseConnection().isConnected()) {
             return true;

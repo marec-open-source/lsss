@@ -230,7 +230,7 @@ public final class PlanktonInversionModule extends GeneralPingModule {
 
    private BooleanParameter newScattererSelectionParameter(Name name, boolean initialValue, String description) {
       BooleanParameter parameter = new BooleanParameter(name, initialValue, description);
-      parameter.subscribe(__ -> selectedScatterers = null);
+      parameter.subscribe(_ -> selectedScatterers = null);
       return parameter;
    }
 

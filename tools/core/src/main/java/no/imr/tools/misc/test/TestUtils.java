@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("PMD.DoNotCallGarbageCollectionExplicitly")
 public final class TestUtils {
    private static @Nullable Object memoryAllocation;
 
@@ -32,32 +33,32 @@ public final class TestUtils {
          JMenuItem appEventItem = menu.add("Create app event");
          appEventItem.setMnemonic(KeyEvent.VK_E);
          appEventItem.setDisplayedMnemonicIndex(appEventItem.getText().indexOf("event"));
-         appEventItem.addActionListener(e -> loggingManager.getAppEventHandler().handle(AppEvent.create(loggingManager, AppEvent.Type.info, "Testing...")));
+         appEventItem.addActionListener(_ -> loggingManager.getAppEventHandler().handle(AppEvent.create(loggingManager, AppEvent.Type.info, "Testing...")));
 
          JMenuItem logWarningItem = menu.add("Log warning");
          logWarningItem.setMnemonic(KeyEvent.VK_W);
-         logWarningItem.addActionListener(e -> Log.global.warning("Test warning..."));
+         logWarningItem.addActionListener(_ -> Log.global.warning("Test warning..."));
 
          JMenuItem logSilentWarningItem = menu.add("Log silent warning");
          logSilentWarningItem.setMnemonic(KeyEvent.VK_S);
-         logSilentWarningItem.addActionListener(e -> Log.global.log(Log.SILENT_WARNING, "Test silent warning..."));
+         logSilentWarningItem.addActionListener(_ -> Log.global.log(Log.SILENT_WARNING, "Test silent warning..."));
 
          Window window = GuiUtils.windowForComponent(menu);
 
          JMenuItem optionPaneItem = menu.add("Show JOptionPane");
          optionPaneItem.setMnemonic(KeyEvent.VK_J);
-         optionPaneItem.addActionListener(e -> JOptionPane.showMessageDialog(window, "Test JOptionPane"));
+         optionPaneItem.addActionListener(_ -> JOptionPane.showMessageDialog(window, "Test JOptionPane"));
 
          JMenuItem openTmpItem = menu.add("Open tmp dir");
          openTmpItem.setMnemonic(KeyEvent.VK_T);
-         openTmpItem.addActionListener(e -> GuiUtils.desktopOpen(Utils.getTmpDir(), window));
+         openTmpItem.addActionListener(_ -> GuiUtils.desktopOpen(Utils.getTmpDir(), window));
 
          JMenuItem fullScreenItem = menu.add("Full screen");
          fullScreenItem.setMnemonic(KeyEvent.VK_F);
          if (window != null) {
             boolean isFullScreen = GuiUtils.isFullScreen(window);
             MiscIcons.check(isFullScreen).on(fullScreenItem);
-            fullScreenItem.addActionListener(e -> GuiUtils.setFullScreen(window, !isFullScreen));
+            fullScreenItem.addActionListener(_ -> GuiUtils.setFullScreen(window, !isFullScreen));
          } else {
             fullScreenItem.setEnabled(false);
          }
@@ -65,7 +66,7 @@ public final class TestUtils {
          JMenuItem largeMemoryAllocationItem = menu.add(memoryAllocation != null ? "Free large memory allocation" : "Make large memory allocation");
          largeMemoryAllocationItem.setMnemonic(KeyEvent.VK_M);
          largeMemoryAllocationItem.setDisplayedMnemonicIndex(largeMemoryAllocationItem.getText().indexOf("memory"));
-         largeMemoryAllocationItem.addActionListener(e -> {
+         largeMemoryAllocationItem.addActionListener(_ -> {
             if (memoryAllocation == null) {
                System.gc();
                int mb = 1024 * 1024;
@@ -76,7 +77,7 @@ public final class TestUtils {
                      Log.global.info("Trying to allocate " + bytesToAllocate + " bytes");
                      memoryAllocation = new byte[(int) (bytesToAllocate / mb)][mb];
                      break;
-                  } catch (OutOfMemoryError ignore) {
+                  } catch (OutOfMemoryError _) {
                      bytesToAllocate -= 1024L * mb;
                   }
                }
@@ -88,7 +89,7 @@ public final class TestUtils {
 
          JMenuItem outOfMemoryItem = menu.add("OutOfMemoryError");
          outOfMemoryItem.setMnemonic(KeyEvent.VK_O);
-         outOfMemoryItem.addActionListener(e -> {
+         outOfMemoryItem.addActionListener(_ -> {
             Double[][][] impossiblyLarge = new Double[Integer.MAX_VALUE][Integer.MAX_VALUE][Integer.MAX_VALUE];
             impossiblyLarge[0][0][0] = Double.NaN; // Usage to avoid inspection warnings
             Log.global.warning("The impossible happened. " + impossiblyLarge[0][0][0]);
@@ -96,7 +97,7 @@ public final class TestUtils {
 
          JMenuItem exitWithErrorItem = menu.add("Exit with error");
          exitWithErrorItem.setMnemonic(KeyEvent.VK_X);
-         exitWithErrorItem.addActionListener(e -> System.exit(ExitCodes.TEST));
+         exitWithErrorItem.addActionListener(_ -> System.exit(ExitCodes.TEST));
       });
 
       return menu;

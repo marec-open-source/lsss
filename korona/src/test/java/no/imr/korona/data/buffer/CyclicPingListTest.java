@@ -1,6 +1,6 @@
 package no.imr.korona.data.buffer;
 
-import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.test.data.ConstantSyntheticData;
@@ -16,11 +16,11 @@ final class CyclicPingListTest {
    void testSetEndPing() {
       PingBuffer pingBuffer = new BoundedPingBuffer(100);
       List<PingIndex> pingIndices = new ArrayList<>();
-      SyntheticData syntheticData = new ConstantSyntheticData();
+      SyntheticDataFile syntheticDataFile = new ConstantSyntheticData().withFirstAndLastPingNumber(0, 100);
       for (int i = 0; i < 30; i++) {
-         PingIndex pingIndex = syntheticData.createPingIndex(i);
+         PingIndex pingIndex = syntheticDataFile.createPingIndex(i);
          pingIndices.add(pingIndex);
-         Ping ping = syntheticData.createPing(pingIndex);
+         Ping ping = syntheticDataFile.createPing(pingIndex);
          pingBuffer.newPing(ping);
       }
 

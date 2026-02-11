@@ -80,7 +80,7 @@ public final class AppPreprocessingConf extends ConfigurationUnit {
    public void setup() {
       super.setup();
 
-      getKoronaConfigDir().subscribe(__ -> {
+      getKoronaConfigDir().subscribe(_ -> {
          for (ConfigFileWrapper configFileWrapper : configFileWrappers) {
             configFileWrapper.koronaConfigDirUpdated(previousKoronaConfigDir, getKoronaConfigDir().getFile());
          }
@@ -113,7 +113,7 @@ public final class AppPreprocessingConf extends ConfigurationUnit {
 
    @Override
    public JComponent getComponent() {
-      Predicate<BaseParameter<?>> parameterEnabledDecider = parameter -> getConfigurationManager().canEdit(UserProfile.ADMINISTRATOR_MODE);
+      Predicate<BaseParameter<?>> parameterEnabledDecider = _ -> getConfigurationManager().canEdit(UserProfile.ADMINISTRATOR_MODE);
 
       ParameterEditor koronaConfigDirEditor = new ParameterEditor(List.of(getKoronaConfigDir()));
       koronaConfigDirEditor.getGUIConfig().setParameterEnabledDecider(parameterEnabledDecider);
@@ -146,7 +146,7 @@ public final class AppPreprocessingConf extends ConfigurationUnit {
                getConfigurationManager().getSurveyConfiguration().getAllUnitsRecursively(PreprocessingConf.class)
                      .filter(preprocessingConf -> preprocessingConf.getPlugin() == getPlugin())
                      .findFirst()
-                     .ifPresent(getConfigurationManager()::showDialog);
+                     .ifPresent(ConfigurationUnit::showInConfigurationDialog);
             }
             default -> {
             }
@@ -155,7 +155,7 @@ public final class AppPreprocessingConf extends ConfigurationUnit {
       JButton setEmptyToDefaultButton = new JButton("Set empty to default values");
       setEmptyToDefaultButton.setEnabled(getConfigurationManager().canEdit(UserProfile.ADMINISTRATOR_MODE));
       setEmptyToDefaultButton.setToolTipText("Set default values relative to " + getKoronaConfigDir().getDisplayName());
-      setEmptyToDefaultButton.addActionListener(e -> {
+      setEmptyToDefaultButton.addActionListener(_ -> {
          Path koronaConfigDir = getKoronaConfigDir().getFile();
          if (koronaConfigDir == null) {
             JOptionPane.showMessageDialog(setEmptyToDefaultButton,
@@ -172,7 +172,7 @@ public final class AppPreprocessingConf extends ConfigurationUnit {
       JButton configFilesButton = new JButton("Migrate config files...");
       configFilesButton.setEnabled(getConfigurationManager().canEdit(UserProfile.ADMINISTRATOR_MODE));
       configFilesButton.setToolTipText("Shows a dialog for moving config files to subdirectories introduced in LSSS 2.16.0");
-      configFilesButton.addActionListener(e -> {
+      configFilesButton.addActionListener(_ -> {
          Path koronaConfigDir = getKoronaConfigDir().getFile();
          if (koronaConfigDir == null) {
             JOptionPane.showMessageDialog(configFilesButton,
@@ -254,7 +254,7 @@ public final class AppPreprocessingConf extends ConfigurationUnit {
             }
          }
          return newestCategorizationXml;
-      } catch (IOException e) {
+      } catch (IOException _) {
          return null;
       }
    }
@@ -283,7 +283,7 @@ public final class AppPreprocessingConf extends ConfigurationUnit {
          if (currentCategorizationXml != null && FileUtils.creationTime(currentCategorizationXml) >= FileUtils.creationTime(newestCategorizationXml)) {
             return;
          }
-      } catch (IOException e) {
+      } catch (IOException _) {
          return;
       }
 

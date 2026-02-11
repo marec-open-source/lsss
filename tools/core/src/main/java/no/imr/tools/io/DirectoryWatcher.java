@@ -57,7 +57,7 @@ public final class DirectoryWatcher {
          WatchKey key;
          try {
             key = watchService.poll();
-         } catch (ClosedWatchServiceException e) {
+         } catch (ClosedWatchServiceException _) {
             return;
          }
          if (key == null) {

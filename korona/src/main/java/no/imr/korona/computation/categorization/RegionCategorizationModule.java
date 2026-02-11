@@ -114,7 +114,7 @@ public final class RegionCategorizationModule extends BaseBufferedPingModule {
    public final BooleanParameter enableUncategorizedCategory = new BooleanParameter(
          new Name("EnableUncategorizedCategory", "Enable the uncategorized category"),
          false,
-         "If enabled, the schools where it cannot be determined if they are single og multi species are set to this category. Otherwise no region category is given.");
+         "If enabled, the schools where it cannot be determined if they are single or multi species are set to this category. Otherwise no region category is given.");
 
    public final BooleanParameter enableUnknownCategory = new BooleanParameter(
          new Name("EnableUnknownCategory", "Enable the unknown category"),

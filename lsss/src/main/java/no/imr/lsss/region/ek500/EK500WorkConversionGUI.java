@@ -104,7 +104,7 @@ public final class EK500WorkConversionGUI {
    private JPanel createBottomPanel(ParameterEditor parameterEditor) {
       JButton okButton = new JButton("Convert");
       okButton.setToolTipText("Convert selected work files");
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          if (!parameterEditor.commitEdits()) {
             return;
          }
@@ -116,7 +116,7 @@ public final class EK500WorkConversionGUI {
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE);
-      cancelButton.addActionListener(e -> close());
+      cancelButton.addActionListener(_ -> close());
 
       JButton helpButton = new JButton("Help");
       LsssHelp.EK500.enableHelpKeyOnButton(helpButton);

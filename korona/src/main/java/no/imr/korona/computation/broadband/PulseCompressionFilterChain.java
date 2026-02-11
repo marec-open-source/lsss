@@ -33,10 +33,10 @@ public final class PulseCompressionFilterChain {
          switch (item) {
             case Fil0Datagram fil0Datagram -> {
                PulseCompressionFilterChain filterChain = new PulseCompressionFilterChain(List.of(new PulseCompressionFilter(0, 8, calculateB1(fil0Datagram))));
-               return __ -> filterChain;
+               return _ -> filterChain;
             }
             case Fil1Datagram fil1Datagram -> {
-               channelIdToUnsortedFilters.computeIfAbsent(fil1Datagram.channelId, k -> new ArrayList<>())
+               channelIdToUnsortedFilters.computeIfAbsent(fil1Datagram.channelId, _ -> new ArrayList<>())
                      .add(new PulseCompressionFilter(fil1Datagram.stage, fil1Datagram.decimationFactor, fil1Datagram.coefficients));
             }
             default -> {

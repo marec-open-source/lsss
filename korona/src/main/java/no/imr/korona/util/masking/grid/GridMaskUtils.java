@@ -9,7 +9,6 @@ import no.imr.tools.math.linalg.Vec3;
 import no.imr.tools.range.FloatRange;
 import org.jspecify.annotations.Nullable;
 
-import java.awt.Shape;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,21 +18,18 @@ public final class GridMaskUtils {
    private GridMaskUtils() {
    }
 
-   public static List<Surface> createSurfaces(Shape shape, Function2D f1, Function2D f2) {
-      return List.of(new ShapeLimitedSurface(shape, f1), new ShapeLimitedSurface(shape, f2));
-   }
-
    public static List<Surface> createPyramidSegment(Transform transform, FloatRange radius, FloatRange theta, FloatRange phi) {
-      Vec3 aaa = GeometryUtils.sphericalToCartesian(radius.min(), theta.min(), phi.min());
-      Vec3 aab = GeometryUtils.sphericalToCartesian(radius.min(), theta.min(), phi.max());
-      Vec3 aba = GeometryUtils.sphericalToCartesian(radius.min(), theta.max(), phi.min());
-      Vec3 abb = GeometryUtils.sphericalToCartesian(radius.min(), theta.max(), phi.max());
-      Vec3 baa = GeometryUtils.sphericalToCartesian(radius.max(), theta.min(), phi.min());
-      Vec3 bab = GeometryUtils.sphericalToCartesian(radius.max(), theta.min(), phi.max());
-      Vec3 bba = GeometryUtils.sphericalToCartesian(radius.max(), theta.max(), phi.min());
-      Vec3 bbb = GeometryUtils.sphericalToCartesian(radius.max(), theta.max(), phi.max());
-
-      return createBox(transform, aaa, aab, aba, abb, baa, bab, bba, bbb);
+      return createBox(
+            transform,
+            GeometryUtils.sphericalToCartesian(radius.min(), theta.min(), phi.min()),
+            GeometryUtils.sphericalToCartesian(radius.min(), theta.min(), phi.max()),
+            GeometryUtils.sphericalToCartesian(radius.min(), theta.max(), phi.min()),
+            GeometryUtils.sphericalToCartesian(radius.min(), theta.max(), phi.max()),
+            GeometryUtils.sphericalToCartesian(radius.max(), theta.min(), phi.min()),
+            GeometryUtils.sphericalToCartesian(radius.max(), theta.min(), phi.max()),
+            GeometryUtils.sphericalToCartesian(radius.max(), theta.max(), phi.min()),
+            GeometryUtils.sphericalToCartesian(radius.max(), theta.max(), phi.max())
+      );
    }
 
    public static List<Surface> createBox(Transform transform, Vec3 aaa, Vec3 aab, Vec3 aba, Vec3 abb, Vec3 baa, Vec3 bab, Vec3 bba, Vec3 bbb) {
@@ -45,7 +41,8 @@ public final class GridMaskUtils {
             transform.transformPoint(baa),
             transform.transformPoint(bab),
             transform.transformPoint(bba),
-            transform.transformPoint(bbb));
+            transform.transformPoint(bbb)
+      );
    }
 
    public static List<Surface> createBox(Vec3 aaa, Vec3 aab, Vec3 aba, Vec3 abb, Vec3 baa, Vec3 bab, Vec3 bba, Vec3 bbb) {

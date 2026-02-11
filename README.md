@@ -4,11 +4,11 @@ LSSS is a software system for analyzing large amounts of acoustic data from echo
 
 For information about MAREC and LSSS, see https://marec.no.
 
-For information about the LSSS APIs, see [doc/LsssApi.md](doc/LsssApi.md)
+For information about the LSSS APIs, see [doc/LsssApi.md](doc/LsssApi.md).
 
 ## Building and running LSSS
 
-Before building and running LSSS it is necessary to install JDK 21.
+Before building and running LSSS it is necessary to install JDK 25.
 It is recommended to use [Eclipse Temurin from Adoptium](https://adoptium.net/).
 
 To run LSSS:

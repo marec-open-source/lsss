@@ -8,13 +8,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 final class ClassInfo {
-   final Class<? extends BaseDatabaseObject> databaseClass;
-   private final Map<String, Optional<SetterInfo>> setterInfos;
+   private final Class<? extends BaseDatabaseObject> databaseClass;
+   private final Map<String, SetterInfo> setterInfos;
    private final @Nullable CompIdInfo compIdInfo;
 
    ClassInfo(Class<? extends BaseDatabaseObject> databaseClass) throws ReflectiveOperationException {
@@ -44,16 +42,16 @@ final class ClassInfo {
          String value = attribute.getValue();
 
          if (compIdInfo != null) {
-            SetterInfo compIdSetter = DatabaseXmlContent.get(compIdInfo.compIdSetterInfos, name);
+            SetterInfo compIdSetter = compIdInfo.compIdSetterInfos.get(name);
             if (compIdSetter != null) {
                compIdSetter.callSet(compId, value);
                continue;
             }
          }
 
-         SetterInfo setter = DatabaseXmlContent.get(setterInfos, name);
+         SetterInfo setter = setterInfos.get(name);
          if (setter == null) {
-            throw new ReflectiveOperationException("No setter " + name + " in " + databaseClass.getName());
+            throw new ReflectiveOperationException("No setter for " + name + " in " + databaseClass.getName());
          }
          setter.callSet(databaseObject, value);
       }
@@ -61,13 +59,15 @@ final class ClassInfo {
       return databaseObject;
    }
 
-   private static Map<String, Optional<SetterInfo>> findSetters(Class<?> clazz) {
-      Map<String, Optional<SetterInfo>> setters = new HashMap<>();
+   private static Map<String, SetterInfo> findSetters(Class<?> clazz) {
+      Map<String, SetterInfo> setters = new HashMap<>();
       for (Method method : clazz.getDeclaredMethods()) {
-         if (!method.getName().startsWith("set")) {
+         String name = method.getName();
+         if (!name.startsWith("set")) {
             continue;
          }
-         setters.put(method.getName().substring(3).toLowerCase(Locale.ENGLISH), Optional.of(new SetterInfo(method)));
+         String property = Character.toLowerCase(name.charAt(3)) + name.substring(4);
+         setters.put(property, new SetterInfo(method));
       }
       return setters;
    }
@@ -75,7 +75,7 @@ final class ClassInfo {
    private static final class CompIdInfo {
       private final Class<?> compIdClass;
       private final Method setCompId;
-      private final Map<String, Optional<SetterInfo>> compIdSetterInfos;
+      private final Map<String, SetterInfo> compIdSetterInfos;
 
       private CompIdInfo(Class<? extends BaseDatabaseObject> databaseClass) throws NoSuchMethodException {
          compIdClass = databaseClass.getMethod("getCompId").getReturnType();

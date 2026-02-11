@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
  * Datagram for depth data.
  */
 public final class Dep0Datagram extends BaseDepDatagram {
-   public static final DatagramType TYPE = new DatagramType.Simple("DEP0", Dep0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("DEP0", Dep0Datagram::new);
 
    public Dep0Datagram(long ntDate) {
       super(ntDate);

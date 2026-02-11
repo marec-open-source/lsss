@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
@@ -40,6 +41,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.plaf.FontUIResource;
@@ -54,10 +56,12 @@ import javax.swing.text.html.parser.ParserDelegator;
 import javax.swing.undo.UndoManager;
 import java.awt.AWTException;
 import java.awt.AWTKeyStroke;
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Composite;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Desktop;
@@ -75,6 +79,7 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
+import java.awt.Stroke;
 import java.awt.Taskbar;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -94,7 +99,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -103,6 +108,7 @@ import java.util.Collection;
 import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -185,7 +191,7 @@ public final class GuiUtils {
       } else {
          try {
             SwingUtilities.invokeAndWait(runnable);
-         } catch (InterruptedException e) {
+         } catch (InterruptedException _) {
             Thread.currentThread().interrupt();
          } catch (InvocationTargetException e) {
             throw new UncheckedExecutionException(e);
@@ -202,9 +208,9 @@ public final class GuiUtils {
    }
 
    public static <T> T getNowOrWait(Supplier<T> supplier) {
-      AtomicReference<T> value = new AtomicReference<>();
+      AtomicReference<@Nullable T> value = new AtomicReference<>();
       invokeNowOrWait(() -> value.set(supplier.get()));
-      return value.get();
+      return Objects.requireNonNull(value.get());
    }
 
    /**
@@ -271,7 +277,7 @@ public final class GuiUtils {
 
    public static void addPopupMenuToButton(JButton button, Consumer<JPopupMenu> contentCreator) {
       AtomicLong hideTime = new AtomicLong();
-      button.addActionListener(e -> {
+      button.addActionListener(_ -> {
          if (hideTime.get() > System.currentTimeMillis() - 250) {
             return;
          }
@@ -522,13 +528,13 @@ public final class GuiUtils {
 
    public static void connect(AbstractButton button, ObservableProperty<Boolean> property) {
       button.setSelected(property.getValue());
-      button.addItemListener(e -> property.setValue(button.isSelected()));
+      button.addItemListener(_ -> property.setValue(button.isSelected()));
       WhenShowingListening.connect(button, property, () -> button.setSelected(property.getValue()));
    }
 
    public static void connect(JSpinner spinner, ObservableProperty<Float> parameter) {
       spinner.setValue((double) parameter.getValue());
-      spinner.addChangeListener(e -> parameter.setValue(((Number) spinner.getValue()).floatValue()));
+      spinner.addChangeListener(_ -> parameter.setValue(((Number) spinner.getValue()).floatValue()));
       WhenShowingListening.connect(spinner, parameter, () -> spinner.setValue((double) parameter.getValue()));
    }
 
@@ -574,8 +580,25 @@ public final class GuiUtils {
       return new Box.Filler(new Dimension(0, 0), new Dimension(0, Short.MAX_VALUE), new Dimension(0, Short.MAX_VALUE));
    }
 
-   public static void draw(Graphics2D g, Collection<? extends Drawable> drawables) {
-      drawables.forEach(drawable -> drawable.draw(g));
+   public static void draw(Graphics2D g, Collection<GuiText> texts) {
+      for (GuiText text : texts) {
+         text.draw(g);
+      }
+   }
+
+   public static void renderSlopingLines(Graphics2D g, int width, int height, Color backgroundColor, Color lineColor) {
+      Stroke savedStroke = g.getStroke();
+      g.setStroke(STROKE_3);
+      Composite savedComposite = g.getComposite();
+      g.setComposite(AlphaComposite.SrcOver.derive(0.6f));
+      g.setColor(backgroundColor);
+      g.fillRect(0, 0, width, height);
+      g.setColor(lineColor);
+      for (int x = -9 * (height / 9); x < width; x += 9) {
+         g.drawLine(x, 0, x + height, height);
+      }
+      g.setStroke(savedStroke);
+      g.setComposite(savedComposite);
    }
 
    /**
@@ -800,8 +823,12 @@ public final class GuiUtils {
       }));
    }
 
+   public static boolean isDesktopActionSupported(Desktop.Action action) {
+      return Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(action);
+   }
+
    private static boolean desktopSupportedOrShowErrorDialog(@Nullable Component referenceComponent, Desktop.Action action) {
-      if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(action)) {
+      if (isDesktopActionSupported(action)) {
          return true;
       } else {
          showErrorDialog(referenceComponent, "Unsupported desktop action: " + action);
@@ -865,7 +892,7 @@ public final class GuiUtils {
    public static boolean fileExists(Path file, @Nullable Component referenceComponent) {
       Boolean exists = new WorkerDialog(referenceComponent, "Accessing file:\n" + file)
             .setWaitUntilFinishedIfCancelled(false)
-            .startMakeValue(asyncHandle -> Files.exists(file));
+            .startMakeValue(_ -> Files.exists(file));
       return exists != null && exists;
    }
 
@@ -972,7 +999,11 @@ public final class GuiUtils {
             yield button.getText();
          }
          case JTableHeader tableHeader -> {
-            TableModel model = tableHeader.getTable().getModel();
+            JTable table = tableHeader.getTable();
+            if (table == null) {
+               yield "";
+            }
+            TableModel model = table.getModel();
             yield IntStream.range(0, model.getColumnCount())
                   .mapToObj(model::getColumnName)
                   .collect(Collectors.joining("\n"));
@@ -990,7 +1021,7 @@ public final class GuiUtils {
          }
       };
       try {
-         new ParserDelegator().parse(new StringReader(html), parserCallback, false);
+         new ParserDelegator().parse(Reader.of(html), parserCallback, false);
       } catch (IOException e) {
          throw new ShouldNotHappenException("Error parsing html: " + html, e);
       }
@@ -1087,5 +1118,25 @@ public final class GuiUtils {
             | (inputEvent.isControlDown() ? ActionEvent.CTRL_MASK : 0)
             | (inputEvent.isMetaDown() ? ActionEvent.META_MASK : 0)
             | (inputEvent.isAltDown() ? ActionEvent.ALT_MASK : 0);
+   }
+
+   public static HyperlinkListener standardHyperlinkListener() {
+      return e -> {
+         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+            Component referenceComponent = e.getSource() instanceof Component c ? c : null;
+            URI uri = URI.create(e.getDescription());
+            switch (uri.getScheme()) {
+               case "mailto" -> {
+                  desktopMail(uri, referenceComponent);
+               }
+               case "file", "http", "https" -> {
+                  desktopBrowse(uri, referenceComponent);
+               }
+               default -> {
+                  Log.global.warning("Unhandled scheme: " + uri.getScheme());
+               }
+            }
+         }
+      };
    }
 }

@@ -53,14 +53,14 @@ final class DatabaseImportGUI {
 
       JButton importDatabaseButton = new JButton("Import from DB");
       importDatabaseButton.setEnabled(false);
-      importDatabaseButton.addActionListener(actionEvent -> {
+      importDatabaseButton.addActionListener(_ -> {
          dialog.dispose();
          startImport(lsss, referenceWindow, directory, true);
       });
 
       JButton importTextFilesButton = new JButton("Import from text files");
       importTextFilesButton.setEnabled(false);
-      importTextFilesButton.addActionListener(actionEvent -> {
+      importTextFilesButton.addActionListener(_ -> {
          dialog.dispose();
          startImport(lsss, referenceWindow, directory, false);
       });
@@ -78,7 +78,7 @@ final class DatabaseImportGUI {
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE);
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
 
       JButton helpButton = new JButton("Help");
       LsssHelp.DATABASE_IMPORT_EXPORT_IMPORTING_SURVEYS.enableHelpKeyOnButton(helpButton);

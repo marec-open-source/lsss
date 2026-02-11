@@ -567,10 +567,10 @@ public final class TSModule extends BaseViewModule implements BaseTsModule, Pojo
       public void addToFloatableModuleMenu(JPopupMenu popupMenu) {
          List<TSEchogramOverlay> tsEchogramOverlays = module.getModuleManager().getModules(TSEchogramOverlay.class).toList();
          boolean selected = tsEchogramOverlays.stream().anyMatch(o -> o.getEchogramModule().isPelagic() && o.isEnabledByUser());
-         MiscIcons.checkBox(selected).on(popupMenu.add("Show TS locations in echogram")).addActionListener(e -> {
+         MiscIcons.checkBox(selected).on(popupMenu.add("Show TS locations in echogram")).addActionListener(_ -> {
             tsEchogramOverlays.forEach(o -> o.setEnabledByUser(!selected));
          });
-         MiscIcons.SCATTER_PLOT.on(popupMenu.add("Visualizer dialog...")).addActionListener(e -> {
+         MiscIcons.SCATTER_PLOT.on(popupMenu.add("Visualizer dialog...")).addActionListener(_ -> {
             new TSVisualizerDialog(module, mainPanel);
          });
       }

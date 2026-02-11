@@ -25,7 +25,7 @@ final class OffsetValuesTest {
 
    private static void check(int offset, float[] values, @Nullable OffsetValues actual) {
       assertNotNull(actual);
-      assertEquals(offset, actual.offset);
-      assertArrayEquals(values, actual.values);
+      assertEquals(offset, actual.offset());
+      assertArrayEquals(values, actual.values());
    }
 }

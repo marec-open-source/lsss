@@ -10,7 +10,7 @@ public final class TrackUtils {
 
    public static JMenuItem menuItemCreateRegionsForSelected(TrackInfoModule trackInfoModule) {
       JMenuItem item = new JMenuItem("Create LSSS regions for selected tracks");
-      item.addActionListener(e -> {
+      item.addActionListener(_ -> {
          trackInfoModule.createSchoolsAndSelect(trackInfoModule.getTrackSelection().getSelectedTrackIds().stream());
       });
       return item;
@@ -18,7 +18,7 @@ public final class TrackUtils {
 
    public static JMenuItem createMenuItemRegionsForPingRange(TrackInfoModule trackInfoModule) {
       JMenuItem item = new JMenuItem("Create LSSS regions for all tracks in displayed ping range");
-      item.addActionListener(e -> {
+      item.addActionListener(_ -> {
          int channel = trackInfoModule.getLSSS().getInterpretationSettings().getChannel();
          Set<TrackId> trackIds = new HashSet<>();
          trackInfoModule.getLSSS().getInterpretationSettings().getPingSampler().getAvailablePings().forEach(ping -> {

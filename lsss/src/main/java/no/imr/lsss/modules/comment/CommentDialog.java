@@ -88,7 +88,7 @@ final class CommentDialog {
       ParameterEditor parameterEditor = new ParameterEditor(List.of(time, standardComment, value, text));
       parameterEditor.getGUIConfig().setHorizontalFill(true);
       if (mode == Mode.VIEW) {
-         parameterEditor.getGUIConfig().setParameterEnabledDecider(__ -> false);
+         parameterEditor.getGUIConfig().setParameterEnabledDecider(_ -> false);
       }
       BaseParameter<?> focusedParameter = comment.standardComment() == StandardComment.FREE_TEXT_STANDARD_COMMENT ? text : value;
       SwingUtilities.invokeLater(parameterEditor.getInputComponent(focusedParameter)::requestFocusInWindow);
@@ -97,7 +97,7 @@ final class CommentDialog {
 
       JButton okButton = new JButton("OK");
       buttonPanel.add(okButton);
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          if (!parameterEditor.commitEdits()) {
             return;
          }
@@ -113,7 +113,7 @@ final class CommentDialog {
       JButton cancelButton = new JButton("Cancel");
       buttonPanel.add(cancelButton);
       GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
 
       ScrollablePanel editorComponent = parameterEditor.getEditorComponent();
       editorComponent.setBorder(GuiUtils.DEFAULT_MARGIN);

@@ -6,6 +6,7 @@ import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.geometry.EchogramPoint;
 import no.imr.tools.ImmutableUtils;
+import no.imr.tools.Utils;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
 import org.dom4j.DocumentHelper;
@@ -182,12 +183,20 @@ public abstract sealed class Region implements InterpretationContainer, no.marec
       Element labelsElement = element.element(XML_LABELS);
       if (labelsElement != null) {
          ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-         labelsElement.elements().forEach(labelElement -> builder.add(labelElement.getText().intern()));
+         labelsElement.elements().forEach(labelElement -> {
+            builder.add(Utils.intern(labelElement.getText()));
+         });
          setLabels(builder.build());
       }
    }
 
-   public abstract boolean contains(EchogramPoint point);
+   public boolean contains(EchogramPoint point) {
+      return getDepthRanges(point.pingIndex()).contains(point.depth());
+   }
+
+   public abstract boolean contains(PingIndex pingIndex);
+
+   public abstract boolean intersectsPingRange(PingRange pingRange);
 
    public abstract PingRange getPingRange();
 

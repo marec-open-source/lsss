@@ -10,6 +10,7 @@ import no.imr.tools.compile.CompileException;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.DynamicListParameter;
 import no.imr.tools.parameter.Name;
+import no.imr.tools.parameter.OptionalFloatParameter;
 import no.imr.tools.parameter.OptionalStringParameter;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.ValueConverters;
@@ -33,14 +34,28 @@ public final class ExpressionModule extends ConcurrentPingModule {
       }
    };
 
+   public final OptionalStringParameter channelId = new OptionalStringParameter(
+         new Name("ChannelID", "Channel ID"),
+         Optional.empty(),
+         "The ID of the generated channel (optional)");
+
+   public final OptionalFloatParameter frequency = new OptionalFloatParameter(
+         new Name("Frequency"),
+         Optional.empty(), Unit.HZ,
+         "The frequency of the generated channel (optional)");
+
    public final DynamicListParameter<String> expressions = new DynamicListParameter<>(
          new Name("Expression"),
          List.of("C1"), Unit.NONE, EXPRESSION_CONSTRAINT, ValueConverters.STRING) {
       @Override
       public OptionalStringParameter createNewParameter(int index, String persistentName) {
-         return new OptionalStringParameter(new Name(persistentName, "Expression"),
+         OptionalStringParameter parameter = new OptionalStringParameter(new Name(persistentName, "Expression"),
                Optional.empty(), EXPRESSION_CONSTRAINT,
                index == 0 ? "Use C1, C2, ..., or F18, F38, ..." : "Alternative expression");
+         parameter.setProperty(KEY_LEFT_ALIGNED, true);
+         parameter.setProperty(KEY_HORIZONTAL_FILL, true);
+         parameter.setProperty(KEY_COMBINE_INPUT_AND_DESCRIPTION, true);
+         return parameter;
       }
    };
 
@@ -53,6 +68,8 @@ public final class ExpressionModule extends ConcurrentPingModule {
             active,
             comment,
             //---
+            channelId,
+            frequency,
             expressions
       );
    }

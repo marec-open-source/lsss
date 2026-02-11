@@ -48,11 +48,11 @@ public final class MissingSegmentHandle extends SegmentHandle {
 
    @Override
    public SegmentData createSegmentData(NoticeHandler noticeHandler, AsyncHandle asyncHandle) {
-      return new MissingSegmentData(pingConfiguration, segmentInfo.getPingRange());
+      return new MissingSegmentData(pingConfiguration, segmentInfo.pingRange());
    }
 
    @Override
    public PingReader createPingReader() {
-      return new SegmentDataPingReader(new MissingSegmentData(pingConfiguration, segmentInfo.getPingRange()), file);
+      return new SegmentDataPingReader(new MissingSegmentData(pingConfiguration, segmentInfo.pingRange()), file);
    }
 }

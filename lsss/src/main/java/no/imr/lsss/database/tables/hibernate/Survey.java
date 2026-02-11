@@ -1,12 +1,39 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "survey",
+
+      // Properties:
+      "surveyTitle",
+      "startDate",
+      "startTime",
+      "stopDate",
+      "stopTime",
+      "surveyDescription",
+      "boundaryNorth",
+      "boundarySouth",
+      "boundaryWest",
+      "boundaryEast",
+})
 public class Survey implements BaseSurveyObject<SurveyPK> {
    private SurveyPK compId;
 
@@ -30,7 +57,11 @@ public class Survey implements BaseSurveyObject<SurveyPK> {
    public Survey() {
    }
 
-   public Survey(SurveyPK compId, String surveyTitle, int startDate, int startTime, int stopDate, int stopTime, String surveyDescription, float boundaryNorth, float boundarySouth, float boundaryWest, float boundaryEast) {
+   public Survey(SurveyPK compId, String surveyTitle,
+                 int startDate, int startTime,
+                 int stopDate, int stopTime,
+                 String surveyDescription,
+                 float boundaryNorth, float boundarySouth, float boundaryWest, float boundaryEast) {
       this.compId = compId;
       this.surveyTitle = surveyTitle;
       this.startDate = startDate;
@@ -42,23 +73,6 @@ public class Survey implements BaseSurveyObject<SurveyPK> {
       this.boundarySouth = boundarySouth;
       this.boundaryWest = boundaryWest;
       this.boundaryEast = boundaryEast;
-   }
-
-   public Survey(SurveyPK compId, String surveyTitle, int startDate, int startTime, int stopDate, int stopTime, String surveyDescription, float boundaryNorth, float boundarySouth, float boundaryWest, float boundaryEast, @Nullable Platform platform, @Nullable Set<Observation> observations, @Nullable Set<Purpose> purposes) {
-      this.compId = compId;
-      this.surveyTitle = surveyTitle;
-      this.startDate = startDate;
-      this.startTime = startTime;
-      this.stopDate = stopDate;
-      this.stopTime = stopTime;
-      this.surveyDescription = surveyDescription;
-      this.boundaryNorth = boundaryNorth;
-      this.boundarySouth = boundarySouth;
-      this.boundaryWest = boundaryWest;
-      this.boundaryEast = boundaryEast;
-      this.platform = platform;
-      this.observations = observations;
-      this.purposes = purposes;
    }
 
    @EmbeddedId
@@ -72,6 +86,7 @@ public class Survey implements BaseSurveyObject<SurveyPK> {
       this.compId = compId;
    }
 
+   @Column(length = 80)
    public String getSurveyTitle() {
       return surveyTitle;
    }
@@ -112,6 +127,7 @@ public class Survey implements BaseSurveyObject<SurveyPK> {
       this.stopTime = stopTime;
    }
 
+   @Column(length = 200)
    public String getSurveyDescription() {
       return surveyDescription;
    }
@@ -152,6 +168,12 @@ public class Survey implements BaseSurveyObject<SurveyPK> {
       this.boundaryEast = boundaryEast;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform")
+   })
    public Platform getPlatform() {
       return platform;
    }
@@ -160,6 +182,7 @@ public class Survey implements BaseSurveyObject<SurveyPK> {
       this.platform = platform;
    }
 
+   @OneToMany(mappedBy = "survey")
    public Set<Observation> getObservations() {
       return observations;
    }
@@ -168,6 +191,7 @@ public class Survey implements BaseSurveyObject<SurveyPK> {
       this.observations = observations;
    }
 
+   @OneToMany(mappedBy = "survey")
    public Set<Purpose> getPurposes() {
       return purposes;
    }

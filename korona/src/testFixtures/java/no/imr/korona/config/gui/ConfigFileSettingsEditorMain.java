@@ -15,7 +15,7 @@ final class ConfigFileSettingsEditorMain {
    private ConfigFileSettingsEditorMain() {
    }
 
-   public static void main(String[] args) {
+   static void main(String[] args) {
       Utils.init(args, KoronaResource.KORONA_64);
       SwingUtilities.invokeLater(ConfigFileSettingsEditorMain::start);
    }

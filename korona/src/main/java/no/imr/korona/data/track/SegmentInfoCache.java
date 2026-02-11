@@ -91,7 +91,7 @@ public final class SegmentInfoCache {
 
          Map<RawFileConfigurationInfo, Integer> rawFileConfigurationInfoToIndex = new LinkedHashMap<>();
          for (CacheItem cacheItem : baseNameToCacheItem.values()) {
-            RawFileConfigurationInfo rawFileConfigurationInfo = cacheItem.segmentInfo.getRawFileConfigurationInfo();
+            RawFileConfigurationInfo rawFileConfigurationInfo = cacheItem.segmentInfo.rawFileConfigurationInfo();
             rawFileConfigurationInfoToIndex.putIfAbsent(rawFileConfigurationInfo, rawFileConfigurationInfoToIndex.size());
          }
          out.writeInt(rawFileConfigurationInfoToIndex.size());
@@ -202,9 +202,9 @@ public final class SegmentInfoCache {
          out.writeUTF(baseName);
          out.writeLong(lastModified);
          out.writeLong(size);
-         writePingIndex(out, segmentInfo.getPingRange().begin());
-         writePingIndex(out, segmentInfo.getPingRange().end());
-         out.writeInt(rawFileConfigurationInfoToIndex.get(segmentInfo.getRawFileConfigurationInfo()));
+         writePingIndex(out, segmentInfo.pingRange().begin());
+         writePingIndex(out, segmentInfo.pingRange().end());
+         out.writeInt(rawFileConfigurationInfoToIndex.get(segmentInfo.rawFileConfigurationInfo()));
       }
    }
 }

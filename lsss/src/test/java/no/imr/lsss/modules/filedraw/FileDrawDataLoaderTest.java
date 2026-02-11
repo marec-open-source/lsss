@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.Reader;
 import java.time.Instant;
 import java.util.List;
 
@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 final class FileDrawDataLoaderTest {
    @Test
    void readLine() throws IOException {
-      FileDrawLine line = FileDrawDataLoader.readLine(new BufferedReader(new StringReader("""
+      FileDrawLine line = FileDrawDataLoader.readLine(new BufferedReader(Reader.of("""
             LSSS 3 3.00.41
             8
             # Comment a

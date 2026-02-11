@@ -24,7 +24,7 @@ public final class HelpServerMain {
    private HelpServerMain() {
    }
 
-   public static void main(String[] args) throws IOException {
+   static void main() throws IOException {
       start(false);
    }
 

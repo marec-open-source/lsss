@@ -34,11 +34,11 @@ public final class NavigationHistory {
    private Future<?> coalesceEndFuture = new CompletableFuture<>();
 
    public final LsssAction backAction = new TaskLsssAction("goBack", "Go back to previous location",
-         a -> doWithNoAddCheckPoint(undoManager::undo))
+         _ -> doWithNoAddCheckPoint(undoManager::undo))
          .setIcon(MiscIcons.ARROW_LEFT);
 
    public final LsssAction forwardAction = new TaskLsssAction("goForward", "Go forward to next location",
-         a -> doWithNoAddCheckPoint(undoManager::redo))
+         _ -> doWithNoAddCheckPoint(undoManager::redo))
          .setIcon(MiscIcons.ARROW_RIGHT);
 
    NavigationHistory(InterpretationSettings interpretationSettings, LsssPackage lsssPackage) {

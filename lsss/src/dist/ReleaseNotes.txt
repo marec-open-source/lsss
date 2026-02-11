@@ -9,6 +9,43 @@ Contact information
 
 ________________________________________________________________
 
+Version 3.2.0 - January 2026
+
+LSSS:
+• Regions menu:
+  - Added option for excluding pings with low speed.
+• Frequency chooser:
+  - Show channel ID in the tooltip for the dropdown menu.
+• Echogram:
+  - Automatically select newly created schools.
+  - Added context menu item for "unhiding" previously hidden overlays.
+• Interpretation module:
+  - When deleting a part of a stored interval, vertical separators are
+    inserted in the echogram.
+• Data file table:
+  - Added context menu item for selecting files visible in the echogram.
+
+KORONA:
+• Module editor
+  - Added menu for defining and inserting partial module setups.
+  - Temporary computations are now created in begin/end pairs.
+  - The number of modules is shown on collapsed a module group.
+• KORONA relay
+  - Optionally not process the newest file if it is recently modified.
+• All modules:
+  - The comment parameter can now be multiple lines.
+• Bottom detection module:
+  - Added parameter "Coordinated bottom offset".
+• Expression module:
+  - Added parameters for specifying channel ID and frequency.
+• School detection module:
+  - Added boundary smoothing as optional postprocessing.
+  - Added filling of gaps as optional postprocessing.
+• Netcdf writer module (beta):
+  - The "Main frequency" parameter can now be a prioritized list.
+
+________________________________________________________________
+
 Version 3.1.0 - September 2025
 
 LSSS is now open source: https://github.com/marec-open-source/lsss
@@ -802,7 +839,7 @@ Version 1.11.0 - August 2016
 
 Important note:
 • This version fixes a bug where interpretation could be lost if done
-  on a file still being written to by the echo sounder.
+  on a file still being written to by the echosounder.
 
 LSSS:
 • The default installation location is now different for new versions of LSSS,

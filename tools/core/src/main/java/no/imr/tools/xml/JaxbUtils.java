@@ -14,7 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.StringReader;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.file.Path;
 
@@ -32,7 +32,7 @@ public final class JaxbUtils {
 
    public static <T> T read(Class<T> clazz, String content) throws IOException {
       try {
-         return clazz.cast(createUnmarshaller(clazz).unmarshal(new StringReader(content)));
+         return clazz.cast(createUnmarshaller(clazz).unmarshal(Reader.of(content)));
       } catch (JAXBException | RuntimeException e) {
          throw new IOException(e);
       }

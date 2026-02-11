@@ -78,7 +78,7 @@ public final class EchoLineSubDatagram extends SubDatagram {
       private static ByteBufferReader<PowerEchoLine> reader(boolean hasAngles) {
          return byteBuffer -> {
             int startSample = byteBuffer.getInt();
-            short[] shortPower = ByteBufferUtils.readCountAndShorArray(byteBuffer);
+            short[] shortPower = ByteBufferUtils.readCountAndShortArray(byteBuffer);
             byte[] angles = hasAngles ? ByteBufferUtils.readByteArray(byteBuffer, 2 * shortPower.length) : null;
             return new PowerEchoLine(startSample, shortPower, angles);
          };

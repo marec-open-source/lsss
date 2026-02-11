@@ -39,7 +39,7 @@ public final class HsqldbDatabasePlugin extends AbstractDatabasePlugin {
                   })
                   .sorted()
                   .toList();
-         } catch (IOException e) {
+         } catch (IOException _) {
             return List.of();
          }
       }

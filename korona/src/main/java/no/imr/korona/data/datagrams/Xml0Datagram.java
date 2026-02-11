@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
  * General purpose XML datagram.
  */
 public final class Xml0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("XML0", Xml0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("XML0", Xml0Datagram::new);
 
    private final Document document;
 

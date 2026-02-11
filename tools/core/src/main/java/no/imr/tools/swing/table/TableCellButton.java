@@ -56,7 +56,7 @@ public final class TableCellButton {
       private final JButton button = createButton();
 
       public Editor() {
-         button.addActionListener(e -> fireEditingStopped());
+         button.addActionListener(_ -> fireEditingStopped());
          button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {

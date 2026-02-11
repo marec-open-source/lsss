@@ -56,7 +56,7 @@ final class ConversionSwingWorker extends SwingWorker<Void, Integer> {
       progressBar.setStringPainted(true);
 
       JButton cancelButton = new JButton("Cancel");
-      cancelButton.addActionListener(e -> cancel(false));
+      cancelButton.addActionListener(_ -> cancel(false));
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
       buttonPanel.add(cancelButton);
 
@@ -117,7 +117,7 @@ final class ConversionSwingWorker extends SwingWorker<Void, Integer> {
 
       SimpleRegionConfiguration regionConfiguration = new SimpleRegionConfiguration(dataManager);
       RegionManager regionManager = new RegionManager(regionConfiguration);
-      regionManager.setupDefaultBoundaries(__ -> 0, __ -> 100);
+      regionManager.setupDefaultBoundaries(_ -> 0, _ -> 100);
 
       EK500WorkConverter converter = new EK500WorkConverter(regionManager, ek500WorkDir, speciesConverter, dataFileSet,
             mainFrequency, defaultSpecies);
@@ -140,9 +140,9 @@ final class ConversionSwingWorker extends SwingWorker<Void, Integer> {
       progressDialog.dispose();
       try {
          get();
-      } catch (CancellationException e) {
+      } catch (CancellationException _) {
          // Cancelled
-      } catch (InterruptedException e) {
+      } catch (InterruptedException _) {
          Thread.currentThread().interrupt();
       } catch (ExecutionException e) {
          Log.global.log(Level.WARNING, e.getMessage(), e);

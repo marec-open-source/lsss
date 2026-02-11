@@ -6,7 +6,7 @@ final class GridMaskTimer {
    private GridMaskTimer() {
    }
 
-   public static void main(String[] args) {
+   static void main() {
       new BenchmarkTimer(() -> {
          GridMaskTest gridMaskTest = new GridMaskTest();
          gridMaskTest.pyramid();

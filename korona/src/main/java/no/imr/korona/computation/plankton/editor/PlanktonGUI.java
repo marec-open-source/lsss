@@ -113,7 +113,7 @@ public final class PlanktonGUI {
       table.setEnabled(editable);
 
       //Here we toggle if we should see everything in the table or just a little bit.
-      showAllCheckBox.addActionListener(e -> tableModel.setShowAll(showAllCheckBox.isSelected()));
+      showAllCheckBox.addActionListener(_ -> tableModel.setShowAll(showAllCheckBox.isSelected()));
       showAllCheckBox.setEnabled(editable);
 
       JPanel tablePanel = new JPanel(new BorderLayout());
@@ -128,7 +128,7 @@ public final class PlanktonGUI {
          sizeFactorComboBox.addItem(s);
       }
 
-      sizeFactorComboBox.addActionListener(e -> {
+      sizeFactorComboBox.addActionListener(_ -> {
          String key = (String) sizeFactorComboBox.getSelectedItem();
          double selected = factorMap.get(key);
          tableModel.setSizeFactor(selected);
@@ -197,7 +197,7 @@ public final class PlanktonGUI {
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
       JButton addButton = MiscIcons.ADD.on(new JButton("Add row"));
-      addButton.addActionListener(ae -> {
+      addButton.addActionListener(_ -> {
          tableModel = (PlanktonRectangleTableModel) table.getModel();
          try {
             String sizeFactor = (String) sizeFactorComboBox.getSelectedItem();
@@ -211,7 +211,7 @@ public final class PlanktonGUI {
       addButton.setEnabled(editable);
 
       JButton removeButton = MiscIcons.DELETE.on(new JButton("Delete row"));
-      removeButton.addActionListener(e -> {
+      removeButton.addActionListener(_ -> {
          int selected = table.getSelectedRow();
          if (selected >= 0 && tableModel.getRowCount() > 0) {
             tableModel.deleteRow(selected);
@@ -221,7 +221,7 @@ public final class PlanktonGUI {
       removeButton.setEnabled(editable);
 
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          PlanktonFile planktonFileOut = new PlanktonFile();
 
          for (int i = 0; i < tableModel.getRowCount(); i++) {
@@ -244,7 +244,7 @@ public final class PlanktonGUI {
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
 
       JButton helpButton = new JButton("Help");
       KoronaHelp.PLANKTON_CONFIGURATION.enableHelpKeyOnButton(helpButton);

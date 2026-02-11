@@ -158,7 +158,7 @@ public final class CategorizationModule extends GeneralPingModule {
          "Type of classifier");
 
    enum DiscriminantType {
-      A_POSTERIORI("Aposteriori", (previousSubModule, configurator) -> new AposterioriDiscriminant(previousSubModule)),
+      A_POSTERIORI("Aposteriori", (previousSubModule, _) -> new AposterioriDiscriminant(previousSubModule)),
       COST("Cost", CostDiscriminant::new);
 
       private final String id;
@@ -181,7 +181,7 @@ public final class CategorizationModule extends GeneralPingModule {
          "Type of discriminant function");
 
    enum ContextualCorrectionType {
-      NONE("None", (previousSubModule, configurator) -> {
+      NONE("None", (_, _) -> {
          throw new UnsupportedOperationException();
       }),
       ICM("ICM", ICMContextualCorrection::new);

@@ -83,7 +83,7 @@ public final class ApplicationConfiguration extends MainConfigurationUnit {
 
       JButton button = MiscIcons.SAVE.on(new JButton("Save current settings"));
       button.setEnabled(getConfigurationManager().canEdit(UserProfile.ADMINISTRATOR_MODE) && getLSSS().getLsssConfig().isPrimaryLSSS);
-      button.addActionListener(e -> saveDefault());
+      button.addActionListener(_ -> saveDefault());
       JPanel buttonPanel = new JPanel(new FlowLayout());
       buttonPanel.add(button);
 

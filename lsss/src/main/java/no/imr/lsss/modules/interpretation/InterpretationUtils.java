@@ -23,8 +23,10 @@ public final class InterpretationUtils {
       RegionIntegrationModule regionIntegrationModule = lsss.getModuleManager().getModule(RegionIntegrationModule.class);
       PingRange visiblePingRange = lsss.getInterpretationSettings().getPingRange();
       int channel = lsss.getInterpretationSettings().getChannel();
+
       record RegionInfo(Region region, Map<Integer, Float> originalAssignments, float originalSa) {
       }
+
       List<RegionInfo> regionInfos = lsss.getRegionManager().getSelectedRegions().stream()
             .filter(region -> region.getPingRange().intersects(visiblePingRange))
             .map(region -> new RegionInfo(region,
@@ -55,7 +57,7 @@ public final class InterpretationUtils {
       Subscription subscription = regionIntegrationModule.getRegionIntegrationChangeManager().subscribe(listener);
       try {
          lsss.getRegionManager().getThresholdManager().set(visiblePingRange, null, minLogSv, null);
-         new WorkerDialog(lsss.getReferenceComponent(), "Waiting for computations...")
+         new WorkerDialog(lsss::getReferenceComponent, "Waiting for computations...")
                .start(asyncHandle -> {
                   while (true) {
                      if (regionIntegrationModule.isIdle() || asyncHandle.isCancelled()) {

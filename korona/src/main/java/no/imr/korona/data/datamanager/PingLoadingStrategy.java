@@ -55,7 +55,7 @@ public enum PingLoadingStrategy {
          Map<Gap, Integer> randomValues = new HashMap<>();
          addNeededPingsByGap(availablePings, requiredPings, neededPings,
                Comparator.<Gap>comparingInt(gap -> -gap.size)
-                     .thenComparingInt(gap -> randomValues.computeIfAbsent(gap, k -> random.nextInt())));
+                     .thenComparingInt(gap -> randomValues.computeIfAbsent(gap, _ -> random.nextInt())));
       }
    };
 

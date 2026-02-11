@@ -120,8 +120,8 @@ final class ChannelGroupBroadbandSvOutputBuilder extends ChannelGroupOutputBuild
    }
 
    @Override
-   ChannelGroupOutputWriter createWriter(NcChannelGroupWriter ncChannelGroupWriter) throws InvalidRangeException, IOException {
-      return new ChannelGroupPulseCompressionWriter(ncChannelGroupWriter, this);
+   ChannelGroupOutputWriter createWriter(NcGridWriter ncGridWriter) throws InvalidRangeException, IOException {
+      return new ChannelGroupPulseCompressionWriter(ncGridWriter, this);
    }
 
    private static final class ChannelGroupPulseCompressionWriter extends ChannelGroupOutputWriter {
@@ -149,8 +149,8 @@ final class ChannelGroupBroadbandSvOutputBuilder extends ChannelGroupOutputBuild
       private final float[] angleAlongshipValues;
       private final float[] angleAthwartshipValues;
 
-      private ChannelGroupPulseCompressionWriter(NcChannelGroupWriter ncChannelGroupWriter, ChannelGroupBroadbandSvOutputBuilder channelGroupBuilder) throws InvalidRangeException, IOException {
-         super(ncChannelGroupWriter, channelGroupBuilder);
+      private ChannelGroupPulseCompressionWriter(NcGridWriter ncGridWriter, ChannelGroupBroadbandSvOutputBuilder channelGroupBuilder) throws InvalidRangeException, IOException {
+         super(ncGridWriter, channelGroupBuilder);
 
          referenceTimeInMillis = channelGroupBuilder.referenceTimeInMillis;
          deltaRange = channelGroupBuilder.deltaRange;
@@ -159,30 +159,30 @@ final class ChannelGroupBroadbandSvOutputBuilder extends ChannelGroupOutputBuild
          gridFrequencyRange = channelGroupBuilder.gridFrequencyRange;
          gridFrequencyLength = channelGroupBuilder.gridFrequencyLength;
 
-         pingTimeVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.PING_TIME);
-         Variable rangeVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.RANGE);
+         pingTimeVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.PING_TIME);
+         Variable rangeVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.RANGE);
 
-         sampleIntervalVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.SAMPLE_INTERVAL);
-         soundSpeedVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.SOUND_SPEED);
-         transceiverImpedanceVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.TRANSCEIVER_IMPEDANCE);
-         transmitFrequencyStartVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.TRANSMIT_FREQUENCY_START);
-         transmitFrequencyStopVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.TRANSMIT_FREQUENCY_STOP);
-         transmitPowerVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.TRANSMIT_POWER);
+         sampleIntervalVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.SAMPLE_INTERVAL);
+         soundSpeedVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.SOUND_SPEED);
+         transceiverImpedanceVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.TRANSCEIVER_IMPEDANCE);
+         transmitFrequencyStartVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.TRANSMIT_FREQUENCY_START);
+         transmitFrequencyStopVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.TRANSMIT_FREQUENCY_STOP);
+         transmitPowerVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.TRANSMIT_POWER);
 
-         NcWrite.writeScalarFloat(writer, channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.ANGLE_SENSITIVITY_ALONGSHIP),
+         NcWrite.writeScalarFloat(writer, channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.ANGLE_SENSITIVITY_ALONGSHIP),
                channelGroupBuilder.transducer.getAngleSensitivityAlongship());
-         NcWrite.writeScalarFloat(writer, channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.ANGLE_SENSITIVITY_ATHWARTSHIP),
+         NcWrite.writeScalarFloat(writer, channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.ANGLE_SENSITIVITY_ATHWARTSHIP),
                channelGroupBuilder.transducer.getAngleSensitivityAthwartship());
 
-         writer.write(channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.Y_MF_AUTO_RED_RE),
+         writer.write(channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.Y_MF_AUTO_RED_RE),
                Array.makeFromJavaArray(channelGroupBuilder.pulseCompression.getAutoCorrelationTransmitSignal().reArrayFloat()));
-         writer.write(channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.Y_MF_AUTO_RED_IM),
+         writer.write(channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.Y_MF_AUTO_RED_IM),
                Array.makeFromJavaArray(channelGroupBuilder.pulseCompression.getAutoCorrelationTransmitSignal().imArrayFloat()));
 
-         broadbandSvVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.BROADBAND_SV);
+         broadbandSvVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.BROADBAND_SV);
 
-         angleAlongshipVar = channelGroupBuilder.writeAngles ? channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.ANGLE_ALONGSHIP) : null;
-         angleAthwartshipVar = channelGroupBuilder.writeAngles ? channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.ANGLE_ATHWARTSHIP) : null;
+         angleAlongshipVar = channelGroupBuilder.writeAngles ? channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.ANGLE_ALONGSHIP) : null;
+         angleAthwartshipVar = channelGroupBuilder.writeAngles ? channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.ANGLE_ATHWARTSHIP) : null;
 
          double[] ranges = new double[channelGroupBuilder.rangeLength];
          for (int i = 0; i < ranges.length; i++) {
@@ -195,11 +195,11 @@ final class ChannelGroupBroadbandSvOutputBuilder extends ChannelGroupOutputBuild
          for (int i = 0; i < broadbandFrequencies.length; i++) {
             broadbandFrequencies[i] = gridFrequencyRange.min() + i * deltaFrequency;
          }
-         Variable broadbandFrequencyVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.BROADBAND_FREQUENCY);
+         Variable broadbandFrequencyVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.BROADBAND_FREQUENCY);
          writer.write(broadbandFrequencyVar, new int[]{0}, Array.makeFromJavaArray(broadbandFrequencies));
 
          if (channelGroupBuilder.calibrationFrequencies.length > 0) {
-            writer.write(channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.CALIBRATION_FREQUENCY),
+            writer.write(channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.CALIBRATION_FREQUENCY),
                   Array.makeFromJavaArray(Utils.toFloats(channelGroupBuilder.calibrationFrequencies)));
             ChannelCalibration channelCalibration = channelGroupBuilder.transducer.getChannelCalibration();
             writeCalibrationParameter(Nc.CALIBRATION_GAIN, channelCalibration.broadbandGain, channelGroupBuilder);
@@ -231,7 +231,7 @@ final class ChannelGroupBroadbandSvOutputBuilder extends ChannelGroupOutputBuild
                   ? (float) broadbandFunction.getValue(frequency)
                   : Float.NaN;
          }
-         Variable variable = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, variableName);
+         Variable variable = channelGroupBuilder.findGroupVariable(ncGridWriter, variableName);
          writer.write(variable, Array.makeFromJavaArray(values));
       }
 
@@ -239,21 +239,21 @@ final class ChannelGroupBroadbandSvOutputBuilder extends ChannelGroupOutputBuild
       void write(Ping ping, int pingTimeIndex) throws InvalidRangeException, IOException {
          PingIndex pingIndex = ping.getPingIndex();
 
-         ncChannelGroupWriter.writeLong(pingTimeVar, (pingIndex.getTimeInMillis() - referenceTimeInMillis) * 1_000_000);
+         ncGridWriter.writeLong(pingTimeVar, (pingIndex.getTimeInMillis() - referenceTimeInMillis) * 1_000_000);
 
          BroadbandData broadbandData = ping.getBroadbandData(channel);
          if (broadbandData == null) {
             return;
          }
 
-         ncChannelGroupWriter.writeFloat(sampleIntervalVar, broadbandData.getSampleInterval());
-         ncChannelGroupWriter.writeFloat(soundSpeedVar, broadbandData.getSoundVelocity());
-         ncChannelGroupWriter.writeFloat(transmitFrequencyStartVar, broadbandData.getStartFrequency());
-         ncChannelGroupWriter.writeFloat(transmitFrequencyStopVar, broadbandData.getEndFrequency());
-         ncChannelGroupWriter.writeFloat(transmitPowerVar, broadbandData.getTransmitPower());
+         ncGridWriter.writeFloat(sampleIntervalVar, broadbandData.getSampleInterval());
+         ncGridWriter.writeFloat(soundSpeedVar, broadbandData.getSoundVelocity());
+         ncGridWriter.writeFloat(transmitFrequencyStartVar, broadbandData.getStartFrequency());
+         ncGridWriter.writeFloat(transmitFrequencyStopVar, broadbandData.getEndFrequency());
+         ncGridWriter.writeFloat(transmitPowerVar, broadbandData.getTransmitPower());
          RawFileTransducer.Xml0Info transducerXml0Info = broadbandData.getTransducer().getXml0Info();
          if (transducerXml0Info != null) {
-            ncChannelGroupWriter.writeFloat(transceiverImpedanceVar, transducerXml0Info.getImpedance());
+            ncGridWriter.writeFloat(transceiverImpedanceVar, transducerXml0Info.getImpedance());
          }
 
          BroadbandSvByFrequency broadbandSvByFrequency = new BroadbandSvByFrequency(broadbandData);
@@ -277,9 +277,9 @@ final class ChannelGroupBroadbandSvOutputBuilder extends ChannelGroupOutputBuild
             float[] sv = broadbandSvByFrequency.calculate(iBegin, iEnd, frequencyRange);
             OffsetValues resampledSv = OffsetValues.resample(sv, frequencyRange, gridFrequencyRange, gridFrequencyLength);
             if (resampledSv != null) {
-               ArrayMath.divide(resampledSv.values, PowerData.IMR_CONSTANT);
-               writer.write(broadbandSvVar, new int[]{pingTimeIndex, iRange, resampledSv.offset},
-                     Array.makeFromJavaArray(new float[][][]{{resampledSv.values}}));
+               ArrayMath.divide(resampledSv.values(), PowerData.IMR_CONSTANT);
+               writer.write(broadbandSvVar, new int[]{pingTimeIndex, iRange, resampledSv.offset()},
+                     Array.makeFromJavaArray(new float[][][]{{resampledSv.values()}}));
             }
          }
          if (angleAlongshipVar != null && angleAthwartshipVar != null) {

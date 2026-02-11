@@ -7,7 +7,7 @@ public interface Function2D {
    double eval(double x, double y);
 
    static Function2D constant(double z) {
-      return (x, y) -> z;
+      return (_, _) -> z;
    }
 
    static Function2D linear(double x0, double y0, double z0, double dzDx, double dzDy) {

@@ -22,7 +22,7 @@ public abstract class DatabaseContent {
    public abstract UpgradeResult doUpgradeIfNecessary(DatabaseConnection databaseConnection, @Nullable Component referenceComponent, boolean interactiveMode) throws UpgradeException;
 
    public void copyDefaultDataIntoTables(DatabaseConnection databaseConnection) {
-      copyDefaultDataIntoTables(databaseConnection, c -> true);
+      copyDefaultDataIntoTables(databaseConnection, _ -> true);
    }
 
    public abstract void copyDefaultDataIntoTables(DatabaseConnection databaseConnection, Predicate<Class<? extends BaseDatabaseObject>> predicate);

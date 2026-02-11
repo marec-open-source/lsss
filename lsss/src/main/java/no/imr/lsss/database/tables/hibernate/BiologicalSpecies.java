@@ -1,7 +1,16 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
 import no.imr.tools.Utils;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -11,6 +20,19 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "biologicalSpecies",
+
+      // Properties:
+      "initials",
+      "commonName",
+      "englishName",
+      "latinName",
+      "nodc",
+      "itis",
+})
 public class BiologicalSpecies implements BaseNationObject<BiologicalSpeciesPK>, Comparable<BiologicalSpecies> {
    private BiologicalSpeciesPK compId;
 
@@ -44,6 +66,7 @@ public class BiologicalSpecies implements BaseNationObject<BiologicalSpeciesPK>,
       this.compId = compId;
    }
 
+   @Column(length = 5)
    public String getInitials() {
       return initials;
    }
@@ -52,6 +75,7 @@ public class BiologicalSpecies implements BaseNationObject<BiologicalSpeciesPK>,
       this.initials = DatabaseUtils.nullToEmpty(initials);
    }
 
+   @Column(length = 80)
    public String getCommonName() {
       return commonName;
    }
@@ -60,6 +84,7 @@ public class BiologicalSpecies implements BaseNationObject<BiologicalSpeciesPK>,
       this.commonName = DatabaseUtils.nullToEmpty(commonName);
    }
 
+   @Column(length = 80)
    public String getEnglishName() {
       return englishName;
    }
@@ -68,6 +93,7 @@ public class BiologicalSpecies implements BaseNationObject<BiologicalSpeciesPK>,
       this.englishName = DatabaseUtils.nullToEmpty(englishName);
    }
 
+   @Column(length = 80)
    public String getLatinName() {
       return latinName;
    }
@@ -76,6 +102,7 @@ public class BiologicalSpecies implements BaseNationObject<BiologicalSpeciesPK>,
       this.latinName = DatabaseUtils.nullToEmpty(latinName);
    }
 
+   @Column(length = 12)
    public String getNodc() {
       return nodc;
    }
@@ -92,6 +119,11 @@ public class BiologicalSpecies implements BaseNationObject<BiologicalSpeciesPK>,
       this.itis = itis;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation")
+   })
    public Nation getNation() {
       return nation;
    }
@@ -100,6 +132,7 @@ public class BiologicalSpecies implements BaseNationObject<BiologicalSpeciesPK>,
       this.nation = nation;
    }
 
+   @OneToMany(mappedBy = "biologicalSpecies")
    public Set<AcCatToBiologicalSpecies> getAcousticCategoryToBiologicalSpecies() {
       return acousticCategoryToBiologicalSpecies;
    }

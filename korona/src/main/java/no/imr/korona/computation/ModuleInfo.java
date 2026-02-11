@@ -4,8 +4,8 @@ import no.imr.korona.plugins.ModulePlugin;
 import no.imr.tools.help.HelpID;
 import no.imr.tools.parameter.Name;
 
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Info about one module.
@@ -18,7 +18,7 @@ public record ModuleInfo(
       ModulePlugin modulePlugin,
       Class<? extends BaseModule> moduleClass,
       Name name,
-      EnumSet<ModuleCategory> categories,
+      Set<ModuleCategory> categories,
       String description,
       List<String> grouping
 ) {

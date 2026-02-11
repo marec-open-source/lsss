@@ -29,4 +29,8 @@ public abstract class ModulePlugin extends BasePlugin {
    public @Nullable VisualizerModule getDefaultVisualizerModule(PingConfiguration pingConfiguration, @Nullable VisualizerModule previousVisualizerModule) {
       return null;
    }
+
+   public @Nullable String getModuleConfigurationSubDirName() {
+      return null;
+   }
 }

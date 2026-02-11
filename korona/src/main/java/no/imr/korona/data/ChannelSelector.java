@@ -18,6 +18,6 @@ public interface ChannelSelector {
    int getChannel(RawFileConfiguration rawFileConfiguration);
 
    static ChannelSelector channelOne() {
-      return __ -> 1;
+      return _ -> 1;
    }
 }

@@ -65,11 +65,14 @@ public final class DataFileKoronaCellRenderer implements TableCellRenderer {
 
       String incompatibilityWithSelection = fileRow.getIncompatibilityWithSelection(DataType.PROCESSED);
       if (incompatibilityWithSelection != null) {
+         boolean warning = dataFileTable.getDataFileTableModel().getDataConf().canUpdateSelectedDataFilesWithIncompatiblePingConfiguration();
          if (icon == null) {
-            icon = LsssIcons.KORONA_ERROR;
+            icon = warning ? LsssIcons.KORONA_NOTICE_OK : LsssIcons.KORONA_ERROR;
          }
          if (tooltip != null) {
-            tooltip.html("<br><br><span style='color: red;'><b>Error: </b></span>Incompatible with selection: ").text(incompatibilityWithSelection);
+            String color = warning ? "yellow" : "red";
+            String type = warning ? "Warning" : "Error";
+            tooltip.html("<br><br><span style='color: " + color + ";'><b>" + type + ": </b></span>Incompatible with selection: ").text(incompatibilityWithSelection);
          }
       }
 

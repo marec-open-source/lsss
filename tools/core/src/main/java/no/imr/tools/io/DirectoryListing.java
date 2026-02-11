@@ -21,7 +21,7 @@ public record DirectoryListing(
    public static DirectoryListing ofOrEmpty(Path directory, AsyncHandle asyncHandle) {
       try {
          return of(directory, asyncHandle);
-      } catch (IOException e) {
+      } catch (IOException _) {
          return of();
       }
    }

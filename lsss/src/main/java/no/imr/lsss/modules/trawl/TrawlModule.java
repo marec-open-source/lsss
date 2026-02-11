@@ -58,7 +58,7 @@ public final class TrawlModule extends BaseViewModule {
          int stationNumber;
          try {
             stationNumber = Integer.parseInt(logLine.localStationNumber());
-         } catch (NumberFormatException e) {
+         } catch (NumberFormatException _) {
             return;
          }
          viewHolder.ifView(view -> {
@@ -111,12 +111,12 @@ public final class TrawlModule extends BaseViewModule {
       @Override
       public void addToFloatableModuleMenu(JPopupMenu popupMenu) {
          JMenuItem visualizerItem = MiscIcons.SCATTER_PLOT.on(popupMenu.add("Visualizer dialog..."));
-         visualizerItem.addActionListener(e -> new TrawlVisualizerDialog(trawlGui));
+         visualizerItem.addActionListener(_ -> new TrawlVisualizerDialog(trawlGui));
 
          Path file = trawlGui.getFile();
          if (file != null) {
             JMenuItem openItem = popupMenu.add("Open " + file.getFileName());
-            openItem.addActionListener(e -> GuiUtils.desktopOpen(file, getComponent()));
+            openItem.addActionListener(_ -> GuiUtils.desktopOpen(file, getComponent()));
          }
       }
    }

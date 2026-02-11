@@ -5,6 +5,7 @@ import no.imr.deepvision.lsss.engine.data.pojo.DeepVisionFrame;
 import no.imr.tools.logging.Log;
 import no.imr.tools.range.DefaultRange;
 import no.imr.tools.range.Range;
+import org.jspecify.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -13,6 +14,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -100,7 +102,7 @@ public final class DeepVisionFileInfo {
    }
 
    private BufferedImage loadImageFromZipFile(Path zipPath, String fileName) throws IOException {
-      AtomicReference<IOException> ioExceptionReference = new AtomicReference<>();
+      AtomicReference<@Nullable IOException> ioExceptionReference = new AtomicReference<>();
       ZipFile zipFile = pathToZipFile.computeIfAbsent(zipPath, key -> {
          try {
             return new ZipFile(key.toFile());
@@ -110,7 +112,7 @@ public final class DeepVisionFileInfo {
          }
       });
       if (zipFile == null) {
-         throw ioExceptionReference.get();
+         throw Objects.requireNonNull(ioExceptionReference.get());
       }
       ZipEntry zipEntry = zipFile.getEntry(fileName);
       if (zipEntry == null) {

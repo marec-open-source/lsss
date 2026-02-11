@@ -12,3 +12,8 @@ idea {
 }
 
 extensions.create<MarecBuildExtension>("marecBuild")
+
+tasks.withType<AbstractArchiveTask>().configureEach {
+   isPreserveFileTimestamps = true
+   useFileSystemPermissions()
+}

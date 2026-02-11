@@ -85,7 +85,7 @@ public final class LoaderRefCsv {
          long timeInMillis;
          try {
             timeInMillis = dateTimeFormatter.parse(date + " " + time, Instant::from).toEpochMilli();
-         } catch (DateTimeParseException e) {
+         } catch (DateTimeParseException _) {
             continue;
          }
 

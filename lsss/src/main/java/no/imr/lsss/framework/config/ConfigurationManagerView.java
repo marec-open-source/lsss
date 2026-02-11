@@ -108,7 +108,7 @@ final class ConfigurationManagerView implements ViewHolder.View {
       tree.setExpandsSelectedPaths(true);
       tree.setScrollsOnExpand(true);
       ToolTipManager.sharedInstance().registerComponent(tree);
-      tree.addTreeSelectionListener(e -> {
+      tree.addTreeSelectionListener(_ -> {
          if (!isSettingTreePath) {
             updateConfigurationPanel();
          }
@@ -174,10 +174,10 @@ final class ConfigurationManagerView implements ViewHolder.View {
       JButton okButton = new JButton("OK");
       bottomButtonsPanel.add(okButton);
       okButton.setToolTipText("Accept changes to configuration");
-      okButton.addActionListener(e -> configurationManager.ok());
+      okButton.addActionListener(_ -> configurationManager.ok());
 
       JButton cancelButton = new JButton("Cancel");
-      cancelButton.addActionListener(e -> cancel());
+      cancelButton.addActionListener(_ -> cancel());
       bottomButtonsPanel.add(cancelButton);
       cancelButton.setToolTipText("Undo changes to configuration");
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE, () -> {
@@ -189,7 +189,7 @@ final class ConfigurationManagerView implements ViewHolder.View {
          }
       });
 
-      helpButton.addActionListener(e -> {
+      helpButton.addActionListener(_ -> {
          for (ConfigurationNode node = (ConfigurationNode) tree.getLastSelectedPathComponent(); node != null; node = (ConfigurationNode) node.getParent()) {
             HelpID helpID = node.getConfigurationUnit().getHelpID();
             if (helpID.isValid()) {
@@ -213,7 +213,7 @@ final class ConfigurationManagerView implements ViewHolder.View {
       userProfilePanel.add(new JLabel("Access level: "));
       userProfilePanel.add(userProfileComboBox);
 
-      filterTextField.getDocument().addDocumentListener(new SimpleDocumentListener(e -> {
+      filterTextField.getDocument().addDocumentListener(new SimpleDocumentListener(_ -> {
          TreePath selectionPath = tree.getSelectionPath();
          String filterText = filterTextField.getText();
          TextFilter filter = new TextFilter(filterText);
@@ -532,7 +532,7 @@ final class ConfigurationManagerView implements ViewHolder.View {
 
       private boolean filterAcceptsNode(TextFilter filter, Map<ConfigurationNode, Component> filterComponentCache) {
          return filter.test(configurationUnit.getDisplayName())
-               || filterAcceptsComponentHierarchy(filterComponentCache.computeIfAbsent(this, k -> configurationUnit.getComponent()), filter);
+               || filterAcceptsComponentHierarchy(filterComponentCache.computeIfAbsent(this, _ -> configurationUnit.getComponent()), filter);
       }
    }
 }

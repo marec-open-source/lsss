@@ -46,7 +46,6 @@ import org.jfree.chart.plot.XYPlot;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,17 +152,17 @@ public final class BroadbandPeakDetectionModule extends BaseViewModule {
 
    private List<BroadbandTemporalNotchFilterConfig> channelPeakDetection(OnlineAverageAndVariance averageAndVariance,
                                                                          float firstFrequency, float deltaFrequency, int channel) {
-      float[] var = averageAndVariance.getVar();
+      float[] variances = averageAndVariance.getVariances();
       double sumStd = 0;
-      float[] std = new float[var.length];
+      float[] std = new float[variances.length];
       int j = 0;
-      for (float v : var) {
+      for (float v : variances) {
          double s = Math.sqrt(v);
          sumStd += s;
          std[j] = (float) s;
          j++;
       }
-      float meanStd = (float) (sumStd / var.length);
+      float meanStd = (float) (sumStd / variances.length);
 
       FrequencyPeakDetector detector = new FrequencyPeakDetector();
       detector.detect(averageAndVariance.getMeans(), std, peakHeightThreshold.getValue(), peakWidthLimit.getValue(),
@@ -284,7 +283,7 @@ public final class BroadbandPeakDetectionModule extends BaseViewModule {
                      .shrinkToMultipleOf(deltaFrequency);
                channelFrequencyRange.putIfAbsent(channel, frequencyRange);
                FloatRangeSet depthRanges = region.getRegionManager().getDepthRangesForChannel(region, ping, channel);
-               List<BroadbandSvData> svData = depthRanges.getFloatRanges().stream()
+               List<BroadbandSvData> svData = depthRanges.stream()
                      .flatMap(depthRange -> svByFrequency.windowDepthRanges(depthRange,
                            broadbandSvModule.get().depthResolution.getFloatValue(),
                            broadbandSvModule.get().depthMargin.getFloatValue(),
@@ -399,11 +398,11 @@ public final class BroadbandPeakDetectionModule extends BaseViewModule {
          float firstFrequency = integerDetectionInfoEntry.getValue().firstFrequency();
          float deltaFrequency = integerDetectionInfoEntry.getValue().deltaFrequency();
          OnlineAverageAndVariance value = integerDetectionInfoEntry.getValue().averageAndVariance();
-         float[] means = Arrays.copyOf(value.getMeans(), value.getMeans().length);
-         float[] var = value.getVar();
-         float[] std = new float[var.length];
+         float[] means = value.getMeans().clone();
+         float[] variances = value.getVariances();
+         float[] std = new float[variances.length];
          int j = 0;
-         for (float v : var) {
+         for (float v : variances) {
             std[j] = (float) Math.sqrt(v);
             j++;
          }

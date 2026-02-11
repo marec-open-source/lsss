@@ -48,13 +48,13 @@ final class SurveyConfView {
 
       WhenShowingListening.connect(mainPanel, surveyConf.getParameters(), this::updateButtonsEnabled);
 
-      newPlatformButton.addActionListener(e -> editPlatform(null));
-      editPlatformButton.addActionListener(e -> editPlatform(surveyConf.getPlatform()));
-      deletePlatformButton.addActionListener(e -> deletePlatform());
+      newPlatformButton.addActionListener(_ -> editPlatform(null));
+      editPlatformButton.addActionListener(_ -> editPlatform(surveyConf.getPlatform()));
+      deletePlatformButton.addActionListener(_ -> deletePlatform());
 
-      newSurveyButton.addActionListener(e -> editSurvey(null));
-      editSurveyButton.addActionListener(e -> editSurvey(surveyConf.getSurvey()));
-      deleteSurveyButton.addActionListener(e -> deleteSurvey());
+      newSurveyButton.addActionListener(_ -> editSurvey(null));
+      editSurveyButton.addActionListener(_ -> editSurvey(surveyConf.getSurvey()));
+      deleteSurveyButton.addActionListener(_ -> deleteSurvey());
 
       JPanel platformPanel = ConfigurationUtils.createTitledButtonPanel("Platform");
       platformPanel.add(newPlatformButton);

@@ -17,7 +17,7 @@ public final class RadioButtonTabbedPane {
    private final List<JRadioButton> radioButtons = new ArrayList<>();
 
    public RadioButtonTabbedPane() {
-      tabbedPane.addChangeListener(e -> {
+      tabbedPane.addChangeListener(_ -> {
          radioButtons.get(tabbedPane.getSelectedIndex()).setSelected(true);
       });
    }

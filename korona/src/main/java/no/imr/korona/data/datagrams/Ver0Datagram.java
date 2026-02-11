@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
  * Version information.
  */
 public final class Ver0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("VER0", Ver0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("VER0", Ver0Datagram::new);
 
    public final String fileVersion;
    public final String softwareVersion;

@@ -19,7 +19,7 @@ final class HistogramMap {
    }
 
    Histogram getHistogram(Pic0Datagram.PlanktonCategory planktonCategory) {
-      return histograms.computeIfAbsent(planktonCategory, k -> new Histogram());
+      return histograms.computeIfAbsent(planktonCategory, _ -> new Histogram());
    }
 
    void clear() {

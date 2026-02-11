@@ -10,21 +10,21 @@ import static org.junit.jupiter.api.Assertions.*;
  * Testing pulse compression (for broadband complex data).
  */
 final class PulseCompressionTest {
-   private static ComplexArray convBruteForce(ComplexArray firstArray, ComplexArray secondArray, int beginIndex, int endIndex) {
+   private static ComplexArray convBruteForce(ComplexArray array1, ComplexArray array2, int beginIndex, int endIndex) {
       ComplexArray result = ComplexArray.ofLength(endIndex - beginIndex);
-
-      int m = secondArray.length() / 2;
+      int m = array2.length() / 2;
       for (int i = beginIndex; i < endIndex; i++) {
          double re = 0;
          double im = 0;
-         for (int j = 0; j < secondArray.length(); j++) {
-            if (i - j + m < 0 || i - j + m >= firstArray.length()) {
+         for (int i2 = 0; i2 < array2.length(); i2++) {
+            int i1 = i - i2 + m;
+            if (i1 < 0 || i1 >= array1.length()) {
                continue;
             }
-            double re1 = firstArray.re(i - j + m);
-            double im1 = firstArray.im(i - j + m);
-            double re2 = secondArray.re(j);
-            double im2 = secondArray.im(j);
+            double re1 = array1.re(i1);
+            double im1 = array1.im(i1);
+            double re2 = array2.re(i2);
+            double im2 = array2.im(i2);
             re += re1 * re2 - im1 * im2;
             im += im1 * re2 + re1 * im2;
          }
@@ -42,9 +42,11 @@ final class PulseCompressionTest {
          array1.set(i, re, im);
       }
       ComplexArray array2 = ComplexArray.ofLength(100);
+      double deltaAngle = 2 * Math.PI / array2.length();
       for (int i = 0; i < array2.length(); i++) {
-         double re = 2 * Math.cos(2 * Math.PI * (double) i / array2.length());
-         double im = Math.sin(2 * Math.PI * (double) i / array2.length());
+         double angle = i * deltaAngle;
+         double re = 2 * Math.cos(angle);
+         double im = Math.sin(angle);
          array2.set(i, re, im);
       }
 
@@ -56,7 +58,7 @@ final class PulseCompressionTest {
       ComplexArray result1 = convBruteForce(array1, array2, 0, array1.length());
       ComplexArray result2 = ComplexArrayUtils.conv(array1, array2);
 
-      assertArrayEquals(result1.values(), result2.values(), 1e-5);
+      assertArrayEquals(result1.values(), result2.values(), 1e-13);
    }
 
    @Test

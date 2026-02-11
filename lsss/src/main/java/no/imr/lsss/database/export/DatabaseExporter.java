@@ -146,7 +146,7 @@ public final class DatabaseExporter {
       Set<Short> nationPKs = LsssDatabaseUtils.toNationPKs(surveys);
       for (Class<? extends BaseDatabaseObject> nationClass : LsssDatabaseUtils.getNationClasses(lsss)) {
          statusListener.accept("Exporting table: " + DatabaseUtils.getTableName(nationClass));
-         for (Short nationPK : nationPKs) {
+         for (short nationPK : nationPKs) {
             if (asyncHandle.isCancelled()) {
                return;
             }

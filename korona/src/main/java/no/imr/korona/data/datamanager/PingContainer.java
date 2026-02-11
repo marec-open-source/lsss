@@ -71,6 +71,17 @@ public interface PingContainer {
       return getContainingPingIndex(pingNumber, PingMapping.NUMBER);
    }
 
+   default PingIndex getPingIndexClamped(long pingNumber) {
+      PingIndex pingIndex = getPingIndexOrNullExcludingEnd(pingNumber);
+      if (pingIndex != null) {
+         return pingIndex;
+      }
+      PingRange totalRange = getTotalRange();
+      return pingNumber < totalRange.begin().getPingNumber()
+            ? totalRange.begin()
+            : totalRange.end();
+   }
+
    default PingIndex getPingIndex(long pingNumber) {
       PingIndex pingIndex = getPingIndexOrNull(pingNumber);
       if (pingIndex == null) {

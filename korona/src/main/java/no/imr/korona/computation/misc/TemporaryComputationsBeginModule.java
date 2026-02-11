@@ -31,11 +31,11 @@ public final class TemporaryComputationsBeginModule extends SimplePingModule {
          PingConfiguration pingConfiguration = pingSource.getPingConfiguration();
          for (PingItem configurationItem : pingConfiguration.getConfigurationItems()) {
             switch (configurationItem) {
-               case RawFileConfiguration __ -> {
+               case RawFileConfiguration _ -> {
                   tmpConfigurationItems.add(configurationItem.makeCopy());
                   newConfigurationItems.add(configurationItem);
                }
-               case TemporaryComputationsConfigurationItem __ -> {
+               case TemporaryComputationsConfigurationItem _ -> {
                   tmpConfigurationItems.add(configurationItem);
                }
                default -> {
@@ -53,11 +53,11 @@ public final class TemporaryComputationsBeginModule extends SimplePingModule {
          List<PingItem> tmpPingItems = new ArrayList<>();
          for (PingItem pingItem : ping.getPingItems()) {
             switch (pingItem) {
-               case ChannelData __ -> {
+               case ChannelData _ -> {
                   tmpPingItems.add(pingItem.makeCopy());
                   newPing.add(pingItem);
                }
-               case TemporaryComputationsPingItem __ -> {
+               case TemporaryComputationsPingItem _ -> {
                   tmpPingItems.add(pingItem);
                }
                default -> {

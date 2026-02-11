@@ -105,7 +105,9 @@ public final class EchogramPlotModule extends BaseViewModule implements PojoData
          List.of(), Unit.NONE, NmeaFunction.NmeaParameter.CONSTRAINT, ValueConverters.STRING) {
       @Override
       public ValueParameter<Optional<String>> createNewParameter(int index, String persistentName) {
-         return new NmeaFunction.NmeaParameter(getInterpretationSettings(), persistentName);
+         NmeaFunction.NmeaParameter parameter = new NmeaFunction.NmeaParameter(getInterpretationSettings(), persistentName);
+         parameter.setProperty(KEY_COMBINE_INPUT_AND_DESCRIPTION, true);
+         return parameter;
       }
    };
    private List<NmeaFunction> nmeaPingFunctions = List.of();
@@ -115,7 +117,9 @@ public final class EchogramPlotModule extends BaseViewModule implements PojoData
          List.of(), Unit.NONE, ValueConverters.STRING) {
       @Override
       public ValueParameter<Optional<String>> createNewParameter(int index, String persistentName) {
-         return new AdcpFunction.AdcpParameter(persistentName);
+         AdcpFunction.AdcpParameter parameter = new AdcpFunction.AdcpParameter(persistentName);
+         parameter.setProperty(KEY_COMBINE_INPUT_AND_DESCRIPTION, true);
+         return parameter;
       }
    };
    private List<AdcpFunction> adcpPingFunctions = List.of();
@@ -258,7 +262,7 @@ public final class EchogramPlotModule extends BaseViewModule implements PojoData
 
       Listener updateMouseEchogramPointListener = newCoalescingExecListener(this::updateMouseEchogramPoint);
       registry.add(mousePosition, updateMouseEchogramPointListener);
-      registry.add(getInterpretationSettings().mouseover().frozen(), __ -> {
+      registry.add(getInterpretationSettings().mouseover().frozen(), _ -> {
          if (mousePosition.getValue().isPresent()) {
             updateMouseEchogramPointListener.listen();
          }

@@ -21,7 +21,7 @@ import java.util.TreeSet;
  * Plankton inversion data.
  */
 public final class Pid0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("PID0", Pid0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("PID0", Pid0Datagram::new);
 
    private NavigableSet<PlanktonSample> internalPlanktonSamples = new TreeSet<>();
    private @Nullable List<PlanktonSample> planktonSamples;

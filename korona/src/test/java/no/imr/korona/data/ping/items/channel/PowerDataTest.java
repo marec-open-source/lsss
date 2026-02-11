@@ -1,6 +1,6 @@
 package no.imr.korona.data.ping.items.channel;
 
-import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.test.data.ConstantSyntheticData;
 import no.imr.tools.range.FloatRange;
@@ -26,10 +26,9 @@ final class PowerDataTest {
 
    @Test
    void testSetRange() {
-      SyntheticData syntheticData = new ConstantSyntheticData();
-
-      PingIndex pingIndex = syntheticData.createPingIndex(1);
-      PowerData powerData = syntheticData.createPowerData(pingIndex, 1);
+      SyntheticDataFile syntheticDataFile = new ConstantSyntheticData(10, 0).withFirstAndLastPingNumber(1, 1);
+      PingIndex pingIndex = syntheticDataFile.createPingIndex(1);
+      PowerData powerData = syntheticDataFile.createPowerData(pingIndex, 1);
       assertNotNull(powerData);
 
       powerData.setTransducerDepth(0);
@@ -52,8 +51,9 @@ final class PowerDataTest {
 
    @Test
    void testConversion() {
-      SyntheticData syntheticData = new ConstantSyntheticData(10, 0);
-      PowerData powerData = syntheticData.createPowerData(syntheticData.createPingIndex(1), 1);
+      SyntheticDataFile syntheticDataFile = new ConstantSyntheticData(10, 0).withFirstAndLastPingNumber(1, 1);
+      PingIndex pingIndex = syntheticDataFile.createPingIndex(1);
+      PowerData powerData = syntheticDataFile.createPowerData(pingIndex, 1);
       assertNotNull(powerData);
 
       for (short p = -1230; p < 1230; p += 17) {
@@ -73,8 +73,9 @@ final class PowerDataTest {
 
    @Test
    void testSvLogSvConversion() {
-      SyntheticData syntheticData = new ConstantSyntheticData(10, 0);
-      PowerData powerData = syntheticData.createPowerData(syntheticData.createPingIndex(1), 1);
+      SyntheticDataFile syntheticDataFile = new ConstantSyntheticData(10, 0).withFirstAndLastPingNumber(1, 1);
+      PingIndex pingIndex = syntheticDataFile.createPingIndex(1);
+      PowerData powerData = syntheticDataFile.createPowerData(pingIndex, 1);
       assertNotNull(powerData);
 
       Arrays.fill(powerData.getLogSv(), -56);
@@ -100,8 +101,9 @@ final class PowerDataTest {
 
    @Test
    void testPowerConversion() {
-      SyntheticData syntheticData = new ConstantSyntheticData(10, 0);
-      PowerData powerData = syntheticData.createPowerData(syntheticData.createPingIndex(1), 1);
+      SyntheticDataFile syntheticDataFile = new ConstantSyntheticData(10, 0).withFirstAndLastPingNumber(1, 1);
+      PingIndex pingIndex = syntheticDataFile.createPingIndex(1);
+      PowerData powerData = syntheticDataFile.createPowerData(pingIndex, 1);
       assertNotNull(powerData);
 
       short[] power = {-1000, -513, -100, -1, 0, 1, 123, 800, 900, 10000};
@@ -117,8 +119,9 @@ final class PowerDataTest {
 
    @Test
    void extremeLogSvToPower() {
-      SyntheticData syntheticData = new ConstantSyntheticData(10, 0);
-      PowerData powerData = syntheticData.createPowerData(syntheticData.createPingIndex(1), 1);
+      SyntheticDataFile syntheticDataFile = new ConstantSyntheticData(10, 0).withFirstAndLastPingNumber(1, 1);
+      PingIndex pingIndex = syntheticDataFile.createPingIndex(1);
+      PowerData powerData = syntheticDataFile.createPowerData(pingIndex, 1);
       assertNotNull(powerData);
 
       for (int i = 0; i < powerData.getCount(); i++) {
@@ -138,8 +141,9 @@ final class PowerDataTest {
 
    @Test
    void angles() {
-      SyntheticData syntheticData = new ConstantSyntheticData(10, 0);
-      PowerData powerData = syntheticData.createPowerData(syntheticData.createPingIndex(1), 1);
+      SyntheticDataFile syntheticDataFile = new ConstantSyntheticData(10, 0).withFirstAndLastPingNumber(1, 1);
+      PingIndex pingIndex = syntheticDataFile.createPingIndex(1);
+      PowerData powerData = syntheticDataFile.createPowerData(pingIndex, 1);
       assertNotNull(powerData);
 
       //---
@@ -165,8 +169,9 @@ final class PowerDataTest {
 
    @Test
    void getVerticalIntegralSv() {
-      SyntheticData syntheticData = new ConstantSyntheticData(20, 1);
-      PowerData powerData = syntheticData.createPowerData(syntheticData.createPingIndex(1), 1);
+      SyntheticDataFile syntheticDataFile = new ConstantSyntheticData(20, 1).withFirstAndLastPingNumber(1, 1);
+      PingIndex pingIndex = syntheticDataFile.createPingIndex(1);
+      PowerData powerData = syntheticDataFile.createPowerData(pingIndex, 1);
       assertNotNull(powerData);
       float dist = powerData.getSampleDistance();
       float depth = powerData.getSampleDepth(5) + 0.1f * dist;

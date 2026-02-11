@@ -7,6 +7,7 @@ import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.StringParameter;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public final class GenericDatabasePlugin extends AbstractDatabasePlugin {
    private final StringParameter sqlDialect = new StringParameter(
          new Name("SqlDialect", "SQL dialect"),
          "",
-         "Fully qualified class name for the hibernate sql dialect");
+         "Fully qualified class name for the hibernate sql dialect, if necessary");
 
    private final StringParameter connectionUrl = new StringParameter(
          new Name("ConnectionUrl", "Connection URL"),
@@ -56,13 +57,17 @@ public final class GenericDatabasePlugin extends AbstractDatabasePlugin {
    @Override
    public boolean isConfigurationValid() {
       return !jdbcDriver.getValue().isEmpty()
-            && !sqlDialect.getValue().isEmpty()
             && !connectionUrl.getValue().isEmpty();
    }
 
    @Override
    public Configuration getConfiguration(ConnectionType connectionType) {
-      return DatabaseUtils.createConfiguration(sqlDialect.getValue(), jdbcDriver.getValue(),
+      Configuration configuration = DatabaseUtils.createConfiguration(jdbcDriver.getValue(),
             connectionUrl.getValue(), userName.getValue(), password.getValue());
+      String dialect = sqlDialect.getValue();
+      if (!dialect.isEmpty()) {
+         configuration.setProperty(Environment.DIALECT, dialect);
+      }
+      return configuration;
    }
 }

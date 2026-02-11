@@ -1,7 +1,5 @@
 package no.imr.lsss.server.jaxrs;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
@@ -14,8 +12,10 @@ import no.imr.lsss.server.pojo.ErrorMessage;
 import no.imr.tools.NoCanDoException;
 import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
+import tools.jackson.core.JacksonException;
 
 import java.io.FileNotFoundException;
+import java.net.SocketTimeoutException;
 import java.nio.file.NoSuchFileException;
 import java.time.Instant;
 import java.util.concurrent.ThreadLocalRandom;
@@ -36,22 +36,32 @@ public final class ErrorMessageExceptionMapper implements ExceptionMapper<Throwa
    public Response toResponse(Throwable throwable) {
       String id = "#" + ThreadLocalRandom.current().nextInt(1_000_000);
       String message = "Error " + id + ", " + request.getMethod() + " " + uriInfo.getRequestUri() + ", " + throwable;
-      Log.global.log(Level.INFO, message, throwable);
-      return Response.status(getResponseStatus(throwable))
+      Response.StatusType statusType = getResponseStatus(throwable);
+      if (skipStackTrace(throwable, statusType)) {
+         Log.global.log(Level.INFO, message);
+      } else {
+         Log.global.log(Level.INFO, message, throwable);
+      }
+      return Response.status(statusType)
             .entity(new ErrorMessage(id, Instant.now().toString(), message, Utils.stackTraceToString(throwable)))
             .type(MediaType.APPLICATION_JSON)
             .build();
    }
 
+   private static boolean skipStackTrace(Throwable throwable, Response.StatusType statusType) {
+      return statusType.getFamily() != Response.Status.Family.SERVER_ERROR
+            || throwable instanceof SocketTimeoutException
+            || throwable.getClass().getSimpleName().equals("ClientAbortException");
+   }
+
    private static Response.StatusType getResponseStatus(Throwable throwable) {
       return switch (throwable) {
-         case WebApplicationException   e -> e.getResponse().getStatusInfo();
-         case FileNotFoundException    __ -> Response.Status.NOT_FOUND;
-         case NoSuchFileException      __ -> Response.Status.NOT_FOUND;
-         case JsonParseException       __ -> Response.Status.BAD_REQUEST;
-         case MismatchedInputException __ -> Response.Status.BAD_REQUEST;
-         case NoCanDoException         __ -> Response.Status.BAD_REQUEST;
-         default                          -> Response.Status.INTERNAL_SERVER_ERROR;
+         case WebApplicationException e -> e.getResponse().getStatusInfo();
+         case JacksonException        _,
+              NoCanDoException        _ -> Response.Status.BAD_REQUEST;
+         case FileNotFoundException   _,
+              NoSuchFileException     _ -> Response.Status.NOT_FOUND;
+         default                        -> Response.Status.INTERNAL_SERVER_ERROR;
       };
    }
 }

@@ -1,17 +1,15 @@
 package no.imr.korona.data.formats.ek60.io;
 
-import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
-import com.fasterxml.jackson.databind.util.ByteBufferBackedOutputStream;
 import no.imr.korona.data.datagrams.DatagramFormatException;
-import no.imr.tools.ShouldNotHappenException;
 import no.imr.tools.Utils;
 import no.imr.tools.math.linalg.Vec3;
 import no.imr.tools.misc.JsonUtils;
 import no.imr.tools.range.FloatRange;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.util.ByteBufferBackedInputStream;
+import tools.jackson.databind.util.ByteBufferBackedOutputStream;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
@@ -56,7 +54,7 @@ public final class ByteBufferUtils {
             writer.accept(byteBuffer);
             byteBuffer.flip();
             return byteBuffer;
-         } catch (BufferOverflowException e) {
+         } catch (BufferOverflowException _) {
             capacity *= 2;
          }
       }
@@ -199,7 +197,7 @@ public final class ByteBufferUtils {
       byteBuffer.position(byteBuffer.position() + 2 * values.length);
    }
 
-   public static short[] readCountAndShorArray(ByteBuffer byteBuffer) throws DatagramFormatException {
+   public static short[] readCountAndShortArray(ByteBuffer byteBuffer) throws DatagramFormatException {
       int count = readCount(byteBuffer, 2);
       return readShortArray(byteBuffer, count);
    }
@@ -342,17 +340,13 @@ public final class ByteBufferUtils {
    public static <T> T readJson(ByteBuffer byteBuffer, Class<T> clazz) throws DatagramFormatException {
       try {
          return JsonUtils.JSON_MAPPER.readValue(new ByteBufferBackedInputStream(byteBuffer), clazz);
-      } catch (IOException e) {
+      } catch (Exception e) {
          throw new DatagramFormatException(e);
       }
    }
 
    public static void writeJson(ByteBuffer byteBuffer, Object value) {
-      try {
-         JsonUtils.JSON_MAPPER.writeValue(new ByteBufferBackedOutputStream(byteBuffer), value);
-      } catch (IOException e) {
-         throw new ShouldNotHappenException(e);
-      }
+      JsonUtils.JSON_MAPPER.writeValue(new ByteBufferBackedOutputStream(byteBuffer), value);
    }
 
    //-------- Vec3

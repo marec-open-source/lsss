@@ -41,7 +41,7 @@ final class CallbackInfoEditor implements ParameterContainer {
       List<Optional<LsssCallbackEvent>> events = Utils.toOptionals(Arrays.asList(LsssCallbackEvent.values()));
       try {
          event.setAllowedValuesAndValue(events, Optional.of(LsssCallbackEvent.valueOf(callbackInfo.event)));
-      } catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException _) {
          events.addFirst(Optional.empty());
          event.setAllowedValuesAndValue(events, Optional.empty());
       }

@@ -13,10 +13,10 @@ final class FloatRangeSetTest {
    @Test
    void containsNonEmptyDisjointSortedRanges() {
       assertTrue(FloatRangeSet.containsNonEmptyDisjointSortedRanges(List.of(FloatRange.of(0, 1), FloatRange.of(3, 4))));
-      assertFalse(FloatRangeSet.containsNonEmptyDisjointSortedRanges(List.of(FloatRange.of(0, 1), FloatRange.of(1, 1)))); // Not on-empty
-      assertFalse(FloatRangeSet.containsNonEmptyDisjointSortedRanges(List.of(FloatRange.of(0, 1), FloatRange.of(1, 2)))); // Not disjoint
-      assertFalse(FloatRangeSet.containsNonEmptyDisjointSortedRanges(List.of(FloatRange.of(0, 2), FloatRange.of(1, 2)))); // Not disjoint
-      assertFalse(FloatRangeSet.containsNonEmptyDisjointSortedRanges(List.of(FloatRange.of(3, 4), FloatRange.of(0, 1)))); // Not sorted
+      assertFalse(FloatRangeSet.containsNonEmptyDisjointSortedRanges(List.of(FloatRange.of(0, 1), FloatRange.of(1, 1)))); // Not non-empty.
+      assertFalse(FloatRangeSet.containsNonEmptyDisjointSortedRanges(List.of(FloatRange.of(0, 1), FloatRange.of(1, 2)))); // Not disjoint.
+      assertFalse(FloatRangeSet.containsNonEmptyDisjointSortedRanges(List.of(FloatRange.of(0, 2), FloatRange.of(1, 2)))); // Not disjoint.
+      assertFalse(FloatRangeSet.containsNonEmptyDisjointSortedRanges(List.of(FloatRange.of(3, 4), FloatRange.of(0, 1)))); // Not sorted.
    }
 
    @Test
@@ -28,6 +28,24 @@ final class FloatRangeSetTest {
    }
 
    @Test
+   void isEmpty() {
+      assertTrue(FloatRangeSet.of().isEmpty());
+      assertFalse(FloatRangeSet.of(FloatRange.ALL).isEmpty());
+   }
+
+   @Test
+   void nullIfEmpty() {
+      assertNull(FloatRangeSet.of().nullIfEmpty());
+      assertNotNull(FloatRangeSet.of(FloatRange.ALL).nullIfEmpty());
+   }
+
+   @Test
+   void size() {
+      assertEquals(0, FloatRangeSet.of().size());
+      assertEquals(12, FloatRangeSet.of(List.of(FloatRange.of(-2, 0), FloatRange.of(10, 20))).size());
+   }
+
+   @Test
    void getBoundingRange() {
       assertEquals(FloatRange.EMPTY_RANGE, FloatRangeSet.of().getBoundingRange());
       assertEquals(FloatRange.of(0, 1), FloatRangeSet.of(FloatRange.of(0, 1)).getBoundingRange());
@@ -36,27 +54,24 @@ final class FloatRangeSetTest {
 
    @Test
    void add() {
-      FloatRangeSet a = FloatRangeSet.of();
+      FloatRangeSet a = FloatRangeSet.of(FloatRange.of(2, 3));
+      FloatRangeSet b = FloatRangeSet.of(List.of(FloatRange.of(0, 10), FloatRange.of(20, 30)));
 
-      a = a.add(FloatRange.of(2, 3));
-      assertEquals(List.of(FloatRange.of(2, 3)), a.getFloatRanges());
+      assertSame(a, a.add(FloatRangeSet.of()));
+      assertSame(a, a.add(FloatRange.of(0, 0)));
+      assertSame(a, a.add(a));
+      assertSame(b, b.add(a));
+      assertSame(b, a.add(b));
+      assertSame(b, b.add(b));
 
-      a = a.add(FloatRange.of(0, 1));
-      assertEquals(List.of(FloatRange.of(0, 1), FloatRange.of(2, 3)), a.getFloatRanges());
+      assertEquals(List.of(FloatRange.of(0, 1), FloatRange.of(2, 3)),
+            a.add(FloatRange.of(0, 1)).getFloatRanges());
 
-      a = a.add(FloatRange.of(0, 1));
-      assertEquals(List.of(FloatRange.of(0, 1), FloatRange.of(2, 3)), a.getFloatRanges());
+      assertEquals(List.of(FloatRange.of(0, 30)),
+            b.add(FloatRange.of(10, 20)).getFloatRanges());
 
-      a = a.add(FloatRange.of(0, 0));
-      assertEquals(List.of(FloatRange.of(0, 1), FloatRange.of(2, 3)), a.getFloatRanges());
-
-      a = a.add(FloatRange.of(1, 2));
-      assertEquals(List.of(FloatRange.of(0, 3)), a.getFloatRanges());
-
-      a = a.add(FloatRangeSet.of(List.of(FloatRange.of(3, 4), FloatRange.of(5, 6))));
-      assertEquals(List.of(FloatRange.of(0, 4), FloatRange.of(5, 6)), a.getFloatRanges());
-
-      assertEquals(a, a.add(a));
+      assertEquals(List.of(FloatRange.of(2, 4), FloatRange.of(5, 6)),
+            a.add(FloatRangeSet.of(List.of(FloatRange.of(3, 4), FloatRange.of(5, 6)))).getFloatRanges());
    }
 
    @Test
@@ -71,11 +86,19 @@ final class FloatRangeSetTest {
       JUnitUtils.runWithRandom(random -> {
          FloatRangeSet rangeSet = FloatRangeSet.of(randomRanges(random));
          float delta = random.nextFloat() - 0.5f;
-         FloatRangeSet expanded = FloatRangeSet.of(rangeSet.getFloatRanges().stream()
+         FloatRangeSet expanded = FloatRangeSet.of(rangeSet.stream()
                .map(range -> range.expand(delta))
                .toList());
          assertEquals(expanded, rangeSet.expandEachRange(delta));
       });
+   }
+
+   @Test
+   void fillGaps() {
+      FloatRangeSet a = FloatRangeSet.of(List.of(FloatRange.of(0, 1), FloatRange.of(2, 3), FloatRange.of(5, 6)));
+      assertSame(a, a.fillGaps(0.999f));
+      assertEquals(List.of(FloatRange.of(0, 3), FloatRange.of(5, 6)), a.fillGaps(1).getFloatRanges());
+      assertEquals(List.of(FloatRange.of(0, 6)), a.fillGaps(2).getFloatRanges());
    }
 
    @Test
@@ -90,14 +113,18 @@ final class FloatRangeSetTest {
    @Test
    void subtract() {
       FloatRangeSet a = FloatRangeSet.of(FloatRange.of(1, 10));
+      FloatRangeSet b = FloatRangeSet.of(List.of(FloatRange.of(0, 2), FloatRange.of(5, 6), FloatRange.of(8, 8)));
 
-      a = a.subtract(FloatRange.of(0, 1));
-      assertEquals(List.of(FloatRange.of(1, 10)), a.getFloatRanges());
+      assertSame(FloatRangeSet.of(), FloatRangeSet.of().subtract(a));
+      assertSame(a, a.subtract(FloatRangeSet.of()));
+      assertSame(a, a.subtract(FloatRange.of(0, 1)));
+      assertSame(a, a.subtract(FloatRangeSet.of(List.of(FloatRange.of(0, 1), FloatRange.of(11, 12)))));
+      assertSame(b, b.subtract(FloatRangeSet.of(List.of(FloatRange.of(2, 4), FloatRange.of(9, 10)))));
 
-      a = a.subtract(FloatRangeSet.of(List.of(FloatRange.of(0, 2), FloatRange.of(5, 6), FloatRange.of(8, 8))));
-      assertEquals(List.of(FloatRange.of(2, 5), FloatRange.of(6, 10)), a.getFloatRanges());
+      assertEquals(List.of(FloatRange.of(2, 5), FloatRange.of(6, 10)), a.subtract(b).getFloatRanges());
+      assertEquals(List.of(FloatRange.of(0, 1)), b.subtract(a).getFloatRanges());
 
-      assertEquals(FloatRangeSet.of(), a.subtract(a));
+      assertEquals(FloatRangeSet.of(), b.subtract(b));
    }
 
    @Test
@@ -154,7 +181,7 @@ final class FloatRangeSetTest {
       JUnitUtils.runWithRandom(random -> {
          FloatRangeSet set1 = FloatRangeSet.of(randomRanges(random));
          FloatRangeSet set2 = FloatRangeSet.of(randomRanges(random));
-         assertEquals(set1.getFloatRanges().stream().anyMatch(set2::intersects), set1.intersects(set2));
+         assertEquals(set1.stream().anyMatch(set2::intersects), set1.intersects(set2));
       });
    }
 
@@ -212,6 +239,8 @@ final class FloatRangeSetTest {
          RangeSet<Float> c = new ArrayRangeSet<>();
          ranges.forEach(range -> c.add(range.min(), range.max()));
          assertEquals(c.stream().map(FloatRange::of).toList(), rangeSet.getFloatRanges());
+         assertEquals(a.contains(rangeSet), c.stream().allMatch(b::containsAll));
+         assertEquals(a.intersects(rangeSet), c.stream().anyMatch(b::containsAny));
 
          switch (random.nextInt(4)) {
             case 0 -> {
@@ -220,7 +249,7 @@ final class FloatRangeSetTest {
             }
             case 1 -> {
                a = a.subtract(rangeSet);
-               c.stream().forEach(b::remove);
+               b.removeAll(c);
             }
             case 2 -> {
                a = a.complement();

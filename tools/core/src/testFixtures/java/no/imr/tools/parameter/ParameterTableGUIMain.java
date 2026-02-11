@@ -17,7 +17,7 @@ final class ParameterTableGUIMain {
    private ParameterTableGUIMain() {
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SwingUtilities.invokeLater(ParameterTableGUIMain::start);
    }
 
@@ -37,7 +37,7 @@ final class ParameterTableGUIMain {
       JFrame frame = new JFrame(ParameterTableGUIMain.class.getSimpleName());
 
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          if (parameterTableGUI.stopEditing()) {
             frame.dispose();
          }

@@ -12,6 +12,7 @@ import no.imr.tools.parameter.HeaderParameter;
 import no.imr.tools.parameter.IntParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.OptionalFloatParameter;
+import no.imr.tools.parameter.OptionalIntParameter;
 import no.imr.tools.parameter.RangeParameter;
 import no.imr.tools.parameter.Unit;
 import no.marec.lsss.api.util.parameters.ValueConstraints;
@@ -51,7 +52,29 @@ public final class SchoolDetectionModule extends SimplePingModule {
          -62f, Unit.DB,
          "Minimum value of all samples inside a school");
 
-   private final HeaderParameter acceptanceHeader = new HeaderParameter("Acceptance settings");
+   private final HeaderParameter postprocessingHeader = new HeaderParameter("Postprocessing");
+
+   public final BooleanParameter fillHoles = new BooleanParameter(
+         new Name("FillHoles", "Fill holes"),
+         true,
+         "If selected, then holes in detected schools will be filled");
+
+   public final OptionalFloatParameter fillVerticalGaps = new OptionalFloatParameter(
+         new Name("FillVerticalGaps", "Fill vertical gaps"),
+         Optional.empty(), Unit.METER, ValueConstraints.gte(0f),
+         "Vertical gaps of maximum this size will be filled");
+
+   public final OptionalIntParameter fillHorizontalGaps = new OptionalIntParameter(
+         new Name("FillHorizontalGaps", "Fill horizontal gaps"),
+         Optional.empty(), Unit.COUNT, ValueConstraints.gte(0),
+         "Horizontal gaps of maximum this number of pings will be filled");
+
+   public final OptionalIntParameter boundarySmoothingIterations = new OptionalIntParameter(
+         new Name("BoundarySmoothingIterations", "Boundary smoothing iterations"),
+         Optional.empty(), Unit.COUNT, ValueConstraints.gte(0),
+         "Schools boundaries are smoothed by averaging neighbouring points this many times");
+
+   private final HeaderParameter acceptanceHeader = new HeaderParameter("Acceptance criteria");
 
    public final RangeParameter meanSv = new RangeParameter(
          new Name("Density", "Mean Sv"),
@@ -83,13 +106,6 @@ public final class SchoolDetectionModule extends SimplePingModule {
          Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Unit.DIMENSIONLESS,
          "Perimeter of circle with same area / Perimeter");
 
-   private final HeaderParameter postprocessingHeader = new HeaderParameter("Postprocessing");
-
-   public final BooleanParameter fillHoles = new BooleanParameter(
-         new Name("FillHoles", "Fill holes"),
-         true,
-         "If selected, then holes in detected schools will be filled");
-
    public SchoolDetectionModule() {
       processLast.addListenerAndNotify(last -> {
          channel.setEnabled(!last);
@@ -109,16 +125,19 @@ public final class SchoolDetectionModule extends SimplePingModule {
             maxDepth,
             threshold,
             //---
+            postprocessingHeader,
+            fillHoles,
+            fillVerticalGaps,
+            fillHorizontalGaps,
+            boundarySmoothingIterations,
+            //---
             acceptanceHeader,
             meanSv,
             maxSv,
             length,
             thickness,
             area,
-            compactness,
-            //---
-            postprocessingHeader,
-            fillHoles
+            compactness
       );
    }
 

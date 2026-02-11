@@ -13,10 +13,9 @@ import no.imr.lsss.database.tables.hibernate.Purpose;
 import no.imr.lsss.database.tables.hibernate.Survey;
 import no.imr.lsss.database.tables.hibernate.SurveyPK;
 import no.imr.lsss.database.types.DatabasePlugin;
-import no.imr.lsss.database.types.JavaDBInMemoryDatabasePlugin;
 import no.imr.tools.Utils;
 import no.imr.tools.database.DatabaseConnection;
-import no.imr.tools.database.queries.SaveOrUpdateQuery;
+import no.imr.tools.database.queries.StatelessDatabaseQuery;
 import no.imr.tools.logging.LoggingManager;
 
 import java.io.IOException;
@@ -37,9 +36,8 @@ public final class DatabaseTestUtils {
       return LoggingManager.getTopInstallationDir().resolve("lsss/src/test/resources/no/imr/lsss/database/DatabaseUpgradeTest");
    }
 
-   public static void connectToInMemoryDatabase(LSSS lsss) {
-      JavaDBInMemoryDatabasePlugin.install(lsss);
-      lsss.getDatabaseManager().getConnectionManager().initializeDatabase();
+   public static void createTestDatabase(LSSS lsss) {
+      lsss.getDatabaseManager().getConnectionManager().createDatabase("Creating test database", LsssDatabaseUtils::isSystemClass);
    }
 
    public static void addFileDatabasePluginHsqldb(LSSS lsss, Path dir, String name) {
@@ -51,7 +49,7 @@ public final class DatabaseTestUtils {
    public static Survey resetCompleteTestSurvey(LSSS lsss) {
       DatabaseManager databaseManager = lsss.getDatabaseManager();
 
-      databaseManager.getConnectionManager().initializeDatabase();
+      createTestDatabase(lsss);
 
       DatabaseConnection databaseConnection = databaseManager.getDatabaseConnection();
 
@@ -71,7 +69,7 @@ public final class DatabaseTestUtils {
             new Purpose(survey, acousticCategories.get(0), DatabaseData.Purpose.MAIN),
             new Purpose(survey, acousticCategories.get(1), DatabaseData.Purpose.USABLE),
             new Purpose(survey, acousticCategories.get(2), DatabaseData.Purpose.OTHER));
-      databaseConnection.executeQuery(new SaveOrUpdateQuery(purposes));
+      databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.insert(purposes));
 
       databaseManager.getConnectionManager().resetDatabaseData();
 
@@ -84,7 +82,7 @@ public final class DatabaseTestUtils {
 
    public static Nation createTestNation(DatabaseConnection databaseConnection) {
       Nation nation = new Nation((short) 12345, "Test nation");
-      databaseConnection.executeQuery(new SaveOrUpdateQuery(nation));
+      databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.insert(nation));
       return nation;
    }
 
@@ -106,7 +104,7 @@ public final class DatabaseTestUtils {
       platform.setNation(nation);
       platform.setPlatformNames(Set.of(platformName));
 
-      databaseConnection.executeQuery(new SaveOrUpdateQuery(List.of(platform, platformName)));
+      databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.insert(List.of(platform, platformName)));
 
       return platform;
    }
@@ -122,19 +120,17 @@ public final class DatabaseTestUtils {
             2006_01_01, 0,
             2006_02_02, 23_59_59_99,
             "Test survey comment",
-            0, 0, 0, 0,
-            platform,
-            null,
-            null);
+            0, 0, 0, 0);
+      survey.setPlatform(platform);
 
-      databaseConnection.executeQuery(new SaveOrUpdateQuery(survey));
+      databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.insert(survey));
       return survey;
    }
 
    public static void createAcousticCategory(DatabaseConnection databaseConnection, Platform platform, int category, String name) {
       AcousticCategoryPK acousticCategoryPK = new AcousticCategoryPK(platform.getCompId().getNation(), platform.getCompId().getPlatform(), category);
       AcousticCategory acousticCategory = new AcousticCategory(acousticCategoryPK, (short) 0, name, name, name, name);
-      databaseConnection.executeQuery(new SaveOrUpdateQuery(acousticCategory));
+      databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.insert(acousticCategory));
    }
 
    public static Set<String> readHsqldbScript(Path file) throws IOException {

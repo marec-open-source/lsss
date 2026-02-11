@@ -132,7 +132,7 @@ public final class LsssResource {
             .findFirst()
             .orElseThrow(() -> new NotFoundException(id));
       return switch (module) {
-         case BaseModuleOverlay __ -> {
+         case BaseModuleOverlay _ -> {
             throw new BadRequestException("Cannot access overlays this way. Instead try module/{overlaidModule}/overlay/{overlay}");
          }
          case ColorBarModule colorBarModule -> {

@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public final class ChannelPredicateParameter extends ValueParameter<Pair<String, CompiledChannelPredicate>> {
-   private static final Pair<String, CompiledChannelPredicate> ALL = new Pair<>("true", (f, c, n) -> true);
-   private static final Pair<String, CompiledChannelPredicate> NONE = new Pair<>("false", (f, c, n) -> false);
+   private static final Pair<String, CompiledChannelPredicate> ALL = new Pair<>("true", (_, _, _) -> true);
+   private static final Pair<String, CompiledChannelPredicate> NONE = new Pair<>("false", (_, _, _) -> false);
 
    public ChannelPredicateParameter(Name name, boolean initiallyAll) {
       super(name, initiallyAll ? ALL : NONE, Unit.NONE, new CompileValueConverter(),

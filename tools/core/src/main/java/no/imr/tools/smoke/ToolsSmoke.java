@@ -17,7 +17,7 @@ public final class ToolsSmoke extends SwingSmokeTestRunnable {
    }
 
    @Override
-   public void swingRun() throws Exception {
+   public void swingRun() {
       AdmService.INSTANCE.smokeTest();
       testSwingUncaughtException();
    }
@@ -31,7 +31,7 @@ public final class ToolsSmoke extends SwingSmokeTestRunnable {
    private static void testSwingUncaughtException() {
       Thread.UncaughtExceptionHandler originalUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
       List<Throwable> uncaughtThrowables = new ArrayList<>();
-      Thread.setDefaultUncaughtExceptionHandler((t, e) -> uncaughtThrowables.add(e));
+      Thread.setDefaultUncaughtExceptionHandler((_, e) -> uncaughtThrowables.add(e));
 
       SwingUtilities.invokeLater(() -> {
          throw new SmokeTestException("expected");
@@ -48,7 +48,7 @@ public final class ToolsSmoke extends SwingSmokeTestRunnable {
       Log.global.info(OK + "Swing uncaught exception");
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SmokeTestExecutor.execute(null, new ToolsSmoke());
    }
 }

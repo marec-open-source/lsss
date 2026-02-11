@@ -18,7 +18,7 @@ import {TocListComponent} from './toc-list.component';
    changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-help-set',
    templateUrl: './help-set.component.html',
-   styleUrl: './help-set.component.css',
+   styleUrl: './help-set.component.scss',
    imports: [
       RouterOutlet, DatePipe,
       ErrorResponseComponent, FooterComponent, MenuComponent, ProgressSpinnerComponent, TocListComponent,

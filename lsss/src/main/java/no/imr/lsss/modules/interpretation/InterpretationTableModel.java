@@ -44,20 +44,20 @@ public final class InterpretationTableModel extends AbstractTableModel {
       }
 
       private boolean isRest() {
-         return allInterpretations().anyMatch(interpretation -> {
+         return allInterpretationsInParallel().anyMatch(interpretation -> {
             return interpretation.getRestSpecies().contains(acousticCategory.getCompId().getAcousticCategory());
          });
       }
 
       private boolean isRestForOnlySome() {
-         long restCount = allInterpretations()
+         long restCount = allInterpretationsInParallel()
                .filter(interpretation -> interpretation.getRestSpecies().contains(acousticCategory.getCompId().getAcousticCategory()))
                .count();
          return restCount > 0 && restCount < interpretationContainers.size();
       }
 
       private void setRest(boolean rest) {
-         writableInterpretations().forEach(rest
+         writableInterpretationsInParallel().forEach(rest
                ? interpretation -> interpretation.addRestSpecies(acousticCategory.getCompId().getAcousticCategory())
                : interpretation -> interpretation.removeRestSpecies(acousticCategory.getCompId().getAcousticCategory()));
          resetRests();
@@ -66,7 +66,7 @@ public final class InterpretationTableModel extends AbstractTableModel {
 
       private float getAssignment() {
          int channel = interpretationManager.getChannel();
-         return (float) allInterpretations()
+         return (float) allInterpretationsInParallel()
                .map(interpretation -> interpretation.getChannelInterpretation(channel))
                .mapToDouble(channelInterpretation -> channelInterpretation.getAssignment(acousticCategory.getCompId().getAcousticCategory()))
                .average()
@@ -78,7 +78,7 @@ public final class InterpretationTableModel extends AbstractTableModel {
       }
 
       private void setAssignment(float assignment, int channel) {
-         writableInterpretations().forEach(interpretation -> {
+         writableInterpretationsInParallel().forEach(interpretation -> {
             ChannelInterpretation channelInterpretation = interpretation.getChannelInterpretation(channel);
             channelInterpretation.setAssignment(acousticCategory.getCompId().getAcousticCategory(), assignment);
          });
@@ -210,7 +210,7 @@ public final class InterpretationTableModel extends AbstractTableModel {
 
       private NavigableSet<Float> getAssignments() {
          int channel = interpretationManager.getChannel();
-         return allInterpretations()
+         return allInterpretationsInParallel()
                .map(interpretation -> {
                   ChannelInterpretation channelInterpretation = interpretation.getChannelInterpretation(channel);
                   return channelInterpretation.getAssignment(acousticCategory.getCompId().getAcousticCategory());
@@ -344,13 +344,13 @@ public final class InterpretationTableModel extends AbstractTableModel {
       fireTableDataChanged();
    }
 
-   private Stream<Interpretation> allInterpretations() {
-      return interpretationContainers.stream()
+   private Stream<Interpretation> allInterpretationsInParallel() {
+      return interpretationContainers.parallelStream()
             .map(InterpretationContainer::getInterpretation);
    }
 
-   private Stream<Interpretation> writableInterpretations() {
-      return interpretationContainers.stream()
+   private Stream<Interpretation> writableInterpretationsInParallel() {
+      return interpretationContainers.parallelStream()
             .filter(InterpretationContainer::isWritable)
             .map(InterpretationContainer::getInterpretation);
    }
@@ -374,13 +374,13 @@ public final class InterpretationTableModel extends AbstractTableModel {
    }
 
    private Set<Integer> getCategoryIds() {
-      return allInterpretations()
+      return allInterpretationsInParallel()
             .flatMap(interpretation -> interpretation.getAcousticCategoryIds().stream())
             .collect(Collectors.toSet());
    }
 
    private void resetRests() {
-      writableInterpretations().forEach(Interpretation::updateRestInterpretation);
+      writableInterpretationsInParallel().forEach(Interpretation::updateRestInterpretation);
       fireTableRowsUpdated(0, getRowCount() - 1);
    }
 
@@ -472,7 +472,7 @@ public final class InterpretationTableModel extends AbstractTableModel {
 
    @Override
    public boolean isCellEditable(int rowIndex, int columnIndex) {
-      if (interpretationContainers.stream().allMatch(InterpretationContainer::isReadOnly)) {
+      if (interpretationContainers.parallelStream().allMatch(InterpretationContainer::isReadOnly)) {
          return false;
       }
       if (rowIndex < rows.size()) {

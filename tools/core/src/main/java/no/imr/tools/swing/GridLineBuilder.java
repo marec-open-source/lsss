@@ -25,25 +25,25 @@ public final class GridLineBuilder {
    }
 
    public void horizontalLine(Integer x0, Integer x1, Integer y) {
-      horizontalLines.computeIfAbsent(y, k -> new ArrayRangeSet<>()).add(x0, x1);
+      horizontalLines.computeIfAbsent(y, _ -> new ArrayRangeSet<>()).add(x0, x1);
    }
 
    public void verticalLine(Integer x, Integer y0, Integer y1) {
-      verticalLines.computeIfAbsent(x, k -> new ArrayRangeSet<>()).add(y0, y1);
+      verticalLines.computeIfAbsent(x, _ -> new ArrayRangeSet<>()).add(y0, y1);
    }
 
    public Path2D build() {
       Path2D.Float path = new Path2D.Float();
 
       horizontalLines.forEach((y, x) -> {
-         x.forEach((x0, x1) -> {
+         x.forEachBeginEnd((x0, x1) -> {
             path.moveTo(x0, y);
             path.lineTo(x1, y);
          });
       });
 
       verticalLines.forEach((x, y) -> {
-         y.forEach((y0, y1) -> {
+         y.forEachBeginEnd((y0, y1) -> {
             path.moveTo(x, y0);
             path.lineTo(x, y1);
          });

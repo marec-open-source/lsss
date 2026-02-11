@@ -8,7 +8,7 @@ public interface NoticeHandler {
    void addNotice(String notice);
 
    static NoticeHandler ignore() {
-      return notice -> {
+      return _ -> {
       };
    }
 }

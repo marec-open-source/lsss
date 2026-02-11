@@ -139,8 +139,8 @@ public final class PhantomDataAdministrator {
                }
             }
             segmentInfos.put(segmentHandle, segmentInfo);
-         } catch (IOException e) {
-            //ignore
+         } catch (IOException _) {
+            // Ignore.
          }
       }
       if (segmentInfoCache != null) { // Save even if cancelled
@@ -160,7 +160,7 @@ public final class PhantomDataAdministrator {
       List<SegmentHandle> result = new ArrayList<>();
       boolean hasFound = false;
       for (Map.Entry<SegmentHandle, SegmentInfo> entry : allSegmentInfos.entrySet()) {
-         if (entry.getValue().getPingRange().toNTDateRange().intersects(ntDateRange)) {
+         if (entry.getValue().pingRange().toNTDateRange().intersects(ntDateRange)) {
             result.add(entry.getKey());
             hasFound = true;
          } else if (hasFound) {
@@ -214,6 +214,9 @@ public final class PhantomDataAdministrator {
             new WorkerDialog(referenceComponent, progressView.getComponent())
                   .start(asyncHandle -> {
                      for (KoronaRelayUpdate update : updates) {
+                        if (asyncHandle.isCancelled()) {
+                           return;
+                        }
                         try {
                            update.move();
                         } catch (IOException e) {

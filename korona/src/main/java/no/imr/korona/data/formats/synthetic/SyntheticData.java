@@ -1,16 +1,11 @@
 package no.imr.korona.data.formats.synthetic;
 
-import no.imr.korona.data.datagrams.Bot0Datagram;
-import no.imr.korona.data.ping.DefaultPing;
-import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingConfiguration;
 import no.imr.korona.data.ping.PingData;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.WrapAround;
 import no.imr.korona.data.ping.items.channel.PowerData;
-import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.ping.items.configuration.TransmitMode;
-import no.imr.korona.data.track.SegmentHandle;
 import no.imr.tools.Utils;
 import no.imr.tools.geo.Earth;
 import no.imr.tools.time.NTDate;
@@ -18,7 +13,6 @@ import no.marec.lsss.api.util.GeoPoint;
 import org.jspecify.annotations.Nullable;
 
 import java.awt.geom.Point2D;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -43,36 +37,24 @@ public abstract class SyntheticData {
          364_000,
    };
 
-   private volatile @Nullable PingConfiguration pingConfiguration;
    private long ntStartDate = DEFAULT_NT_DATE_START;
-   private long firstPingNumber = 1;
-   private int pingCount = 100000;
 
    protected SyntheticData() {
    }
 
-   protected PingConfiguration createPingConfiguration() {
-      return new PingConfiguration(SyntheticFactory.createRawFileConfiguration(this));
-   }
-
-   public final PingConfiguration getPingConfiguration() {
-      PingConfiguration result = pingConfiguration;
-      if (result == null) {
-         result = createPingConfiguration();
-         pingConfiguration = result;
-      }
-      return result;
-   }
-
-   public RawFileConfiguration getRawFileConfiguration() {
-      return getPingConfiguration().getRawFileConfiguration();
+   protected PingConfiguration createPingConfiguration(SyntheticDataFile syntheticDataFile) {
+      return new PingConfiguration(SyntheticFactory.createRawFileConfiguration(syntheticDataFile));
    }
 
    //-----------------------------------------------------------------------------
    // Definitions for RawFileConfiguration
 
-   protected float[] getFrequencies() {
-      return DEFAULT_FREQUENCIES;
+   protected int getTransducerCount() {
+      return DEFAULT_FREQUENCIES.length;
+   }
+
+   protected float getFrequency(int channel) {
+      return DEFAULT_FREQUENCIES[channel - 1];
    }
 
    //-----------------------------------------------------------------------------
@@ -82,7 +64,7 @@ public abstract class SyntheticData {
       return pingNumber * 5 / 1000.0;
    }
 
-   protected @Nullable WrapAround getWrapAround() {
+   protected @Nullable WrapAround getWrapAround(SyntheticDataFile syntheticDataFile) {
       return null;
    }
 
@@ -162,41 +144,6 @@ public abstract class SyntheticData {
       return true;
    }
 
-   //-----------------------------------------------------------------------------
-   // Datagram creation
-
-   public Bot0Datagram createBot0Datagram(PingIndex pingIndex) {
-      return SyntheticFactory.createBot0Datagram(this, pingIndex);
-   }
-
-   public @Nullable PowerData createPowerData(PingIndex pingIndex, int channel) {
-      if (hasPowerData(pingIndex, channel)) {
-         return SyntheticFactory.createPowerData(this, pingIndex, channel);
-      } else {
-         return null;
-      }
-   }
-
-   public Ping createPing(PingIndex pingIndex) {
-      return createPing(pingIndex, createBot0Datagram(pingIndex));
-   }
-
-   public Ping createPing(PingIndex pingIndex, Bot0Datagram bot0Datagram) {
-      return new DefaultPing(pingIndex, bot0Datagram, createPingData(pingIndex));
-   }
-
-   public PingData createPingData(PingIndex pingIndex) {
-      PingData pingData = new PingData(getPingConfiguration());
-      for (int channel = 1; channel <= getRawFileConfiguration().getTransducerCount(); channel++) {
-         PowerData powerData = createPowerData(pingIndex, channel);
-         if (powerData != null) {
-            pingData.add(powerData);
-         }
-      }
-      addOtherDatagrams(pingIndex, pingData);
-      return pingData;
-   }
-
    /**
     * Optionally add datagrams other than {@link PowerData}.
     *
@@ -206,26 +153,12 @@ public abstract class SyntheticData {
    protected void addOtherDatagrams(PingIndex pingIndex, PingData pingData) {
    }
 
-   public long getFirstPingNumber() {
-      return firstPingNumber;
-   }
-
-   public long getLastPingNumber() {
-      return firstPingNumber + pingCount - 1;
-   }
-
    protected long getNTDate(long pingNumber) {
       return ntStartDate + pingNumber * 2 * NTDate.UNITS_PER_SECOND;
    }
 
-   public void setFirstAndLastPingNumber(long first, long last) {
-      pingConfiguration = null;
-      firstPingNumber = first;
-      pingCount = (int) (last - first) + 1;
-   }
-
-   public int getPingCount() {
-      return pingCount;
+   public SyntheticDataFile withFirstAndLastPingNumber(long first, long last) {
+      return new SyntheticDataFile(this, first, (int) (last - first) + 1);
    }
 
    protected void addParameters(Map<String, String> parameters) {
@@ -240,23 +173,5 @@ public abstract class SyntheticData {
       } else {
          throw new IllegalArgumentException(name + "=" + value);
       }
-   }
-
-   public PingIndex createPingIndex(long pingNumber) {
-      return SyntheticFactory.createPingIndex(this, pingNumber);
-   }
-
-   public Path toFile(long firstPingNumber, long lastPingNumber) {
-      setFirstAndLastPingNumber(firstPingNumber, lastPingNumber);
-      return new SyntheticDataFile(this).getFile();
-   }
-
-   public SegmentHandle toSegmentHandle(long firstPingNumber, long lastPingNumber) {
-      setFirstAndLastPingNumber(firstPingNumber, lastPingNumber);
-      return new SyntheticSegmentHandle(new SyntheticDataFile(this));
-   }
-
-   public SyntheticPingReader toPingReader() {
-      return new SyntheticPingReader(this);
    }
 }

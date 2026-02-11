@@ -14,10 +14,8 @@ public final class FileDatagramWriter extends ChannelDatagramWriter {
    private final FileChannel fileChannel;
 
    public FileDatagramWriter(Path file) throws IOException {
-      this(file, FileUtils.openWritableChannel(file));
-   }
+      FileChannel fileChannel = FileUtils.openWritableChannel(file);
 
-   private FileDatagramWriter(Path file, FileChannel fileChannel) {
       super(fileChannel);
 
       this.file = file;

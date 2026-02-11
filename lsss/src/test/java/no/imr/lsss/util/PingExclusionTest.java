@@ -27,8 +27,9 @@ final class PingExclusionTest {
       dataManager = lsss.getDataManager();
 
       LsssTestUtils.open(lsss.getDataSetManager(),
-            new ConstantSyntheticData().toSegmentHandle(1, 1000),
-            new ConstantSyntheticData().toSegmentHandle(1001, 1500));
+            new ConstantSyntheticData().withFirstAndLastPingNumber(1, 1000).toSegmentHandle(),
+            new ConstantSyntheticData().withFirstAndLastPingNumber(1001, 1500).toSegmentHandle()
+      );
    }
 
    @AfterEach

@@ -54,7 +54,7 @@ final class LsssSmoke extends SmokeTestRunnable {
       Log.global.info(OK + "Database connection");
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SmokeTestExecutor.execute(LSSS.LOGGING_MANAGER, new ToolsSmoke(), new LsssSmoke()); // Does not work on Linux Jenkins: new JoglSmoke()
    }
 }

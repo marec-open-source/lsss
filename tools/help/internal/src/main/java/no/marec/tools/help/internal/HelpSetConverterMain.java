@@ -41,7 +41,7 @@ final class HelpSetConverterMain {
       this.helpDir = helpDir;
    }
 
-   public static void main(String[] args) throws IOException {
+   static void main(String[] args) throws IOException {
       Path helpDir = Path.of(args[0]);
       String version = args[1];
       String buildTime = args[2];
@@ -90,8 +90,8 @@ final class HelpSetConverterMain {
 
       Path outDir = helpDir.resolve("build");
       FileUtils.createDirectories(outDir);
-      JsonUtils.JSON_MAPPER.writeValue(outDir.resolve("helpSet.json").toFile(), helpSet);
-      JsonUtils.JSON_MAPPER.writeValue(outDir.resolve("lunrData.json").toFile(), lunrData);
+      JsonUtils.writeValueCompactly(outDir.resolve("helpSet.json"), helpSet);
+      JsonUtils.writeValueCompactly(outDir.resolve("lunrData.json"), lunrData);
    }
 
    private TocItem toTocItem(Element element) {
@@ -123,7 +123,7 @@ final class HelpSetConverterMain {
          try {
             fileContent = Files.readString(file, Utils.UTF_8);
          } catch (IOException e) {
-            throw new AssertionError(helpDir + ": Error reading: " + file);
+            throw new AssertionError(helpDir + ": Error reading: " + file, e);
          }
          org.jsoup.nodes.Document html = Jsoup.parse(fileContent);
          Elements h1 = html.getElementsByTag("h1");

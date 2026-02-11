@@ -8,7 +8,6 @@ import java.io.File
 abstract class HelpBuildTask : NodeContextTask() {
 
    private val helpBuild = project.extensions.getByType<HelpBuildExtension>()
-   private val makeLunrIndexJs = project.project(":tools:help:internal").file("makeLunrIndex.js")
    private val marecBuild = project.extensions.getByType<MarecBuildExtension>()
    private val toolsHelpInternal = project.configurations.named("toolsHelpInternal")
 

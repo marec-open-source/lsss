@@ -72,23 +72,16 @@ public final class NoiseXmlFunction extends PingFunction {
       if (System.currentTimeMillis() > nextCheckTime) {
          checkForUpdate();
       }
-
       if (noiseFile == null) {
          return Double.NaN;
       }
-
       NavigableMap<Integer, NoiseFile.NoiseData> noiseMapForTime = noiseFile.timeToNoiseMap(ping.getTimeInMillis());
-      if (noiseMapForTime == null) {
-         return Double.NaN;
-      }
-
       RawFileTransducer transducer = ping.getRawFileConfiguration().getTransducers().get(channel - 1);
       int kHz = transducer.getKHz();
       NoiseFile.NoiseData noiseData = noiseMapForTime.get(kHz);
       if (noiseData == null) {
          return Double.NaN;
       }
-
       return function.applyAsDouble(noiseData);
    }
 

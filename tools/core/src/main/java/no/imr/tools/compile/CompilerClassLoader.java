@@ -9,6 +9,7 @@ import no.imr.tools.logging.Log;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
+import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.io.ByteArrayOutputStream;
@@ -80,9 +81,9 @@ public final class CompilerClassLoader {
             "-classpath", System.getProperty("java.class.path"),
             "-nowarn");
       URI sourceFile = InMemoryJavaFileManager.classNameToFile(className, ".java");
-      InMemorySourceFileObject inMemorySourceFileObject = new InMemorySourceFileObject(sourceFile, source);
+      JavaFileObject sourceFileObject = SimpleJavaFileObject.forSource(sourceFile, source);
       StringWriter out = new StringWriter();
-      JavaCompiler.CompilationTask compilationTask = compiler.getTask(out, fileManager, diagnosticCollector, options, null, List.of(inMemorySourceFileObject));
+      JavaCompiler.CompilationTask compilationTask = compiler.getTask(out, fileManager, diagnosticCollector, options, null, List.of(sourceFileObject));
       compilationTask.call();
       if (!diagnosticCollector.getDiagnostics().isEmpty()) {
          throw new CompileException(diagnosticCollector, out.toString());

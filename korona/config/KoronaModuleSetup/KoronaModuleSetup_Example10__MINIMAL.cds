@@ -77,6 +77,7 @@ Temporary computations begin and end. </parameter>
             <parameter name="MinKHz">0</parameter>
             <parameter name="MaxKHz">210</parameter>
             <parameter name="DoNotUseKHz"/>
+            <parameter name="CoordinatedBottomOffset">0</parameter>
          </parameters>
       </module>
       <module name="TemporaryComputationsEndModule">

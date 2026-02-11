@@ -74,8 +74,7 @@ public final class HelpSystemHelpSet {
       }
       String helpSetResource = helpDir + "/build/helpSet.json";
       try {
-         SimplePojoHelpSet simplePojoHelpSet = JsonUtils.JSON_MAPPER
-               .readValue(ResourceUtils.getUrl(helpSetResource), SimplePojoHelpSet.class);
+         SimplePojoHelpSet simplePojoHelpSet = JsonUtils.readValue(ResourceUtils.getUrl(helpSetResource), SimplePojoHelpSet.class);
          Set<String> ids = HashSet.newHashSet(simplePojoHelpSet.pageIds.size() + simplePojoHelpSet.aliases.size());
          ids.addAll(simplePojoHelpSet.pageIds);
          ids.addAll(simplePojoHelpSet.aliases.keySet());

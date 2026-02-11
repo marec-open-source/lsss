@@ -17,7 +17,7 @@ import {ProgressSpinnerComponent} from './progress-spinner.component';
    changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-help-all',
    templateUrl: './help-all.component.html',
-   styleUrl: './help-all.component.css',
+   styleUrl: './help-all.component.scss',
    imports: [
       RouterOutlet,
       ErrorResponseComponent, FooterComponent, MenuComponent, ProgressSpinnerComponent,

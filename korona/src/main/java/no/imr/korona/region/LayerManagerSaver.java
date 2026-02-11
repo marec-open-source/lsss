@@ -55,8 +55,6 @@ final class LayerManagerSaver {
    }
 
    private Element toXml(List<Layer> layers) {
-      layers.sort(Comparator.comparingInt(Layer::getObjectNumber));
-
       Element layerDefs = interpretation.addElement(XML_LAYER_DEFINITIONS);
 
       for (Layer layer : layers) {

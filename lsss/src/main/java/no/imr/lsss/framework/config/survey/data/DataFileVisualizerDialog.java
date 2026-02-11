@@ -36,22 +36,22 @@ final class DataFileVisualizerDialog implements ItemContainer<DataFileTableModel
             }),
             ItemFeature.Time.fromInstant("Time", Unit.UTC, DataFileTableModel.FileRow::getInstant, timeFormat),
             new ItemFeature.Number<>("Duration", new Unit("Minutes"), rowSegmentInfo(segmentInfo -> {
-               return segmentInfo.getPingRange().getSeconds() / 60;
+               return segmentInfo.pingRange().getSeconds() / 60;
             }), Utils.createDecimalFormat("0.00")),
             new ItemFeature.Number<>("Ping count", Unit.COUNT, rowSegmentInfo(segmentInfo -> {
-               return segmentInfo.getPingRange().getPingCount();
+               return segmentInfo.pingRange().getPingCount();
             }), intFormat),
             new ItemFeature.Number<>("Vessel distance", Unit.NAUTICAL_MILES, rowSegmentInfo(segmentInfo -> {
-               return segmentInfo.getPingRange().getVesselDistance();
+               return segmentInfo.pingRange().getVesselDistance();
             }), Utils.createDecimalFormat("0.000")),
             new ItemFeature.Number<>("Vessel speed", Unit.KNOTS, rowSegmentInfo(segmentInfo -> {
-               double hours = segmentInfo.getPingRange().getSeconds() / 3600;
-               return segmentInfo.getPingRange().getVesselDistance() / hours;
+               double hours = segmentInfo.pingRange().getSeconds() / 3600;
+               return segmentInfo.pingRange().getVesselDistance() / hours;
             }), Utils.createDecimalFormat("0.00")),
             new ItemFeature.Number<>("Latitude", Unit.DEGREES, rowGeoPos(GeoPoint::getLatitude), geoPosFormat),
             new ItemFeature.Number<>("Longitude", Unit.DEGREES, rowGeoPos(GeoPoint::getLongitude), geoPosFormat),
             new ItemFeature.Number<>("Transducer count", Unit.COUNT, rowSegmentInfo(segmentInfo -> {
-               return segmentInfo.getRawFileConfigurationInfo().frequencies.length;
+               return segmentInfo.rawFileConfigurationInfo().frequencies.length;
             }), intFormat),
             new ItemFeature.Number<>("<html>∑ s<sub>A</sub>", Unit.SA,
                   DataFileTableModel.FileRow::getSa, Utils.createDecimalFormat("0.000")),
@@ -77,7 +77,7 @@ final class DataFileVisualizerDialog implements ItemContainer<DataFileTableModel
 
    private static ToDoubleFunction<DataFileTableModel.FileRow> rowGeoPos(ToDoubleFunction<GeoPoint> geoPointToDouble) {
       return rowSegmentInfo(segmentInfo -> {
-         GeoPoint geoPoint = segmentInfo.getPingRange().begin().getGeographicalPosition();
+         GeoPoint geoPoint = segmentInfo.pingRange().begin().getGeographicalPosition();
          return geoPoint != null ? geoPointToDouble.applyAsDouble(geoPoint) : Double.NaN;
       });
    }

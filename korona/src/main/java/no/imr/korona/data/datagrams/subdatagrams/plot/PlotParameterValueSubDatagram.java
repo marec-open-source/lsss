@@ -54,7 +54,7 @@ public final class PlotParameterValueSubDatagram extends BaseSubDatagram {
    }
 
    public PlotParameterValueSubDatagram putPerChannel(Name name, int channel, float value) {
-      plotParameterValues.perChannel.computeIfAbsent(name.persistentName(), k -> new HashMap<>()).put(channel, value);
+      plotParameterValues.perChannel.computeIfAbsent(name.persistentName(), _ -> new HashMap<>()).put(channel, value);
       return this;
    }
 }

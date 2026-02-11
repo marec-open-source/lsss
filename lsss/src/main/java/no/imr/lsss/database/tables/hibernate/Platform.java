@@ -1,12 +1,31 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.logging.Log;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+
+      // Properties:
+      "platformType",
+      "platformSubType",
+      "firstValidDate",
+      "lastValidDate",
+})
 public class Platform implements BasePlatformObject<PlatformPK> {
    private PlatformPK compId;
 
@@ -22,6 +41,7 @@ public class Platform implements BasePlatformObject<PlatformPK> {
    private Set<Survey> surveys;
    private Set<PlatformName> platformNames;
    private Set<PlatformCodes> platformCodes;
+   private PlatformType referencedPlatformType;
 
    public Platform() {
    }
@@ -77,6 +97,11 @@ public class Platform implements BasePlatformObject<PlatformPK> {
       this.lastValidDate = lastValidDate;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation")
+   })
    public Nation getNation() {
       return nation;
    }
@@ -85,6 +110,7 @@ public class Platform implements BasePlatformObject<PlatformPK> {
       this.nation = nation;
    }
 
+   @OneToMany(mappedBy = "platform")
    public Set<AcousticCategory> getAcousticCategories() {
       return acousticCategories;
    }
@@ -93,6 +119,7 @@ public class Platform implements BasePlatformObject<PlatformPK> {
       this.acousticCategories = acousticCategories;
    }
 
+   @OneToMany(mappedBy = "platform")
    public Set<Survey> getSurveys() {
       return surveys;
    }
@@ -101,6 +128,7 @@ public class Platform implements BasePlatformObject<PlatformPK> {
       this.surveys = surveys;
    }
 
+   @OneToMany(mappedBy = "platform")
    public Set<PlatformName> getPlatformNames() {
       return platformNames;
    }
@@ -109,12 +137,27 @@ public class Platform implements BasePlatformObject<PlatformPK> {
       this.platformNames = platformNames;
    }
 
+   @OneToMany(mappedBy = "platform")
    public Set<PlatformCodes> getPlatformCodes() {
       return platformCodes;
    }
 
    public void setPlatformCodes(Set<PlatformCodes> platformCodes) {
       this.platformCodes = platformCodes;
+   }
+
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "platformType", referencedColumnName = "platformType"),
+         @JoinColumn(name = "platformSubType", referencedColumnName = "platformSubType")
+   })
+   public PlatformType getReferencedPlatformType() {
+      return referencedPlatformType;
+   }
+
+   public void setReferencedPlatformType(PlatformType referencedPlatformType) {
+      this.referencedPlatformType = referencedPlatformType;
    }
 
    public String findLatestPlatformName() {

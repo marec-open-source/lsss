@@ -11,12 +11,7 @@ import java.nio.ByteBuffer;
  * Container datagram for different types of {@link BaseSubDatagram}.
  */
 public final class LsssDatagram extends BaseDatagram {
-   public static final DatagramType TYPE = new DatagramType("LSSS") {
-      @Override
-      public BaseDatagram createDatagram(long ntDate, ByteBuffer byteBuffer, DatagramTypeManager datagramTypeManager) throws DatagramFormatException {
-         return new LsssDatagram(ntDate, byteBuffer, datagramTypeManager);
-      }
-   };
+   public static final DatagramType TYPE = new DatagramType("LSSS", LsssDatagram::new);
 
    private final SubDatagram subDatagram;
 
@@ -39,7 +34,7 @@ public final class LsssDatagram extends BaseDatagram {
 
    @Override
    public void write(ByteBuffer byteBuffer) {
-      byteBuffer.putShort((short) subDatagram.getDatagramSubType().getIntCode());
+      byteBuffer.putShort((short) subDatagram.getDatagramSubType().intCode());
       subDatagram.write(byteBuffer);
    }
 
@@ -69,6 +64,6 @@ public final class LsssDatagram extends BaseDatagram {
 
    @Override
    public String toStringExtra() {
-      return subDatagram.getDatagramSubType().getIntCode() + " " + subDatagram.toStringExtra();
+      return subDatagram.getDatagramSubType().intCode() + " " + subDatagram.toStringExtra();
    }
 }

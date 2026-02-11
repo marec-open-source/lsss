@@ -92,7 +92,7 @@ public final class EchoSounderSimulatorGUI {
       JPanel playControlPanel = new JPanel(new FlowLayout());
       JButton playButton = MiscIcons.PLAY.on(new JButton());
       playControlPanel.add(playButton);
-      playButton.addActionListener(e -> echoSounderSimulator.setRunning(!echoSounderSimulator.isRunning()));
+      playButton.addActionListener(_ -> echoSounderSimulator.setRunning(!echoSounderSimulator.isRunning()));
       echoSounderSimulator.getRunningChangeManager().addListener(GuiListeners.coalescingLater(() -> {
          SvgIcon icon = echoSounderSimulator.isRunning() ? MiscIcons.PAUSE : MiscIcons.PLAY;
          icon.on(playButton);
@@ -144,14 +144,14 @@ public final class EchoSounderSimulatorGUI {
          JMenuItem openItem = MiscIcons.OPEN.on(fileMenu.add("Open config file..."));
          openItem.setToolTipText("Open an echosounder simulator config file");
          openItem.setMnemonic(KeyEvent.VK_O);
-         openItem.addActionListener(e -> open());
+         openItem.addActionListener(_ -> open());
 
          JMenuItem saveItem = MiscIcons.SAVE.on(fileMenu.add("Save config file"));
          saveItem.setToolTipText(configFile != null
                ? "Save current configuration to " + configFile
                : "Save current configuration");
          saveItem.setMnemonic(KeyEvent.VK_S);
-         saveItem.addActionListener(e -> save());
+         saveItem.addActionListener(_ -> save());
 
          JMenuItem closeItem = fileMenu.add("Close config file");
          if (configFile != null) {
@@ -160,13 +160,13 @@ public final class EchoSounderSimulatorGUI {
             closeItem.setEnabled(false);
          }
          closeItem.setMnemonic(KeyEvent.VK_C);
-         closeItem.addActionListener(e -> setConfigFile(null));
+         closeItem.addActionListener(_ -> setConfigFile(null));
 
          fileMenu.addSeparator();
 
          JMenuItem exitItem = MiscIcons.POWER.on(fileMenu.add("Exit"));
          exitItem.setMnemonic(KeyEvent.VK_X);
-         exitItem.addActionListener(e -> close());
+         exitItem.addActionListener(_ -> close());
       });
 
       return menuBar;

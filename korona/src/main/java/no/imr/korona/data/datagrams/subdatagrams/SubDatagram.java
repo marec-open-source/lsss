@@ -47,7 +47,7 @@ public abstract class SubDatagram {
 
    @Override
    public String toString() {
-      return getDatagramSubType().getLabel() + " " + NTDate.ntDateToInstant(getNTDate()) + " " + toStringExtra();
+      return getDatagramSubType().label() + " " + NTDate.ntDateToInstant(getNTDate()) + " " + toStringExtra();
    }
 
    public String toStringExtra() {

@@ -9,9 +9,14 @@ import org.jspecify.annotations.Nullable;
 
 final class InterpretationEchogramPingSettings extends EchogramPingSettings {
    private final InterpretationSettings interpretationSettings;
+   private PingMapping pingMapping;
+   private PingIndex beginPingIndex;
+   private double distanceToXFactor;
 
    InterpretationEchogramPingSettings(InterpretationSettings interpretationSettings) {
       this.interpretationSettings = interpretationSettings;
+      pingMapping = interpretationSettings.getPingMapping();
+      beginPingIndex = getPingRange().begin();
    }
 
    @Override
@@ -31,37 +36,29 @@ final class InterpretationEchogramPingSettings extends EchogramPingSettings {
    }
 
    void update() {
+      pingMapping = interpretationSettings.getPingMapping();
+      beginPingIndex = getPingRange().begin();
+      double d = pingMapping.distance(getPingRange());
+      distanceToXFactor = d > 0 ? getWidth() / d : 0;
       getChangeManager().notifyListeners();
    }
 
    @Override
    public float pingIndexToX(PingIndex pingIndex) {
-      PingRange pingRange = getPingRange();
-      PingMapping pingMapping = interpretationSettings.getPingMapping();
-      double d = pingMapping.distance(pingRange);
-      if (d == 0) {
-         return 0;
-      }
-      PingIndex firstIdx = pingRange.begin();
-      double distance = pingMapping.distance(firstIdx, pingIndex);
-      double fraction = distance / d;
-      return (float) fraction * getWidth();
+      double distance = pingMapping.distance(beginPingIndex, pingIndex);
+      return (float) (distance * distanceToXFactor);
    }
 
    @Override
    public PingIndex xToClosestPingIndex(double x) {
-      PingRange pingRange = getPingRange();
-      PingMapping pingMapping = interpretationSettings.getPingMapping();
-      double distance = pingMapping.distance(pingRange) * x / getWidth();
-      return getPingContainer().getClosestPingIndex(pingRange.begin(), distance, pingMapping);
+      double distance = x / distanceToXFactor;
+      return getPingContainer().getClosestPingIndex(beginPingIndex, distance, pingMapping);
    }
 
    @Override
    public @Nullable PingIndex xToContainingPingIndex(double x) {
-      PingRange pingRange = getPingRange();
-      PingMapping pingMapping = interpretationSettings.getPingMapping();
-      double distance = pingMapping.distance(pingRange) * x / getWidth();
-      return getPingContainer().getContainingPingIndex(pingRange.begin(), distance, pingMapping);
+      double distance = x / distanceToXFactor;
+      return getPingContainer().getContainingPingIndex(beginPingIndex, distance, pingMapping);
    }
 
    @Override

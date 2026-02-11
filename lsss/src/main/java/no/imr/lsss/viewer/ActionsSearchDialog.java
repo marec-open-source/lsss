@@ -58,14 +58,14 @@ public final class ActionsSearchDialog {
       includeDisabledCheckBox.setFont(includeDisabledCheckBox.getFont().deriveFont(Font.PLAIN));
       includeDisabledCheckBox.setFocusable(false);
       includeDisabledCheckBox.setOpaque(false);
-      includeDisabledCheckBox.addActionListener(e -> {
+      includeDisabledCheckBox.addActionListener(_ -> {
          includeDisabled = includeDisabledCheckBox.isSelected();
          updateFilteredActions();
       });
 
       JTextField filterTextField = new JTextField(text, 20);
       filterTextField.selectAll();
-      filterTextField.getDocument().addDocumentListener(new SimpleDocumentListener(e -> {
+      filterTextField.getDocument().addDocumentListener(new SimpleDocumentListener(_ -> {
          text = filterTextField.getText();
          filter = new TextFilter(text);
          updateFilteredActions();
@@ -158,7 +158,7 @@ public final class ActionsSearchDialog {
 
    private void updateFilteredActions() {
       filteredActions = allActions.stream()
-            .filter(includeDisabled ? action -> true : LsssAction::isEnabled)
+            .filter(includeDisabled ? _ -> true : LsssAction::isEnabled)
             .filter(action -> filter.test(List.of(action.getLsssPackage().getLabel(), action.getLabel())))
             .toList();
       actionList.setModel(new ListListModel<>(filteredActions));

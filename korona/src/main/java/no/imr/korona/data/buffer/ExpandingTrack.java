@@ -7,7 +7,6 @@ import no.imr.korona.data.formats.ek60.EK60SegmentHandle;
 import no.imr.korona.data.formats.ek60.io.EndOfInputHandler;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
-import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.track.Segment;
 import no.imr.korona.data.track.Track;
@@ -83,7 +82,7 @@ public final class ExpandingTrack extends Track {
                   }
                });
                rawFiles.sort(null);
-            } catch (IOException e) {
+            } catch (IOException _) {
                asyncHandle.sleep(1000);
                continue;
             }
@@ -115,7 +114,7 @@ public final class ExpandingTrack extends Track {
                if (lastSegment == null || lastSegment.getMainFile().compareTo(file) < 0) {
                   try {
                      EK60SegmentHandle segmentHandle = new EK60SegmentHandle(new EK60FileSet(file), datagramTypeManager);
-                     PingRange pingRange = segmentHandle.createSegmentInfo().getPingRange();
+                     PingRange pingRange = segmentHandle.createSegmentInfo().pingRange();
                      if (!pingRange.isEmpty()) {
                         add(new Segment(segmentHandle, pingRange));
                      }
@@ -150,7 +149,7 @@ public final class ExpandingTrack extends Track {
                } else if (!hasAddedPing) {
                   PingRange pingRange = getTotalRange();
                   if (!pingRange.isEmpty()) {
-                     addPing(getClosestPingIndex(pingRange.end().getPingNumber() - 1, PingMapping.NUMBER));
+                     addPing(previousOrSame(pingRange.end()));
                   }
                }
             }

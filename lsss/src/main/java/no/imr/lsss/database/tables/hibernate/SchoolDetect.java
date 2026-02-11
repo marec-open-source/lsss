@@ -1,11 +1,35 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "survey",
+      "object",
+
+      // Properties:
+      "detectionThreshold",
+      "detectionThresholdHole",
+      "minSizeHole",
+      "smoothVertical",
+      "smoothHorizontal",
+      "detectionSettings",
+      "manuallyCorrected",
+})
 public class SchoolDetect implements BaseSurveyObject<ScatterObjectPK> {
    private ScatterObjectPK compId;
 
@@ -86,6 +110,7 @@ public class SchoolDetect implements BaseSurveyObject<ScatterObjectPK> {
       this.smoothHorizontal = smoothHorizontal;
    }
 
+   @Column(length = 1024)
    public String getDetectionSettings() {
       return detectionSettings;
    }
@@ -104,6 +129,14 @@ public class SchoolDetect implements BaseSurveyObject<ScatterObjectPK> {
 
    //maybe not necessary
    //bug https://opensource.atlassian.com/projects/hibernate/browse/ANN-300
+   @OneToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "survey", referencedColumnName = "survey"),
+         @JoinColumn(name = "object", referencedColumnName = "object")
+   })
    public ScatterObject getScatterObject() {
       return scatterObject;
    }

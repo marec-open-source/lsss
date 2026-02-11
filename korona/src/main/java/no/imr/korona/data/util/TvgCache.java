@@ -14,12 +14,7 @@ public final class TvgCache {
    private static final LoadingCache<TVG.Parameters, TVG> CACHE = CacheBuilder.newBuilder()
          .maximumSize(100)
          .expireAfterAccess(10, TimeUnit.MINUTES)
-         .build(new CacheLoader<>() {
-            @Override
-            public TVG load(TVG.Parameters parameters) {
-               return new TVG(parameters);
-            }
-         });
+         .build(CacheLoader.from(TVG::new));
 
    private TvgCache() {
    }

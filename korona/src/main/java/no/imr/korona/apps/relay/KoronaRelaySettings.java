@@ -42,7 +42,7 @@ public final class KoronaRelaySettings extends Configurable implements Parameter
 
    void showEditor(Component referenceComponent, boolean editable) {
       ParameterEditor parameterEditor = new ParameterEditor(getParameters());
-      parameterEditor.getGUIConfig().setParameterEnabledDecider(__ -> editable);
+      parameterEditor.getGUIConfig().setParameterEnabledDecider(_ -> editable);
       new ConfigurableGUIDialog(referenceComponent, getName().displayName(), this)
             .setCloseOnOk(parameterEditor::commitEdits)
             .setGUI(parameterEditor.getEditorComponent())

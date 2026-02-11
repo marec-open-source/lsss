@@ -39,6 +39,6 @@ public interface AdmService {
       return null;
    }
 
-   default void smokeTest() throws Exception {
+   default void smokeTest() {
    }
 }

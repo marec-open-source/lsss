@@ -71,6 +71,12 @@ public final class ExclusionManager {
       manualExclusionChangeManager.notifyListeners(pingRange);
    }
 
+   public void exclude(RangeSet<PingIndex> pingRangeSet) {
+      pingRangeSet.stream()
+            .map(PingRange::of)
+            .forEach(this::excludeRange);
+   }
+
    public void includeRange(PingRange pingRange) {
       regionManager.writeablePingRanges(pingRange).stream()
             .forEach(exclusions::remove);

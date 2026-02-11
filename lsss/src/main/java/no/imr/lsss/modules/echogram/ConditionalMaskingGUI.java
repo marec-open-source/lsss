@@ -123,10 +123,10 @@ final class ConditionalMaskingGUI {
 
    private JPanel createBottomPanel() {
       JButton maskAllButton = new JButton("Mask all");
-      maskAllButton.addActionListener(e -> setAllMasked(true));
+      maskAllButton.addActionListener(_ -> setAllMasked(true));
 
       JButton maskNoneButton = new JButton("Mask none");
-      maskNoneButton.addActionListener(e -> setAllMasked(false));
+      maskNoneButton.addActionListener(_ -> setAllMasked(false));
 
       JPanel maskPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       maskPanel.add(maskAllButton);
@@ -134,7 +134,7 @@ final class ConditionalMaskingGUI {
 
       JButton closeButton = new JButton("Close");
       dialog.getRootPane().setDefaultButton(closeButton);
-      closeButton.addActionListener(e -> dialog.dispose());
+      closeButton.addActionListener(_ -> dialog.dispose());
 
       JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       closePanel.add(closeButton);

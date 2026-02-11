@@ -42,8 +42,8 @@ public final class NmeaPingItem extends AbstractPingItem {
       return Nmea.of(nmea);
    }
 
-   public OptionalDouble getMeterPerSec() {
-      return getNmea().getMeterPerSec();
+   public OptionalDouble getKnots() {
+      return getNmea().getKnots();
    }
 
    public Optional<GeoPoint> getGeographicalPosition() {

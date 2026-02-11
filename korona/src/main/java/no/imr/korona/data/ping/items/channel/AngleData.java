@@ -33,6 +33,10 @@ public final class AngleData {
       return electricalAngle / angleSensitivity - angleOffset;
    }
 
+   public static float mechanicalToElectricalAngle(float mechanicalAngle, float angleSensitivity, float angleOffset) {
+      return (mechanicalAngle + angleOffset) * angleSensitivity;
+   }
+
    /**
     * The Target Strength directivity correction function.
     *

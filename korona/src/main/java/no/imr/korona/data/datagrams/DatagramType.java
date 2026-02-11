@@ -5,20 +5,31 @@ import org.jspecify.annotations.Nullable;
 import java.nio.ByteBuffer;
 
 /**
- * A datagram type, with factory method {@link #createDatagram(long, ByteBuffer, DatagramTypeManager)}.
+ * A datagram type, consisting of a code and a {@link DatagramType.Factory datagram factory}.
  */
-public abstract class DatagramType {
+public final class DatagramType {
    private final String asciiQuad;
    private final int intCode;
+   private final Factory factory;
 
-   protected DatagramType(String asciiQuad) {
+   public DatagramType(String asciiQuad, Factory factory) {
       this.asciiQuad = asciiQuad;
       intCode = toIntCode(asciiQuad);
+      this.factory = factory;
    }
 
-   protected DatagramType(int intCode) {
+   public DatagramType(int intCode, Factory factory) {
       asciiQuad = toAsciiQuad(intCode);
       this.intCode = intCode;
+      this.factory = factory;
+   }
+
+   public static DatagramType simple(String asciiQuad, SimpleFactory factory) {
+      return new DatagramType(asciiQuad, factory);
+   }
+
+   public static DatagramType simple(int intCode, SimpleFactory factory) {
+      return new DatagramType(intCode, factory);
    }
 
    @Override
@@ -48,7 +59,9 @@ public abstract class DatagramType {
       return intCode;
    }
 
-   public abstract BaseDatagram createDatagram(long ntDate, ByteBuffer byteBuffer, DatagramTypeManager datagramTypeManager) throws DatagramFormatException;
+   public Factory getFactory() {
+      return factory;
+   }
 
    static int toIntCode(String asciiQuad) {
       if (asciiQuad.length() != 4) {
@@ -69,22 +82,18 @@ public abstract class DatagramType {
       });
    }
 
-   public static final class Simple extends DatagramType {
-      private final Reader reader;
+   @FunctionalInterface
+   public interface Factory {
+      BaseDatagram read(long ntDate, ByteBuffer byteBuffer, DatagramTypeManager datagramTypeManager) throws DatagramFormatException;
+   }
 
-      public Simple(String asciiQuad, Reader reader) {
-         super(asciiQuad);
-         this.reader = reader;
-      }
-
+   @FunctionalInterface
+   public interface SimpleFactory extends Factory {
       @Override
-      public BaseDatagram createDatagram(long ntDate, ByteBuffer byteBuffer, DatagramTypeManager datagramTypeManager) throws DatagramFormatException {
-         return reader.read(ntDate, byteBuffer);
+      default BaseDatagram read(long ntDate, ByteBuffer byteBuffer, DatagramTypeManager datagramTypeManager) throws DatagramFormatException {
+         return read(ntDate, byteBuffer);
       }
 
-      @FunctionalInterface
-      public interface Reader {
-         BaseDatagram read(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException;
-      }
+      BaseDatagram read(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException;
    }
 }

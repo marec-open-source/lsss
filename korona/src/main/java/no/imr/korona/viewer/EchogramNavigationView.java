@@ -31,12 +31,12 @@ public final class EchogramNavigationView {
       this.pingAnimator = pingAnimator;
       pingAnimator.getStateChangeManager().addListener(this::updateState);
 
-      fastBackward.addActionListener(e -> pingAnimator.setPingsPerSecond(-PINGS_PER_SECOND_FAST));
-      backward.addActionListener(e -> pingAnimator.setPingsPerSecond(-PINGS_PER_SECOND_SLOW));
-      pause.addActionListener(e -> pingAnimator.setPingsPerSecond(0));
-      forward.addActionListener(e -> pingAnimator.setPingsPerSecond(PINGS_PER_SECOND_SLOW));
-      fastForward.addActionListener(e -> pingAnimator.setPingsPerSecond(PINGS_PER_SECOND_FAST));
-      home.addActionListener(e -> pingAnimator.setState(PingAnimator.State.Home));
+      fastBackward.addActionListener(_ -> pingAnimator.setPingsPerSecond(-PINGS_PER_SECOND_FAST));
+      backward.addActionListener(_ -> pingAnimator.setPingsPerSecond(-PINGS_PER_SECOND_SLOW));
+      pause.addActionListener(_ -> pingAnimator.setPingsPerSecond(0));
+      forward.addActionListener(_ -> pingAnimator.setPingsPerSecond(PINGS_PER_SECOND_SLOW));
+      fastForward.addActionListener(_ -> pingAnimator.setPingsPerSecond(PINGS_PER_SECOND_FAST));
+      home.addActionListener(_ -> pingAnimator.setState(PingAnimator.State.Home));
 
       GuiUtils.createButtonGroup(fastBackward, backward, pause, forward, fastForward, home);
 

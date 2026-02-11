@@ -1,7 +1,5 @@
 package no.imr.lsss.modules.broadband.sv;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
@@ -26,6 +24,8 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.range.FloatRange;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -82,7 +82,7 @@ public final class BroadbandBottomDataExporter extends StreamingExporter {
    }
 
    @Override
-   public void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) throws IOException {
+   public void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) {
       PingRange pingRange = getLSSS().getInterpretationSettings().getPingRange();
       if (pingRange.isEmpty()) {
          return;
@@ -96,7 +96,7 @@ public final class BroadbandBottomDataExporter extends StreamingExporter {
       try (JsonGenerator json = objectWriter.createGenerator(out)) {
          json.writeStartObject();
 
-         json.writeObjectField("info", getExportInfo());
+         json.writePOJOProperty("info", getExportInfo());
 
          BroadbandChannelInfoAccumulator channelInfoAccumulator = new BroadbandChannelInfoAccumulator();
          long pingsToLoad = pingRange.getPingCount();
@@ -104,7 +104,7 @@ public final class BroadbandBottomDataExporter extends StreamingExporter {
          Listener progressListener = progressHandler.asCountingListener(numberOfPasses * pingsToLoad);
          writePingRange(json, dataFileSet, pingRange, channels, channelInfoAccumulator, asyncHandle, progressListener);
 
-         json.writeObjectField("channelInfo", channelInfoAccumulator.getChannelInfos());
+         json.writePOJOProperty("channelInfo", channelInfoAccumulator.getChannelInfos());
 
          json.writeEndObject();
       }
@@ -130,7 +130,7 @@ public final class BroadbandBottomDataExporter extends StreamingExporter {
       return exportInfo;
    }
 
-   private void writePingRange(JsonGenerator json, DataFileSet dataFileSet, PingRange pingRange, List<Integer> channels, BroadbandChannelInfoAccumulator channelInfoAccumulator, AsyncHandle asyncHandle, Listener progressListener) throws IOException {
+   private void writePingRange(JsonGenerator json, DataFileSet dataFileSet, PingRange pingRange, List<Integer> channels, BroadbandChannelInfoAccumulator channelInfoAccumulator, AsyncHandle asyncHandle, Listener progressListener) {
       Map<Integer, ChannelMetadata> channelToMetadata = new HashMap<>();
       channels.forEach(channel -> channelToMetadata.put(channel, new ChannelMetadata()));
       for (PingIndex pingIndex : dataFileSet.getPingIndices(pingRange)) {
@@ -159,11 +159,11 @@ public final class BroadbandBottomDataExporter extends StreamingExporter {
          }
          jsonWriter.writeObject(() -> {
             RawFileTransducer transducer = dataFileSet.getRawFileConfiguration().getTransducers().get(channel - 1);
-            json.writeStringField("id", transducer.getChannelId());
-            json.writeNumberField("nominalFrequency", transducer.getFrequency());
+            json.writeStringProperty("id", transducer.getChannelId());
+            json.writeNumberProperty("nominalFrequency", transducer.getFrequency());
             jsonWriter.writeArrayField("blocks", channelMetadata.blocks, block -> {
                jsonWriter.writeObject(() -> {
-                  json.writeNumberField("sampleDistance", block.sampleDistance);
+                  json.writeNumberProperty("sampleDistance", block.sampleDistance);
 
                   jsonWriter.writeArrayField("times", block.pingIndices,
                         pingIndex -> json.writeString(pingIndex.getInstant().toString()));

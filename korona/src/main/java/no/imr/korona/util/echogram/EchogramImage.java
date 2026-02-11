@@ -43,7 +43,7 @@ public final class EchogramImage {
    public boolean processPings(List<Ping> pings) {
       int lastX = -1;
       FloatRange zRange = settings.getZSettings().getZoomedZRange();
-      boolean seabedMounted = settings.getZSettings().getDataConfiguration().isSeabedMounted();
+      boolean seabedMounted = settings.getDataConfiguration().isSeabedMounted();
       int scansize = seabedMounted ? -1 : 1;
       int offset = seabedMounted ? colorBuf.length - 1 : 0;
 

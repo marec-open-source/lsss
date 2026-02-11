@@ -35,7 +35,7 @@ final class KoronaInfoCommandJob extends CliCommandJob {
    }
 
    @Override
-   public void run(InputStream in, PrintStream out) throws Exception {
+   public void run(InputStream in, PrintStream out) {
       KoronaInfo koronaInfo = new KoronaInfo();
 
       koronaInfo.activePlugins = korona.getModuleManager().getModuleInfos().stream()
@@ -112,7 +112,7 @@ final class KoronaInfoCommandJob extends CliCommandJob {
                .map(KoronaInfoCommandJob::toParameterInfo)
                .flatMap(Optional::stream)
                .toList();
-         case VoidParameter __ -> {
+         case VoidParameter _ -> {
             return Optional.empty();
          }
       }

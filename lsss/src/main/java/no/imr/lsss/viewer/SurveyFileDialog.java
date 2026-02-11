@@ -96,7 +96,7 @@ public final class SurveyFileDialog {
          dialog.setContentPane(tabbedPane);
          dialog.getRootPane().setDefaultButton(getUI().getDefaultButton(this));
 
-         tabbedPane.addChangeListener(e -> {
+         tabbedPane.addChangeListener(_ -> {
             if (tabbedPane.getSelectedIndex() == -1) {
                return;
             }

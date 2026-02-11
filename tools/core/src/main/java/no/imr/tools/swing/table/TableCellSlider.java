@@ -121,7 +121,7 @@ public final class TableCellSlider extends JSlider {
       private boolean mouseInside;
 
       public Editor() {
-         slider.addChangeListener(e -> {
+         slider.addChangeListener(_ -> {
             if (table == null) {
                return;
             }

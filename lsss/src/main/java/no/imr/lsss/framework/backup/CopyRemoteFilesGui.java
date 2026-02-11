@@ -2,7 +2,6 @@ package no.imr.lsss.framework.backup;
 
 import no.imr.lsss.LSSS;
 import no.imr.lsss.framework.backup.pojo.CopyRemoteInfo;
-import no.imr.lsss.framework.config.ConfigurationManager;
 import no.imr.lsss.framework.config.survey.SurveyDirectoryParameter;
 import no.imr.lsss.framework.config.survey.data.remote.RemoteDataConf;
 import no.imr.lsss.resources.LsssHelp;
@@ -89,10 +88,10 @@ public final class CopyRemoteFilesGui {
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE);
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
 
       JButton copyButton = new JButton("Copy remote survey data");
-      copyButton.addActionListener(e -> {
+      copyButton.addActionListener(_ -> {
          if (!parameterEditor.commitEdits()) {
             return;
          }
@@ -162,8 +161,8 @@ public final class CopyRemoteFilesGui {
 
    private static CopyRemoteInfo readCopyRemoteInfo(Path infoFile) {
       try {
-         return JsonUtils.readValue(infoFile, CopyRemoteInfo.class);
-      } catch (IOException e) {
+         return JsonUtils.JSON_MAPPER.readValue(infoFile, CopyRemoteInfo.class);
+      } catch (Exception e) {
          // Prior to LSSS 2.16.0 the file contained a single line with a directory.
          if (BackupFilesUtils.getLastUsedDestinationDir(infoFile) == null && !FileUtils.notExists(e, infoFile)) {
             Log.global.log(Level.WARNING, "Error reading from " + infoFile, e);
@@ -196,8 +195,7 @@ public final class CopyRemoteFilesGui {
                switch (href) {
                   case "remoteDirectories" -> {
                      dialog.dispose();
-                     ConfigurationManager configurationManager = lsss.getConfigurationManager();
-                     configurationManager.showDialog(configurationManager.getDataConf().getRemoteDataConf());
+                     lsss.getConfigurationManager().getDataConf().getRemoteDataConf().showInConfigurationDialog();
                   }
                   default -> {
                   }

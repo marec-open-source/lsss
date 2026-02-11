@@ -22,7 +22,7 @@ final class ItemVisualizerMain implements ItemContainer<ItemVisualizerMain.Item>
    private ItemVisualizerMain() {
       Random random = new Random();
       items = IntStream.range(0, 100_000)
-            .mapToObj(i -> new Item(random))
+            .mapToObj(_ -> new Item(random))
             .toList();
 
       List<ItemFeature<Item>> features = List.of(
@@ -40,7 +40,7 @@ final class ItemVisualizerMain implements ItemContainer<ItemVisualizerMain.Item>
       itemVisualizer.show(null, "Test");
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SwingUtilities.invokeLater(ItemVisualizerMain::new);
    }
 

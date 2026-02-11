@@ -9,17 +9,19 @@ import no.imr.tools.ImmutableUtils;
 import no.imr.tools.Utils;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.Document;
+import org.dom4j.Node;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.function.Function;
 
 /**
  * Sonar configuration datagram.
  */
 public final class Con1Datagram extends BaseDatagram {
-   public static final DatagramType TYPE = new DatagramType.Simple("CON1", Con1Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("CON1", Con1Datagram::new);
 
    private static ImmutableMap<String, Function<Con1Datagram, @Nullable PingItem>> pingItemConverters = ImmutableMap.of();
 
@@ -62,8 +64,7 @@ public final class Con1Datagram extends BaseDatagram {
    @Override
    public void addPingItems(PingConversion pingConversion) {
       boolean noneAdded = true;
-      RawFileConfiguration rawFileConfiguration = Utils.getFirstOrNull(pingConversion.getPingItems(), RawFileConfiguration.class);
-      String sounderName = rawFileConfiguration != null ? rawFileConfiguration.getSounderName() : null;
+      String sounderName = getSounderName(pingConversion.getPingItems());
       Function<Con1Datagram, @Nullable PingItem> pingItemConverter = pingItemConverters.get(sounderName);
       if (pingItemConverter != null) {
          PingItem pingItem = pingItemConverter.apply(this);
@@ -75,6 +76,22 @@ public final class Con1Datagram extends BaseDatagram {
       if (noneAdded) {
          pingConversion.addPingItem(new PassivePingItem(this));
       }
+   }
+
+   private static @Nullable String getSounderName(List<PingItem> configurationItems) {
+      RawFileConfiguration rawFileConfiguration = Utils.getFirstOrNull(configurationItems, RawFileConfiguration.class);
+      if (rawFileConfiguration != null) {
+         return rawFileConfiguration.getSounderName();
+      }
+      for (PingItem configurationItem : configurationItems) {
+         if (configurationItem instanceof Xml0Datagram xml0Datagram) {
+            Node node = xml0Datagram.getDocument().selectSingleNode("/Configuration/Header/@ApplicationName");
+            if (node != null) {
+               return node.getText();
+            }
+         }
+      }
+      return null;
    }
 
    public Document getDocument() {

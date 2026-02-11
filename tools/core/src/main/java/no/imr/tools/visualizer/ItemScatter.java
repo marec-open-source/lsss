@@ -74,7 +74,7 @@ final class ItemScatter<T> extends ItemView<T> {
       GuiUtils.autoCreateContentMenu(xMenu, () -> {
          for (ItemFeature<T> feature : features) {
             JMenuItem item = MiscIcons.check(xFeature == feature).on(xMenu.add(feature.name));
-            item.addActionListener(e -> {
+            item.addActionListener(_ -> {
                xFeature = feature;
                update();
             });
@@ -96,7 +96,7 @@ final class ItemScatter<T> extends ItemView<T> {
       GuiUtils.autoCreateContentMenu(yMenu, () -> {
          for (ItemFeature<T> feature : features) {
             JMenuItem item = MiscIcons.check(yFeature == feature).on(yMenu.add(feature.name));
-            item.addActionListener(e -> {
+            item.addActionListener(_ -> {
                yFeature = feature;
                update();
             });

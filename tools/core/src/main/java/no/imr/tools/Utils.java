@@ -1,5 +1,7 @@
 package no.imr.tools;
 
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
 import com.google.common.math.BigIntegerMath;
 import no.imr.tools.logging.Log;
 import no.imr.tools.logging.LoggingManager;
@@ -20,7 +22,6 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -61,6 +62,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Gatherer;
 import java.util.stream.Stream;
 
 /**
@@ -93,6 +95,8 @@ public final class Utils {
    public static final Charset ISO_8859_1 = StandardCharsets.ISO_8859_1;
    private static Charset nativeCharset = UTF_8; // Use UTF-8 for tests unless Utils.init is called.
 
+   private static final Interner<String> STRING_INTERNER = Interners.newWeakInterner();
+
    private Utils() {
    }
 
@@ -108,7 +112,7 @@ public final class Utils {
    public static void sleep(long millis) {
       try {
          Thread.sleep(millis);
-      } catch (InterruptedException e) {
+      } catch (InterruptedException _) {
          Thread.currentThread().interrupt();
       }
    }
@@ -116,9 +120,9 @@ public final class Utils {
    public static <T> @Nullable T awaitFuture(Future<T> future) {
       try {
          return future.get();
-      } catch (CancellationException e) {
-         // Cancelled
-      } catch (InterruptedException e) {
+      } catch (CancellationException _) {
+         // Cancelled.
+      } catch (InterruptedException _) {
          Thread.currentThread().interrupt();
       } catch (ExecutionException e) {
          Log.global.log(Level.WARNING, e.getMessage(), e);
@@ -144,6 +148,10 @@ public final class Utils {
 
    public static double nmiToMeter(double nmi) {
       return nmi * 1852.0;
+   }
+
+   public static String intern(String string) {
+      return STRING_INTERNER.intern(string);
    }
 
    public static boolean startsWithIgnoringCase(String string, String prefix) {
@@ -575,7 +583,7 @@ public final class Utils {
    }
 
    public static <T> Consumer<T> emptyConsumer() {
-      return __ -> {
+      return _ -> {
       };
    }
 
@@ -617,14 +625,15 @@ public final class Utils {
       return null;
    }
 
-   public static <T> Stream<T> getAllOfType(Collection<?> collection, Class<T> clazz) {
-      return getAllOfType(collection.stream(), clazz);
+   public static <R> Gatherer<Object, ?, R> allOfType(Class<R> clazz) {
+      return Gatherer.of(Gatherer.Integrator.ofGreedy((_, element, downstream) -> {
+         return !clazz.isInstance(element) || downstream.push(clazz.cast(element));
+      }));
    }
 
-   public static <T> Stream<T> getAllOfType(Stream<?> stream, Class<T> clazz) {
-      return stream
-            .filter(clazz::isInstance)
-            .map(clazz::cast);
+   public static <T> Stream<T> getAllOfType(Collection<?> collection, Class<T> clazz) {
+      return collection.stream()
+            .gather(allOfType(clazz));
    }
 
    public static <T> Stream<T> recursiveStream(T top, Function<T, Collection<? extends T>> childrenExtractor) {
@@ -633,15 +642,11 @@ public final class Utils {
             childrenExtractor.apply(top).stream().flatMap(child -> recursiveStream(child, childrenExtractor)));
    }
 
-   public static <T> Iterable<T> asIterable(Stream<T> stream) {
-      return stream::iterator;
-   }
-
    public static <T> @Nullable T nextOrNull(Iterator<T> iterator) {
       return iterator.hasNext() ? iterator.next() : null;
    }
 
-   public static <T> @Nullable T getOrNull(T[] array, int index) {
+   public static <T extends @Nullable Object> @Nullable T getOrNull(T[] array, int index) {
       return index >= 0 && index < array.length ? array[index] : null;
    }
 
@@ -768,7 +773,7 @@ public final class Utils {
       try {
          string = string.replace(',', '.');
          return Float.valueOf(string);
-      } catch (NumberFormatException e) {
+      } catch (NumberFormatException _) {
          return null;
       }
    }
@@ -819,7 +824,7 @@ public final class Utils {
     * @return a formatted string
     */
    public static String format(String format, Object... args) {
-      return String.format(null, format, args);
+      return String.format(Locale.ROOT, format, args);
    }
 
    /**
@@ -878,14 +883,6 @@ public final class Utils {
          return MessageDigest.getInstance("SHA-256");
       } catch (NoSuchAlgorithmException e) {
          throw new ShouldNotHappenException(e);
-      }
-   }
-
-   public static URI toURI(URL url) {
-      try {
-         return url.toURI();
-      } catch (URISyntaxException e) {
-         throw new IllegalArgumentException(url.toString(), e);
       }
    }
 
@@ -1050,7 +1047,7 @@ public final class Utils {
    }
 
    public static void init(String[] args) {
-      nativeCharset = Charset.forName(System.getProperty("native.encoding"), UTF_8);
+      nativeCharset = Charset.forName(System.getProperty("native.encoding", ""), UTF_8);
       List<String> argsList = Arrays.asList(args);
       mainRun = true;
       debugRun = argsList.contains("--debug");

@@ -155,25 +155,25 @@ public final class EchogramPanel {
       JPopupMenu popupMenu = new JPopupMenu();
 
       JMenuItem textMenuItem = MiscIcons.check(showText).on(popupMenu.add("Show texts"));
-      textMenuItem.addActionListener(e -> {
+      textMenuItem.addActionListener(_ -> {
          showText = !showText;
          repaint();
       });
 
       JMenuItem showDepthMenuItem = MiscIcons.check(showDepthMarkers).on(popupMenu.add("Show depth markers"));
-      showDepthMenuItem.addActionListener(e -> showDepthMarkers = !showDepthMarkers);
+      showDepthMenuItem.addActionListener(_ -> showDepthMarkers = !showDepthMarkers);
 
       JMenuItem showRegionsMenuItem = MiscIcons.check(showRegions).on(popupMenu.add("Show regions"));
-      showRegionsMenuItem.addActionListener(e -> showRegions = !showRegions);
+      showRegionsMenuItem.addActionListener(_ -> showRegions = !showRegions);
 
       JMenuItem showTracksMenuItem = MiscIcons.check(showTracks).on(popupMenu.add("Show tracks"));
-      showTracksMenuItem.addActionListener(e -> showTracks = !showTracks);
+      showTracksMenuItem.addActionListener(_ -> showTracks = !showTracks);
 
       JMenuItem showTargetsMenuItem = MiscIcons.check(showTargets).on(popupMenu.add("Show targets"));
-      showTargetsMenuItem.addActionListener(e -> showTargets = !showTargets);
+      showTargetsMenuItem.addActionListener(_ -> showTargets = !showTargets);
 
       JMenuItem privateColorMenu = MiscIcons.check(getUsePrivateColor()).on(popupMenu.add("Use private colormap"));
-      privateColorMenu.addActionListener(e -> setUsePrivateColor(!getUsePrivateColor()));
+      privateColorMenu.addActionListener(_ -> setUsePrivateColor(!getUsePrivateColor()));
 
       for (Consumer<JPopupMenu> popupMenuExtender : popupMenuExtenders) {
          popupMenuExtender.accept(popupMenu);

@@ -1,10 +1,27 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import no.imr.tools.database.ColumnOrder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "acousticCategory",
+      "acousticCategoryMember",
+
+      // Properties:
+      // <none>
+})
 public class AcousticCategoryComposite implements BasePlatformObject<AcousticCategoryCompositePK> {
    private AcousticCategoryCompositePK compId;
 
@@ -33,6 +50,13 @@ public class AcousticCategoryComposite implements BasePlatformObject<AcousticCat
       this.compId = compId;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "acousticCategoryMember", referencedColumnName = "acousticCategory")
+   })
    public AcousticCategory getAcousticCategoryByNationAndPlatformAndAcousticCategoryMember() {
       return acousticCategoryByNationAndPlatformAndAcousticCategoryMember;
    }
@@ -41,6 +65,13 @@ public class AcousticCategoryComposite implements BasePlatformObject<AcousticCat
       this.acousticCategoryByNationAndPlatformAndAcousticCategoryMember = acousticCategoryByNationAndPlatformAndAcousticCategoryMember;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "acousticCategory", referencedColumnName = "acousticCategory")
+   })
    public AcousticCategory getAcousticCategoryByNationAndPlatformAndAcousticCategory() {
       return acousticCategoryByNationAndPlatformAndAcousticCategory;
    }

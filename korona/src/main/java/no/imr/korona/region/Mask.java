@@ -2,7 +2,6 @@ package no.imr.korona.region;
 
 import no.imr.korona.data.datamanager.PingContainer;
 import no.imr.korona.data.ping.PingIndex;
-import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
@@ -46,9 +45,8 @@ public final class Mask {
    }
 
    void remove(PingIndex pingIndex, FloatRangeSet depthRangeSet) {
-      pingToDepthRanges.computeIfPresent(pingIndex, (key, currentDepthRangeSet) -> {
-         FloatRangeSet result = currentDepthRangeSet.subtract(depthRangeSet);
-         return result.isEmpty() ? null : result;
+      pingToDepthRanges.computeIfPresent(pingIndex, (_, currentDepthRangeSet) -> {
+         return currentDepthRangeSet.subtract(depthRangeSet).nullIfEmpty();
       });
    }
 
@@ -94,7 +92,7 @@ public final class Mask {
    void fromXml(Element element, PingIndex referenceIndex, PingContainer pingContainer) {
       for (Element pingElement : element.elements(XML_PING)) {
          int offset = Integer.parseInt(pingElement.attributeValue(XML_PING_OFFSET));
-         PingIndex pingIndex = pingContainer.getClosestPingIndex(referenceIndex, offset, PingMapping.NUMBER);
+         PingIndex pingIndex = pingContainer.getPingIndexClamped(referenceIndex.getPingNumber() + offset);
          String s = pingElement.getText();
          String[] tokens = s.split("\\s");
          float lastDepth = 0;

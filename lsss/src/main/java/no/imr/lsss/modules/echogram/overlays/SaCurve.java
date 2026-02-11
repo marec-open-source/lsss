@@ -12,15 +12,10 @@ import java.util.List;
 /**
  * Computes a s<sub>A</sub> curve, not accumulated.
  */
-public final class SaCurve {
-   private final float maxSa;
-   private final List<Point> points;
-
-   private SaCurve(float maxSa, List<Point> points) {
-      this.maxSa = maxSa;
-      this.points = points;
-   }
-
+public record SaCurve(
+      float maxSa,
+      List<Point> points
+) {
    public static SaCurve compute(List<IntegrationCurvePoint> curve, IntegrationArea integrationArea) {
       if (curve.isEmpty()) {
          return new SaCurve(0, List.of());
@@ -74,14 +69,6 @@ public final class SaCurve {
    @Override
    public String toString() {
       return points.size() + " points, maxSa = " + maxSa;
-   }
-
-   public float getMaxSa() {
-      return maxSa;
-   }
-
-   public List<Point> getPoints() {
-      return points;
    }
 
    public record Point(PingIndex pingIndex, float sa) {

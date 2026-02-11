@@ -22,31 +22,22 @@ import java.util.stream.IntStream;
 public final class BroadbandSvByFrequency extends BroadbandByFrequency {
    private static final LoadingCache<Integer, double[]> NORMALIZED_HANNING_WINDOW_CACHE = CacheBuilder.newBuilder()
          .maximumSize(20)
-         .build(new CacheLoader<>() {
-            @Override
-            public double[] load(Integer nw) {
-               double[] w = PulseCompression.symHanning(nw);
-               double wNormalizer = Math.sqrt(ArrayMath.sqSum(w) / nw);
-               ArrayMath.divide(w, wNormalizer);
-               return w;
-            }
-         });
+         .build(CacheLoader.from(nw -> {
+            double[] w = PulseCompression.symHanning(nw);
+            double wNormalizer = Math.sqrt(ArrayMath.sqSum(w) / nw);
+            ArrayMath.divide(w, wNormalizer);
+            return w;
+         }));
    private final LoadingCache<ReducedAutoCorrelatedSignalCacheKey, ComplexArray> reducedAutoCorrelatedSignalCache = CacheBuilder.newBuilder()
          .maximumSize(10)
-         .build(new CacheLoader<>() {
-            @Override
-            public ComplexArray load(ReducedAutoCorrelatedSignalCacheKey key) {
-               return getReducedAutoCorrelatedSignal(key.beginIndexRelPeak, key.endIndexRelPeak, key.fftLength);
-            }
-         });
+         .build(CacheLoader.from(key -> {
+            return getReducedAutoCorrelatedSignal(key.beginIndexRelPeak, key.endIndexRelPeak, key.fftLength);
+         }));
    private final LoadingCache<FrequencyTermCacheKey, FrequencyTerm> frequencyTermCache = CacheBuilder.newBuilder()
          .maximumSize(10)
-         .build(new CacheLoader<>() {
-            @Override
-            public FrequencyTerm load(FrequencyTermCacheKey key) {
-               return computeFrequencyTerm(key.beginIndex, key.endIndex, key.fftLength);
-            }
-         });
+         .build(CacheLoader.from(key -> {
+            return computeFrequencyTerm(key.beginIndex, key.endIndex, key.fftLength);
+         }));
 
    public BroadbandSvByFrequency(BroadbandData broadbandData) {
       super(broadbandData);
@@ -149,9 +140,9 @@ public final class BroadbandSvByFrequency extends BroadbandByFrequency {
          double fNonZero = f > 0 ? f : frequencies.applyAsDouble(1); // f for division, avoids f=0
          double lambda = broadbandData.getSoundVelocity() / fNonZero;
          double psi = broadbandData.getPsi(fNonZero);
-         double G = broadbandData.getGain(fNonZero);
+         double g = broadbandData.getGain(fNonZero);
          double prxFactor = broadbandData.getPrxFactor(fNonZero);
-         values[i] = prxFactor * Math.pow(10, -(2 * G + psi) / 10) / (lambda * lambda);
+         values[i] = prxFactor * Math.pow(10, -(2 * g + psi) / 10) / (lambda * lambda);
          absorptionValues[i] = absorption.getAbsorption(f);
       }
       return new FrequencyTerm(values, absorptionValues);

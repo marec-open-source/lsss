@@ -98,16 +98,22 @@ final class ArrayMathTest {
    }
 
    @Test
+   void meanByte() {
+      byte[] values = {1, 2, 3, 4, 5, 6, 7};
+      assertEquals(3, ArrayMath.mean(values, 1, 4));
+   }
+
+   @Test
    void meanInt() {
-      int[] values = {1, 0, 2, -1, 3, -2, 4};
-      assertEquals(1, ArrayMath.mean(values));
+      int[] values = {1, 2, 3, 4, 5, 6, 7};
+      assertEquals(4, ArrayMath.mean(values));
    }
 
    @Test
    void meanFloat() {
-      float[] values = {1, 0, 2, 1.5f, 0.5f, -1, 3};
-      assertEquals(1, ArrayMath.mean(values));
-      assertEquals(1, ArrayMath.mean(values, 1, 5));
+      float[] values = {1, 2, 3, 4, 5, 6, 7};
+      assertEquals(4, ArrayMath.mean(values));
+      assertEquals(3, ArrayMath.mean(values, 1, 4));
    }
 
    @Test

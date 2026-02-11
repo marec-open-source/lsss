@@ -100,13 +100,13 @@ final class PreprocessingConfView implements ViewHolder.View {
 
    private JButton createHelpButton() {
       JButton button = MiscIcons.HELP.on(new JButton("Show preprocessing help system"));
-      button.addActionListener(e -> preprocessingConf.getKoronaHelpID().show());
+      button.addActionListener(_ -> preprocessingConf.getKoronaHelpID().show());
       return button;
    }
 
    private JButton createAddButton() {
       JButton button = MiscIcons.ADD.on(new JButton("Add preprocessing setup"));
-      button.addActionListener(e -> {
+      button.addActionListener(_ -> {
          PreprocessingSetup preprocessingSetup = preprocessingConf.createPreprocessingSetup();
          preprocessingSetup.fromXml(preprocessingConf.getPreprocessingSetups().getLast().toXml());
          preprocessingSetup.comment.setValue("");
@@ -125,7 +125,7 @@ final class PreprocessingConfView implements ViewHolder.View {
       JButton button = MiscIcons.COPY.on(new JButton("Copy more config files..."));
       Path surveyFile = preprocessingConf.getLSSS().getSurveyManager().getSurveyFile();
       if (surveyFile != null) {
-         button.addActionListener(e -> {
+         button.addActionListener(_ -> {
             showCopyConfigFilesDialog(preprocessingConf.getLSSS(), preprocessingConf.getContext(), surveyFile.getParent());
          });
       } else {

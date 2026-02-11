@@ -5,7 +5,7 @@ import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import java.nio.ByteBuffer;
 
 public final class Mru1Datagram extends MruDatagram {
-   public static final DatagramType TYPE = new DatagramType.Simple("MRU1", Mru1Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("MRU1", Mru1Datagram::new);
 
    public final String startId;                 // Start ID                #KMB     char     4U
    public final short datagramLength;           // Datagram length                  uint16   2U

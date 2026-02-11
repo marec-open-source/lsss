@@ -13,10 +13,11 @@ import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.parameter.FloatParameter;
 import no.imr.tools.parameter.HeaderParameter;
+import no.imr.tools.parameter.IntCsvListParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.ObjectParameter;
 import no.imr.tools.parameter.OptionalFloatParameter;
-import no.imr.tools.parameter.OptionalIntParameter;
+import no.imr.tools.parameter.RangeParameter;
 import no.imr.tools.parameter.StringParameter;
 import no.imr.tools.parameter.Unit;
 import no.marec.lsss.api.util.parameters.ObjectParameterValue;
@@ -34,12 +35,13 @@ public final class NetcdfWriterModule extends SimplePingModule {
          "netcdf",
          "The netCDF files are written to this subfolder in the destination directory");
 
-   public final OptionalIntParameter mainFrequency = new OptionalIntParameter(
+   public final IntCsvListParameter mainFrequency = new IntCsvListParameter(
          new Name("MainFrequency", "Main frequency"),
-         Optional.of(38), Unit.KHZ, ValueConstraints.gt(0),
+         List.of(38), Unit.KHZ, ValueConstraints.gt(0),
          """
-               The channel with the main frequency is placed first in the output file.
-               If unspecified, the first channel is used""");
+               A comma-separated list of prioritized candidates for the main frequency.
+               If unspecified, the first channel is used.
+               The channel with the main frequency is placed first in the output file""");
 
    public final ObjectParameter<WriterType> writerType = new ObjectParameter<>(
          new Name("WriterType", "Writer type"),
@@ -81,6 +83,21 @@ public final class NetcdfWriterModule extends SimplePingModule {
          true,
          "If selected, then the output data will include arrays for alongship and athwartship angles");
 
+   public final BooleanParameter compressSv = new BooleanParameter(
+         new Name("CompressSv", "Compress sv"),
+         false,
+         "Write a compressed log sv variable with reduced resolution, instead of sv");
+
+   public final RangeParameter compressedLogSvRange = new RangeParameter(
+         new Name("CompressedLogSvRange", "Compressed log sv range"),
+         -82, -20, Unit.DB,
+         "The value range for the compressed log sv variable");
+
+   public final FloatParameter compressedLogSvDelta = new FloatParameter(
+         new Name("CompressedLogSvDelta", "Compressed log sv delta"),
+         0.1f, Unit.DB, ValueConstraints.gt(0f),
+         "The value resolution for the compressed log sv variable");
+
    private final HeaderParameter netcdfInfoHeader = new HeaderParameter("NetCDF info");
 
    public NetcdfWriterModule() {
@@ -89,6 +106,10 @@ public final class NetcdfWriterModule extends SimplePingModule {
             griddedOutputType,
             channelGroupOutputType
       );
+      compressSv.addListenerAndNotify(compress -> {
+         compressedLogSvRange.setEnabled(compress);
+         compressedLogSvDelta.setEnabled(compress);
+      });
 
       NetcdfUtils.logNetcdfCLibraryVersion();
       String netcdfInfoText = NetcdfClibrary.isLibraryPresent()
@@ -113,6 +134,9 @@ public final class NetcdfWriterModule extends SimplePingModule {
             fftWindowSize,
             deltaFrequency,
             writeAngles,
+            compressSv,
+            compressedLogSvRange,
+            compressedLogSvDelta,
             netcdfInfoHeader
       );
    }
@@ -140,6 +164,10 @@ public final class NetcdfWriterModule extends SimplePingModule {
       writeAngles.setVisible(griddedType == GriddedOutputType.SV_AND_ANGLES
             || channelGroupType == ChannelGroupOutputType.BROADBAND_SV
             || channelGroupType == ChannelGroupOutputType.PULSE_COMPRESSION);
+
+      compressSv.setVisible(griddedType == GriddedOutputType.SV_AND_ANGLES);
+      compressedLogSvRange.setVisible(griddedType == GriddedOutputType.SV_AND_ANGLES);
+      compressedLogSvDelta.setVisible(griddedType == GriddedOutputType.SV_AND_ANGLES);
    }
 
    @Override

@@ -109,13 +109,6 @@ public abstract class Range<E extends Comparable<? super E>> {
       return new DefaultRange<>(min, max);
    }
 
-   public boolean touches(Range<E> range) {
-      if (isEmpty() || range.isEmpty()) {
-         return false;
-      }
-      return end.compareTo(range.begin) >= 0 && range.end.compareTo(begin) >= 0;
-   }
-
    public E clamp(E value) {
       if (begin.compareTo(value) >= 0) {
          return begin;

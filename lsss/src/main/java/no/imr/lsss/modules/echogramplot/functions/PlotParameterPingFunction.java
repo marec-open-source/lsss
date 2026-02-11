@@ -92,7 +92,7 @@ public final class PlotParameterPingFunction {
          if (otherPingIndex == null) {
             return Double.NaN;
          }
-         return cache.computeIfAbsent(otherPingIndex, k -> {
+         return cache.computeIfAbsent(otherPingIndex, _ -> {
             Ping otherPing = otherDataFileSet.getPing(otherPingIndex);
             return (float) getPerPingValue(otherPing, getPersistentName());
          });

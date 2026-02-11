@@ -1,5 +1,7 @@
 package no.imr.tools.swing;
 
+import no.imr.tools.Utils;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -33,6 +35,8 @@ final class ContrastingColorDialog {
          }
       }
 
+      JLabel valueLabel = new JLabel();
+
       int hueMax = 1000;
       JSlider hueSlider = new JSlider(0, hueMax - 1, hueMax / 2);
 
@@ -40,6 +44,7 @@ final class ContrastingColorDialog {
 
       Runnable update = () -> {
          float hue = (hueSlider.getValue() + 0.5f) / hueMax;
+         valueLabel.setText(Utils.format("%.4f", hue));
          colorPanel.repaint();
          for (int row = 0; row < n; row++) {
             float brightness = (row + 0.5f) / n;
@@ -59,10 +64,11 @@ final class ContrastingColorDialog {
       };
 
       update.run();
-      hueSlider.addChangeListener(e -> update.run());
-      flipButton.addChangeListener(e -> update.run());
+      hueSlider.addChangeListener(_ -> update.run());
+      flipButton.addChangeListener(_ -> update.run());
 
       JPanel sliderPanel = new JPanel(new BorderLayout());
+      sliderPanel.add(valueLabel, BorderLayout.WEST);
       sliderPanel.add(hueSlider);
       sliderPanel.add(flipButton, BorderLayout.EAST);
 
@@ -90,6 +96,7 @@ final class ContrastingColorDialog {
          float[] bgHSB = Color.RGBtoHSB(bg.getRed(), bg.getGreen(), bg.getBlue(), null);
          return "<html><table>"
                + "<tr><th></th><th>Foreground</th><th>Background</th></tr>"
+               + "<tr><td>RGB</td><td><code>" + ColorUtils.colorToHex(fg) + "</code></td><td><code>" + ColorUtils.colorToHex(bg) + "</code></td></tr>"
                + "<tr><td>H</td><td>" + fgHSB[0] + "</td><td>" + bgHSB[0] + "</td></tr>"
                + "<tr><td>S</td><td>" + fgHSB[1] + "</td><td>" + bgHSB[1] + "</td></tr>"
                + "<tr><td>B</td><td>" + fgHSB[2] + "</td><td>" + bgHSB[2] + "</td></tr>"

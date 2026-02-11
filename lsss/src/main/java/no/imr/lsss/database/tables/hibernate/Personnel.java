@@ -1,10 +1,27 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import no.imr.tools.database.ColumnOrder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "survey",
+      "person",
+
+      // Properties:
+      // <none>
+})
 public class Personnel implements BaseSurveyObject<PersonnelPK> {
    private PersonnelPK compId;
 
@@ -40,6 +57,13 @@ public class Personnel implements BaseSurveyObject<PersonnelPK> {
       this.compId = compId;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "survey", referencedColumnName = "survey")
+   })
    public Survey getSurvey() {
       return survey;
    }

@@ -21,12 +21,7 @@ import java.util.concurrent.Semaphore;
 public final class LockedFile implements AutoCloseable {
    private static final LoadingCache<Path, LockedFile> LOCKED_FILES = CacheBuilder.newBuilder()
          .weakValues()
-         .build(new CacheLoader<>() {
-            @Override
-            public LockedFile load(Path file) {
-               return new LockedFile(file);
-            }
-         });
+         .build(CacheLoader.from(LockedFile::new));
 
    private final Semaphore semaphore = new Semaphore(1);
    private final Path file;
@@ -45,8 +40,8 @@ public final class LockedFile implements AutoCloseable {
          try {
             semaphore.acquire();
             break;
-         } catch (InterruptedException e) {
-            // try again
+         } catch (InterruptedException _) {
+            // Try again.
          }
       }
    }
@@ -96,7 +91,7 @@ public final class LockedFile implements AutoCloseable {
       while (true) {
          try {
             return channel.lock();
-         } catch (OverlappingFileLockException e) {
+         } catch (OverlappingFileLockException _) {
             Utils.sleep(1000);
          }
       }

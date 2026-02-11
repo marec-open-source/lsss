@@ -3,7 +3,7 @@ package no.imr.korona.computation.categorization.netcdf;
 import no.imr.korona.computation.ComputationContext;
 import no.imr.korona.computation.ConcurrentPingModuleComputation;
 import no.imr.korona.computation.IgnoreModuleComputationException;
-import no.imr.korona.computation.ModuleConfigurationException;
+import no.imr.korona.computation.ModuleUtils;
 import no.imr.korona.computation.categorization.Configurator;
 import no.imr.korona.computation.categorization.netcdf.pojo.AnnotationConfig;
 import no.imr.korona.data.datagrams.Cac0Datagram;
@@ -12,6 +12,7 @@ import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingConfiguration;
 import no.imr.korona.data.ping.PingSource;
 import no.imr.korona.data.ping.items.channel.ChannelData;
+import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.swing.ColorUtils;
 import ucar.ma2.Array;
@@ -22,6 +23,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -57,22 +59,27 @@ final class CategorizationNetcdfReaderModuleComputation extends ConcurrentPingMo
 
       PingConfiguration pingConfiguration = pingSource.getPingConfiguration();
 
-      Path ncFile = module.inputFile.getFile();
-      if (ncFile == null) {
+      Path inputFile = module.inputFile.getFile();
+      if (inputFile == null) {
          throw new IgnoreModuleComputationException();
       }
-      if (!Files.exists(ncFile)) {
-         Log.global.warning("Input file does not exist: " + ncFile);
+      BasicFileAttributes inputFileAttributes = FileUtils.readAttributesIfExists(inputFile);
+      if (inputFileAttributes == null) {
+         Log.global.warning("Input file does not exist: " + inputFile);
          throw new IgnoreModuleComputationException();
+      }
+      Path ncFile;
+      if (inputFileAttributes.isDirectory()) {
+         String ncFileName = FileUtils.baseName(computationContext.getPingReader().getFile()) + ".nc";
+         ncFile = inputFile.resolve(ncFileName);
+         if (!Files.exists(ncFile)) {
+            throw new IgnoreModuleComputationException();
+         }
+      } else {
+         ncFile = inputFile;
       }
 
-      Integer referenceKHz = module.mainFrequency.getValue().orElse(null);
-      referenceChannel = referenceKHz != null
-            ? pingConfiguration.getRawFileConfiguration().lastChannelWithKHz(referenceKHz)
-            : 1;
-      if (referenceChannel <= 0) {
-         throw new ModuleConfigurationException(module, "Cannot find channel with " + referenceKHz + " kHz");
-      }
+      referenceChannel = ModuleUtils.getMainChannelOrThrow(this, module.mainFrequency.getValue());
 
       dataset = CategorizationNetcdfDataset.open(ncFile);
 

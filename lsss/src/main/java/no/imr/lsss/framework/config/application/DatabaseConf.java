@@ -57,12 +57,12 @@ public final class DatabaseConf extends ConfigurationUnit {
          }
          updateSurveyLocalDescription();
       });
-      getConfigurationManager().getSurveyConf().useLocalDatabase.subscribe(__ -> {
+      getConfigurationManager().getSurveyConf().useLocalDatabase.subscribe(_ -> {
          boolean useLocal = getConfigurationManager().getSurveyConf().useLocalDatabase.getBooleanValue();
          useLocal &= getLSSS().getSurveyManager().isOpen();
          doApply(useLocal, false);
       });
-      getConfigurationManager().getSurveyConf().mSurvey.subscribe(__ -> updateSurveyLocalDescription());
+      getConfigurationManager().getSurveyConf().mSurvey.subscribe(_ -> updateSurveyLocalDescription());
 
       updateSurveyLocalDescription();
    }

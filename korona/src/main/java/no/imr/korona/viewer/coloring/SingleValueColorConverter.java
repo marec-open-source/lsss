@@ -121,9 +121,9 @@ public final class SingleValueColorConverter extends ColorConverter {
       }
       if (getVariablePerPingSettings().varyingClipAbove()) {
          int y = valueToY(getSettings().getRange().max(), height);
-         g.setColor(new Color(colormap.getAboveRGB()));
+         g.setColor(new Color(colormap.aboveRGB()));
          g.fillRect(0, 0, width / 2, y);
-         g.setColor(new Color(colormap.getBelowRGB()));
+         g.setColor(new Color(colormap.belowRGB()));
          g.fillRect(width / 2, 0, width / 2, y);
       }
 

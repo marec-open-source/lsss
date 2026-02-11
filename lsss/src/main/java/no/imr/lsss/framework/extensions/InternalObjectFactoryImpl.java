@@ -28,7 +28,7 @@ final class InternalObjectFactoryImpl implements InternalObjectFactory {
 
    @Override
    public Consumer<Object> coalescingObserver(LsssAccess lsssAccess, Runnable observer) {
-      LSSS lsss = ((LsssAccessImpl) lsssAccess).getLsss();
+      LSSS lsss = ((LsssAccessImpl) lsssAccess).getLSSS();
       return lsss.getInterpretationSettings().createCoalescingListener(observer);
    }
 

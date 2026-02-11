@@ -10,7 +10,6 @@ import org.hibernate.cfg.Configuration;
  * Plugin for connecting to a PostgreSQL database.
  */
 public final class PostgreSQLDatabasePlugin extends AbstractServerDatabasePlugin {
-   private static final String SQL_DIALECT = "org.hibernate.dialect.PostgreSQL95Dialect";
    private static final String JDBC_DRIVER = "org.postgresql.Driver";
 
    public PostgreSQLDatabasePlugin(LSSS lsss) {
@@ -21,7 +20,7 @@ public final class PostgreSQLDatabasePlugin extends AbstractServerDatabasePlugin
 
    @Override
    public Configuration getConfiguration(ConnectionType connectionType) {
-      return DatabaseUtils.createConfiguration(SQL_DIALECT, JDBC_DRIVER, getConnectionURL(),
+      return DatabaseUtils.createConfiguration(JDBC_DRIVER, getConnectionURL(),
             userName.getValue(), password.getValue());
    }
 

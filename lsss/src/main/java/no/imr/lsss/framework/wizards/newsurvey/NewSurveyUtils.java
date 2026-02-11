@@ -69,7 +69,7 @@ final class NewSurveyUtils {
          try {
             Integer date = Integer.valueOf(fileDate);
             map.put(date, file.getFileName().toString());
-         } catch (NumberFormatException e) {
+         } catch (NumberFormatException _) {
             Log.global.fine("Could not extract date from file " + fileDate);
          }
       }

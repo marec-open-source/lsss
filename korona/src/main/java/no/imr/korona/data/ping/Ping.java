@@ -14,6 +14,7 @@ import no.imr.tools.Utils;
 import no.marec.lsss.api.data.SvChannelData;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
@@ -53,6 +54,10 @@ public abstract class Ping implements PingMappingArgument, Comparable<Ping>, no.
 
    public long getNTDate() {
       return getPingIndex().getNTDate();
+   }
+
+   public Instant getInstant() {
+      return getPingIndex().getInstant();
    }
 
    public void add(PingItem pingItem) {

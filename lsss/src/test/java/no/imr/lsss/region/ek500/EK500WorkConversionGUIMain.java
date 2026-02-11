@@ -14,7 +14,7 @@ final class EK500WorkConversionGUIMain {
    private EK500WorkConversionGUIMain() {
    }
 
-   public static void main(String[] args) {
+   static void main(String[] args) {
       Utils.init(args, KoronaResource.KORONA_64);
       Path ek500Dir = Path.of(args[0]);
       Path ek60Dir = Path.of(args[1]);

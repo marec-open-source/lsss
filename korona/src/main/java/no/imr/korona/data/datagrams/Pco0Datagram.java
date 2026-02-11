@@ -12,7 +12,7 @@ import java.util.List;
  * Ping information.
  */
 public sealed class Pco0Datagram extends DatagramPingItem implements OtherIdxPingItem permits Pco1Datagram {
-   public static final DatagramType TYPE_PCO0 = new DatagramType.Simple("PCO0", Pco0Datagram::new);
+   public static final DatagramType TYPE_PCO0 = DatagramType.simple("PCO0", Pco0Datagram::new);
 
    public final PingConfiguration pingConfiguration;
 
@@ -425,7 +425,7 @@ public sealed class Pco0Datagram extends DatagramPingItem implements OtherIdxPin
       public final float steeringY;
       public final int beamType;
       public final Vec3 steeringVectorHcs;
-      public final int processingType; // 1 = sonar, 2 = echo sounder, 3 = both
+      public final int processingType; // 1 = sonar, 2 = echosounder, 3 = both
       public final RxBeamPerformanceInfo performanceInfo;
       public final boolean rxDelayPresent;
       public final int rxDelay;

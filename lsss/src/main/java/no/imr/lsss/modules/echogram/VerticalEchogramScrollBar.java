@@ -54,7 +54,7 @@ public final class VerticalEchogramScrollBar extends ConcurrentObject {
          this.lsss = lsss;
          this.zSettings = zSettings;
          this.dataManager = dataManager;
-         scrollBar.addAdjustmentListener(e -> updateZRange());
+         scrollBar.addAdjustmentListener(_ -> updateZRange());
          scrollBar.addMouseWheelListener(e -> scrollBar.setValue(scrollBar.getValue() + e.getWheelRotation() * scrollBar.getBlockIncrement() / 10));
 
          WhenShowingListening.connect(scrollBar, List.of(

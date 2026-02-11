@@ -36,7 +36,7 @@ final class PrintDatagramsCommandJob extends CliCommandJob {
    }
 
    @Override
-   public void run(InputStream in, PrintStream out) throws Exception {
+   public void run(InputStream in, PrintStream out) throws IOException {
       if (files.isEmpty()) {
          print(out, new InputStreamDatagramReader(in, korona.getDatagramTypeManager()));
          return;

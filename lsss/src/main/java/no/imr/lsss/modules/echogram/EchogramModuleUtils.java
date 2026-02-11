@@ -38,22 +38,22 @@ public final class EchogramModuleUtils {
       maximallyZoomOutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0));
       maximallyZoomOutItem.setEnabled(zSettings.isZoomedVertically()
             || !lsss.getInterpretationSettings().getDataFileSet().getTotalRange().equals(lsss.getInterpretationSettings().getPingRange()));
-      maximallyZoomOutItem.addActionListener(e -> lsss.getInterpretationSettings().getNavigationHistory().zoomOut());
+      maximallyZoomOutItem.addActionListener(_ -> lsss.getInterpretationSettings().getNavigationHistory().zoomOut());
 
       JMenuItem verticallyZoomOutItem = popupMenu.add("Zoom out vertically");
       verticallyZoomOutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, KeyEvent.SHIFT_DOWN_MASK));
       verticallyZoomOutItem.setEnabled(zSettings.isZoomedVertically());
-      verticallyZoomOutItem.addActionListener(e -> zSettings.zoomOut());
+      verticallyZoomOutItem.addActionListener(_ -> zSettings.zoomOut());
 
       JMenuItem upItem = MiscIcons.STEP_UP.on(popupMenu.add("Step up"));
       upItem.setEnabled(zSettings.minZoomedZ.getFloatValue() > zSettings.minZ.getFloatValue());
       upItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0));
-      upItem.addActionListener(e -> zSettings.stepUp());
+      upItem.addActionListener(_ -> zSettings.stepUp());
 
       JMenuItem downItem = MiscIcons.STEP_DOWN.on(popupMenu.add("Step down"));
       downItem.setEnabled(zSettings.maxZoomedZ.getFloatValue() < zSettings.maxZ.getFloatValue());
       downItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0));
-      downItem.addActionListener(e -> zSettings.stepDown());
+      downItem.addActionListener(_ -> zSettings.stepDown());
    }
 
    public static void addViewPreprocessingMenuItem(JPopupMenu popupMenu, @Nullable Ping ping, PreprocessingConf preprocessingConf) {
@@ -69,7 +69,7 @@ public final class EchogramModuleUtils {
 
       JMenuItem viewPreprocessingItem = popupMenu.add("View preprocessing configuration...");
       viewPreprocessingItem.setEnabled(!cds0Datagrams.isEmpty());
-      viewPreprocessingItem.addActionListener(ae -> {
+      viewPreprocessingItem.addActionListener(_ -> {
          LSSS lsss = preprocessingConf.getLSSS();
          try {
             ConfigFileSettings configFileSettings = null;

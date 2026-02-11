@@ -433,11 +433,13 @@ final class ToolTipGenerator implements ParameterContainer {
             SchoolParameterModule schoolParameterModule = lsss.getModuleManager().getModule(SchoolParameterModule.class);
             addRowCol2(toolTip, "School parameters");
             SchoolParameters schoolParameters = school.getParameters();
-            addRowItem(toolTip, "Data processed", Boolean.toString(schoolParameters.isDataProcessed()));
-            addSchoolParameters(toolTip, schoolParameterModule, schoolParameters.getValues());
-            Map<String, Float> perChannelValues = schoolParameters.getPerChannelValues().get(lsss.getInterpretationSettings().getChannel());
-            if (perChannelValues != null) {
-               addSchoolParameters(toolTip, schoolParameterModule, perChannelValues);
+            if (schoolParameters.isUpToDate()) {
+               addRowItem(toolTip, "Data processed", Boolean.toString(schoolParameters.dataProcessed()));
+               addSchoolParameters(toolTip, schoolParameterModule, schoolParameters.values());
+               Map<String, Float> perChannelValues = schoolParameters.perChannelValues().get(lsss.getInterpretationSettings().getChannel());
+               if (perChannelValues != null) {
+                  addSchoolParameters(toolTip, schoolParameterModule, perChannelValues);
+               }
             }
          } else {
             addRow(toolTip, "School parameters", null);

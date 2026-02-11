@@ -147,7 +147,7 @@ public class KoronaRegionEchogramOverlay extends BaseEchogramOverlay {
       if (activeKoronaRegion == null) {
          convertThisRegionItem.setEnabled(false);
       } else {
-         convertThisRegionItem.addActionListener(e -> {
+         convertThisRegionItem.addActionListener(_ -> {
             School school = koronaRegionModule.get().convertToSchool(activeKoronaRegion);
             if (school != null) {
                getRegionManager().replaceSelectedRegions(school);
@@ -156,10 +156,10 @@ public class KoronaRegionEchogramOverlay extends BaseEchogramOverlay {
       }
 
       JMenuItem convertUnconvertedRegionsItem = popupMenu.add("Convert all unconverted visible KORONA regions");
-      convertUnconvertedRegionsItem.addActionListener(e -> convertKoronaRegions(true));
+      convertUnconvertedRegionsItem.addActionListener(_ -> convertKoronaRegions(true));
 
       JMenuItem convertAllRegionsItem = popupMenu.add("Convert all visible KORONA regions");
-      convertAllRegionsItem.addActionListener(e -> convertKoronaRegions(false));
+      convertAllRegionsItem.addActionListener(_ -> convertKoronaRegions(false));
 
       popupMenu.addSeparator();
 

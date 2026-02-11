@@ -72,7 +72,7 @@ public final class ULine extends BaseLine {
          try {
             String count = lengthDistribution.substring(i * 2, i * 2 + 2).trim();
             counts[i] = Integer.parseInt(count);
-         } catch (Exception e) {
+         } catch (Exception _) {
             counts[i] = 0;
          }
       }

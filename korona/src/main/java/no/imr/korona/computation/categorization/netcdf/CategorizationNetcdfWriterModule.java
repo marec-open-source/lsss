@@ -5,9 +5,9 @@ import no.imr.korona.computation.SimplePingModule;
 import no.imr.korona.computation.SimplePingModuleComputation;
 import no.imr.korona.data.ping.PingSource;
 import no.imr.tools.parameter.BaseParameter;
+import no.imr.tools.parameter.IntCsvListParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.OptionalFloatParameter;
-import no.imr.tools.parameter.OptionalIntParameter;
 import no.imr.tools.parameter.StringParameter;
 import no.imr.tools.parameter.Unit;
 import no.marec.lsss.api.util.parameters.ValueConstraints;
@@ -23,10 +23,13 @@ public final class CategorizationNetcdfWriterModule extends SimplePingModule {
          "categorization",
          "The netCDF files are written to this subfolder in the destination directory");
 
-   public final OptionalIntParameter mainFrequency = new OptionalIntParameter(
+   public final IntCsvListParameter mainFrequency = new IntCsvListParameter(
          new Name("MainFrequency", "Main frequency"),
-         Optional.of(38), Unit.KHZ, ValueConstraints.gt(0),
-         "The channel with the main frequency is used for converting depth to range");
+         List.of(38), Unit.KHZ, ValueConstraints.gt(0),
+         """
+               A comma-separated list of prioritized candidates for the main frequency.
+               If unspecified, the first channel is used.
+               The channel with the main frequency is used for converting depth to range""");
 
    public final OptionalFloatParameter deltaRange = new OptionalFloatParameter(
          new Name("DeltaRange", "Delta range"),

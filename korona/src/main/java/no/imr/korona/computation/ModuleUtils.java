@@ -6,9 +6,11 @@ import no.imr.korona.computation.misc.TemporaryComputationsBeginModule;
 import no.imr.korona.computation.misc.TemporaryComputationsEndModule;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.items.channel.ChannelData;
+import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +37,23 @@ public final class ModuleUtils {
       return map;
    }
 
-   public static @Nullable ChannelData getInputChannelData(BaseModuleComputation computation, int channel) throws IOException {
-      int transducerCount = computation.getPingSource().getPingConfiguration().getRawFileConfiguration().getTransducerCount();
+   public static int getMainChannelOrThrow(BaseModuleComputation computation, List<Integer> kHzCandidates) throws ModuleConfigurationException {
+      RawFileConfiguration rawFileConfiguration = computation.getPingSource().getPingConfiguration().getRawFileConfiguration();
+      if (kHzCandidates.isEmpty() && !rawFileConfiguration.getTransducers().isEmpty()) {
+         return 1;
+      }
+      for (int kHz : kHzCandidates) {
+         int channel = rawFileConfiguration.lastChannelWithKHz(kHz);
+         if (channel > 0) {
+            return channel;
+         }
+      }
+      throw new ModuleConfigurationException(computation.getModule(), "Cannot find channel with " + kHzCandidates + " kHz");
+   }
+
+   public static ChannelData getInputChannelDataOrThrow(BaseModuleComputation computation, int channel) throws IOException {
+      RawFileConfiguration rawFileConfiguration = computation.getPingSource().getPingConfiguration().getRawFileConfiguration();
+      int transducerCount = rawFileConfiguration.getTransducerCount();
       for (int index = 0; index < transducerCount; index++) {
          Ping ping = computation.peekPingSourcePing(index);
          if (ping == null) {
@@ -47,7 +64,8 @@ public final class ModuleUtils {
             return channelData;
          }
       }
-      return null;
+      throw new ModuleConfigurationException(computation.getModule(), "Cannot find data on channel " + channel + " with "
+            + rawFileConfiguration.getTransducers().get(channel - 1).getKHz() + " kHz");
    }
 
    static @Nullable TemporaryComputationsBeginModule getBeginModule(ModuleContainer moduleContainer, TemporaryComputationsEndModule endModule) {
@@ -56,9 +74,6 @@ public final class ModuleUtils {
       int nestedCount = 1;
       for (; i >= 0; i--) {
          BaseModule module = modules.get(i);
-         if (!module.active.getBooleanValue()) {
-            continue;
-         }
          if (module instanceof TemporaryComputationsBeginModule beginModule) {
             nestedCount--;
             if (nestedCount == 0) {
@@ -77,9 +92,6 @@ public final class ModuleUtils {
       int nestedCount = 1;
       for (; i < modules.size(); i++) {
          BaseModule module = modules.get(i);
-         if (!module.active.getBooleanValue()) {
-            continue;
-         }
          if (module instanceof TemporaryComputationsBeginModule) {
             nestedCount++;
          } else if (module instanceof TemporaryComputationsEndModule endModule) {
@@ -128,8 +140,13 @@ public final class ModuleUtils {
       return null;
    }
 
-   static void fixGroupEndModules(ModuleContainer moduleContainer) {
-      List<BaseModule> modules = moduleContainer.getModules();
+   static void fixAll(ModuleList moduleList) {
+      fixGroupEndModules(moduleList);
+      fixTemporaryComputationModules(moduleList);
+   }
+
+   private static void fixGroupEndModules(ModuleList moduleList) {
+      List<BaseModule> modules = moduleList.getModules();
       int nestedCount = 0;
       for (int i = 0; i < modules.size(); i++) {
          BaseModule module = modules.get(i);
@@ -138,7 +155,7 @@ public final class ModuleUtils {
          }
          if (module instanceof GroupEndModule) {
             if (nestedCount == 0) {
-               moduleContainer.removeModule(module);
+               moduleList.removeModule(module);
                i--;
             } else {
                nestedCount--;
@@ -146,7 +163,30 @@ public final class ModuleUtils {
          }
       }
       for (int i = 0; i < nestedCount; i++) {
-         moduleContainer.addModule(new GroupEndModule());
+         moduleList.addModule(new GroupEndModule());
+      }
+   }
+
+   private static void fixTemporaryComputationModules(ModuleList moduleList) {
+      List<BaseModule> modules = moduleList.getModules();
+      List<TemporaryComputationsBeginModule> nestedBeginModules = new ArrayList<>();
+      for (int i = 0; i < modules.size(); i++) {
+         BaseModule module = modules.get(i);
+         if (module instanceof TemporaryComputationsBeginModule beginModule) {
+            nestedBeginModules.add(beginModule);
+         }
+         if (module instanceof TemporaryComputationsEndModule endModule) {
+            if (nestedBeginModules.isEmpty()) {
+               moduleList.removeModule(endModule);
+               i--;
+            } else {
+               endModule.active.setBooleanValue(nestedBeginModules.removeLast().active.getBooleanValue());
+            }
+         }
+      }
+      while (!nestedBeginModules.isEmpty()) {
+         TemporaryComputationsEndModule endModule = moduleList.addModule(new TemporaryComputationsEndModule());
+         endModule.active.setBooleanValue(nestedBeginModules.removeLast().active.getBooleanValue());
       }
    }
 }

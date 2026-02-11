@@ -22,7 +22,7 @@ final class KoronaCliSmoke extends SmokeTestRunnable {
       KoronaCli.LOGGING_MANAGER.shutDown();
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SmokeTestExecutor.execute(KoronaCli.LOGGING_MANAGER, new ToolsSmoke(), new KoronaCliSmoke());
    }
 }

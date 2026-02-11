@@ -20,7 +20,7 @@ final class JoglSmoke extends SwingSmokeTestRunnable {
       Log.global.info(OK + "JOGL");
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SmokeTestExecutor.execute(null, new JoglSmoke());
    }
 }

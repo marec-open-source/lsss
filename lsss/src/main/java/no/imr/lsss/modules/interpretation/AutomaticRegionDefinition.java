@@ -138,8 +138,9 @@ final class AutomaticRegionDefinition {
       DataFileSet dataFileSet = lsss.getInterpretationSettings().getDataFileSet();
       RegionManager regionManager = lsss.getRegionManager();
 
-      List<Layer> layers = regionManager.getLayerManager().getLayersIntersectingPingRange(pingRange);
-      Layer layer = layers.getFirst();
+      Layer layer = regionManager.getLayerManager().regionsIntersectingPingRange(pingRange)
+            .findFirst()
+            .orElseThrow();
       Curve lowerBoundaryCurve = layer.getLowerCurveBoundaries().getFirst().getCurve();
       float[] lowerDepths = lowerBoundaryCurve.getDepths();
       int maxDepthIndex = ArrayMath.maxIndex(lowerDepths);
@@ -161,7 +162,7 @@ final class AutomaticRegionDefinition {
       int iMax = (int) Math.floor(maxDepth / deltaDepth);
       for (int i = iMin; i <= iMax; i++) {
          float depth = i * deltaDepth;
-         regionManager.getLayerManager().addCurveBoundary(maxDepthPingIndex, __ -> depth);
+         regionManager.getLayerManager().addCurveBoundary(maxDepthPingIndex, _ -> depth);
       }
    }
 

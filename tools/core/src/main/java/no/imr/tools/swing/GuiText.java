@@ -12,7 +12,7 @@ import java.awt.font.LineMetrics;
 import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
 
-public final class GuiText implements Drawable {
+public final class GuiText {
    private final String text;
    private final Color color;
    private final float x;
@@ -32,7 +32,6 @@ public final class GuiText implements Drawable {
       this.bounds = bounds;
    }
 
-   @Override
    public void draw(Graphics2D g2d) {
       draw(g2d, text, color, x, y, horizontalAlignment, verticalAlignment, bounds);
    }

@@ -16,6 +16,7 @@ import no.imr.tools.misc.HtmlStringBuilder;
 import no.imr.tools.misc.JsonUtils;
 import no.imr.tools.swing.svg.SvgIcon;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.core.JacksonException;
 
 import javax.swing.KeyStroke;
 import java.io.IOException;
@@ -197,8 +198,8 @@ public final class UserDefinedPackage {
    static @Nullable UserDefinedPackageInfo loadPackageInfo(Path packageDir) {
       Path file = packageDir.resolve(PACKAGE_INFO_JSON);
       try {
-         return JsonUtils.JSON_MAPPER.readValue(file.toFile(), UserDefinedPackageInfo.class);
-      } catch (IOException e) {
+         return JsonUtils.JSON_MAPPER.readValue(file, UserDefinedPackageInfo.class);
+      } catch (JacksonException e) {
          if (!FileUtils.notExists(e, file)) {
             Log.global.log(Level.WARNING, "Error reading " + file, e);
          }

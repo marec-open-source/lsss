@@ -11,7 +11,7 @@ public final class WhenShowingTimer implements HierarchyListener {
 
    private WhenShowingTimer(Component component, int delay, Runnable listener) {
       this.component = component;
-      timer = new Timer(delay, e -> listener.run());
+      timer = new Timer(delay, _ -> listener.run());
       timer.setInitialDelay(0);
 
       component.addHierarchyListener(this);

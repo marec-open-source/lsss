@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
  * NMEA datagram.
  */
 public final class Nme0Datagram extends BaseDatagram {
-   public static final DatagramType TYPE = new DatagramType.Simple("NME0", Nme0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("NME0", Nme0Datagram::new);
 
    private final String nmea;
 

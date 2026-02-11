@@ -2,7 +2,6 @@ package no.imr.korona.data.formats.ek60.io;
 
 import no.imr.korona.data.datagrams.BaseDatagram;
 import no.imr.korona.data.datagrams.UnknownDatagram;
-import no.imr.korona.data.datagrams.UnknownDatagramType;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,6 +27,6 @@ final class BaseDatagramWriterTest {
    }
 
    private static UnknownDatagram createUnknownDatagram(int byteCount) {
-      return new UnknownDatagram(0, new UnknownDatagramType(0), ByteBuffer.wrap(new byte[byteCount]));
+      return new UnknownDatagram(0, UnknownDatagram.type(0), ByteBuffer.wrap(new byte[byteCount]));
    }
 }

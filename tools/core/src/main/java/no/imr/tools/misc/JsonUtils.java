@@ -3,15 +3,18 @@ package no.imr.tools.misc;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.core.util.DefaultIndenter;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.type.MapType;
 import no.imr.tools.io.FileUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.util.DefaultIndenter;
+import tools.jackson.core.util.DefaultPrettyPrinter;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.MapType;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -23,9 +26,9 @@ import java.util.Set;
  */
 public final class JsonUtils {
    public static final JsonMapper JSON_MAPPER = JsonMapper.builder()
-         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-         .defaultSetterInfo(JsonSetter.Value.forValueNulls(Nulls.FAIL, Nulls.FAIL))
-         .serializationInclusion(JsonInclude.Include.NON_NULL)
+         .changeDefaultNullHandling(_ -> JsonSetter.Value.forValueNulls(Nulls.FAIL, Nulls.FAIL))
+         .changeDefaultPropertyInclusion(_ -> JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL))
+         .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
          .defaultPrettyPrinter(new DefaultPrettyPrinter()
                .withObjectIndenter(new DefaultIndenter().withLinefeed("\n")))
          .build();
@@ -35,8 +38,12 @@ public final class JsonUtils {
    private JsonUtils() {
    }
 
-   public static <T> T readValue(Path file, Class<T> clazz) throws IOException {
-      return JSON_MAPPER.readValue(file.toFile(), clazz);
+   public static <T> T readValue(URL url, Class<T> clazz) throws IOException {
+      try (InputStream in = url.openStream()) {
+         return JSON_MAPPER.readValue(in, clazz);
+      } catch (JacksonException e) {
+         throw new IOException("Error reading " + url, e);
+      }
    }
 
    public static void writeValue(Path file, Object value, boolean pretty) throws IOException {
@@ -48,20 +55,28 @@ public final class JsonUtils {
    }
 
    public static void writeValuePrettily(Path file, Object value) throws IOException {
-      byte[] bytes = PRETTY_PRINTER.writeValueAsBytes(value);
-      FileUtils.replaceFileSafely(file, bytes);
+      try {
+         byte[] bytes = PRETTY_PRINTER.writeValueAsBytes(value);
+         FileUtils.replaceFileSafely(file, bytes);
+      } catch (JacksonException e) {
+         throw new IOException(e);
+      }
    }
 
    public static void writeValueCompactly(Path file, Object value) throws IOException {
-      byte[] bytes = JSON_MAPPER.writeValueAsBytes(value);
-      FileUtils.replaceFileSafely(file, bytes);
+      try {
+         byte[] bytes = JSON_MAPPER.writeValueAsBytes(value);
+         FileUtils.replaceFileSafely(file, bytes);
+      } catch (JacksonException e) {
+         throw new IOException(e);
+      }
    }
 
-   public static <T> Set<T> parseSet(String json, Class<T> clazz) throws IOException {
+   public static <T> Set<T> parseSet(String json, Class<T> clazz) {
       return JSON_MAPPER.readValue(json, JSON_MAPPER.getTypeFactory().constructCollectionType(LinkedHashSet.class, clazz));
    }
 
-   public static Map<String, Object> parseMap(String json) throws IOException {
+   public static Map<String, Object> parseMap(String json) {
       return JSON_MAPPER.readValue(json, mapType());
    }
 

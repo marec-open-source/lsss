@@ -82,15 +82,15 @@ public abstract class VolumeDisplayer extends BaseVolumeDisplayer {
    }
 
    private void setShaderParams(int numSamples, int sampleOffset) {
-      shader.addFloatParam("xscale", (float) numSamples + sampleOffset);
+      shader.addFloatParam("xscale", numSamples + sampleOffset);
       shader.addFloatParam("xoffset", 0.5f);
-      shader.addFloatParam("yscale", (float) numSamples + sampleOffset);
+      shader.addFloatParam("yscale", numSamples + sampleOffset);
       shader.addFloatParam("yoffset", 0.0f);
-      shader.addFloatParam("zscale", (float) (numSamples + sampleOffset) * (float) Math.cos(Math.PI / 4));
+      shader.addFloatParam("zscale", (numSamples + sampleOffset) * (float) Math.cos(Math.PI / 4));
       shader.addFloatParam("zoffset", -0.5f);
 
-      shader.addFloatParam("maxR", (float) numSamples + sampleOffset);
-      shader.addFloatParam("minR", (float) sampleOffset);
+      shader.addFloatParam("maxR", numSamples + sampleOffset);
+      shader.addFloatParam("minR", sampleOffset);
 
       shader.addIntParam("numSamples", numSamples);
 

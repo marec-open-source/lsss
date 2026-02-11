@@ -34,7 +34,6 @@ import no.imr.lsss.database.tables.hibernate.SurveyInfo;
 import no.imr.tools.database.DatabaseConnection;
 import no.imr.tools.database.content.DatabaseXmlContent;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
-import no.imr.tools.database.queries.FetchQuery;
 import no.imr.tools.database.upgrade.DatabaseUpgraderFactory;
 import no.imr.tools.database.upgrade.UpgradableDatabaseContent;
 import no.imr.tools.logging.Log;
@@ -105,7 +104,8 @@ public final class LsssDatabaseContent extends UpgradableDatabaseContent {
 
    @Override
    public String getVersionOf(DatabaseConnection databaseConnection) {
-      List<DBParameter> parameters = databaseConnection.executeFetchQuery(new FetchQuery<>(DBParameter.class, DatabaseData.PAR_NAME, VERSION_NAME));
+      List<DBParameter> parameters = databaseConnection.executeFetchQuery(
+            LsssQuery.fetch(DBParameter.class, DatabaseData.PAR_NAME, VERSION_NAME));
       return parameters.isEmpty() ? "0" : parameters.getFirst().getParValue();
    }
 
@@ -123,14 +123,14 @@ public final class LsssDatabaseContent extends UpgradableDatabaseContent {
    @Override
    public void copyDefaultDataIntoTables(DatabaseConnection databaseConnection, Predicate<Class<? extends BaseDatabaseObject>> predicate) {
       try {
-         loadDefaultContent().save(databaseConnection, predicate);
+         loadDefaultContent(predicate).save(databaseConnection);
       } catch (IOException e) {
          Log.global.log(Level.WARNING, e.getMessage(), e);
       }
    }
 
-   public static DatabaseXmlContent loadDefaultContent() throws IOException {
-      DatabaseXmlContent databaseXmlContent = new DatabaseXmlContent(DATABASE_CLASSES, DEFAULT_CONTENT_DIR);
+   public static DatabaseXmlContent loadDefaultContent(Predicate<Class<? extends BaseDatabaseObject>> predicate) throws IOException {
+      DatabaseXmlContent databaseXmlContent = new DatabaseXmlContent(DATABASE_CLASSES, DEFAULT_CONTENT_DIR, predicate);
       databaseXmlContent.getContent().get(DBParameter.class).add(new DBParameter(VERSION_NAME, VERSION_VALUE));
       return databaseXmlContent;
    }

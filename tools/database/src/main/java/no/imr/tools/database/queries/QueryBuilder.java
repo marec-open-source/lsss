@@ -3,50 +3,41 @@ package no.imr.tools.database.queries;
 import no.imr.tools.database.DatabaseColumn;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 
-import java.util.Locale;
+import java.util.function.Function;
 
 /**
  * For building HQL queries.
  */
-public final class QueryBuilder {
-   /*
-    * todo: Usage of JPA
-    * CriteriaBuilder builder = session.getCriteriaBuilder();
-         CriteriaQuery<ScatterObject3D> query = builder.createQuery(ScatterObject3D.class);
-         Root<ScatterObject3D> root = query.from(ScatterObject3D.class);
-         Predicate[] criteriaList  = {
-               builder.equal(root.get("compId").get("nation"), observation.getCompId().getNation()),
-               builder.equal(root.get("compId").get("platform"), observation.getCompId().getPlatform()),
-               builder.equal(root.get("compId").get("survey"), observation.getCompId().getSurvey()),
-               builder.equal(root.get("observationDate"), observation.getCompId().getObservationDate()),
-               builder.equal(root.get("observationTime"), observation.getCompId().getObservationTime()),
-               builder.equal(root.get("observationType"), observation.getCompId().getObservationType())};
-         query.where(builder.and(criteriaList));
-    */
-
-   private final Class<? extends BaseDatabaseObject> clazz;
+public final class QueryBuilder<T extends BaseDatabaseObject, Q> {
+   private final Class<T> clazz;
+   private final Function<String, Q> factory;
    private final StringBuilder query = new StringBuilder();
 
-   private QueryBuilder(String operation, Class<? extends BaseDatabaseObject> clazz) {
+   private QueryBuilder(String operation, Class<T> clazz, Function<String, Q> factory) {
       this.clazz = clazz;
-      query.append(operation).append("from ").append(clazz.getSimpleName()).append(' ').append(clazz.getSimpleName().toLowerCase(Locale.ENGLISH));
+      this.factory = factory;
+      query.append(operation).append("from ").append(clazz.getSimpleName()).append(" x");
    }
 
-   public static QueryBuilder fetch(Class<? extends BaseDatabaseObject> clazz) {
-      return new QueryBuilder("", clazz);
+   public static <T extends BaseDatabaseObject> QueryBuilder<T, StatelessValuedDatabaseQuery<Long>> count(Class<T> clazz) {
+      return new QueryBuilder<>("select count(*) ", clazz, query -> StatelessValuedDatabaseQuery.uniqueResult(query, Long.class));
    }
 
-   public static QueryBuilder delete(Class<? extends BaseDatabaseObject> clazz) {
-      return new QueryBuilder("delete ", clazz);
+   public static <T extends BaseDatabaseObject> QueryBuilder<T, FetchQuery<T>> fetch(Class<T> clazz) {
+      return new QueryBuilder<>("", clazz, query -> new FetchQuery<>(clazz, query));
+   }
+
+   public static <T extends BaseDatabaseObject> QueryBuilder<T, DeleteQuery> delete(Class<T> clazz) {
+      return new QueryBuilder<>("delete ", clazz, DeleteQuery::new);
    }
 
    @Override
    public String toString() {
-      return getQuery();
+      return query.toString();
    }
 
-   public String getQuery() {
-      return query.toString();
+   public Q build() {
+      return factory.apply(query.toString());
    }
 
    public BeforeTerm where() {
@@ -79,8 +70,21 @@ public final class QueryBuilder {
       }
 
       private AfterTerm op(DatabaseColumn column, String operator, Object value) {
-         query.append(QueryUtils.buildCriteriaString(clazz, column, operator, value));
+         query.append("x.");
+         column.appendFieldPath(query, clazz);
+         query.append(operator);
+         appendLiteral(query, value);
          return new AfterTerm();
+      }
+
+      private static void appendLiteral(StringBuilder stringBuilder, Object value) {
+         if (value instanceof String s) {
+            // In HQL string literals are enclosed in single quotes.
+            // To escape a single quote within a string literal, use a doubled single quote: ''.
+            stringBuilder.append('\'').append(s.replace("'", "''")).append('\'');
+         } else {
+            stringBuilder.append(value);
+         }
       }
 
       public BeforeTerm parenthesisBegin() {
@@ -108,8 +112,8 @@ public final class QueryBuilder {
          return this;
       }
 
-      public String getQuery() {
-         return QueryBuilder.this.getQuery();
+      public Q build() {
+         return QueryBuilder.this.build();
       }
    }
 }

@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
  * References to {@link RegionInfoDatagram}s.
  */
 public final class RegionTableOfContentsDatagram extends DatagramPingItem implements TableOfContentsPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("RTC0", RegionTableOfContentsDatagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("RTC0", RegionTableOfContentsDatagram::new);
 
    private final long[] ntDates;
 

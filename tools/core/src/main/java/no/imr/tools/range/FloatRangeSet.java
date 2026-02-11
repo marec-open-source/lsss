@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A set of float ranges.
@@ -115,12 +116,26 @@ public final class FloatRangeSet implements Iterable<FloatRange> {
       return floatRanges.iterator();
    }
 
+   public Stream<FloatRange> stream() {
+      return floatRanges.stream();
+   }
+
    public List<FloatRange> getFloatRanges() {
       return floatRanges;
    }
 
    public boolean isEmpty() {
       return floatRanges.isEmpty();
+   }
+
+   public @Nullable FloatRangeSet nullIfEmpty() {
+      return isEmpty() ? null : this;
+   }
+
+   public float size() {
+      return (float) floatRanges.stream()
+            .mapToDouble(FloatRange::getSize)
+            .sum();
    }
 
    public FloatRange getBoundingRange() {
@@ -136,11 +151,11 @@ public final class FloatRangeSet implements Iterable<FloatRange> {
    }
 
    public FloatRangeSet add(FloatRangeSet otherRangeSet) {
-      if (isEmpty()) {
-         return otherRangeSet;
-      }
-      if (otherRangeSet.isEmpty()) {
+      if (contains(otherRangeSet)) {
          return this;
+      }
+      if (otherRangeSet.contains(this)) {
+         return otherRangeSet;
       }
       List<FloatRange> ranges1 = floatRanges;
       List<FloatRange> ranges2 = otherRangeSet.getFloatRanges();
@@ -205,6 +220,28 @@ public final class FloatRangeSet implements Iterable<FloatRange> {
       };
    }
 
+   public FloatRangeSet fillGaps(float gapSize) {
+      List<FloatRange> ranges = floatRanges;
+      return switch (ranges.size()) {
+         case 0, 1 -> this;
+         default -> {
+            List<FloatRange> result = new ArrayList<>(ranges.size());
+            FloatRange r = ranges.getFirst();
+            for (int i = 1; i < ranges.size(); i++) {
+               FloatRange next = ranges.get(i);
+               if (next.min() - r.max() <= gapSize) {
+                  r = r.union(next);
+               } else {
+                  result.add(r);
+                  r = next;
+               }
+            }
+            result.add(r);
+            yield result.size() == ranges.size() ? this : ofNonEmptyDisjointSortedRanges(result);
+         }
+      };
+   }
+
    public FloatRangeSet xor(FloatRangeSet otherRangeSet) {
       FloatRangeSet union = add(otherRangeSet);
       FloatRangeSet intersection = intersection(otherRangeSet);
@@ -216,7 +253,7 @@ public final class FloatRangeSet implements Iterable<FloatRange> {
    }
 
    public FloatRangeSet subtract(FloatRangeSet otherRangeSet) {
-      if (isEmpty() || otherRangeSet.isEmpty()) {
+      if (!intersects(otherRangeSet)) {
          return this;
       }
       List<FloatRange> ranges1 = floatRanges;

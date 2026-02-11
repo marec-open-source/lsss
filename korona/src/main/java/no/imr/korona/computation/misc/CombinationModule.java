@@ -97,10 +97,10 @@ public final class CombinationModule extends ConcurrentPingModule {
             result[i] = Math.max(x.getValueForReferenceIndex(i), y.getValueForReferenceIndex(i));
          }
       }),
-      ZERO("zero", (x, y, result) -> {
+      ZERO("zero", (_, _, result) -> {
          Arrays.fill(result, 0);
       }),
-      COPY_1ST_OPERAND("copy1stOperand", (x, y, result) -> {
+      COPY_1ST_OPERAND("copy1stOperand", (x, _, result) -> {
          for (int i = 0; i < result.length; i++) {
             result[i] = x.getValueForReferenceIndex(i);
          }

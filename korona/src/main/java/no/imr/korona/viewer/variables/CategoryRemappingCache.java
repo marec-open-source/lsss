@@ -15,16 +15,8 @@ import java.util.stream.Collectors;
 
 final class CategoryRemappingCache {
    private final LoadingCache<Cac0Datagram, CategoryRemapping> cache = CacheBuilder.newBuilder()
-         .build(new CacheLoader<>() {
-            @Override
-            public CategoryRemapping load(Cac0Datagram cac0Datagram) {
-               if (nameToCategory.isEmpty()) {
-                  return CategoryRemapping.identity();
-               }
-               List<Cac0Datagram.Category> cac0Categories = cac0Datagram.getCategories();
-               return isCompatible(cac0Categories) ? CategoryRemapping.identity() : computeMapping(cac0Categories);
-            }
-         });
+         .build(CacheLoader.from(this::computeCategoryRemapping));
+
    private final Map<String, DiscreteCategory> nameToCategory;
 
    CategoryRemappingCache(List<DiscreteCategory> categories) {
@@ -33,6 +25,14 @@ final class CategoryRemappingCache {
 
    CategoryRemapping get(Cac0Datagram cac0Datagram) {
       return cache.getUnchecked(cac0Datagram);
+   }
+
+   private CategoryRemapping computeCategoryRemapping(Cac0Datagram cac0Datagram) {
+      if (nameToCategory.isEmpty()) {
+         return CategoryRemapping.identity();
+      }
+      List<Cac0Datagram.Category> cac0Categories = cac0Datagram.getCategories();
+      return isCompatible(cac0Categories) ? CategoryRemapping.identity() : computeMapping(cac0Categories);
    }
 
    private boolean isCompatible(List<Cac0Datagram.Category> cac0Categories) {

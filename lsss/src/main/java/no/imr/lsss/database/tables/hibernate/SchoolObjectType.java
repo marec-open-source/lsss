@@ -1,6 +1,10 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import org.jspecify.annotations.Nullable;
@@ -8,6 +12,14 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "schoolObjectType",
+
+      // Properties:
+      "schoolObjectTypeName",
+      "schoolObjectTypeDescription",
+})
 public class SchoolObjectType implements BaseDatabaseObject {
    private short schoolObjectType;
 
@@ -41,6 +53,7 @@ public class SchoolObjectType implements BaseDatabaseObject {
       this.schoolObjectType = schoolObjectType;
    }
 
+   @Column(length = 40)
    public String getSchoolObjectTypeName() {
       return schoolObjectTypeName;
    }
@@ -49,6 +62,7 @@ public class SchoolObjectType implements BaseDatabaseObject {
       this.schoolObjectTypeName = DatabaseUtils.nullToEmpty(schoolObjectTypeName);
    }
 
+   @Column(length = 80)
    public String getSchoolObjectTypeDescription() {
       return schoolObjectTypeDescription;
    }
@@ -57,6 +71,7 @@ public class SchoolObjectType implements BaseDatabaseObject {
       this.schoolObjectTypeDescription = DatabaseUtils.nullToEmpty(schoolObjectTypeDescription);
    }
 
+   @OneToMany(mappedBy = "schoolObjectType")
    public Set<SchoolMorphology> getSchoolMorphologies() {
       return schoolMorphologies;
    }

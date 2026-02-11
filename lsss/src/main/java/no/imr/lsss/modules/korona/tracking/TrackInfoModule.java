@@ -49,12 +49,7 @@ public final class TrackInfoModule extends BaseDataModule implements BaseTsModul
    private ImmutableSet<TrackId> validIds = ImmutableSet.of();
    private final ArgChangeManager<Set<TrackId>> validIdsChangeManager = new ArgChangeManager<>();
    private final LoadingCache<EchogramModule, EchogramTrackData> echogramTrackData = CacheBuilder.newBuilder()
-         .build(new CacheLoader<>() {
-            @Override
-            public EchogramTrackData load(EchogramModule key) {
-               return new EchogramTrackData(TrackInfoModule.this, key);
-            }
-         });
+         .build(CacheLoader.from(key -> new EchogramTrackData(this, key)));
 
    private final Map<TrackId, TrackInfo> originalTrackInfos = new ConcurrentHashMap<>();
    private final Map<TrackId, TrackInfo> trackInfos = new ConcurrentHashMap<>();

@@ -94,7 +94,7 @@ public final class EkConnectionManager {
             Future<T> future = ekConnection.sendRequest(request);
             try {
                return future.get(timeout, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException | CancellationException e) {
+            } catch (InterruptedException | CancellationException _) {
                // try again
             } catch (ExecutionException e) {
                Throwable cause = e.getCause();

@@ -7,7 +7,7 @@ import no.imr.korona.plugins.ModulePlugin;
 import no.imr.tools.help.HelpSystemHelpSet;
 import no.imr.tools.parameter.Name;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 public final class KoronaIncubatorModulePlugin extends ModulePlugin {
    KoronaIncubatorModulePlugin() {
@@ -24,7 +24,7 @@ public final class KoronaIncubatorModulePlugin extends ModulePlugin {
       if (KoronaIncubatorFeatureToggles.USE_TRACK_CATEGORIZATION) {
          moduleInfoCollector.group("Categorization")
                .add(TrackCategorizationModule.class, new Name("TrackCategorizationModule", "Track categorization"),
-                     EnumSet.of(ModuleCategory.ADDS_DATAGRAM),
+                     Set.of(ModuleCategory.ADDS_DATAGRAM),
                      "Categorizes tracks");
       }
    }

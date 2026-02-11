@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public final class GUIConfig {
-   private Predicate<BaseParameter<?>> parameterEnabledDecider = parameter -> true;
+   private Predicate<BaseParameter<?>> parameterEnabledDecider = _ -> true;
    private int textInputColumns = 10;
    private Function<BaseParameter<?>, Boolean> horizontalFill = parameter -> parameter.getProperty(BaseParameter.KEY_HORIZONTAL_FILL);
    private Function<BaseParameter<?>, Alignment> textAlignment = parameter -> parameter.getProperty(BaseParameter.KEY_LEFT_ALIGNED) ? Alignment.LEFT : Alignment.RIGHT;
@@ -41,7 +41,7 @@ public final class GUIConfig {
    }
 
    public void setHorizontalFill(boolean fill) {
-      horizontalFill = __ -> fill;
+      horizontalFill = _ -> fill;
    }
 
    public Function<BaseParameter<?>, Alignment> getTextAlignment() {
@@ -53,7 +53,7 @@ public final class GUIConfig {
    }
 
    public void setTextAlignment(Alignment alignment) {
-      setTextAlignment(__ -> alignment);
+      setTextAlignment(_ -> alignment);
    }
 
    public Alignment getInputFieldAlignment() {
@@ -73,7 +73,7 @@ public final class GUIConfig {
    }
 
    public void setCombineInputAndDescription(boolean combine) {
-      setCombineInputAndDescription(__ -> combine);
+      setCombineInputAndDescription(_ -> combine);
    }
 
    public Runnable getDoRelayout() {

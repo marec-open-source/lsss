@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.Reader;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -131,7 +131,7 @@ final class NnlsTest {
    }
 
    private static Problem createProblem(String s) throws IOException {
-      try (BufferedReader reader = new BufferedReader(new StringReader(s))) {
+      try (BufferedReader reader = new BufferedReader(Reader.of(s))) {
          Problem problem = Problem.read(reader);
          assertNotNull(problem);
          assertNull(reader.readLine());

@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
  * Ping information.
  */
 public sealed class Pin0Datagram extends DatagramPingItem permits Pin1Datagram {
-   public static final DatagramType TYPE_PIN0 = new DatagramType.Simple("PIN0", Pin0Datagram::new);
+   public static final DatagramType TYPE_PIN0 = DatagramType.simple("PIN0", Pin0Datagram::new);
 
    public final long pingNTDate;
    public final int pingNumber;

@@ -1,7 +1,7 @@
 package no.imr.korona.computation;
 
 import no.imr.korona.Korona;
-import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingSource;
 import no.imr.korona.plugins.ModulePlugin;
@@ -12,8 +12,8 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,14 +25,13 @@ final class ModuleContainerTest {
 
    @Test
    void testNextPing() throws IOException {
-      SyntheticData syntheticData = new ConstantSyntheticData(10, 1);
-      syntheticData.setFirstAndLastPingNumber(1, 5);
+      SyntheticDataFile syntheticDataFile = new ConstantSyntheticData(10, 1).withFirstAndLastPingNumber(1, 5);
 
       ModuleContainer moduleContainer = new ModuleContainer(createKorona());
       moduleContainer.addModule(new TrivialConcurrentPingModule());
       moduleContainer.addModule(new TrivialGeneralPingModule());
 
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticData.toPingReader())) {
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
 
          int pingItemCount = 0;
          long maxNTDate = Long.MIN_VALUE;
@@ -45,7 +44,7 @@ final class ModuleContainerTest {
             maxNTDate = ping.getNTDate();
             pingItemCount += ping.getPingItems().size();
          }
-         assertEquals(syntheticData.getPingCount() * syntheticData.getPingConfiguration().getRawFileConfiguration().getTransducerCount(), pingItemCount);
+         assertEquals(syntheticDataFile.getPingCount() * syntheticDataFile.getPingConfiguration().getRawFileConfiguration().getTransducerCount(), pingItemCount);
       }
    }
 
@@ -69,9 +68,9 @@ final class ModuleContainerTest {
       public void addModuleInfos(ModuleInfoCollector moduleInfoCollector) {
          moduleInfoCollector.top()
                .add(TrivialConcurrentPingModule.class, new Name("TrivialConcurrentPingModule"),
-                     EnumSet.of(ModuleCategory.NO_MODIFICATION), "")
+                     Set.of(ModuleCategory.NO_MODIFICATION), "")
                .add(TrivialGeneralPingModule.class, new Name("TrivialGeneralPingModule"),
-                     EnumSet.of(ModuleCategory.NO_MODIFICATION), "");
+                     Set.of(ModuleCategory.NO_MODIFICATION), "");
       }
    }
 

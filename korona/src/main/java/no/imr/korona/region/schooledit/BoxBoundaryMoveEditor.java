@@ -81,6 +81,7 @@ public final class BoxBoundaryMoveEditor extends SchoolEditor {
 
       record Candidate(BoxEditMode mode, double distSq) {
       }
+
       Candidate left = new Candidate(BoxEditMode.LEFT, Line2D.ptSegDistSq(xMin, yMin, xMin, yMax, x, y));
       Candidate right = new Candidate(BoxEditMode.RIGHT, Line2D.ptSegDistSq(xMax, yMin, xMax, yMax, x, y));
       Candidate top = new Candidate(BoxEditMode.TOP, Line2D.ptSegDistSq(xMin, yMin, xMax, yMin, x, y));

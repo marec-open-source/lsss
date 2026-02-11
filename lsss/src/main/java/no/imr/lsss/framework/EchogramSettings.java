@@ -93,7 +93,7 @@ public final class EchogramSettings {
 
    EchogramSettings() {
       workingMode.setPersistable(false);
-      workingMode.subscribe(__ -> sticky = false);
+      workingMode.subscribe(_ -> sticky = false);
 
       editSubModeDefault.setPersistable(false);
       editSubModeHorizontalLayerBoundary.setPersistable(false);

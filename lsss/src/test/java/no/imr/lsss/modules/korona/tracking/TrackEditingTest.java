@@ -29,7 +29,7 @@ final class TrackEditingTest {
    void beforeEach() {
       lsss = LsssTestUtils.start(List.of(TrackInfoModule.class), List.of());
       trackInfoModule = lsss.getModuleManager().getModule(TrackInfoModule.class);
-      LsssTestUtils.open(lsss, new TestSyntheticData().toSegmentHandle(1, 100));
+      LsssTestUtils.open(lsss, new TestSyntheticData().withFirstAndLastPingNumber(1, 100).toSegmentHandle());
       trackEditing = trackInfoModule.getTrackEditing();
       trackEditing.getWorkFileExtra().beginFromXml();
       trackEditing.getWorkFileExtra().endFromXml();
@@ -79,7 +79,7 @@ final class TrackEditingTest {
          if (pingNumber == 20) {
             pingData.add(new TNF0Datagram(pingIndex.getNTDate(), 0, 1, true, 5, 1));
          }
-         if (pingNumber == getLastPingNumber()) {
+         if (pingNumber == 100) {
             pingData.add(new TTC0Datagram(pingIndex.getNTDate(), new int[]{0}, new long[]{getNTDate(20)}));
          }
       }

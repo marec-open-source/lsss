@@ -19,7 +19,7 @@ public final class DepthRangeChooser {
 
    public void reset(int channelCount) {
       depthRangeLists = IntStream.range(0, channelCount)
-            .mapToObj(__ -> new DepthRangeList())
+            .mapToObj(_ -> new DepthRangeList())
             .toList();
    }
 

@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 import java.util.function.Function;
 
 public final class Raw1Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("RAW1", Raw1Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("RAW1", Raw1Datagram::new);
 
    public static final short BEAM_MODE_OMNI = 0;
    public static final short BEAM_MODE_VERTICAL = 2;

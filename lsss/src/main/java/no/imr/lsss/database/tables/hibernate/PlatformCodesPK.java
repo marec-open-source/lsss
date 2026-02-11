@@ -1,5 +1,6 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import no.imr.tools.database.DatabaseUtils;
 import org.jspecify.annotations.Nullable;
@@ -43,6 +44,7 @@ public class PlatformCodesPK implements BasePlatformPK {
       this.platform = platform;
    }
 
+   @Column(length = 80)
    public String getPlatformCodeSysName() {
       return platformCodeSysName;
    }

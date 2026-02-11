@@ -129,7 +129,7 @@ final class ParameterEditorMain implements ParameterContainer {
       for (int i = 0; i < 15; i++) {
          multiBool2.addParameter(new BooleanParameter(new Name("Bool_" + i), false));
       }
-      getParameters().forEach(p -> p.subscribe(__ -> {
+      getParameters().forEach(p -> p.subscribe(_ -> {
          String value = p instanceof ValueParameter<?> valueParameter
                ? valueParameter.getStringValue()
                : XmlUtils.toCompactString(p.toXml());
@@ -163,7 +163,7 @@ final class ParameterEditorMain implements ParameterContainer {
       );
    }
 
-   public static void main(String[] args) {
+   static void main(String[] args) {
       Utils.init(args, MiscIcons.SETTINGS.getImage());
       SwingUtilities.invokeLater(ParameterEditorMain::start);
    }

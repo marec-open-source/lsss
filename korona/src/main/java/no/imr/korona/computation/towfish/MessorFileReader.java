@@ -46,7 +46,7 @@ final class MessorFileReader implements TowfishMetaData.MetadataFileReader {
                   Instant instant = parseDate(s);
                   metaDataFileMap.put(instant.toEpochMilli(), metaDataFile);
                   break;
-               } catch (DateTimeParseException e) {
+               } catch (DateTimeParseException _) {
                   Log.global.warning("Cannot parse date in string " + s + " in file " + metaDataFile);
                }
                s = reader.readLine();
@@ -95,7 +95,7 @@ final class MessorFileReader implements TowfishMetaData.MetadataFileReader {
                Instant instant;
                try {
                   instant = parseDate(split[0]);
-               } catch (DateTimeParseException e) {
+               } catch (DateTimeParseException _) {
                   Log.global.warning("Cannot parse date in string " + s + " in file " + metaDataFile);
                   s = reader.readLine();
                   continue;
@@ -105,7 +105,7 @@ final class MessorFileReader implements TowfishMetaData.MetadataFileReader {
                //vesselLogMap.put(millis, parseVesselLog(split[8]));
                try {
                   vesselLogMap.put(millis, parseVesselLog(split[iVesselLog]));
-               } catch (NumberFormatException e) {
+               } catch (NumberFormatException _) {
                   Log.global.warning("Supposed to be vessel log: " + split[iVesselLog] + " in file " + metaDataFile);
                   s = reader.readLine();
                   continue;

@@ -1,6 +1,10 @@
 package no.imr.lsss.database.tables.hibernate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import no.imr.tools.database.ColumnOrder;
 import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import org.jspecify.annotations.Nullable;
@@ -8,6 +12,13 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "nation",
+
+      // Properties:
+      "nationName",
+})
 public class Nation implements BaseDatabaseObject, Comparable<Nation> {
    private short nation;
 
@@ -40,6 +51,7 @@ public class Nation implements BaseDatabaseObject, Comparable<Nation> {
       this.nation = nation;
    }
 
+   @Column(length = 80)
    public String getNationName() {
       return nationName;
    }
@@ -48,6 +60,7 @@ public class Nation implements BaseDatabaseObject, Comparable<Nation> {
       this.nationName = DatabaseUtils.nullToEmpty(nationName);
    }
 
+   @OneToMany(mappedBy = "nation")
    public Set<Platform> getPlatforms() {
       return platforms;
    }
@@ -56,6 +69,7 @@ public class Nation implements BaseDatabaseObject, Comparable<Nation> {
       this.platforms = platforms;
    }
 
+   @OneToMany(mappedBy = "nation")
    public Set<BiologicalSpecies> getBiologicalSpecies() {
       return biologicalSpecies;
    }

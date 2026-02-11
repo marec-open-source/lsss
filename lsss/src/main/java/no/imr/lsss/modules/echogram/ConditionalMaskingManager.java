@@ -14,7 +14,7 @@ final class ConditionalMaskingManager {
 
    ConditionalMaskingManager(LSSS lsss) {
       this.lsss = lsss;
-      invert.subscribe(__ -> update());
+      invert.subscribe(_ -> update());
    }
 
    Multimap<DiscreteVariable, String> getMaskedVariables() {

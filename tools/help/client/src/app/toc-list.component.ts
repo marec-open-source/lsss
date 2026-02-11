@@ -6,7 +6,7 @@ import {ConfigService} from './config.service';
    changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-toc-list',
    templateUrl: './toc-list.component.html',
-   styleUrl: './toc-list.component.css',
+   styleUrl: './toc-list.component.scss',
    imports: [
    ],
 })

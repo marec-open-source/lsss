@@ -19,7 +19,7 @@ final class BackgroundDataLoading {
 
    BackgroundDataLoading(DataManager dataManager) {
       this.dataManager = dataManager;
-      button.addActionListener(e -> {
+      button.addActionListener(_ -> {
          if (button.isSelected()) {
             Exec.CACHED_THREAD_POOL.execute(this::run);
          }

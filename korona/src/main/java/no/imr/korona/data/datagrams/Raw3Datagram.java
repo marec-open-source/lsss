@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 public final class Raw3Datagram extends BaseDatagram {
-   public static final DatagramType TYPE = new DatagramType.Simple("RAW3", Raw3Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("RAW3", Raw3Datagram::new);
 
    public String channelId;
    public short dataType;

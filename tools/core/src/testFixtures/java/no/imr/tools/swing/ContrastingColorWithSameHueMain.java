@@ -6,7 +6,7 @@ final class ContrastingColorWithSameHueMain {
    private ContrastingColorWithSameHueMain() {
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SwingUtilities.invokeLater(() -> {
          new ContrastingColorDialog("Contrasting color with same hue", color -> ColorUtils.contrastingColorWithSameHue(color, 3));
       });

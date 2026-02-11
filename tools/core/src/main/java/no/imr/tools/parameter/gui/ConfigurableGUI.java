@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public final class ConfigurableGUI {
-   private Consumer<ParameterEditor> parameterEditorAdaptor = __ -> {
+   private Consumer<ParameterEditor> parameterEditorAdaptor = _ -> {
    };
 
    public ConfigurableGUI() {
@@ -41,7 +41,7 @@ public final class ConfigurableGUI {
             case ParameterCollection parameterCollection -> {
                addParameterGUI(gridBag, parameterCollection.getParameters());
             }
-            case BaseParameter<?> __ -> {
+            case BaseParameter<?> _ -> {
                // Already taken care of.
             }
             default -> {

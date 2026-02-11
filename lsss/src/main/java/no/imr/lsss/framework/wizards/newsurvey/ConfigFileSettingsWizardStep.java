@@ -60,7 +60,7 @@ final class ConfigFileSettingsWizardStep extends WizardStep {
       lsss = preprocessingConf.getLSSS();
       context = preprocessingConf.getContext();
 
-      copyAlternative.subscribe(__ -> updateVisibility());
+      copyAlternative.subscribe(_ -> updateVisibility());
 
       titleLabel.setBorder(GuiUtils.DEFAULT_MARGIN);
    }
@@ -84,7 +84,8 @@ final class ConfigFileSettingsWizardStep extends WizardStep {
       ConfigFileSettings configFileSettings = lsss.getKorona().createConfigFileSettings(context);
       AppPreprocessingConf mainAppPreprocessingConf = lsss.getConfigurationManager().getApplicationConfiguration().getAppPreprocessingConf();
 
-      AppPreprocessingConf appPreprocessingConf = Utils.getAllOfType(mainAppPreprocessingConf.getAllUnitsRecursively(), AppPreprocessingConf.class)
+      AppPreprocessingConf appPreprocessingConf = mainAppPreprocessingConf.getAllUnitsRecursively()
+            .gather(Utils.allOfType(AppPreprocessingConf.class))
             .filter(conf -> conf.getContext().equals(context))
             .findFirst()
             .orElse(null);

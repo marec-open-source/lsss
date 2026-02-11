@@ -116,12 +116,12 @@ final class DepthModuleComputation extends SimplePingModuleComputation {
       }
    }
 
-   private static void fillBackstepResult(Dep0Datagram dep0Datagram, Bot0Datagram bot0Datagram, int channelCount, Algorithms.BackstepDepths backstepResult) {
+   private void fillBackstepResult(Dep0Datagram dep0Datagram, Bot0Datagram bot0Datagram, int channelCount, Algorithms.BackstepDepths backstepResult) {
       for (int i = 0; i < channelCount; i++) {
          bot0Datagram.getChannelDepths()[i] = backstepResult.channelDepths()[i];
       }
       dep0Datagram.setDepth(backstepResult.depth());
-      dep0Datagram.setMinimumDepth(backstepResult.minimumDepth());
+      dep0Datagram.setMinimumDepth(backstepResult.minimumDepth() - module.coordinatedBottomOffset.getFloatValue());
    }
 
    private static boolean allBot0DepthsZero(Bot0Datagram bot0Datagram) {

@@ -269,7 +269,7 @@ public final class EchogramVisualizer {
       makePanel();
 
       panel.addComponentListener(new ComponentAdapter() {
-         private final Timer timer = new Timer(100, __ -> changeOccurred());
+         private final Timer timer = new Timer(100, _ -> changeOccurred());
 
          {
             timer.setRepeats(false);
@@ -379,14 +379,14 @@ public final class EchogramVisualizer {
 
       buttonPanel.add(maskAnd);
       maskAnd.setBackground(Color.WHITE);
-      maskAnd.addActionListener(e -> {
+      maskAnd.addActionListener(_ -> {
          echogramWindow.setAndMasking(true);
          changeOccurred();
       });
 
       buttonPanel.add(maskOr);
       maskOr.setBackground(Color.WHITE);
-      maskOr.addActionListener(e -> {
+      maskOr.addActionListener(_ -> {
          echogramWindow.setAndMasking(false);
          changeOccurred();
       });

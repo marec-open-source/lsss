@@ -18,30 +18,21 @@ import java.util.List;
 /**
  * The EK60 bottom file.
  */
-final class BotFile {
-   private final Path file;
-   private final List<Bot0Datagram> bot0Datagrams;
-
-   BotFile(Path file, IdxFile idxFile, DatagramTypeManager datagramTypeManager, NoticeHandler noticeHandler) throws IOException {
-      this.file = file;
-      bot0Datagrams = new ArrayList<>(idxFile.getIdx0Datagrams().size());
-
-      try {
-         readBotFile(idxFile, datagramTypeManager, noticeHandler);
-      } catch (IOException e) {
-         if (FileUtils.notExists(e, file)) {
-            noticeHandler.addNotice("Missing bot file " + file);
-            addMissingBot0Datagrams(idxFile);
-         } else {
-            throw e;
-         }
-      }
+record BotFile(
+      Path file,
+      List<Bot0Datagram> bot0Datagrams
+) {
+   @Override
+   public String toString() {
+      return file.toString();
    }
 
-   private void readBotFile(IdxFile idxFile, DatagramTypeManager datagramTypeManager, NoticeHandler noticeHandler) throws IOException {
+   static BotFile load(Path file, IdxFile idxFile, DatagramTypeManager datagramTypeManager, NoticeHandler noticeHandler) throws IOException {
+      List<Bot0Datagram> bot0Datagrams = new ArrayList<>(idxFile.idx0Datagrams().size());
+
       try (RandomAccessDatagramReader datagramReader = new ByteBufferDatagramReader(FileUtils.toByteBuffer(file, ByteOrder.LITTLE_ENDIAN), datagramTypeManager)) {
          int unexpectedDatagramCount = 0;
-         while (bot0Datagrams.size() < idxFile.getIdx0Datagrams().size()) {
+         while (bot0Datagrams.size() < idxFile.idx0Datagrams().size()) {
             BaseDatagram datagram = datagramReader.nextDatagram();
             if (datagram == null) {
                break;
@@ -57,32 +48,27 @@ final class BotFile {
             noticeHandler.addNotice("Read " + unexpectedDatagramCount + " unexpected datagrams");
          }
 
-         int missingCount = addMissingBot0Datagrams(idxFile);
+         int missingCount = addMissingBot0Datagrams(bot0Datagrams, idxFile);
          if (missingCount != 0) {
             noticeHandler.addNotice("Added " + missingCount + " missing BOT0 datagrams");
          }
+      } catch (IOException e) {
+         if (FileUtils.notExists(e, file)) {
+            noticeHandler.addNotice("Missing bot file " + file);
+            addMissingBot0Datagrams(bot0Datagrams, idxFile);
+         } else {
+            throw e;
+         }
       }
+      return new BotFile(file, List.copyOf(bot0Datagrams));
    }
 
-   private int addMissingBot0Datagrams(IdxFile idxFile) {
+   private static int addMissingBot0Datagrams(List<Bot0Datagram> bot0Datagrams, IdxFile idxFile) {
       int missingCount = 0;
-      for (int i = bot0Datagrams.size(); i < idxFile.getIdx0Datagrams().size(); i++) {
-         bot0Datagrams.add(new MissingBot0Datagram(idxFile.getRawFileConfiguration(), idxFile.getIdx0Datagrams().get(i)));
+      for (int i = bot0Datagrams.size(); i < idxFile.idx0Datagrams().size(); i++) {
+         bot0Datagrams.add(new MissingBot0Datagram(idxFile.rawFileConfiguration(), idxFile.idx0Datagrams().get(i)));
          missingCount++;
       }
       return missingCount;
-   }
-
-   Path getFile() {
-      return file;
-   }
-
-   List<Bot0Datagram> getBot0Datagrams() {
-      return bot0Datagrams;
-   }
-
-   @Override
-   public String toString() {
-      return file.toString();
    }
 }

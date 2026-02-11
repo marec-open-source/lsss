@@ -26,7 +26,7 @@ public final class AlphaFunction {
       float alpha = 0.75f * getMaxAlpha();
       draw(-60, alpha, -50, alpha);
 
-      maxAlpha.subscribe(__ -> {
+      maxAlpha.subscribe(_ -> {
          for (int i = 0; i < alphas.length; i++) {
             alphas[i] = Math.min(alphas[i], getMaxAlpha());
          }

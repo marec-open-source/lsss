@@ -14,8 +14,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Comparator;
 
 public final class SchoolBoundaryObject {
    private static final long PING_RANGE_INTERVAL = 100;
@@ -98,24 +98,25 @@ public final class SchoolBoundaryObject {
       return pingRange;
    }
 
-   static void sortPingRanges(List<PingRange> pingRanges, PingIndex thisIndex, EchogramPingSettings pingSettings) {
-      pingRanges.sort((o1, o2) -> {
-         boolean o1Contains = o1.contains(thisIndex);
-         boolean o2Contains = o2.contains(thisIndex);
-         if (o1Contains && !o2Contains) {
-            return -1;
-         }
-         if (!o1Contains && o2Contains) {
-            return 1;
-         }
-         double d1 = Math.min(imageSpaceDistance(pingSettings, thisIndex, o1.begin()), imageSpaceDistance(pingSettings, thisIndex, o1.end()));
-         double d2 = Math.min(imageSpaceDistance(pingSettings, thisIndex, o2.begin()), imageSpaceDistance(pingSettings, thisIndex, o2.end()));
-         return Double.compare(d1, d2);
-      });
+   static Collection<PingRange> sortedPingRanges(Collection<PingRange> pingRanges, float x, EchogramPingSettings pingSettings) {
+      if (pingRanges.size() <= 1) {
+         return pingRanges;
+      }
+      return pingRanges.stream()
+            .sorted(Comparator.comparingDouble(pingRange -> imageSpaceDistance(pingSettings, pingRange, x)))
+            .toList();
    }
 
-   private static double imageSpaceDistance(EchogramPingSettings pingSettings, PingIndex firstIndex, PingIndex secondIndex) {
-      return Math.abs(pingSettings.pingIndexToX(firstIndex) - pingSettings.pingIndexToX(secondIndex));
+   static float imageSpaceDistance(EchogramPingSettings pingSettings, PingRange pingRange, float x) {
+      float xBegin = pingSettings.pingIndexToX(pingRange.begin());
+      if (xBegin >= x) {
+         return xBegin - x;
+      }
+      float xEnd = pingSettings.pingIndexToX(pingRange.end());
+      if (xEnd <= x) {
+         return x - xEnd;
+      }
+      return 0;
    }
 
    private static @Nullable EchogramPoint imagePointToEchogramPoint(EchogramPingSettings pingSettings, EchogramZSettings zSettings, Point2D point) {
@@ -130,15 +131,11 @@ public final class SchoolBoundaryObject {
    public SchoolBoundaryIntersectionInfo getClosestIntersection(EchogramPoint point, EchogramPingSettings pingSettings, EchogramZSettings zSettings) {
       //todo: needs to be improved
       double closestDistSquared = Double.MAX_VALUE;
-      EchogramPoint closestPoint;
-      Point2D imagePoint = echogramPointToImagePoint(pingSettings, zSettings, point);
+      Point2D.Float imagePoint = echogramPointToImagePoint(pingSettings, zSettings, point);
       int closestIndexA = -1;
       int closestIndexB = -1;
-      //sort the ping ranges according to distance from this point
-      List<PingRange> pingRanges = new ArrayList<>(pingRangeToIndexRanges.keySet());
-      PingIndex thisIndex = point.pingIndex();
-
-      sortPingRanges(pingRanges, thisIndex, pingSettings);
+      // Sort the ping ranges according to distance from this point.
+      Collection<PingRange> pingRanges = sortedPingRanges(pingRangeToIndexRanges.keySet(), imagePoint.x, pingSettings);
 
       for (PingRange range : pingRanges) {
          double startDiff = imagePoint.getX() - pingSettings.pingIndexToX(range.begin());
@@ -203,18 +200,20 @@ public final class SchoolBoundaryObject {
       Point2D startPoint = echogramPointToImagePoint(pingSettings, zSettings, pointA);
       Point2D endPoint = echogramPointToImagePoint(pingSettings, zSettings, pointB);
 
-      double distanceSquared = Point2D.distanceSq(startPoint.getX(), startPoint.getY(), endPoint.getX(), endPoint.getY());
-      double intersectionDistSquared = Point2D.distanceSq(startPoint.getX(), startPoint.getY(), imagePoint.getX(), imagePoint.getY()) - closestDistSquared;
+      double distanceSquared = startPoint.distanceSq(endPoint);
+      double intersectionDistSquared = startPoint.distanceSq(imagePoint) - closestDistSquared;
       double s = distanceSquared > 0 ? Math.sqrt(intersectionDistSquared / distanceSquared) : 0;
-      s = Math.clamp(s, 0, 1);
 
+      EchogramPoint closestPoint;
       if (s <= 0) {
          closestPoint = pointA;
       } else if (s >= 1) {
          closestPoint = pointB;
       } else {
-         Point2D interpolatedPoint = new Point2D.Double(startPoint.getX() + s * (endPoint.getX() - startPoint.getX()),
-               startPoint.getY() + s * (endPoint.getY() - startPoint.getY()));
+         Point2D interpolatedPoint = new Point2D.Double(
+               (1 - s) * startPoint.getX() + s * endPoint.getX(),
+               (1 - s) * startPoint.getY() + s * endPoint.getY()
+         );
          EchogramPoint echogramPoint = imagePointToEchogramPoint(pingSettings, zSettings, interpolatedPoint);
          if (echogramPoint == null) {
             closestPoint = s < 0.5 ? pointA : pointB;

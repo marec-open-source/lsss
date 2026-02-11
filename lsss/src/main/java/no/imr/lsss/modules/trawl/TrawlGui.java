@@ -67,22 +67,22 @@ final class TrawlGui {
 
       JButton openButton = MiscIcons.OPEN.on(new JButton());
       openButton.setMargin(margin);
-      openButton.addActionListener(e -> openButtonHandler());
+      openButton.addActionListener(_ -> openButtonHandler());
 
       previousButton.setMargin(margin);
-      previousButton.addActionListener(e -> setStationIndex(stationIndex - 1));
+      previousButton.addActionListener(_ -> setStationIndex(stationIndex - 1));
 
       nextButton.setMargin(margin);
-      nextButton.addActionListener(e -> setStationIndex(stationIndex + 1));
+      nextButton.addActionListener(_ -> setStationIndex(stationIndex + 1));
 
       next10Button.setMargin(margin);
-      next10Button.addActionListener(e -> setStationIndex(stationIndex + 10));
+      next10Button.addActionListener(_ -> setStationIndex(stationIndex + 10));
 
       previous10Button.setMargin(margin);
-      previous10Button.addActionListener(e -> setStationIndex(stationIndex - 10));
+      previous10Button.addActionListener(_ -> setStationIndex(stationIndex - 10));
 
       stationTextField.setHorizontalAlignment(JTextField.RIGHT);
-      stationTextField.addActionListener(e -> stationTextFieldChanged());
+      stationTextField.addActionListener(_ -> stationTextFieldChanged());
       stationTextField.addFocusListener(new FocusAdapter() {
          @Override
          public void focusLost(FocusEvent e) {
@@ -90,14 +90,14 @@ final class TrawlGui {
          }
       });
 
-      percentCheckBox.addActionListener(e -> updateGraphics());
-      allCheckBox.addActionListener(e -> updateGraphics());
-      zeroGroupCheckBox.addActionListener(e -> updateGraphics());
-      zooplanktonCheckBox.addActionListener(e -> updateGraphics());
+      percentCheckBox.addActionListener(_ -> updateGraphics());
+      allCheckBox.addActionListener(_ -> updateGraphics());
+      zeroGroupCheckBox.addActionListener(_ -> updateGraphics());
+      zooplanktonCheckBox.addActionListener(_ -> updateGraphics());
 
       thresholdSlider.setBackground(Color.WHITE);
       thresholdSlider.setBorder(new TitledBorder("TS [dB]"));
-      thresholdSlider.addChangeListener(e -> updateGraphics());
+      thresholdSlider.addChangeListener(_ -> updateGraphics());
       thresholdSlider.setMajorTickSpacing(10);
       thresholdSlider.setMinorTickSpacing(2);
       thresholdSlider.setPaintTicks(true);
@@ -229,7 +229,7 @@ final class TrawlGui {
    private void stationTextFieldChanged() {
       try {
          setStationIndex(Integer.parseInt(stationTextField.getText()) - 1);
-      } catch (NumberFormatException e) {
+      } catch (NumberFormatException _) {
          setStationIndex(stationIndex);
       }
    }

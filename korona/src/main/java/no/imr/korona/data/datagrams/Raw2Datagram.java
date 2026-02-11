@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
  * Sample byte stream.
  */
 public final class Raw2Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("RAW2", Raw2Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("RAW2", Raw2Datagram::new);
 
    public final int ipAddress;
    public final short port;

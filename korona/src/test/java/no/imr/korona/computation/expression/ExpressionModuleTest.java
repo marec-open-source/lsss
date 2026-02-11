@@ -5,6 +5,7 @@ import no.imr.korona.computation.ModuleConfigurationException;
 import no.imr.korona.computation.ModuleContainer;
 import no.imr.korona.computation.ModuleContainerComputation;
 import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.items.channel.PowerData;
@@ -32,7 +33,7 @@ final class ExpressionModuleTest {
    private static final float F200 = C5;
    private static final float F364 = C6;
 
-   private static SyntheticData createSyntheticData() {
+   private static SyntheticDataFile createSyntheticDataFile() {
       float[] values = {Float.NaN, C1, C2, C3, C4, C5, C6};
 
       SyntheticData syntheticData = new SyntheticData() {
@@ -43,8 +44,7 @@ final class ExpressionModuleTest {
             powerData.setSv(sv);
          }
       };
-      syntheticData.setFirstAndLastPingNumber(0, 0);
-      return syntheticData;
+      return syntheticData.withFirstAndLastPingNumber(0, 0);
    }
 
    @Test
@@ -77,7 +77,7 @@ final class ExpressionModuleTest {
       ExpressionModule expressionModule = moduleContainer.addModule(new ExpressionModule());
       expressionModule.expressions.setValue(List.of(expressions));
 
-      try (ModuleContainerComputation computation = moduleContainer.createComputation(createSyntheticData().toPingReader())) {
+      try (ModuleContainerComputation computation = moduleContainer.createComputation(createSyntheticDataFile().toPingReader())) {
          RawFileConfiguration rawFileConfiguration = computation.getPingConfiguration().getRawFileConfiguration();
          assertEquals(7, rawFileConfiguration.getTransducerCount());
 

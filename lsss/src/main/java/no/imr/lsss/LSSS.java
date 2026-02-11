@@ -224,7 +224,7 @@ public final class LSSS {
       }
       if (!files.isEmpty()) {
          configurationManager.getDataConf().selectFiles(files);
-         configurationManager.showDialog(configurationManager.getDataConf());
+         configurationManager.getDataConf().showInConfigurationDialog();
          return;
       }
 
@@ -429,7 +429,7 @@ public final class LSSS {
 
       Utils.init(args, LsssResource.LSSS_64);
       if (Utils.isTestRun()) {
-         LsssSmoke.main(args);
+         LsssSmoke.main();
          return;
       }
 

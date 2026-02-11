@@ -53,7 +53,7 @@ public final class BroadbandSplitterConfig extends Configurable {
                }
             });
             bands.add(band);
-         } catch (ParameterException e) {
+         } catch (ParameterException _) {
             Log.global.warning("Error parsing splitter band: " + XmlUtils.toDefaultString(bandElement));
          }
       });

@@ -14,5 +14,6 @@ if [[ "$KORONA_CLI_MAX_MEMORY_MB" != "" ]]; then MAX_MEMORY_MB=$KORONA_CLI_MAX_M
 
 "$JAVA" $JAVA_OPTS "-Xmx${MAX_MEMORY_MB}m" -classpath "$TOP_INSTALLATION_DIR/lib/jar/*" \
    "-Djava.library.path=$JAVA_LIBRARY_PATH" "-Djna.library.path=$JAVA_LIBRARY_PATH" \
+   --enable-native-access=ALL-UNNAMED \
    -XX:-UseGCOverheadLimit -XX:-OmitStackTraceInFastThrow \
    no.imr.korona.main.KoronaCliMain "$@"

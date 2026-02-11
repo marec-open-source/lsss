@@ -39,7 +39,7 @@ final class TrawlGuiMain {
       frame.setTitle(title);
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SwingUtilities.invokeLater(TrawlGuiMain::new);
    }
 }

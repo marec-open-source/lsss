@@ -25,7 +25,7 @@ public final class KoronaCli {
    public static void main(String[] args) {
       Utils.init(args);
       if (Utils.isTestRun()) {
-         KoronaCliSmoke.main(args);
+         KoronaCliSmoke.main();
          return;
       }
 

@@ -18,16 +18,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class LayerSavingTest {
    @Test
-   void testLayerRestoration() throws WorkaroundRegionException, WorkFileException {
+   void testLayerRestoration() throws WorkFileException {
       DataManager dataManager = DataManagerTestUtils.testDataManager();
       RegionManager regionManager = RegionManagerTestUtils.createTestRegionManager(dataManager);
 
-      SegmentHandle segmentHandle1 = new ConstantSyntheticData().toSegmentHandle(1, 100);
-      SegmentHandle segmentHandle2 = new ConstantSyntheticData().toSegmentHandle(101, 110);
+      SegmentHandle segmentHandle1 = new ConstantSyntheticData().withFirstAndLastPingNumber(1, 100).toSegmentHandle();
+      SegmentHandle segmentHandle2 = new ConstantSyntheticData().withFirstAndLastPingNumber(101, 110).toSegmentHandle();
 
       //load both files
       DataManagerTestUtils.open(dataManager, segmentHandle1, segmentHandle2);
-      regionManager.setupDefaultBoundaries(__ -> 15, __ -> 500);
+      regionManager.setupDefaultBoundaries(_ -> 15, _ -> 500);
 
       //create a divider exactly at the file boundary
       regionManager.addVerticalDivider(dataManager.getDataFileSet().getPingIndex(101));
@@ -41,10 +41,10 @@ final class LayerSavingTest {
 
       //load only second file
       DataManagerTestUtils.open(dataManager, segmentHandle2);
-      regionManager.setupDefaultBoundaries(__ -> 0, __ -> 0);
+      regionManager.setupDefaultBoundaries(_ -> 0, _ -> 0);
       regionManager.fromXml(xml);
 
-      regionManager.getLayerManager().checkValidity();
+      RegionValidation.checkLayers(regionManager.getLayerManager());
 
       List<Region> regions = regionManager.regionStream().toList();
       assertEquals(1, regions.size());

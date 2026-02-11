@@ -1,8 +1,5 @@
 package no.imr.lsss.server.jaxrs.resources.lsss;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.common.base.Splitter;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.BeanParam;
@@ -30,11 +27,12 @@ import no.imr.tools.web.WebUtils;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -85,7 +83,7 @@ public final class DatabaseResource {
 
       StreamingOutput streamingOutput = out -> {
          LsssServerUtils.withTmpDir("DatabaseReport", reportDirectory -> {
-            reportEngine.setOutputStreamFactory(file -> out);
+            reportEngine.setOutputStreamFactory(_ -> out);
             reportEngine.printReports(survey, reportDirectory, new ProgressView("", 100), new AsyncHandle());
          });
       };
@@ -124,7 +122,7 @@ public final class DatabaseResource {
 
    private static Predicate<Integer> parseReports(@Nullable String reports) {
       if (reports == null) {
-         return type -> true;
+         return _ -> true;
       }
       try {
          Set<Integer> set = Splitter.on(',').omitEmptyStrings().trimResults().splitToList(reports).stream()
@@ -149,7 +147,7 @@ public final class DatabaseResource {
       };
       StreamingOutput streamingOutput = out -> {
          lsss.getDatabaseManager().getDatabaseConnection().executeStatelessQuery(session -> {
-            try (ScrollableResults results = session.createNativeQuery(query)
+            try (ScrollableResults<Object[]> results = session.createNativeQuery(query, Object[].class)
                   .setReadOnly(true)
                   .scroll(ScrollMode.FORWARD_ONLY)) {
                switch (format) {
@@ -157,8 +155,6 @@ public final class DatabaseResource {
                   case "csv" -> printCsv(out, results);
                   default -> throw new BadRequestException("Unrecognized format: " + format);
                }
-            } catch (IOException e) {
-               throw new UncheckedIOException(e);
             }
          });
       };
@@ -166,9 +162,9 @@ public final class DatabaseResource {
             .build();
    }
 
-   private void printJson(OutputStream out, ScrollableResults results) throws IOException {
+   private void printJson(OutputStream out, ScrollableResults<Object[]> results) {
       try (JsonGenerator jsonGenerator = jsonMapper.createGenerator(out)) {
-         boolean indent = jsonMapper.getSerializationConfig().isEnabled(SerializationFeature.INDENT_OUTPUT);
+         boolean indent = jsonMapper.isEnabled(SerializationFeature.INDENT_OUTPUT);
          jsonGenerator.writeStartArray();
          while (results.next()) {
             jsonMapper.writeValue(jsonGenerator, results.get());
@@ -180,7 +176,7 @@ public final class DatabaseResource {
       }
    }
 
-   private static void printCsv(OutputStream out, ScrollableResults results) {
+   private static void printCsv(OutputStream out, ScrollableResults<Object[]> results) {
       try (PrintWriter writer = new PrintWriter(out, false, Utils.UTF_8)) {
          while (results.next()) {
             Object[] values = results.get();
@@ -190,11 +186,7 @@ public final class DatabaseResource {
                }
                Object value = values[i];
                if (value instanceof String string) {
-                  string = string.replaceAll("[\\r\\n]+", " ");
-                  if (string.contains(",")) {
-                     string = '"' + string + '"';
-                  }
-                  writer.print(string);
+                  writer.print(toCvsString(string));
                } else {
                   writer.print(value);
                }
@@ -205,5 +197,13 @@ public final class DatabaseResource {
             }
          }
       }
+   }
+
+   private static String toCvsString(String string) {
+      string = string.replaceAll("[\\r\\n]+", " ");
+      if (string.contains(",")) {
+         string = '"' + string.replace("\"", "\"\"") + '"';
+      }
+      return string;
    }
 }

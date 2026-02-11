@@ -1,11 +1,35 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import no.imr.tools.database.ColumnOrder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "survey",
+      "observationDate",
+      "observationTime",
+      "observationType",
+
+      // Properties:
+      "distance",
+      "latitude",
+      "longitude",
+      "bottomDepth",
+})
 public class Observation implements BaseSurveyObject<ObservationPK> {
    private ObservationPK compId;
 
@@ -80,6 +104,7 @@ public class Observation implements BaseSurveyObject<ObservationPK> {
       this.bottomDepth = bottomDepth;
    }
 
+   @OneToOne(mappedBy = "observation")
    public ObservationComment getObservationComment() {
       return observationComment;
    }
@@ -88,6 +113,13 @@ public class Observation implements BaseSurveyObject<ObservationPK> {
       this.observationComment = observationComment;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "survey", referencedColumnName = "survey")
+   })
    public Survey getSurvey() {
       return survey;
    }
@@ -96,6 +128,11 @@ public class Observation implements BaseSurveyObject<ObservationPK> {
       this.survey = survey;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "observationType", referencedColumnName = "observationType")
+   })
    public ObservationType getObservationType() {
       return observationType;
    }
@@ -104,6 +141,7 @@ public class Observation implements BaseSurveyObject<ObservationPK> {
       this.observationType = observationType;
    }
 
+   @OneToMany(mappedBy = "observation")
    public Set<Scatter> getScatters() {
       return scatters;
    }
@@ -112,6 +150,7 @@ public class Observation implements BaseSurveyObject<ObservationPK> {
       this.scatters = scatters;
    }
 
+   @OneToMany(mappedBy = "observation")
    public Set<ScatterObject> getScatterObjects() {
       return scatterObjects;
    }

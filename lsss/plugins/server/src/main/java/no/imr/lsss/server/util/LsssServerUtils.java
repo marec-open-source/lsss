@@ -1,6 +1,5 @@
 package no.imr.lsss.server.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Splitter;
 import com.google.common.primitives.Primitives;
 import jakarta.ws.rs.BadRequestException;
@@ -65,7 +64,7 @@ public final class LsssServerUtils {
    public static Response getZip(Path dir) {
       StreamingOutput streamingOutput = out -> {
          try (ZipOutputStream zipOutputStream = new ZipOutputStream(out)) {
-            FileUtils.zip("", zipOutputStream, dir, new AsyncHandle(), fileInfo -> true);
+            FileUtils.zip("", zipOutputStream, dir, new AsyncHandle(), _ -> true);
          }
       };
       return Response.ok(streamingOutput, WebUtils.APPLICATION_ZIP)
@@ -176,9 +175,9 @@ public final class LsssServerUtils {
          case ValueParameter<?> valueParameter -> getParameterValue(valueParameter);
          case RangeParameter rangeParameter -> getParameterValue(rangeParameter);
          case DynamicListParameter<?> dynamicListParameter -> getParameterValue(dynamicListParameter);
-         case ButtonParameter __ -> getButtonParameterValue();
-         case MultiParameter<?> __ -> throw parameterPathException(path);
-         case VoidParameter __ -> throw parameterPathException(path);
+         case ButtonParameter _ -> getButtonParameterValue();
+         case MultiParameter<?> _ -> throw parameterPathException(path);
+         case VoidParameter _ -> throw parameterPathException(path);
       };
    }
 
@@ -221,15 +220,15 @@ public final class LsssServerUtils {
          case ButtonParameter buttonParameter -> {
             buttonParameter.notifyListeners();
          }
-         case MultiParameter<?> __ -> throw parameterPathException(path);
-         case VoidParameter __ -> throw parameterPathException(path);
+         case MultiParameter<?> _ -> throw parameterPathException(path);
+         case VoidParameter _ -> throw parameterPathException(path);
       }
    }
 
    private static <T> T parseParameterValue(String value, Class<T> valueType) {
       try {
          return JsonUtils.JSON_MAPPER.readValue(value, valueType);
-      } catch (IOException e) {
+      } catch (Exception _) {
          throw new BadRequestException("Cannot parse value: " + value);
       }
    }
@@ -237,7 +236,7 @@ public final class LsssServerUtils {
    public static <T extends Enum<T>> T nameToEnum(Class<T> clazz, String name) {
       try {
          return Enum.valueOf(clazz, name);
-      } catch (Exception e) {
+      } catch (Exception _) {
          throw new BadRequestException("Illegal value: " + name + ". Must be one of " + Arrays.toString(clazz.getEnumConstants()));
       }
    }
@@ -245,7 +244,7 @@ public final class LsssServerUtils {
    public static String toJsonString(Object value) {
       try {
          return JsonUtils.JSON_MAPPER.writeValueAsString(value);
-      } catch (JsonProcessingException e) {
+      } catch (Exception e) {
          throw new InternalServerErrorException("Error serializing value to json string", e);
       }
    }

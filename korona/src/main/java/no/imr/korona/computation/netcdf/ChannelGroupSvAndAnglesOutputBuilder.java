@@ -51,8 +51,8 @@ final class ChannelGroupSvAndAnglesOutputBuilder extends ChannelGroupOutputBuild
    }
 
    @Override
-   ChannelGroupOutputWriter createWriter(NcChannelGroupWriter ncChannelGroupWriter) throws InvalidRangeException, IOException {
-      return new ChannelGroupPulseCompressionWriter(ncChannelGroupWriter, this);
+   ChannelGroupOutputWriter createWriter(NcGridWriter ncGridWriter) throws InvalidRangeException, IOException {
+      return new ChannelGroupPulseCompressionWriter(ncGridWriter, this);
    }
 
    private static final class ChannelGroupPulseCompressionWriter extends ChannelGroupOutputWriter {
@@ -67,20 +67,20 @@ final class ChannelGroupSvAndAnglesOutputBuilder extends ChannelGroupOutputBuild
       private final @Nullable Variable angleAlongshipVar;
       private final @Nullable Variable angleAthwartshipVar;
 
-      private ChannelGroupPulseCompressionWriter(NcChannelGroupWriter ncChannelGroupWriter, ChannelGroupSvAndAnglesOutputBuilder channelGroupBuilder) throws InvalidRangeException, IOException {
-         super(ncChannelGroupWriter, channelGroupBuilder);
+      private ChannelGroupPulseCompressionWriter(NcGridWriter ncGridWriter, ChannelGroupSvAndAnglesOutputBuilder channelGroupBuilder) throws InvalidRangeException, IOException {
+         super(ncGridWriter, channelGroupBuilder);
 
          referenceTimeInMillis = channelGroupBuilder.referenceTimeInMillis;
          sampleDistance = channelGroupBuilder.sampleDistance;
          rangeLength = channelGroupBuilder.rangeLength;
 
-         pingTimeVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.PING_TIME);
-         Variable rangeVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.RANGE);
+         pingTimeVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.PING_TIME);
+         Variable rangeVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.RANGE);
 
-         svVar = channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.SV);
+         svVar = channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.SV);
 
-         angleAlongshipVar = channelGroupBuilder.writeAngles ? channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.ANGLE_ALONGSHIP) : null;
-         angleAthwartshipVar = channelGroupBuilder.writeAngles ? channelGroupBuilder.findGroupVariable(ncChannelGroupWriter, Nc.ANGLE_ATHWARTSHIP) : null;
+         angleAlongshipVar = channelGroupBuilder.writeAngles ? channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.ANGLE_ALONGSHIP) : null;
+         angleAthwartshipVar = channelGroupBuilder.writeAngles ? channelGroupBuilder.findGroupVariable(ncGridWriter, Nc.ANGLE_ATHWARTSHIP) : null;
 
          double[] ranges = new double[rangeLength];
          for (int i = 0; i < ranges.length; i++) {
@@ -93,7 +93,7 @@ final class ChannelGroupSvAndAnglesOutputBuilder extends ChannelGroupOutputBuild
       void write(Ping ping, int pingTimeIndex) throws InvalidRangeException, IOException {
          PingIndex pingIndex = ping.getPingIndex();
 
-         ncChannelGroupWriter.writeLong(pingTimeVar, (pingIndex.getTimeInMillis() - referenceTimeInMillis) * 1_000_000);
+         ncGridWriter.writeLong(pingTimeVar, (pingIndex.getTimeInMillis() - referenceTimeInMillis) * 1_000_000);
 
          PowerData powerData = ping.getPowerData(channel);
          if (powerData == null) {
@@ -102,9 +102,9 @@ final class ChannelGroupSvAndAnglesOutputBuilder extends ChannelGroupOutputBuild
 
          OffsetValues resampledSv = resample(powerData, powerData.getSv());
          if (resampledSv != null) {
-            float[] resampledSvValues = resampledSv.values.clone(); // Copy to not change values in the ping.
+            float[] resampledSvValues = resampledSv.values().clone(); // Copy to not change values in the ping.
             ArrayMath.divide(resampledSvValues, PowerData.IMR_CONSTANT);
-            writer.write(svVar, new int[]{pingTimeIndex, resampledSv.offset},
+            writer.write(svVar, new int[]{pingTimeIndex, resampledSv.offset()},
                   Array.makeFromJavaArray(new float[][]{resampledSvValues}));
          }
 
@@ -121,13 +121,13 @@ final class ChannelGroupSvAndAnglesOutputBuilder extends ChannelGroupOutputBuild
                }
                OffsetValues resampledAlongAngles = resample(powerData, alongAngles);
                if (resampledAlongAngles != null) {
-                  writer.write(angleAlongshipVar, new int[]{pingTimeIndex, resampledAlongAngles.offset},
-                        Array.makeFromJavaArray(new float[][]{resampledAlongAngles.values}));
+                  writer.write(angleAlongshipVar, new int[]{pingTimeIndex, resampledAlongAngles.offset()},
+                        Array.makeFromJavaArray(new float[][]{resampledAlongAngles.values()}));
                }
                OffsetValues resampledAthwartAngles = resample(powerData, athwartAngles);
                if (resampledAthwartAngles != null) {
-                  writer.write(angleAthwartshipVar, new int[]{pingTimeIndex, resampledAthwartAngles.offset},
-                        Array.makeFromJavaArray(new float[][]{resampledAthwartAngles.values}));
+                  writer.write(angleAthwartshipVar, new int[]{pingTimeIndex, resampledAthwartAngles.offset()},
+                        Array.makeFromJavaArray(new float[][]{resampledAthwartAngles.values()}));
                }
             }
          }

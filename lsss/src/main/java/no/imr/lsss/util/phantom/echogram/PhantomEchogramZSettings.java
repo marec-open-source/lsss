@@ -9,8 +9,6 @@ public final class PhantomEchogramZSettings extends EchogramZSettings {
    private final PhantomEchogramSettings phantomEchogramSettings;
 
    PhantomEchogramZSettings(PhantomEchogramSettings phantomEchogramSettings) {
-      super(phantomEchogramSettings.getPhantomDataFileSet().getDataConfiguration());
-
       this.phantomEchogramSettings = phantomEchogramSettings;
    }
 

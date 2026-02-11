@@ -94,7 +94,7 @@ final class ColorNamesMain {
       return Color.RGBtoHSB(value.getRed(), value.getGreen(), value.getBlue(), null);
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SwingUtilities.invokeLater(ColorNamesMain::display);
    }
 

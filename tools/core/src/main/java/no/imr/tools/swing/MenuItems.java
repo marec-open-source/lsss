@@ -4,6 +4,7 @@ import no.imr.tools.Utils;
 import no.imr.tools.adm.ApplicationInfo;
 import no.imr.tools.concurrent.Exec;
 import no.imr.tools.logging.LoggingManager;
+import no.imr.tools.swing.icons.MiscIcons;
 import no.imr.tools.swing.svg.SvgIcon;
 import org.jspecify.annotations.Nullable;
 
@@ -62,7 +63,7 @@ public final class MenuItems {
    }
 
    public static JMenuItem showInFileExplorer(@Nullable Path file) {
-      JMenuItem item = new JMenuItem("Show in file explorer");
+      JMenuItem item = MiscIcons.OPEN.on(new JMenuItem("Show in file explorer"));
       item.setEnabled(false);
       if (file != null) {
          Exec.CACHED_THREAD_POOL.execute(() -> {

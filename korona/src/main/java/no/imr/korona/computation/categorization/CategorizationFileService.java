@@ -8,8 +8,10 @@ import no.imr.korona.config.ConfigFileParameterEditor;
 import no.imr.korona.config.ConfigFileService;
 import no.imr.korona.config.ConfigFileSettings;
 import no.imr.korona.config.ConfigFileSettingsContext;
+import no.imr.korona.config.FilesToCopy;
 import no.imr.korona.config.KoronaConfigFileService;
 import no.imr.tools.Version;
+import no.imr.tools.io.FileInfo;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.parameter.FileParameter;
@@ -23,7 +25,6 @@ import java.awt.Dialog;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -50,8 +51,9 @@ public final class CategorizationFileService extends ConfigFileService {
       if (Files.exists(imrCategorizationXml)) {
          return imrCategorizationXml;
       }
-      for (Path dir : getAdditionalInstallationConfigDirs()) {
-         imrCategorizationXml = dir.resolve(CATEGORIZATION_IMR).resolve(Configurator.CATEGORIZATION_FILE);
+      Path additionalInstallationConfigDir = getAdditionalInstallationConfigDir();
+      if (additionalInstallationConfigDir != null) {
+         imrCategorizationXml = additionalInstallationConfigDir.resolve(CATEGORIZATION_IMR).resolve(Configurator.CATEGORIZATION_FILE);
          if (Files.exists(imrCategorizationXml)) {
             return imrCategorizationXml;
          }
@@ -64,8 +66,7 @@ public final class CategorizationFileService extends ConfigFileService {
       return Korona.getInstallationDir().resolveSibling("categorization").resolve(TRAINING_DATA_SETS);
    }
 
-   @Override
-   public List<Path> getAdditionalInstallationConfigDirs() {
+   private static @Nullable Path getAdditionalInstallationConfigDir() {
       Path marecInstallationDir = Korona.getInstallationDir().getParent().getParent();
       Pattern pattern = Pattern.compile("Categorization (\\d+\\.\\d+(|.\\d+(|-.*)))");
       Version newestVersion = null;
@@ -85,7 +86,29 @@ public final class CategorizationFileService extends ConfigFileService {
       } catch (IOException e) {
          Log.global.log(Level.WARNING, "Error listing files in " + marecInstallationDir, e);
       }
-      return newestDir != null ? List.of(newestDir.resolve(TRAINING_DATA_SETS)) : List.of();
+      return newestDir != null ? newestDir.resolve(TRAINING_DATA_SETS) : null;
+   }
+
+   @Override
+   public Path getDefaultInConfigDirectory(Path configDir) {
+      Path imrCategorizationXml = configDir.resolve(CATEGORIZATION_IMR).resolve(Configurator.CATEGORIZATION_FILE);
+      if (Files.exists(imrCategorizationXml)) {
+         return imrCategorizationXml;
+      }
+      return configDir.resolve(CATEGORIZATION_BASIC).resolve(Configurator.CATEGORIZATION_FILE);
+   }
+
+   @Override
+   public void addInstallationConfigFilesToCopy(FilesToCopy filesToCopy, Path destinationDir) throws IOException {
+      for (FileInfo fileInfo : FileUtils.listFilesWithAttributes(getInstallationConfigDir())) {
+         filesToCopy.add(fileInfo, destinationDir.resolve(fileInfo.file().getFileName()));
+      }
+      Path additionalInstallationConfigDir = getAdditionalInstallationConfigDir();
+      if (additionalInstallationConfigDir != null) {
+         for (FileInfo fileInfo : FileUtils.listFilesWithAttributes(additionalInstallationConfigDir)) {
+            filesToCopy.add(fileInfo, destinationDir.resolve(fileInfo.file().getFileName()));
+         }
+      }
    }
 
    @Override

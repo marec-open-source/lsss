@@ -29,10 +29,8 @@ public final class RectangleSelectionOverlay extends EchogramOverlay {
    }
 
    @Override
-   public void draw(Graphics2D g2d) {
-      Graphics2D g = (Graphics2D) g2d.create();
+   public void draw(Graphics2D g) {
       animatedDraw.draw(g, getSelectedRectangle());
-      g.dispose();
    }
 
    @Override

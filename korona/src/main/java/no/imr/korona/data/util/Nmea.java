@@ -1,6 +1,5 @@
 package no.imr.korona.data.util;
 
-import no.imr.korona.util.KoronaUtils;
 import no.marec.lsss.api.util.GeoPoint;
 
 import java.util.ArrayList;
@@ -27,8 +26,8 @@ public final class Nmea {
       return type;
    }
 
-   public OptionalDouble getMeterPerSec() {
-      return type.getMetersPerSecond(fields);
+   public OptionalDouble getKnots() {
+      return type.getKnots(fields);
    }
 
    public Optional<GeoPoint> getGeographicalPosition() {
@@ -96,8 +95,8 @@ public final class Nmea {
        */
       VTG {
          @Override
-         OptionalDouble getMetersPerSecond(List<String> fields) {
-            return parseMetersPerSecondFromKnotsField(fields, 5);
+         OptionalDouble getKnots(List<String> fields) {
+            return parseDouble(fields, 5);
          }
       },
 
@@ -127,7 +126,7 @@ public final class Nmea {
 
       UNKNOWN;
 
-      OptionalDouble getMetersPerSecond(List<String> fields) {
+      OptionalDouble getKnots(List<String> fields) {
          return OptionalDouble.empty();
       }
 
@@ -150,21 +149,7 @@ public final class Nmea {
 
          try {
             return OptionalDouble.of(Double.parseDouble(fields.get(index)));
-         } catch (NumberFormatException e) {
-            return OptionalDouble.empty();
-         }
-      }
-
-      private static OptionalDouble parseMetersPerSecondFromKnotsField(List<String> fields, int index) {
-         if (fields.size() <= index + 1 || !fields.get(index + 1).equals("N")) {
-            return OptionalDouble.empty();
-         }
-
-         try {
-            double knots = Double.parseDouble(fields.get(index));
-            double meterPerSeconds = KoronaUtils.knotsToMeterPerSecond(knots);
-            return OptionalDouble.of(meterPerSeconds);
-         } catch (NumberFormatException e) {
+         } catch (NumberFormatException _) {
             return OptionalDouble.empty();
          }
       }
@@ -204,7 +189,7 @@ public final class Nmea {
                lon = -lon;
             }
             return Optional.of(new GeoPoint(lon, lat));
-         } catch (NumberFormatException e) {
+         } catch (NumberFormatException _) {
             return Optional.empty();
          }
       }
@@ -228,7 +213,7 @@ public final class Nmea {
                return UNKNOWN;
             }
             return valueOf(fields.getFirst().substring(2));
-         } catch (IllegalArgumentException e) {
+         } catch (IllegalArgumentException _) {
             return UNKNOWN;
          }
       }

@@ -84,7 +84,7 @@ final class ItemHistogram<T> extends ItemView<T> {
       GuiUtils.autoCreateContentMenu(xMenu, () -> {
          for (ItemFeature<T> feature : features) {
             JMenuItem item = MiscIcons.check(xFeature == feature).on(xMenu.add(feature.name));
-            item.addActionListener(e -> {
+            item.addActionListener(_ -> {
                xFeature = feature;
                update();
             });
@@ -117,7 +117,7 @@ final class ItemHistogram<T> extends ItemView<T> {
       });
       renderer.setDrawBarOutline(false);
       renderer.setSeriesPaint(0, color);
-      renderer.setDefaultToolTipGenerator((dataset, series, item) -> getToolTip(item));
+      renderer.setDefaultToolTipGenerator((_, _, item) -> getToolTip(item));
       return renderer;
    }
 

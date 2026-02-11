@@ -63,7 +63,7 @@ final class EchogramPlotView extends BaseViewModule.BaseView {
    @Override
    public void addToFloatableModuleMenu(JPopupMenu popupMenu) {
       JMenuItem statisticsDialogItem = popupMenu.add("Statistics...");
-      statisticsDialogItem.addActionListener(e -> {
+      statisticsDialogItem.addActionListener(_ -> {
          EchogramPlotStatisticsDialog statisticsDialog = module.getStatisticsDialog();
          if (statisticsDialog != null) {
             statisticsDialog.getDialog().toFront();
@@ -72,7 +72,7 @@ final class EchogramPlotView extends BaseViewModule.BaseView {
          }
       });
 
-      MiscIcons.SCATTER_PLOT.on(popupMenu.add("Visualizer dialog...")).addActionListener(e -> {
+      MiscIcons.SCATTER_PLOT.on(popupMenu.add("Visualizer dialog...")).addActionListener(_ -> {
          new EchogramPlotVisualizerDialog(module);
       });
    }

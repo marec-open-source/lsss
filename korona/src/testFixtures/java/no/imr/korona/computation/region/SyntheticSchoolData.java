@@ -41,13 +41,16 @@ public final class SyntheticSchoolData extends SyntheticData {
 
    public SyntheticSchoolData(String theCase) {
       this.theCase = theCase;
-
-      setFirstAndLastPingNumber(1, 100);
    }
 
    @Override
-   protected float[] getFrequencies() {
-      return FREQUENCIES;
+   protected int getTransducerCount() {
+      return FREQUENCIES.length;
+   }
+
+   @Override
+   protected float getFrequency(int channel) {
+      return FREQUENCIES[channel - 1];
    }
 
    @Override
@@ -108,11 +111,10 @@ public final class SyntheticSchoolData extends SyntheticData {
    static final long RECTANGULAR_SCHOOL_HOLE_PING_WIDTH = (long) (60 / METER_PER_PING);
    static final float RECTANGULAR_SCHOOL_HOLE_HEIGHT = 6;
 
-   private float[] rectangularSchool(PowerData powerData, PingIndex pingIndex, boolean hole) {
+   private static float[] rectangularSchool(PowerData powerData, PingIndex pingIndex, boolean hole) {
       int n = powerData.depthToSampleIndex(RECTANGULAR_SCHOOL_MIN_DEPTH + 2 * RECTANGULAR_SCHOOL_HEIGHT);
       float[] sv = new float[n];
-      long relativePingNumber = pingIndex.getPingNumber() - getFirstPingNumber() + 1;
-      long p = relativePingNumber - RECTANGULAR_SCHOOL_START_PING;
+      long p = pingIndex.getPingNumber() - RECTANGULAR_SCHOOL_START_PING;
       if (p >= 0 && p < RECTANGULAR_SCHOOL_PING_WIDTH) {
          float minDepth = RECTANGULAR_SCHOOL_MIN_DEPTH;
          float maxDepth = RECTANGULAR_SCHOOL_MIN_DEPTH + RECTANGULAR_SCHOOL_HEIGHT;
@@ -134,11 +136,10 @@ public final class SyntheticSchoolData extends SyntheticData {
 
    static final float CIRCULAR_SCHOOL_HOLE_RADIUS = 39;
 
-   private float[] circularSchool(PowerData powerData, PingIndex pingIndex, boolean hole) {
+   private static float[] circularSchool(PowerData powerData, PingIndex pingIndex, boolean hole) {
       int n = powerData.depthToSampleIndex(CIRCULAR_SCHOOL_CENTER_DEPTH + 2 * CIRCULAR_SCHOOL_RADIUS);
       float[] sv = new float[n];
-      long relativePingNumber = pingIndex.getPingNumber() - getFirstPingNumber() + 1;
-      float dx = Math.abs(relativePingNumber - CIRCULAR_SCHOOL_PING_CENTER) * METER_PER_PING;
+      float dx = Math.abs(pingIndex.getPingNumber() - CIRCULAR_SCHOOL_PING_CENTER) * METER_PER_PING;
       if (dx < CIRCULAR_SCHOOL_RADIUS) {
          float dy = (float) Math.sqrt(CIRCULAR_SCHOOL_RADIUS * CIRCULAR_SCHOOL_RADIUS - dx * dx);
          fill(powerData, sv, CIRCULAR_SCHOOL_CENTER_DEPTH - dy, CIRCULAR_SCHOOL_CENTER_DEPTH + dy, SV_INSIDE);
@@ -169,14 +170,15 @@ public final class SyntheticSchoolData extends SyntheticData {
          ··██████············██████····█····································█
          ████····················████··██████████████████████████████████████
          """.lines().toList();
+   static final int COMPLICATED_SCHOOL_PING_WIDTH = COMPLICATED_SCHOOL_DEFINITION.getFirst().length();
+   static final int COMPLICATED_SCHOOL_HOLE_SAMPLE_COUNT = 17;
 
-   private float[] complicatedSchool(PowerData powerData, PingIndex pingIndex) {
+   private static float[] complicatedSchool(PowerData powerData, PingIndex pingIndex) {
       int firstSampleIndex = powerData.depthToSampleIndex(COMPLICATED_SCHOOL_FIRST_DEPTH);
       int n = firstSampleIndex + 2 * COMPLICATED_SCHOOL_DEFINITION.size();
       float[] sv = new float[n];
-      long relativePingNumber = pingIndex.getPingNumber() - getFirstPingNumber() + 1;
-      int i = (int) (relativePingNumber - COMPLICATED_SCHOOL_FIRST_PING);
-      if (i >= 0 && i < COMPLICATED_SCHOOL_DEFINITION.getFirst().length()) {
+      int i = (int) (pingIndex.getPingNumber() - COMPLICATED_SCHOOL_FIRST_PING);
+      if (i >= 0 && i < COMPLICATED_SCHOOL_PING_WIDTH) {
          for (int j = 0; j < COMPLICATED_SCHOOL_DEFINITION.size(); j++) {
             String line = COMPLICATED_SCHOOL_DEFINITION.get(j);
             if (i < line.length() && line.charAt(i) == '█') {

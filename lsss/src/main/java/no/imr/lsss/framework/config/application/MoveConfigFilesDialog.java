@@ -125,7 +125,7 @@ final class MoveConfigFilesDialog {
 
       JButton executeButton = new JButton("Execute");
       bottomPanel.add(executeButton);
-      executeButton.addActionListener(e -> {
+      executeButton.addActionListener(_ -> {
          if (updateLsssCheckBox.isSelected()) {
             updateLsssConfigSelected = true;
          }
@@ -144,7 +144,7 @@ final class MoveConfigFilesDialog {
       JButton cancelButton = new JButton("Cancel");
       bottomPanel.add(cancelButton);
       GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
 
       mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 

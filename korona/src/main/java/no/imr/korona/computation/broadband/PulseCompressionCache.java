@@ -10,12 +10,7 @@ public final class PulseCompressionCache {
    private static final LoadingCache<PulseCompressionConfig, PulseCompression> PULSE_COMPRESSION_CACHE = CacheBuilder.newBuilder()
          .maximumSize(100)
          .expireAfterAccess(5, TimeUnit.MINUTES)
-         .build(new CacheLoader<>() {
-            @Override
-            public PulseCompression load(PulseCompressionConfig config) {
-               return new PulseCompression(config);
-            }
-         });
+         .build(CacheLoader.from(PulseCompression::new));
 
    private PulseCompressionCache() {
    }

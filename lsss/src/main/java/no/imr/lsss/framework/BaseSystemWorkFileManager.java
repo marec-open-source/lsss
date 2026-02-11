@@ -4,8 +4,10 @@ import no.imr.korona.data.datamanager.DataFile;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingRange;
+import no.imr.korona.region.Layer;
 import no.imr.korona.region.Region;
 import no.imr.korona.region.RegionManager;
+import no.imr.korona.region.School;
 import no.imr.korona.region.WorkData;
 import no.imr.korona.region.WorkFile;
 import no.imr.korona.region.WorkFileException;
@@ -15,7 +17,6 @@ import no.imr.lsss.modules.korona.region.KoronaRegionModule;
 import no.imr.lsss.plugins.WorkFileManager;
 import no.imr.tools.ProgressHandler;
 import no.imr.tools.concurrent.AsyncHandle;
-import no.imr.tools.concurrent.Exec;
 import no.imr.tools.io.DirectoryListing;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.logging.Log;
@@ -32,6 +33,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +87,7 @@ public final class BaseSystemWorkFileManager implements WorkFileManager {
          DataFileSet dataFileSet = lsss.getDataManager().getDataFileSet();
          Listener progressListener = progressHandler.asCountingListener(dataFileSet.getDataFiles().size());
          LoadContext context = new LoadContext(this, workDir, workDirListing, progressListener);
-         Exec.FORK_JOIN_POOL.invoke(new LoadAction(lsss.getRegionManager(), dataFileSet, context));
+         new LoadAction(lsss.getRegionManager(), dataFileSet, context).invoke();
          if (!context.errors.isEmpty()) {
             showWorkFileErrorDialog(context.errors);
          }
@@ -159,11 +162,11 @@ public final class BaseSystemWorkFileManager implements WorkFileManager {
       }
    }
 
-   private Element toXml(RegionManager regionManager, DataFile dataFile) {
-      Element rootElement = regionManager.toXml(dataFile.getPingRange());
+   private Element toXml(RegionManager regionManager, DataFilePartition dataFilePartition) {
+      Element rootElement = regionManager.toXml(dataFilePartition.dataFile.getPingRange(), dataFilePartition.layers, dataFilePartition.schools);
 
       if (koronaRegionModule != null) {
-         Element convertedKoronaRegions = koronaRegionModule.convertedRegionsToXml(dataFile.getPingRange());
+         Element convertedKoronaRegions = koronaRegionModule.convertedRegionsToXml(dataFilePartition.dataFile.getPingRange());
          if (convertedKoronaRegions != null) {
             rootElement.add(convertedKoronaRegions);
          }
@@ -172,7 +175,7 @@ public final class BaseSystemWorkFileManager implements WorkFileManager {
       Element extraElement = rootElement.addElement(XML_EXTRA);
       for (WorkFileExtra workFileExtra : workFileExtras) {
          Element element = extraElement.addElement(workFileExtra.id);
-         workFileExtra.toXml(dataFile, element);
+         workFileExtra.toXml(dataFilePartition.dataFile, element);
          if (!element.hasContent() && element.attributeCount() == 0) {
             extraElement.remove(element);
          }
@@ -194,7 +197,7 @@ public final class BaseSystemWorkFileManager implements WorkFileManager {
       }
       try {
          return Integer.parseInt(version);
-      } catch (NumberFormatException e) {
+      } catch (NumberFormatException _) {
          throw new WorkFileException("Invalid version: " + version);
       }
    }
@@ -205,7 +208,8 @@ public final class BaseSystemWorkFileManager implements WorkFileManager {
 
    @Override
    public List<Path> getModifiedFiles(ProgressHandler progressHandler, AsyncHandle asyncHandle) {
-      if (lsss.getDataManager().getDataFileSet().isEmpty()) {
+      List<DataFile> dataFiles = lsss.getDataManager().getDataFileSet().getDataFiles();
+      if (dataFiles.isEmpty()) {
          return List.of();
       }
       String error = lsss.getRegionManager().getLayerManager().checkForError();
@@ -218,18 +222,17 @@ public final class BaseSystemWorkFileManager implements WorkFileManager {
       }
       DirectoryListing workDirListing = DirectoryListing.ofOrEmpty(workDir, asyncHandle);
       List<Path> modifiedFiles = Collections.synchronizedList(new ArrayList<>());
-      List<DataFile> dataFiles = lsss.getDataManager().getDataFileSet().getDataFiles();
       Listener progressListener = progressHandler.asCountingListener(dataFiles.size());
-      dataFiles.parallelStream()
-            .forEach(dataFile -> {
+      partitionDataFiles(dataFiles, lsss.getRegionManager()).parallelStream()
+            .forEach(dataFilePartition -> {
                if (asyncHandle.isCancelled()) {
                   return;
                }
                progressListener.listen();
-               String workFileBaseName = WorkFile.getWorkFileBaseName(dataFile);
+               String workFileBaseName = WorkFile.getWorkFileBaseName(dataFilePartition.dataFile);
                Path workFile = workDir.resolve(workFileBaseName + WorkFile.WORK_FILE_SUFFIX);
                Path snapFile = workDir.resolve(workFileBaseName + WorkFile.SNAP_FILE_SUFFIX);
-               Element element = toXml(lsss.getRegionManager(), dataFile);
+               Element element = toXml(lsss.getRegionManager(), dataFilePartition);
                if (!XmlUtils.equalContent(element, workFile)) {
                   modifiedFiles.add(workFile);
                }
@@ -247,7 +250,8 @@ public final class BaseSystemWorkFileManager implements WorkFileManager {
 
    @Override
    public void save(ProgressHandler progressHandler, AsyncHandle asyncHandle) {
-      if (lsss.getDataManager().getDataFileSet().isEmpty()) {
+      List<DataFile> dataFiles = lsss.getDataManager().getDataFileSet().getDataFiles();
+      if (dataFiles.isEmpty()) {
          return;
       }
       String error = lsss.getRegionManager().getLayerManager().checkForError();
@@ -260,18 +264,17 @@ public final class BaseSystemWorkFileManager implements WorkFileManager {
          return;
       }
       DirectoryListing workDirListing = DirectoryListing.ofOrEmpty(workDir, asyncHandle);
-      List<DataFile> dataFiles = lsss.getDataManager().getDataFileSet().getDataFiles();
       Listener progressListener = progressHandler.asCountingListener(dataFiles.size());
-      dataFiles.parallelStream()
-            .forEach(dataFile -> {
+      partitionDataFiles(dataFiles, lsss.getRegionManager()).parallelStream()
+            .forEach(dataFilePartition -> {
                if (asyncHandle.isCancelled()) {
                   return;
                }
                progressListener.listen();
-               String workFileBaseName = WorkFile.getWorkFileBaseName(dataFile);
+               String workFileBaseName = WorkFile.getWorkFileBaseName(dataFilePartition.dataFile);
                Path workFile = workDir.resolve(workFileBaseName + WorkFile.WORK_FILE_SUFFIX);
                Path snapFile = workDir.resolve(workFileBaseName + WorkFile.SNAP_FILE_SUFFIX);
-               Element element = toXml(lsss.getRegionManager(), dataFile);
+               Element element = toXml(lsss.getRegionManager(), dataFilePartition);
                try {
                   XmlUtils.writeDocument(element, workFile);
                } catch (IOException e) {
@@ -385,6 +388,85 @@ public final class BaseSystemWorkFileManager implements WorkFileManager {
          public RangeSet<PingIndex> getReadOnlyPings() {
             return RangeUtils.emptyRangeSet();
          }
+      }
+   }
+
+   private record DataFilePartition(
+         DataFile dataFile,
+         Collection<Layer> layers,
+         Collection<School> schools
+   ) {
+   }
+
+   private static List<DataFilePartition> partitionDataFiles(List<DataFile> dataFiles, RegionManager regionManager) {
+      List<DataFilePartition> result = Arrays.asList(new DataFilePartition[dataFiles.size()]);
+      DataFilePartitionContext context = new DataFilePartitionContext(dataFiles, result);
+      new DataFilePartitionAction(context, 0, dataFiles.size(),
+            regionManager.getLayerManager().getLayers(),
+            regionManager.getSchoolManager().getSchools()
+      ).invoke();
+      return result;
+   }
+
+   private record DataFilePartitionContext(
+         List<DataFile> dataFiles,
+         List<DataFilePartition> result
+   ) {
+   }
+
+   private static final class DataFilePartitionAction extends RecursiveAction {
+      private final DataFilePartitionContext context;
+      private final int iBegin;
+      private final int iEnd;
+      private final Collection<Layer> layers;
+      private final Collection<School> schools;
+
+      private DataFilePartitionAction(DataFilePartitionContext context, int iBegin, int iEnd,
+                                      Collection<Layer> layers, Collection<School> schools) {
+         this.context = context;
+         this.iBegin = iBegin;
+         this.iEnd = iEnd;
+         this.layers = layers;
+         this.schools = schools;
+      }
+
+      @Override
+      protected void compute() {
+         int size = iEnd - iBegin;
+         if (size == 0) {
+            return;
+         }
+         if (size == 1) {
+            DataFile dataFile = context.dataFiles.get(iBegin);
+            context.result.set(iBegin, new DataFilePartition(dataFile, layers, schools));
+            return;
+         }
+         int iMiddle = iBegin + size / 2;
+         long middlePingNumber = context.dataFiles.get(iMiddle).getPingRange().begin().getPingNumber();
+         RegionSplit<Layer> layerSplit = split(layers, middlePingNumber);
+         RegionSplit<School> schoolSplit = split(schools, middlePingNumber);
+         invokeAll(
+               new DataFilePartitionAction(context, iBegin, iMiddle, layerSplit.left, schoolSplit.left),
+               new DataFilePartitionAction(context, iMiddle, iEnd, layerSplit.right, schoolSplit.right)
+         );
+      }
+
+      private static <R extends Region> RegionSplit<R> split(Collection<R> regions, long splitPingNumber) {
+         List<R> left = new ArrayList<>();
+         List<R> right = new ArrayList<>();
+         for (R region : regions) {
+            PingRange pingRange = region.getPingRange();
+            if (pingRange.begin().getPingNumber() < splitPingNumber) {
+               left.add(region);
+            }
+            if (pingRange.end().getPingNumber() > splitPingNumber) {
+               right.add(region);
+            }
+         }
+         return new RegionSplit<>(left, right);
+      }
+
+      private record RegionSplit<R extends Region>(List<R> left, List<R> right) {
       }
    }
 }

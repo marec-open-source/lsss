@@ -1,6 +1,6 @@
 package no.imr.korona.region;
 
-public final class WorkFileException extends RegionException {
+public final class WorkFileException extends Exception {
    public WorkFileException(String message) {
       super(message);
    }

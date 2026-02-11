@@ -30,14 +30,14 @@ final class RangeChooser {
       this.interpretationSettings = interpretationSettings;
 
       previousButton.setToolTipText("Show previous range");
-      previousButton.addActionListener(e -> shiftSelectedIndex(-1));
+      previousButton.addActionListener(_ -> shiftSelectedIndex(-1));
       GuiUtils.setAccelerator(previousButton, Shortcuts.PREVIOUS_RANGE);
 
       nextButton.setToolTipText("Show next range");
-      nextButton.addActionListener(e -> shiftSelectedIndex(1));
+      nextButton.addActionListener(_ -> shiftSelectedIndex(1));
       GuiUtils.setAccelerator(nextButton, Shortcuts.NEXT_RANGE);
 
-      comboBox.addActionListener(e -> {
+      comboBox.addActionListener(_ -> {
          if (skip) {
             return;
          }

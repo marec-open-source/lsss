@@ -138,22 +138,22 @@ public final class ParameterTableGUI<T extends ParameterContainer> {
       if (selectedModelRows.length == 0) {
          JMenuItem addItem = MiscIcons.ADD.on(menu.add("Add row"));
          addItem.setEnabled(model.isEditable());
-         addItem.addActionListener(e -> addRowAndSelect(model.getRowCount()));
+         addItem.addActionListener(_ -> addRowAndSelect(model.getRowCount()));
       } else {
          JMenuItem addBeforeItem = MiscIcons.ADD.on(menu.add("Insert row before"));
          addBeforeItem.setMnemonic(KeyEvent.VK_B);
          addBeforeItem.setEnabled(model.isEditable());
-         addBeforeItem.addActionListener(e -> addRowAndSelect(selectedModelRows[0]));
+         addBeforeItem.addActionListener(_ -> addRowAndSelect(selectedModelRows[0]));
 
          JMenuItem addAfterItem = menu.add("Insert row after");
          addAfterItem.setMnemonic(KeyEvent.VK_A);
          addAfterItem.setEnabled(model.isEditable());
-         addAfterItem.addActionListener(e -> addRowAndSelect(selectedModelRows[selectedModelRows.length - 1] + 1));
+         addAfterItem.addActionListener(_ -> addRowAndSelect(selectedModelRows[selectedModelRows.length - 1] + 1));
 
          JMenuItem duplicateItem = menu.add("Duplicate row" + (selectedModelRows.length == 1 ? "" : "s"));
          duplicateItem.setMnemonic(KeyEvent.VK_U);
          duplicateItem.setEnabled(model.isEditable());
-         duplicateItem.addActionListener(e -> {
+         duplicateItem.addActionListener(_ -> {
             int insertionIndex = selectedModelRows[selectedModelRows.length - 1] + 1;
             for (int i = 0; i < selectedModelRows.length; i++) {
                model.copyRow(selectedModelRows[i], insertionIndex + i);
@@ -164,7 +164,7 @@ public final class ParameterTableGUI<T extends ParameterContainer> {
          JMenuItem removeItem = MiscIcons.DELETE.on(menu.add("Delete row" + (selectedModelRows.length == 1 ? "" : "s")));
          removeItem.setMnemonic(KeyEvent.VK_D);
          removeItem.setEnabled(model.isEditable());
-         removeItem.addActionListener(e -> {
+         removeItem.addActionListener(_ -> {
             for (int i = selectedModelRows.length - 1; i >= 0; i--) {
                model.removeRow(selectedModelRows[i]);
             }
@@ -176,13 +176,13 @@ public final class ParameterTableGUI<T extends ParameterContainer> {
       JMenuItem copyItem = MiscIcons.COPY.on(menu.add("Copy selection to clipboard"));
       copyItem.setMnemonic(KeyEvent.VK_C);
       copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
-      copyItem.addActionListener(e -> TableUtils.copyToClipboard(table));
+      copyItem.addActionListener(_ -> TableUtils.copyToClipboard(table));
 
       JMenuItem pasteItem = MiscIcons.PASTE.on(menu.add("Paste from clipboard"));
       pasteItem.setMnemonic(KeyEvent.VK_P);
       pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
       pasteItem.setEnabled(model.isEditable());
-      pasteItem.addActionListener(e -> TableUtils.pasteFromClipboard(table));
+      pasteItem.addActionListener(_ -> TableUtils.pasteFromClipboard(table));
 
       return menu;
    }
@@ -257,7 +257,7 @@ public final class ParameterTableGUI<T extends ParameterContainer> {
          }
 
          JTextField textField = parameter instanceof PasswordParameter ? new JPasswordField() : new JTextField();
-         textField.getDocument().addDocumentListener(new SimpleDocumentListener(__ -> {
+         textField.getDocument().addDocumentListener(new SimpleDocumentListener(_ -> {
             if (!textField.hasFocus()) {
                textField.requestFocusInWindow();
             }

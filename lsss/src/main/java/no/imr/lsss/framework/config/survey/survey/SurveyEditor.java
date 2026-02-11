@@ -12,7 +12,7 @@ import no.imr.lsss.framework.config.survey.data.DataConf;
 import no.imr.lsss.framework.config.survey.misc.ices.IcesCode;
 import no.imr.lsss.framework.config.survey.misc.ices.IcesUtils;
 import no.imr.tools.database.DatabaseConnection;
-import no.imr.tools.database.queries.SaveOrUpdateQuery;
+import no.imr.tools.database.queries.StatelessDatabaseQuery;
 import no.imr.tools.geo.GeoBoxBuilder;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.parameter.BaseParameter;
@@ -43,7 +43,6 @@ import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.geom.Rectangle2D;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.Optional;
@@ -139,10 +138,8 @@ public final class SurveyEditor implements ParameterContainer {
                currentTime.getDate(), 0,
                currentTime.getDate(), 23_59_00_00,
                "",
-               0, 0, 0, 0,
-               aPlatform,
-               new HashSet<>(),
-               new HashSet<>());
+               0, 0, 0, 0);
+         mSurvey.setPlatform(aPlatform);
       }
 
       String nationName = aPlatform.getNation().getNationName();
@@ -212,10 +209,10 @@ public final class SurveyEditor implements ParameterContainer {
    private JPanel createButtonsPanel() {
       JButton computeButton = new JButton("Compute bounds");
       computeButton.setToolTipText("Compute geographical bounding box and start / end times from configured data files");
-      computeButton.addActionListener(e -> computeBounds());
+      computeButton.addActionListener(_ -> computeBounds());
 
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          if (!parameterEditor.commitEdits()) {
             return;
          }
@@ -225,7 +222,7 @@ public final class SurveyEditor implements ParameterContainer {
       mDialog.getRootPane().setDefaultButton(okButton);
 
       JButton cancelButton = new JButton("Cancel");
-      cancelButton.addActionListener(e -> mDialog.dispose());
+      cancelButton.addActionListener(_ -> mDialog.dispose());
 
       JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       panel.add(computeButton);
@@ -251,7 +248,7 @@ public final class SurveyEditor implements ParameterContainer {
       mSurvey.setBoundaryWest(mBoundaryWest.getValue().orElse(0f));
       mSurvey.setBoundaryEast(mBoundaryEast.getValue().orElse(0f));
 
-      aDatabaseConnection.executeQuery(new SaveOrUpdateQuery(mSurvey));
+      aDatabaseConnection.executeStatelessQuery(StatelessDatabaseQuery.upsert(mSurvey));
 
       mStoredSurvey = mSurvey;
    }
@@ -269,7 +266,7 @@ public final class SurveyEditor implements ParameterContainer {
       GeoBoxBuilder geoBoxBuilder = new GeoBoxBuilder();
       for (DataConf dataConf : mLSSS.getConfigurationManager().getDataConf().getAllDataConfs()) {
          for (SegmentInfo segmentInfo : dataConf.getAllOriginalSegmentInfos()) {
-            PingRange pingRange = segmentInfo.getPingRange();
+            PingRange pingRange = segmentInfo.pingRange();
             if (pingRange.isEmpty()) {
                continue;
             }

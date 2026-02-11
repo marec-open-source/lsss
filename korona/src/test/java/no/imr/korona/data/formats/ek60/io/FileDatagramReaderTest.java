@@ -4,7 +4,6 @@ import no.imr.korona.data.datagrams.DatagramTypeManager;
 import no.imr.korona.data.datagrams.Idx0Datagram;
 import no.imr.korona.data.datagrams.Raw0Datagram;
 import no.imr.korona.data.datagrams.UnknownDatagram;
-import no.imr.korona.data.datagrams.UnknownDatagramType;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -32,7 +31,7 @@ final class FileDatagramReaderTest {
 
       try (BaseDatagramWriter datagramWriter = new ByteBufferDatagramWriter(byteBuffer)) {
 
-         UnknownDatagram invalidRaw = new UnknownDatagram(0, new UnknownDatagramType(Raw0Datagram.TYPE.getIntCode()), ByteBuffer.allocate(1000));
+         UnknownDatagram invalidRaw = new UnknownDatagram(0, UnknownDatagram.type(Raw0Datagram.TYPE.getIntCode()), ByteBuffer.allocate(1000));
          datagramWriter.writeDatagram(invalidRaw);
          posIdxWithPingNumber1 = byteBuffer.position();
          datagramWriter.writeDatagram(new Idx0Datagram(1, 1, 1, null, 1));

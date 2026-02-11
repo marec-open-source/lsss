@@ -1,7 +1,5 @@
 package no.imr.lsss.modules.broadband.sv;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
@@ -30,6 +28,8 @@ import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.range.FloatRange;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -70,7 +70,7 @@ public final class BroadbandSvExporter extends StreamingExporter {
    }
 
    @Override
-   public void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) throws IOException {
+   public void exportToStream(AsyncHandle asyncHandle, ProgressHandler progressHandler, OutputStream out, ObjectWriter objectWriter) {
       PingRange pingRange = getLSSS().getInterpretationSettings().getPingRange();
       if (pingRange.isEmpty()) {
          return;
@@ -86,9 +86,9 @@ public final class BroadbandSvExporter extends StreamingExporter {
       try (JsonGenerator json = objectWriter.createGenerator(out)) {
          json.writeStartObject();
 
-         json.writeObjectField("info", getExportInfo(broadbandSvModule));
+         json.writePOJOProperty("info", getExportInfo(broadbandSvModule));
 
-         json.writeFieldName("regions");
+         json.writeName("regions");
          json.writeStartArray();
          BroadbandChannelInfoAccumulator channelInfoAccumulator = new BroadbandChannelInfoAccumulator();
          List<Region> selectedRegions = getLSSS().getRegionManager().getSelectedRegions();
@@ -99,11 +99,11 @@ public final class BroadbandSvExporter extends StreamingExporter {
             if (asyncHandle.isCancelled()) {
                return;
             }
-            json.writeObject(perRegion);
+            json.writePOJO(perRegion);
          }
          json.writeEndArray();
 
-         json.writeObjectField("channelInfo", channelInfoAccumulator.getChannelInfos());
+         json.writePOJOProperty("channelInfo", channelInfoAccumulator.getChannelInfos());
 
          json.writeEndObject();
       }

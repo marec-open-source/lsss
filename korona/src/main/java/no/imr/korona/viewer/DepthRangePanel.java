@@ -55,7 +55,7 @@ public final class DepthRangePanel {
 
       JMenuItem showNumericChooser = popupMenu.add("Set depth range...");
       showNumericChooser.setEnabled(depthRangeChooser.getDepthRangeMode() == DepthRangeMode.MANUAL && !maxDepthRange.isEmpty());
-      showNumericChooser.addActionListener(e -> new MinMaxDialog(component, "Depth Range",
+      showNumericChooser.addActionListener(_ -> new MinMaxDialog(component, "Depth Range",
             depthRangeChooser.getViewDepthRange().expandToMultipleOf(1), 1, maxDepthRange, depthRangeChooser::setFixedDepthRange));
 
       return popupMenu;
@@ -65,7 +65,7 @@ public final class DepthRangePanel {
       boolean selected = depthRangeChooser.getDepthRangeMode() == depthRangeMode;
       JMenuItem item = MiscIcons.check(selected).on(popupMenu.add(depthRangeMode.toString()));
       item.setToolTipText(tooltip);
-      item.addActionListener(e -> depthRangeChooser.setDepthRangeMode(depthRangeMode));
+      item.addActionListener(_ -> depthRangeChooser.setDepthRangeMode(depthRangeMode));
    }
 
    private final class MyListener extends MouseAdapter {

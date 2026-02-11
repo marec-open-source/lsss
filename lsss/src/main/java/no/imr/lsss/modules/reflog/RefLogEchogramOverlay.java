@@ -129,7 +129,7 @@ public final class RefLogEchogramOverlay extends BaseEchogramOverlay {
       popupMenu.addSeparator();
 
       JMenuItem visualizerItem = MiscIcons.SCATTER_PLOT.on(popupMenu.add("Visualizer dialog..."));
-      visualizerItem.addActionListener(e -> new RefLogVisualizerDialog(refLogDataModule.get()));
+      visualizerItem.addActionListener(_ -> new RefLogVisualizerDialog(refLogDataModule.get()));
 
       return popupMenu;
    }

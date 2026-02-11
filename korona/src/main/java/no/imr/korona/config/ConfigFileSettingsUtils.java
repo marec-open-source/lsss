@@ -105,7 +105,7 @@ public final class ConfigFileSettingsUtils {
                   .text("Last processed at " + info.time())
                   .html("<br>").text("using " + info.cfs())
                   .build();
-         } catch (IOException e) {
+         } catch (Exception e) {
             return new HtmlStringBuilder()
                   .text("Error reading ").text(infoFile.toString())
                   .html("<br>").text(e.toString())
@@ -114,11 +114,11 @@ public final class ConfigFileSettingsUtils {
       });
    }
 
-   private static @Nullable CopiedConfigFilesInfo readInfoFile(Path infoFile) throws IOException {
+   private static @Nullable CopiedConfigFilesInfo readInfoFile(Path infoFile) {
       if (!Files.exists(infoFile)) {
          return null;
       }
-      return JsonUtils.JSON_MAPPER.readValue(infoFile.toFile(), CopiedConfigFilesInfo.class);
+      return JsonUtils.JSON_MAPPER.readValue(infoFile, CopiedConfigFilesInfo.class);
    }
 
    public static @Nullable ConfigFileSettings loadConfigFileSettingsFromCopiedConfigFiles(Path dataDir, Korona korona) throws IOException {

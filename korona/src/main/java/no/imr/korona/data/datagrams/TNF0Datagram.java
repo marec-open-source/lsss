@@ -3,7 +3,7 @@ package no.imr.korona.data.datagrams;
 import java.nio.ByteBuffer;
 
 public final class TNF0Datagram extends DatagramPingItem implements TrackPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("TNF0", TNF0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("TNF0", TNF0Datagram::new);
 
    private final int id;
    private int channel;

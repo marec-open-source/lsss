@@ -22,10 +22,8 @@ public class FileDatagramReader extends ChannelDatagramReader implements RandomA
     * @throws IOException if some IO error occurs
     */
    public FileDatagramReader(Path file, DatagramTypeManager datagramTypeManager) throws IOException {
-      this(file, FileChannel.open(file), datagramTypeManager);
-   }
+      FileChannel fileChannel = FileChannel.open(file);
 
-   private FileDatagramReader(Path file, FileChannel fileChannel, DatagramTypeManager datagramTypeManager) {
       super(fileChannel, datagramTypeManager);
 
       this.file = file;

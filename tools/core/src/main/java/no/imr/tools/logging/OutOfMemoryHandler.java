@@ -46,8 +46,8 @@ final class OutOfMemoryHandler extends HandlerAdapter {
                + "The amount of available memory can be increased by editing\n"
                + loggingManager.getStartupScript();
          JOptionPane.showMessageDialog(null, message, "Out of memory", JOptionPane.ERROR_MESSAGE);
-      } catch (Throwable e) {
-         SwingUtilities.invokeLater(this::run); // Try again later
+      } catch (Throwable _) {
+         SwingUtilities.invokeLater(this::run); // Try again later.
          Log.global.warning("Error displaying dialog for OutOfMemoryError");
       } finally {
          visible = false;

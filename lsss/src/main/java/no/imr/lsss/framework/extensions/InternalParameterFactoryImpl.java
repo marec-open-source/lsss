@@ -87,7 +87,7 @@ final class InternalParameterFactoryImpl implements InternalParameterFactory {
 
    @Override
    public ConfigParameter<Optional<Path>> surveyDirectoryParameter(LsssAccess lsssAccess, String dirId, String path) {
-      LSSS lsss = ((LsssAccessImpl) lsssAccess).getLsss();
+      LSSS lsss = ((LsssAccessImpl) lsssAccess).getLSSS();
       return new SurveyDirectoryParameter("Select directory for " + dirId,
             new SubDir(new Name("Main" + dirId), new Name(dirId), path), lsss);
    }

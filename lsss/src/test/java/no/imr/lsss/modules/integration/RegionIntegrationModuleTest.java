@@ -57,7 +57,7 @@ final class RegionIntegrationModuleTest {
       regionManager = lsss.getRegionManager();
       regionIntegrationModule = lsss.getModuleManager().getModule(RegionIntegrationModule.class);
 
-      LsssTestUtils.open(lsss, new TestSyntheticData().toSegmentHandle(1, 1000));
+      LsssTestUtils.open(lsss, new TestSyntheticData().withFirstAndLastPingNumber(1, 1000).toSegmentHandle());
    }
 
    @AfterEach

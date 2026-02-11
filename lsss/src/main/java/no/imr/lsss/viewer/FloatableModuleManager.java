@@ -505,7 +505,7 @@ final class FloatableModuleManager {
             if (module.isConfigurable()) {
                JButton configureButton = createControlButton(LsssIcons.SMALL_SETTINGS, "Configure");
                controlBox.add(configureButton);
-               configureButton.addActionListener(e -> mainDisplay.getLSSS().getConfigurationManager().showDialog(module));
+               configureButton.addActionListener(_ -> mainDisplay.getLSSS().getConfigurationManager().showDialog(module));
 
                controlBox.add(Box.createHorizontalStrut(2));
             }
@@ -529,13 +529,13 @@ final class FloatableModuleManager {
 
             JButton floatButton = createControlButton(LsssIcons.SMALL_FLOAT, "Float");
             controlBox.add(floatButton);
-            floatButton.addActionListener(e -> setFloating(!floating));
+            floatButton.addActionListener(_ -> setFloating(!floating));
 
             controlBox.add(Box.createHorizontalStrut(2));
 
             JButton hideButton = createControlButton(LsssIcons.SMALL_HIDE, "Hide");
             controlBox.add(hideButton);
-            hideButton.addActionListener(e -> module.setEnabled(false));
+            hideButton.addActionListener(_ -> module.setEnabled(false));
 
             controlPanel.setBorder(CONTROL_PANEL_BORDER);
             controlPanel.setBackground(Color.WHITE);

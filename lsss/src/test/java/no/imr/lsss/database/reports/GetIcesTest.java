@@ -26,7 +26,7 @@ final class GetIcesTest {
       assertEquals("NO", GetIces.nation(new Nation((short) 578, "Norway")));
       assertEquals("??", GetIces.nation(new Nation((short) 0, "X")));
 
-      LsssDatabaseContent.loadDefaultContent().getContent().get(Nation.class).stream()
+      LsssDatabaseContent.loadDefaultContent(c -> c == Nation.class).getContent().get(Nation.class).stream()
             .map(Nation.class::cast)
             .filter(nation -> nation.getNation() != 0)
             .forEach(nation -> assertNotEquals("??", GetIces.nation(nation), nation::toString));

@@ -7,8 +7,8 @@ import java.nio.ByteBuffer;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class Cas0DatagramTest {
-   private static final int CAT1 = 1;
-   private static final int CAT2 = 3;
+   private static final byte CAT1 = 1;
+   private static final byte CAT2 = 3;
 
    private static final float DISC1 = 0.3f;
    private static final float DISC2 = 0.4f;

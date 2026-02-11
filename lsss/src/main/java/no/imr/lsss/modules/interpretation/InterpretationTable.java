@@ -88,7 +88,7 @@ public final class InterpretationTable extends JTable {
       koronaColumn.setCellEditor(new TableCellButton.Editor());
       koronaColumn.setPreferredWidth(25);
       JLabel koronaLabel = LsssIcons.KORONA.on(new JLabel());
-      koronaColumn.setHeaderRenderer((table, value, isSelected, hasFocus, row, column) -> koronaLabel);
+      koronaColumn.setHeaderRenderer((_, _, _, _, _, _) -> koronaLabel);
    }
 
    private static final class PercentColumnRenderer extends DefaultTableCellRenderer {

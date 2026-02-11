@@ -40,7 +40,7 @@ public final class PingBufferReader {
             Path nextRawFile;
             try {
                nextRawFile = KoronaUtils.nextRawFile(directory, currentRawFile, FileInfoComparator.path());
-            } catch (IOException e) {
+            } catch (IOException _) {
                asyncHandle.sleep(1000);
                continue;
             }

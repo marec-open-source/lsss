@@ -46,8 +46,10 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -161,7 +163,7 @@ public final class VerticalLineOverlay extends BaseEchogramOverlay {
             getEchogramModule().echogramArea(),
             getLSSS().getInterpretationSummary().getChangeManager()
       ));
-      registry.add(getRegionManager().getLabelsChangeManager(), __ -> {
+      registry.add(getRegionManager().getLabelsChangeManager(), _ -> {
          if (showLabels.getValue()) {
             recomputeListener.listen();
          }
@@ -265,7 +267,7 @@ public final class VerticalLineOverlay extends BaseEchogramOverlay {
 
       Rectangle bounds = new Rectangle(0, 0, getWidth(), getHeight());
 
-      if (showSa.getBooleanValue()) {
+      if (showSa.getBooleanValue() || showAcousticCategories.getBooleanValue() || showLabels.getBooleanValue()) {
          addRegionTexts(lineIndices, displayData.saTexts);
       }
 
@@ -293,16 +295,25 @@ public final class VerticalLineOverlay extends BaseEchogramOverlay {
       Map<Integer, AcousticCategory> acousticCategoryMap = getConfigurationManager().getSurveyConfiguration().getAcousticCategoryConf().getAcousticCategoryMap();
       PingRange pingRange = getInterpretationSettings().getPingRange();
 
-      for (Region region : getRegionManager().getVisibleRegions()) {
-         Color colorSa = region.isSelectedAtLeastOnce() ? Color.BLACK : ColorUtils.MOCASSIN;
-         colorSa = region.isSelected() ? ColorUtils.CRIMSON : colorSa;
+      TextOverlapReducer textOverlapReducer = new TextOverlapReducer();
 
-         Color colorSl = region.isSelectedAtLeastOnce() ? Color.BLACK : ColorUtils.MOCASSIN;
-         colorSl = region.isSelected() ? ColorUtils.BLUE : colorSl;
-
+      getRegionManager().visibleRegions().forEach(region -> {
          PingRange visibleRange = pingRange.intersection(region.getPingRange());
          if (visibleRange.isEmpty()) {
-            continue;
+            return;
+         }
+
+         Color colorSa;
+         Color colorSl;
+         if (region.isSelected()) {
+            colorSa = ColorUtils.CRIMSON;
+            colorSl = ColorUtils.BLUE;
+         } else if (region.isSelectedAtLeastOnce()) {
+            colorSa = Color.BLACK;
+            colorSl = Color.BLACK;
+         } else {
+            colorSa = ColorUtils.MOCASSIN;
+            colorSl = ColorUtils.MOCASSIN;
          }
 
          PingIndex fromPingIndex = visibleRange.begin();
@@ -316,16 +327,16 @@ public final class VerticalLineOverlay extends BaseEchogramOverlay {
                if (pingIndex.getPingNumber() >= visibleRange.end().getPingNumber()) {
                   break;
                }
-               addRegionText(region, PingRange.ofUnsorted(fromPingIndex, pingIndex), true, false, false, colorSa, colorSl, acousticCategoryMap, texts);
+               addRegionText(textOverlapReducer, region, PingRange.ofUnsorted(fromPingIndex, pingIndex), true, false, false, colorSa, colorSl, acousticCategoryMap, texts);
                drawTotalSa = true;
                fromPingIndex = pingIndex;
             }
          }
-         addRegionText(region, PingRange.ofUnsorted(fromPingIndex, visibleRange.end()), nonZeroSa, drawTotalSa, true, colorSa, colorSl, acousticCategoryMap, texts);
-      }
+         addRegionText(textOverlapReducer, region, PingRange.ofUnsorted(fromPingIndex, visibleRange.end()), nonZeroSa, drawTotalSa, true, colorSa, colorSl, acousticCategoryMap, texts);
+      });
    }
 
-   private void addRegionText(Region region, PingRange pingRange, boolean nonZeroSa, boolean drawTotalSa, boolean atEndOfRegion, Color colorSa, Color colorSl, Map<Integer, AcousticCategory> acousticCategoryMap, List<GuiText> texts) {
+   private void addRegionText(TextOverlapReducer textOverlapReducer, Region region, PingRange pingRange, boolean nonZeroSa, boolean drawTotalSa, boolean atEndOfRegion, Color colorSa, Color colorSl, Map<Integer, AcousticCategory> acousticCategoryMap, List<GuiText> texts) {
       PingIndex lastPingIndex = getInterpretationSettings().getDataFileSet().previousOrSame(pingRange.end());
       if (getLSSS().getInterpretationSummary().getStoredPings().contains(lastPingIndex)) {
          colorSa = Color.GREEN;
@@ -335,26 +346,32 @@ public final class VerticalLineOverlay extends BaseEchogramOverlay {
       float x = getPingSettings().pingIndexToX(pingRange.end()) - 1;
       float y = Math.max(0, getZSettings().depthToY(getRegionManager().getRepresentativeUpperDepth(region, lastPingIndex), lastPingIndex)) + 1;
 
-      if (nonZeroSa) {
-         float sa = regionIntegrationModule.get().getSa(region, pingRange, integrationArea);
-         String saText = AccumulatedSaOverlay.toMinimalString(sa);
-         texts.add(new GuiText(saText, colorSa, x, y,
-               GuiText.HorizontalAlignment.RIGHT, GuiText.VerticalAlignment.TOP, null));
+      if (nonZeroSa && showSa.getBooleanValue()) {
+         if (textOverlapReducer.canAddText(x, y)) {
+            float sa = regionIntegrationModule.get().getSa(region, pingRange, integrationArea);
+            String saText = AccumulatedSaOverlay.toMinimalString(sa);
+            texts.add(new GuiText(saText, colorSa, x, y,
+                  GuiText.HorizontalAlignment.RIGHT, GuiText.VerticalAlignment.TOP, null));
+         }
          y += saTextFontHeight;
 
          if (drawTotalSa) {
-            sa = regionIntegrationModule.get().getSa(region, integrationArea);
-            saText = AccumulatedSaOverlay.toMinimalString(sa);
-            texts.add(new GuiText(saText, colorSa, x, y,
-                  GuiText.HorizontalAlignment.RIGHT, GuiText.VerticalAlignment.TOP, null));
+            if (textOverlapReducer.canAddText(x, y)) {
+               float totalSa = regionIntegrationModule.get().getSa(region, integrationArea);
+               String totalSaText = AccumulatedSaOverlay.toMinimalString(totalSa);
+               texts.add(new GuiText(totalSaText, colorSa, x, y,
+                     GuiText.HorizontalAlignment.RIGHT, GuiText.VerticalAlignment.TOP, null));
+            }
             y += saTextFontHeight;
          }
 
          if (atEndOfRegion) {
-            float sl = regionIntegrationModule.get().getSL(region, integrationArea);
-            String slText = AccumulatedSaOverlay.toMinimalString(sl);
-            texts.add(new GuiText(slText, colorSl, x, y,
-                  GuiText.HorizontalAlignment.RIGHT, GuiText.VerticalAlignment.TOP, null));
+            if (textOverlapReducer.canAddText(x, y)) {
+               float sl = regionIntegrationModule.get().getSL(region, integrationArea);
+               String slText = AccumulatedSaOverlay.toMinimalString(sl);
+               texts.add(new GuiText(slText, colorSl, x, y,
+                     GuiText.HorizontalAlignment.RIGHT, GuiText.VerticalAlignment.TOP, null));
+            }
             y += saTextFontHeight;
          }
       }
@@ -363,19 +380,23 @@ public final class VerticalLineOverlay extends BaseEchogramOverlay {
          if (showAcousticCategories.getValue()) {
             Map<Integer, Float> assignments = region.getInterpretation().getChannelInterpretation(getInterpretationSettings().getChannel()).getAssignments();
             if (!assignments.isEmpty()) {
-               String categoryText = assignments.entrySet().stream()
-                     .map(e -> getConfigurationManager().getLanguageUtils().getAcCatInitials(acousticCategoryMap.get(e.getKey())) + " (" + Utils.format("%.1f", e.getValue() * 100) + "%)")
-                     .collect(Collectors.joining(", "));
-               texts.add(new GuiText(categoryText, colorSa, x, y,
-                     GuiText.HorizontalAlignment.RIGHT, GuiText.VerticalAlignment.TOP, null));
+               if (textOverlapReducer.canAddText(x, y)) {
+                  String categoryText = assignments.entrySet().stream()
+                        .map(e -> getConfigurationManager().getLanguageUtils().getAcCatInitials(acousticCategoryMap.get(e.getKey())) + " (" + Utils.format("%.1f", e.getValue() * 100) + "%)")
+                        .collect(Collectors.joining(", "));
+                  texts.add(new GuiText(categoryText, colorSa, x, y,
+                        GuiText.HorizontalAlignment.RIGHT, GuiText.VerticalAlignment.TOP, null));
+               }
                y += saTextFontHeight;
             }
          }
          if (showLabels.getValue()) {
             ImmutableSet<String> labels = region.getLabels();
             if (!labels.isEmpty()) {
-               texts.add(new GuiText(Joiner.on(", ").join(labels), colorSa, x, y,
-                     GuiText.HorizontalAlignment.RIGHT, GuiText.VerticalAlignment.TOP, null));
+               if (textOverlapReducer.canAddText(x, y)) {
+                  texts.add(new GuiText(Joiner.on(", ").join(labels), colorSa, x, y,
+                        GuiText.HorizontalAlignment.RIGHT, GuiText.VerticalAlignment.TOP, null));
+               }
                //y += saTextFontHeight;
             }
          }
@@ -506,6 +527,21 @@ public final class VerticalLineOverlay extends BaseEchogramOverlay {
          GuiUtils.draw(g2d, distanceTexts);
 
          g2d.setFont(previousFont);
+      }
+   }
+
+
+   private static final class TextOverlapReducer {
+      private final Set<Integer> taken = new HashSet<>();
+
+      private TextOverlapReducer() {
+      }
+
+      private boolean canAddText(float x, float y) {
+         int a = (int) Math.ceil(x / 16);
+         int b = (int) Math.ceil(y / 8);
+         int c = (a << 16) | b;
+         return taken.add(c);
       }
    }
 }

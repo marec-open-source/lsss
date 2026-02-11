@@ -5,7 +5,7 @@ import {ConfigService} from './config.service';
    changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-footer',
    templateUrl: './footer.component.html',
-   styleUrl: './footer.component.css',
+   styleUrl: './footer.component.scss',
    imports: [],
 })
 export class FooterComponent {

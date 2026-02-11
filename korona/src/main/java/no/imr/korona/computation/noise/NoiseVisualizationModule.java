@@ -499,21 +499,21 @@ public final class NoiseVisualizationModule extends PlayboxModule {
       private JPanel createTimeSeriesSelectionPanel() {
          JCheckBox ne = new JCheckBox("NE", module.showNE);
          ne.setBackground(Color.WHITE);
-         ne.addItemListener(e -> {
+         ne.addItemListener(_ -> {
             module.showNE = ne.isSelected();
             module.updatePlotVisibility();
          });
 
          JCheckBox nh = new JCheckBox("NH", module.showNH);
          nh.setBackground(Color.WHITE);
-         nh.addItemListener(e -> {
+         nh.addItemListener(_ -> {
             module.showNH = nh.isSelected();
             module.updatePlotVisibility();
          });
 
          JCheckBox nMedian = new JCheckBox("NMedian", module.showNMedian);
          nMedian.setBackground(Color.WHITE);
-         nMedian.addItemListener(e -> {
+         nMedian.addItemListener(_ -> {
             module.showNMedian = nMedian.isSelected();
             module.updatePlotVisibility();
          });

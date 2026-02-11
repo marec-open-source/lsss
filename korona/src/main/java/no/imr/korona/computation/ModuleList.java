@@ -34,13 +34,14 @@ final class ModuleList {
             .collect(Collectors.joining(" -> "));
    }
 
-   void addModule(BaseModule module) {
-      addModule(modules.size(), module);
+   <T extends BaseModule> T addModule(T module) {
+      return addModule(modules.size(), module);
    }
 
-   void addModule(int index, BaseModule module) {
+   <T extends BaseModule> T addModule(int index, T module) {
       modules.add(index, module);
       module.setModuleContainer(moduleContainer);
+      return module;
    }
 
    List<BaseModule> getModules() {

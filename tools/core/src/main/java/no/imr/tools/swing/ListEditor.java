@@ -32,15 +32,15 @@ public class ListEditor<E> {
 
       buttonsPanel.add(removeButton);
       removeButton.setToolTipText("Remove selected items");
-      removeButton.addActionListener(e -> removeHighlightedItems());
+      removeButton.addActionListener(_ -> removeHighlightedItems());
 
       buttonsPanel.add(upButton);
       upButton.setToolTipText("Move selected items up");
-      upButton.addActionListener(e -> shiftUp());
+      upButton.addActionListener(_ -> shiftUp());
 
       buttonsPanel.add(downButton);
       downButton.setToolTipText("Move selected items down");
-      downButton.addActionListener(e -> shiftDown());
+      downButton.addActionListener(_ -> shiftDown());
    }
 
    public JComponent getComponent() {

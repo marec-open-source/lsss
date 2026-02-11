@@ -9,6 +9,7 @@ import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.database.JavaDBUtils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import no.imr.tools.database.queries.FetchQuery;
+import no.imr.tools.database.queries.QueryBuilder;
 import no.imr.tools.logging.Log;
 import org.jspecify.annotations.Nullable;
 
@@ -40,7 +41,7 @@ final class DatabaseCopyHelper {
    }
 
    <T extends BaseDatabaseObject> void copyClass(Class<T> clazz) {
-      FetchQuery<T> fetchQuery = new FetchQuery<>(clazz);
+      FetchQuery<T> fetchQuery = LsssQuery.fetch(clazz);
 
       DatabaseUtils.copyByInsert(source, fetchQuery, destination);
 
@@ -51,8 +52,7 @@ final class DatabaseCopyHelper {
    }
 
    <T extends BaseDatabaseObject> void copyClassForNation(short nationPK, Class<T> clazz) {
-      FetchQuery<T> fetchQuery = new FetchQuery<>(clazz,
-            DatabaseData.NATION, nationPK);
+      FetchQuery<T> fetchQuery = LsssQuery.fetch(clazz, DatabaseData.NATION, nationPK);
 
       DatabaseUtils.copyByInsert(source, fetchQuery, destination);
 
@@ -65,9 +65,7 @@ final class DatabaseCopyHelper {
    }
 
    <T extends BaseDatabaseObject> void copyClassForPlatform(PlatformPK platformPK, Class<T> clazz) {
-      FetchQuery<T> fetchQuery = new FetchQuery<>(clazz,
-            DatabaseData.NATION, platformPK.getNation(),
-            DatabaseData.PLATFORM, platformPK.getPlatform());
+      FetchQuery<T> fetchQuery = LsssQuery.forPlatform(QueryBuilder.fetch(clazz), platformPK).build();
 
       DatabaseUtils.copyByInsert(source, fetchQuery, destination);
 

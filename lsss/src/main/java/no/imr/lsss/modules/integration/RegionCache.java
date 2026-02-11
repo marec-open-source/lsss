@@ -13,13 +13,13 @@ import java.util.TreeMap;
 
 final class RegionCache {
    private final NavigableMap<PingIndex, @Nullable PingCache> pingMap = new TreeMap<>();
-   private List<IntegrationCurvePoint> curve = List.of();
+   private volatile List<IntegrationCurvePoint> curve = List.of();
 
    RegionCache() {
    }
 
    PingCache getOrCreatePingCache(PingIndex pingIndex) {
-      return pingMap.computeIfAbsent(pingIndex, k -> new PingCache());
+      return pingMap.computeIfAbsent(pingIndex, _ -> new PingCache());
    }
 
    void putNullIfAbsent(PingIndex pingIndex) {
@@ -78,6 +78,6 @@ final class RegionCache {
             (float) horizontallyIntegratedSvPelagic,
             (float) horizontallyIntegratedSvBottom));
 
-      this.curve = curve;
+      this.curve = List.copyOf(curve);
    }
 }

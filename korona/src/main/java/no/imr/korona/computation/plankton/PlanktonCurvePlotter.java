@@ -47,7 +47,7 @@ final class PlanktonCurvePlotter {
       }
       try {
          return new PlanktonFile(file);
-      } catch (IOException e) {
+      } catch (IOException _) {
          JOptionPane.showMessageDialog(null, "Error loading plankton file:\n" + file, "Error", JOptionPane.ERROR_MESSAGE);
          return null;
       }

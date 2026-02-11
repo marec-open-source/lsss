@@ -11,6 +11,7 @@ import no.imr.tools.logging.Log;
 import no.imr.tools.web.WebUtils;
 
 import java.io.FileNotFoundException;
+import java.net.SocketTimeoutException;
 import java.nio.file.NoSuchFileException;
 import java.util.logging.Level;
 
@@ -27,23 +28,30 @@ public final class ErrorMessageExceptionMapper implements ExceptionMapper<Throwa
 
    @Override
    public Response toResponse(Throwable throwable) {
-      String responseMessage = throwable.toString();
+      String message = "Error " + request.getMethod() + " " + uriInfo.getRequestUri() + ", " + throwable;
       Response.StatusType statusType = getResponseStatus(throwable);
-      if (statusType.getFamily() == Response.Status.Family.SERVER_ERROR) {
-         String logMessage = "Error " + request.getMethod() + " " + uriInfo.getRequestUri() + ", " + responseMessage;
-         Log.global.log(Level.WARNING, logMessage, throwable);
+      if (skipStackTrace(throwable, statusType)) {
+         Log.global.log(Level.INFO, message);
+      } else {
+         Log.global.log(Level.INFO, message, throwable);
       }
       return Response.status(statusType)
-            .entity(responseMessage)
+            .entity(message)
             .type(WebUtils.TEXT_PLAIN_UTF_8)
             .build();
+   }
+
+   private static boolean skipStackTrace(Throwable throwable, Response.StatusType statusType) {
+      return statusType.getFamily() != Response.Status.Family.SERVER_ERROR
+            || throwable instanceof SocketTimeoutException
+            || throwable.getClass().getSimpleName().equals("ClientAbortException");
    }
 
    private static Response.StatusType getResponseStatus(Throwable throwable) {
       return switch (throwable) {
          case WebApplicationException e -> e.getResponse().getStatusInfo();
-         case FileNotFoundException  __ -> Response.Status.NOT_FOUND;
-         case NoSuchFileException    __ -> Response.Status.NOT_FOUND;
+         case FileNotFoundException   _,
+              NoSuchFileException     _ -> Response.Status.NOT_FOUND;
          default                        -> Response.Status.INTERNAL_SERVER_ERROR;
       };
    }

@@ -81,14 +81,14 @@ public final class MarchingCube {
          /* 12  */   P2 | P4 | P5 | P6,
          /* 13  */   P1 | P3 | P6 | P8,
          /* 14  */   P2 | P5 | P6 | P8,
-         /*  7c */ ~(P2 | P4 | P7) & 0xFF,
-         /*  6c */ ~(P1 | P2 | P7) & 0xFF,
-         /*  5c */ ~(P2 | P5 | P6) & 0xFF,
-         /*  4c */ ~(P1 | P7) & 0xFF,
-         /*  3c */ ~(P1 | P3) & 0xFF,
-         /*  2c */ ~(P1 | P2) & 0xFF,
-         /*  1c */ ~P1 & 0xFF,
-         /*  0c */   0xFF
+         /*  7c */ ~(P2 | P4 | P7) & 0xff,
+         /*  6c */ ~(P1 | P2 | P7) & 0xff,
+         /*  5c */ ~(P2 | P5 | P6) & 0xff,
+         /*  4c */ ~(P1 | P7) & 0xff,
+         /*  3c */ ~(P1 | P3) & 0xff,
+         /*  2c */ ~(P1 | P2) & 0xff,
+         /*  1c */ ~P1 & 0xff,
+         /*  0c */   0xff
    };
 
    private static final int[][] POLY_EDGE = {
@@ -240,7 +240,7 @@ public final class MarchingCube {
    }
 
    /**
-    * MarchingCube::MarchingCube()
+    * MarchingCube::MarchingCube().
     * <p>
     * - Initialize tables if not done before, and empties struct.
     * - Compute pattern based on isovalue and cube corner values (0-255)
@@ -333,7 +333,7 @@ public final class MarchingCube {
    }
 
    /**
-    * computePattern()
+    * computePattern().
     * <p>
     * - Return 8-bit pattern describing which cube corner values
     * are higher than the value.

@@ -23,8 +23,7 @@ import no.imr.lsss.framework.WorkFileExtra;
 import no.imr.lsss.modules.BaseDataModule;
 import no.imr.lsss.modules.ModuleInfo;
 import no.imr.tools.Utils;
-import no.imr.tools.database.queries.RemoveQuery;
-import no.imr.tools.database.queries.SaveOrUpdateQuery;
+import no.imr.tools.database.queries.StatelessDatabaseQuery;
 import no.imr.tools.listening.ChangeManager;
 import no.imr.tools.listening.ListenerRegistry;
 import no.imr.tools.logging.Log;
@@ -185,11 +184,11 @@ public final class CommentDataModule extends BaseDataModule {
 
       CommentDialog.Mode mode = editable ? CommentDialog.Mode.EDIT : CommentDialog.Mode.VIEW;
       JMenuItem editItem = MiscIcons.EDIT.on(popupMenu.add(mode.text + " comment..."));
-      editItem.addActionListener(e -> editComment(survey, comment, mode));
+      editItem.addActionListener(_ -> editComment(survey, comment, mode));
 
       JMenuItem deleteItem = MiscIcons.DELETE.on(popupMenu.add("Delete comment"));
       if (editable) {
-         deleteItem.addActionListener(e -> deleteComments(List.of(comment)));
+         deleteItem.addActionListener(_ -> deleteComments(List.of(comment)));
       } else {
          deleteItem.setEnabled(false);
       }
@@ -208,7 +207,7 @@ public final class CommentDataModule extends BaseDataModule {
       Comment comment = timeInMillisToComment.get(DatabaseTime.roundMillis(pingIndex.getTimeInMillis()));
       if (comment == null) {
          if (editable) {
-            item.addActionListener(e -> editComment(survey, new Comment(pingIndex.getTimeInMillis(), ""), CommentDialog.Mode.ADD));
+            item.addActionListener(_ -> editComment(survey, new Comment(pingIndex.getTimeInMillis(), ""), CommentDialog.Mode.ADD));
          } else {
             item.setEnabled(false);
          }
@@ -216,7 +215,7 @@ public final class CommentDataModule extends BaseDataModule {
       }
       CommentDialog.Mode mode = editable ? CommentDialog.Mode.EDIT : CommentDialog.Mode.VIEW;
       item.setText(mode.text + " comment...");
-      item.addActionListener(e -> editComment(survey, comment, mode));
+      item.addActionListener(_ -> editComment(survey, comment, mode));
       return item;
    }
 
@@ -261,8 +260,8 @@ public final class CommentDataModule extends BaseDataModule {
 
    private void saveCommentToDatabase(Survey survey, Comment comment) {
       ObservationComment observationComment = toObservationComment(survey, comment);
-      getLSSS().getDatabaseManager().getDatabaseConnection().asyncExecuteQuery(
-            new SaveOrUpdateQuery(List.of(observationComment.getObservation(), observationComment)));
+      getLSSS().getDatabaseManager().getDatabaseConnection().asyncExecuteStatelessQuery(
+            StatelessDatabaseQuery.upsert(List.of(observationComment.getObservation(), observationComment)));
    }
 
    void deleteComments(List<Comment> comments) {
@@ -289,8 +288,10 @@ public final class CommentDataModule extends BaseDataModule {
       List<ObservationComment> observationComments = comments.stream()
             .map(comment -> toObservationComment(survey, comment))
             .toList();
-      // Observation is not deleted
-      getLSSS().getDatabaseManager().getDatabaseConnection().asyncExecuteQuery(new RemoveQuery(observationComments));
+      // Observations are not deleted.
+      getLSSS().getDatabaseManager().getDatabaseConnection().asyncExecuteStatelessQuery(
+            StatelessDatabaseQuery.delete(observationComments)
+      );
    }
 
    private static BigDecimal valueAsBigDecimal(ObservationComment observationComment) {
@@ -384,7 +385,7 @@ public final class CommentDataModule extends BaseDataModule {
                   observationComment.getStandardComment(),
                   valueAsBigDecimal(observationComment).doubleValue(),
                   observationComment.getText()))
-            .collect(Collectors.toMap(Comment::timeInMillis, Function.identity(), (a, b) -> a, TreeMap::new));
+            .collect(Collectors.toMap(Comment::timeInMillis, Function.identity(), (a, _) -> a, TreeMap::new));
    }
 
    private void surveyChanged() {

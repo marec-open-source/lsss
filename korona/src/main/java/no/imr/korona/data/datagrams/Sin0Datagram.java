@@ -9,7 +9,7 @@ import java.util.List;
  * System information.
  */
 public final class Sin0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("SIN0", Sin0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("SIN0", Sin0Datagram::new);
 
    public final List<Transceiver> transceivers;
 

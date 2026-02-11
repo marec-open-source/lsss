@@ -42,7 +42,7 @@ final class SurveyDirectoryWizardStep extends WizardStep {
       this.lsss = lsss;
       directoryConf = lsss.getConfigurationManager().getApplicationConfiguration().getDirectoryConf();
 
-      surveyDirectory.subscribe(__ -> {
+      surveyDirectory.subscribe(_ -> {
          getWizard().updateNextButton();
          Path file = surveyFile.getFile();
          Path currentSurveyDir = surveyDirectory.getFile();
@@ -53,7 +53,7 @@ final class SurveyDirectoryWizardStep extends WizardStep {
          }
          previousSurveyDirectory = currentSurveyDir;
       });
-      surveyFile.subscribe(__ -> {
+      surveyFile.subscribe(_ -> {
          getWizard().updateNextButton();
       });
 

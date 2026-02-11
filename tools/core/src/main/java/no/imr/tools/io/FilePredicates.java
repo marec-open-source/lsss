@@ -11,7 +11,7 @@ public final class FilePredicates {
    }
 
    public static Predicate<Path> includeAll() {
-      return file -> true;
+      return _ -> true;
    }
 
    public static Predicate<Path> endsWith(String suffix) {

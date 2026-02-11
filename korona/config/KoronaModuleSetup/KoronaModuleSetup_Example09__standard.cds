@@ -93,6 +93,7 @@ is detected. The bottom telegram are kept after TemporaryComputationsEndModule.<
             <parameter name="MinKHz">20</parameter>
             <parameter name="MaxKHz">40</parameter>
             <parameter name="DoNotUseKHz"/>
+            <parameter name="CoordinatedBottomOffset">0</parameter>
          </parameters>
       </module>
       <module name="TemporaryComputationsEndModule">

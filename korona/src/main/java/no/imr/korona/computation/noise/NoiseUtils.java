@@ -104,7 +104,7 @@ public final class NoiseUtils {
 
       for (PerChannelNoiseFile perChannelNoiseFile : noiseDataList) {
          for (Map.Entry<Integer, PerChannelNoiseFile.NoiseData> integerNoiseDataEntry : perChannelNoiseFile.getEntries()) {
-            List<Float> floats = combined.computeIfAbsent(integerNoiseDataEntry.getKey(), k -> new ArrayList<>());
+            List<Float> floats = combined.computeIfAbsent(integerNoiseDataEntry.getKey(), _ -> new ArrayList<>());
             floats.add(integerNoiseDataEntry.getValue().ne());
          }
       }

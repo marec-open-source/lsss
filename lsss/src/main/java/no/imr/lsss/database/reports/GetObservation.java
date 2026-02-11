@@ -33,14 +33,14 @@ final class GetObservation {
          Path aObservationFileAll,
          Charset aCharset) {
 
-      try (ScrollableResults observationResults = aSession.createQuery(aQuery)
+      try (ScrollableResults<Observation> observationResults = aSession.createSelectionQuery(aQuery, Observation.class)
             .setReadOnly(true)
             .scroll(ScrollMode.FORWARD_ONLY);
            PrintWriter f = FileUtils.newPrintWriter(aObservationFile, aCharset);
            PrintWriter fAll = FileUtils.newPrintWriter(aObservationFileAll, aCharset)
       ) {
          while (observationResults.next()) {
-            Observation obs = (Observation) observationResults.get(0);
+            Observation obs = observationResults.get();
 
             ObservationPK obsPK = obs.getCompId();
             if (obsPK.getObservationType() == ObservationTypeEnum.SCATTERED_FISH_DATA.getValue() ||

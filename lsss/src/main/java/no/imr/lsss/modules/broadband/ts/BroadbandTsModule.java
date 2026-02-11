@@ -251,7 +251,7 @@ public final class BroadbandTsModule extends BaseViewModule implements BaseTsMod
       registry.add(getInterpretationSettings().mouseover().echogramPoint(), updatePlotListener);
       registry.add(getInterpretationSettings().mouseover().kHz(), newCoalescingExecListener(frequencyPlotMarker::updateMarker));
 
-      registry.add(tsModule.get().getTSDetectionChangeManager(), __ -> {
+      registry.add(tsModule.get().getTSDetectionChangeManager(), _ -> {
          if (plotNarrowband.getBooleanValue()) {
             updatePlotListener.listen();
          }
@@ -439,7 +439,7 @@ public final class BroadbandTsModule extends BaseViewModule implements BaseTsMod
 
       // Add current graph on top.
       if (highlightedTargets.isEmpty()) {
-         createGraph("Current ping", regions, pingIndex, channel, x -> true).ifPresent(graphCurrent -> {
+         createGraph("Current ping", regions, pingIndex, channel, _ -> true).ifPresent(graphCurrent -> {
             graphCurrent.setLineWidth(3);
             graphCurrent.setColor(Color.RED);
             graphs.add(graphCurrent);
@@ -467,13 +467,13 @@ public final class BroadbandTsModule extends BaseViewModule implements BaseTsMod
       int n = pingRadius.getIntValue();
       IntStream.rangeClosed(1, n).forEach(i -> {
          PingIndex pingIndexPast = getInterpretationSettings().getDataFileSet().getPingIndexOrNull(pingIndex.getPingNumber() - i);
-         createGraph("Current ping - " + i, regions, pingIndexPast, channel, x -> true).ifPresent(graphPast -> {
+         createGraph("Current ping - " + i, regions, pingIndexPast, channel, _ -> true).ifPresent(graphPast -> {
             graphPast.setColor(PingPlotModule.getColor(-i, n));
             graphs.add(graphPast);
          });
 
          PingIndex pingIndexFuture = getInterpretationSettings().getDataFileSet().getPingIndexOrNull(pingIndex.getPingNumber() + i);
-         createGraph("Current ping + " + i, regions, pingIndexFuture, channel, x -> true).ifPresent(graphFuture -> {
+         createGraph("Current ping + " + i, regions, pingIndexFuture, channel, _ -> true).ifPresent(graphFuture -> {
             graphFuture.setColor(PingPlotModule.getColor(i, n));
             graphs.add(graphFuture);
          });

@@ -49,7 +49,14 @@ public final class SmokeTestExecutor {
                if (logRecord.getLevel().intValue() >= Level.WARNING.intValue()) {
                   System.err.println("Smoke test: log >= warning");
                   System.err.println(new OneLineFormatter().format(logRecord));
-                  System.exit(1);
+                  if (logRecord.getThrown() == null) {
+                     new SmokeTestException(logRecord.getLevel().getName()).printStackTrace(System.err);
+                  }
+                  Thread.ofVirtual().name("maxLogLevel").start(() -> {
+                     // Run in a different thread, in case logging is done via an executor
+                     // that should be stopped in a shutdown hhok.
+                     System.exit(1);
+                  });
                }
             }
          });
@@ -69,7 +76,7 @@ public final class SmokeTestExecutor {
       try {
          assert System.lineSeparator().isEmpty(); // Should always fail.
          return false;
-      } catch (AssertionError e) {
+      } catch (AssertionError _) {
          return true;
       }
    }

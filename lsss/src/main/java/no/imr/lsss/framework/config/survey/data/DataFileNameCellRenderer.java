@@ -89,8 +89,8 @@ final class DataFileNameCellRenderer extends DefaultTableCellRenderer {
                .text(fileRow.getRawSegmentHandle().getDisplayName())
                .html("<br>Size: ").text(Utils.getByteSizeString(fileRow.getTotalFileSize(DataType.RAW)));
          SegmentInfo segmentInfo = fileRow.getSegmentInfo();
-         if (segmentInfo != null && !segmentInfo.getPingRange().isEmpty()) {
-            tooltip.html("<br>Start: ").text(new Date(segmentInfo.getPingRange().begin().getTimeInMillis()).toString());
+         if (segmentInfo != null && !segmentInfo.pingRange().isEmpty()) {
+            tooltip.html("<br>Start: ").text(new Date(segmentInfo.pingRange().begin().getTimeInMillis()).toString());
             addFrequencyTooltip(tooltip, segmentInfo, fileRow.getDataTypes(DataType.RAW));
          }
          DataFileLabelUtils.addLabelsTooltip(tooltip, labels);
@@ -102,7 +102,7 @@ final class DataFileNameCellRenderer extends DefaultTableCellRenderer {
 
    static void addFrequencyTooltip(HtmlStringBuilder tooltip, SegmentInfo segmentInfo, ImmutableMap<Integer, String> dataTypes) {
       tooltip.html("<br>Freq: ");
-      float[] frequencies = segmentInfo.getRawFileConfigurationInfo().frequencies;
+      float[] frequencies = segmentInfo.rawFileConfigurationInfo().frequencies;
       for (int i = 0; i < frequencies.length; i++) {
          if (i > 0) {
             tooltip.text(", ");

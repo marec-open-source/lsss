@@ -17,7 +17,7 @@ public final class PulseForm {
    public static int stringPulseFormToInt(String stingPulseForm) {
       try {
          return Integer.parseInt(stingPulseForm);
-      } catch (NumberFormatException e) {
+      } catch (NumberFormatException _) {
          return switch (stingPulseForm.toLowerCase(Locale.ENGLISH)) {
             case NARROWBAND_NAME -> NARROWBAND;
             case BROADBAND_LINEAR_UP_NAME -> BROADBAND_LINEAR_UP;

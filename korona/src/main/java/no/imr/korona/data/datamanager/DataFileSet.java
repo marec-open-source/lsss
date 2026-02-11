@@ -52,37 +52,48 @@ import java.util.stream.Stream;
 public final class DataFileSet implements PingContainer {
    private final DataConfiguration dataConfiguration;
    private final Executor pingLoaderExecutor = new SerialExecutor(Exec.CACHED_THREAD_POOL);
-   private final List<DataFile> dataFiles = new ArrayList<>();
+   private final List<DataFile> dataFiles;
    private final RangeSet<PingIndex> missingPings = new ArrayRangeSet<>();
    private final RangeMap<Long, Double> wrapAroundRangeMap = new ArrayRangeMap<>();
    private final PingConfiguration pingConfiguration;
    private final PingRange totalPingRange;
    private final List<PingIndex> pingIndices;
+   private final List<Bot0Datagram> bot0Datagrams;
    private @Nullable Float maxDepth;
    private final List<DataManager> dataManagers = new CopyOnWriteArrayList<>();
 
    DataFileSet(DataConfiguration dataConfiguration, FileOpenRequest fileOpenRequest) {
       this.dataConfiguration = dataConfiguration;
 
+      dataFiles = new ArrayList<>();
       openFiles(fileOpenRequest);
 
       if (dataFiles.isEmpty()) {
          pingConfiguration = PingConfiguration.newEmpty();
          totalPingRange = PingRange.EMPTY_RANGE;
          pingIndices = List.of();
+         bot0Datagrams = List.of();
       } else {
          pingConfiguration = dataFiles.getFirst().getPingConfiguration();
          totalPingRange = toTotalPingRange(dataFiles);
-         pingIndices = toPingIndices(dataFiles);
+         pingIndices = dataFiles.stream()
+               .<PingIndex>flatMap(dataFile -> dataFile.getPingIndices().stream())
+               .toList();
+         bot0Datagrams = dataFiles.stream()
+               .flatMap(dataFile -> dataFile.getBot0Datagrams().stream())
+               .toList();
       }
    }
 
    private DataFileSet(DataFileSet dataFileSet, int beginIndex, int endIndex) {
       dataConfiguration = dataFileSet.dataConfiguration;
-      dataFiles.addAll(dataFileSet.dataFiles.subList(beginIndex, endIndex));
+      dataFiles = dataFileSet.dataFiles.subList(beginIndex, endIndex);
       pingConfiguration = dataFileSet.pingConfiguration;
       totalPingRange = toTotalPingRange(dataFiles);
-      pingIndices = toPingIndices(dataFiles);
+      int pingBeginIndex = dataFileSet.pingNumberToIndex(totalPingRange.begin().getPingNumber());
+      int pingEndIndex = pingBeginIndex + totalPingRange.getPingCount();
+      pingIndices = dataFileSet.pingIndices.subList(pingBeginIndex, pingEndIndex);
+      bot0Datagrams = dataFileSet.bot0Datagrams.subList(pingBeginIndex, pingEndIndex);
       dataFileSet.missingPings.stream(totalPingRange).forEach(missingPings::add);
       wrapAroundRangeMap.putAll(dataFileSet.wrapAroundRangeMap);
    }
@@ -92,12 +103,6 @@ public final class DataFileSet implements PingContainer {
          return new DataFileSet(dataConfiguration, new FileOpenRequest(List.of()));
       }
       return new DataFileSet(this, beginIndex, endIndex);
-   }
-
-   private static List<PingIndex> toPingIndices(List<DataFile> dataFiles) {
-      return dataFiles.stream()
-            .<PingIndex>flatMap(dataFile -> dataFile.getPingIndices().stream())
-            .toList();
    }
 
    private static PingRange toTotalPingRange(List<DataFile> dataFiles) {
@@ -132,7 +137,7 @@ public final class DataFileSet implements PingContainer {
       dataFiles.forEach(DataFile::close);
    }
 
-   public Compatibility isCompatibleWith(DataFileSet otherDataFileSet) {
+   public Compatibility getCompatibilityWith(DataFileSet otherDataFileSet) {
       if (dataFiles.size() != otherDataFileSet.getDataFiles().size()) {
          return Compatibility.UNUSABLE;
       }
@@ -216,11 +221,11 @@ public final class DataFileSet implements PingContainer {
                // Cancelled
                continue;
             }
-         } catch (CancellationException e) {
+         } catch (CancellationException _) {
             // Cancelled
             fileOpenRequest.getAsyncHandle().cancel();
             continue;
-         } catch (InterruptedException e) {
+         } catch (InterruptedException _) {
             Thread.currentThread().interrupt();
             fileOpenRequest.getAsyncHandle().cancel();
             continue;
@@ -328,9 +333,13 @@ public final class DataFileSet implements PingContainer {
       return missingPings;
    }
 
+   private int pingNumberToIndex(long pingNumber) {
+      return (int) (pingNumber - totalPingRange.begin().getPingNumber());
+   }
+
    @Override
    public @Nullable PingIndex getPingIndexOrNullExcludingEnd(long pingNumber) {
-      int i = (int) (pingNumber - totalPingRange.begin().getPingNumber());
+      int i = pingNumberToIndex(pingNumber);
       if (i >= 0 && i < pingIndices.size()) {
          return pingIndices.get(i);
       }
@@ -365,8 +374,11 @@ public final class DataFileSet implements PingContainer {
    }
 
    public List<DataFile> getDataFiles(PingRange pingRange) {
+      if (pingRange.isEmpty()) {
+         return List.of();
+      }
       int iBegin = Math.max(getContainingDataFileIndex(pingRange.begin()), 0);
-      int iEnd = Math.min(getContainingDataFileIndex(pingRange.end()) + 1, dataFiles.size());
+      int iEnd = Math.min(getContainingDataFileIndex(previousOrSame(pingRange.end())) + 1, dataFiles.size());
       return dataFiles.subList(iBegin, iEnd);
    }
 
@@ -410,9 +422,9 @@ public final class DataFileSet implements PingContainer {
    }
 
    public Bot0Datagram getBot0Datagram(PingIndex pingIndex) {
-      DataFile dataFile = getDataFileOrNull(pingIndex);
-      if (dataFile != null) {
-         return dataFile.getBot0Datagram(pingIndex);
+      int i = pingNumberToIndex(pingIndex.getPingNumber());
+      if (i >= 0 && i < bot0Datagrams.size()) {
+         return bot0Datagrams.get(i);
       }
       if (pingIndex.equals(totalPingRange.end())) {
          PingIndex previousPingIndex = previousOrNull(pingIndex);
@@ -477,7 +489,7 @@ public final class DataFileSet implements PingContainer {
       return DataUtils.getContainingPingIndex(pingIndices, totalPingRange.end(), value, pingMapping);
    }
 
-   public void asyncLoadPings(List<PingIndex> pingIndices, AsyncHandle asyncHandle, Runnable onCompletion) {
+   void asyncLoadPings(List<PingIndex> pingIndices, AsyncHandle asyncHandle, Runnable onCompletion) {
       pingLoaderExecutor.execute(asyncHandle.createManagedRunnable(() -> {
          int n = Math.max(1, Runtime.getRuntime().availableProcessors() - 2);
          Queue<Future<?>> futures = new ArrayDeque<>();
@@ -488,7 +500,9 @@ public final class DataFileSet implements PingContainer {
                }
                DataFile dataFile = getDataFileOrNull(pingIndex);
                if (dataFile != null) {
-                  dataFile.getPing(pingIndex).getPingData();
+                  Ping ping = dataFile.getPing(pingIndex);
+                  PingData pingData = ping.getPingData();
+                  pingLoaded(new Pair<>(ping, pingData));
                }
             }));
             if (futures.size() >= n) {

@@ -234,7 +234,7 @@ public final class ArrayMath {
    }
 
    public static float mean(byte[] values, int iBegin, int iEnd) {
-      return (float) sum(values, iBegin, iEnd) / values.length;
+      return (float) sum(values, iBegin, iEnd) / (iEnd - iBegin);
    }
 
    public static float mean(int[] values) {

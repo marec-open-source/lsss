@@ -27,7 +27,7 @@ final class SchoolParameterModuleTest {
    void beforeEach() {
       lsss = LsssTestUtils.start(List.of(SchoolParameterModule.class), List.of());
       schoolParameterModule = lsss.getModuleManager().getModule(SchoolParameterModule.class);
-      LsssTestUtils.open(lsss, new TestSyntheticData().toSegmentHandle(1, 1000));
+      LsssTestUtils.open(lsss, new TestSyntheticData().withFirstAndLastPingNumber(1, 1000).toSegmentHandle());
    }
 
    @AfterEach
@@ -49,7 +49,7 @@ final class SchoolParameterModuleTest {
       assertNotNull(school);
       assertEquals(vesselDistanceInMeter(p1, p2) * deltaDepth, getArea(school), 0.1);
 
-      ImmutableMap<String, Float> values = school.getParameters().getValues();
+      ImmutableMap<String, Float> values = school.getParameters().values();
       assertEquals(10, values.size());
       assertEquals(46300.0f, values.get("area"));
       assertEquals(75.0f, values.get("bottomDepth"));
@@ -62,7 +62,7 @@ final class SchoolParameterModuleTest {
       assertEquals(20.0f, values.get("minDepth"));
       assertEquals(35.0f, values.get("minDistBottom"));
 
-      ImmutableMap<String, Float> perChannelValues = school.getParameters().getPerChannelValues().get(1);
+      ImmutableMap<String, Float> perChannelValues = school.getParameters().perChannelValues().get(1);
       assertNotNull(perChannelValues);
       assertEquals(12, perChannelValues.size());
       assertEquals(9190134.0f, perChannelValues.get("sA"));
@@ -98,7 +98,7 @@ final class SchoolParameterModuleTest {
 
    private double getArea(School school) {
       schoolParameterModule.compute(school);
-      Float area = school.getParameters().getValues().get(AreaParameterCollection.AREA.getPersistentName());
+      Float area = school.getParameters().values().get(AreaParameterCollection.AREA.getPersistentName());
       assertNotNull(area);
       return area;
    }

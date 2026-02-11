@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
  * Categorization data.
  */
 public final class Cad0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("CAD0", Cad0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("CAD0", Cad0Datagram::new);
 
    private final byte[][] categories;
    private final byte[][] discriminants;

@@ -72,10 +72,15 @@ public abstract class BaseDatagram {
    }
 
    public BaseDatagram makeCopy() {
-      try {
-         return getDatagramType().createDatagram(ntDate, toByteBufferExcludingHeader(), null); // Datagram types using DatagramTypeManager should override makeCopy
-      } catch (DatagramFormatException e) {
-         throw new ShouldNotHappenException(e);
+      if (getDatagramType().getFactory() instanceof DatagramType.SimpleFactory simpleFactory) {
+         try {
+            return simpleFactory.read(ntDate, toByteBufferExcludingHeader());
+         } catch (DatagramFormatException e) {
+            throw new ShouldNotHappenException(e);
+         }
+      } else {
+         // Datagram types using DatagramTypeManager should override makeCopy.
+         throw new UnsupportedOperationException(getDatagramType().getAsciiQuad());
       }
    }
 }

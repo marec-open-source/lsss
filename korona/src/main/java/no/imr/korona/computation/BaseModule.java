@@ -9,7 +9,7 @@ import no.imr.tools.parameter.FileParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.ParameterCollection;
 import no.imr.tools.parameter.ParameterContainer;
-import no.imr.tools.parameter.StringParameter;
+import no.imr.tools.parameter.TextParameter;
 import no.imr.tools.parameter.gui.input.GUIConfig;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -34,14 +34,15 @@ public abstract sealed class BaseModule implements ParameterContainer
          true,
          "If the module is not active, then all datagrams pass unaltered through it");
 
-   public final StringParameter comment = new StringParameter(new Name("Comment"));
+   public final TextParameter comment = new TextParameter(new Name("Comment"));
 
    private @Nullable ModuleContainer moduleContainer;
    private @Nullable ModuleInfo moduleInfo;
 
    BaseModule() {
-      comment.setProperty(BaseParameter.KEY_LEFT_ALIGNED, true);
-      comment.setProperty(BaseParameter.KEY_HORIZONTAL_FILL, true);
+      comment.setProperty(BaseParameter.KEY_ROWS, 0);
+      comment.setProperty(BaseParameter.KEY_TEXT_SCROLL_PANE, false);
+      comment.setProperty(BaseParameter.KEY_TEXT_WRAP, true);
       comment.setProperty(BaseParameter.KEY_COMBINE_INPUT_AND_DESCRIPTION, true);
       comment.addListenerAndNotify(text -> {
          comment.setPersistable(!text.isBlank());
@@ -86,7 +87,7 @@ public abstract sealed class BaseModule implements ParameterContainer
       checkConfigFileSettings();
       try {
          return createComputation(computationContext, pingSource);
-      } catch (IgnoreModuleComputationException e) {
+      } catch (IgnoreModuleComputationException _) {
          return null;
       }
    }

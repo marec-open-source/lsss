@@ -59,7 +59,7 @@ public final class ChannelDataRemovalModule extends ConcurrentPingModule {
    public final StringParameter pingId = new StringParameter(
          new Name("PingId", "Ping ID"),
          "",
-         "Used in connection with advanced sequencing of different pulse types");
+         "Incubating feature: Used in connection with advanced sequencing of different pulse types");
 
    public final BooleanParameter keepSpecified = new BooleanParameter(
          new Name("KeepSpecified", "Keep specified"),

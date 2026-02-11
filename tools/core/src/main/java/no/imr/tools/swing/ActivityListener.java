@@ -13,7 +13,7 @@ import java.awt.event.MouseWheelEvent;
  */
 public final class ActivityListener extends MouseAndKeyAdapter {
    private final ArgChangeManager<Boolean> changeManager = new ArgChangeManager<>();
-   private final Timer timer = new Timer(1000, e -> tick());
+   private final Timer timer = new Timer(1000, _ -> tick());
 
    private final DeepInputListener deepInputListener;
    private long thresholdMillis;

@@ -37,7 +37,7 @@ public final class SchoolVisualizerDialog implements ItemContainer<School> {
 
       if (!lsss.getConfigurationManager().getSurveyMiscConf().computeSchoolParameters.getBooleanValue()) {
          JOptionPane.showMessageDialog(referenceComponent, "School parameters are not computed.\nGo to the configuration dialog to activate.");
-         lsss.getConfigurationManager().showDialog(lsss.getConfigurationManager().getSurveyMiscConf());
+         lsss.getConfigurationManager().getSurveyMiscConf().showInConfigurationDialog();
          return;
       }
 
@@ -91,7 +91,7 @@ public final class SchoolVisualizerDialog implements ItemContainer<School> {
       ToDoubleFunction<School> toValue;
       if (perChannelParameters.contains(parameter)) {
          toValue = school -> {
-            ImmutableMap<String, Float> perChannelValues = school.getParameters().getPerChannelValues().get(lsss.getInterpretationSettings().getChannel());
+            ImmutableMap<String, Float> perChannelValues = school.getParameters().perChannelValues().get(lsss.getInterpretationSettings().getChannel());
             if (perChannelValues != null) {
                Float value = perChannelValues.get(parameter.getPersistentName());
                if (value != null) {
@@ -102,7 +102,7 @@ public final class SchoolVisualizerDialog implements ItemContainer<School> {
          };
       } else {
          toValue = school -> {
-            Float value = school.getParameters().getValues().get(parameter.getPersistentName());
+            Float value = school.getParameters().values().get(parameter.getPersistentName());
             if (value != null) {
                return value;
             }

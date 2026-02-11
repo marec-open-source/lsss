@@ -277,7 +277,7 @@ final class IcesConfView implements ViewHolder.View {
          }
          resetValuesFromDataButton.setToolTipText(toolTipBuilder.build());
       }
-      resetValuesFromDataButton.addActionListener(e -> icesConf.resetValuesFromData());
+      resetValuesFromDataButton.addActionListener(_ -> icesConf.resetValuesFromData());
 
       JButton downloadFromIcesButton = new JButton("Download schemas");
       Path dir = icesConf.icesSchemaDir();
@@ -287,11 +287,11 @@ final class IcesConfView implements ViewHolder.View {
       } else {
          downloadFromIcesButton.setToolTipText("<html>Downloads schema files from acoustics.ices.dk to<br>" + HtmlEscapers.htmlEscaper().escape(dir.toString()));
       }
-      downloadFromIcesButton.addActionListener(e -> downloadFromIces());
+      downloadFromIcesButton.addActionListener(_ -> downloadFromIces());
 
       JButton resetValuesIoImrButton = new JButton("Use IMR default values");
       resetValuesIoImrButton.setToolTipText("Use default values for IMR, Norway");
-      resetValuesIoImrButton.addActionListener(e -> useImrDefaults());
+      resetValuesIoImrButton.addActionListener(_ -> useImrDefaults());
 
       Box buttonBox = Box.createHorizontalBox();
       buttonBox.add(resetValuesFromDataButton);
@@ -321,7 +321,7 @@ final class IcesConfView implements ViewHolder.View {
          return emptyParameters.isEmpty() ? null : "Missing value for: " + emptyParameters;
       });
       warningLabel.update();
-      tableGUI.getTable().getModel().addTableModelListener(e -> warningLabel.update());
+      tableGUI.getTable().getModel().addTableModelListener(_ -> warningLabel.update());
    }
 
    private Box makeSelectionGui(StringParameter parameter, String schema) {
@@ -390,7 +390,7 @@ final class IcesConfView implements ViewHolder.View {
          }
       });
       updateMinimalCombobox.run();
-      comboBox.addActionListener(e -> {
+      comboBox.addActionListener(_ -> {
          if (comboBox.hasFocus()) {
             IcesCode code = (IcesCode) comboBox.getSelectedItem();
             String key = code != null ? code.key() : "";
@@ -401,7 +401,7 @@ final class IcesConfView implements ViewHolder.View {
          }
       });
 
-      keyTextField.getDocument().addDocumentListener(new SimpleDocumentListener(e -> {
+      keyTextField.getDocument().addDocumentListener(new SimpleDocumentListener(_ -> {
          if (keyTextField.hasFocus()) {
             String key = keyTextField.getText();
             parameter.setValue(key);
@@ -566,7 +566,7 @@ final class IcesConfView implements ViewHolder.View {
       private final JTextPane label;
 
       private WarningLabel(GridBag gridBag, Supplier<@Nullable String> warningSupplier) {
-         this(gridBag, warningSupplier, __ -> {
+         this(gridBag, warningSupplier, _ -> {
          });
       }
 

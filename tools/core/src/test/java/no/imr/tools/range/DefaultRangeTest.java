@@ -15,6 +15,7 @@ final class DefaultRangeTest {
    @Test
    void equalsTest() {
       Range<Integer> range = new DefaultRange<>(1, 5);
+      assertEquals(range, range);
       assertEquals(range, new DefaultRange<>(1, 5));
       assertNotEquals(range, new DefaultRange<>(1, 6));
    }
@@ -66,6 +67,7 @@ final class DefaultRangeTest {
    void containsRange() {
       Range<Integer> range = new DefaultRange<>(1, 5);
       assertTrue(range.contains(range));
+      assertTrue(range.contains(new DefaultRange<>(2, 2)));
       assertTrue(range.contains(new DefaultRange<>(1, 5)));
       assertTrue(range.contains(new DefaultRange<>(2, 3)));
       assertFalse(range.contains(new DefaultRange<>(1, 6)));
@@ -92,19 +94,6 @@ final class DefaultRangeTest {
 
       assertEquals(new DefaultRange<>(1, 6), new DefaultRange<>(0, 0).union(new DefaultRange<>(1, 6)));
       assertEquals(new DefaultRange<>(1, 6), new DefaultRange<>(1, 6).union(new DefaultRange<>(0, 0)));
-   }
-
-   @Test
-   void touches() {
-      assertFalse(new DefaultRange<>(0, 0).touches(new DefaultRange<>(0, 1)));
-      assertFalse(new DefaultRange<>(0, 1).touches(new DefaultRange<>(0, 0)));
-
-      Range<Integer> range = new DefaultRange<>(2, 5);
-      assertFalse(range.touches(new DefaultRange<>(0, 1)));
-      assertTrue(range.touches(new DefaultRange<>(0, 2)));
-      assertTrue(range.touches(new DefaultRange<>(0, 10)));
-      assertTrue(range.touches(new DefaultRange<>(5, 10)));
-      assertFalse(range.touches(new DefaultRange<>(6, 10)));
    }
 
    @Test

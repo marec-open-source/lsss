@@ -17,7 +17,7 @@ public final class ButtonParameterGUI extends ParameterGUI<ButtonParameter> {
       super(parameter, guiConfig);
 
       button = new JButton(parameter.getDisplayName());
-      button.addActionListener(e -> {
+      button.addActionListener(_ -> {
          getParameter().notifyListeners();
       });
    }

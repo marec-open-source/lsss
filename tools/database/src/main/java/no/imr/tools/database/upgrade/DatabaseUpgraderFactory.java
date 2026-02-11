@@ -3,7 +3,7 @@ package no.imr.tools.database.upgrade;
 import com.google.common.base.Splitter;
 import no.imr.tools.Utils;
 import no.imr.tools.database.DatabaseConnection;
-import no.imr.tools.database.queries.SQLQuery;
+import no.imr.tools.database.queries.StatelessDatabaseQuery;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.upgrade.UpgradeException;
 import no.imr.tools.upgrade.Upgrader;
@@ -14,7 +14,6 @@ import java.awt.Component;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.atomic.AtomicReference;
 
 public final class DatabaseUpgraderFactory implements UpgraderFactory<DatabaseConnection> {
    private final @Nullable Component referenceComponent;
@@ -31,11 +30,10 @@ public final class DatabaseUpgraderFactory implements UpgraderFactory<DatabaseCo
    }
 
    private DatabaseConnection upgrade(String fromVersion, DatabaseConnection databaseConnection) throws UpgradeException {
-      AtomicReference<String> connectionUrl = new AtomicReference<>();
-      databaseConnection.executeQuery(session -> {
-         session.doWork(connection -> connectionUrl.set(connection.getMetaData().getURL()));
+      String connectionUrl = databaseConnection.executeStatelessValuedQuery(session -> {
+         return session.doReturningWork(connection -> connection.getMetaData().getURL());
       });
-      String databaseType = connectionUrl.get().split(":", 3)[1];
+      String databaseType = connectionUrl.split(":", 3)[1];
 
       String upgradeScript = getUpgradeScript(fromVersion, databaseType);
 
@@ -53,7 +51,7 @@ public final class DatabaseUpgraderFactory implements UpgraderFactory<DatabaseCo
             continue;
          }
          try {
-            databaseConnection.executeQuery(new SQLQuery(line));
+            databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.nativeSql(line));
          } catch (Exception e) {
             throw new UpgradeException("Error executing SQL upgrading from version: " + fromVersion + ", line: " + line, e);
          }

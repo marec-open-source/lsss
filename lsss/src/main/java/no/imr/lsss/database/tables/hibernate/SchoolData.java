@@ -1,10 +1,38 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import no.imr.tools.database.ColumnOrder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "survey",
+      "object",
+      "schoolObjectType",
+      "transceiver",
+      "frequency",
+
+      // Properties:
+      "transceiverRef",
+      "frequencyRef",
+      "sa",
+      "sl",
+      "rf",
+      "rf_sdev",
+      "sv_mean",
+      "sv_sdev",
+      "skewness",
+})
 public class SchoolData implements BaseSurveyObject<SchoolDataPK> {
    private SchoolDataPK compId;
 
@@ -125,6 +153,15 @@ public class SchoolData implements BaseSurveyObject<SchoolDataPK> {
       this.skewness = skewness;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "survey", referencedColumnName = "survey"),
+         @JoinColumn(name = "object", referencedColumnName = "object"),
+         @JoinColumn(name = "schoolObjectType", referencedColumnName = "schoolObjectType")
+   })
    public SchoolMorphology getSchoolMorphology() {
       return schoolMorphology;
    }

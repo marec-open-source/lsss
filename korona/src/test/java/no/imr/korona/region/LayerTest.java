@@ -30,10 +30,10 @@ final class LayerTest {
    @BeforeEach
    void beforeEach() {
       dataManager = DataManagerTestUtils.testDataManager();
-      DataManagerTestUtils.open(dataManager, new ConstantSyntheticData().toSegmentHandle(1, 1000));
+      DataManagerTestUtils.open(dataManager, new ConstantSyntheticData().withFirstAndLastPingNumber(1, 1000).toSegmentHandle());
 
       layerManager = RegionManagerTestUtils.createTestRegionManager(dataManager).getLayerManager();
-      layerManager.setupInitialLayerBoundaries(__ -> 0, __ -> 500);
+      layerManager.setupInitialLayerBoundaries(_ -> 0, _ -> 500);
 
       PingRange totalRange = dataManager.getDataFileSet().getTotalRange();
       idx0 = dataManager.getDataFileSet().getPingIndex(totalRange.begin().getPingNumber());

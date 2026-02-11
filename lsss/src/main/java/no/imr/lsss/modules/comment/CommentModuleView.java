@@ -130,7 +130,7 @@ final class CommentModuleView extends BaseViewModule.BaseView {
       };
       table.setDefaultRenderer(Object.class, renderer);
       table.setDefaultRenderer(Double.class, renderer);
-      table.getSelectionModel().addListSelectionListener(e -> {
+      table.getSelectionModel().addListSelectionListener(_ -> {
          if (!skipSelectionListener) {
             commentDataModule.getSelection().replace(getSelectedCommentsInTable());
          }
@@ -151,7 +151,7 @@ final class CommentModuleView extends BaseViewModule.BaseView {
    @Override
    public void addToFloatableModuleMenu(JPopupMenu popupMenu) {
       JMenuItem visualizerItem = MiscIcons.SCATTER_PLOT.on(popupMenu.add("Visualizer dialog..."));
-      visualizerItem.addActionListener(e -> new CommentVisualizerDialog(commentDataModule, mainPanel));
+      visualizerItem.addActionListener(_ -> new CommentVisualizerDialog(commentDataModule, mainPanel));
    }
 
    private JPopupMenu makePopupMenu(MouseEvent mouseEvent) {
@@ -185,20 +185,20 @@ final class CommentModuleView extends BaseViewModule.BaseView {
          if (selectedComments.isEmpty()) {
             goToItem.setEnabled(false);
          } else {
-            goToItem.addActionListener(e -> navigateTo(selectedComments));
+            goToItem.addActionListener(_ -> navigateTo(selectedComments));
          }
       } else {
          // Here we know that selectedComments is not empty, because if it was empty then
          // selectedComments and openedSelectedComments would have the same size, i.e. 0.
          JMenuItem openItem = MiscIcons.OPEN.on(menu.add("Open files with selected comments (" + selectedComments.size() + ")"));
-         openItem.addActionListener(e -> openFiles(selectedComments));
+         openItem.addActionListener(_ -> openFiles(selectedComments));
       }
 
       menu.addSeparator();
 
       JMenuItem editItem = MiscIcons.EDIT.on(menu.add("Edit highlighted comment"));
       if (editable) {
-         editItem.addActionListener(e -> commentDataModule.editComment(survey, activeComment, CommentDialog.Mode.EDIT));
+         editItem.addActionListener(_ -> commentDataModule.editComment(survey, activeComment, CommentDialog.Mode.EDIT));
       } else {
          editItem.setEnabled(false);
       }
@@ -207,7 +207,7 @@ final class CommentModuleView extends BaseViewModule.BaseView {
       if (openedSelectedComments.isEmpty()) {
          deleteItem.setEnabled(false);
       } else {
-         deleteItem.addActionListener(e -> commentDataModule.deleteComments(openedSelectedComments));
+         deleteItem.addActionListener(_ -> commentDataModule.deleteComments(openedSelectedComments));
       }
 
       return menu;

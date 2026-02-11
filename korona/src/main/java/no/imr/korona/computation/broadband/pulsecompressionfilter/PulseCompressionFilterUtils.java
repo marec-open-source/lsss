@@ -95,12 +95,12 @@ public final class PulseCompressionFilterUtils {
                         }
                      });
                   }
-                  pulseCompressionFilterMap.computeIfAbsent(channelID, key -> new ArrayList<>()).add(filterParameterContainer);
-               } catch (ParameterException e) {
+                  pulseCompressionFilterMap.computeIfAbsent(channelID, _ -> new ArrayList<>()).add(filterParameterContainer);
+               } catch (ParameterException _) {
                   Log.global.warning("Error parsing pulse compression filter: " + XmlUtils.toDefaultString(filter));
                }
             });
-         } catch (ParameterException e) {
+         } catch (ParameterException _) {
             Log.global.warning("Error parsing pulse compression filters: " + XmlUtils.toDefaultString(channelElement));
          }
       });

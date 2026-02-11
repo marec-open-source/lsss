@@ -7,6 +7,7 @@ import no.imr.korona.data.track.SegmentInfoCache;
 import no.imr.korona.region.WorkData;
 import no.imr.lsss.LSSS;
 import no.imr.lsss.database.DatabaseData;
+import no.imr.lsss.database.LsssQuery;
 import no.imr.lsss.database.tables.hibernate.Nation;
 import no.imr.lsss.database.tables.hibernate.Platform;
 import no.imr.lsss.database.tables.hibernate.PlatformName;
@@ -30,8 +31,8 @@ import no.imr.tools.UnionList;
 import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.concurrent.Exec;
-import no.imr.tools.database.queries.FetchQuery;
-import no.imr.tools.database.queries.SaveOrUpdateQuery;
+import no.imr.tools.database.queries.QueryBuilder;
+import no.imr.tools.database.queries.StatelessDatabaseQuery;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.listening.ArgChangeManager;
 import no.imr.tools.logging.Log;
@@ -221,7 +222,7 @@ public final class SurveyManager {
                   .append(" modified.<br>Save changes?");
 
             StringBuilder toolTip = new StringBuilder("<html>Modified files:<br>");
-            UnionList<Path> modifiedFiles = new UnionList<>(modifiedConfigFiles, modifiedWorkFiles);
+            List<Path> modifiedFiles = new UnionList<>(modifiedConfigFiles, modifiedWorkFiles);
             for (int i = 0; i < modifiedFiles.size(); i++) {
                if (i >= 50) {
                   toolTip.append("<br>...");
@@ -233,9 +234,9 @@ public final class SurveyManager {
             JLabel messageLabel = new JLabel(message.toString());
             messageLabel.setToolTipText(toolTip.toString());
             if (!Utils.IS_DIST_VERSION) {
-               messageLabel.addMouseListener(new PopupMenuMouseListener(mouseEvent -> {
+               messageLabel.addMouseListener(new PopupMenuMouseListener(_ -> {
                   JPopupMenu menu = new JPopupMenu();
-                  menu.add("Debug: Save and show diff").addActionListener(actionEvent -> {
+                  menu.add("Debug: Save and show diff").addActionListener(_ -> {
                      try {
                         Path dir = LoggingManager.getTopInstallationDir().resolve("tmp").resolve("debugDiff");
                         FileUtils.deleteContentsRecursively(dir);
@@ -286,7 +287,7 @@ public final class SurveyManager {
          new NewSurveyWizard(lsss).show();
       } else {
          JOptionPane.showMessageDialog(lsss.getReferenceComponent(), "Please connect to a database before creating a survey");
-         lsss.getConfigurationManager().showDialog(lsss.getConfigurationManager().getApplicationConfiguration().getDatabaseConf());
+         lsss.getConfigurationManager().getApplicationConfiguration().getDatabaseConf().showInConfigurationDialog();
       }
    }
 
@@ -358,7 +359,7 @@ public final class SurveyManager {
       switch (lsss.getConfigurationManager().getAppMiscConf().onSurveyOpen.getValue()) {
          case SHOW_CONFIG_DIALOG -> {
             if (lsss.getInterpretationSettings().isInteractiveMode()) {
-               lsss.getConfigurationManager().showDialog(lsss.getConfigurationManager().getDataConf());
+               lsss.getConfigurationManager().getDataConf().showInConfigurationDialog();
             }
          }
          case OPEN_FILES -> {
@@ -386,7 +387,7 @@ public final class SurveyManager {
          String message = "Please connect to a database before opening this survey";
          if (lsss.getInterpretationSettings().isInteractiveMode()) {
             JOptionPane.showMessageDialog(lsss.getReferenceComponent(), message);
-            lsss.getConfigurationManager().showDialog(lsss.getConfigurationManager().getApplicationConfiguration().getDatabaseConf());
+            lsss.getConfigurationManager().getApplicationConfiguration().getDatabaseConf().showInConfigurationDialog();
             return false;
          } else {
             throw new NoCanDoException(message);
@@ -414,9 +415,8 @@ public final class SurveyManager {
          return true;
       }
       short platformId = Short.parseShort(platformIdString);
-      List<Platform> platforms = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(Platform.class,
-            DatabaseData.NATION, nation.getNation(),
-            DatabaseData.PLATFORM, platformId));
+      List<Platform> platforms = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(
+            LsssQuery.forPlatform(QueryBuilder.fetch(Platform.class), nation.getNation(), platformId).build());
       Platform platform;
       if (platforms.isEmpty()) {
          String platformString = surveyConfigurationXml.getPlatform();
@@ -435,7 +435,7 @@ public final class SurveyManager {
          String name = platformString.replaceAll(" \\(\\d+\\)$", "");
          PlatformName platformName = new PlatformName(new PlatformNamePK(nation.getNation(), platform.getCompId().getPlatform(), 0), 0, name);
          Log.global.info("Creating platform: " + platform);
-         lsss.getDatabaseManager().getDatabaseConnection().executeQuery(new SaveOrUpdateQuery(List.of(platform, platformName)));
+         lsss.getDatabaseManager().getDatabaseConnection().executeStatelessQuery(StatelessDatabaseQuery.upsert(List.of(platform, platformName)));
          lsss.getConfigurationManager().getSurveyConf().updateAllowedPlatforms();
       } else {
          platform = platforms.getFirst();
@@ -446,10 +446,10 @@ public final class SurveyManager {
          return true;
       }
       int surveyId = Integer.parseInt(surveyIdString);
-      List<Survey> surveys = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(Survey.class,
-            DatabaseData.NATION, nation.getNation(),
-            DatabaseData.PLATFORM, platform.getCompId().getPlatform(),
-            DatabaseData.SURVEY, surveyId));
+      List<Survey> surveys = lsss.getDatabaseManager().getDatabaseConnection().executeFetchQuery(
+            LsssQuery.forPlatform(QueryBuilder.fetch(Survey.class), platform.getCompId()).and()
+                  .eq(DatabaseData.SURVEY, surveyId)
+                  .build());
       if (surveys.isEmpty()) {
          String surveyTitle = surveyConfigurationXml.getSurveyTitle();
          if (surveyTitle == null) {
@@ -476,7 +476,7 @@ public final class SurveyManager {
                Optional.ofNullable(surveyConfigurationXml.getBoundaryWest()).map(Float::parseFloat).orElse(0f),
                Optional.ofNullable(surveyConfigurationXml.getBoundaryEast()).map(Float::parseFloat).orElse(0f));
          Log.global.info("Creating survey: " + survey);
-         lsss.getDatabaseManager().getDatabaseConnection().executeQuery(new SaveOrUpdateQuery(List.of(platform, survey)));
+         lsss.getDatabaseManager().getDatabaseConnection().executeStatelessQuery(StatelessDatabaseQuery.upsert(List.of(platform, survey)));
          lsss.getConfigurationManager().getSurveyConf().updateAllowedSurveys();
       }
 

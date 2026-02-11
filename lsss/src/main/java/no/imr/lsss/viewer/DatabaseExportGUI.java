@@ -97,7 +97,7 @@ final class DatabaseExportGUI {
       topPanel.add(selectionPanel.getPanel());
 
       startExportButton.setEnabled(lsss.getConfigurationManager().getSurveyConf().getSurvey() != null);
-      startExportButton.addActionListener(actionEvent -> {
+      startExportButton.addActionListener(_ -> {
          if (!currentSurveyParameterEditor.commitEdits()
                || !referencesTablesParameterEditor.commitEdits()
                || !entireDatabaseParameterEditor.commitEdits()) {
@@ -148,9 +148,9 @@ final class DatabaseExportGUI {
          }
       });
 
-      currentSurveyCheckBox.addActionListener(e -> updateStartExportButton());
-      referenceTablesCheckBox.addActionListener(e -> updateStartExportButton());
-      entireDatabaseCheckBox.addActionListener(e -> updateStartExportButton());
+      currentSurveyCheckBox.addActionListener(_ -> updateStartExportButton());
+      referenceTablesCheckBox.addActionListener(_ -> updateStartExportButton());
+      entireDatabaseCheckBox.addActionListener(_ -> updateStartExportButton());
 
       currentSurveyDirectory.subscribe(value -> updateCheckBox(value, currentSurveyCheckBox));
       referenceTablesDirectory.subscribe(value -> updateCheckBox(value, referenceTablesCheckBox));
@@ -158,7 +158,7 @@ final class DatabaseExportGUI {
 
       JButton cancelButton = new JButton("Cancel");
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE);
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
 
       JButton helpButton = new JButton("Help");
       LsssHelp.DATABASE_IMPORT_EXPORT_EXPORTING_SURVEYS.enableHelpKeyOnButton(helpButton);

@@ -360,7 +360,7 @@ public final class NoiseQuantificationModule extends GeneralPingModule {
                float stdev_stdev20 = stdev20 / 2.0f;  // 1 stdev based (alt 2)
                float stdev_stdev30 = stdev30 / 3.0f;  // 1 stdev based (alt 3)
                stdev_min = Math.min(Math.min(stdev_stdev10, stdev_stdev20), stdev_stdev30); // 1 stdev - minimum stdev of calculations
-            } catch (HistogramException e) {
+            } catch (HistogramException _) {
                stdev_min = 0f;
             }
             this.stdev_min = stdev_min;
@@ -396,7 +396,7 @@ public final class NoiseQuantificationModule extends GeneralPingModule {
                   nhh = getNT() + getStdevMin() * no_sdev;  // x is no_sdev standard deviations
                }
 
-               } catch (HistogramException e) {
+               } catch (HistogramException _) {
                   nh = 0f;
                }
                 */

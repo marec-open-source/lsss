@@ -57,7 +57,7 @@ public final class ScrollBarModule extends BaseViewModule {
 
          interpretationSettings = module.getInterpretationSettings();
          scrollBar.setEnabled(false);
-         scrollBar.addAdjustmentListener(e -> updatePingRange());
+         scrollBar.addAdjustmentListener(_ -> updatePingRange());
          scrollBar.addMouseWheelListener(e -> scrollBar.setValue(scrollBar.getValue() + e.getWheelRotation() * scrollBar.getBlockIncrement() / 10));
          updateScrollBar();
       }

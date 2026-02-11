@@ -41,7 +41,7 @@ final class ActionParameter extends ObjectParameter<Optional<LsssAction>> {
       setAllowedValuesAndValue(allActions, Optional.ofNullable(initialAction));
 
       JTextField filterComponent = (JTextField) parameterEditor.getInputComponent(filter);
-      filterComponent.getDocument().addDocumentListener(new SimpleDocumentListener(e -> {
+      filterComponent.getDocument().addDocumentListener(new SimpleDocumentListener(_ -> {
          SwingDelayer.invokeLater(filterComponent, () -> {
             String text = filterComponent.getText();
             filter.setValue(text);

@@ -10,7 +10,6 @@ import no.imr.lsss.database.tables.hibernate.ObservationComment;
 import no.imr.lsss.database.tables.hibernate.ObservationPK;
 import no.imr.lsss.database.tables.hibernate.Platform;
 import no.imr.lsss.database.tables.hibernate.Purpose;
-import no.imr.lsss.database.tables.hibernate.PurposePK;
 import no.imr.lsss.database.tables.hibernate.Scatter;
 import no.imr.lsss.database.tables.hibernate.ScatterData;
 import no.imr.lsss.database.tables.hibernate.ScatterDataPK;
@@ -127,14 +126,13 @@ abstract class PrintData {
    private void addComments(ObservationComment[] aObservationComment, int aCommentCount) {
       for (int i = 0; i < aCommentCount; i++) {
          ObservationComment c = aObservationComment[i];
-         mObservationCommentAccumulate[mCommentCountAccumulate] = new ObservationComment();
-         mObservationCommentAccumulate[mCommentCountAccumulate].setCompId(c.getCompId());
-         mObservationCommentAccumulate[mCommentCountAccumulate].setStandardComment(c.getStandardComment());
-         mObservationCommentAccumulate[mCommentCountAccumulate].setMantissa(c.getMantissa());
-         mObservationCommentAccumulate[mCommentCountAccumulate].setExp(c.getExp());
-         mObservationCommentAccumulate[mCommentCountAccumulate].setText(c.getText());
-         mObservationCommentAccumulate[mCommentCountAccumulate].setObservation(c.getObservation());
-         mObservationCommentAccumulate[mCommentCountAccumulate].setReferencedStandardComment(c.getReferencedStandardComment());
+         mObservationCommentAccumulate[mCommentCountAccumulate] = new ObservationComment(
+               c.getCompId(),
+               c.getStandardComment(),
+               c.getMantissa(),
+               c.getExp(),
+               c.getText()
+         );
          mCommentCountAccumulate++;
       }
    }
@@ -198,17 +196,7 @@ abstract class PrintData {
    }
 
    void addUnknownPurposePrint(Survey aSurvey, AcousticCategory aAcousticCategory) {
-      Purpose purpose = new Purpose();
-      PurposePK purposePK = new PurposePK(
-            aSurvey.getCompId().getNation(),
-            aSurvey.getCompId().getPlatform(),
-            aSurvey.getCompId().getSurvey(),
-            aAcousticCategory.getCompId().getAcousticCategory());
-      purpose.setCompId(purposePK);
-      purpose.setSurvey(aSurvey);
-      purpose.setAcousticCategory(aAcousticCategory);
-      purpose.setPurpose((short) 0); //Unknown purpose
-
+      Purpose purpose = new Purpose(aSurvey, aAcousticCategory, (short) 0); // Unknown purpose.
       mPurposePrint[mPrintCount - 1] = purpose;
    } //addUnknownPurposePrint()
 
@@ -658,8 +646,6 @@ abstract class PrintData {
       } else if (mScatter.getCompId().getScatterType() == mScatterType) {
          //int i, j;
          mCountAccumulate = 0;  //Only initialize key-data here (does not actually use any cell-data)
-         mScatterAccumulate = new Scatter();
-         mObservationAccumulate = new Observation();
 
          // Setting key data: nation, platform, survey
          ScatterPK scatterPK = new ScatterPK(
@@ -672,7 +658,7 @@ abstract class PrintData {
                mScatter.getCompId().getFrequency(),
                mScatter.getCompId().getTransceiver(),
                mScatter.getCompId().getScatterType());
-         mScatterAccumulate.setCompId(scatterPK);
+         mScatterAccumulate = new Scatter(scatterPK);
          mScatterAccumulate.setThreshold(mScatter.getThreshold());
          mScatterAccumulate.setBubbleCorrection(mScatter.getBubbleCorrection());
          mScatterAccumulate.setQuality(mScatter.getQuality());
@@ -703,7 +689,7 @@ abstract class PrintData {
                mObservation.getCompId().getObservationDate(),
                mObservation.getCompId().getObservationTime(),
                mObservation.getCompId().getObservationType());
-         mObservationAccumulate.setCompId(observationPK);
+         mObservationAccumulate = new Observation(observationPK);
          mObservationAccumulate.setDistance(mObservation.getDistance());
          mObservationAccumulate.setLatitude(mObservation.getLatitude());
          mObservationAccumulate.setLongitude(mObservation.getLongitude());

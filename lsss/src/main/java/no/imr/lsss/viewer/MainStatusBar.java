@@ -88,7 +88,9 @@ final class MainStatusBar {
       previewLabel.addMouseListener(new MouseAdapter() {
          @Override
          public void mouseClicked(MouseEvent e) {
-            lsss.getConfigurationManager().showDialog(lsss.getConfigurationManager().getAppMiscConf().getPreviewFeaturesConf());
+            if (SwingUtilities.isLeftMouseButton(e)) {
+               lsss.getConfigurationManager().getAppMiscConf().getPreviewFeaturesConf().showInConfigurationDialog();
+            }
          }
       });
 
@@ -102,7 +104,9 @@ final class MainStatusBar {
       frozenLabel.addMouseListener(new MouseAdapter() {
          @Override
          public void mouseClicked(MouseEvent e) {
-            lsss.getInterpretationSettings().mouseover().setFrozen(false);
+            if (SwingUtilities.isLeftMouseButton(e)) {
+               lsss.getInterpretationSettings().mouseover().setFrozen(false);
+            }
          }
       });
 
@@ -115,9 +119,11 @@ final class MainStatusBar {
       onTheFlyLabel.addMouseListener(new MouseAdapter() {
          @Override
          public void mouseClicked(MouseEvent e) {
-            OnTheFlySetup onTheFlySetup = lsss.getConfigurationManager().getSurveyConfiguration().getPreprocessingConf().getOnTheFlySetup();
-            if (onTheFlySetup != null) {
-               onTheFlySetup.showEditor(lsss.getReferenceComponent(), e.isControlDown());
+            if (SwingUtilities.isLeftMouseButton(e)) {
+               OnTheFlySetup onTheFlySetup = lsss.getConfigurationManager().getSurveyConfiguration().getPreprocessingConf().getOnTheFlySetup();
+               if (onTheFlySetup != null) {
+                  onTheFlySetup.showEditor(lsss.getReferenceComponent(), e.isControlDown());
+               }
             }
          }
       });
@@ -127,7 +133,7 @@ final class MainStatusBar {
          @Override
          public void mouseClicked(MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e)) {
-               lsss.getConfigurationManager().showDialog(lsss.getConfigurationManager().getSurveyConf());
+               lsss.getConfigurationManager().getSurveyConf().showInConfigurationDialog();
             }
          }
       });
@@ -151,7 +157,7 @@ final class MainStatusBar {
          @Override
          public void mouseClicked(MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e)) {
-               lsss.getConfigurationManager().showDialog(lsss.getConfigurationManager().getApplicationConfiguration().getDatabaseConf());
+               lsss.getConfigurationManager().getApplicationConfiguration().getDatabaseConf().showInConfigurationDialog();
             }
          }
       });
@@ -220,7 +226,7 @@ final class MainStatusBar {
          if (isComputingAfterDelayTester == null) {
             Object tester = new Object();
             isComputingAfterDelayTester = tester;
-            Timer timer = new Timer(300, e -> {
+            Timer timer = new Timer(300, _ -> {
                if (tester.equals(isComputingAfterDelayTester)) {
                   setIsComputing(true);
                }

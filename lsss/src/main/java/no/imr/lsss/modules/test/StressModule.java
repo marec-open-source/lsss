@@ -12,6 +12,7 @@ import no.imr.korona.region.EchogramSelection;
 import no.imr.korona.region.IllegalEditException;
 import no.imr.korona.region.LayerConnector;
 import no.imr.korona.region.Region;
+import no.imr.korona.region.RegionValidation;
 import no.imr.korona.region.School;
 import no.imr.korona.region.VerticalBoundary;
 import no.imr.korona.region.schooledit.SchoolEditor;
@@ -46,14 +47,16 @@ import javax.swing.Timer;
 import java.awt.BorderLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * For testing.
@@ -196,7 +199,7 @@ public final class StressModule extends BaseViewModule {
    }
 
    private @Nullable School getRandomSchool() {
-      List<School> visibleSchools = getRegionManager().getVisibleSchools();
+      List<School> visibleSchools = getRegionManager().visibleSchools().toList();
       if (visibleSchools.isEmpty()) {
          return null;
       }
@@ -205,7 +208,10 @@ public final class StressModule extends BaseViewModule {
 
    private @Nullable VerticalBoundary getRandomVerticalBoundary() {
       PingRange pingRange = getInterpretationSettings().getPingRange();
-      Collection<VerticalBoundary> verticalBoundaries = getRegionManager().getLayerManager().getIntersectingVerticalBoundaries(pingRange);
+      Set<VerticalBoundary> verticalBoundaries = getRegionManager().getLayerManager().getLayers().stream()
+            .flatMap(layer -> layer.getVerticalBoundaries().stream())
+            .filter(verticalBoundary -> pingRange.containsIncludingEnd(verticalBoundary.getPingIndex()))
+            .collect(Collectors.toSet());
       if (verticalBoundaries.isEmpty()) {
          return null;
       }
@@ -214,7 +220,10 @@ public final class StressModule extends BaseViewModule {
 
    private @Nullable CurveBoundary getRandomCurveBoundary() {
       PingRange pingRange = getInterpretationSettings().getPingRange();
-      Collection<CurveBoundary> curveBoundaries = getRegionManager().getLayerManager().getIntersectingCurveBoundaries(pingRange);
+      Set<CurveBoundary> curveBoundaries = getRegionManager().getLayerManager().getLayers().stream()
+            .flatMap(layer -> Stream.concat(layer.getUpperCurveBoundaries().stream(), layer.getLowerCurveBoundaries().stream()))
+            .filter(curveBoundary -> curveBoundary.getPingRange().intersects(pingRange))
+            .collect(Collectors.toSet());
       if (curveBoundaries.isEmpty()) {
          return null;
       }
@@ -260,9 +269,9 @@ public final class StressModule extends BaseViewModule {
 
       try {
          stressAction.action().run();
-         getRegionManager().getLayerManager().checkValidity();
-         getRegionManager().getSchoolManager().checkValidity();
-      } catch (IllegalEditException e) {
+         RegionValidation.checkLayers(getRegionManager().getLayerManager());
+         RegionValidation.checkSchools(getRegionManager().getSchoolManager());
+      } catch (IllegalEditException _) {
          // Do not fail because of read-only interpretation.
       } catch (Throwable e) {
          Log.global.log(Level.WARNING, "Stress error, counter: " + stressCounter + ", name: " + stressAction.name(), e);
@@ -491,10 +500,10 @@ public final class StressModule extends BaseViewModule {
          super(module);
 
          this.module = module;
-         timer = new Timer(1, e -> module.doOneStressAction());
+         timer = new Timer(1, _ -> module.doOneStressAction());
          checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.Y_AXIS));
 
-         runButton.addActionListener(e -> setRunning(!running));
+         runButton.addActionListener(_ -> setRunning(!running));
          runButton.setMargin(new Insets(0, 0, 0, 0));
 
          Box topPanel = Box.createHorizontalBox();
@@ -504,7 +513,7 @@ public final class StressModule extends BaseViewModule {
 
          JCheckBox asyncAccessCheckBox = new JCheckBox("Async access");
          checkBoxPanel.add(asyncAccessCheckBox);
-         asyncAccessCheckBox.addActionListener(e -> {
+         asyncAccessCheckBox.addActionListener(_ -> {
             module.asyncAccess = asyncAccessCheckBox.isSelected();
             module.executeIfEnabled(module::asyncAccess);
          });
@@ -541,7 +550,7 @@ public final class StressModule extends BaseViewModule {
             JCheckBox checkBox = new JCheckBox(stressActionCollection.prefix + stressAction);
             stressCheckBoxes.add(checkBox);
             checkBoxPanel.add(checkBox);
-            checkBox.addItemListener(e -> {
+            checkBox.addItemListener(_ -> {
                if (checkBox.isSelected()) {
                   module.activeStressActions.add(stressAction);
                } else {

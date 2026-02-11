@@ -88,7 +88,7 @@ public final class CreateMissingIdxGUI {
          if (previousPingRange.isEmpty()) {
             return;
          }
-         List<Idx0Datagram> idxDatagrams = idxFile.getIdx0Datagrams();
+         List<Idx0Datagram> idxDatagrams = idxFile.idx0Datagrams();
          if (idxDatagrams.isEmpty()) {
             return;
          }
@@ -133,18 +133,18 @@ public final class CreateMissingIdxGUI {
 
             EK60SegmentHandle previousSegmentHandle = allSegmentHandles.get(i);
             Path previousIdx = previousSegmentHandle.getEK60FileSet().getIdx();
-            if (previousIdxFile != null && previousIdxFile.getFile().equals(previousIdx)) {
-               List<Idx0Datagram> idx0Datagrams = previousIdxFile.getIdx0Datagrams();
+            if (previousIdxFile != null && previousIdxFile.file().equals(previousIdx)) {
+               List<Idx0Datagram> idx0Datagrams = previousIdxFile.idx0Datagrams();
                if (!idx0Datagrams.isEmpty()) {
                   return EK60Utils.firstAndLastToPingRange(idx0Datagrams.getFirst(), idx0Datagrams.getLast());
                }
             }
             try {
-               PingRange pingRange = EK60Utils.createSegmentInfo(previousIdx, datagramTypeManager).getPingRange();
+               PingRange pingRange = EK60Utils.createSegmentInfo(previousIdx, datagramTypeManager).pingRange();
                if (!pingRange.isEmpty()) {
                   return pingRange;
                }
-            } catch (DataException e) {
+            } catch (DataException _) {
                // This segment could not be created - the reason why will be displayed later for example in DataConf
             } catch (IOException e) {
                Log.global.log(Level.WARNING, "Error reading index file " + previousIdx, e);

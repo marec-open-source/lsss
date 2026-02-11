@@ -49,7 +49,7 @@ public final class DebugModule extends BaseViewModule {
 
          LSSS lsss = module.getLSSS();
          JToggleButton mouseRateButton = new JToggleButton("Print mouse rate");
-         mouseRateButton.addActionListener(e -> {
+         mouseRateButton.addActionListener(_ -> {
             JFrame frame = lsss.getFrame();
             if (frame != null) {
                new DeepInputListener(frame, new MouseRateListener());
@@ -60,7 +60,7 @@ public final class DebugModule extends BaseViewModule {
          panel.add(RandomInputGenerator.create(lsss));
          panel.add(new BackgroundDataLoading(lsss.getDataManager()).getComponent());
          JButton sendEventButton = new JButton("Send event");
-         sendEventButton.addActionListener(e -> lsss.getInterpretationSettings().sendEvent("debug", ImmutableMap.of("time", Instant.now().toString())));
+         sendEventButton.addActionListener(_ -> lsss.getInterpretationSettings().sendEvent("debug", ImmutableMap.of("time", Instant.now().toString())));
          panel.add(sendEventButton);
 
          module.componentSuppliers.stream()

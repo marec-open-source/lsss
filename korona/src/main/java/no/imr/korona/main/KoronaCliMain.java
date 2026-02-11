@@ -6,7 +6,7 @@ final class KoronaCliMain {
    private KoronaCliMain() {
    }
 
-   public static void main(String[] args) {
+   static void main(String[] args) {
       KoronaCli.main(args);
    }
 }

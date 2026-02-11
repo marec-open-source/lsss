@@ -83,7 +83,7 @@ class EK60SegmentData extends SegmentData {
    @Override
    public PingData loadPingData(PingIndex pingIndex, AsyncHandle asyncHandle) throws IOException {
       int index = (int) (pingIndex.getPingNumber() - idx0Datagrams.getFirst().getPingNumber());
-      List<BaseDatagram> datagrams = loadDatagrams(index, __ -> true, asyncHandle);
+      List<BaseDatagram> datagrams = loadDatagrams(index, _ -> true, asyncHandle);
       PingData pingData = new PingData(getPingConfiguration());
       PingConversion pingConversion = new PingConversion(rawFile.getFile(), getPingConfiguration(), datagrams, () -> getMissingMruDatagram(index, asyncHandle));
       pingData.addAll(pingConversion.getPingItems());
@@ -124,8 +124,8 @@ class EK60SegmentData extends SegmentData {
          List<BaseDatagram> datagrams;
          try {
             datagrams = loadDatagrams(index, Set.of(Mru0Datagram.TYPE, Mru1Datagram.TYPE)::contains, asyncHandle);
-         } catch (IOException e) {
-            // Ignore error in this situation
+         } catch (IOException _) {
+            // Ignore error in this situation.
             break;
          }
          MruDatagram mru = Utils.getFirstOrNull(datagrams, MruDatagram.class);

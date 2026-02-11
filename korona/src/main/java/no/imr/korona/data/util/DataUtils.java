@@ -5,6 +5,7 @@ import no.imr.korona.data.datagrams.BaseDatagram;
 import no.imr.korona.data.datagrams.Mru0Datagram;
 import no.imr.korona.data.datagrams.MruDatagram;
 import no.imr.korona.data.datamanager.DataFileSet;
+import no.imr.korona.data.datamanager.PingContainer;
 import no.imr.korona.data.ping.ExtrapolatedPingIndex;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
@@ -317,29 +318,25 @@ public final class DataUtils {
       return null;
    }
 
-   public static double getKnots(Ping ping, DataFileSet dataFileSet) {
-      OptionalDouble meterPerSec = ping.getPingItems(NmeaPingItem.class)
-            .flatMapToDouble(nmea -> nmea.getMeterPerSec().stream())
-            .findFirst();
-      if (meterPerSec.isPresent()) {
-         return KoronaUtils.meterPerSecondToKnots(meterPerSec.getAsDouble());
+   public static double getKnots(Ping ping, PingContainer pingContainer) {
+      OptionalDouble knots = getKnotsByNmea(ping);
+      if (knots.isPresent()) {
+         return knots.getAsDouble();
       }
-
       // If speed not in NMEA datagram, then compute from vessel distance and time.
-      PingIndex first = getPingIndex(ping, dataFileSet, -10);
-      PingIndex last = getPingIndex(ping, dataFileSet, 10);
-      return KoronaUtils.getKnots(first, last);
+      return getKnotsByVesselDistance(ping.getPingIndex(), pingContainer);
    }
 
-   private static PingIndex getPingIndex(Ping ping, DataFileSet dataFileSet, int offset) {
-      int step = offset > 0 ? -1 : 1;
-      for (int i = offset; i != 0; i += step) {
-         PingIndex pingIndex = dataFileSet.getPingIndexOrNull(ping.getPingNumber() + i);
-         if (pingIndex != null) {
-            return pingIndex;
-         }
-      }
-      return ping.getPingIndex();
+   public static OptionalDouble getKnotsByNmea(Ping ping) {
+      return ping.getPingItems(NmeaPingItem.class)
+            .flatMapToDouble(nmea -> nmea.getKnots().stream())
+            .findFirst();
+   }
+
+   public static double getKnotsByVesselDistance(PingIndex pingIndex, PingContainer pingContainer) {
+      PingIndex first = pingContainer.getPingIndexClamped(pingIndex.getPingNumber() - 10);
+      PingIndex last = pingContainer.getPingIndexClamped(pingIndex.getPingNumber() + 10);
+      return KoronaUtils.getKnots(first, last);
    }
 
    public static MruDatagram interpolateMru(MruDatagram first, MruDatagram second, long ntDate) {

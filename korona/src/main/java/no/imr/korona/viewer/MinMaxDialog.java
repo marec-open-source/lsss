@@ -46,14 +46,14 @@ final class MinMaxDialog {
             maxRange != null ? maxRange.max() : null,
             (Float) delta);
 
-      JSpinner minSpinner = createSpinner(minModel, e -> minValueChanged());
-      JSpinner maxSpinner = createSpinner(maxModel, e -> maxValueChanged());
+      JSpinner minSpinner = createSpinner(minModel, _ -> minValueChanged());
+      JSpinner maxSpinner = createSpinner(maxModel, _ -> maxValueChanged());
 
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> dialog.dispose());
+      okButton.addActionListener(_ -> dialog.dispose());
 
       JButton cancelButton = new JButton("Cancel");
-      cancelButton.addActionListener(e -> {
+      cancelButton.addActionListener(_ -> {
          setRange.accept(backupRange);
          dialog.dispose();
       });

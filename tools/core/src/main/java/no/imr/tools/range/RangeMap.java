@@ -78,7 +78,7 @@ public interface RangeMap<K extends Comparable<? super K>, V> extends Iterable<R
    }
 
    default boolean containsAnyKey(Range<K> range) {
-      return stream(range).anyMatch(entry -> true);
+      return stream(range).anyMatch(_ -> true);
    }
 
    default boolean containsAllKeys(Range<K> range) {
@@ -92,7 +92,7 @@ public interface RangeMap<K extends Comparable<? super K>, V> extends Iterable<R
    }
 
    default boolean containsNoKeys(Range<K> range) {
-      return stream(range).noneMatch(entry -> true);
+      return stream(range).noneMatch(_ -> true);
    }
 
    /**

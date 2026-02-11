@@ -167,7 +167,7 @@ public final class AppMiscConf extends ConfigurationUnit {
       Document capabilities = new WorkerDialog(getLSSS().getReferenceComponent(), "Downloading WMS capabilities")
             .setWaitUntilFinishedIfCancelled(false)
             .setOnError(e -> getLSSS().showError("Error downloading WMS capabilities", e))
-            .startMakeValue(asyncHandle -> Wms.downloadCapabilities(mapURL.getValue()));
+            .startMakeValue(_ -> Wms.downloadCapabilities(mapURL.getValue()));
       if (capabilities == null) {
          return;
       }

@@ -12,7 +12,7 @@ final class MoveConfigFilesDialogMain {
    private MoveConfigFilesDialogMain() {
    }
 
-   public static void main(String[] args) {
+   static void main(String[] args) {
       Utils.init(args, LsssResource.LSSS_64);
       Korona korona = new Korona();
       SwingUtilities.invokeLater(() -> {

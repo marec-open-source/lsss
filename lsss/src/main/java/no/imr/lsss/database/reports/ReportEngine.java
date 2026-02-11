@@ -40,7 +40,7 @@ public final class ReportEngine {
    private final LanguageUtils languageUtils;
    private final List<DatabaseReportManager> pluginReportManagers;
 
-   private Predicate<Integer> reports = type -> false;
+   private Predicate<Integer> reports = _ -> false;
    private int startDate;
    private int startTime;
    private int stopDate;
@@ -267,12 +267,12 @@ public final class ReportEngine {
                   "  or  (a.compId.observationDate = " + stopDate + " and a.compId.observationTime <= " + stopTime + ") )" +
                   " order by a.compId.frequency, a.compId.transceiver ";
 
-      try (ScrollableResults frequencyResults = session.createQuery(query)
+      try (ScrollableResults<Object[]> frequencyResults = session.createSelectionQuery(query, Object[].class)
             .setReadOnly(true)
             .scroll(ScrollMode.FORWARD_ONLY)) {
 
          while (frequencyResults.next()) {
-            frequencies.add((Integer) frequencyResults.get(0));
+            frequencies.add((Integer) frequencyResults.get()[0]);
          }
       }
 
@@ -313,12 +313,12 @@ public final class ReportEngine {
                   "  or  (a.compId.observationDate = " + stopDate + " and a.compId.observationTime <= " + stopTime + ") )" +
                   " order by a.compId.acousticCategory ";
 
-      try (ScrollableResults acousticCategoryResults = session.createQuery(query)
+      try (ScrollableResults<Integer> acousticCategoryResults = session.createSelectionQuery(query, Integer.class)
             .setReadOnly(true)
             .scroll(ScrollMode.FORWARD_ONLY)) {
 
          while (acousticCategoryResults.next()) {
-            acousticCategory.add((Integer) acousticCategoryResults.get(0));
+            acousticCategory.add(acousticCategoryResults.get());
          }
       }
 

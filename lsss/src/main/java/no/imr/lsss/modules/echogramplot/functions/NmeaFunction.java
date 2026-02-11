@@ -46,7 +46,7 @@ public final class NmeaFunction extends PingFunction {
             .mapToDouble(fields -> {
                try {
                   return Double.parseDouble(fields.get(fieldIndex));
-               } catch (NumberFormatException e) {
+               } catch (NumberFormatException _) {
                   return Double.NaN;
                }
             })
@@ -94,7 +94,7 @@ public final class NmeaFunction extends PingFunction {
             for (int i = 1; i < fields.size(); i++) {
                try {
                   Double.parseDouble(fields.get(i));
-               } catch (NumberFormatException e) {
+               } catch (NumberFormatException _) {
                   continue;
                }
                suggestedValues.add(Optional.of(fields.getFirst() + "," + i));

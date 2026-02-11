@@ -109,6 +109,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,7 +117,6 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
@@ -158,14 +158,14 @@ public final class KoronaRelay {
 
    private static final int UPDATE_INTERVAL_MILLIS = 5 * 1000;
    private static final int CHANGE_THRESHOLD_MILLIS = 300 * 1000;    //RK: 20 -> 300
-   private static final int LAST_FILE_THRESHOLD_HOURS = 48;
+   private static final int NEWEST_FILE_THRESHOLD_HOURS = 48;
 
    private int realtimeFactor = getPreferences().getInt(PREFERENCE_REALTIME_FACTOR, 5);
 
    private AsyncHandle processingAsyncHandle = new AsyncHandle();
 
    private final CoalescingExecutor rowInfoExecutor = new CoalescingExecutor(Exec.CACHED_THREAD_POOL);
-   private AsyncHandle rowInfoAsyncHandle = new AsyncHandle();
+   private final AsyncHandle rowInfoAsyncHandle = new AsyncHandle();
 
    private final ListenableProperty<Boolean> processing = new ListenableProperty<>(false);
    private final ListenableProperty<Integer> remainingFiles = new ListenableProperty<>(0);
@@ -182,14 +182,14 @@ public final class KoronaRelay {
       private KoronaRelayFileParameter(Name name, Mode mode) {
          super(name, getPreferenceFile(name.persistentName()), mode);
 
-         subscribe(__ -> {
-            Path file = getFile();
+         subscribe(optFile -> {
+            Path file = optFile.orElse(null);
             if (file != null) {
-               getPreferences().put(getName().persistentName(), file.toString());
+               getPreferences().put(name.persistentName(), file.toString());
             } else {
-               getPreferences().remove(getName().persistentName());
+               getPreferences().remove(name.persistentName());
             }
-            Log.global.fine(getName().persistentName() + " = " + file);
+            Log.global.fine(name.persistentName() + " = " + file);
             updateButtonsEnabledState();
          });
       }
@@ -245,7 +245,7 @@ public final class KoronaRelay {
 
    private final JButton playButton = new JButton();
    private final JCheckBox fullSpeedCheckBox = new JCheckBox("Full speed", true);
-   private final JCheckBox notLastFileCheckBox = new JCheckBox("Not last file if recently modified", true);
+   private final JCheckBox notNewestFileCheckBox = new JCheckBox("Not newest file if recently modified", true);
    private final JButton refreshButton = MiscIcons.REFRESH.on(new JButton());
    private final JButton koronaPlayboxButton = new JButton("KORONA playbox");
 
@@ -324,7 +324,7 @@ public final class KoronaRelay {
                      return dataFileLabelling.getLabels(segmentHandle).contains(label);
                   };
                }
-            } catch (IOException e) {
+            } catch (IOException _) {
                // Ignore.
             }
          }
@@ -355,7 +355,7 @@ public final class KoronaRelay {
       SwingUtilities.invokeLater(playButton::requestFocusInWindow);
       SwingUtilities.invokeLater(frame::toFront); // Needed when starting KoronaRelay from LSSS.
 
-      resetTable();
+      initTable();
       updateButtonsEnabledState();
       WhenShowingTimer.start(frame, UPDATE_INTERVAL_MILLIS, this::updateTable);
 
@@ -427,7 +427,7 @@ public final class KoronaRelay {
       JScrollPane rawFileTableScrollPane = new JScrollPane(rawFileTable);
       rawTablePanel.add(rawFileTableScrollPane);
       rawTablePanel.setTransferHandler(transferHandler);
-      PopupMenuMouseListener popupMenuMouseListener = new PopupMenuMouseListener(__ -> {
+      PopupMenuMouseListener popupMenuMouseListener = new PopupMenuMouseListener(_ -> {
          JPopupMenu menu = new JPopupMenu();
 
          if (dataFileLabelling != null) {
@@ -437,11 +437,11 @@ public final class KoronaRelay {
 
          JMenuItem selectAll = menu.add("Select all");
          selectAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
-         selectAll.addActionListener(e -> rawFileTable.selectAll());
+         selectAll.addActionListener(_ -> rawFileTable.selectAll());
 
          JMenuItem scrollToSelectionItem = menu.add("Scroll to selected files");
          scrollToSelectionItem.setEnabled(!rawFileTable.getSelectionModel().isSelectionEmpty());
-         scrollToSelectionItem.addActionListener(e -> TableUtils.scrollToSelectedRows(rawFileTable));
+         scrollToSelectionItem.addActionListener(_ -> TableUtils.scrollToSelectedRows(rawFileTable));
 
          menu.addSeparator();
 
@@ -450,7 +450,7 @@ public final class KoronaRelay {
          menu.addSeparator();
 
          JMenuItem startItem = MiscIcons.PLAY.on(menu.add("Start processing selected files"));
-         startItem.addActionListener(e -> {
+         startItem.addActionListener(_ -> {
             int rowCount = rawFileTable.getRowCount();
             for (int i = 0; i < rowCount; i++) {
                rawFileTableModel.rows.get(i).setSkip(!rawFileTable.isRowSelected(i));
@@ -480,7 +480,7 @@ public final class KoronaRelay {
       MiscIcons.PLAY.on(playButton);
       playButton.setPreferredSize(BUTTON_DIMENSION);
       playButton.setToolTipText("Start processing");
-      playButton.addActionListener(e -> {
+      playButton.addActionListener(_ -> {
          if (processing.getValue()) {
             stop();
          } else {
@@ -490,7 +490,7 @@ public final class KoronaRelay {
 
       refreshButton.setPreferredSize(BUTTON_DIMENSION);
       refreshButton.setToolTipText("Refresh file list");
-      refreshButton.addActionListener(e -> {
+      refreshButton.addActionListener(_ -> {
          refreshButton.setEnabled(false);
          if (dataFileLabellingFile != null) {
             dataFileLabelling = new DataFileLabelling(dataFileLabellingFile);
@@ -498,31 +498,35 @@ public final class KoronaRelay {
          updateTable();
       });
 
-      notLastFileCheckBox.setToolTipText("<html>"
-            + "Don't process the last file if modified in the last " + LAST_FILE_THRESHOLD_HOURS + " hours."
+      notNewestFileCheckBox.setToolTipText("<html>"
+            + "Don't process the newest file if modified in the last " + NEWEST_FILE_THRESHOLD_HOURS + " hours."
             + "<p>Useful for avoiding processing files still being written to.");
 
       koronaPlayboxButton.setToolTipText("Starts KORONA playbox for the selected file");
-      koronaPlayboxButton.addActionListener(e -> {
+      koronaPlayboxButton.addActionListener(_ -> {
          int[] selectedRows = rawFileTable.getSelectedRows();
          int i = selectedRows.length == 0 ? 0 : selectedRows[0];
          RawFileTableModel.Row row = rawFileTableModel.rows.get(i);
          new KoronaPlayboxDialog(frame, korona, configFileSettings.getFile(), row.segmentHandle);
       });
-      rawFileTableModel.addTableModelListener(e -> koronaPlayboxButton.setEnabled(rawFileTableModel.getRowCount() > 0));
+      rawFileTableModel.addTableModelListener(_ -> {
+         koronaPlayboxButton.setEnabled(rawFileTableModel.getRowCount() > 0);
+      });
 
       SpinnerNumberModel realtimeSpinnerModel = new SpinnerNumberModel(realtimeFactor, 1, Integer.MAX_VALUE, 1);
       JSpinner realtimeSpinner = new JSpinner(realtimeSpinnerModel);
       realtimeSpinner.setToolTipText("Processing speed relative to realtime");
       realtimeSpinner.setPreferredSize(new Dimension(50, 24));
-      realtimeSpinner.addChangeListener(e -> {
+      realtimeSpinner.addChangeListener(_ -> {
          realtimeFactor = realtimeSpinnerModel.getNumber().intValue();
          getPreferences().putInt(PREFERENCE_REALTIME_FACTOR, realtimeFactor);
       });
       realtimeSpinner.setEnabled(!fullSpeedCheckBox.isSelected());
 
       fullSpeedCheckBox.setToolTipText("Do processing as fast as possible");
-      fullSpeedCheckBox.addActionListener(e -> realtimeSpinner.setEnabled(!fullSpeedCheckBox.isSelected()));
+      fullSpeedCheckBox.addActionListener(_ -> {
+         realtimeSpinner.setEnabled(!fullSpeedCheckBox.isSelected());
+      });
 
       JMenu fileMenu = new JMenu("File");
       fileMenu.setMnemonic(KeyEvent.VK_F);
@@ -532,16 +536,16 @@ public final class KoronaRelay {
       fileMenu.addSeparator();
 
       JMenuItem resetRemoteProcessingItem = fileMenu.add("Reset remote processing status");
-      resetRemoteProcessingItem.addActionListener(e -> resetRemoteProcessing());
+      resetRemoteProcessingItem.addActionListener(_ -> resetRemoteProcessing());
 
       JMenuItem reCreateStatusXmlItem = fileMenu.add("Re-create status.xml");
-      reCreateStatusXmlItem.addActionListener(e -> reCreateStatusXml());
+      reCreateStatusXmlItem.addActionListener(_ -> reCreateStatusXml());
 
       fileMenu.addSeparator();
 
       fileMenu.add(editSettingsItem);
       editSettingsItem.setMnemonic(KeyEvent.VK_E);
-      editSettingsItem.addActionListener(e -> {
+      editSettingsItem.addActionListener(_ -> {
          settings.showEditor(frame, processingAsyncHandle.isFinished());
       });
 
@@ -549,7 +553,7 @@ public final class KoronaRelay {
 
       fileMenu.add(exitItem);
       exitItem.setMnemonic(KeyEvent.VK_X);
-      exitItem.addActionListener(e -> shutDown());
+      exitItem.addActionListener(_ -> shutDown());
 
       fileMenu.addMenuListener(new MenuAdapter() {
          @Override
@@ -577,7 +581,7 @@ public final class KoronaRelay {
       buttonPanel.add(Box.createHorizontalStrut(5));
       buttonPanel.add(fullSpeedCheckBox);
       buttonPanel.add(Box.createHorizontalStrut(5));
-      buttonPanel.add(notLastFileCheckBox);
+      buttonPanel.add(notNewestFileCheckBox);
       buttonPanel.add(Box.createHorizontalStrut(50));
       buttonPanel.add(koronaPlayboxButton);
 
@@ -602,7 +606,7 @@ public final class KoronaRelay {
       JMenu setToBeProcessedMenu = MenuUtils.addMenu(menu, "Set to be processed", KeyEvent.VK_P);
 
       for (DataFileLabel label : allLabels) {
-         selectMenu.add(DataFileLabelUtils.menuItem(label, e -> {
+         selectMenu.add(DataFileLabelUtils.menuItem(label, _ -> {
             List<RawFileTableModel.Row> rows = rawFileTableModel.rows;
             TableUtils.setTableSelection(rawFileTable, i -> {
                return dataFileLabelling.getLabels(rows.get(i).segmentHandle).contains(label);
@@ -610,7 +614,7 @@ public final class KoronaRelay {
          }));
       }
       for (DataFileLabel label : allLabels) {
-         setToBeProcessedMenu.add(DataFileLabelUtils.menuItem(label, e -> {
+         setToBeProcessedMenu.add(DataFileLabelUtils.menuItem(label, _ -> {
             List<RawFileTableModel.Row> rows = rawFileTableModel.rows;
             for (RawFileTableModel.Row row : rows) {
                boolean hasLabel = dataFileLabelling.getLabels(row.segmentHandle).contains(label);
@@ -625,7 +629,7 @@ public final class KoronaRelay {
    private void addSkipItems(JPopupMenu menu) {
       JMenuItem invertSkipItem = menu.add("Invert skip in selection");
       invertSkipItem.setMnemonic(KeyEvent.VK_I);
-      invertSkipItem.addActionListener(e -> {
+      invertSkipItem.addActionListener(_ -> {
          for (int i : getSelectedRows()) {
             RawFileTableModel.Row row = rawFileTableModel.rows.get(i);
             row.setSkip(!row.skip);
@@ -635,7 +639,7 @@ public final class KoronaRelay {
       JMenuItem skipAllItem = menu.add("Skip all in selection");
       skipAllItem.setMnemonic(KeyEvent.VK_A);
       skipAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
-      skipAllItem.addActionListener(e -> {
+      skipAllItem.addActionListener(_ -> {
          for (int i : getSelectedRows()) {
             RawFileTableModel.Row row = rawFileTableModel.rows.get(i);
             row.setSkip(true);
@@ -645,7 +649,7 @@ public final class KoronaRelay {
       JMenuItem skipNoneItem = menu.add("Skip none in selection");
       skipNoneItem.setMnemonic(KeyEvent.VK_N);
       skipNoneItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0));
-      skipNoneItem.addActionListener(e -> {
+      skipNoneItem.addActionListener(_ -> {
          for (int i : getSelectedRows()) {
             RawFileTableModel.Row row = rawFileTableModel.rows.get(i);
             row.setSkip(false);
@@ -725,23 +729,10 @@ public final class KoronaRelay {
       refreshButton.setEnabled(sourceDirectory.getFile() != null);
    }
 
-   private void resetTable() {
-      rowInfoAsyncHandle.cancel();
-      rowInfoAsyncHandle = new AsyncHandle();
-      rawFileTableModel.clear();
-
-      AtomicReference<Map<SegmentHandle, RowInfo>> rowInfos = new AtomicReference<>();
-      AtomicReference<@Nullable KoronaRelayStatus> koronaRelayStatus = new AtomicReference<>();
-      WorkerDialog.Result result = new WorkerDialog(frame, "Updating Searching for files...")
-            .start(asyncHandle -> {
-               destinationDirectoryListing = listDirectory(destinationDirectory.getFile(), asyncHandle);
-               rowInfos.set(createRowInfos(korona, sourceDirectory.getFile(), asyncHandle));
-               koronaRelayStatus.set(lockAndGetKoronaRelayStatus());
-            });
-      if (result.success()) {
-         rawFileTableModel.update(rowInfos.get(), koronaRelayStatus.get());
-         doInitialSelection();
-      }
+   private void initTable() {
+      new WorkerDialog(frame, "Searching for files...")
+            .start(this::updateTableNow);
+      SwingUtilities.invokeLater(this::doInitialSelection);
    }
 
    private void doInitialSelection() {
@@ -765,13 +756,17 @@ public final class KoronaRelay {
 
    private void updateTable() {
       rowInfoExecutor.execute(() -> {
-         destinationDirectoryListing = listDirectory(destinationDirectory.getFile(), rowInfoAsyncHandle);
-         Map<SegmentHandle, RowInfo> rowInfos = createRowInfos(korona, sourceDirectory.getFile(), rowInfoAsyncHandle);
-         KoronaRelayStatus koronaRelayStatus = lockAndGetKoronaRelayStatus();
-         SwingUtilities.invokeLater(() -> {
-            rawFileTableModel.update(rowInfos, koronaRelayStatus);
-            refreshButton.setEnabled(sourceDirectory.getFile() != null);
-         });
+         updateTableNow(rowInfoAsyncHandle);
+      });
+   }
+
+   private void updateTableNow(AsyncHandle asyncHandle) {
+      destinationDirectoryListing = listDirectory(destinationDirectory.getFile(), asyncHandle);
+      Map<SegmentHandle, RowInfo> rowInfos = createRowInfos(korona, sourceDirectory.getFile(), asyncHandle);
+      KoronaRelayStatus koronaRelayStatus = lockAndGetKoronaRelayStatus();
+      SwingUtilities.invokeLater(() -> {
+         rawFileTableModel.update(rowInfos, koronaRelayStatus);
+         refreshButton.setEnabled(sourceDirectory.getFile() != null);
       });
    }
 
@@ -837,7 +832,7 @@ public final class KoronaRelay {
          lockedFile.lock();
          try {
             return getKoronaRelayStatus();
-         } catch (IOException e) {
+         } catch (IOException _) {
             // Error shown by statusFileError.
             return null;
          }
@@ -928,7 +923,7 @@ public final class KoronaRelay {
             KoronaRelayStatus koronaRelayStatus;
             try {
                koronaRelayStatus = getKoronaRelayStatus();
-            } catch (IOException e) {
+            } catch (IOException _) {
                // Error shown by statusFileError.
                return null;
             }
@@ -949,7 +944,7 @@ public final class KoronaRelay {
             KoronaRelayStatus koronaRelayStatus;
             try {
                koronaRelayStatus = getKoronaRelayStatus();
-            } catch (IOException e) {
+            } catch (IOException _) {
                // Error shown by statusFileError.
                synchronized (rawFileTableModel) {
                   row.doneProcessing(processingResult);
@@ -1305,12 +1300,6 @@ public final class KoronaRelay {
          sizeFormat.setDecimalFormatSymbols(decimalFormatSymbols);
       }
 
-      private void clear() {
-         rows.clear();
-         rowMap.clear();
-         fireTableDataChanged();
-      }
-
       private synchronized void update(Map<SegmentHandle, RowInfo> rowInfos, @Nullable KoronaRelayStatus koronaRelayStatus) {
          boolean changed = rowMap.keySet().retainAll(rowInfos.keySet());
 
@@ -1355,18 +1344,18 @@ public final class KoronaRelay {
       private synchronized @Nullable Row getNextRowForProcessing(KoronaRelayStatus koronaRelayStatus) {
          updateRemoteStatus(koronaRelayStatus);
 
-         int endIndex = rows.size();
-         if (notLastFileCheckBox.isSelected() && endIndex > 0) {
-            Instant lastFileThreshold = Instant.now().minus(LAST_FILE_THRESHOLD_HOURS, ChronoUnit.HOURS);
-            Instant lastFileModified = Instant.ofEpochMilli(rows.getLast().lastModified);
-            boolean recentlyModified = lastFileModified.isAfter(lastFileThreshold);
-            if (recentlyModified) {
-               endIndex--;
-            }
+         Row skipNewestRow;
+         if (notNewestFileCheckBox.isSelected()) {
+            long newestFileThreshold = Instant.now().minus(NEWEST_FILE_THRESHOLD_HOURS, ChronoUnit.HOURS).toEpochMilli();
+            skipNewestRow = rows.stream()
+                  .filter(row -> row.lastModified > newestFileThreshold)
+                  .max(Comparator.comparing(row -> row.lastModified))
+                  .orElse(null);
+         } else {
+            skipNewestRow = null;
          }
-         for (int i = 0; i < endIndex; i++) {
-            Row row = rows.get(i);
-            if (!row.skip && row.status.isReadyForProcessing()) {
+         for (Row row : rows) {
+            if (!row.skip && row.status.isReadyForProcessing() && row != skipNewestRow) {
                row.setStatus(Status.Processing);
                row.setProgress(0);
                return row;
@@ -1525,7 +1514,7 @@ public final class KoronaRelay {
 
       Utils.init(args, KoronaResource.KORONA_64);
       if (Utils.isTestRun()) {
-         KoronaRelaySmoke.main(args);
+         KoronaRelaySmoke.main();
          return;
       }
 

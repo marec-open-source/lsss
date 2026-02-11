@@ -136,10 +136,10 @@ final class ReportGroupTime extends ReportGroup {
 
          try (BufferedReader fObsStop = Files.newBufferedReader(observationFileAll, reportEngine.getCharset());
               RewindableBufferedReader fObs = new RewindableBufferedReader(observationFile, reportEngine.getCharset());
-              ScrollableResults scatterResults = session.createQuery(queryScatter)
+              ScrollableResults<Scatter> scatterResults = session.createSelectionQuery(queryScatter, Scatter.class)
                     .setReadOnly(true)
                     .scroll(ScrollMode.FORWARD_ONLY);
-              ScrollableResults scatterDataResults = session.createQuery(queryScatterData)
+              ScrollableResults<ScatterData> scatterDataResults = session.createSelectionQuery(queryScatterData, ScatterData.class)
                     .setReadOnly(true)
                     .scroll(ScrollMode.FORWARD_ONLY)) {
 
@@ -165,11 +165,11 @@ final class ReportGroupTime extends ReportGroup {
             }
 
             // Frequency and transceiver of open files
-            Scatter scat = (Scatter) scatterResults.get(0);
+            Scatter scat = scatterResults.get();
 
             aPrintData.setScatter(scat);
             if (scat.getBottomActive() == 1) {
-               aPrintDataBottom.setScatter((Scatter) scatterResults.get(0));
+               aPrintDataBottom.setScatter(scatterResults.get());
             }
 
             if (reportEngine.getPrintScrutinizedSpCheck()) {
@@ -195,19 +195,19 @@ final class ReportGroupTime extends ReportGroup {
                         aSelectedSurvey.getCompId().getSurvey(),
                         categoryCode);
 
-                  try (ScrollableResults acousticCategoryResults = session.createQuery(query)
+                  try (ScrollableResults<AcousticCategory> acousticCategoryResults = session.createSelectionQuery(query, AcousticCategory.class)
                         .setReadOnly(true)
                         .scroll(ScrollMode.FORWARD_ONLY)) {
                      if (acousticCategoryResults.next()) {
                         Purpose purpose;
-                        AcousticCategory acousticCategory = (AcousticCategory) acousticCategoryResults.get(0);
+                        AcousticCategory acousticCategory = acousticCategoryResults.get();
                         aPrintData.setAcousticCategoryPrint(acousticCategory);
                         aPrintDataBottom.setAcousticCategoryPrint(acousticCategory);
-                        try (ScrollableResults purposeResults = session.createQuery(purposeQuery)
+                        try (ScrollableResults<Purpose> purposeResults = session.createSelectionQuery(purposeQuery, Purpose.class)
                               .setReadOnly(true)
                               .scroll(ScrollMode.FORWARD_ONLY)) {
                            if (purposeResults.next()) {
-                              purpose = (Purpose) purposeResults.get(0);
+                              purpose = purposeResults.get();
                               aPrintData.addPurposePrint(purpose);
                               if (aPrintData.getScatter(aMode).getBottomActive() == 1) {
                                  aPrintDataBottom.addPurposePrint(purpose);
@@ -233,11 +233,11 @@ final class ReportGroupTime extends ReportGroup {
                         aPurpose.getCompId().getPlatform(),
                         aPurpose.getCompId().getAcousticCategory());
 
-                  try (ScrollableResults acousticCategoryResults = session.createQuery(query)
+                  try (ScrollableResults<AcousticCategory> acousticCategoryResults = session.createSelectionQuery(query, AcousticCategory.class)
                         .setReadOnly(true)
                         .scroll(ScrollMode.FORWARD_ONLY)) {
                      if (acousticCategoryResults.next()) {
-                        AcousticCategory acousticCategory = (AcousticCategory) acousticCategoryResults.get(0);
+                        AcousticCategory acousticCategory = acousticCategoryResults.get();
                         aPrintData.setAcousticCategoryPrint(acousticCategory);
                         aPrintDataBottom.setAcousticCategoryPrint(acousticCategory);
                         aPrintData.addPurposePrint(aPurpose);
@@ -248,7 +248,7 @@ final class ReportGroupTime extends ReportGroup {
             } //if
 
             // If reached, ScatterData exists.
-            ScatterData sData = (ScatterData) scatterDataResults.get(0);
+            ScatterData sData = scatterDataResults.get();
 
             //Print metadata
             for (BaseMultiFrequencyReport report : selectedReports) {
@@ -258,9 +258,9 @@ final class ReportGroupTime extends ReportGroup {
             //remove: while (scat_exist && sData_exist)
             while (scatExist) {   //Enter if data exist
                // Values read from database (really from hibernate object)
-               scat = (Scatter) scatterResults.get(0);        // Read what scatterResults.next() "points" to
+               scat = scatterResults.get();        // Read what scatterResults.next() "points" to
                if (sDataExist)  //RK
-                  sData = (ScatterData) scatterDataResults.get(0);    // Read what scatterDataResults.next() "points" to
+                  sData = scatterDataResults.get();    // Read what scatterDataResults.next() "points" to
 
                if (aAsyncHandle.isCancelled()) {
                   break;
@@ -288,7 +288,7 @@ final class ReportGroupTime extends ReportGroup {
                      (sDataDa == currentDa && sDataTi == currentTi && sDataOb == currentOb && sDataFr == currentFr && sDataTr < currentTr)) { //RK 2014.07.15
                   sDataExist = scatterDataResults.next();
                   if (!sDataExist) break;
-                  sData = (ScatterData) scatterDataResults.get(0);   //RK 2014.07.15  fix:  "scat = (Scatter) scatter.get(0);"
+                  sData = scatterDataResults.get();   //RK 2014.07.15  fix:  "scat = (Scatter) scatter.get(0);"
                   sDataFr = sData.getCompId().getFrequency();
                   sDataTr = sData.getCompId().getTransceiver();
                   sDataDa = sData.getCompId().getObservationDate();
@@ -323,7 +323,7 @@ final class ReportGroupTime extends ReportGroup {
                      scatExist = scatterResults.next();
                   }
                   if (!scatExist) break;         //Should never happen
-                  scat = (Scatter) scatterResults.get(0);
+                  scat = scatterResults.get();
 
                   // BottomActive=1, so this "scat = (Scatter) scatter.get(0)" could be a bottom channel.
                   // For schools, however, the school may not extend to the bottom region (usually 10 m above bottom)
@@ -403,7 +403,7 @@ final class ReportGroupTime extends ReportGroup {
                      }
                      break;
                   }
-                  sData = (ScatterData) scatterDataResults.get(0);
+                  sData = scatterDataResults.get();
 
                   // Print if new time or frequency
                   if (currentFr != sData.getCompId().getFrequency() ||

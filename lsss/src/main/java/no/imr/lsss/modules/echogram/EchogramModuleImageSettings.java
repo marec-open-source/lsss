@@ -1,5 +1,6 @@
 package no.imr.lsss.modules.echogram;
 
+import no.imr.korona.data.datamanager.DataConfiguration;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.util.echogram.EchogramImageSettings;
 import no.imr.korona.util.echogram.EchogramPingSettings;
@@ -34,5 +35,10 @@ public final class EchogramModuleImageSettings implements EchogramImageSettings 
    @Override
    public EchogramZSettings getZSettings() {
       return zSettings;
+   }
+
+   @Override
+   public DataConfiguration getDataConfiguration() {
+      return interpretationSettings.getDataFileSet().getDataConfiguration();
    }
 }

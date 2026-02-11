@@ -207,7 +207,7 @@ public final class LoggingManager {
          try {
             Files.deleteIfExists(logFile);
          } catch (IOException e) {
-            Log.global.warning("Could not delete log file " + logFile);
+            Log.global.warning("Could not delete log file " + logFile + ": " + e);
          }
       }
    }

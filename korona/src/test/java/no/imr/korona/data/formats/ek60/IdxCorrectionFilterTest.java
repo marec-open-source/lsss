@@ -5,7 +5,6 @@ import no.imr.korona.data.datagrams.BaseDatagram;
 import no.imr.korona.data.datagrams.Idx0Datagram;
 import no.imr.korona.data.datagrams.Nme0Datagram;
 import no.imr.korona.data.datagrams.UnknownDatagram;
-import no.imr.korona.data.datagrams.UnknownDatagramType;
 import no.imr.korona.data.ping.WrapAround;
 import no.imr.korona.data.util.DataUtils;
 import org.jspecify.annotations.Nullable;
@@ -25,7 +24,7 @@ final class IdxCorrectionFilterTest {
             new Nme0Datagram(0, "dummy"),
             new Idx0Datagram(1, 2, 1.0, null, 0),
             new Idx0Datagram(2, 3, 1.0, null, 0),
-            new UnknownDatagram(2, new UnknownDatagramType(1), ByteBuffer.wrap(new byte[0])),
+            new UnknownDatagram(2, UnknownDatagram.type(1), ByteBuffer.wrap(new byte[0])),
             new Nme0Datagram(2, "dummy"),
             new Idx0Datagram(3, 4, 1.0, null, 0));
 

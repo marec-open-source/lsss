@@ -1,6 +1,5 @@
 package no.imr.lsss.modules.sv;
 
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.Lists;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.Ping;
@@ -27,6 +26,7 @@ import no.imr.tools.range.Range;
 import no.imr.tools.range.RangeMap;
 import no.imr.tools.time.NTDate;
 import no.marec.lsss.api.util.GeoPoint;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -1,11 +1,48 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
+import no.imr.tools.database.ColumnOrder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "survey",
+      "object",
+      "schoolObjectType",
+
+      // Properties:
+      "observationDate",
+      "observationTime",
+      "boxDuration",
+      "boxThickness",
+      "boxLength",
+      "maxThickness",
+      "maxLength",
+      "perimeter",
+      "area",
+      "roughness",
+      "circularity",
+      "rectangularity",
+      "elongation",
+      "distanceToBottom",
+      "distanceToSurface",
+      "bottomDepth",
+      "nmbAcousticCat",
+      "nmbHoles",
+      "nmbKernels",
+})
 public class SchoolMorphology implements BaseSurveyObject<SchoolMorphologyPK>, BaseObservationTimeContainer {
    private SchoolMorphologyPK compId;
 
@@ -232,6 +269,14 @@ public class SchoolMorphology implements BaseSurveyObject<SchoolMorphologyPK>, B
       this.nmbKernels = nmbKernels;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "survey", referencedColumnName = "survey"),
+         @JoinColumn(name = "object", referencedColumnName = "object")
+   })
    public ScatterObject getScatterObject() {
       return scatterObject;
    }
@@ -240,6 +285,11 @@ public class SchoolMorphology implements BaseSurveyObject<SchoolMorphologyPK>, B
       this.scatterObject = scatterObject;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "SchoolObjectType", referencedColumnName = "SchoolObjectType")
+   })
    public SchoolObjectType getSchoolObjectType() {
       return schoolObjectType;
    }
@@ -248,6 +298,7 @@ public class SchoolMorphology implements BaseSurveyObject<SchoolMorphologyPK>, B
       this.schoolObjectType = schoolObjectType;
    }
 
+   @OneToMany(mappedBy = "schoolMorphology")
    public Set<SchoolData> getSchoolData() {
       return schoolData;
    }

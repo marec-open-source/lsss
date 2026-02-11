@@ -12,7 +12,7 @@ final class ClampToScreenMain {
    private static void display() {
       JFrame frame = new JFrame(ClampToScreenMain.class.getName());
       JButton button = new JButton("Clamp to screen");
-      button.addActionListener(e -> {
+      button.addActionListener(_ -> {
          GuiUtils.clampToScreen(frame);
          System.out.println("-----------------------------------------------");
          System.out.println("Frame bounds:  " + frame.getBounds());
@@ -26,7 +26,7 @@ final class ClampToScreenMain {
       frame.setVisible(true);
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SwingUtilities.invokeLater(ClampToScreenMain::display);
    }
 }

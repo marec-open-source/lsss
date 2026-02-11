@@ -4,6 +4,7 @@ import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingMapping;
 import no.imr.lsss.database.DatabaseData;
+import no.imr.lsss.database.LsssQuery;
 import no.imr.lsss.database.tables.ObservationTypeEnum;
 import no.imr.lsss.database.tables.hibernate.BaseSurveyPK;
 import no.imr.lsss.database.tables.hibernate.Observation;
@@ -74,11 +75,11 @@ public final class StoreUtils {
       return createObservation(observationPK, dataFileSet, pingIndex);
    }
 
-   public static QueryBuilder.AfterTerm createDeleteQueryBuilder(Class<? extends BaseDatabaseObject> clazz, SurveyPK surveyPK, DatabaseTime min, DatabaseTime max) {
-      return QueryBuilder.delete(clazz).where()
-            .eq(DatabaseData.NATION, surveyPK.getNation()).and()
-            .eq(DatabaseData.PLATFORM, surveyPK.getPlatform()).and()
-            .eq(DatabaseData.SURVEY, surveyPK.getSurvey()).and()
+   public static <T extends BaseDatabaseObject> QueryBuilder<T, DeleteQuery>.AfterTerm deleteQueryBuilder(
+         Class<T> clazz, SurveyPK surveyPK, DatabaseTime min, DatabaseTime max
+   ) {
+      return LsssQuery.forSurvey(QueryBuilder.delete(clazz), surveyPK)
+            .and()
             .parenthesisBegin()
             /**/.eq(DatabaseData.OBSERVATION_DATE, min.getDate()).and()
             /**/.gte(DatabaseData.OBSERVATION_TIME, min.getTime()).or()
@@ -92,8 +93,9 @@ public final class StoreUtils {
             .parenthesisEnd();
    }
 
-   public static DeleteQuery createDeleteQuery(Class<? extends BaseDatabaseObject> clazz, SurveyPK surveyPK, DatabaseTime min, DatabaseTime max) {
-      return new DeleteQuery(createDeleteQueryBuilder(clazz, surveyPK, min, max).getQuery());
+   public static DeleteQuery deleteQuery(Class<? extends BaseDatabaseObject> clazz, SurveyPK surveyPK,
+                                         DatabaseTime min, DatabaseTime max) {
+      return deleteQueryBuilder(clazz, surveyPK, min, max).build();
    }
 
    public static FloatRange getStoredZRange(Scatter scatter) {

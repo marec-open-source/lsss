@@ -1,6 +1,7 @@
 package no.imr.korona.util.masking.grid;
 
 import no.imr.korona.util.masking.grid.surfaces.ShapeLimitedSurface;
+import no.imr.korona.util.masking.grid.surfaces.Surface;
 import no.imr.tools.math.Function2D;
 import no.imr.tools.math.GeometryUtils;
 import no.imr.tools.math.linalg.Matrix3;
@@ -77,9 +78,9 @@ final class GridMaskTest {
    @Test
    void addGridMask() {
       GridMask gridMask1 = new GridMask(1);
-      gridMask1.add(GridMaskUtils.createSurfaces(new Rectangle2D.Double(0, 0, 2, 2), Function2D.constant(0), Function2D.constant(2)));
+      gridMask1.add(createSurfaces(new Rectangle2D.Double(0, 0, 2, 2), Function2D.constant(0), Function2D.constant(2)));
       GridMask gridMask2 = new GridMask(1);
-      gridMask2.add(GridMaskUtils.createSurfaces(new Rectangle2D.Double(1, 1, 2, 2), Function2D.constant(1), Function2D.constant(3)));
+      gridMask2.add(createSurfaces(new Rectangle2D.Double(1, 1, 2, 2), Function2D.constant(1), Function2D.constant(3)));
       gridMask1.add(gridMask2);
       assertEquals(15, gridMask1.getVolume());
    }
@@ -87,7 +88,7 @@ final class GridMaskTest {
    @Test
    void save() throws IOException {
       GridMask gridMask = new GridMask(1);
-      gridMask.add(GridMaskUtils.createSurfaces(new Rectangle2D.Double(0, 0, 2, 2), Function2D.constant(0), Function2D.constant(2)));
+      gridMask.add(createSurfaces(new Rectangle2D.Double(0, 0, 2, 2), Function2D.constant(0), Function2D.constant(2)));
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       gridMask.save(new DataOutputStream(byteArrayOutputStream));
       GridMask gridMask2 = new GridMask(new DataInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray())));
@@ -99,14 +100,14 @@ final class GridMaskTest {
    }
 
    private static double sphereVolume(double r) {
-      return 4 * Math.PI * r * r * r / 3;
+      return (4.0 / 3.0) * Math.PI * r * r * r;
    }
 
    private static double pyramidSegmentVolume(FloatRange r, FloatRange theta, FloatRange phi) {
-      return pyramidVolume(theta, phi, r.max()) - pyramidVolume(theta, phi, r.min());
+      return pyramidVolume(r.max(), theta, phi) - pyramidVolume(r.min(), theta, phi);
    }
 
-   private static double pyramidVolume(FloatRange theta, FloatRange phi, double r) {
+   private static double pyramidVolume(double r, FloatRange theta, FloatRange phi) {
       Vec3 a = GeometryUtils.sphericalToCartesian(r, theta.min(), phi.min());
       Vec3 b = GeometryUtils.sphericalToCartesian(r, theta.min(), phi.max());
       Vec3 c = GeometryUtils.sphericalToCartesian(r, theta.max(), phi.max());
@@ -130,6 +131,14 @@ final class GridMaskTest {
             new Vec3(1, 0, 0),
             new Vec3(1, 0, 1),
             new Vec3(1, 1, 0),
-            new Vec3(1, 1, 1)};
+            new Vec3(1, 1, 1)
+      };
+   }
+
+   private static List<Surface> createSurfaces(Shape shape, Function2D f1, Function2D f2) {
+      return List.of(
+            new ShapeLimitedSurface(shape, f1),
+            new ShapeLimitedSurface(shape, f2)
+      );
    }
 }

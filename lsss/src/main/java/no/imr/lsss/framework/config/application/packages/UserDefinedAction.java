@@ -12,6 +12,7 @@ import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.svg.SvgIcon;
 import no.imr.tools.swing.svg.SvgImage;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.core.JacksonException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,8 +47,8 @@ public final class UserDefinedAction {
    private static UserDefinedActionInfo loadActionInfo(Path actionDir) {
       Path file = actionDir.resolve(INFO_JSON);
       try {
-         return JsonUtils.JSON_MAPPER.readValue(file.toFile(), UserDefinedActionInfo.class);
-      } catch (IOException e) {
+         return JsonUtils.JSON_MAPPER.readValue(file, UserDefinedActionInfo.class);
+      } catch (JacksonException e) {
          if (Files.exists(file)) {
             Log.global.log(Level.WARNING, "Error reading " + file, e);
          }

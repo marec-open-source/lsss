@@ -14,7 +14,7 @@ final class EKConnectionMain {
    private EKConnectionMain() {
    }
 
-   public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
+   static void main() throws IOException, ExecutionException, InterruptedException {
       EkConnection ekConnection = new EkConnection(InetAddress.getLocalHost(), PORT, System.out::println);
       System.out.println("ServerInfoResponse = " + ekConnection.getServerInfoResponse());
       String channelIds = ekConnection.sendRequest(new GetParameterRequest(ParameterServer.TransceiverMgr.Channels)).get().value();

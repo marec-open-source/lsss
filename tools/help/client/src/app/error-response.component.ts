@@ -5,7 +5,7 @@ import {ChangeDetectionStrategy, Component, input, InputSignal} from '@angular/c
    changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-error-response',
    templateUrl: './error-response.component.html',
-   styleUrl: './error-response.component.css',
+   styleUrl: './error-response.component.scss',
    imports: [
    ],
 })

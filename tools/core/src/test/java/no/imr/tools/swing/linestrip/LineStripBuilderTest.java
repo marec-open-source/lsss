@@ -31,22 +31,22 @@ final class LineStripBuilderTest {
    }
 
    static List<List<Vec2>> toPointLists(Path2D path) {
-      double[] a = new double[2];
+      float[] coords = new float[2];
       List<List<Vec2>> result = new ArrayList<>();
       List<Vec2> currentPointList = new ArrayList<>();
 
       for (PathIterator pathIterator = path.getPathIterator(null); !pathIterator.isDone(); pathIterator.next()) {
-         int type = pathIterator.currentSegment(a);
+         int type = pathIterator.currentSegment(coords);
          switch (type) {
             case PathIterator.SEG_MOVETO -> {
                if (!currentPointList.isEmpty()) {
                   result.add(currentPointList);
                   currentPointList = new ArrayList<>();
                }
-               currentPointList.add(new Vec2((float) a[0], (float) a[1]));
+               currentPointList.add(new Vec2(coords[0], coords[1]));
             }
             case PathIterator.SEG_LINETO -> {
-               currentPointList.add(new Vec2((float) a[0], (float) a[1]));
+               currentPointList.add(new Vec2(coords[0], coords[1]));
             }
             default -> {
                throw new IllegalArgumentException("Illegal segment type: " + type);

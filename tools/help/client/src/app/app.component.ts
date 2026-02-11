@@ -8,7 +8,7 @@ import {ProgressSpinnerComponent} from './progress-spinner.component';
    changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-app',
    templateUrl: './app.component.html',
-   styleUrl: './app.component.css',
+   styleUrl: './app.component.scss',
    imports: [
       RouterOutlet,
       ErrorResponseComponent, ProgressSpinnerComponent,

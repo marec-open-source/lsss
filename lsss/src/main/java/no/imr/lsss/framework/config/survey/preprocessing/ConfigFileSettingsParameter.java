@@ -14,8 +14,8 @@ abstract class ConfigFileSettingsParameter extends SurveyFileParameter {
    ConfigFileSettingsParameter(LSSS lsss, Name name) {
       super(lsss, name, Mode.FILE);
 
-      subscribe(__ -> {
-         Path file = getFile();
+      subscribe(optFile -> {
+         Path file = optFile.orElse(null);
          if (file != null && !exists()) {
             setFile(ConfigFileSettings.FILE_TYPE.ensureSuffix(file));
          }

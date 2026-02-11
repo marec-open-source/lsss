@@ -1,10 +1,27 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import no.imr.tools.database.ColumnOrder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "survey",
+      "acousticCategory",
+
+      // Properties:
+      "purpose",
+})
 public class Purpose implements BaseSurveyObject<PurposePK> {
    private PurposePK compId;
 
@@ -22,22 +39,13 @@ public class Purpose implements BaseSurveyObject<PurposePK> {
       this.compId = compId;
    }
 
-   public Purpose(PurposePK compId, short purpose, Survey survey, AcousticCategory acousticCategory) {
-      this.compId = compId;
-      this.purpose = purpose;
-      this.survey = survey;
-      this.acousticCategory = acousticCategory;
-   }
-
    public Purpose(Survey survey, AcousticCategory acousticCategory, short purpose) {
       this(new PurposePK(
-                  survey.getCompId().getNation(),
-                  survey.getCompId().getPlatform(),
-                  survey.getCompId().getSurvey(),
-                  acousticCategory.getCompId().getAcousticCategory()),
-            purpose,
-            survey,
-            acousticCategory);
+            survey.getCompId().getNation(),
+            survey.getCompId().getPlatform(),
+            survey.getCompId().getSurvey(),
+            acousticCategory.getCompId().getAcousticCategory()));
+      this.purpose = purpose;
    }
 
    @EmbeddedId
@@ -59,6 +67,13 @@ public class Purpose implements BaseSurveyObject<PurposePK> {
       this.purpose = purpose;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "survey", referencedColumnName = "survey")
+   })
    public Survey getSurvey() {
       return survey;
    }
@@ -67,6 +82,13 @@ public class Purpose implements BaseSurveyObject<PurposePK> {
       this.survey = survey;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "acousticCategory", referencedColumnName = "acousticCategory")
+   })
    public AcousticCategory getAcousticCategory() {
       return acousticCategory;
    }

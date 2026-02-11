@@ -10,6 +10,7 @@ import no.imr.korona.data.datagrams.Dep0Datagram;
 import no.imr.korona.data.datagrams.RegionBorderDatagram;
 import no.imr.korona.data.datagrams.RegionInfoDatagram;
 import no.imr.korona.data.datagrams.RegionTableOfContentsDatagram;
+import no.imr.korona.data.datamanager.PingContainer;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingSource;
@@ -17,6 +18,7 @@ import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import no.imr.korona.data.util.DataUtils;
 import no.imr.korona.data.util.geometry.EchogramUtils;
+import no.imr.korona.data.util.mask.MaskOutlineTracer;
 import no.imr.korona.data.util.mask.MaskUtils;
 import no.imr.tools.Min;
 import no.imr.tools.Utils;
@@ -75,7 +77,7 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
 
       RawFileTransducer transducer = getPingConfiguration().getRawFileConfiguration().getTransducers().get(channel - 1);
       transducerMinRange = transducerParameterManager.getBlindZone(transducer.getKHz()).orElse(0f);
-      transducerMaxRange = transducerParameterManager.getRange(transducer.getKHz()).orElse(0f);
+      transducerMaxRange = transducerParameterManager.getRange(transducer.getKHz()).orElse(Float.POSITIVE_INFINITY);
    }
 
    @Override
@@ -99,7 +101,7 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
       List<DetectedRegion> endedRegions = new ArrayList<>();
 
       for (DetectedRegion region : activeRegions) {
-         List<DetectedInterval> overlappingIntervals = region.prevDepthRanges.getFloatRanges().stream()
+         List<DetectedInterval> overlappingIntervals = region.prevDepthRanges.stream()
                .map(FloatRange::toRange)
                .flatMap(detectedIntervals::stream)
                .map(RangeMap.Entry::value)
@@ -198,16 +200,77 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
       if (regionInfoNTDates.isEmpty() || regionInfoNTDates.getLast() != ntDate) {
          regionInfoNTDates.add(ntDate);
       }
+      postprocess(region);
       ping.add(makeRegionInfoDatagram(ntDate, region));
+   }
+
+   private void postprocess(DetectedRegion region) {
+      PingContainer pingContainer = EchogramUtils.listPingContainer(getPingConfiguration(), pingIndices);
+
+      NavigableMap<PingIndex, FloatRangeSet> mask = region.mask;
+
+      float fillVerticalGaps = module.fillVerticalGaps.getValue().orElse(0f);
+      if (fillVerticalGaps > 0) {
+         mask.replaceAll((_, depthRanges) -> {
+            return depthRanges.fillGaps(fillVerticalGaps);
+         });
+      }
+
+      int fillHorizontalGaps = module.fillHorizontalGaps.getValue().orElse(0);
+      if (fillHorizontalGaps > 0) {
+         // For each pair of depth masks {left, right} with max fillHorizontalGaps pings in between:
+         // Add the intersection (left ∩ right) to each depth mask in between.
+         List<PingIndex> pingIndices = new ArrayList<>(mask.keySet());
+         for (int iLeft = 0; iLeft < pingIndices.size(); iLeft++) {
+            FloatRangeSet left = mask.get(pingIndices.get(iLeft));
+            int iRightEnd = Math.min(iLeft + fillHorizontalGaps + 2, pingIndices.size());
+            for (int iRight = iLeft + 2; iRight < iRightEnd; iRight++) {
+               FloatRangeSet right = mask.get(pingIndices.get(iRight));
+               FloatRangeSet intersection = left.intersection(right);
+               for (int k = iLeft + 1; k < iRight; k++) {
+                  mask.computeIfPresent(pingIndices.get(k), (_, depthRangeSet) -> {
+                     return depthRangeSet.add(intersection);
+                  });
+               }
+            }
+         }
+      }
+
+      int boundarySmoothingIterations = module.boundarySmoothingIterations.getValue().orElse(0);
+      for (int i = 0; i < boundarySmoothingIterations; i++) {
+         mask = MaskUtils.smoothBoundary(mask, pingContainer);
+      }
+
+      if (module.fillHoles.getBooleanValue()) {
+         mask = MaskUtils.fillHoles(mask, pingContainer);
+      }
+
+      region.mask = mask;
+
+      region.area = mask.entrySet().stream()
+            .mapToDouble(e -> {
+               double nmi = pingContainer.nextOrSame(e.getKey()).getVesselDistance() - e.getKey().getVesselDistance();
+               double height = e.getValue().size();
+               return Utils.nmiToMeter(nmi) * height;
+            })
+            .sum();
+
+      region.perimeter = (float) MaskOutlineTracer.createBoundary(mask, pingContainer).stream()
+            .mapToDouble(EchogramUtils::computeCircumference)
+            .sum();
+
+      region.length = Utils.nmiToMeter(pingContainer.nextOrSame(mask.lastKey()).getVesselDistance() - mask.firstKey().getVesselDistance());
+
+      region.maxHeight = mask.values().stream()
+            .flatMap(FloatRangeSet::stream)
+            .mapToDouble(FloatRange::getSize)
+            .max()
+            .orElse(0);
    }
 
    private RegionInfoDatagram makeRegionInfoDatagram(long ntDate, DetectedRegion region) {
       List<RegionInfoDatagram.MaskInterval> maskIntervals = new ArrayList<>();
-      NavigableMap<PingIndex, FloatRangeSet> mask = region.mask;
-      if (module.fillHoles.getBooleanValue()) {
-         mask = MaskUtils.fillHoles(mask, EchogramUtils.listPingContainer(getPingConfiguration(), pingIndices));
-      }
-      mask.forEach((pingIndex, depthRanges) -> {
+      region.mask.forEach((pingIndex, depthRanges) -> {
          for (FloatRange depthRange : depthRanges) {
             maskIntervals.add(new RegionInfoDatagram.MaskInterval(pingIndex.getNTDate(), depthRange.min(), depthRange.max()));
          }
@@ -312,7 +375,7 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
       private FloatRangeSet prevDepthRanges = FloatRangeSet.of();
 
       private final List<Integer> allIds = new ArrayList<>();
-      private final NavigableMap<PingIndex, FloatRangeSet> mask = new TreeMap<>();
+      private NavigableMap<PingIndex, FloatRangeSet> mask = new TreeMap<>();
 
       private int firstRelativePingNumber;
       private int pingCount;

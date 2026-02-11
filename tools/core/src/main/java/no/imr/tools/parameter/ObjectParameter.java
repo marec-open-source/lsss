@@ -35,10 +35,8 @@ public class ObjectParameter<T> extends ValueParameter<T> {
    }
 
    public ObjectParameter(Name name, T initialValue, List<T> allowedValues, String description) {
-      this(name, initialValue, allowedValues, new ObjectValueConverter<>(), description);
-   }
+      ObjectValueConverter<T> converter = new ObjectValueConverter<>();
 
-   private ObjectParameter(Name name, T initialValue, List<T> allowedValues, ObjectValueConverter<T> converter, String description) {
       super(name, initialValue, Unit.NONE, ValueConstraints.ofValues(allowedValues), converter, description);
 
       converter.parameter = this;

@@ -17,7 +17,7 @@ import java.util.Map;
  * Categorization configuration.
  */
 public final class Cac0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("CAC0", Cac0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("CAC0", Cac0Datagram::new);
 
    private final Map<Byte, Category> numberToCategory = new HashMap<>();
    private final Map<String, Category> nameToCategory = new HashMap<>();

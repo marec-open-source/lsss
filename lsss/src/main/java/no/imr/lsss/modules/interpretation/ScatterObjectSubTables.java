@@ -1,27 +1,48 @@
 package no.imr.lsss.modules.interpretation;
 
+import no.imr.lsss.database.LsssQuery;
 import no.imr.lsss.database.tables.SchoolObjectTypeEnum;
 import no.imr.lsss.database.tables.hibernate.Scatter;
 import no.imr.lsss.database.tables.hibernate.ScatterObject;
 import no.imr.lsss.database.tables.hibernate.ScatterObjectPK;
+import no.imr.lsss.database.tables.hibernate.SchoolCategory;
 import no.imr.lsss.database.tables.hibernate.SchoolData;
 import no.imr.lsss.database.tables.hibernate.SchoolDataPK;
 import no.imr.lsss.database.tables.hibernate.SchoolDetect;
 import no.imr.lsss.database.tables.hibernate.SchoolMorphology;
 import no.imr.lsss.database.tables.hibernate.SchoolMorphologyPK;
+import no.imr.tools.database.hibernate.BaseDatabaseObject;
+import org.hibernate.StatelessSession;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Database content related to {@link ScatterObject}.
  */
 final class ScatterObjectSubTables {
+   private static final List<Class<? extends BaseDatabaseObject>> SUB_TABLE_CLASSES = List.of(
+         SchoolCategory.class,
+         SchoolDetect.class,
+         SchoolMorphology.class,
+         SchoolData.class
+   );
+
    private ScatterObjectSubTables() {
    }
 
-   static void update(ScatterObject newScatterObject, Set<Scatter> scatters) {
-      ScatterObjectPK pk = newScatterObject.getCompId();
+   static void deleteForScatterObject(ScatterObject scatterObject, StatelessSession session) {
+      for (Class<? extends BaseDatabaseObject> subTableClass : SUB_TABLE_CLASSES.reversed()) { // Reverse order when deleting.
+         LsssQuery.delete(subTableClass, scatterObject).execute(session);
+      }
+   }
+
+   static List<? extends BaseDatabaseObject> createSubTableObjects(ScatterObject scatterObject, Set<Scatter> scatters) {
+      List<BaseDatabaseObject> subTableObjects = new ArrayList<>();
+
+      ScatterObjectPK pk = scatterObject.getCompId();
 
       //Create and associate schoolMorphologies
       SchoolMorphologyPK pk1 = new SchoolMorphologyPK(
@@ -29,16 +50,13 @@ final class ScatterObjectSubTables {
             pk.getPlatform(),
             pk.getSurvey(),
             pk.getObject(),
-            SchoolObjectTypeEnum.SchoolDetectedUncorrected.getValue());
+            SchoolObjectTypeEnum.SCHOOL_DETECTED_UNCORRECTED.getValue());
       SchoolMorphology schoolMorphology = new SchoolMorphology(pk1,
-            newScatterObject.getObservationDate(),
-            newScatterObject.getObservationTime(),
+            scatterObject.getObservationDate(),
+            scatterObject.getObservationTime(),
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (short) 0, (short) 0, (short) 0);
-      Set<SchoolMorphology> morphologies = new HashSet<>();
-      morphologies.add(schoolMorphology);
 
-      newScatterObject.setSchoolMorphologies(morphologies);
-      schoolMorphology.setScatterObject(newScatterObject);
+      subTableObjects.add(schoolMorphology);
 
       //todo: loop over VALGTE frekvenser
       //Create and associate school data
@@ -83,7 +101,6 @@ final class ScatterObjectSubTables {
       }
 
       //Get data for the other frequencies as well
-      Set<SchoolData> schoolDatas = new HashSet<>();
       for (Frequency frequency : frequencies) {
          SchoolDataPK schoolDataPK = new SchoolDataPK(
                pk.getNation(),
@@ -116,27 +133,21 @@ final class ScatterObjectSubTables {
                */
             }
          }
-         //add to schoolData object
-         schoolData.setSchoolMorphology(schoolMorphology);
-         schoolDatas.add(schoolData);
+         subTableObjects.add(schoolData);
       }
-
-      schoolMorphology.setSchoolData(schoolDatas);
 
       //Create and associate school detect
       SchoolDetect schoolDetect = new SchoolDetect(pk, 0, 0, 0, 0, 0, "", (short) 0);
-      newScatterObject.setSchoolDetect(schoolDetect);
-      schoolDetect.setScatterObject(newScatterObject);
+      subTableObjects.add(schoolDetect);
 
       //Create and associate SchoolCategory     //not clear how this is should be done!
       /*
       SchoolCategoryPK categoryPK = new SchoolCategoryPK(pk.getNation(), pk.getPlatform(), pk.getSurvey(), pk.getObject(), (short) 0, 0);
       SchoolCategory schoolCategory = new SchoolCategory(categoryPK);
-      Set<SchoolCategory> schoolCategories = new HashSet<SchoolCategory>();
-      schoolCategories.add(schoolCategory);
-      newScatterObject.setSchoolCategories(schoolCategories);
-      schoolCategory.setScatterObject(newScatterObject);
+      subTableObjects.add(schoolCategory);
       */
+
+      return subTableObjects;
    }
 
    private record Frequency(int frequency, short transceiver) {

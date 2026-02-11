@@ -12,7 +12,6 @@ import java.sql.Statement;
 import java.util.logging.Level;
 
 public final class HsqldbUtils {
-   private static final String HSQLDB_SQL_DIALECT = "org.hibernate.dialect.HSQLDialect";
    private static final String HSQLDB_JDBC_DRIVER = "org.hsqldb.jdbc.JDBCDriver";
    private static final String HSQLDB_FILE_PREFIX = "jdbc:hsqldb:file:";
 
@@ -46,7 +45,6 @@ public final class HsqldbUtils {
 
    public static Configuration createConfiguration(Path dir, String name, String username, String password) {
       return DatabaseUtils.createConfiguration(
-            HSQLDB_SQL_DIALECT,
             HSQLDB_JDBC_DRIVER,
             getConnectionURL(dir, name),
             username,

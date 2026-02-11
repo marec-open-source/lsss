@@ -500,6 +500,7 @@ public final class InterpretationSettings {
       cancelPingRequests();
       zoomPingSettings.setPingRange(PingRange.EMPTY_RANGE);
       pingSettings.setPingRange(pingRange);
+      pingSettings.update();
       valueRange = range;
       navigationHistory.addCheckPoint();
       requestPings();

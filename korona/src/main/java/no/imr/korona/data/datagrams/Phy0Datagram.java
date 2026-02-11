@@ -10,7 +10,7 @@ import java.util.List;
  * Physical configuration.
  */
 public final class Phy0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("PHY0", Phy0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("PHY0", Phy0Datagram::new);
 
    public final List<Platform> platforms;
 

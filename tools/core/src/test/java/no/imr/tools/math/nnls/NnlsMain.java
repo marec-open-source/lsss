@@ -32,7 +32,7 @@ final class NnlsMain {
     *
     * @param args file name. Example: .../lsss-data/nnls/matlab/data.txt
     */
-   public static void main(String[] args) throws IOException {
+   static void main(String[] args) throws IOException {
       Stopwatch stopwatch = Stopwatch.createStarted();
 
       double maxDx = Double.NEGATIVE_INFINITY;

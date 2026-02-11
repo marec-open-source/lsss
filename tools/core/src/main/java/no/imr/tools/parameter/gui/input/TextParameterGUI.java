@@ -6,6 +6,7 @@ import no.imr.tools.swing.GridBag;
 
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import java.awt.Component;
 import java.awt.Dimension;
 
@@ -32,9 +33,13 @@ public final class TextParameterGUI extends ParameterGUI<TextParameter> {
       if (getParameter().getProperty(BaseParameter.KEY_VERTICAL_FILL)) {
          gridBag.activateVerticalFill();
       }
-      JScrollPane scrollPane = new Workaround4238932ScrollPane(parameterComponent.getComponent());
-
-      addInputAndDescription(gridBag, scrollPane);
+      if (getParameter().getProperty(BaseParameter.KEY_TEXT_SCROLL_PANE)) {
+         JScrollPane scrollPane = new Workaround4238932ScrollPane(parameterComponent.getComponent());
+         addInputAndDescription(gridBag, scrollPane);
+      } else {
+         parameterComponent.getComponent().setBorder(new JTextField().getBorder());
+         addInputAndDescription(gridBag, parameterComponent.getComponent());
+      }
    }
 
    @Override

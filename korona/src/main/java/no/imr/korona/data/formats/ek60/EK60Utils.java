@@ -95,16 +95,16 @@ public final class EK60Utils {
    }
 
    static void write(IdxFile idxFile) throws IOException {
-      Path tmpFile = FileUtils.addSuffix(idxFile.getFile(), ".tmp");
+      Path tmpFile = FileUtils.addSuffix(idxFile.file(), ".tmp");
       try (FileDatagramWriter datagramWriter = new FileDatagramWriter(tmpFile)) {
-         datagramWriter.writeDatagrams(idxFile.getRawFileConfiguration().toDatagrams());
-         for (PingItem pingItem : idxFile.getOtherPingItems()) {
+         datagramWriter.writeDatagrams(idxFile.rawFileConfiguration().toDatagrams());
+         for (PingItem pingItem : idxFile.otherPingItems()) {
             datagramWriter.writeDatagrams(pingItem.toDatagrams());
          }
-         datagramWriter.writeDatagrams(idxFile.getIdx0Datagrams());
+         datagramWriter.writeDatagrams(idxFile.idx0Datagrams());
       }
-      Files.deleteIfExists(idxFile.getFile());
-      FileUtils.move(tmpFile, idxFile.getFile());
+      Files.deleteIfExists(idxFile.file());
+      FileUtils.move(tmpFile, idxFile.file());
    }
 
    public static SegmentInfo createSegmentInfo(Path idxFile, DatagramTypeManager datagramTypeManager) throws IOException {
@@ -123,7 +123,7 @@ public final class EK60Utils {
 
    private static SegmentInfo createMissingIdxSegmentInfo(Path aIdxFile) throws IOException {
       IdxFile idxFile = MissingIdxFileHandler.load(aIdxFile);
-      return createSegmentInfo(idxFile.getRawFileConfiguration(), idxFile.getIdx0Datagrams().getFirst(), idxFile.getIdx0Datagrams().getLast());
+      return createSegmentInfo(idxFile.rawFileConfiguration(), idxFile.idx0Datagrams().getFirst(), idxFile.idx0Datagrams().getLast());
    }
 
    static SegmentInfo createSegmentInfo(RandomAccessDatagramReader datagramReader, Path aIdxFile, DatagramTypeManager datagramTypeManager) throws IOException {
@@ -145,7 +145,7 @@ public final class EK60Utils {
       if (!configurationDatagrams.isEmpty() && IdxFile.useIdxFiles) {
          try {
             pingConfiguration = PingConfigurationReader.toPingConfiguration(configurationDatagrams, aIdxFile);
-         } catch (DataException e) {
+         } catch (DataException _) {
             // This can happen with EK80 generated idx-files containing a XML0/Version datagram.
             // Use raw file instead.
          }
@@ -164,7 +164,7 @@ public final class EK60Utils {
       if (!isAcceptablePingRange(lastIdx, firstIdx)) {
          // Reading the entire idx file will apply vessel distance spike filter
          IdxFile idxFile = IdxFile.load(aIdxFile, datagramTypeManager, NoticeHandler.ignore());
-         List<Idx0Datagram> idxDatagrams = idxFile.getIdx0Datagrams();
+         List<Idx0Datagram> idxDatagrams = idxFile.idx0Datagrams();
          if (!idxDatagrams.isEmpty()) {
             firstIdx = idxDatagrams.getFirst();
             lastIdx = idxDatagrams.getLast();
@@ -206,8 +206,8 @@ public final class EK60Utils {
 
    private static Idx0Datagram readLastIdx0Datagram(RandomAccessDatagramReader datagramReader, Path idxFile) throws IOException {
       // Try several times in case the input ends with a partially written Idx0Datagram
-      for (int i = 0; i < Idx0Datagram.getSize(); i++) {
-         datagramReader.setPosition(datagramReader.getSize() - Idx0Datagram.getSize() - i);
+      for (int i = 0; i < Idx0Datagram.SIZE_ON_FILE; i++) {
+         datagramReader.setPosition(datagramReader.getSize() - Idx0Datagram.SIZE_ON_FILE - i);
          BaseDatagram datagram = datagramReader.nextDatagram();
          if (datagram instanceof Idx0Datagram idx0Datagram) {
             // todo: Add notice if i != 0

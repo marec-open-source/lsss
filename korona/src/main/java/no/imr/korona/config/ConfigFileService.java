@@ -1,16 +1,20 @@
 package no.imr.korona.config;
 
+import no.imr.tools.io.FileInfo;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.parameter.FileParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.plugins.BaseService;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 public abstract class ConfigFileService extends BaseService {
    protected ConfigFileService(Name name) {
@@ -18,10 +22,6 @@ public abstract class ConfigFileService extends BaseService {
    }
 
    public abstract Path getInstallationConfigDir();
-
-   public List<Path> getAdditionalInstallationConfigDirs() {
-      return List.of();
-   }
 
    public String getInstallationSubDirName() {
       return ".";
@@ -32,23 +32,32 @@ public abstract class ConfigFileService extends BaseService {
       if (installationLocation == null) {
          return null;
       }
-      String relativePath = Stream.concat(
-                  Stream.of(getInstallationConfigDir()),
-                  getAdditionalInstallationConfigDirs().stream()
-            )
-            .map(dir -> {
-               if (FileUtils.isInDir(installationLocation, dir)) {
-                  return FileUtils.relativePath(installationLocation, dir);
-               }
-               return null;
-            })
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
-      if (relativePath == null) {
-         return null;
+      Path installationConfigDir = getInstallationConfigDir();
+      if (FileUtils.isInDir(installationLocation, installationConfigDir)) {
+         String relativePath = FileUtils.relativePath(installationLocation, installationConfigDir);
+         if (relativePath != null) {
+            return configDir.resolve(relativePath);
+         }
       }
-      return configDir.resolve(relativePath);
+      return null;
+   }
+
+   public void addInstallationConfigFilesToCopy(FilesToCopy filesToCopy, Path destinationDir) throws IOException {
+      String subDirName = getInstallationSubDirName();
+      if (subDirName.equals(".")) {
+         return;
+      }
+      Path installationConfigDir = getInstallationConfigDir();
+      Path subDir = installationConfigDir.resolve(subDirName);
+      Files.walkFileTree(subDir, new SimpleFileVisitor<>() {
+         @Override
+         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+            Path relativePath = installationConfigDir.relativize(file);
+            Path destinationFile = destinationDir.resolve(relativePath);
+            filesToCopy.add(new FileInfo(file, attrs), destinationFile);
+            return FileVisitResult.CONTINUE;
+         }
+      });
    }
 
    public boolean isCopyable() {

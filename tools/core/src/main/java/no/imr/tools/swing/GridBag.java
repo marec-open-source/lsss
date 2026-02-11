@@ -31,13 +31,17 @@ public class GridBag {
       return constraints;
    }
 
-   private boolean isHorizontalFillActive() {
+   public boolean isHorizontalFillActive() {
       return constraints.fill == GridBagConstraints.HORIZONTAL || constraints.fill == GridBagConstraints.BOTH;
+   }
+
+   public boolean isVerticalFillActive() {
+      return constraints.fill == GridBagConstraints.VERTICAL || constraints.fill == GridBagConstraints.BOTH;
    }
 
    public GridBag activateHorizontalFill() {
       constraints.weightx = 1;
-      constraints.fill = GridBagConstraints.HORIZONTAL;
+      constraints.fill = isVerticalFillActive() ? GridBagConstraints.BOTH : GridBagConstraints.HORIZONTAL;
       return this;
    }
 

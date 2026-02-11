@@ -167,7 +167,7 @@ public final class DataConfLSSS extends DataConf {
    public FileOpenRequest.OnTheFlyProcessing getBuiltInOnTheFlyProcessing() {
       SurveyMiscConf surveyMiscConf = getConfigurationManager().getSurveyMiscConf();
       BooleanSupplier discard = () -> !surveyMiscConf.pelagicMode.getBooleanValue() && !surveyMiscConf.seabedMounted.getBooleanValue();
-      return (segmentData, segmentHandle) -> new DiscardZeroDepthSegmentData(segmentData, discard);
+      return (segmentData, _) -> new DiscardZeroDepthSegmentData(segmentData, discard);
    }
 
    @Override

@@ -36,7 +36,7 @@ final class ConsysFileReader implements TowfishMetaData.MetadataFileReader {
                   Instant instant = parseDate(s);
                   metaDataFileMap.put(instant.toEpochMilli(), metaDataFile);
                   break;
-               } catch (DateTimeParseException e) {
+               } catch (DateTimeParseException _) {
                   Log.global.warning("Cannot parse date in string " + s + " in file " + metaDataFile);
                }
                s = reader.readLine();
@@ -66,7 +66,7 @@ final class ConsysFileReader implements TowfishMetaData.MetadataFileReader {
                   Instant instant;
                   try {
                      instant = parseDate(s);
-                  } catch (DateTimeParseException e) {
+                  } catch (DateTimeParseException _) {
                      Log.global.warning("Cannot parse date in string " + s + " in file " + metaDataFile);
                      s = reader.readLine();
                      continue;

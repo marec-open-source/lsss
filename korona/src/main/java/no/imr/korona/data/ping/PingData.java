@@ -60,7 +60,8 @@ public final class PingData {
    }
 
    public <T extends ChannelData> Stream<T> getNonNullChannelDatas(Class<T> clazz) {
-      return Utils.getAllOfType(getNonNullChannelDatas(), clazz);
+      return Arrays.stream(channelDatas)
+            .gather(Utils.allOfType(clazz));
    }
 
    public <T extends PingItem> @Nullable T getPingItem(Class<T> clazz) {

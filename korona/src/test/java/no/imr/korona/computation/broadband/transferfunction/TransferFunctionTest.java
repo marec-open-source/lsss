@@ -35,6 +35,6 @@ final class TransferFunctionTest {
       TransferFunction b = new LinearTransferFunction(new double[]{7, 8, 9}, new double[]{10, 11, 12});
       assertSame(a, identity.multiply(a));
       assertSame(a, a.multiply(identity));
-      assertInstanceOf(LinearTransferFunction.class, a.multiply(b));
+      assertInstanceOf(ProductTransferFunction.class, a.multiply(b));
    }
 }

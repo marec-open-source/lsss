@@ -10,7 +10,7 @@ final class EkToggleSaveRawData {
    private EkToggleSaveRawData() {
    }
 
-   public static void main(String[] args) throws TimeoutException, ResponseException {
+   static void main() throws TimeoutException, ResponseException {
       EkConnectionManager ekConnectionManager = new EkConnectionManager("localhost", EKConnectionMain.PORT, Duration.ofSeconds(60), Duration.ofSeconds(0));
 
       boolean saveRawData = EkRemoteUtils.getSaveRawData(ekConnectionManager);

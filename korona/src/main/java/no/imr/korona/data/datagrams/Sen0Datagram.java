@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
  * Sensor datagram.
  */
 public final class Sen0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("SEN0", Sen0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("SEN0", Sen0Datagram::new);
 
    public final long receivedNTDate;
    public final String protocol;

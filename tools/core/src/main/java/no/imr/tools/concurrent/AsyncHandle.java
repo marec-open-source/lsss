@@ -88,7 +88,7 @@ public final class AsyncHandle implements no.marec.lsss.api.util.AsyncHandle, Ma
          while (!isFinished()) {
             try {
                lock.wait();
-            } catch (InterruptedException e) {
+            } catch (InterruptedException _) {
                Thread.currentThread().interrupt();
                break;
             }
@@ -106,8 +106,8 @@ public final class AsyncHandle implements no.marec.lsss.api.util.AsyncHandle, Ma
             }
             runnable.run();
          } finally {
-            state.set(2);
             synchronized (lock) {
+               state.set(2);
                lock.notifyAll();
             }
          }
@@ -122,8 +122,9 @@ public final class AsyncHandle implements no.marec.lsss.api.util.AsyncHandle, Ma
             }
             try {
                lock.wait();
-            } catch (InterruptedException e) {
+            } catch (InterruptedException _) {
                Thread.currentThread().interrupt();
+               break;
             }
          }
       }
@@ -163,8 +164,8 @@ public final class AsyncHandle implements no.marec.lsss.api.util.AsyncHandle, Ma
     */
    public void cancel() {
       if (!cancelled) {
-         cancelled = true;
          synchronized (lock) {
+            cancelled = true;
             lock.notifyAll();
          }
          Set<AsyncHandle> subs = subAsyncHandles;
@@ -190,7 +191,7 @@ public final class AsyncHandle implements no.marec.lsss.api.util.AsyncHandle, Ma
             }
             try {
                lock.wait(waitMillis);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException _) {
                Thread.currentThread().interrupt();
                break;
             }

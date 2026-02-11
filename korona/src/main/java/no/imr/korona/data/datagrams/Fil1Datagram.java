@@ -6,7 +6,7 @@ import no.imr.tools.math.ComplexArray;
 import java.nio.ByteBuffer;
 
 public final class Fil1Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("FIL1", Fil1Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("FIL1", Fil1Datagram::new);
 
    public short stage; // 1 = WBT filter, 2 = PC filter
    public short channel;

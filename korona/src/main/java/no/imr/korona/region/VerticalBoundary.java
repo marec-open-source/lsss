@@ -123,9 +123,4 @@ public final class VerticalBoundary extends LayerBoundary {
       }
       return constrainedIndex;
    }
-
-   @Override
-   boolean touchesPingRange(PingRange pingRange) {
-      return pingRange.containsIncludingEnd(getPingIndex());
-   }
 }

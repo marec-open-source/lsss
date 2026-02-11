@@ -69,7 +69,7 @@ public final class GaussDistribution {
       }
 
       private void addCovariance(FeaturePair key, double value) {
-         Sum sum = covarianceSums.computeIfAbsent(key, k -> new Sum());
+         Sum sum = covarianceSums.computeIfAbsent(key, _ -> new Sum());
          sum.add(value);
       }
 
@@ -218,7 +218,7 @@ public final class GaussDistribution {
 
       private void updateMeanSums(Neighbor neighbor) {
          for (Feature feature : neighbor.getFeatures()) {
-            Sum sum = featureToMeanSums.computeIfAbsent(feature.name(), k -> new Sum());
+            Sum sum = featureToMeanSums.computeIfAbsent(feature.name(), _ -> new Sum());
             sum.add(feature.value());
          }
       }

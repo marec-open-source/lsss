@@ -1,11 +1,49 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
+import no.imr.tools.database.ColumnOrder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "survey",
+      "object",
+      "observationDate",
+      "observationTime",
+      "frequency",
+      "transceiver",
+      "scatterType",
+
+      // Properties:
+      "observationType",
+      "duration",
+      "distanceInterval",
+      "minBottomDepth",
+      "maxBottomDepth",
+      "threshold",
+      "bubbleCorrection",
+      "channelThickness",
+      "upperDepth",
+      "lowerDepth",
+      "sa",
+      "quality",
+      "pctSa",
+      "upperInterpretationDepth",
+      "lowerInterpretationDepth",
+      "bottomActive",
+})
 public class Scatter implements BaseSurveyObject<ScatterPK> {
    private ScatterPK compId;
 
@@ -199,6 +237,11 @@ public class Scatter implements BaseSurveyObject<ScatterPK> {
       this.bottomActive = bottomActive;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "scatterType", referencedColumnName = "scatterType")
+   })
    public ScatterType getScatterType() {
       return scatterType;
    }
@@ -207,6 +250,16 @@ public class Scatter implements BaseSurveyObject<ScatterPK> {
       this.scatterType = scatterType;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "survey", referencedColumnName = "survey"),
+         @JoinColumn(name = "observationDate", referencedColumnName = "observationDate"),
+         @JoinColumn(name = "observationTime", referencedColumnName = "observationTime"),
+         @JoinColumn(name = "observationType", referencedColumnName = "observationType")
+   })
    public Observation getObservation() {
       return observation;
    }
@@ -215,6 +268,7 @@ public class Scatter implements BaseSurveyObject<ScatterPK> {
       this.observation = observation;
    }
 
+   @OneToMany(mappedBy = "scatter")
    public Set<ScatterData> getScatterDatas() {
       return scatterDatas;
    }
@@ -223,6 +277,14 @@ public class Scatter implements BaseSurveyObject<ScatterPK> {
       this.scatterDatas = scatterDatas;
    }
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "survey", referencedColumnName = "survey"),
+         @JoinColumn(name = "object", referencedColumnName = "object")
+   })
    public ScatterObject getScatterObject() {
       return scatterObject;
    }

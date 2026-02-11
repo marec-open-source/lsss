@@ -5,7 +5,7 @@ import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import java.nio.ByteBuffer;
 
 public final class Tag0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("TAG0", Tag0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("TAG0", Tag0Datagram::new);
 
    private final String annotation;
 

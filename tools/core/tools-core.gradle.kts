@@ -17,18 +17,17 @@ dependencies {
    api(Libraries.commons_numbers_rootfinder)
    api(Libraries.commons_statistics_descriptive)
    api(Libraries.commons_statistics_distribution)
-   api(Libraries.dom4j) {
-      // Additional dom4j workaround needed since IDEA 2021.1.1. See settings.gradle.kts.
-      isTransitive = false
-   }
+   api(Libraries.dom4j)
    api(Libraries.guava)
-   Libraries.jackson_databind.forEach { api(it) }
+   api(Libraries.jackson_databind)
    api(Libraries.jaxb_api)
    api(Libraries.jaxb_txw2)
    api(Libraries.jfreechart)
    api(Libraries.jopt_simple)
    api(Libraries.jspecify)
-   api(Libraries.jtransforms)
+   api(Libraries.jtransforms) {
+      exclude("junit", "junit")
+   }
    implementation(Libraries.slf4j_api)
 
    runtimeOnly(Libraries.jaxb_runtime)

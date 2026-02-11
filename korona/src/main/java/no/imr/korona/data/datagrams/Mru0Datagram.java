@@ -3,7 +3,7 @@ package no.imr.korona.data.datagrams;
 import java.nio.ByteBuffer;
 
 public final class Mru0Datagram extends MruDatagram {
-   public static final DatagramType TYPE = new DatagramType.Simple("MRU0", Mru0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("MRU0", Mru0Datagram::new);
 
    private final float heave;
    private final float roll;

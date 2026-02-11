@@ -29,7 +29,7 @@ public final class JoglUtils {
       try {
          GLProfile.getDefault();
          return true;
-      } catch (GLException e) {
+      } catch (GLException _) {
          return false;
       }
    }

@@ -24,12 +24,12 @@ public final class GetIocCode {
             " and   a.compId.platform = " + aSurvey.getCompId().getPlatform() +
             " and   a.compId.platformCodeSysName = '" + CODE_SYS_NAME + "'";
 
-      try (ScrollableResults platformCodesResults = aSession.createQuery(query)
+      try (ScrollableResults<PlatformCodes> platformCodesResults = aSession.createSelectionQuery(query, PlatformCodes.class)
             .setReadOnly(true)
             .scroll(ScrollMode.FORWARD_ONLY)) {
 
          if (platformCodesResults.next()) {
-            PlatformCodes ship = (PlatformCodes) platformCodesResults.get(0);
+            PlatformCodes ship = platformCodesResults.get();
             return ship.getPlatformCode();
          }
       } catch (Exception e) {

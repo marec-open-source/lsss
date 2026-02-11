@@ -35,24 +35,24 @@ public final class OnlineAverageAndVariance {
       return means;
    }
 
-   public boolean hasVar() {
+   public boolean hasVariances() {
       return count > 1;
    }
 
-   public float[] getVar() {
+   public float[] getVariances() {
       float factor = count / (totalWeight * (count - 1));
-      float[] tmp = new float[m2s.length];
-      for (int i = 0; i < tmp.length; i++) {
-         tmp[i] = m2s[i] * factor;
+      float[] variances = new float[m2s.length];
+      for (int i = 0; i < variances.length; i++) {
+         variances[i] = m2s[i] * factor;
       }
-      return tmp;
+      return variances;
    }
 
-   public float[] getStdErr() {
-      float[] tmp = getVar();
-      for (int i = 0; i < tmp.length; i++) {
-         tmp[i] = (float) Math.sqrt(tmp[i] / count);
+   public float[] getStdErrs() {
+      float[] stdErrs = getVariances();
+      for (int i = 0; i < stdErrs.length; i++) {
+         stdErrs[i] = (float) Math.sqrt(stdErrs[i] / count);
       }
-      return tmp;
+      return stdErrs;
    }
 }

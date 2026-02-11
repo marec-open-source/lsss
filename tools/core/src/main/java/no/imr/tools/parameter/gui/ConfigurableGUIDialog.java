@@ -54,11 +54,11 @@ public final class ConfigurableGUIDialog {
       backupXml = configurable.toXml();
 
       okButton.setToolTipText("Accept changes and close window");
-      okButton.addActionListener(e -> ok());
+      okButton.addActionListener(_ -> ok());
 
       cancelButton.setToolTipText("Revert changes and close window");
       GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-      cancelButton.addActionListener(e -> cancel());
+      cancelButton.addActionListener(_ -> cancel());
 
       dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
       dialog.addWindowListener(new WindowAdapter() {
@@ -175,7 +175,7 @@ public final class ConfigurableGUIDialog {
       if (defaultConfigurable != null) {
          JButton resetButton = new JButton("Reset to default");
          panel.add(resetButton);
-         resetButton.addActionListener(e -> configurable.fromXml(defaultConfigurable.toXml()));
+         resetButton.addActionListener(_ -> configurable.fromXml(defaultConfigurable.toXml()));
       }
 
       extraButtons.forEach(button -> panel.add(button, 0));

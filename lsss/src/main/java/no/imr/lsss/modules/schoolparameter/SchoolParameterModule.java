@@ -177,7 +177,7 @@ public final class SchoolParameterModule extends BaseDataModule {
       });
       ImmutableMap<Integer, ImmutableMap<String, Float>> perChannelValues = collectPerChannelValues(perChannelComputers);
 
-      school.setParameters(SchoolParameters.of(
+      school.setParameters(new SchoolParameters(
             getLSSS().getDataSetManager().getSelectedDataType() == DataType.PROCESSED,
             ImmutableMap.copyOf(values),
             perChannelValues));

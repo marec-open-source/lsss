@@ -35,7 +35,7 @@ public final class FileChooserToolTip {
             update(e);
          }
       });
-      fileChooser.addHierarchyListener(e -> {
+      fileChooser.addHierarchyListener(_ -> {
          if (!fileChooser.isShowing()) {
             fileToToolTipCache.clear();
             file = null;

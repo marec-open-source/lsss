@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
  * Module configuration.
  */
 public final class Cds0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("CDS0", Cds0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("CDS0", Cds0Datagram::new);
 
    private final Document document;
 

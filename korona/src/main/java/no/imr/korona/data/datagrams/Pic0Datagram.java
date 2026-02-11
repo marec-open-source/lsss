@@ -15,7 +15,7 @@ import java.util.TreeMap;
  * Plankton inversion configuration.
  */
 public final class Pic0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("PIC0", Pic0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("PIC0", Pic0Datagram::new);
 
    private static final PlanktonCategory UNCATEGORIZED = new PlanktonCategory("Uncategorized", "Uncat", 0, Color.WHITE);
    private static final PlanktonCategory NO_CATEGORY = new PlanktonCategory("Other", "Other", 1, Color.CYAN);

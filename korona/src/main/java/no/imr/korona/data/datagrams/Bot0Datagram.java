@@ -9,7 +9,7 @@ import java.util.Arrays;
  * Bottom depths per channel.
  */
 public class Bot0Datagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("BOT0", Bot0Datagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("BOT0", Bot0Datagram::new);
 
    private final double[] channelDepths; // varying size [m]
 

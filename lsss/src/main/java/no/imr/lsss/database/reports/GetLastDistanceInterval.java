@@ -13,13 +13,13 @@ final class GetLastDistanceInterval {
    }
 
    static float getLastDistanceInterval(StatelessSession aSession, String query) {
-      try (ScrollableResults scatterResults = aSession.createQuery(query)
+      try (ScrollableResults<Scatter> scatterResults = aSession.createSelectionQuery(query, Scatter.class)
             .setReadOnly(true)
             .scroll(ScrollMode.FORWARD_ONLY)) {
 
          float distanceInterval = 0;
          while (scatterResults.next()) {
-            Scatter scatter = (Scatter) scatterResults.get(0);
+            Scatter scatter = scatterResults.get();
             distanceInterval = scatter.getDistanceInterval();
          }
          return distanceInterval;

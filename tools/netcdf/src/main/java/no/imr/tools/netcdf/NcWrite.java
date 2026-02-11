@@ -9,8 +9,7 @@ import ucar.nc2.Group;
 import ucar.nc2.Variable;
 import ucar.nc2.constants.CDM;
 import ucar.nc2.constants.CF;
-import ucar.nc2.write.Nc4Chunking;
-import ucar.nc2.write.Nc4ChunkingStrategy;
+import ucar.nc2.write.Nc4ChunkingDefault;
 import ucar.nc2.write.NetcdfFileFormat;
 import ucar.nc2.write.NetcdfFormatWriter;
 
@@ -23,14 +22,11 @@ public final class NcWrite {
    }
 
    public static NetcdfFormatWriter.Builder newBuilder(Path file) {
-      Nc4Chunking chunking = Nc4ChunkingStrategy.factory(Nc4Chunking.Strategy.standard,
-            5, true);
-
       return NetcdfFormatWriter.builder()
             .setNewFile(true)
             .setFormat(NetcdfFileFormat.NETCDF4)
             .setLocation(file.toString())
-            .setChunker(chunking);
+            .setChunker(new Nc4ChunkingDefault(5, true));
    }
 
    public static void addFloatVariable(Group.Builder builder, String name,

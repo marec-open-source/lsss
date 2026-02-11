@@ -70,10 +70,7 @@ public final class NumericalViewModule extends BaseViewModule implements PojoDat
 
    private final ViewHolder<NumericalViewView> viewHolder = new ViewHolder<>(() -> new NumericalViewView(this));
 
-   private @Nullable Ping ping;
    private String text = "";
-
-   private final Listener recomputeListener = newCoalescingExecListener(this::recompute);
 
    public NumericalViewModule(ModuleInfo<BaseSystemFeaturePlugin> moduleInfo) {
       super(moduleInfo);
@@ -104,29 +101,29 @@ public final class NumericalViewModule extends BaseViewModule implements PojoDat
 
    @Override
    protected void onEnable(ListenerRegistry registry) {
+      Listener recomputeListener = newCoalescingExecListener(this::recompute);
       registry.add(recomputeListener, List.of(
             getInterpretationSettings().getPingRangeChangeManager(),
-            getInterpretationSettings().getChannelChangeManager()
+            getInterpretationSettings().getChannelChangeManager(),
+            getInterpretationSettings().mouseover().pingIndex(),
+            getInterpretationSettings().getDataFileChangeManager()
       ));
       registry.add(getParameters(), recomputeListener);
-      registry.add(getInterpretationSettings().mouseover().pingIndex(), newCoalescingExecListener(this::updatePing));
 
       //---
 
-      updatePing();
+      recompute();
    }
 
    @Override
    protected void onDisable() {
-      ping = null;
       text = "";
       viewHolder.removeView();
    }
 
-   private void updatePing() {
+   private @Nullable Ping getPing() {
       PingIndex pingIndex = getInterpretationSettings().mouseover().getPingIndex();
-      ping = pingIndex != null ? getInterpretationSettings().getDataFileSet().getPing(pingIndex) : null;
-      recomputeListener.listen();
+      return pingIndex != null ? getInterpretationSettings().getDataFileSet().getPing(pingIndex) : null;
    }
 
    private void recompute() {
@@ -139,7 +136,7 @@ public final class NumericalViewModule extends BaseViewModule implements PojoDat
    }
 
    private String computeText() {
-      Ping ping = this.ping;
+      Ping ping = getPing();
       int channel = getInterpretationSettings().getChannel();
       List<String> blocks = List.of(
             showRange.getBooleanValue() ? getRangeText(getInterpretationSettings().getPingRange()) : "",
@@ -156,7 +153,7 @@ public final class NumericalViewModule extends BaseViewModule implements PojoDat
 
    @Override
    public PojoData getPojoData() {
-      Ping ping = this.ping;
+      Ping ping = getPing();
       int channel = getInterpretationSettings().getChannel();
       PojoData.Builder builder = PojoData.newBuilder(getPersistentName());
       List<PojoData> blocks = List.of(

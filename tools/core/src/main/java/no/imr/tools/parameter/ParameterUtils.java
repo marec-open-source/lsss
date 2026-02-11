@@ -26,7 +26,7 @@ public final class ParameterUtils {
          case MultiParameter<?> multiParameter1 -> {
             copyValues(multiParameter1.getParameters(), ((MultiParameter<?>) parameter2).getParameters());
          }
-         case VoidParameter __ -> {
+         case VoidParameter _ -> {
          }
       }
    }
@@ -57,7 +57,7 @@ public final class ParameterUtils {
             yield parameter2 instanceof MultiParameter<?> multiParameter2 &&
                   equals(multiParameter1.getParameters(), multiParameter2.getParameters());
          }
-         case VoidParameter __ -> {
+         case VoidParameter _ -> {
             yield parameter2 instanceof VoidParameter;
          }
       };
@@ -75,7 +75,7 @@ public final class ParameterUtils {
       return switch (parameter) {
          case BaseValueParameter<?> baseValueParameter -> baseValueParameter.getValue().hashCode();
          case MultiParameter<?> multiParameter -> hashCode(multiParameter.getParameters());
-         case VoidParameter __ -> 1;
+         case VoidParameter _ -> 1;
       };
    }
 }

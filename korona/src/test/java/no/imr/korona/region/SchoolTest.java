@@ -36,10 +36,10 @@ final class SchoolTest {
    @BeforeEach
    void beforeEach() {
       dataManager = DataManagerTestUtils.testDataManager();
-      DataManagerTestUtils.open(dataManager, new ConstantSyntheticData().toSegmentHandle(1, 1000));
+      DataManagerTestUtils.open(dataManager, new ConstantSyntheticData().withFirstAndLastPingNumber(1, 1000).toSegmentHandle());
 
       regionManager = RegionManagerTestUtils.createTestRegionManager(dataManager);
-      regionManager.getLayerManager().setupInitialLayerBoundaries(__ -> 0, __ -> 500);
+      regionManager.getLayerManager().setupInitialLayerBoundaries(_ -> 0, _ -> 500);
 
       PingRange totalRange = dataManager.getDataFileSet().getTotalRange();
       idx0 = dataManager.getDataFileSet().getPingIndex(totalRange.begin().getPingNumber());
@@ -136,7 +136,7 @@ final class SchoolTest {
       JUnitUtils.runWithRandom(random -> {
          DataFileSet dataFileSet = dataManager.getDataFileSet();
          List<EchogramPoint> points = IntStream.range(0, random.nextInt(5, 20))
-               .mapToObj(__ -> {
+               .mapToObj(_ -> {
                   PingIndex pingIndex = dataFileSet.getPingIndex(idx0.getPingNumber() + random.nextInt(50));
                   float depth = random.nextFloat(100, 200);
                   return new EchogramPoint(pingIndex, depth);

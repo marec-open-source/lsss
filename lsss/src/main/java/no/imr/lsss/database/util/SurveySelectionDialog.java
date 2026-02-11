@@ -100,7 +100,7 @@ public final class SurveySelectionDialog {
    }
 
    private JPanel createFilterPanel() {
-      filterTextField.getDocument().addDocumentListener(new SimpleDocumentListener(e -> {
+      filterTextField.getDocument().addDocumentListener(new SimpleDocumentListener(_ -> {
          TextFilter filter = new TextFilter(filterTextField.getText());
          filteredSurveys = allSurveys.stream()
                .filter(survey -> passes(filter, survey))
@@ -125,7 +125,7 @@ public final class SurveySelectionDialog {
 
    private JPanel createButtonPanel() {
       JButton okButton = new JButton("OK");
-      okButton.addActionListener(e -> {
+      okButton.addActionListener(_ -> {
          initiallySelectedSurveys.clear();
          initiallySelectedSurveys.addAll(currentlySelectedSurveys);
          dialog.dispose();
@@ -133,7 +133,7 @@ public final class SurveySelectionDialog {
       dialog.getRootPane().setDefaultButton(okButton);
 
       JButton cancelButton = new JButton("Cancel");
-      cancelButton.addActionListener(e -> dialog.dispose());
+      cancelButton.addActionListener(_ -> dialog.dispose());
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE, () -> {
          if (filterTextField.getText().isEmpty()) {
             dialog.dispose();

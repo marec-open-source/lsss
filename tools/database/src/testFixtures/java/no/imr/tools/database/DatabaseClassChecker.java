@@ -133,7 +133,7 @@ public final class DatabaseClassChecker {
                assertTrue(BaseCompDatabaseObject.class.isAssignableFrom(clazz), method::toString);
                assertEquals("getCompId", method.getName(), method::toString);
                if ((method.getReturnType().getModifiers() & Modifier.ABSTRACT) != 0) {
-                  // Ignore
+                  // Ignore.
                   continue;
                }
                assertTrue(method.getReturnType().isAnnotationPresent(Embeddable.class), method::toString);

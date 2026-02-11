@@ -4,6 +4,7 @@ import no.imr.korona.data.track.SegmentHandle;
 import no.imr.korona.plugins.DataFormatPlugin;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.parameter.Name;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -17,30 +18,16 @@ import java.util.Set;
 public final class SyntheticDataFormatPlugin extends DataFormatPlugin {
    public static final String LSSS_SS_SUFFIX = ".lsss-ss";
 
-   private static final List<String> MAIN_SUFFIXES = List.of(LSSS_SS_SUFFIX);
-
    SyntheticDataFormatPlugin(Name name) {
-      super(name);
+      super(name, "LSSS synthetic survey", List.of(LSSS_SS_SUFFIX));
    }
 
    @Override
-   public String getDescription() {
-      return "LSSS synthetic survey";
-   }
-
-   @Override
-   public List<String> getMainSuffixes() {
-      return MAIN_SUFFIXES;
-   }
-
-   @Override
-   public List<String> getCanOpenSuffixes() {
-      return MAIN_SUFFIXES;
-   }
-
-   @Override
-   public SegmentHandle createSegmentHandle(Path file) throws IOException {
-      return new SyntheticSegmentHandle(new SyntheticDataFile(file));
+   public @Nullable SegmentHandle createSegmentHandle(Path file) throws IOException {
+      if (!file.toString().endsWith(LSSS_SS_SUFFIX)) {
+         return null;
+      }
+      return new SyntheticSegmentHandle(file, SyntheticDataFile.toSyntheticData(file));
    }
 
    @Override
@@ -50,8 +37,9 @@ public final class SyntheticDataFormatPlugin extends DataFormatPlugin {
          if (asyncHandle.isCancelled()) {
             return List.of();
          }
-         if (file.toString().endsWith(LSSS_SS_SUFFIX)) {
-            segmentHandles.add(createSegmentHandle(file));
+         SegmentHandle segmentHandle = createSegmentHandle(file);
+         if (segmentHandle != null) {
+            segmentHandles.add(segmentHandle);
          }
       }
       return segmentHandles;

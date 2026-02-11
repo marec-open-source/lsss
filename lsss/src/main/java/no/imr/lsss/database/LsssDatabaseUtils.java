@@ -30,7 +30,7 @@ public final class LsssDatabaseUtils {
    }
 
    public static List<Class<? extends BaseDatabaseObject>> getDatabaseClasses(LSSS lsss) {
-      return getSomeClasses(lsss, __ -> true);
+      return getSomeClasses(lsss, _ -> true);
    }
 
    public static List<Class<? extends BaseDatabaseObject>> getSystemClasses(LSSS lsss) {
@@ -68,14 +68,14 @@ public final class LsssDatabaseUtils {
    public static void deleteSurvey(LSSS lsss, DatabaseConnection databaseConnection, Survey survey) {
       List<Class<? extends BaseDatabaseObject>> classes = getSurveyClasses(lsss);
       for (int i = classes.size() - 1; i >= 0; i--) { // Reverse order when deleting
-         databaseConnection.executeQuery(LsssQuery.delete(classes.get(i), survey));
+         databaseConnection.executeStatelessQuery(LsssQuery.delete(classes.get(i), survey));
       }
    }
 
    public static void deletePlatform(LSSS lsss, DatabaseConnection databaseConnection, Platform platform) {
       List<Class<? extends BaseDatabaseObject>> classes = new UnionList<>(getPlatformClasses(lsss), getSurveyClasses(lsss));
       for (int i = classes.size() - 1; i >= 0; i--) { // Reverse order when deleting
-         databaseConnection.executeQuery(LsssQuery.delete(classes.get(i), platform));
+         databaseConnection.executeStatelessQuery(LsssQuery.delete(classes.get(i), platform));
       }
    }
 

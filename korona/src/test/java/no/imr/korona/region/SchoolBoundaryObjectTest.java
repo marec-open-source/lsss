@@ -1,5 +1,6 @@
 package no.imr.korona.region;
 
+import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.datamanager.DataManager;
 import no.imr.korona.data.datamanager.DataManagerTestUtils;
 import no.imr.korona.data.datamanager.PingContainer;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -77,9 +79,32 @@ final class SchoolBoundaryObjectTest {
    }
 
    @Test
+   void imageSpaceDistance() {
+      DataManager dataManager = DataManagerTestUtils.testDataManager();
+      DataManagerTestUtils.open(dataManager, new TestSyntheticData().withFirstAndLastPingNumber(0, 50).toSegmentHandle());
+      DataFileSet dataFileSet = dataManager.getDataFileSet();
+      TestPingSettings pingSettings = new TestPingSettings(dataManager);
+
+      PingIndex pingIndex1 = dataFileSet.getPingIndex(20);
+      PingIndex pingIndex2 = dataFileSet.getPingIndex(30);
+      PingRange pingRange = PingRange.of(pingIndex1, pingIndex2);
+
+      Function<Integer, Float> pingNumberToX = pingNumber -> pingSettings.pingIndexToX(dataFileSet.getPingIndex(pingNumber));
+
+      assertEquals(10, SchoolBoundaryObject.imageSpaceDistance(pingSettings, pingRange, pingNumberToX.apply(10)));
+      assertEquals(1, SchoolBoundaryObject.imageSpaceDistance(pingSettings, pingRange, pingNumberToX.apply(19)));
+      assertEquals(0, SchoolBoundaryObject.imageSpaceDistance(pingSettings, pingRange, pingNumberToX.apply(20)));
+      assertEquals(0, SchoolBoundaryObject.imageSpaceDistance(pingSettings, pingRange, pingNumberToX.apply(25)));
+      assertEquals(0, SchoolBoundaryObject.imageSpaceDistance(pingSettings, pingRange, pingNumberToX.apply(30)));
+      assertEquals(1, SchoolBoundaryObject.imageSpaceDistance(pingSettings, pingRange, pingNumberToX.apply(31)));
+      assertEquals(9, SchoolBoundaryObject.imageSpaceDistance(pingSettings, pingRange, pingNumberToX.apply(39)));
+   }
+
+   @Test
    void testPingRangeComparator() {
       DataManager dataManager = DataManagerTestUtils.testDataManager();
-      DataManagerTestUtils.open(dataManager, new TestSyntheticData().toSegmentHandle(1, 1000));
+      DataManagerTestUtils.open(dataManager, new TestSyntheticData().withFirstAndLastPingNumber(0, 200).toSegmentHandle());
+      TestPingSettings pingSettings = new TestPingSettings(dataManager);
       PingRange totalRange = dataManager.getDataFileSet().getTotalRange();
 
       PingIndex pingIndex1 = dataManager.getDataFileSet().getPingIndex(totalRange.begin().getPingNumber());
@@ -87,27 +112,24 @@ final class SchoolBoundaryObjectTest {
       PingIndex pingIndex3 = dataManager.getDataFileSet().getPingIndex(totalRange.begin().getPingNumber() + 100);
       PingIndex pingIndex4 = dataManager.getDataFileSet().getPingIndex(totalRange.begin().getPingNumber() + 150);
 
-      PingRange pingRange1 = PingRange.of(pingIndex1, pingIndex3);
-      PingRange pingRange2 = PingRange.of(pingIndex2, pingIndex4);
+      PingRange pr1 = PingRange.of(pingIndex1, pingIndex2);
+      PingRange pr2 = PingRange.of(pingIndex2, pingIndex3);
+      PingRange pr3 = PingRange.of(pingIndex3, pingIndex4);
 
-      //A ping index which is closer to pingRange2 than pingRange1
-      PingIndex testPingIndex1 = dataManager.getDataFileSet().getPingIndex(totalRange.begin().getPingNumber() + 74);
+      // Inside first ping range:
+      PingIndex testPingIndex1 = dataManager.getDataFileSet().getPingIndex(totalRange.begin().getPingNumber() + 20);
+      assertEquals(List.of(pr1, pr2, pr3),
+            SchoolBoundaryObject.sortedPingRanges(List.of(pr2, pr3, pr1), pingSettings.pingIndexToX(testPingIndex1), pingSettings));
 
-      List<PingRange> pingRangeList = Arrays.asList(pingRange1, pingRange2);
+      // Inside middle ping range, but closer to the last ping range than the first:
+      PingIndex testPingIndex2 = dataManager.getDataFileSet().getPingIndex(totalRange.begin().getPingNumber() + 90);
+      assertEquals(List.of(pr2, pr3, pr1),
+            SchoolBoundaryObject.sortedPingRanges(List.of(pr1, pr2, pr3), pingSettings.pingIndexToX(testPingIndex2), pingSettings));
 
-      TestPingSettings pingSettings = new TestPingSettings(dataManager);
-      SchoolBoundaryObject.sortPingRanges(pingRangeList, testPingIndex1, pingSettings);
-      assertEquals(pingRangeList, List.of(pingRange2, pingRange1));
-
-      //Re-sorting should give the same result
-      SchoolBoundaryObject.sortPingRanges(pingRangeList, testPingIndex1, pingSettings);
-      assertEquals(pingRangeList, List.of(pingRange2, pingRange1));
-
-      //A ping index which is closer to pingRange1 than pingRange2
-      PingIndex testPingIndex2 = dataManager.getDataFileSet().getPingIndex(totalRange.begin().getPingNumber() + 49);
-
-      SchoolBoundaryObject.sortPingRanges(pingRangeList, testPingIndex2, pingSettings);
-      assertEquals(pingRangeList, List.of(pingRange1, pingRange2));
+      // Inside last ping range:
+      PingIndex testPingIndex3 = dataManager.getDataFileSet().getPingIndex(totalRange.begin().getPingNumber() + 120);
+      assertEquals(List.of(pr3, pr2, pr1),
+            SchoolBoundaryObject.sortedPingRanges(List.of(pr1, pr2, pr3), pingSettings.pingIndexToX(testPingIndex3), pingSettings));
    }
 
    private static final class TestSyntheticData extends SyntheticData {

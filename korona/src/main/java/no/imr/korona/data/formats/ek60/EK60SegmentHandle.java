@@ -57,16 +57,18 @@ public final class EK60SegmentHandle extends SegmentHandle {
    public SegmentData createSegmentData(NoticeHandler noticeHandler, AsyncHandle asyncHandle) throws IOException {
       RawFile rawFile = new RawFile(ek60FileSet.getRaw(), EndOfInputHandler.noWait(), datagramTypeManager);
       IdxFile idxFile = IdxFile.load(ek60FileSet.getIdx(), datagramTypeManager, noticeHandler);
-      BotFile botFile = new BotFile(ek60FileSet.getBot(), idxFile, datagramTypeManager, noticeHandler);
-      return new EK60SegmentData(rawFile,
-            idxFile.getIdx0Datagrams(), idxFile.getOtherPingItems(), idxFile.getWrapAround(),
-            botFile.getBot0Datagrams());
+      BotFile botFile = BotFile.load(ek60FileSet.getBot(), idxFile, datagramTypeManager, noticeHandler);
+      return new EK60SegmentData(
+            rawFile,
+            idxFile.idx0Datagrams(), idxFile.otherPingItems(), idxFile.wrapAround(),
+            botFile.bot0Datagrams()
+      );
    }
 
    @Override
    public List<? extends PingIndex> loadPingIndexes(NoticeHandler noticeHandler, AsyncHandle asyncHandle) throws IOException {
       IdxFile idxFile = IdxFile.load(ek60FileSet.getIdx(), datagramTypeManager, noticeHandler);
-      return idxFile.getIdx0Datagrams();
+      return idxFile.idx0Datagrams();
    }
 
    @Override

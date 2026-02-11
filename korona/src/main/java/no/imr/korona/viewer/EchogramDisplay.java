@@ -4,7 +4,6 @@ import no.imr.korona.data.ChannelSelector;
 import no.imr.korona.data.buffer.PingAnimator;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
-import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.viewer.coloring.ColorConverterContainer;
 import no.imr.korona.viewer.overlays.EchogramOverlay;
@@ -83,7 +82,7 @@ public final class EchogramDisplay {
       if (pingNumber > lastPing.getPingNumber()) {
          return lastPing.getPingIndex();
       }
-      return pingAnimator.getPingBuffer().getContainingPingIndex(pingNumber, PingMapping.NUMBER);
+      return pingAnimator.getPingBuffer().getPingIndexOrNullExcludingEnd(pingNumber);
    }
 
    public PingRange getPingRange() {

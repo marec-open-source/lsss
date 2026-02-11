@@ -1,6 +1,6 @@
 package no.imr.korona.data.util;
 
-import no.imr.korona.data.formats.synthetic.SyntheticData;
+import no.imr.korona.data.formats.synthetic.SyntheticDataFile;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.test.data.ConstantSyntheticData;
@@ -12,10 +12,10 @@ import static org.junit.jupiter.api.Assertions.*;
 final class ResampledFloatArrayTest {
    @Test
    void testResampleFloatArray() {
-      SyntheticData syntheticData = new ConstantSyntheticData();
+      SyntheticDataFile syntheticDataFile = new ConstantSyntheticData().withFirstAndLastPingNumber(1, 1);
 
-      PingIndex pingIndex = syntheticData.createPingIndex(1);
-      PowerData powerData = syntheticData.createPowerData(pingIndex, 1);
+      PingIndex pingIndex = syntheticDataFile.createPingIndex(1);
+      PowerData powerData = syntheticDataFile.createPowerData(pingIndex, 1);
       assertNotNull(powerData);
 
       powerData.setTransducerDepth(0);
@@ -24,7 +24,7 @@ final class ResampledFloatArrayTest {
       powerData.setOffset(0);
       powerData.setCount(10);
 
-      PowerData rawToResample = syntheticData.createPowerData(pingIndex, 2);
+      PowerData rawToResample = syntheticDataFile.createPowerData(pingIndex, 2);
       assertNotNull(rawToResample);
       rawToResample.setTransducerDepth(0);
       rawToResample.setSampleDistance(sd * 0.5f);
@@ -54,11 +54,11 @@ final class ResampledFloatArrayTest {
 
    @Test
    void fullResampleWithEmptyArray() {
-      SyntheticData syntheticData = new ConstantSyntheticData(0, Float.NaN);
-      PingIndex pingIndex = syntheticData.createPingIndex(1);
-      PowerData powerData = syntheticData.createPowerData(pingIndex, 1);
+      SyntheticDataFile syntheticDataFile = new ConstantSyntheticData(0, Float.NaN).withFirstAndLastPingNumber(1, 1);
+      PingIndex pingIndex = syntheticDataFile.createPingIndex(1);
+      PowerData powerData = syntheticDataFile.createPowerData(pingIndex, 1);
       assertNotNull(powerData);
-      PowerData powerDataToResample = syntheticData.createPowerData(pingIndex, 2);
+      PowerData powerDataToResample = syntheticDataFile.createPowerData(pingIndex, 2);
       assertNotNull(powerDataToResample);
       powerDataToResample.setTransducerDepth(powerData.getSampleDistance() / 2);
       ResampledFloatArray resampledArray = ResampledFloatArray.create(powerDataToResample.getSv(), powerDataToResample, powerData);

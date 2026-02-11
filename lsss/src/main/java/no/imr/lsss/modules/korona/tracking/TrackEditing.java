@@ -76,7 +76,7 @@ public final class TrackEditing {
    }
 
    public Stream<TrackBorder> getTrackBorders(Ping ping) {
-      return internalGetTrackBorders(ping, channel -> true);
+      return internalGetTrackBorders(ping, _ -> true);
    }
 
    public Stream<TrackBorder> getTrackBorders(Ping ping, int selectedChannel) {
@@ -195,7 +195,7 @@ public final class TrackEditing {
 
    public List<TrackId> split(TrackId trackId, PingIndex pingIndex) {
       PingRange pingRange = trackInfoModule.getTrackInfos().get(trackId).pingRange();
-      if (!pingRange.contains(pingIndex) || pingRange.begin().equals(pingIndex)) {
+      if (!pingRange.containsExcludingBegin(pingIndex)) {
          return ImmutableList.of();
       }
 

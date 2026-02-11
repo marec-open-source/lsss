@@ -4,6 +4,7 @@ import no.imr.korona.data.track.SegmentHandle;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.plugins.BasePlugin;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -14,27 +15,25 @@ import java.util.Set;
  * Base class for plugins loading data.
  */
 public abstract class DataFormatPlugin extends BasePlugin {
-   protected DataFormatPlugin(Name name) {
+   private final String description;
+   private final List<String> mainSuffixes;
+
+   protected DataFormatPlugin(Name name, String description, List<String> mainSuffixes) {
       super(name);
+
+      this.description = description;
+      this.mainSuffixes = mainSuffixes;
    }
 
-   public abstract String getDescription();
-
-   public abstract List<String> getMainSuffixes();
-
-   public abstract List<String> getCanOpenSuffixes();
-
-   public boolean canCreateSegmentHandle(Path file) {
-      String path = file.toString();
-      for (String suffix : getCanOpenSuffixes()) {
-         if (path.endsWith(suffix)) {
-            return true;
-         }
-      }
-      return false;
+   public String getDescription() {
+      return description;
    }
 
-   public abstract SegmentHandle createSegmentHandle(Path file) throws IOException;
+   public List<String> getMainSuffixes() {
+      return mainSuffixes;
+   }
+
+   public abstract @Nullable SegmentHandle createSegmentHandle(Path file) throws IOException;
 
    public abstract List<SegmentHandle> createSegmentHandles(Set<Path> files, AsyncHandle asyncHandle) throws IOException;
 }

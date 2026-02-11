@@ -11,7 +11,7 @@ import java.util.List;
  * Region info.
  */
 public final class RegionInfoDatagram extends DatagramPingItem {
-   public static final DatagramType TYPE = new DatagramType.Simple("RNF0", RegionInfoDatagram::new);
+   public static final DatagramType TYPE = DatagramType.simple("RNF0", RegionInfoDatagram::new);
 
    private boolean accepted;
    private final int channel;

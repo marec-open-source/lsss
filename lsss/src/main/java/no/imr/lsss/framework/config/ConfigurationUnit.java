@@ -114,6 +114,10 @@ public abstract class ConfigurationUnit implements ParameterContainer {
       return plugin.getHelpSet().createHelpID(getPersistentName());
    }
 
+   public void showInConfigurationDialog() {
+      getConfigurationManager().showDialog(this);
+   }
+
    /**
     * Tests if this configuration unit has a configuration component.
     *
@@ -256,7 +260,8 @@ public abstract class ConfigurationUnit implements ParameterContainer {
    }
 
    public <T extends ConfigurationUnit> Stream<T> getAllUnitsRecursively(Class<T> clazz) {
-      return Utils.getAllOfType(getAllUnitsRecursively(), clazz);
+      return getAllUnitsRecursively()
+            .gather(Utils.allOfType(clazz));
    }
 
    public void applyRecursively(Consumer<ConfigurationUnit> action) {

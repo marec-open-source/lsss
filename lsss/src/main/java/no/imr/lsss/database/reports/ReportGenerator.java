@@ -1,13 +1,12 @@
 package no.imr.lsss.database.reports;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
 import no.imr.lsss.LSSS;
 import no.imr.lsss.database.DatabaseReportManager;
+import no.imr.lsss.database.LsssQuery;
 import no.imr.lsss.database.tables.hibernate.AcousticCategory;
 import no.imr.lsss.database.tables.hibernate.Observation;
-import no.imr.lsss.database.tables.hibernate.Platform;
 import no.imr.lsss.database.tables.hibernate.PlatformName;
+import no.imr.lsss.database.tables.hibernate.Scatter;
 import no.imr.lsss.database.tables.hibernate.Survey;
 import no.imr.lsss.database.tables.hibernate.SurveyPK;
 import no.imr.lsss.database.types.DatabasePlugin;
@@ -16,7 +15,7 @@ import no.imr.lsss.framework.config.survey.data.DataConfLSSS;
 import no.imr.lsss.resources.LsssHelp;
 import no.imr.lsss.viewer.Shortcuts;
 import no.imr.tools.database.ConnectionType;
-import no.imr.tools.database.queries.FetchQuery;
+import no.imr.tools.database.queries.QueryBuilder;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.logging.Log;
@@ -203,7 +202,7 @@ public final class ReportGenerator {
       DatabasePlugin databasePlugin = mLSSS.getDatabaseManager().getConnectionManager().getDatabasePlugin();
       if (databasePlugin != null && mLSSS.getDatabaseManager().getDatabaseConnection().isConnected()) {
          Configuration configuration = databasePlugin.getConfiguration(ConnectionType.CONNECT);
-         connectionLabel = new JLabel(databasePlugin.getName().displayName() + ": " + configuration.getProperty(Environment.URL));
+         connectionLabel = new JLabel(databasePlugin.getName().displayName() + ": " + configuration.getProperty(Environment.JAKARTA_JDBC_URL));
       } else {
          connectionLabel = new JLabel("*** Database not connected ***");
          connectionLabel.setForeground(Color.RED);
@@ -286,13 +285,13 @@ public final class ReportGenerator {
             currentSurveyReportsDir,
             selectSurveysReportsDir
       );
-      selectSurveysButton.addActionListener(e -> {
+      selectSurveysButton.addActionListener(_ -> {
          new SurveySelectionDialog(surveys, selectedSurveys, dialog).show();
          surveysSelectedLabel.setText(selectedSurveys.size() + " surveys selected");
          buttonUpdateListener.listen();
       });
 
-      tabbedPane.addChangeListener(e -> {
+      tabbedPane.addChangeListener(_ -> {
          boolean current = tabbedPane.getSelectedIndex() == 0;
          currentSurveySelected.set(current);
          distanceCheck.setEnabled(current);
@@ -314,7 +313,7 @@ public final class ReportGenerator {
       timeCheck.setHorizontalAlignment(SwingConstants.CENTER);
       distanceCheck.setHorizontalAlignment(SwingConstants.CENTER);
 
-      ActionListener timeDistanceListener = e -> {
+      ActionListener timeDistanceListener = _ -> {
          boolean timeSelected = timeCheck.isSelected();
          mStartTime.setEnabled(timeSelected);
          mStopTime.setEnabled(timeSelected);
@@ -326,7 +325,7 @@ public final class ReportGenerator {
       timeCheck.addActionListener(timeDistanceListener);
       distanceCheck.addActionListener(timeDistanceListener);
 
-      wAccumulateCheck.addActionListener(e -> {
+      wAccumulateCheck.addActionListener(_ -> {
          boolean accumulate = wAccumulateCheck.isSelected();
          mAccumulateDistanceLabel.setEnabled(accumulate);
          mAccumulateDistance.setEnabled(accumulate);
@@ -437,12 +436,12 @@ public final class ReportGenerator {
       JPanel reportPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
       JCheckBox selectAllCheckBox = new JCheckBox("Select all reports", false);
-      selectAllCheckBox.addActionListener(e -> {
+      selectAllCheckBox.addActionListener(_ -> {
          for (JCheckBox reportCheckBox : wReport) {
             reportCheckBox.setSelected(selectAllCheckBox.isSelected());
          }
       });
-      ActionListener updateSelectAllCheckBox = e -> {
+      ActionListener updateSelectAllCheckBox = _ -> {
          selectAllCheckBox.setSelected(Arrays.stream(wReport).allMatch(AbstractButton::isSelected));
       };
       updateSelectAllCheckBox.actionPerformed(null);
@@ -466,7 +465,7 @@ public final class ReportGenerator {
       JButton helpButton = new JButton("Help");
       LsssHelp.REPORT_GENERATOR.enableHelpKeyOnButton(helpButton);
 
-      generateReportsButton.addActionListener(ae -> {
+      generateReportsButton.addActionListener(_ -> {
          if (!parameterEditorData.commitEdits()) {
             return;
          }
@@ -608,10 +607,10 @@ public final class ReportGenerator {
             label.setForeground(Color.RED);
             doneGridBag.add(label);
             doneGridBag.add(Box.createVerticalStrut(10));
-            JTextPane component = GuiUtils.labelLikeHtmlTextPane("Go to configuration of <a href='ices'>ICES acoustic metadata</a>.", __ -> {
+            JTextPane component = GuiUtils.labelLikeHtmlTextPane("Go to configuration of <a href='ices'>ICES acoustic metadata</a>.", _ -> {
                doneDialogRef.get().dispose();
                dialog.dispose();
-               mLSSS.getConfigurationManager().showDialog(mLSSS.getConfigurationManager().getSurveyMiscConf().getIcesConf());
+               mLSSS.getConfigurationManager().getSurveyMiscConf().getIcesConf().showInConfigurationDialog();
             });
             doneGridBag.add(component);
          }
@@ -623,7 +622,7 @@ public final class ReportGenerator {
          doneDialog.setVisible(true);
       });
 
-      deleteReportsButton.addActionListener(e -> {
+      deleteReportsButton.addActionListener(_ -> {
          if (!parameterEditorData.commitEdits()) {
             return;
          }
@@ -646,7 +645,7 @@ public final class ReportGenerator {
 
       JButton cancelButton = new JButton("Exit");
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE);
-      cancelButton.addActionListener(e -> {
+      cancelButton.addActionListener(_ -> {
          if (!parameterEditorData.commitEdits()) {
             return;
          }
@@ -694,33 +693,21 @@ public final class ReportGenerator {
    }
 
    private List<Survey> fetchSurveysFromDatabase() {
-      Set<Platform> platforms = new HashSet<>();
-      List<Survey> surveys = mLSSS.getDatabaseManager().getDatabaseConnection().executeValuedQuery(session -> {
-         List<Survey> result = new FetchQuery<>(Survey.class).executeAndGetValue(session);
+      return mLSSS.getDatabaseManager().getDatabaseConnection().executeValuedQuery(session -> {
+         List<Survey> result = LsssQuery.fetch(Survey.class).executeAndGetValue(session);
          for (Survey survey : result) {
-            // Get associated objects while session is open
+            // Get associated objects while session is open.
+
             //noinspection ResultOfMethodCallIgnored
             survey.getPlatform().getNation().getNationName();
 
-            platforms.add(survey.getPlatform());
-
-            /* todo: This does not work. Why?
             for (PlatformName platformName : survey.getPlatform().getPlatformNames()) {
-               platformName.getCompId().getPlatformName();
+               //noinspection ResultOfMethodCallIgnored
+               platformName.getPlatformName();
             }
-            */
          }
          return result;
       });
-
-      SetMultimap<Short, PlatformName> nameMap = HashMultimap.create();
-      for (PlatformName platformName : mLSSS.getDatabaseManager().getDatabaseConnection().executeFetchQuery(new FetchQuery<>(PlatformName.class))) {
-         nameMap.put(platformName.getCompId().getPlatform(), platformName);
-      }
-      for (Platform platform : platforms) {
-         platform.setPlatformNames(nameMap.get(platform.getCompId().getPlatform()));
-      }
-      return surveys;
    }
 
    private void setStartFromDistance(Survey aSurvey, int aStartDate, int aStopDate, float aStartDistance) {
@@ -734,11 +721,11 @@ public final class ReportGenerator {
                " and   a.distance >= " + aStartDistance +
                " order by a.compId.observationDate, a.compId.observationTime";
 
-         try (ScrollableResults observationResults = session.createQuery(aQuery)
+         try (ScrollableResults<Observation> observationResults = session.createSelectionQuery(aQuery, Observation.class)
                .setReadOnly(true)
                .scroll(ScrollMode.FORWARD_ONLY)) {
             if (observationResults.next()) {
-               Observation obs = (Observation) observationResults.get(0);
+               Observation obs = observationResults.get();
                mStartDate.setIntValue(obs.getCompId().getObservationDate());
                mStartTime.setIntValue(databaseTimeToGuiTime(obs.getCompId().getObservationTime()));
                mStartDistance.setFloatValue(obs.getDistance());
@@ -758,11 +745,11 @@ public final class ReportGenerator {
                " and   a.distance <= " + aStopDistance +
                " order by a.compId.observationDate desc, a.compId.observationTime desc";
 
-         try (ScrollableResults observationResults = session.createQuery(aQuery)
+         try (ScrollableResults<Observation> observationResults = session.createSelectionQuery(aQuery, Observation.class)
                .setReadOnly(true)
                .scroll(ScrollMode.FORWARD_ONLY)) {
             if (observationResults.next()) {
-               Observation obs = (Observation) observationResults.get(0);
+               Observation obs = observationResults.get();
                mStopDate.setIntValue(obs.getCompId().getObservationDate());
                mStopTime.setIntValue(databaseTimeToGuiTime(obs.getCompId().getObservationTime()));
                mStopDistance.setFloatValue(obs.getDistance());
@@ -772,10 +759,8 @@ public final class ReportGenerator {
    }
 
    private boolean scatterExist() {
-      return mLSSS.getDatabaseManager().getDatabaseConnection().executeStatelessValuedQuery(session -> {
-         Number nn = session.createQuery("select count(*) from Scatter", Number.class).uniqueResult();
-         return nn.longValue() > 0;
-      });
+      return mLSSS.getDatabaseManager().getDatabaseConnection().executeStatelessValuedQuery(
+            QueryBuilder.count(Scatter.class).build()) > 0;
    }
 
    private void deleteReportFiles(Path aDirectory) throws IOException {

@@ -19,7 +19,7 @@
    <a class="marec-parameter-ref" href="#DeltaRange">Delta range</a> and
    <a class="marec-parameter-ref" href="#MaxRange">Max range</a>
    are optional.
-   If unspecified, these values are determined from the sample distance and max range in the input data.
+   If unspecified, these values are determined from the sample distance and maximum range in the input data.
 </p>
 <ul>
    <li>
@@ -43,8 +43,9 @@
       The netCDF files are written to this subfolder in the destination directory.
    </li>
    <li><span class="marec-parameter-def" id="MainFrequency">Main frequency:</span>
-      The channel with the main frequency is placed first in the output file.
+      A comma-separated list of prioritized candidates for the main frequency.
       If unspecified, the first channel is used.
+      The channel with the main frequency is placed first in the output file.
    </li>
    <li><span class="marec-parameter-def" id="WriterType">Writer type:</span>
       How to structure the output data.
@@ -69,5 +70,14 @@
    </li>
    <li><span class="marec-parameter-def" id="WriteAngels">Write angles:</span>
       If selected, then the output data will include arrays for alongship and athwartship angles.
+   </li>
+   <li><span class="marec-parameter-def" id="CompressSv">Compress sv:</span>
+      Write a compressed log sv variable with reduced resolution, instead of sv.
+   </li>
+   <li><span class="marec-parameter-def" id="CompressedLogSvRange">Compressed log sv range:</span>
+      The value range for the compressed log sv variable.
+   </li>
+   <li><span class="marec-parameter-def" id="CompressedLogSvDelta">Compressed log sv delta:</span>
+      The value resolution for the compressed log sv variable.
    </li>
 </ul>

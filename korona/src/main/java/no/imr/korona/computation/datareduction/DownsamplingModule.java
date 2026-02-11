@@ -19,17 +19,17 @@ public final class DownsamplingModule extends ConcurrentPingModule {
       NONE, FACTOR, SAMPLE_SIZE
    }
 
-   final ObjectParameter<Method> downsamplingMethod = new ObjectParameter<>(
+   public final ObjectParameter<Method> downsamplingMethod = new ObjectParameter<>(
          new Name("Downsampling"),
          Method.FACTOR, Method.values(),
          "Downsampling method");
 
-   final IntParameter downsamplingFactor = new IntParameter(
+   public final IntParameter downsamplingFactor = new IntParameter(
          new Name("DownsamplingFactor", "Downsampling factor"),
          1, Unit.DIMENSIONLESS, ValueConstraints.gte(1),
          "Downsampling factor");
 
-   final FloatParameter downsamplingSampleSize = new FloatParameter(
+   public final FloatParameter downsamplingSampleSize = new FloatParameter(
          new Name("DownsamplingSampleSize", "Downsampling sample size"),
          0.01f, Unit.METER, ValueConstraints.gt(0f),
          "Downsampling factor is set to give approximately this sample size");

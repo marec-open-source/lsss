@@ -2,7 +2,7 @@ package no.imr.tools.database;
 
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import no.imr.tools.database.queries.FetchQuery;
-import no.imr.tools.database.queries.SQLQuery;
+import no.imr.tools.database.queries.StatelessDatabaseQuery;
 import no.imr.tools.logging.Log;
 import org.hibernate.cfg.Configuration;
 
@@ -18,7 +18,6 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 public final class JavaDBUtils {
-   private static final String SQL_DIALECT = "org.hibernate.dialect.DerbyTenSevenDialect";
    private static final String JDBC_DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
    private static final String JDBC_DERBY_PREFIX = "jdbc:derby:";
 
@@ -76,7 +75,7 @@ public final class JavaDBUtils {
 
       String connectionURL = getConnectionURL(dir, name, connectionType);
 
-      return DatabaseUtils.createConfiguration(SQL_DIALECT, JDBC_DRIVER, connectionURL, username, password);
+      return DatabaseUtils.createConfiguration(JDBC_DRIVER, connectionURL, username, password);
    }
 
    public static String inMemoryConnectionUrl(String databaseName) {
@@ -84,7 +83,7 @@ public final class JavaDBUtils {
    }
 
    public static Configuration createInMemoryConfiguration(String databaseName) {
-      return DatabaseUtils.createConfiguration(SQL_DIALECT, JDBC_DRIVER, inMemoryConnectionUrl(databaseName) + ";create=true", "sa", "");
+      return DatabaseUtils.createConfiguration(JDBC_DRIVER, inMemoryConnectionUrl(databaseName) + ";create=true", "sa", "");
    }
 
    public static void dropInMemoryDatabase(String databaseName) {
@@ -103,7 +102,7 @@ public final class JavaDBUtils {
    /**
     * Strips the two first words from the input query.
     * FetchQuery creates a query on the form
-    * "from ClassName className where className.compId.ColumnName = Object".
+    * {@code "from ClassName className where className.compId.ColumnName = Object"}.
     * When using SQL through JDBC, it is not guaranteed that the ClassName matches a
     * table name. The three first words are therefore removed. The caller of
     * this function is responsible for adding "select * from [tablename]" to
@@ -143,7 +142,7 @@ public final class JavaDBUtils {
    public static void importTableFromTextFile(DatabaseConnection databaseConnection, Class<? extends BaseDatabaseObject> clazz, Path file) {
       String tableName = DatabaseUtils.getTableName(clazz).toUpperCase(Locale.ENGLISH);
       String sql = "CALL SYSCS_UTIL.SYSCS_IMPORT_TABLE('APP','" + tableName + "', '" + file.toAbsolutePath() + "',';','\"', null, 0)";
-      databaseConnection.executeQuery(new SQLQuery(sql));
+      databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.nativeSql(sql));
    }
 
    /**
@@ -160,7 +159,7 @@ public final class JavaDBUtils {
       String sql = "CALL SYSCS_UTIL.SYSCS_EXPORT_QUERY " +
             "('select * from " + DatabaseUtils.getTableName(clazz) + " " + stripQuerySQLString(fetchQuery) + "', '" +
             file.toAbsolutePath() + "',';',null,null)";
-      databaseConnection.executeQuery(new SQLQuery(sql));
+      databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.nativeSql(sql));
    }
 
    public static boolean isJavaDBDirectory(Path dir) {

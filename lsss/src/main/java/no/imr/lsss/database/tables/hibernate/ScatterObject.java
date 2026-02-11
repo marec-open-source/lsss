@@ -1,11 +1,33 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import no.imr.tools.database.ColumnOrder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
+@ColumnOrder({
+      "nation",
+      "platform",
+      "survey",
+      "object",
+
+      // Properties:
+      "observationDate",
+      "observationTime",
+      "observationType",
+      "duration",
+})
 public class ScatterObject implements BaseSurveyObject<ScatterObjectPK>, BaseObservationTimeContainer {
    private ScatterObjectPK compId;
 
@@ -31,14 +53,6 @@ public class ScatterObject implements BaseSurveyObject<ScatterObjectPK>, BaseObs
       this.observationTime = observationTime;
       this.observationType = observationType;
       this.duration = duration;
-   }
-
-   public ScatterObject(ScatterObject scatterObject) {
-      compId = scatterObject.compId;
-      observationDate = scatterObject.observationDate;
-      observationTime = scatterObject.observationTime;
-      observationType = scatterObject.observationType;
-      duration = scatterObject.duration;
    }
 
    @EmbeddedId
@@ -88,6 +102,7 @@ public class ScatterObject implements BaseSurveyObject<ScatterObjectPK>, BaseObs
       this.duration = duration;
    }
 
+   @OneToMany(mappedBy = "scatterObject")
    public Set<Scatter> getScatters() {
       return scatters;
    }
@@ -96,6 +111,7 @@ public class ScatterObject implements BaseSurveyObject<ScatterObjectPK>, BaseObs
       this.scatters = scatters;
    }
 
+   @OneToMany(mappedBy = "scatterObject")
    public Set<SchoolMorphology> getSchoolMorphologies() {
       return schoolMorphologies;
    }
@@ -103,6 +119,17 @@ public class ScatterObject implements BaseSurveyObject<ScatterObjectPK>, BaseObs
    public void setSchoolMorphologies(Set<SchoolMorphology> schoolMorphologies) {
       this.schoolMorphologies = schoolMorphologies;
    }
+
+   @ManyToOne(fetch = FetchType.LAZY)
+   @MapsId("compId")
+   @JoinColumns({
+         @JoinColumn(name = "nation", referencedColumnName = "nation"),
+         @JoinColumn(name = "platform", referencedColumnName = "platform"),
+         @JoinColumn(name = "survey", referencedColumnName = "survey"),
+         @JoinColumn(name = "observationDate", referencedColumnName = "observationDate"),
+         @JoinColumn(name = "observationTime", referencedColumnName = "observationTime"),
+         @JoinColumn(name = "observationType", referencedColumnName = "observationType")
+   })
 
    public Observation getObservation() {
       return observation;
@@ -112,6 +139,7 @@ public class ScatterObject implements BaseSurveyObject<ScatterObjectPK>, BaseObs
       this.observation = observation;
    }
 
+   @OneToOne(mappedBy = "scatterObject")
    public SchoolDetect getSchoolDetect() {
       return schoolDetect;
    }
@@ -120,6 +148,7 @@ public class ScatterObject implements BaseSurveyObject<ScatterObjectPK>, BaseObs
       this.schoolDetect = schoolDetect;
    }
 
+   @OneToMany(mappedBy = "scatterObject")
    public Set<SchoolCategory> getSchoolCategories() {
       return schoolCategories;
    }

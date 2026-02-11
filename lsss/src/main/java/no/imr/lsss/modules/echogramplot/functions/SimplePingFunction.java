@@ -33,7 +33,7 @@ public final class SimplePingFunction extends PingFunction {
 
    public static PingFunction bottomDepth() {
       return new SimplePingFunction(new Name("bottomDepth", "Bottom depth"), Unit.METER, ExportRounding.depth(), true,
-            (dataFileSet, ping, channel) -> {
+            (_, ping, channel) -> {
                double bottomDepth = ping.getBot0Datagram().getChannelDepths()[channel - 1];
                return bottomDepth == 0 ? Double.NaN : bottomDepth;
             });
@@ -55,7 +55,7 @@ public final class SimplePingFunction extends PingFunction {
 
    public static PingFunction timeBetweenPings() {
       return new SimplePingFunction(new Name("timeBetweenPings", "Time between pings"), Unit.SECONDS, ExportTransform.round(100),
-            (dataFileSet, ping, channel) -> {
+            (dataFileSet, ping, _) -> {
                PingIndex nextPingIndex = dataFileSet.getPingIndex(ping.getPingNumber() + 1);
                return (nextPingIndex.getNTDate() - ping.getNTDate()) / (double) NTDate.UNITS_PER_SECOND;
             });
@@ -63,7 +63,7 @@ public final class SimplePingFunction extends PingFunction {
 
    public static PingFunction distanceBetweenPings() {
       return new SimplePingFunction(new Name("distanceBetweenPings", "Distance between pings"), Unit.METER, ExportTransform.round(1000),
-            (dataFileSet, ping, channel) -> {
+            (dataFileSet, ping, _) -> {
                PingIndex nextPingIndex = dataFileSet.getPingIndex(ping.getPingNumber() + 1);
                return Utils.nmiToMeter(nextPingIndex.getVesselDistance() - ping.getVesselDistance());
             });
@@ -71,17 +71,17 @@ public final class SimplePingFunction extends PingFunction {
 
    public static PingFunction vesselDistance() {
       return new SimplePingFunction(new Name("vesselDistance", "Vessel distance"), Unit.NAUTICAL_MILES, ExportRounding.vesselDistance(),
-            (dataFileSet, ping, channel) -> ping.getVesselDistance());
+            (_, ping, _) -> ping.getVesselDistance());
    }
 
    public static PingFunction vesselSpeed() {
       return new SimplePingFunction(new Name("vesselSpeed", "Vessel speed"), Unit.KNOTS, ExportTransform.round(100),
-            (dataFileSet, ping, channel) -> DataUtils.getKnots(ping, dataFileSet));
+            (dataFileSet, ping, _) -> DataUtils.getKnots(ping, dataFileSet));
    }
 
    public static PingFunction longitude() {
       return new SimplePingFunction(new Name("longitude", "Longitude"), Unit.DEGREES, ExportRounding.geoPos(),
-            (dataFileSet, ping, channel) -> {
+            (_, ping, _) -> {
                GeoPoint geoPos = ping.getPingIndex().getGeographicalPosition();
                return geoPos != null ? geoPos.getLongitude() : Double.NaN;
             });
@@ -89,7 +89,7 @@ public final class SimplePingFunction extends PingFunction {
 
    public static PingFunction latitude() {
       return new SimplePingFunction(new Name("latitude", "Latitude"), Unit.DEGREES, ExportRounding.geoPos(),
-            (dataFileSet, ping, channel) -> {
+            (_, ping, _) -> {
                GeoPoint geoPos = ping.getPingIndex().getGeographicalPosition();
                return geoPos != null ? geoPos.getLatitude() : Double.NaN;
             });
@@ -97,7 +97,7 @@ public final class SimplePingFunction extends PingFunction {
 
    public static PingFunction heading() {
       return new SimplePingFunction(new Name("heading", "Heading"), Unit.DEGREES, ExportRounding.degrees(),
-            (dataFileSet, ping, channel) -> DataUtils.getHeadingFromNmea(ping).orElse(Double.NaN));
+            (_, ping, _) -> DataUtils.getHeadingFromNmea(ping).orElse(Double.NaN));
    }
 
    @FunctionalInterface

@@ -42,7 +42,7 @@ final class PrintUiResourcesMain {
       });
    }
 
-   public static void main(String[] args) {
+   static void main() {
       SwingUtilities.invokeLater(PrintUiResourcesMain::run);
    }
 }

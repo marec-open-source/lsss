@@ -147,7 +147,7 @@ public class AddRemoveListPanel<T extends Comparable<? super T>> {
    }
 
    private void initDeleteButton() {
-      deleteButton.addActionListener(e -> {
+      deleteButton.addActionListener(_ -> {
          selectedOptionsList.removeAll(selectedOptionsJList.getSelectedValuesList());
          selectedOptionsJList.setModel(new ListListModel<>(selectedOptionsList));
          changeManager.notifyListeners();
@@ -155,7 +155,7 @@ public class AddRemoveListPanel<T extends Comparable<? super T>> {
    }
 
    protected void initAddButton() {
-      addButton.addActionListener(e -> {
+      addButton.addActionListener(_ -> {
          for (T iter : allOptionsJList.getSelectedValuesList()) {
             if (!selectedOptionsList.contains(iter)) {
                selectedOptionsList.add(iter);
