@@ -7,10 +7,12 @@ import no.imr.korona.data.datagrams.Xml0Datagram;
 import no.imr.korona.data.formats.ek60.calibration.BroadbandFunction;
 import no.imr.tools.Utils;
 import no.imr.tools.math.ComplexArray;
+import no.imr.tools.math.MathUtils;
 import org.apache.commons.numbers.complex.Complex;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import java.time.Instant;
 import java.util.function.Consumer;
 
 public abstract class ComplexChannelData extends ChannelData {
@@ -20,8 +22,8 @@ public abstract class ComplexChannelData extends ChannelData {
    private float[][] imag = EMPTY_ARRAY;
    private float slope;
 
-   ComplexChannelData(long ntDate) {
-      super(ntDate);
+   ComplexChannelData(Instant instant) {
+      super(instant);
    }
 
    ComplexChannelData(ChannelData channelData) {
@@ -61,7 +63,7 @@ public abstract class ComplexChannelData extends ChannelData {
    public double getPrxFactor(double frequency) {
       double rwbtrx = getTransducer().getEK80rwbtrx();
       double ztde = getTransducerImpedance(frequency);
-      return (getSectorCount() / 8.0) * Utils.sq((rwbtrx + ztde) / rwbtrx) / ztde;
+      return (getSectorCount() / 8.0) * MathUtils.sq((rwbtrx + ztde) / rwbtrx) / ztde;
    }
 
    public double getTransducerImpedance(double frequency) {
@@ -94,11 +96,11 @@ public abstract class ComplexChannelData extends ChannelData {
             .addAttribute("TransducerDepth", Float.toString(getTransducerDepth()))
             .addAttribute("BandWidth", Float.toString(getBandWidth()));
 
-      return new Xml0Datagram(getNTDate(), DocumentHelper.createDocument(rootElement));
+      return new Xml0Datagram(getInstant(), DocumentHelper.createDocument(rootElement));
    }
 
    public Raw3Datagram toRaw3Datagram() {
-      Raw3Datagram raw3Datagram = new Raw3Datagram(getNTDate());
+      Raw3Datagram raw3Datagram = new Raw3Datagram(getInstant());
       raw3Datagram.channelId = getTransducer().getChannelId();
       raw3Datagram.dataType = (short) (getSectorCount() << 8 | PowerData.DATA_TYPE_COMPLEX_FLOAT_32);
       // raw3Datagram.spare = 0;

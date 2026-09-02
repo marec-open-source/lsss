@@ -61,6 +61,7 @@ public final class SaMapOverlay extends BaseMapOverlay implements PojoDataContai
    public SaMapOverlay(ModuleInfo<BaseSystemFeaturePlugin> moduleInfo, MapModule mapModule) {
       super(moduleInfo, mapModule);
 
+      // Listeners for updating parameters should work even when not enabled, so it is added in the constructor.
       AcousticCategoryConf acousticCategoryConf = getConfigurationManager().getSurveyConfiguration().getAcousticCategoryConf();
       acousticCategoryConf.getAcousticCategoryChangeManager().addListener(() -> {
          List<Optional<AcousticCategory>> allowedValues = Stream.concat(
@@ -185,15 +186,10 @@ public final class SaMapOverlay extends BaseMapOverlay implements PojoDataContai
             .build();
    }
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final List<Ellipse2D.Float> circles;
-      private final List<GuiText> texts;
-
-      private DisplayData(List<Ellipse2D.Float> circles, List<GuiText> texts) {
-         this.circles = circles;
-         this.texts = texts;
-      }
-
+   private record DisplayData(
+         List<Ellipse2D.Float> circles,
+         List<GuiText> texts
+   ) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setColor(Color.MAGENTA);

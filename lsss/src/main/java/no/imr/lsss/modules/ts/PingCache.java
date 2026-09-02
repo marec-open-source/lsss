@@ -49,7 +49,7 @@ final class PingCache implements BaseTsPingCache {
             powerData.getTSU(tsDetection.peakIndex()),
             powerData.getSampleDepth(tsDetection.peakIndex()),
             powerData.getSampleRange(tsDetection.peakIndex()),
-            powerData.getNTDate(),
+            powerData.getInstant(),
             ping.getPingIndex().getGeographicalPosition()
       );
    }

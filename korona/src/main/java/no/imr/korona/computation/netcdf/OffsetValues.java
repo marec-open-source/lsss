@@ -39,12 +39,12 @@ public record OffsetValues(
       return newOffsetValues(offset, values);
    }
 
-   static @Nullable OffsetValues resample(float[] values, ChannelData channelData, float targetSampleDistance, int targetLength) {
-      if (channelData.getSampleDistance() == targetSampleDistance) {
+   static @Nullable OffsetValues resample(float[] values, ChannelData channelData, float targetMinRange, float targetSampleDistance, int targetLength) {
+      if (channelData.getMinRange() == targetMinRange && channelData.getSampleDistance() == targetSampleDistance) {
          return create(channelData.getOffset(), values, targetLength);
       }
       FloatRange valuesRange = FloatRange.of(channelData.getMinRange(), channelData.getMaxRange());
-      FloatRange targetRange = FloatRange.of(0, targetSampleDistance * targetLength);
+      FloatRange targetRange = FloatRange.ofMinAndSize(targetMinRange, targetSampleDistance * targetLength);
       return resample(values, valuesRange, targetRange, targetLength);
    }
 

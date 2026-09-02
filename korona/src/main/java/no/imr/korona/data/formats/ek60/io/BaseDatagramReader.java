@@ -7,6 +7,7 @@ import no.imr.korona.data.datagrams.DatagramType;
 import no.imr.korona.data.datagrams.DatagramTypeManager;
 import no.imr.korona.data.datagrams.UnknownDatagram;
 import no.imr.tools.concurrent.AsyncHandle;
+import no.imr.tools.time.NTDate;
 import org.jspecify.annotations.Nullable;
 
 import java.io.Closeable;
@@ -183,7 +184,7 @@ public abstract class BaseDatagramReader implements DatagramSource, Closeable {
          getReadBuffer().position(p + (4 + 4 + 8)); // Skip size + code + date
          BaseDatagram datagram;
          try {
-            datagram = datagramType.getFactory().read(ntDate, getReadBuffer(), datagramTypeManager);
+            datagram = datagramType.getFactory().read(NTDate.ntDateToInstant(ntDate), getReadBuffer(), datagramTypeManager);
          } catch (DatagramFormatException | BufferUnderflowException _) {
             // Parsing failed
             datagram = null;

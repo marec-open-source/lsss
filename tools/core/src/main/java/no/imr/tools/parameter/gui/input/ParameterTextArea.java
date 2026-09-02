@@ -3,21 +3,26 @@ package no.imr.tools.parameter.gui.input;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.ParameterException;
 import no.imr.tools.parameter.TextParameter;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GuiUtils;
+import org.jspecify.annotations.Nullable;
 
+import javax.swing.JDialog;
 import javax.swing.JTextArea;
 import java.awt.Font;
-import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.util.Objects;
+import java.awt.event.FocusListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 /**
  * A text field for editing a parameter.
  */
-final class ParameterTextArea extends ParameterComponent {
+final class ParameterTextArea implements ParameterComponent {
    private final TextParameter parameter;
    private final JTextArea textArea = new JTextArea();
-   private boolean dialogShowing;
+   private @Nullable JDialog errorDialog;
 
    ParameterTextArea(TextParameter parameter, GUIConfig guiConfig) {
       this.parameter = parameter;
@@ -29,10 +34,11 @@ final class ParameterTextArea extends ParameterComponent {
          textArea.setLineWrap(true);
          textArea.setWrapStyleWord(true);
       }
-      textArea.addFocusListener(new FocusAdapter() {
+      textArea.addFocusListener(new FocusListener() {
          @Override
          public void focusGained(FocusEvent e) {
             textArea.getCaret().setVisible(guiConfig.isParameterEnabled(parameter));
+            CurrentInputComponent.set(textArea, ParameterTextArea.this::updateParameter);
          }
 
          @Override
@@ -41,28 +47,47 @@ final class ParameterTextArea extends ParameterComponent {
             updateParameter();
          }
       });
+      textArea.addHierarchyListener(e -> {
+         if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 && !textArea.isShowing()) {
+            closeErrorDialog();
+         }
+      });
+      textArea.addKeyListener(new KeyAdapter() {
+         @Override
+         public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+               if (!parameter.getStringValue().equals(textArea.getText())) {
+                  updateComponent();
+                  e.consume();
+               }
+            }
+         }
+      });
       if (parameter.getProperty(BaseParameter.KEY_MONOSPACED)) {
-         textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+         textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, textArea.getFont().getSize()));
       }
       GuiUtils.addUndoSupport(textArea);
    }
 
    @Override
-   JTextArea getComponent() {
+   public JTextArea getComponent() {
       return textArea;
    }
 
    @Override
-   void updateComponent() {
+   public void updateComponent() {
       String stringValue = parameter.getStringValue();
-      if (!Objects.equals(textArea.getText(), stringValue)) {
+      if (!stringValue.equals(textArea.getText())) {
          textArea.setText(stringValue);
          textArea.setCaretPosition(0);
       }
    }
 
    private boolean updateParameter() {
-      if (dialogShowing) {
+      if (errorDialog != null) {
+         return false;
+      }
+      if (!textArea.isShowing()) {
          return false;
       }
 
@@ -71,21 +96,24 @@ final class ParameterTextArea extends ParameterComponent {
          return true;
       }
 
-      dialogShowing = true;
       try {
          parameter.setValue(newValue);
+         updateComponent();
          return true;
       } catch (ParameterException e) {
-         ParameterGuiUtils.showErrorDialog(e, textArea);
+         errorDialog = ParameterGuiUtils.createErrorDialog(e, textArea);
+         errorDialog.setVisible(true);
          textArea.requestFocusInWindow();
          return false;
       } finally {
-         dialogShowing = false;
+         closeErrorDialog();
       }
    }
 
-   @Override
-   boolean commitEdit() {
-      return updateParameter();
+   private void closeErrorDialog() {
+      if (errorDialog != null) {
+         errorDialog.dispose();
+         errorDialog = null;
+      }
    }
 }

@@ -9,7 +9,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 
 /**
- * A container for to components that may visible or not.
+ * A container for two components that may be visible or not.
  * If both are visible a JSplitPane is used, otherwise a JPanel.
  */
 public final class SplitPaneContainer {

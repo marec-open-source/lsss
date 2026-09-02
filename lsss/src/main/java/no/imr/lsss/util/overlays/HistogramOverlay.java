@@ -31,14 +31,14 @@ import java.util.function.Supplier;
 public final class HistogramOverlay extends Overlay {
    private final TransferFunction transferFunction;
    private final Listener recomputeListener;
-   private DisplayData displayData = new DisplayData(null);
+   private DisplayData displayData = computeDisplayData(null);
 
    public HistogramOverlay(LSSS lsss, TransferFunction transferFunction,
                            ArgChangeManager<Optional<Ping>> pingChangeManager, Supplier<@Nullable Ping> pingSupplier) {
       this.transferFunction = transferFunction;
 
       recomputeListener = Listeners.coalescingInExecutor(lsss.getInterpretationSettings().getObservingExecutor(), () -> {
-         displayData = new DisplayData(pingSupplier.get());
+         displayData = computeDisplayData(pingSupplier.get());
          repaint();
       });
       pingChangeManager.addListener(recomputeListener);
@@ -59,16 +59,12 @@ public final class HistogramOverlay extends Overlay {
       return displayData.histogram.valueToCount(logSv);
    }
 
-   private final class DisplayData {
-      private final Path2D.Float curve = new Path2D.Float();
-      private final Histogram1D histogram;
-
-      private DisplayData(@Nullable Ping ping) {
-         if (ping == null) {
-            histogram = Histogram1D.fromBinCount(FloatRange.of(0, 1), 1);
-            return;
-         }
-
+   private DisplayData computeDisplayData(@Nullable Ping ping) {
+      Path2D.Float curve = new Path2D.Float();
+      Histogram1D histogram;
+      if (ping == null) {
+         histogram = Histogram1D.fromBinCount(FloatRange.of(0, 1), 1);
+      } else {
          histogram = createHistogram(ping);
          int[] counts = histogram.getCounts();
          int maxCount = Max.of(counts);
@@ -83,18 +79,25 @@ public final class HistogramOverlay extends Overlay {
          }
          curveBuilder.endLineStrip();
       }
+      return new DisplayData(curve, histogram);
+   }
 
-      private Histogram1D createHistogram(Ping ping) {
-         ContinuousVariable variable = transferFunction.getColorConverterContainer().getSV();
-         ContinuousVariableSettings settings = variable.getSettings();
-         Histogram1D histogram = Histogram1D.fromBinCount(settings.getMaxRange(), Math.round(settings.getMaxRange().getSize() / settings.getDelta()));
+   private Histogram1D createHistogram(Ping ping) {
+      ContinuousVariable variable = transferFunction.getColorConverterContainer().getSV();
+      ContinuousVariableSettings settings = variable.getSettings();
+      Histogram1D histogram = Histogram1D.fromBinCount(settings.getMaxRange(), Math.round(settings.getMaxRange().getSize() / settings.getDelta()));
 
-         int transducerCount = ping.getRawFileConfiguration().getTransducerCount();
-         for (int channel = 1; channel <= transducerCount; channel++) {
-            ContinuousVariableResult continuousVariableResult = variable.evaluate(channel, ping);
-            histogram.addValues(continuousVariableResult.floatData());
+      int transducerCount = ping.getRawFileConfiguration().getTransducerCount();
+      for (int channel = 1; channel <= transducerCount; channel++) {
+         ContinuousVariableResult continuousVariableResult = variable.evaluate(channel, ping);
+         if (continuousVariableResult != null) {
+            histogram.addValues(continuousVariableResult.floatData);
          }
-         return histogram;
       }
+      return histogram;
+   }
+
+
+   private record DisplayData(Path2D.Float curve, Histogram1D histogram) {
    }
 }

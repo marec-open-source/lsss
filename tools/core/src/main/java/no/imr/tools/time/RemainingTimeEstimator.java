@@ -1,24 +1,28 @@
 package no.imr.tools.time;
 
-import no.imr.tools.Utils;
+import org.jspecify.annotations.Nullable;
+
+import java.time.Duration;
+import java.time.Instant;
 
 /**
  * Estimates the time to complete an amount of work.
  */
 public final class RemainingTimeEstimator {
-   private final long startTime = System.currentTimeMillis();
-   private long lastUpdateTime = startTime;
+   private final Instant startTime = Instant.now();
+   private Instant lastUpdateTime = startTime;
+   private @Nullable Instant estimatedEndTime;
    private double remainingWork;
-   private double workPerSeconds;
+   private double workPerSecond;
 
    public RemainingTimeEstimator(double initialRemainingWork) {
       remainingWork = initialRemainingWork;
    }
 
    public void setRemainingWork(double newRemainingWork) {
-      long now = System.currentTimeMillis();
-      long dt = now - lastUpdateTime;
-      if (dt < 1000) {
+      Instant now = Instant.now();
+      double seconds = TimeUtils.toSeconds(lastUpdateTime, now);
+      if (seconds < 1) {
          return;
       }
 
@@ -30,58 +34,44 @@ public final class RemainingTimeEstimator {
       lastUpdateTime = now;
       remainingWork = newRemainingWork;
 
-      double seconds = dt / 1000.0;
-      double workPerSecond = workDone / seconds;
-      if (workPerSeconds == 0) {
-         workPerSeconds = workPerSecond;
+      double newWorkPerSecond = workDone / seconds;
+      if (workPerSecond == 0) {
+         workPerSecond = newWorkPerSecond;
       } else {
-         double alpha = Math.min(1, dt / (double) Math.min(now - startTime, 60000));
-         workPerSeconds = alpha * workPerSecond + (1 - alpha) * workPerSeconds;
+         double alpha = Math.min(1, seconds / Math.min(TimeUtils.toSeconds(startTime, now), 60));
+         workPerSecond += alpha * (newWorkPerSecond - workPerSecond);
       }
-   }
-
-   private double getRemainingSeconds() {
-      if (remainingWork == 0) {
-         return 0;
-      }
-      double workSeconds = remainingWork / workPerSeconds;
-      double waitSeconds = (System.currentTimeMillis() - lastUpdateTime) / 1000.0;
-      double remainingSeconds = workSeconds - waitSeconds;
-      return Math.max(0, remainingSeconds);
+      double remainingSeconds = Math.min(remainingWork / workPerSecond, 365 * 24 * 3600);
+      estimatedEndTime = now.plusSeconds((long) Math.ceil(remainingSeconds));
    }
 
    public String getRemainingTimeString() {
-      double remainingSeconds = getRemainingSeconds();
-      if (remainingSeconds == Double.POSITIVE_INFINITY) {
+      if (estimatedEndTime == null) {
          return "?";
       }
-      return secondsToTimeString(remainingSeconds);
+      Duration remaining = Instant.now().until(estimatedEndTime);
+      if (remaining.isNegative()) {
+         remaining = Duration.ZERO;
+      }
+      return TimeUtils.getDurationString(remaining);
    }
 
    public String getTotalTimeString() {
-      double remainingSeconds = getRemainingSeconds();
-      if (remainingSeconds == Double.POSITIVE_INFINITY) {
+      if (estimatedEndTime == null) {
          return "?";
       }
-      return secondsToTimeString(remainingSeconds + getElapsedSeconds());
-   }
-
-   private double getElapsedSeconds() {
-      return (System.currentTimeMillis() - startTime) / 1000.0;
+      return TimeUtils.getDurationString(startTime.until(estimatedEndTime));
    }
 
    public String getElapsedTimeString() {
-      return secondsToTimeString(getElapsedSeconds());
+      return TimeUtils.getDurationString(startTime.until(Instant.now()));
    }
 
    public String getHtmlTable() {
-      return "<table cellpadding=0 cellspacing=0><tr><td>Elapsed:<td>" + getElapsedTimeString()
+      return "<table cellpadding=0 cellspacing=0>"
+            + "<tr><td>Elapsed:<td>" + getElapsedTimeString()
             + "<tr><td>Remaining:&nbsp;<td>" + getRemainingTimeString()
             + "<tr><td>Total:&nbsp;<td>" + getTotalTimeString()
             + "</table>";
-   }
-
-   private static String secondsToTimeString(double seconds) {
-      return Utils.getDurationString((long) (seconds * 1000));
    }
 }

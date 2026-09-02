@@ -37,7 +37,7 @@ final class NetcdfFileDataTest {
    void gridded() throws IOException {
       SyntheticData syntheticData = new SyntheticData() {
          @Override
-         protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+         public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
             float[] sv = new float[10];
             Arrays.fill(sv, PowerData.logSvToSv(-50));
             powerData.setSv(sv);

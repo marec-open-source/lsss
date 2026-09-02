@@ -75,7 +75,7 @@ public final class EchogramPanel {
 
    private final EchogramColorPanel echogramColorPanel;
 
-   private PingInfo[] pingInfos = new PingInfo[1];
+   private @Nullable PingInfo[] pingInfos = new PingInfo[1];
 
    private int lastAddedPing;
    private int lastDisplayPixel;
@@ -114,7 +114,7 @@ public final class EchogramPanel {
       component.addComponentListener(new ComponentAdapter() {
          @Override
          public void componentResized(ComponentEvent e) {
-            setNewSize((Graphics2D) component.getGraphics(), component.getWidth(), component.getHeight());
+            setNewSize(component.getGraphicsConfiguration(), component.getWidth(), component.getHeight());
          }
       });
    }
@@ -268,6 +268,10 @@ public final class EchogramPanel {
          PingInfo pingInfo1 = getPingInfo(x1);
          PingInfo pingInfo2 = getPingInfo(x2);
 
+         if (pingInfo1 == null || pingInfo2 == null) {
+            throw new IllegalStateException(x1 + ", " + x2);
+         }
+
          int ping1 = pingInfo1.pingIndex();
          int ping2 = pingInfo2.pingIndex();
 
@@ -296,8 +300,11 @@ public final class EchogramPanel {
          int h = Math.abs(y1 - y2);
          if (w != 0 || h != 0) {
             Graphics g = component.getGraphics();
-            g.setXORMode(Color.WHITE);
-            g.drawRect(x, y, w, h);
+            if (g != null) {
+               g.setXORMode(Color.WHITE);
+               g.drawRect(x, y, w, h);
+               g.dispose();
+            }
          }
       }
    }
@@ -329,20 +336,12 @@ public final class EchogramPanel {
       drawTexts(g);
    }
 
-   /**
-    * Set new size for panel.
-    *
-    * @param g      graphics
-    * @param width  width
-    * @param height height
-    */
-   private synchronized void setNewSize(Graphics2D g, int width, int height) {
+   private synchronized void setNewSize(GraphicsConfiguration graphicsConfiguration, int width, int height) {
       width = Math.max(1, width);
       height = Math.max(1, height);
 
-      GraphicsConfiguration graphConf = g.getDeviceConfiguration();
-      drawImage = graphConf.createCompatibleImage(width, height);
-      backImage = graphConf.createCompatibleVolatileImage(width, height);
+      drawImage = graphicsConfiguration.createCompatibleImage(width, height);
+      backImage = graphicsConfiguration.createCompatibleVolatileImage(width, height);
 
       pingInfos = new PingInfo[width];
       rgbArray = new int[height];
@@ -440,7 +439,7 @@ public final class EchogramPanel {
       lastAddedPing++;
    }
 
-   private PingInfo getPingInfo(int pixelX) {
+   private @Nullable PingInfo getPingInfo(int pixelX) {
       int i = (pixelX + lastDisplayPixel) % pingInfos.length;
       return pingInfos[i];
    }
@@ -680,7 +679,7 @@ public final class EchogramPanel {
 
       float delta = (float) NiceNumber.niceNumber(depthRange.getSize() / textCount, true);
       FloatRange shrunkRange = depthRange.shrinkToMultipleOf(delta);
-      if (shrunkRange == FloatRange.EMPTY_RANGE) {
+      if (shrunkRange.isEmpty()) {
          return;
       }
       int count = Math.round(shrunkRange.getSize() / delta) + 1;
@@ -705,7 +704,7 @@ public final class EchogramPanel {
 
       float delta = (float) NiceNumber.niceNumber(depthRange.getSize() / textCount, true);
       FloatRange shrunkRange = depthRange.shrinkToMultipleOf(delta);
-      if (shrunkRange == FloatRange.EMPTY_RANGE) {
+      if (shrunkRange.isEmpty()) {
          return;
       }
       int count = Math.round(shrunkRange.getSize() / delta) + 1;

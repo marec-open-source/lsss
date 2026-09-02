@@ -58,7 +58,7 @@ final class SmootherModuleComputation extends BaseFilterModuleComputation {
                   sum += weight * filterInput.values[k];
                }
             }
-            output[i] = (float) (sum / sumWeights);
+            output[i] = sumWeights > 0 ? (float) (sum / sumWeights) : values[i];
          } else {
             output[i] = values[i];
          }

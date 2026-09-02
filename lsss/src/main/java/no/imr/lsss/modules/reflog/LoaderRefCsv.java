@@ -2,6 +2,7 @@ package no.imr.lsss.modules.reflog;
 
 import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -56,7 +57,7 @@ public final class LoaderRefCsv {
             .map(name -> new LogLineField(name, ""))
             .toList();
 
-      DateTimeFormatter dateTimeFormatter = Utils.createUTCDateTimeFormatter("dd.MM.yyyy HH:mm:ss");
+      DateTimeFormatter dateTimeFormatter = TimeUtils.createUTCDateTimeFormatter("dd.MM.yyyy HH:mm:ss");
 
       while (true) {
          String line = in.readLine();
@@ -82,9 +83,9 @@ public final class LoaderRefCsv {
             // Convert hhmmss.xx to hh:mm:ss
             time = time.substring(0, 2) + ":" + time.substring(2, 4) + ":" + time.substring(4, 6);
          }
-         long timeInMillis;
+         Instant instant;
          try {
-            timeInMillis = dateTimeFormatter.parse(date + " " + time, Instant::from).toEpochMilli();
+            instant = dateTimeFormatter.parse(date + " " + time, Instant::from);
          } catch (DateTimeParseException _) {
             continue;
          }
@@ -97,7 +98,7 @@ public final class LoaderRefCsv {
                .mapToObj(i -> Utils.getOrDefault(allValues, i, ""))
                .toList();
 
-         logLines.add(new LogLine(timeInMillis, activityType, start,
+         logLines.add(new LogLine(instant, activityType, start,
                stationType, localStationNumber,
                fields, fieldValues));
       }

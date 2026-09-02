@@ -2,8 +2,6 @@ package no.imr.korona.color;
 
 import no.imr.tools.swing.ColorUtils;
 
-import java.awt.Color;
-
 /**
  * RGB color with components between 0 and 1.
  */
@@ -11,10 +9,6 @@ public record RGBColor(float red, float green, float blue) {
 
    public int getRGB() {
       return ColorUtils.toRGB(red, green, blue);
-   }
-
-   public Color getColor() {
-      return new Color(red, green, blue);
    }
 
    public int interpolateToRGB(RGBColor other, float otherWeight) {

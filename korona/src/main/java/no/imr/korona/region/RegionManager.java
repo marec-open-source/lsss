@@ -384,13 +384,19 @@ public final class RegionManager {
             case School school -> schools.add(school);
          }
       }
-      layerManager.replaceSelectedRegions(layers);
-      schoolManager.replaceSelectedRegions(schools);
+      boolean didModify = false;
+      didModify |= layerManager.replaceSelectedRegionsWithoutNotify(layers);
+      didModify |= schoolManager.replaceSelectedRegionsWithoutNotify(schools);
+      if (didModify) {
+         notifyRegionListenersSelectedRegions();
+      }
    }
 
    public void replaceSelectedRegions(Predicate<? super Region> predicate) {
-      replaceSelectedRegions(List.of());
-      selectRegions(predicate);
+      List<Region> regions = regionStream()
+            .filter(predicate)
+            .toList();
+      replaceSelectedRegions(regions);
    }
 
    public List<Region> getSelectedRegions() {
@@ -931,7 +937,7 @@ public final class RegionManager {
       tryFromXml(() -> storingConfigManager.fromXml(element), "database storing");
 
       if (totalRange.begin().getPingNumber() < pingRange.begin().getPingNumber()) {
-         // Work xml is missing something at the beginning.
+         // Work XML is missing something at the beginning.
          Layer layer = new Layer(this);
          layerManager.getVerticalBoundariesAtPingIndex(pingRange.begin()).forEach(layer::addVerticalBoundary);
          LayerConnector upperConnector = new LayerConnector(new EchogramPoint(totalRange.begin(), 0));
@@ -943,7 +949,7 @@ public final class RegionManager {
          reset(PingRange.ofUnsorted(pingRange.begin(), totalRange.begin()));
       }
       if (pingRange.end().getPingNumber() < totalRange.end().getPingNumber()) {
-         // Work xml is missing something at the end.
+         // Work XML is missing something at the end.
          Layer layer = new Layer(this);
          layerManager.getVerticalBoundariesAtPingIndex(pingRange.end()).forEach(layer::addVerticalBoundary);
          LayerConnector upperConnector = new LayerConnector(new EchogramPoint(totalRange.end(), 0));

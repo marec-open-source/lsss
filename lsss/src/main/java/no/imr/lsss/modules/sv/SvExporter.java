@@ -24,7 +24,6 @@ import no.imr.tools.range.DefaultRange;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.Range;
 import no.imr.tools.range.RangeMap;
-import no.imr.tools.time.NTDate;
 import no.marec.lsss.api.util.GeoPoint;
 import tools.jackson.databind.ObjectWriter;
 
@@ -134,7 +133,7 @@ public final class SvExporter extends StreamingExporter {
          }
 
          for (int channel : channels) {
-            DatabaseTime databaseTime = new DatabaseTime(NTDate.ntDateToTimeInMillis(pingIndex.getNTDate()));
+            DatabaseTime databaseTime = new DatabaseTime(pingIndex.getInstant());
             GeoPoint geoPos = pingIndex.getGeographicalPosition();
             List<String> values = new ArrayList<>();
             values.add(Long.toString(pingIndex.getPingNumber()));

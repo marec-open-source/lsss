@@ -37,6 +37,7 @@ import no.imr.tools.io.FileUtils;
 import no.imr.tools.listening.ArgChangeManager;
 import no.imr.tools.logging.Log;
 import no.imr.tools.logging.LoggingManager;
+import no.imr.tools.misc.HtmlStringBuilder;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.misc.ReferenceDirectory;
 import no.imr.tools.parameter.misc.ReferenceDirectoryCollection;
@@ -208,27 +209,28 @@ public final class SurveyManager {
          int answer = JOptionPane.NO_OPTION;
 
          if (lsss.getInterpretationSettings().isInteractiveMode()) {
-            StringBuilder message = new StringBuilder("<html>Survey ");
+            HtmlStringBuilder message = new HtmlStringBuilder().html("Survey ");
             if (configModified) {
-               message.append("configuration ");
+               message.html("configuration ");
             }
             if (workModified) {
                if (configModified) {
-                  message.append("and ");
+                  message.html("and ");
                }
-               message.append("interpretation ");
+               message.html("interpretation ");
             }
-            message.append(configModified && workModified ? "are" : "is")
-                  .append(" modified.<br>Save changes?");
+            message.html(configModified && workModified ? "are" : "is")
+                  .html(" modified.<br>Save changes?");
 
-            StringBuilder toolTip = new StringBuilder("<html>Modified files:<br>");
+            HtmlStringBuilder toolTip = new HtmlStringBuilder()
+                  .html("Modified files:<br>");
             List<Path> modifiedFiles = new UnionList<>(modifiedConfigFiles, modifiedWorkFiles);
             for (int i = 0; i < modifiedFiles.size(); i++) {
                if (i >= 50) {
-                  toolTip.append("<br>...");
+                  toolTip.html("<br>...");
                   break;
                }
-               toolTip.append("<br>").append(modifiedFiles.get(i));
+               toolTip.html("<br>").text(modifiedFiles.get(i).toString());
             }
 
             JLabel messageLabel = new JLabel(message.toString());
@@ -464,23 +466,37 @@ public final class SurveyManager {
             }
          }
          String name = surveyTitle.replaceAll(" \\(\\d+\\)$", "");
-         Survey survey = new Survey(new SurveyPK(nation.getNation(), platform.getCompId().getPlatform(), surveyId),
+         Survey survey = new Survey(
+               new SurveyPK(nation.getNation(), platform.getCompId().getPlatform(), surveyId),
                name,
-               Optional.ofNullable(surveyConfigurationXml.getStartDate()).map(DateTimeMillis::stringDateToInt).orElse(0),
-               Optional.ofNullable(surveyConfigurationXml.getStartTime()).map(DateTimeMillis::centisTimeToInt).orElse(0),
-               Optional.ofNullable(surveyConfigurationXml.getStopDate()).map(DateTimeMillis::stringDateToInt).orElse(0),
-               Optional.ofNullable(surveyConfigurationXml.getStopTime()).map(DateTimeMillis::centisTimeToInt).orElse(0),
+               optionalDate(surveyConfigurationXml.getStartDate()),
+               optionalTime(surveyConfigurationXml.getStartTime()),
+               optionalDate(surveyConfigurationXml.getStopDate()),
+               optionalTime(surveyConfigurationXml.getStopTime()),
                Optional.ofNullable(surveyConfigurationXml.getSurveyDescription()).orElse(""),
-               Optional.ofNullable(surveyConfigurationXml.getBoundaryNorth()).map(Float::parseFloat).orElse(0f),
-               Optional.ofNullable(surveyConfigurationXml.getBoundarySouth()).map(Float::parseFloat).orElse(0f),
-               Optional.ofNullable(surveyConfigurationXml.getBoundaryWest()).map(Float::parseFloat).orElse(0f),
-               Optional.ofNullable(surveyConfigurationXml.getBoundaryEast()).map(Float::parseFloat).orElse(0f));
+               optionalFloat(surveyConfigurationXml.getBoundaryNorth()),
+               optionalFloat(surveyConfigurationXml.getBoundarySouth()),
+               optionalFloat(surveyConfigurationXml.getBoundaryWest()),
+               optionalFloat(surveyConfigurationXml.getBoundaryEast())
+         );
          Log.global.info("Creating survey: " + survey);
          lsss.getDatabaseManager().getDatabaseConnection().executeStatelessQuery(StatelessDatabaseQuery.upsert(List.of(platform, survey)));
          lsss.getConfigurationManager().getSurveyConf().updateAllowedSurveys();
       }
 
       return true;
+   }
+
+   private static Integer optionalDate(@Nullable String s) {
+      return s != null ? DateTimeMillis.localDateToInt(DateTimeMillis.toLocalDate(s)) : 0;
+   }
+
+   private static Integer optionalTime(@Nullable String s) {
+      return s != null ? DateTimeMillis.localTimeToCentisInt(DateTimeMillis.centisTimeToLocalTime(s)) : 0;
+   }
+
+   private static Float optionalFloat(@Nullable String s) {
+      return s != null ? Float.parseFloat(s) : 0;
    }
 
    public void save() {
@@ -576,8 +592,8 @@ public final class SurveyManager {
       Element zoomElement = surveyElement.addElement(XML_ECHOGRAM_ZOOM);
 
       zoomElement.addElement("time")
-            .addAttribute("min", Double.toString(PingMapping.ntDateToTimeValue(pingRange.begin().getNTDate())))
-            .addAttribute("max", Double.toString(PingMapping.ntDateToTimeValue(pingRange.end().getNTDate())));
+            .addAttribute("min", Double.toString(PingMapping.instantToTimeValue(pingRange.begin().getInstant())))
+            .addAttribute("max", Double.toString(PingMapping.instantToTimeValue(pingRange.end().getInstant())));
 
       FloatRange pelagicZ = interpretationSettings.getPelagicZSettings().getZoomedZRange();
       zoomElement.addElement("pelagic")
@@ -605,11 +621,9 @@ public final class SurveyManager {
          double min = Double.parseDouble(time.attributeValue("min"));
          double max = Double.parseDouble(time.attributeValue("max"));
 
-         PingIndex begin = interpretationSettings.getDataFileSet().getContainingPingIndex(min, PingMapping.TIME);
-         PingIndex end = interpretationSettings.getDataFileSet().getContainingPingIndex(max, PingMapping.TIME);
-         if (begin != null && end != null) {
-            interpretationSettings.setPingRange(PingRange.of(begin, end));
-         }
+         PingIndex begin = interpretationSettings.getDataFileSet().getClosestPingIndex(min, PingMapping.TIME);
+         PingIndex end = interpretationSettings.getDataFileSet().getClosestPingIndex(max, PingMapping.TIME);
+         interpretationSettings.setPingRange(PingRange.of(begin, end));
       }
 
       Element pelagic = zoomElement.element("pelagic");

@@ -58,7 +58,7 @@ final class SmootherModuleTest {
    private static SyntheticDataFile varyingSampleIntervalDefinition(float svValue) {
       SyntheticData syntheticData = new ConstantSyntheticData(100, svValue) {
          @Override
-         protected float getSampleInterval(PingIndex pingIndex, int channel) {
+         public float getSampleInterval(PingIndex pingIndex, int channel) {
             return pingIndex.getPingNumber() < 5 ? super.getSampleInterval(pingIndex, channel) * 0.5f : super.getSampleInterval(pingIndex, channel);
          }
       };
@@ -68,7 +68,7 @@ final class SmootherModuleTest {
    private static SyntheticDataFile increasingTransducerDepthDefinition(float svValue) {
       SyntheticData syntheticData = new ConstantSyntheticData(100, svValue) {
          @Override
-         protected float getTransducerDepth(PingIndex pingIndex, int channel) {
+         public float getTransducerDepth(PingIndex pingIndex, int channel) {
             return pingIndex.getPingNumber() < 5 ? 7.5f : 15.0f;
          }
       };
@@ -78,7 +78,7 @@ final class SmootherModuleTest {
    private static SyntheticDataFile decreasingTransducerDepthDefinition(float svValue) {
       SyntheticData syntheticData = new ConstantSyntheticData(100, svValue) {
          @Override
-         protected float getTransducerDepth(PingIndex pingIndex, int channel) {
+         public float getTransducerDepth(PingIndex pingIndex, int channel) {
             return pingIndex.getPingNumber() < 5 ? 15.0f : 7.5f;
          }
       };
@@ -88,7 +88,7 @@ final class SmootherModuleTest {
    private static SyntheticDataFile missingPowerDataDefinition(float svValue) {
       SyntheticData syntheticData = new ConstantSyntheticData(100, svValue) {
          @Override
-         protected boolean hasPowerData(PingIndex pingIndex, int channel) {
+         public boolean hasPowerData(PingIndex pingIndex, int channel) {
             return (channel + pingIndex.getPingNumber()) % 2 == 0;
          }
       };

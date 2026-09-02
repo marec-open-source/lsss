@@ -134,5 +134,10 @@ public final class OnTheFlySetup extends Configurable implements ParameterContai
             }
          };
       }
+
+      @Override
+      public Copier getCopier() {
+         return cfsManager.createCfsCopier();
+      }
    }
 }

@@ -17,10 +17,10 @@ import no.imr.korona.data.track.SegmentData;
 import no.imr.korona.data.track.SegmentHandle;
 import no.imr.korona.data.util.DataUtils;
 import no.imr.korona.util.KoronaUtils;
-import no.imr.tools.Pair;
 import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.logging.Log;
+import no.imr.tools.math.MathUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -68,11 +68,7 @@ public final class DataFile implements ReloadablePingSource, Comparable<DataFile
 
          coordinatedBottom = computeCoordinatedBottom(getDataConfiguration(), getRawFileConfiguration(), getBot0Datagrams());
       } catch (Exception e) {
-         try {
-            segmentData.close();
-         } catch (IOException suppressed) {
-            e.addSuppressed(suppressed);
-         }
+         Utils.closeOrSuppress(e, segmentData);
          throw e;
       }
    }
@@ -82,6 +78,7 @@ public final class DataFile implements ReloadablePingSource, Comparable<DataFile
       List<Integer> channels = dataConfiguration.getChannelsForBottom(rawFileConfiguration);
       int preferredChannel = dataConfiguration.getPreferredChannelForBottom(rawFileConfiguration);
       float minimumDepthThresholdFactor = dataConfiguration.getMinimumDepthThresholdFactor();
+      float minimumDepthThresholdDistance = dataConfiguration.getMinimumDepthThresholdDistance();
       float[] coordinatedBottom = new float[bot0Datagrams.size()];
       for (int i = 0; i < coordinatedBottom.length; i++) {
          Bot0Datagram bot0Datagram = bot0Datagrams.get(i);
@@ -90,7 +87,7 @@ public final class DataFile implements ReloadablePingSource, Comparable<DataFile
          for (int channel : channels) {
             maxDepth = Math.max(maxDepth, channelDepths[channel - 1]);
          }
-         double minMinDepth = minimumDepthThresholdFactor * maxDepth; // The shallowest acceptable depth.
+         double minMinDepth = Math.max(minimumDepthThresholdFactor * maxDepth, maxDepth - minimumDepthThresholdDistance); // The shallowest acceptable depth.
          if (preferredChannel > 0 && channelDepths[preferredChannel - 1] >= minMinDepth) {
             coordinatedBottom[i] = (float) channelDepths[preferredChannel - 1];
          } else {
@@ -101,7 +98,7 @@ public final class DataFile implements ReloadablePingSource, Comparable<DataFile
                   minDepth = Math.min(minDepth, depth);
                }
             }
-            coordinatedBottom[i] = Utils.avoidInfinity((float) minDepth);
+            coordinatedBottom[i] = MathUtils.avoidInfinity((float) minDepth);
          }
       }
       return coordinatedBottom;
@@ -115,7 +112,7 @@ public final class DataFile implements ReloadablePingSource, Comparable<DataFile
          PingIndex previousPingIndex = pingIndices.get(i - 1);
          PingIndex pingIndex = pingIndices.get(i);
 
-         if (pingIndex.getNTDate() <= previousPingIndex.getNTDate()) {
+         if (!pingIndex.getInstant().isAfter(previousPingIndex.getInstant())) {
             throw new DataException("Non-increasing ping time: " + previousPingIndex.getInstant() +
                   " is followed by " + pingIndex.getInstant());
          }
@@ -211,7 +208,7 @@ public final class DataFile implements ReloadablePingSource, Comparable<DataFile
 
    @Override
    public void onLoadPingData(Ping ping, PingData pingData) {
-      dataFileSet.pingLoaded(new Pair<>(ping, pingData));
+      dataFileSet.pingLoaded(new LoadedPing(ping, pingData));
    }
 
    /**
@@ -349,8 +346,8 @@ public final class DataFile implements ReloadablePingSource, Comparable<DataFile
    }
 
    @Override
-   public int compareTo(DataFile dataFile) {
-      return pingRange.begin().compareTo(dataFile.pingRange.begin());
+   public int compareTo(DataFile other) {
+      return pingRange.begin().compareTo(other.pingRange.begin());
    }
 
    @Override

@@ -103,20 +103,19 @@ public final class ModuleManager {
    private List<BaseDataModule> createDataModules(List<? extends ModuleCollection<?>> moduleCollections) {
       return moduleCollections.parallelStream()
             .flatMap(moduleCollection -> moduleCollection.dataModules().dataModuleInfos.stream())
-            .map(dataModuleInfo -> {
+            .<BaseDataModule>mapMulti((dataModuleInfo, consumer) -> {
                BaseDataModule module;
                try {
                   module = dataModuleInfo.create();
                } catch (Exception e) {
                   Log.global.log(Level.WARNING, "Error creating module " + dataModuleInfo.moduleInfo().name().persistentName(), e);
-                  return null;
+                  return;
                }
                if (dataModuleInfo.moduleInfo().onStartup() == OnStartup.ENABLED) {
                   enabledOnStartupModules.add(module);
                }
-               return module;
+               consumer.accept(module);
             })
-            .filter(Objects::nonNull)
             .toList();
    }
 
@@ -126,20 +125,19 @@ public final class ModuleManager {
             .collect(Collectors.toCollection(ArrayList::new));
       sortModules(viewModuleInfos);
       return viewModuleInfos.parallelStream()
-            .map(viewModuleInfo -> {
+            .<BaseViewModule>mapMulti((viewModuleInfo, consumer) -> {
                BaseViewModule module;
                try {
                   module = viewModuleInfo.create();
                } catch (Exception e) {
                   Log.global.log(Level.WARNING, "Error creating module " + viewModuleInfo.moduleInfo().name().persistentName(), e);
-                  return null;
+                  return;
                }
                if (viewModuleInfo.moduleInfo().onStartup() == OnStartup.ENABLED) {
                   enabledOnStartupModules.add(module);
                }
-               return module;
+               consumer.accept(module);
             })
-            .filter(Objects::nonNull)
             .toList();
    }
 
@@ -156,20 +154,19 @@ public final class ModuleManager {
       return overlaidModules.parallelStream()
             .map(overlaidModule -> {
                List<O> overlays = overlayInfos.parallelStream()
-                     .map(overlayInfo -> {
+                     .<O>mapMulti((overlayInfo, consumer) -> {
                         O overlay;
                         try {
                            overlay = overlayInfo.create(overlaidModule);
                         } catch (Exception e) {
                            Log.global.log(Level.WARNING, "Error creating overlay " + overlayInfo.moduleInfo().name().persistentName(), e);
-                           return null;
+                           return;
                         }
                         if (overlayInfo.moduleInfo().onStartup() == OnStartup.ENABLED) {
                            enabledOnStartupOverlays.add(overlay);
                         }
-                        return overlay;
+                        consumer.accept(overlay);
                      })
-                     .filter(Objects::nonNull)
                      .toList();
                overlaidModule.setOverlays(overlays);
                return overlays;

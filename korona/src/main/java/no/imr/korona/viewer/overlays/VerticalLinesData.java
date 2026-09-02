@@ -1,11 +1,11 @@
 package no.imr.korona.viewer.overlays;
 
 import no.imr.korona.data.ping.PingIndex;
-import no.imr.tools.Utils;
 import no.imr.tools.math.Median;
 import no.imr.tools.math.NiceNumber;
 import no.imr.tools.swing.GuiText;
 import no.imr.tools.swing.GuiUtils;
+import no.imr.tools.time.TimeUtils;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -14,8 +14,8 @@ import java.awt.Rectangle;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.SequencedCollection;
 
 public final class VerticalLinesData {
    private static final int PIXELS_PER_VERTICAL_MARKER = 200;
@@ -24,18 +24,18 @@ public final class VerticalLinesData {
    private final List<Integer> verticalLines = new ArrayList<>();
    private final List<GuiText> texts = new ArrayList<>();
 
-   public VerticalLinesData(Collection<PingIndex> pingIndices, int width, int height, FontMetrics fontMetrics) {
+   public VerticalLinesData(SequencedCollection<PingIndex> pingIndices, int width, int height, FontMetrics fontMetrics) {
       this.height = height;
       if (pingIndices.isEmpty()) {
          return;
       }
 
       int lineCount = Math.max(3, pingIndices.size() / PIXELS_PER_VERTICAL_MARKER);
-      double totalSeconds = getMedianInterval(pingIndices) * pingIndices.size() / 1000.0;
+      double totalSeconds = getMedianIntervalSeconds(pingIndices) * pingIndices.size();
       double secondsInterval = NiceNumber.niceSecond(totalSeconds / lineCount, false);
       long millisInterval = (long) (secondsInterval * 1000);
 
-      DateTimeFormatter timeFormat = Utils.createUTCDateTimeFormatter(millisInterval < 60 * 1000 ? "HH:mm:ss" : "HH:mm");
+      DateTimeFormatter timeFormat = TimeUtils.createUTCDateTimeFormatter(millisInterval < 60 * 1000 ? "HH:mm:ss" : "HH:mm");
 
       int x = width - pingIndices.size();
       int y = height - 5;
@@ -43,9 +43,9 @@ public final class VerticalLinesData {
 
       int minTextDeltaX = 50;
       int previousTextX = -minTextDeltaX;
-      long previousIntervalIndex = pingIndices.iterator().next().getTimeInMillis() / millisInterval;
+      long previousIntervalIndex = pingIndices.getFirst().getInstant().toEpochMilli() / millisInterval;
       for (PingIndex pingIndex : pingIndices) {
-         long nextIntervalIndex = pingIndex.getTimeInMillis() / millisInterval;
+         long nextIntervalIndex = pingIndex.getInstant().toEpochMilli() / millisInterval;
          if (previousIntervalIndex != nextIntervalIndex) {
             previousIntervalIndex = nextIntervalIndex;
             verticalLines.add(x);
@@ -56,7 +56,7 @@ public final class VerticalLinesData {
                if (texts.isEmpty()) {
                   timeText += " UTC";
                   int dy = fontMetrics.getAscent() + fontMetrics.getDescent();
-                  String dateText = Utils.createUTCDateTimeFormatter("yyyy-MM-dd").format(date);
+                  String dateText = TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd").format(date);
                   texts.add(new GuiText(dateText, Color.BLACK, x, y - dy, GuiText.HorizontalAlignment.CENTER, GuiText.VerticalAlignment.BOTTOM, bounds));
                }
                texts.add(new GuiText(timeText, Color.BLACK, x, y, GuiText.HorizontalAlignment.CENTER, GuiText.VerticalAlignment.BOTTOM, bounds));
@@ -66,13 +66,13 @@ public final class VerticalLinesData {
       }
    }
 
-   private static int getMedianInterval(Collection<PingIndex> pingIndices) {
-      int[] intervals = new int[pingIndices.size() - 1];
+   private static double getMedianIntervalSeconds(SequencedCollection<PingIndex> pingIndices) {
+      double[] intervals = new double[pingIndices.size() - 1];
       int i = 0;
       PingIndex previousPingIndex = null;
       for (PingIndex pingIndex : pingIndices) {
          if (previousPingIndex != null) {
-            intervals[i++] = (int) (pingIndex.getTimeInMillis() - previousPingIndex.getTimeInMillis());
+            intervals[i++] = TimeUtils.toSeconds(previousPingIndex.getInstant(), pingIndex.getInstant());
          }
          previousPingIndex = pingIndex;
       }

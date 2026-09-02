@@ -115,8 +115,9 @@ public final class AppPreprocessingConf extends ConfigurationUnit {
    public JComponent getComponent() {
       Predicate<BaseParameter<?>> parameterEnabledDecider = _ -> getConfigurationManager().canEdit(UserProfile.ADMINISTRATOR_MODE);
 
-      ParameterEditor koronaConfigDirEditor = new ParameterEditor(List.of(getKoronaConfigDir()));
-      koronaConfigDirEditor.getGUIConfig().setParameterEnabledDecider(parameterEnabledDecider);
+      ParameterEditor koronaConfigDirEditor = new ParameterEditor(List.of(getKoronaConfigDir()), new GUIConfig()
+            .setParameterEnabledDecider(parameterEnabledDecider)
+      );
       JPanel koronaConfigDirPanel = new JPanel(new BorderLayout());
       koronaConfigDirPanel.add(koronaConfigDirEditor.getEditorComponent());
 
@@ -124,10 +125,11 @@ public final class AppPreprocessingConf extends ConfigurationUnit {
       for (ConfigFileWrapper configFileWrapper : configFileWrappers) {
          parameters.addAll(configFileWrapper.getParameters());
       }
-      ParameterEditor parameterEditor = new ParameterEditor(parameters);
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
-      parameterEditor.getGUIConfig().setInputFieldAlignment(GUIConfig.Alignment.LEFT);
-      parameterEditor.getGUIConfig().setParameterEnabledDecider(parameterEnabledDecider);
+      ParameterEditor parameterEditor = new ParameterEditor(parameters, new GUIConfig()
+            .setHorizontalFill(true)
+            .setInputFieldAlignment(GUIConfig.Alignment.LEFT)
+            .setParameterEnabledDecider(parameterEnabledDecider)
+      );
 
       JTextPane info = createInfoComponent("""
             <h2>Default preprocessing config setup</h2>
@@ -249,7 +251,7 @@ public final class AppPreprocessingConf extends ConfigurationUnit {
             if (!Files.isRegularFile(categorizationXml)) {
                continue;
             }
-            if (newestCategorizationXml == null || FileUtils.creationTime(categorizationXml) > FileUtils.creationTime(newestCategorizationXml)) {
+            if (newestCategorizationXml == null || FileUtils.creationTime(categorizationXml).isAfter(FileUtils.creationTime(newestCategorizationXml))) {
                newestCategorizationXml = categorizationXml;
             }
          }
@@ -280,7 +282,7 @@ public final class AppPreprocessingConf extends ConfigurationUnit {
       }
       Path currentCategorizationXml = categorizationWrapper.file.getFile();
       try {
-         if (currentCategorizationXml != null && FileUtils.creationTime(currentCategorizationXml) >= FileUtils.creationTime(newestCategorizationXml)) {
+         if (currentCategorizationXml != null && !(FileUtils.creationTime(currentCategorizationXml).isBefore(FileUtils.creationTime(newestCategorizationXml)))) {
             return;
          }
       } catch (IOException _) {
@@ -366,7 +368,7 @@ public final class AppPreprocessingConf extends ConfigurationUnit {
             additionalFiles = new DynamicListParameter<>(new Name("Additional" + configFileService.getName().persistentName()),
                   List.of(), Unit.NONE, ValueConverters.PATH) {
                @Override
-               public FileParameter createNewParameter(int index, String persistentName) {
+               public FileParameter newOptionalParameter(int index, String persistentName) {
                   FileParameter fileParameter = new FileParameter(new Name(persistentName, configFileService.getName().displayName()), null, FileParameter.Mode.FILE) {
                      @Override
                      public @Nullable Path getDefaultBrowseDirectory() {

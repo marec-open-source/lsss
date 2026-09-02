@@ -3,78 +3,80 @@ package no.imr.tools.time;
 import org.junit.jupiter.api.Test;
 
 import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 final class DateTimeMillisTest {
    @Test
-   void testDateTime() {
+   void date() {
+      checkDate("", 0, Optional.empty());
+      checkDate("0001-01-01", 1_01_01, Optional.of(LocalDate.of(1, 1, 1)));
+      checkDate("2026-03-06", 2026_03_06, Optional.of(LocalDate.of(2026, 3, 6)));
+      checkDate("9999-12-31", 9999_12_31, Optional.of(LocalDate.of(9999, 12, 31)));
+   }
+
+   private static void checkDate(String s, int date, Optional<LocalDate> localDate) {
+      assertEquals(localDate, DateTimeMillis.toLocalDate(s));
+      assertEquals(s, DateTimeMillis.localDateToString(localDate));
+
+      assertEquals(localDate, DateTimeMillis.toLocalDate(date));
+      assertEquals(date, DateTimeMillis.localDateToInt(localDate));
+   }
+
+   @Test
+   void time() {
+      checkTime(0, LocalTime.of(0, 0, 0));
+      checkTime(1_01_01_000, LocalTime.of(1, 1, 1));
+      checkTime(13_08_07_025, LocalTime.of(13, 8, 7, 25_000_000));
+      checkTime(23_59_59_999, LocalTime.of(23, 59, 59, 999_000_000));
+   }
+
+   private static void checkTime(int time, LocalTime localTime) {
+      assertEquals(localTime, DateTimeMillis.toLocalTime(time));
+      assertEquals(time, DateTimeMillis.localTimeToInt(localTime));
+   }
+
+   @Test
+   void dateTime() {
       int date = 2005_11_28;
       int time = 14_27_01_343;
+      Instant instant = LocalDate.of(2005, 11, 28).atTime(
+            14, 27, 1, 343_000_000).toInstant(ZoneOffset.UTC);
 
-      long millis = DateTimeMillis.toMillis(date, time);
-      DateTimeMillis t1 = new DateTimeMillis(millis);
+      assertEquals(instant, DateTimeMillis.toInstant(date, time));
 
+      DateTimeMillis t1 = new DateTimeMillis(instant);
       assertEquals(date, t1.getDate());
       assertEquals(time, t1.getTime());
    }
 
    @Test
-   void testMillis() {
-      long millis = 1133185231173L;
-      DateTimeMillis t0 = new DateTimeMillis(millis);
+   void centisTime() {
+      assertEquals(LocalTime.of(0, 0), DateTimeMillis.centisTimeToLocalTime(""));
+      assertEquals(LocalTime.of(0, 0), DateTimeMillis.centisTimeToLocalTime("0"));
+      assertEquals(LocalTime.of(1, 22), DateTimeMillis.centisTimeToLocalTime("1:22"));
 
-      int date = t0.getDate();
-      int time = t0.getTime();
+      checkCentisTime(0, "00:00", LocalTime.of(0, 0));
+      checkCentisTime(9_00_00_00, "09:00", LocalTime.of(9, 0, 0));
+      checkCentisTime(9_08_00_00, "09:08", LocalTime.of(9, 8, 0));
+      checkCentisTime(9_08_07_00, "09:08:07", LocalTime.of(9, 8, 7));
+      checkCentisTime(9_08_07_06, "09:08:07:06", LocalTime.of(9, 8, 7, 60_000_000));
+      checkCentisTime(9_08_00_06, "09:08:00:06", LocalTime.of(9, 8, 0, 60_000_000));
 
-      assertEquals(millis, DateTimeMillis.toMillis(date, time));
+      assertThrows(DateTimeException.class, () -> DateTimeMillis.centisIntToLocalTime(1_22_60_00));
+      assertThrows(DateTimeException.class, () -> DateTimeMillis.centisTimeToLocalTime("1:22:60"));
    }
 
-   @Test
-   void dateString() {
-      assertEquals(0, DateTimeMillis.stringDateToInt(""));
-      assertEquals("", DateTimeMillis.intDateToString(0));
+   private static void checkCentisTime(int centisTime, String s, LocalTime localTime) {
+      assertEquals(centisTime, DateTimeMillis.localTimeToCentisInt(localTime));
+      assertEquals(localTime, DateTimeMillis.centisIntToLocalTime(centisTime));
 
-      assertEquals(2010_11_22, DateTimeMillis.stringDateToInt("2010-11-22"));
-      assertEquals("2010-11-22", DateTimeMillis.intDateToString(2010_11_22));
-
-      assertEquals(Optional.empty(), DateTimeMillis.toLocalDate(""));
-      assertEquals("", DateTimeMillis.localDateToString(Optional.empty()));
-   }
-
-   @Test
-   void invalidDateAsInt() {
-      assertThrows(DateTimeException.class, () -> {
-         DateTimeMillis.stringDateToInt("2010-04-31");
-      });
-   }
-
-   @Test
-   void timeString() {
-      assertEquals(0, DateTimeMillis.centisTimeToInt(""));
-      assertEquals(0, DateTimeMillis.centisTimeToInt("0"));
-      assertEquals(0, DateTimeMillis.centisTimeToInt("0:00"));
-      assertEquals("00:00", DateTimeMillis.centisTimeToString(0));
-
-      assertEquals(1_22_00_00, DateTimeMillis.centisTimeToInt("1:22"));
-      assertEquals(1_22_00_00, DateTimeMillis.centisTimeToInt("01:22"));
-      assertEquals("01:22", DateTimeMillis.centisTimeToString(1_22_00_00));
-
-      assertEquals(1_22_33_00, DateTimeMillis.centisTimeToInt("1:22:33"));
-      assertEquals("01:22:33", DateTimeMillis.centisTimeToString(1_22_33_00));
-
-      assertEquals(1_22_33_44, DateTimeMillis.centisTimeToInt("1:22:33:44"));
-      assertEquals("01:22:33:44", DateTimeMillis.centisTimeToString(1_22_33_44));
-
-      assertEquals(Optional.empty(), DateTimeMillis.centisTimeToLocalTime(""));
-      assertEquals("", DateTimeMillis.localTimeToCentisString(Optional.empty()));
-   }
-
-   @Test
-   void invalidTimeAsInt() {
-      assertThrows(DateTimeException.class, () -> {
-         DateTimeMillis.stringDateToInt("1:22:60");
-      });
+      assertEquals(s, DateTimeMillis.localTimeToCentisString(localTime));
+      assertEquals(localTime, DateTimeMillis.centisTimeToLocalTime(s));
    }
 }

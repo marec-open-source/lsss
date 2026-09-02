@@ -3,6 +3,7 @@ package no.imr.korona.computation.noise;
 import no.imr.korona.data.ping.Ping;
 import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
+import no.imr.tools.math.MathUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -201,20 +202,21 @@ final class DynamicNoiseMask extends BaseNoiseMask {
       Log.global.finer(getLogLabel() + "Now using noise data: " + text);
    }
 
-   private record RangeLimits(
+   record RangeLimits(
          int kHz,
          float belowBottom,
          float rangeLimitShort,
          float rangeLimit,
          float rangeLimitDeep
    ) {
-      private static RangeLimits interpolate(int targetKHz, RangeLimits rangeLimitsLow, RangeLimits rangeLimitsHigh) {
-         float w = (float) (rangeLimitsHigh.kHz - targetKHz) / (rangeLimitsHigh.kHz - rangeLimitsLow.kHz);
+      static RangeLimits interpolate(int targetKHz, RangeLimits rangeLimitsLow, RangeLimits rangeLimitsHigh) {
+         double w = (double) (targetKHz - rangeLimitsLow.kHz) / (rangeLimitsHigh.kHz - rangeLimitsLow.kHz);
          return new RangeLimits(targetKHz,
-               rangeLimitsLow.belowBottom * w + rangeLimitsHigh.belowBottom * (1 - w),
-               rangeLimitsLow.rangeLimitShort * w + rangeLimitsHigh.rangeLimitShort * (1 - w),
-               rangeLimitsLow.rangeLimit * w + rangeLimitsHigh.rangeLimit * (1 - w),
-               rangeLimitsLow.rangeLimitDeep * w + rangeLimitsHigh.rangeLimitDeep * (1 - w));
+               (float) MathUtils.interpolate(rangeLimitsLow.belowBottom, rangeLimitsHigh.belowBottom, w),
+               (float) MathUtils.interpolate(rangeLimitsLow.rangeLimitShort, rangeLimitsHigh.rangeLimitShort, w),
+               (float) MathUtils.interpolate(rangeLimitsLow.rangeLimit, rangeLimitsHigh.rangeLimit, w),
+               (float) MathUtils.interpolate(rangeLimitsLow.rangeLimitDeep, rangeLimitsHigh.rangeLimitDeep, w)
+         );
       }
    }
 }

@@ -11,6 +11,9 @@ public interface ColorInterpolation {
    }
 
    static ColorInterpolation linear(List<RGBColor> colors) {
+      if (colors.isEmpty()) {
+         throw new IllegalArgumentException("No colors");
+      }
       return value -> {
          float iAsFloat = value * (colors.size() - 1);
          int i = (int) Math.floor(iAsFloat);
@@ -30,6 +33,9 @@ public interface ColorInterpolation {
    }
 
    static ColorInterpolation stepwise(List<RGBColor> colors) {
+      if (colors.isEmpty()) {
+         throw new IllegalArgumentException("No colors");
+      }
       return value -> {
          int i = Math.clamp((int) Math.floor(value * colors.size()), 0, colors.size() - 1);
          return colors.get(i).getRGB();

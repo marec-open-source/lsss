@@ -8,16 +8,20 @@ import no.imr.tools.Utils;
 import no.imr.tools.parameter.FileParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.StatusView;
 import no.imr.tools.swing.WorkerDialog;
+import no.imr.tools.time.TimeUtils;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -63,10 +67,17 @@ final class DatabaseExportGUI {
             FileParameter.Mode.DIRECTORY);
       FileParameter entireDatabaseDirectory = new FileParameter(
             new Name("Directory", "Destination directory"),
-            mainDir.resolve("DatabaseExport_" + Utils.createLocalDateTimeFormatter("yyyyMMdd_HHmmss").format(Instant.now())),
+            mainDir.resolve("DatabaseExport_" + TimeUtils.createLocalDateTimeFormatter("yyyyMMdd_HHmmss").format(Instant.now())),
             FileParameter.Mode.DIRECTORY);
 
       JCheckBox keepEmptyFiles = new JCheckBox("Keep empty text files");
+      JComboBox<DatabaseExporter.Type> typeComboBox = new JComboBox<>(DatabaseExporter.Type.values());
+      typeComboBox.setSelectedItem(DatabaseExporter.Type.HSQLDB);
+      JLabel javaDbWarning = new JLabel("<html><span style='color: red;'><b>Warning: JavaDB is deprecated. Support will be dropped in a future LSSS version.");
+      typeComboBox.addItemListener(_ -> {
+         javaDbWarning.setVisible(typeComboBox.getSelectedItem() == DatabaseExporter.Type.JavaDB);
+      });
+      javaDbWarning.setVisible(typeComboBox.getSelectedItem() == DatabaseExporter.Type.JavaDB);
 
       ParameterEditor currentSurveyParameterEditor = createParameterEditor(currentSurveyDirectory);
       ParameterEditor referencesTablesParameterEditor = createParameterEditor(referenceTablesDirectory);
@@ -91,6 +102,9 @@ final class DatabaseExportGUI {
       selectionPanel.add(Box.createVerticalStrut(10));
       selectionPanel.deactivateFill();
       selectionPanel.add(keepEmptyFiles);
+      selectionPanel.add(Box.createVerticalStrut(5));
+      selectionPanel.add(GuiUtils.add(new JPanel(new FlowLayout(FlowLayout.LEFT)),
+            new JLabel("Database type: "), typeComboBox, javaDbWarning));
 
       JPanel topPanel = new JPanel(new BorderLayout());
       topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -98,9 +112,7 @@ final class DatabaseExportGUI {
 
       startExportButton.setEnabled(lsss.getConfigurationManager().getSurveyConf().getSurvey() != null);
       startExportButton.addActionListener(_ -> {
-         if (!currentSurveyParameterEditor.commitEdits()
-               || !referencesTablesParameterEditor.commitEdits()
-               || !entireDatabaseParameterEditor.commitEdits()) {
+         if (!CurrentInputComponent.commitEdit()) {
             return;
          }
          dialog.dispose();
@@ -109,11 +121,12 @@ final class DatabaseExportGUI {
                .setMinimumSize(new Dimension(350, 0))
                .setOnError(e -> lsss.showError(referenceWindow, "Database export failed:\n\n" + e, e))
                .start(asyncHandle -> {
+                  DatabaseExporter.Type databaseType = typeComboBox.getSelectedItem() instanceof DatabaseExporter.Type t ? t : DatabaseExporter.Type.JavaDB;
                   if (currentSurveyCheckBox.isSelected() && !asyncHandle.isCancelled()) {
                      statusView.setMainText("Exporting current survey...");
                      Path dir = currentSurveyDirectory.getFile();
                      if (dir != null) {
-                        new DatabaseExporter(lsss, dir, DatabaseExporter.DATABASE_NAME)
+                        new DatabaseExporter(lsss, dir, DatabaseExporter.DATABASE_NAME, databaseType)
                               .setAsyncHandle(asyncHandle)
                               .setStatusListener(statusView::setSecondaryText)
                               .setDeleteEmptyTextFiles(!keepEmptyFiles.isSelected())
@@ -124,7 +137,7 @@ final class DatabaseExportGUI {
                      statusView.setMainText("Exporting reference tables...");
                      Path dir = referenceTablesDirectory.getFile();
                      if (dir != null) {
-                        new DatabaseExporter(lsss, dir, DatabaseExporter.DATABASE_NAME)
+                        new DatabaseExporter(lsss, dir, DatabaseExporter.DATABASE_NAME, databaseType)
                               .setAsyncHandle(asyncHandle)
                               .setStatusListener(statusView::setSecondaryText)
                               .setDeleteEmptyTextFiles(!keepEmptyFiles.isSelected())
@@ -135,7 +148,7 @@ final class DatabaseExportGUI {
                      statusView.setMainText("Exporting entire database...");
                      Path dir = entireDatabaseDirectory.getFile();
                      if (dir != null) {
-                        new DatabaseExporter(lsss, dir, DatabaseExporter.DATABASE_NAME)
+                        new DatabaseExporter(lsss, dir, DatabaseExporter.DATABASE_NAME, databaseType)
                               .setAsyncHandle(asyncHandle)
                               .setStatusListener(statusView::setSecondaryText)
                               .setDeleteEmptyTextFiles(!keepEmptyFiles.isSelected())

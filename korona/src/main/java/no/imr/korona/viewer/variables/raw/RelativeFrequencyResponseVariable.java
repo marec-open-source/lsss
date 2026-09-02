@@ -9,6 +9,7 @@ import no.imr.korona.viewer.variables.ContinuousVariableSettings;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.range.FloatRange;
+import org.jspecify.annotations.Nullable;
 
 public final class RelativeFrequencyResponseVariable extends ContinuousRawVariable {
    private int referenceKHz = 38;
@@ -27,26 +28,26 @@ public final class RelativeFrequencyResponseVariable extends ContinuousRawVariab
    }
 
    @Override
-   public ContinuousVariableResult evaluate(int channel, Ping ping) {
+   public @Nullable ContinuousVariableResult evaluate(int channel, Ping ping) {
       PowerData powerData = ping.getPowerData(channel);
       if (powerData == null) {
-         return ContinuousVariableResult.EMPTY;
+         return null;
       }
 
       int referenceChannel = ping.getRawFileConfiguration().lastChannelWithKHz(referenceKHz);
       if (referenceChannel <= 0) {
-         return ContinuousVariableResult.EMPTY;
+         return null;
       }
       PowerData referencePowerData = ping.getPowerData(referenceChannel);
       if (referencePowerData == null) {
-         return ContinuousVariableResult.EMPTY;
+         return null;
       }
 
       ResampledFloatArray resampledSv = ResampledFloatArray.create(powerData.getLogSv(), powerData, referencePowerData);
       int beginIndex = Math.max(resampledSv.getBeginReferenceIndex(), 0);
       int endIndex = Math.min(resampledSv.getEndReferenceIndex(), referencePowerData.getCount());
       if (beginIndex >= endIndex) {
-         return ContinuousVariableResult.EMPTY;
+         return null;
       }
 
       float[] referenceLogSv = referencePowerData.getLogSv();
@@ -57,6 +58,6 @@ public final class RelativeFrequencyResponseVariable extends ContinuousRawVariab
 
       float minDepth = referencePowerData.getSampleDepth(beginIndex);
       float maxDepth = referencePowerData.getSampleDepth(endIndex);
-      return new ContinuousVariableResult(floatData, FloatRange.of(minDepth, maxDepth));
+      return ContinuousVariableResult.of(floatData, FloatRange.of(minDepth, maxDepth));
    }
 }

@@ -13,9 +13,9 @@ import java.util.stream.Stream;
  * Implementation of a RangeMap.
  */
 public final class ArrayRangeMap<K extends Comparable<? super K>, V> implements RangeMap<K, V> {
-   private final List<PointEntry<K, V>> entries;
+   private final List<PointEntry<K, @Nullable V>> entries;
 
-   private ArrayRangeMap(List<PointEntry<K, V>> entries) {
+   private ArrayRangeMap(List<PointEntry<K, @Nullable V>> entries) {
       this.entries = entries;
    }
 
@@ -25,7 +25,7 @@ public final class ArrayRangeMap<K extends Comparable<? super K>, V> implements 
 
    @Override
    public RangeMap<K, V> copy() {
-      return new ArrayRangeMap<>(new ArrayList<>(entries));
+      return new ArrayRangeMap<>(new ArrayList<PointEntry<K, @Nullable V>>(entries));
    }
 
    @Override
@@ -103,7 +103,7 @@ public final class ArrayRangeMap<K extends Comparable<? super K>, V> implements 
    @Override
    public int size() {
       int rangeCount = 0;
-      for (PointEntry<K, V> entry : entries) {
+      for (PointEntry<K, @Nullable V> entry : entries) {
          if (entry.value != null) {
             rangeCount++;
          }
@@ -124,12 +124,13 @@ public final class ArrayRangeMap<K extends Comparable<? super K>, V> implements 
    public Stream<Entry<K, V>> stream() {
       return IntStream.range(0, entries.size() - 1)
             .mapToObj(i -> {
-               PointEntry<K, V> pointEntry = entries.get(i);
-               if (pointEntry.value == null) {
-                  // This point entry was only end of previous range, and not begin of next.
+               PointEntry<K, @Nullable V> entry = entries.get(i);
+               V value = entry.value;
+               if (value == null) {
+                  // This entry was only end of previous range, and not begin of next.
                   return null;
                }
-               return new Entry<>(new DefaultRange<>(pointEntry.key, entries.get(i + 1).key), pointEntry.value);
+               return new Entry<>(new DefaultRange<>(entry.key, entries.get(i + 1).key), value);
             })
             .filter(Objects::nonNull);
    }
@@ -153,12 +154,13 @@ public final class ArrayRangeMap<K extends Comparable<? super K>, V> implements 
       int iEndMinus1 = iEnd - 1;
       return IntStream.range(iBegin, iEnd)
             .mapToObj(i -> {
-               PointEntry<K, V> pointEntry = entries.get(i);
-               if (pointEntry.value == null) {
-                  // This point entry was only end of previous range, and not begin of next.
+               PointEntry<K, @Nullable V> entry = entries.get(i);
+               V value = entry.value;
+               if (value == null) {
+                  // This entry was only end of previous range, and not begin of next.
                   return null;
                }
-               K beginKey = pointEntry.key;
+               K beginKey = entry.key;
                if (i == iBeginFinal && beginKey.compareTo(range.begin()) < 0) {
                   beginKey = range.begin();
                }
@@ -166,7 +168,7 @@ public final class ArrayRangeMap<K extends Comparable<? super K>, V> implements 
                if (i == iEndMinus1 && endKey.compareTo(range.end()) > 0) {
                   endKey = range.end();
                }
-               return new Entry<>(new DefaultRange<>(beginKey, endKey), pointEntry.value);
+               return new Entry<>(new DefaultRange<>(beginKey, endKey), value);
             })
             .filter(Objects::nonNull);
    }
@@ -175,13 +177,13 @@ public final class ArrayRangeMap<K extends Comparable<? super K>, V> implements 
     * The beginning of a range. The range continues to, but not including, the next entry.
     * If the map is non-empty, there is always a last entry with value null representing the end of the last range.
     */
-   private record PointEntry<K extends Comparable<? super K>, V>(
+   private record PointEntry<K extends Comparable<? super K>, V extends @Nullable Object>(
          K key,
-         @Nullable V value
+         V value
    ) implements Comparable<K> {
       @Override
-      public int compareTo(K thatKey) {
-         return key.compareTo(thatKey);
+      public int compareTo(K other) {
+         return key.compareTo(other);
       }
    }
 }

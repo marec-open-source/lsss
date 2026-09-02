@@ -2,6 +2,7 @@ package no.imr.korona.data.util;
 
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 
 /**
  * Resample one data array from this sample datagram to the resolution of another.
@@ -71,7 +72,7 @@ public record ResampledFloatArray(
          int originalIndex = (int) Math.floor(originalIndexFloat);
          if (originalIndex >= 0 && originalIndex + 1 < values.length) {
             float weight = originalIndexFloat - originalIndex;
-            resampledValues[index] = (1 - weight) * values[originalIndex] + weight * values[originalIndex + 1];
+            resampledValues[index] = (float) MathUtils.interpolate(values[originalIndex], values[originalIndex + 1], weight);
          } else {
             resampledValues[index] = values[Math.clamp(originalIndex, 0, values.length - 1)];
          }

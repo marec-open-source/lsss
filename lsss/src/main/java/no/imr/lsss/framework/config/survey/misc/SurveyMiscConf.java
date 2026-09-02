@@ -1,6 +1,7 @@
 package no.imr.lsss.framework.config.survey.misc;
 
 import no.imr.korona.data.ping.PingMapping;
+import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import no.imr.korona.incubator.KoronaIncubatorFeatureToggles;
 import no.imr.korona.viewer.variables.ContinuousVariableSettings;
 import no.imr.korona.viewer.variables.categorization.ProbabilityVariable;
@@ -77,8 +78,12 @@ public final class SurveyMiscConf extends ConfigurationUnit {
          200000, Unit.HZ, ValueConstraints.gt(0f));
 
    public final FloatParameter minimumDepthThresholdFactor = new FloatParameter(
-         new Name("MinimumDepthThresholdFactor", "Shallowest acceptable depth relative to max depth"),
+         new Name("MinimumDepthThresholdFactor", "Shallowest acceptable depth relative to the max depth"),
          0.99f, Unit.DIMENSIONLESS, ValueConstraints.gt(0f));
+
+   public final FloatParameter minimumDepthThresholdDistance = new FloatParameter(
+         new Name("MinimumDepthThresholdDistance", "The maximum acceptable distance above the max depth"),
+         10, Unit.METER, ValueConstraints.gte(0f));
 
    private final SeparatorParameter separatorMinimumThreshold = SeparatorParameter.space();
 
@@ -175,6 +180,7 @@ public final class SurveyMiscConf extends ConfigurationUnit {
             minFrequencyForBottom,
             maxFrequencyForBottom,
             minimumDepthThresholdFactor,
+            minimumDepthThresholdDistance,
             separatorMinimumThreshold,
             preferredUpperThreshold,
             preferredLowerThreshold,
@@ -212,6 +218,13 @@ public final class SurveyMiscConf extends ConfigurationUnit {
 
       getLSSS().getInterpretationSettings().getPingMappingChangeManager().addListener(pingMapping);
       pingMapping.subscribe(getLSSS().getInterpretationSettings()::setPingMapping);
+
+      getLSSS().getInterpretationSettings().getDataFileChangeManager().addListener(dataFileSet -> {
+         List<Float> frequencies = dataFileSet.getRawFileConfiguration().getTransducers().stream()
+               .map(RawFileTransducer::getFrequency)
+               .toList();
+         mainFrequency.setSuggestedValues(frequencies);
+      });
 
       ProbabilityVariable probabilityVariable = getLSSS().getInterpretationSettings().getColorConverterContainer().getContinuousVariable(ProbabilityVariable.class);
       ContinuousVariableSettings probabilitySettings = probabilityVariable.getSettings();

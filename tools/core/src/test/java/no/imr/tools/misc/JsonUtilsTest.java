@@ -2,7 +2,6 @@ package no.imr.tools.misc;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.exc.InvalidNullException;
 
 import java.util.Map;
 import java.util.Set;
@@ -10,6 +9,16 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class JsonUtilsTest {
+   @Test
+   void readValue() {
+      assertEquals(new TestPojo(1, "b", null, new TestNestedPojo(1, null)), JsonUtils.JSON_MAPPER.readValue("""
+            {"a":1, "b":"b", "d":{"x": 1}}
+            """, TestPojo.class));
+      assertEquals(new TestPojo(1, "b", null, new TestNestedPojo(1, null)), JsonUtils.JSON_MAPPER.readValue("""
+            {"a":1, "b":"b", "c":null, "d":{"x":1, "y":null}}
+            """, TestPojo.class));
+   }
+
    @Test
    void compactJsonWithoutNewline() {
       Object object = Map.of("a", "b");
@@ -29,13 +38,13 @@ final class JsonUtilsTest {
    @Test
    void parseSet() {
       assertEquals(Set.of(1, 2, 3), JsonUtils.parseSet("[1, 2, 2, 3]", Integer.class));
-      assertThrows(InvalidNullException.class, () -> JsonUtils.parseSet("[1, 2, 2, 3, null]", Object.class));
+      assertEquals(Set.of(1, 2, 3), JsonUtils.parseSet("[1, 2, 2, 3, null]", Object.class));
    }
 
    @Test
    void parseMap() {
       assertEquals(Map.of("a", 1, "b", true), JsonUtils.parseMap("{ \"a\": 1, \"b\": true }"));
-      assertThrows(InvalidNullException.class, () -> JsonUtils.parseMap("{ \"a\": 1, \"b\": null }"));
+      assertEquals(Map.of("a", 1), JsonUtils.parseMap("{ \"a\": 1, \"b\": null }"));
    }
 
    @Test

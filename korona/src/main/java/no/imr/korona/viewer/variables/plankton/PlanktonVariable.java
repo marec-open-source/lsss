@@ -21,7 +21,7 @@ public final class PlanktonVariable extends DiscreteVariable {
    private @Nullable Pic0Datagram pic0Datagram;
 
    public PlanktonVariable() {
-      super(PlanktonVariableFactory.PLANKTON_VARIABLE_GROUP, new Name("Plankton", "Plankton"));
+      super(PlanktonVariableFactory.PLANKTON_VARIABLE_GROUP, new Name("plankton", "Plankton"));
    }
 
    @Override
@@ -41,11 +41,11 @@ public final class PlanktonVariable extends DiscreteVariable {
    }
 
    @Override
-   public DiscreteVariableResult evaluate(Ping ping) {
+   public @Nullable DiscreteVariableResult evaluate(Ping ping) {
       Pic0Datagram pic0Datagram = this.pic0Datagram;
       Pid0Datagram pid0Datagram = ping.getPingItem(Pid0Datagram.class);
       if (pic0Datagram == null || pid0Datagram == null) {
-         return DiscreteVariableResult.EMPTY;
+         return null;
       }
 
       List<Pid0Datagram.PlanktonSample> planktonSamples = pid0Datagram.getPlanktonSamples(pic0Datagram);
@@ -59,6 +59,6 @@ public final class PlanktonVariable extends DiscreteVariable {
          }
       }
 
-      return new DiscreteVariableResult(byteData, pid0Datagram.getDepthRange());
+      return DiscreteVariableResult.of(byteData, pid0Datagram.getDepthRange());
    }
 }

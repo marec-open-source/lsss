@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.time.Instant;
 
 public final class Raw3Datagram extends BaseDatagram {
    public static final DatagramType TYPE = DatagramType.simple("RAW3", Raw3Datagram::new);
@@ -25,14 +26,14 @@ public final class Raw3Datagram extends BaseDatagram {
    public float @Nullable [][] real;
    public float @Nullable [][] imag;
 
-   public Raw3Datagram(long ntDate) {
-      super(ntDate);
+   public Raw3Datagram(Instant instant) {
+      super(instant);
 
       channelId = "";
    }
 
-   public Raw3Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Raw3Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       channelId = ByteBufferUtils.readCString(byteBuffer, 128);
       dataType = byteBuffer.getShort();

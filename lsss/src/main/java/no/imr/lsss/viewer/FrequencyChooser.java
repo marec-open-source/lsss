@@ -2,8 +2,8 @@ package no.imr.lsss.viewer;
 
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.lsss.framework.InterpretationSettings;
-import no.imr.tools.Utils;
 import no.imr.tools.swing.ComboBoxListModel;
 import no.imr.tools.swing.GuiListeners;
 import no.imr.tools.swing.icons.MiscIcons;
@@ -40,7 +40,7 @@ final class FrequencyChooser {
          @Override
          public Component getListCellRendererComponent(JList<?> list, @Nullable Object value, int index, boolean isSelected, boolean cellHasFocus) {
             FrequencyItem frequencyItem = (FrequencyItem) value;
-            String text = frequencyItem != null ? Utils.hzToKHz(frequencyItem.transducer.getFrequency()) + " kHz" : "";
+            String text = frequencyItem != null ? KoronaUtils.hzToKHz(frequencyItem.transducer.getFrequency()) + " kHz" : "";
             super.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
             setToolTipText(frequencyItem != null ? frequencyItem.transducer.getChannelId() : null);
             return this;

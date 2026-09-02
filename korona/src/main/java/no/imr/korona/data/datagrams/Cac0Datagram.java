@@ -8,10 +8,12 @@ import org.jspecify.annotations.Nullable;
 
 import java.awt.Color;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Categorization configuration.
@@ -23,12 +25,12 @@ public final class Cac0Datagram extends DatagramPingItem {
    private final Map<String, Category> nameToCategory = new HashMap<>();
    private final List<Category> categories = new ArrayList<>();
 
-   public Cac0Datagram(long ntDate) {
-      super(ntDate);
+   public Cac0Datagram(Instant instant) {
+      super(instant);
    }
 
-   public Cac0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Cac0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       int categoryCount = byteBuffer.get();
       for (int i = 0; i < categoryCount; i++) {
@@ -103,6 +105,11 @@ public final class Cac0Datagram extends DatagramPingItem {
    @Override
    public DatagramType getDatagramType() {
       return TYPE;
+   }
+
+   @Override
+   public String toStringExtra() {
+      return "categories: " + categories.stream().map(c -> "[" + c + "]").collect(Collectors.joining(", ", "[", "]"));
    }
 
    @Override

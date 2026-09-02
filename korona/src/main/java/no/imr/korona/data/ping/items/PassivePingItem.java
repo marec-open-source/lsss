@@ -2,6 +2,7 @@ package no.imr.korona.data.ping.items;
 
 import no.imr.korona.data.datagrams.BaseDatagram;
 
+import java.time.Instant;
 import java.util.List;
 
 public final class PassivePingItem implements PingItem {
@@ -12,13 +13,13 @@ public final class PassivePingItem implements PingItem {
    }
 
    @Override
-   public long getNTDate() {
-      return datagram.getNTDate();
+   public Instant getInstant() {
+      return datagram.getInstant();
    }
 
    @Override
-   public void setNTDate(long ntDate) {
-      datagram.setNTDate(ntDate);
+   public void setInstant(Instant instant) {
+      datagram.setInstant(instant);
    }
 
    @Override

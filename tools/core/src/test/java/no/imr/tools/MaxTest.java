@@ -23,15 +23,18 @@ final class MaxTest {
       assertEquals(3f, Max.of(1f, 2f, 3f));
       assertEquals(3f, Max.of(3f, 1f, 2f));
       assertEquals(3f, Max.of(2f, 3f, 1f));
+      assertEquals(Float.NaN, Max.of(2f, 3f, Float.NaN));
 
       assertEquals(3.0, Max.of(1.0, 2.0, 3.0));
       assertEquals(3.0, Max.of(3.0, 1.0, 2.0));
       assertEquals(3.0, Max.of(2.0, 3.0, 1.0));
+      assertEquals(Double.NaN, Max.of(2.0, 3.0, Double.NaN));
 
       assertEquals(3, Max.of(new byte[]{1, 2, 3, 4}, 1, 3));
 
       assertEquals(4, Max.of(1, 2, 3, 4));
       assertEquals(3, Max.of(new int[]{1, 2, 3, 4}, 1, 3));
+      assertEquals(Float.NaN, Max.of(new float[]{1f, Float.NaN, 3f, 4f}, 1, 3));
 
       assertEquals(4f, Max.of(1f, 2f, 3f, 4f));
       assertEquals(3f, Max.of(new float[]{1f, 2f, 3f, 4f}, 1, 3));

@@ -66,20 +66,15 @@ public final class FileMarkerMapOverlay extends BaseMapOverlay {
       if (counter.get() == 0) {
          return null;
       }
-      return new DisplayData(path, counter.get() < 2000);
+      return transformed(new DisplayData(path, counter.get() < 2000));
    }
 
-   private final class DisplayData extends TransformedDisplayData {
-      private final Path2D path;
-      private final boolean useFill;
-
-      private DisplayData(Path2D path, boolean useFill) {
-         this.path = path;
-         this.useFill = useFill;
-      }
-
+   private record DisplayData(
+         Path2D path,
+         boolean useFill
+   ) implements OverlayDisplayData {
       @Override
-      public void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          if (useFill) {
             g2d.setColor(Color.WHITE);
             g2d.fill(path);

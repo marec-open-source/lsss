@@ -11,6 +11,7 @@ import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.database.ConnectionType;
 import no.imr.tools.database.DatabaseConnection;
 import no.imr.tools.database.DatabaseUtils;
+import no.imr.tools.database.HsqldbConnection;
 import no.imr.tools.database.JavaDBConnection;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import no.imr.tools.io.FileUtils;
@@ -31,19 +32,25 @@ import java.util.function.Consumer;
 public final class DatabaseExporter {
    public static final String DATABASE_NAME = "lsssExportDb";
 
+   public enum Type {
+      HSQLDB, JavaDB
+   }
+
    private final LSSS lsss;
    private final Path destinationDirectory;
    private final String databaseName;
+   private final Type databaseType;
    private final DatabaseConnection source;
    private AsyncHandle asyncHandle = new AsyncHandle();
    private Consumer<String> statusListener = Utils.emptyConsumer();
    private boolean dumpTextFiles = true;
    private boolean deleteEmptyTextFiles;
 
-   public DatabaseExporter(LSSS lsss, Path destinationDirectory, String databaseName) {
+   public DatabaseExporter(LSSS lsss, Path destinationDirectory, String databaseName, Type databaseType) {
       this.lsss = lsss;
       this.destinationDirectory = destinationDirectory;
       this.databaseName = databaseName;
+      this.databaseType = databaseType;
       source = lsss.getDatabaseManager().getDatabaseConnection();
    }
 
@@ -75,12 +82,21 @@ public final class DatabaseExporter {
          throw new IOException("Directory is not writable: " + destinationDirectory);
       }
       statusListener.accept("Preparing export database");
-      try (JavaDBConnection destinationJavaDB = new JavaDBConnection(ConnectionType.INITIALIZE, destinationDirectory, databaseName, LsssDatabaseUtils.getDatabaseClasses(lsss))) {
-         try {
-            export.accept(destinationJavaDB.getDatabaseConnection());
-         } finally {
-            statusListener.accept("Closing export database");
+      try {
+         switch (databaseType) {
+            case JavaDB -> {
+               try (JavaDBConnection destinationJavaDB = new JavaDBConnection(ConnectionType.INITIALIZE, destinationDirectory, databaseName, LsssDatabaseUtils.getAllDatabaseClasses(lsss))) {
+                  export.accept(destinationJavaDB.getDatabaseConnection());
+               }
+            }
+            case HSQLDB -> {
+               try (HsqldbConnection destinationHsqldb = new HsqldbConnection(ConnectionType.INITIALIZE, destinationDirectory, databaseName, LsssDatabaseUtils.getAllDatabaseClasses(lsss))) {
+                  export.accept(destinationHsqldb.getDatabaseConnection());
+               }
+            }
          }
+      } finally {
+         statusListener.accept("Closing export database");
       }
    }
 
@@ -90,11 +106,11 @@ public final class DatabaseExporter {
    }
 
    private void doExportReferenceTables(DatabaseConnection destination) {
-      DatabaseCopyHelper databaseCopyHelper = new DatabaseCopyHelper(source, destination);
+      DatabaseCopyHelper databaseCopyHelper = new DatabaseCopyHelper(source, databaseType, destination);
       if (dumpTextFiles) {
          databaseCopyHelper.doTextDump(destinationDirectory, deleteEmptyTextFiles);
       }
-      for (Class<? extends BaseDatabaseObject> databaseClass : LsssDatabaseUtils.getDatabaseClasses(lsss)) {
+      for (Class<? extends BaseDatabaseObject> databaseClass : LsssDatabaseUtils.getAllDatabaseClasses(lsss)) {
          if (BaseSurveyObject.class.isAssignableFrom(databaseClass)) {
             continue;
          }
@@ -102,7 +118,7 @@ public final class DatabaseExporter {
             return;
          }
          statusListener.accept("Exporting table: " + DatabaseUtils.getTableName(databaseClass));
-         databaseCopyHelper.copyClass(databaseClass);
+         databaseCopyHelper.copyClass(databaseClass, asyncHandle);
       }
    }
 
@@ -112,16 +128,16 @@ public final class DatabaseExporter {
    }
 
    private void doExportEntireDatabase(DatabaseConnection destination) {
-      DatabaseCopyHelper databaseCopyHelper = new DatabaseCopyHelper(source, destination);
+      DatabaseCopyHelper databaseCopyHelper = new DatabaseCopyHelper(source, databaseType, destination);
       if (dumpTextFiles) {
          databaseCopyHelper.doTextDump(destinationDirectory, deleteEmptyTextFiles);
       }
-      for (Class<? extends BaseDatabaseObject> databaseClass : LsssDatabaseUtils.getDatabaseClasses(lsss)) {
+      for (Class<? extends BaseDatabaseObject> databaseClass : LsssDatabaseUtils.getAllDatabaseClasses(lsss)) {
          if (asyncHandle.isCancelled()) {
             return;
          }
          statusListener.accept("Exporting table: " + DatabaseUtils.getTableName(databaseClass));
-         databaseCopyHelper.copyClass(databaseClass);
+         databaseCopyHelper.copyClass(databaseClass, asyncHandle);
       }
    }
 
@@ -131,7 +147,7 @@ public final class DatabaseExporter {
    }
 
    private void doExportSurveys(List<Survey> surveys, DatabaseConnection destination) {
-      DatabaseCopyHelper databaseCopyHelper = new DatabaseCopyHelper(source, destination);
+      DatabaseCopyHelper databaseCopyHelper = new DatabaseCopyHelper(source, databaseType, destination);
       if (dumpTextFiles) {
          databaseCopyHelper.doTextDump(destinationDirectory, deleteEmptyTextFiles);
       }
@@ -140,7 +156,7 @@ public final class DatabaseExporter {
             return;
          }
          statusListener.accept("Exporting table: " + DatabaseUtils.getTableName(systemClass));
-         databaseCopyHelper.copyClass(systemClass);
+         databaseCopyHelper.copyClass(systemClass, asyncHandle);
       }
 
       Set<Short> nationPKs = LsssDatabaseUtils.toNationPKs(surveys);
@@ -150,7 +166,7 @@ public final class DatabaseExporter {
             if (asyncHandle.isCancelled()) {
                return;
             }
-            databaseCopyHelper.copyClassForNation(nationPK, nationClass);
+            databaseCopyHelper.copyClassForNation(nationClass, nationPK, asyncHandle);
          }
       }
 
@@ -161,7 +177,7 @@ public final class DatabaseExporter {
             if (asyncHandle.isCancelled()) {
                return;
             }
-            databaseCopyHelper.copyClassForPlatform(platformPK, platformClass);
+            databaseCopyHelper.copyClassForPlatform(platformClass, platformPK, asyncHandle);
          }
       }
 
@@ -172,7 +188,7 @@ public final class DatabaseExporter {
             if (asyncHandle.isCancelled()) {
                return;
             }
-            databaseCopyHelper.copyClassForSurvey(survey, surveyClass);
+            databaseCopyHelper.copyClassForSurvey(surveyClass, survey, asyncHandle);
          }
       }
    }

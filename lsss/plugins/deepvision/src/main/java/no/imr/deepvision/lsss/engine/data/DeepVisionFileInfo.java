@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,7 +24,7 @@ import java.util.zip.ZipFile;
 
 public final class DeepVisionFileInfo {
    private final DeepVisionFile deepVisionFile;
-   private final Range<Long> timeRangeMillis;
+   private final Range<Instant> timeRange;
    private final Path file;
    private final String imageFileSuffix;
    private final boolean zipped;
@@ -31,7 +32,7 @@ public final class DeepVisionFileInfo {
 
    DeepVisionFileInfo(DeepVisionFile deepVisionFile, Path file) {
       this.deepVisionFile = deepVisionFile;
-      timeRangeMillis = findTimeRangeMillis(deepVisionFile);
+      timeRange = findTimeRange(deepVisionFile);
       this.file = file;
 
       String fileFormat = deepVisionFile.frames.fileformat;
@@ -45,13 +46,13 @@ public final class DeepVisionFileInfo {
       }
    }
 
-   private static Range<Long> findTimeRangeMillis(DeepVisionFile deepVisionFile) {
+   private static Range<Instant> findTimeRange(DeepVisionFile deepVisionFile) {
       List<DeepVisionFrame> frames = deepVisionFile.frames.frames;
       if (frames.isEmpty()) {
-         return new DefaultRange<>(0L, 0L);
+         return new DefaultRange<>(Instant.EPOCH, Instant.EPOCH);
       }
-      long begin = DeepVisionDataUtils.timeInMillis(frames.getFirst());
-      long end = DeepVisionDataUtils.timeInMillis(frames.getLast());
+      Instant begin = DeepVisionDataUtils.time(frames.getFirst());
+      Instant end = DeepVisionDataUtils.time(frames.getLast());
       return new DefaultRange<>(begin, end);
    }
 
@@ -59,8 +60,8 @@ public final class DeepVisionFileInfo {
       return deepVisionFile;
    }
 
-   public Range<Long> getTimeRangeMillis() {
-      return timeRangeMillis;
+   public Range<Instant> getTimeRange() {
+      return timeRange;
    }
 
    public Path getFile() {

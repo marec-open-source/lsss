@@ -7,10 +7,10 @@ import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.geometry.EchogramPoint;
 import no.imr.korona.data.util.geometry.depth.IdentityDepthTransform;
 import no.imr.korona.region.School;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.lsss.LSSS;
 import no.imr.lsss.modules.schoolparameter.morphological.AreaParameterCollection;
 import no.imr.lsss.test.LsssTestUtils;
-import no.imr.tools.Utils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,7 +76,7 @@ final class SchoolParameterModuleTest {
       assertEquals(458133.8f, perChannelValues.get("svMedian"));
       assertEquals(149615.22f, perChannelValues.get("svMin"));
       assertEquals(0.077493645f, perChannelValues.get("svSkewness"));
-      assertEquals(2.3423609E10f, perChannelValues.get("svVariance"));
+      assertEquals(2.3423609e10f, perChannelValues.get("svVariance"));
 
       // Split school
       EchogramPoint centerPoint = school.getCenterPoint();
@@ -93,7 +93,7 @@ final class SchoolParameterModuleTest {
    }
 
    private static double vesselDistanceInMeter(EchogramPoint from, EchogramPoint to) {
-      return Utils.nmiToMeter(PingRange.ofUnsorted(from.pingIndex(), to.pingIndex()).getVesselDistance());
+      return KoronaUtils.nmiToMeter(PingRange.ofUnsorted(from.pingIndex(), to.pingIndex()).getVesselDistance());
    }
 
    private double getArea(School school) {

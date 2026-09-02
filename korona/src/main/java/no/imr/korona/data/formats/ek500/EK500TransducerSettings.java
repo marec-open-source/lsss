@@ -73,7 +73,7 @@ public final class EK500TransducerSettings extends Configurable implements Param
    }
 
    @Override
-   public int compareTo(EK500TransducerSettings o) {
-      return Float.compare(frequency.getFloatValue(), o.frequency.getFloatValue());
+   public int compareTo(EK500TransducerSettings other) {
+      return Float.compare(frequency.getFloatValue(), other.frequency.getFloatValue());
    }
 }

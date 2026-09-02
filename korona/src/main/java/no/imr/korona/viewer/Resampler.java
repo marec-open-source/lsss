@@ -25,15 +25,13 @@ public final class Resampler {
          outputEnd = 0;
          deltaSample = 0;
       } else {
-         float minIV = Math.min(intersection.min(), outputRange.min());
-         float yFactor = outputLength / (outputRange.max() - minIV);
-         outputBegin = Math.round(yFactor * (intersection.min() - minIV));
-         outputEnd = Math.round(yFactor * (intersection.max() - minIV));
+         float yFactor = outputLength / outputRange.getSize();
+         outputBegin = Math.round(yFactor * (intersection.min() - outputRange.min()));
+         outputEnd = Math.round(yFactor * (intersection.max() - outputRange.min()));
 
-         float minID = Math.min(intersection.min(), inputRange.min());
-         float indexFactor = inputLength / (inputRange.max() - minID);
-         inputBegin = indexFactor * (intersection.min() - minID);
-         float inputEnd = indexFactor * (intersection.max() - minID);
+         float indexFactor = inputLength / inputRange.getSize();
+         inputBegin = indexFactor * (intersection.min() - inputRange.min());
+         float inputEnd = indexFactor * (intersection.max() - inputRange.min());
 
          deltaSample = (inputEnd - inputBegin) / (float) (outputEnd - outputBegin);
       }

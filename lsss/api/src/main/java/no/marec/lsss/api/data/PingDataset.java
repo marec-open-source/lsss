@@ -29,7 +29,7 @@ public interface PingDataset {
     * Finds the ping index with a specified ping number.
     *
     * @param pingNumber a ping number
-    * @return the corresponding ping index, or {@code null} is none exists
+    * @return the corresponding ping index, or {@code null} if none exists
     */
    @Nullable PingIndex getPingIndex(long pingNumber);
 
@@ -39,7 +39,7 @@ public interface PingDataset {
     * This will not be the end of {@link #getTotalPingRange()}, unless this dataset is empty.
     *
     * @param instant a time
-    * @return the ping index containing that time, or {@code null} is none exists
+    * @return the ping index containing that time, or {@code null} if none exists
     */
    @Nullable PingIndex getContainingPingIndex(Instant instant);
 

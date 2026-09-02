@@ -186,18 +186,19 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
       super.fromConfigurationXml(configurationElement);
 
       Element containerSpeciesElement = configurationElement.element(XML_SPECIES);
+      if (containerSpeciesElement != null) {
+         Map<Integer, AcousticCategory> species = getAcousticCategoryMap();
 
-      Map<Integer, AcousticCategory> species = getAcousticCategoryMap();
-
-      for (Element speciesElement : containerSpeciesElement.elements(XML_SPECIES)) {
-         int id = Integer.parseInt(speciesElement.attributeValue(XML_ID));
-         short purpose = Short.parseShort(speciesElement.attributeValue(XML_PURPOSE));
-         AcousticCategory acousticCategory = species.get(id);
-         if (acousticCategory != null) {
-            purposes.put(acousticCategory.getCompId(), purpose);
-            selectedCategories.add(acousticCategory);
-         } else {
-            Log.global.warning("No species with id " + id);
+         for (Element speciesElement : containerSpeciesElement.elements(XML_SPECIES)) {
+            int id = Integer.parseInt(speciesElement.attributeValue(XML_ID));
+            short purpose = Short.parseShort(speciesElement.attributeValue(XML_PURPOSE));
+            AcousticCategory acousticCategory = species.get(id);
+            if (acousticCategory != null) {
+               purposes.put(acousticCategory.getCompId(), purpose);
+               selectedCategories.add(acousticCategory);
+            } else {
+               Log.global.warning("No species with id " + id);
+            }
          }
       }
       acousticToCategory.setAcousticCategories(selectedCategories);
@@ -293,18 +294,12 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
       }
    }
 
-   static final class AcousticCategoryJList extends ModifiedKeySearchJList<AcousticCategory> {
-      private final LanguageUtils languageUtils;
-
-      AcousticCategoryJList(LanguageUtils languageUtils) {
-         this.languageUtils = languageUtils;
-         setCellRenderer(new AcousticCategoryCellRenderer(languageUtils));
-      }
-
-      @Override
-      public String valueToString(AcousticCategory value) {
+   static JList<AcousticCategory> newAcousticCategoryJList(LanguageUtils languageUtils) {
+      JList<AcousticCategory> jList = new ModifiedKeySearchJList<>(value -> {
          return acousticCategoryToListText(value, languageUtils);
-      }
+      });
+      jList.setCellRenderer(new AcousticCategoryCellRenderer(languageUtils));
+      return jList;
    }
 
    private static final class View implements ViewHolder.View {
@@ -356,7 +351,7 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
          mainPanel.add(new JScrollPane(topPanel));
          mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
-         AcousticCategoryJList acousticCategoryList = new AcousticCategoryJList(getConfigurationManager().getLanguageUtils());
+         JList<AcousticCategory> acousticCategoryList = newAcousticCategoryJList(getConfigurationManager().getLanguageUtils());
          selectedPanel = new ListEditor<>(acousticCategoryList, acousticCategoryConf.selectedCategories) {
             @Override
             public void removeHighlightedItems() {
@@ -374,7 +369,7 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
          gc.anchor = GridBagConstraints.LINE_END;
 
          JPanel leftUpperPanel = new JPanel(new BorderLayout());
-         leftUpperPanel.add(new JLabel("<html><h3>Acoustic categories in survey</h3"), BorderLayout.NORTH);
+         leftUpperPanel.add(new JLabel("<html><h3>Acoustic categories in survey</h3>"), BorderLayout.NORTH);
          storeRawDataSpecies.setToolTipText("<html>Implicitly adds the special AcousticCategory=0 to all regions." +
                "<br>Note that this can result in significantly more database content.");
          GuiUtils.connect(storeRawDataSpecies, acousticCategoryConf.storeRawDataSpecies);
@@ -423,7 +418,7 @@ public final class AcousticCategoryConf extends ConfigurationUnit {
          buttonsPanel.add(createButtonBox());
          topPanel.add(buttonsPanel, gc);
 
-         allAcousticCategoriesJList = new AcousticCategoryJList(getConfigurationManager().getLanguageUtils());
+         allAcousticCategoriesJList = newAcousticCategoryJList(getConfigurationManager().getLanguageUtils());
          allAcousticCategoriesJList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
          JPanel allAcousticCategoriesPanel = new JPanel(new BorderLayout());
          allAcousticCategoriesPanel.add(new JLabel("<html><h3>Acoustic categories in area</h3>"), BorderLayout.NORTH);

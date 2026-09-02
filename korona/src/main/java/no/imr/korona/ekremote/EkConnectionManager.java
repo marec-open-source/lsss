@@ -10,6 +10,8 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -19,7 +21,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 public final class EkConnectionManager {
-   private static final int RETRY_INTERVAL = 1000;
+   private static final Duration RETRY_INTERVAL = Duration.ofSeconds(1);
 
    private final String host;
    private final int port;
@@ -37,9 +39,9 @@ public final class EkConnectionManager {
    }
 
    private void connect() {
-      long timeoutTime = System.currentTimeMillis() + timeout.toMillis();
+      Instant timeoutTime = Instant.now().plus(timeout);
       boolean hasLoggedError = false;
-      while (System.currentTimeMillis() < timeoutTime) {
+      while (Instant.now().isBefore(timeoutTime)) {
          try {
             InetAddress inetAddress = InetAddress.getByName(host);
             if (inetAddress.isLoopbackAddress()) {
@@ -48,7 +50,7 @@ public final class EkConnectionManager {
             }
             ekConnection = new EkConnection(inetAddress, port, failureListener);
             Log.global.info("Connected to echosounder " + host + ":" + port + ". Will now wait for " + waitAfterConnection);
-            Thread.sleep(waitAfterConnection.toMillis());
+            Thread.sleep(waitAfterConnection);
             return;
          } catch (Exception e) {
             if (!hasLoggedError) {
@@ -79,11 +81,11 @@ public final class EkConnectionManager {
    }
 
    public <T extends MessageResponse> T sendRequest(MessageRequest<T> request) throws TimeoutException, ResponseException {
-      long timeoutTime = System.currentTimeMillis() + timeout.toMillis();
+      Instant timeoutTime = Instant.now().plus(timeout);
       boolean hasLoggedError = false;
       while (true) {
-         long timeout = timeoutTime - System.currentTimeMillis();
-         if (timeout <= 0) {
+         long remainingMillis = Instant.now().until(timeoutTime, ChronoUnit.MILLIS);
+         if (remainingMillis <= 0) {
             throw new TimeoutException("Time out");
          }
          if (ekConnection == null) {
@@ -93,7 +95,7 @@ public final class EkConnectionManager {
          try {
             Future<T> future = ekConnection.sendRequest(request);
             try {
-               return future.get(timeout, TimeUnit.MILLISECONDS);
+               return future.get(remainingMillis, TimeUnit.MILLISECONDS);
             } catch (InterruptedException | CancellationException _) {
                // try again
             } catch (ExecutionException e) {

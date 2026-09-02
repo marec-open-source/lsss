@@ -186,7 +186,7 @@ public final class DatabaseResource {
                }
                Object value = values[i];
                if (value instanceof String string) {
-                  writer.print(toCvsString(string));
+                  writer.print(toCsvString(string));
                } else {
                   writer.print(value);
                }
@@ -199,7 +199,7 @@ public final class DatabaseResource {
       }
    }
 
-   private static String toCvsString(String string) {
+   private static String toCsvString(String string) {
       string = string.replaceAll("[\\r\\n]+", " ");
       if (string.contains(",")) {
          string = '"' + string.replace("\"", "\"\"") + '"';

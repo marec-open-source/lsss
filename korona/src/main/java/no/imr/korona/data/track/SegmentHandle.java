@@ -45,8 +45,8 @@ public abstract class SegmentHandle implements Comparable<SegmentHandle> {
    }
 
    @Override
-   public int compareTo(SegmentHandle segmentHandle) {
-      return getMainFileAsString().compareTo(segmentHandle.getMainFileAsString());
+   public int compareTo(SegmentHandle other) {
+      return getMainFileAsString().compareTo(other.getMainFileAsString());
    }
 
    private String getMainFileAsString() {
@@ -61,16 +61,21 @@ public abstract class SegmentHandle implements Comparable<SegmentHandle> {
       return baseName;
    }
 
-   public LastModifiedAndSize getLastModifiedAndSize(Map<Path, BasicFileAttributes> fileToAttribute, AsyncHandle asyncHandle) {
+   public @Nullable LastModifiedAndSize getLastModifiedAndSize(Map<Path, BasicFileAttributes> fileToAttribute, AsyncHandle asyncHandle) {
       return getFiles().stream()
-            .map(file -> {
+            .<LastModifiedAndSize>mapMulti((file, consumer) -> {
                BasicFileAttributes attributes = fileToAttribute.get(file);
                if (attributes == null) {
-                  return LastModifiedAndSize.ZERO;
+                  return;
                }
-               return FileUtils.getRecursiveLastModifiedAndSizeOr0(new FileInfo(file, attributes), asyncHandle);
+               LastModifiedAndSize lastModifiedAndSize = FileUtils.getRecursiveLastModifiedAndSizeOrNull(new FileInfo(file, attributes), asyncHandle);
+               if (lastModifiedAndSize == null) {
+                  return;
+               }
+               consumer.accept(lastModifiedAndSize);
             })
-            .reduce(LastModifiedAndSize.ZERO, LastModifiedAndSize::combine);
+            .reduce(LastModifiedAndSize::combine)
+            .orElse(null);
    }
 
    public abstract Path getMainFile();

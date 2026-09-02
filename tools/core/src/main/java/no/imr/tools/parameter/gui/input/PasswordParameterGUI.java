@@ -6,46 +6,34 @@ import no.imr.tools.swing.GridBag;
 import javax.swing.JComponent;
 import javax.swing.JPasswordField;
 import java.awt.Dimension;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 
 public final class PasswordParameterGUI extends ParameterGUI<PasswordParameter> {
-   private final JPasswordField passwordField = new Workaround4238932PasswordField();
+   private final ParameterTextField parameterComponent;
 
    PasswordParameterGUI(PasswordParameter parameter, GUIConfig guiConfig) {
       super(parameter, guiConfig);
 
-      passwordField.setColumns(guiConfig.getTextInputColumns());
-      passwordField.setHorizontalAlignment(guiConfig.getTextAlignment().apply(parameter).getTextFieldHorizontalAlignment());
-      passwordField.addFocusListener(new FocusAdapter() {
-         @Override
-         public void focusLost(FocusEvent e) {
-            updateParameter();
-         }
-      });
-      passwordField.addActionListener(_ -> updateParameter());
-   }
-
-   private void updateParameter() {
-      getParameter().setValue(new String(passwordField.getPassword()));
+      parameterComponent = new ParameterTextField(parameter, guiConfig, new Workaround4238932PasswordField());
    }
 
    @Override
    public void installGUI(GridBag gridBag) {
       addName(gridBag);
 
-      addInputAndDescription(gridBag, passwordField);
+      gridBag.getConstraints().anchor = getGUIConfig().getInputFieldAlignment().getGridBagConstraintsAnchor();
+
+      addInputAndDescription(gridBag, parameterComponent.getComponent());
    }
 
    @Override
    public void updateInput() {
-      passwordField.setText(getParameter().getStringValue());
-      updateEnabledState(passwordField);
+      parameterComponent.updateComponent();
+      updateEnabledState(parameterComponent.getComponent());
    }
 
    @Override
    public JComponent getInputComponent() {
-      return passwordField;
+      return parameterComponent.getComponent();
    }
 
    /**

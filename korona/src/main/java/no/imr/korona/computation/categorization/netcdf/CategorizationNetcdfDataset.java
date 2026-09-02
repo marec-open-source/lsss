@@ -1,7 +1,10 @@
 package no.imr.korona.computation.categorization.netcdf;
 
 import no.imr.korona.computation.netcdf.NcAnnotation;
+import no.imr.tools.Utils;
+import no.imr.tools.netcdf.NetcdfUtils;
 import ucar.ma2.DataType;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFiles;
 import ucar.nc2.Variable;
@@ -29,23 +32,21 @@ final class CategorizationNetcdfDataset {
       dataset = NetcdfFiles.open(ncFile.toString());
 
       try {
-         Variable pingTimeVar = findVariable(NcAnnotation.PING_TIME);
+         Group group = dataset.getRootGroup();
+
+         Variable pingTimeVar = NetcdfUtils.findVariable(group, NcAnnotation.PING_TIME);
          ncTimeVariable = new NcTimeVariable(pingTimeVar);
 
-         Variable rangeVar = findVariable(NcAnnotation.RANGE);
+         Variable rangeVar = NetcdfUtils.findVariable(group, NcAnnotation.RANGE);
          ranges = (double[]) rangeVar.read().get1DJavaArray(DataType.DOUBLE);
 
-         Variable categoryVar = findVariable(NcAnnotation.CATEGORY);
+         Variable categoryVar = NetcdfUtils.findVariable(group, NcAnnotation.CATEGORY);
          categories = (int[]) categoryVar.read().get1DJavaArray(DataType.INT);
 
-         annotationVar = findVariable(NcAnnotation.ANNOTATION);
+         annotationVar = NetcdfUtils.findVariable(group, NcAnnotation.ANNOTATION);
 
       } catch (Exception e) {
-         try {
-            dataset.close();
-         } catch (IOException suppressed) {
-            e.addSuppressed(suppressed);
-         }
+         Utils.closeOrSuppress(e, dataset);
          throw e;
       }
    }
@@ -60,14 +61,6 @@ final class CategorizationNetcdfDataset {
          dataset.openCounter++;
          return dataset;
       }
-   }
-
-   private Variable findVariable(String name) throws IOException {
-      Variable variable = dataset.findVariable(name);
-      if (variable == null) {
-         throw new IOException("No variable " + name + " in " + ncFile);
-      }
-      return variable;
    }
 
    void close() throws IOException {

@@ -21,7 +21,8 @@ import no.imr.korona.region.ThresholdManager;
 import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.misc.JsonUtils;
-import no.imr.tools.netcdf.NcWrite;
+import no.imr.tools.netcdf.NcBuild;
+import no.imr.tools.netcdf.NetcdfUtils;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeBuilder;
 import no.imr.tools.range.FloatRangeSet;
@@ -36,7 +37,6 @@ import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.Group;
 import ucar.nc2.Variable;
-import ucar.nc2.constants.CF;
 import ucar.nc2.write.NetcdfFormatWriter;
 
 import java.io.IOException;
@@ -103,10 +103,10 @@ final class WorkFileNetcdfWriter implements WorkFileProcessor {
 
       List<PingIndex> pingIndices = dataFileSet.getPingIndices();
 
-      long referenceTimeInMillis = dataFileSet.getRawFileConfiguration().getTimeInMillis();
+      Instant referenceTime = dataFileSet.getRawFileConfiguration().getInstant();
 
       Path ncFile = outputDir.resolve(workFileBaseName + ".nc");
-      NetcdfFormatWriter.Builder fileBuilder = NcWrite.newBuilder(ncFile);
+      NetcdfFormatWriter.Builder fileBuilder = NcBuild.newBuilder(ncFile);
       Group.Builder rootGroupBuilder = fileBuilder.getRootGroup();
       rootGroupBuilder
             .addAttribute(new Attribute("annotation_coordinates", getAnnotationCoordinates(regionManager, dataFileSet, channel,
@@ -117,32 +117,32 @@ final class WorkFileNetcdfWriter implements WorkFileProcessor {
             .addAttribute(new Attribute("version", Korona.VERSION))
             .addAttribute(new Attribute("git_commit", Utils.GIT_COMMIT));
 
-      Dimension categoryDim = fileBuilder.addDimension(NcAnnotation.CATEGORY, categories.size());
-      Dimension pingTimeDim = fileBuilder.addDimension(NcAnnotation.PING_TIME, pingIndices.size());
-      Dimension rangeDim = fileBuilder.addDimension(NcAnnotation.RANGE, rangeLength);
+      Dimension categoryDim = NcBuild.addDimension(rootGroupBuilder, NcAnnotation.CATEGORY, categories.size());
+      Dimension pingTimeDim = NcBuild.addDimension(rootGroupBuilder, NcAnnotation.PING_TIME, pingIndices.size());
+      Dimension rangeDim = NcBuild.addDimension(rootGroupBuilder, NcAnnotation.RANGE, rangeLength);
 
-      fileBuilder.addVariable(NcAnnotation.CATEGORY, DataType.LONG, List.of(categoryDim));
-      fileBuilder.addVariable(NcAnnotation.PING_TIME, DataType.LONG, List.of(pingTimeDim))
-            .addAttribute(new Attribute(CF.CALENDAR, "proleptic_gregorian"))
-            .addAttribute(new Attribute(CF.UNITS, "nanoseconds since " + Instant.ofEpochMilli(referenceTimeInMillis)));
-      fileBuilder.addVariable(NcAnnotation.RANGE, DataType.DOUBLE, List.of(rangeDim));
+      rootGroupBuilder.addVariable(NcBuild.newVariable(NcAnnotation.CATEGORY, DataType.LONG, List.of(categoryDim)));
+      rootGroupBuilder.addVariable(NcBuild.timeVariable(NcAnnotation.PING_TIME, List.of(pingTimeDim), referenceTime));
+      rootGroupBuilder.addVariable(NcBuild.doubleVariable(NcAnnotation.RANGE, List.of(rangeDim)));
 
-      NcWrite.addFloatVariable(rootGroupBuilder, NcAnnotation.ANNOTATION, List.of(categoryDim, pingTimeDim, rangeDim), List.of());
-      NcWrite.addVariable(rootGroupBuilder, NcAnnotation.OBJECT_NUMBER, DataType.LONG, List.of(pingTimeDim, rangeDim));
-      NcWrite.addVariable(rootGroupBuilder, NcAnnotation.OBJECT_TYPE, DataType.LONG, List.of(pingTimeDim, rangeDim));
-      NcWrite.addFloatVariable(rootGroupBuilder, NcAnnotation.LOWER_THRESHOLD, List.of(pingTimeDim), List.of());
-      NcWrite.addFloatVariable(rootGroupBuilder, NcAnnotation.UPPER_THRESHOLD, List.of(pingTimeDim), List.of());
+      rootGroupBuilder.addVariable(NcBuild.floatVariable(NcAnnotation.ANNOTATION, List.of(categoryDim, pingTimeDim, rangeDim)));
+      rootGroupBuilder.addVariable(NcBuild.newVariable(NcAnnotation.OBJECT_NUMBER, DataType.LONG, List.of(pingTimeDim, rangeDim)));
+      rootGroupBuilder.addVariable(NcBuild.newVariable(NcAnnotation.OBJECT_TYPE, DataType.LONG, List.of(pingTimeDim, rangeDim)));
+      rootGroupBuilder.addVariable(NcBuild.floatVariable(NcAnnotation.LOWER_THRESHOLD, List.of(pingTimeDim)));
+      rootGroupBuilder.addVariable(NcBuild.floatVariable(NcAnnotation.UPPER_THRESHOLD, List.of(pingTimeDim)));
 
       try (NetcdfFormatWriter writer = fileBuilder.build()) {
-         Variable categoryVar = writer.findVariable(NcAnnotation.CATEGORY);
-         Variable pingTimeVar = writer.findVariable(NcAnnotation.PING_TIME);
-         Variable rangeVar = writer.findVariable(NcAnnotation.RANGE);
+         Group group = writer.getOutputFile().getRootGroup();
 
-         Variable annotationVar = writer.findVariable(NcAnnotation.ANNOTATION);
-         Variable objectNumberVar = writer.findVariable(NcAnnotation.OBJECT_NUMBER);
-         Variable objectTypeVar = writer.findVariable(NcAnnotation.OBJECT_TYPE);
-         Variable lowerThresholdVar = writer.findVariable(NcAnnotation.LOWER_THRESHOLD);
-         Variable upperThresholdVar = writer.findVariable(NcAnnotation.UPPER_THRESHOLD);
+         Variable categoryVar = NetcdfUtils.findVariable(group, NcAnnotation.CATEGORY);
+         Variable pingTimeVar = NetcdfUtils.findVariable(group, NcAnnotation.PING_TIME);
+         Variable rangeVar = NetcdfUtils.findVariable(group, NcAnnotation.RANGE);
+
+         Variable annotationVar = NetcdfUtils.findVariable(group, NcAnnotation.ANNOTATION);
+         Variable objectNumberVar = NetcdfUtils.findVariable(group, NcAnnotation.OBJECT_NUMBER);
+         Variable objectTypeVar = NetcdfUtils.findVariable(group, NcAnnotation.OBJECT_TYPE);
+         Variable lowerThresholdVar = NetcdfUtils.findVariable(group, NcAnnotation.LOWER_THRESHOLD);
+         Variable upperThresholdVar = NetcdfUtils.findVariable(group, NcAnnotation.UPPER_THRESHOLD);
 
          long[] categoryArray = categories.stream()
                .mapToLong(Integer::intValue)
@@ -150,7 +150,7 @@ final class WorkFileNetcdfWriter implements WorkFileProcessor {
          writer.write(categoryVar, Array.makeFromJavaArray(categoryArray));
 
          long[] pingTimes = pingIndices.stream()
-               .mapToLong(pingIndex -> (pingIndex.getTimeInMillis() - referenceTimeInMillis) * 1_000_000)
+               .mapToLong(pingIndex -> referenceTime.until(pingIndex.getInstant(), ChronoUnit.NANOS))
                .toArray();
          writer.write(pingTimeVar, Array.makeFromJavaArray(pingTimes));
 

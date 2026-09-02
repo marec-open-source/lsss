@@ -29,7 +29,7 @@ abstract class BaseMultiFrequencyTextReport extends BaseMultiFrequencyReport {
       Path file;
       if (getReportEngine().getDistanceFileExtension()) {
          file = makeFile(aDirectory, aStartObservationDistance, aStopObservationDistance, postfix);
-      } else{
+      } else {
          file = makeFile(aDirectory, postfix);
       }
       OutputStream outputStream = getReportEngine().newOutputStream(file);

@@ -7,7 +7,7 @@ import no.imr.tools.concurrent.Exec;
 import org.jtransforms.fft.DoubleFFT_1D;
 import org.visnow.jlargearrays.ConcurrencyUtils;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 public final class FftCache {
    static {
@@ -17,7 +17,7 @@ public final class FftCache {
 
    private static final LoadingCache<Long, DoubleFFT_1D> DOUBLE_1D = CacheBuilder.newBuilder()
          .maximumSize(100)
-         .expireAfterAccess(5, TimeUnit.MINUTES)
+         .expireAfterAccess(Duration.ofMinutes(5))
          .build(CacheLoader.from(DoubleFFT_1D::new));
 
    private FftCache() {

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class ColumnOrderedMatrixTest {
    @Test
-   void testMultiply() {
+   void multiply() {
       //  | 1 3 5 |     | 1 |   | 22 |
       //  | 2 4 6 |  *  | 2 | = | 28 |
       //                | 3 |

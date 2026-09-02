@@ -7,6 +7,7 @@ import no.imr.lsss.modules.echogram.EchogramModule;
 import no.imr.lsss.modules.echogram.overlays.BaseEchogramOverlay;
 import no.imr.tools.geo.Earth;
 import no.imr.tools.listening.ListenerRegistry;
+import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.linestrip.LineStripBuilders;
 import no.marec.lsss.api.util.GeoPoint;
 import no.marec.lsss.api.util.LineStripBuilder;
@@ -15,7 +16,6 @@ import org.jspecify.annotations.Nullable;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -89,7 +89,7 @@ public final class OpeningAngleOverlay extends BaseEchogramOverlay {
          if (y < getHeight()) {
             float x1 = getPingSettings().pingIndexToX(index1);
             float x2 = getPingSettings().pingIndexToX(pingIndex);
-            fillPath.append(new Rectangle2D.Float(x1, y, x2 - x1, getHeight() - y), false);
+            GuiUtils.appendRectangle(fillPath, x1, y, x2, getHeight());
          }
          index1 = pingIndex;
       }
@@ -99,10 +99,10 @@ public final class OpeningAngleOverlay extends BaseEchogramOverlay {
       if (y < getHeight()) {
          float x1 = getPingSettings().pingIndexToX(index1);
          float x2 = getWidth();
-         fillPath.append(new Rectangle2D.Float(x1, y, x2 - x1, getHeight() - y), false);
+         GuiUtils.appendRectangle(fillPath, x1, y, x2, getHeight());
       }
 
-      return new DisplayData(fillPath, contributingLinePath);
+      return transformed(new DisplayData(fillPath, contributingLinePath));
    }
 
    private static final class OpeningAngleCoverage {
@@ -133,17 +133,12 @@ public final class OpeningAngleOverlay extends BaseEchogramOverlay {
       }
    }
 
-   private final class DisplayData extends TransformedDisplayData {
-      private final Path2D.Float fillPath;
-      private final Path2D.Float contributingLinePath;
-
-      private DisplayData(Path2D.Float fillPath, Path2D.Float contributingLinePath) {
-         this.fillPath = fillPath;
-         this.contributingLinePath = contributingLinePath;
-      }
-
+   private record DisplayData(
+         Path2D.Float fillPath,
+         Path2D.Float contributingLinePath
+   ) implements OverlayDisplayData {
       @Override
-      protected void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          g2d.setColor(FILL_COLOR);
          g2d.fill(fillPath);
          g2d.setColor(Color.BLACK);

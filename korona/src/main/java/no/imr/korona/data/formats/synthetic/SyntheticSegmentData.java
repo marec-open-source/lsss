@@ -74,7 +74,7 @@ final class SyntheticSegmentData extends SegmentData {
       return syntheticDataFile.getPingConfiguration();
    }
 
-   public SyntheticDataFile getSyntheticDataFile() {
+   SyntheticDataFile getSyntheticDataFile() {
       return syntheticDataFile;
    }
 }

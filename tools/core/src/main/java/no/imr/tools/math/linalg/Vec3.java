@@ -93,4 +93,21 @@ public record Vec3(float x, float y, float z) {
    public float length() {
       return (float) Math.sqrt(dot(this));
    }
+
+   public Vec3 someOrthonormalVector() {
+      float ax = Math.abs(x);
+      float ay = Math.abs(y);
+      float az = Math.abs(z);
+      if (ax <= ay && ax <= az) {
+         // ax is smallest.
+         return new Vec3(0, -z, y).unit();
+      } else if (ay <= az) {
+         // ay is smallest.
+         return new Vec3(-z, 0, x).unit();
+      } else {
+         // az is smallest.
+         //noinspection SuspiciousNameCombination
+         return new Vec3(-y, x, 0).unit();
+      }
+   }
 }

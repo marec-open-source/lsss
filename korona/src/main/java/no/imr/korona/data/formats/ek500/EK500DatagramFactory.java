@@ -4,12 +4,13 @@ import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import no.imr.korona.data.util.NoticeHandler;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.io.FileUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,8 +21,8 @@ final class EK500DatagramFactory {
    private EK500DatagramFactory() {
    }
 
-   static RawFileConfiguration createRawFileConfiguration(long ntDate, EK500Settings ek500Settings, EK500FileSet ek500FileSet, List<InfoRecord> infoRecords) {
-      RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(ntDate);
+   static RawFileConfiguration createRawFileConfiguration(Instant instant, EK500Settings ek500Settings, EK500FileSet ek500FileSet, List<InfoRecord> infoRecords) {
+      RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(instant);
       rawFileConfiguration.setDataFile(ek500FileSet.getMainFile().resolveSibling(ek500FileSet.getNSS() + "-~-" + ek500FileSet.getDateTime() + "-~"));
       rawFileConfiguration.setSurveyName(ek500FileSet.getNSS());
       rawFileConfiguration.setTransectName("EK500 Transect ???");
@@ -38,15 +39,15 @@ final class EK500DatagramFactory {
    private static RawFileTransducer createRawFileTransducer(float frequency, EK500TransducerSettings ek500TransducerSettings) {
       RawFileTransducer transducer = new RawFileTransducer();
       transducer.setFrequency(frequency);
-      transducer.setChannelId("EK500: " + Utils.hzToKHz(frequency) + " kHz");
+      transducer.setChannelId("EK500: " + KoronaUtils.hzToKHz(frequency) + " kHz");
       transducer.setBeamType(1);
       transducer.setGainAndGainTable(ek500TransducerSettings.gain.getFloatValue());
       transducer.setEquivalentBeamAngle(ek500TransducerSettings.equivalentBeamAngle.getFloatValue());
       return transducer;
    }
 
-   static PowerData createPowerData(EK500TransducerSettings ek500TransducerSettings, RawFileConfiguration rawFileConfiguration, long ntDate, short channel, IndexRecord indexRecord, FileChannel fileChannel, ByteBuffer byteBuffer) throws IOException {
-      PowerData powerData = new PowerData(ntDate);
+   static PowerData createPowerData(EK500TransducerSettings ek500TransducerSettings, RawFileConfiguration rawFileConfiguration, Instant instant, short channel, IndexRecord indexRecord, FileChannel fileChannel, ByteBuffer byteBuffer) throws IOException {
+      PowerData powerData = new PowerData(instant);
 
       read(fileChannel, indexRecord.pelagicOffset, 2 * indexRecord.pelagicCount, byteBuffer);
 

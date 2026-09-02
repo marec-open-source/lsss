@@ -42,7 +42,7 @@ public final class SliceDisplayer extends VolumeDisplayer {
       gl.glColor3fv(FloatBuffer.wrap(INTERSECTION_POINT_COLOR.getColorComponents(null)));
       gl.glPushMatrix();
       Vec3 intersectionPoint = mapModelToNoc(this.intersectionPoint);
-      drawPoint(gl, intersectionPoint, INTERSECTION_POINT_SIZE);
+      drawPoint(gl, intersectionPoint, INTERSECTION_POINT_SIZE * getUiScaleFactor());
 
       gl.glPopMatrix();
    }
@@ -54,51 +54,6 @@ public final class SliceDisplayer extends VolumeDisplayer {
       gl.glVertex3f(pos.x(), pos.y(), pos.z());
       gl.glEnd();
       gl.glEnable(GL_DEPTH_TEST);
-   }
-
-   private static void drawBox(GL2 gl, Vec3 pos, float scale) {
-      gl.glTranslatef(pos.x(), pos.y(), pos.z());
-      gl.glScalef(scale, scale, scale);
-      gl.glBegin(GL_QUADS);
-      drawVertex(gl, 0);
-      drawVertex(gl, 1);
-      drawVertex(gl, 2);
-      drawVertex(gl, 3);
-
-      drawVertex(gl, 1);
-      drawVertex(gl, 5);
-      drawVertex(gl, 6);
-      drawVertex(gl, 2);
-
-      drawVertex(gl, 2);
-      drawVertex(gl, 6);
-      drawVertex(gl, 7);
-      drawVertex(gl, 3);
-
-      drawVertex(gl, 3);
-      drawVertex(gl, 7);
-      drawVertex(gl, 4);
-      drawVertex(gl, 1);
-
-      drawVertex(gl, 4);
-      drawVertex(gl, 7);
-      drawVertex(gl, 6);
-      drawVertex(gl, 5);
-
-      drawVertex(gl, 5);
-      drawVertex(gl, 1);
-      drawVertex(gl, 0);
-      drawVertex(gl, 4);
-
-      drawVertex(gl, 6);
-      drawVertex(gl, 7);
-      drawVertex(gl, 3);
-      drawVertex(gl, 2);
-      gl.glEnd();
-   }
-
-   private static void drawVertex(GL2 gl, int index) {
-      gl.glVertex3f(COORDS[index].x(), COORDS[index].y(), COORDS[index].z());
    }
 
    public Vec3 getPos() {

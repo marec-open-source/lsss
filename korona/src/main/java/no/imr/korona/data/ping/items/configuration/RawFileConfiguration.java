@@ -30,6 +30,7 @@ import org.dom4j.Element;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -65,12 +66,12 @@ public final class RawFileConfiguration extends AbstractPingItem implements no.m
 
    private @Nullable Xml0Info xml0Info;
 
-   public RawFileConfiguration(long ntDate) {
-      super(ntDate);
+   public RawFileConfiguration(Instant instant) {
+      super(instant);
    }
 
    public RawFileConfiguration(RawFileConfiguration rawFileConfiguration) {
-      super(rawFileConfiguration.getNTDate());
+      super(rawFileConfiguration.getInstant());
 
       surveyName = rawFileConfiguration.surveyName;
       transectName = rawFileConfiguration.transectName;
@@ -98,7 +99,7 @@ public final class RawFileConfiguration extends AbstractPingItem implements no.m
    }
 
    public RawFileConfiguration(Con0Datagram con0Datagram) {
-      super(con0Datagram.getNTDate());
+      super(con0Datagram.getInstant());
 
       surveyName = con0Datagram.surveyName;
       transectName = con0Datagram.transectName;
@@ -118,7 +119,7 @@ public final class RawFileConfiguration extends AbstractPingItem implements no.m
    }
 
    private Con0Datagram toCon0Datagram() {
-      Con0Datagram con0Datagram = new Con0Datagram(getNTDate());
+      Con0Datagram con0Datagram = new Con0Datagram(getInstant());
       con0Datagram.surveyName = surveyName;
       con0Datagram.transectName = transectName;
       con0Datagram.sounderName = sounderName;
@@ -159,7 +160,7 @@ public final class RawFileConfiguration extends AbstractPingItem implements no.m
          RawFileTransducer transducer = transducers.get(i);
          int channel = i + 1;
          transducer.getPulseCompressionFilterChain().getFilters().stream()
-               .map(filter -> toFil1Datagram(getNTDate(), channel, transducer.getChannelId(), filter))
+               .map(filter -> toFil1Datagram(getInstant(), channel, transducer.getChannelId(), filter))
                .forEach(datagrams::add);
       }
       return datagrams;
@@ -176,11 +177,11 @@ public final class RawFileConfiguration extends AbstractPingItem implements no.m
       if (element.elements().isEmpty()) {
          return null;
       }
-      return new LsssDatagram(new ExtraRawFileConfiguration(getNTDate(), element));
+      return new LsssDatagram(new ExtraRawFileConfiguration(getInstant(), element));
    }
 
-   private static Fil1Datagram toFil1Datagram(long ntDate, int channel, String channelId, PulseCompressionFilter filter) {
-      Fil1Datagram fil1Datagram = new Fil1Datagram(ntDate);
+   private static Fil1Datagram toFil1Datagram(Instant instant, int channel, String channelId, PulseCompressionFilter filter) {
+      Fil1Datagram fil1Datagram = new Fil1Datagram(instant);
       fil1Datagram.stage = (short) filter.stage();
       fil1Datagram.channel = (short) channel;
       fil1Datagram.channelId = channelId;

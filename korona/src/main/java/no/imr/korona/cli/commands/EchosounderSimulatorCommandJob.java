@@ -23,7 +23,7 @@ final class EchosounderSimulatorCommandJob extends CliCommandJob {
 
    EchosounderSimulatorCommandJob(boolean gui, @Nullable Path configFile) {
       this.gui = gui;
-      this.configFile = configFile != null ? configFile.toAbsolutePath().normalize() : null;
+      this.configFile = configFile;
    }
 
    @Override

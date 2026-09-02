@@ -10,6 +10,7 @@ import no.imr.lsss.modules.echogram.EchogramArea;
 import no.imr.lsss.modules.echogram.EchogramModule;
 
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Base class for echogram overlays.
@@ -40,19 +41,23 @@ public abstract class BaseEchogramOverlay extends BaseModuleOverlay {
       return echogramModule.getZSettings();
    }
 
-   protected abstract class TransformedDisplayData extends OverlayDisplayData {
-      private final EchogramArea echogramArea = echogramModule.getEchogramArea();
+   protected OverlayDisplayData.Wrapper transformed(OverlayDisplayData overlayDisplayData) {
+      return new TransformedDisplayData(overlayDisplayData);
+   }
 
-      protected TransformedDisplayData() {
+   private final class TransformedDisplayData implements OverlayDisplayData.Wrapper {
+      private final EchogramArea echogramArea = echogramModule.getEchogramArea();
+      private final OverlayDisplayData overlayDisplayData;
+
+      private TransformedDisplayData(OverlayDisplayData overlayDisplayData) {
+         this.overlayDisplayData = overlayDisplayData;
       }
 
       @Override
-      public final void draw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          transform(g2d);
-         transformedDraw(g2d);
+         overlayDisplayData.draw(g2d);
       }
-
-      protected abstract void transformedDraw(Graphics2D g2d);
 
       private void transform(Graphics2D g2d) {
          if (echogramModule.getEchogramArea() == echogramArea) {
@@ -70,6 +75,21 @@ public abstract class BaseEchogramOverlay extends BaseModuleOverlay {
 
          g2d.translate(x0, y0);
          g2d.scale((x1 - x0) / echogramArea.width(), (y1 - y0) / echogramArea.height());
+      }
+
+      @Override
+      public void drawText(Graphics2D g2d) {
+         overlayDisplayData.drawText(g2d);
+      }
+
+      @Override
+      public boolean intersects(Rectangle2D rectangle) {
+         return overlayDisplayData.intersects(rectangle);
+      }
+
+      @Override
+      public OverlayDisplayData getOverlayDisplayData() {
+         return overlayDisplayData;
       }
    }
 }

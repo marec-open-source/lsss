@@ -28,7 +28,7 @@ abstract class BaseMultipleSpeciesPerFileReport extends BaseSingleFrequencyRepor
       Path file;
       if (getReportEngine().getDistanceFileExtension()) {
          file = makeFile(aDirectory, aPrintFrequency, aPrintTransceiver, aStartObservationDistance, aStopObservationDistance, postfix);
-      } else{
+      } else {
          file = makeFile(aDirectory, aPrintFrequency, aPrintTransceiver, postfix);
       }
       printWriter = FileUtils.newPrintWriter(file, getReportEngine().getCharset());

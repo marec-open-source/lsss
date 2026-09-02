@@ -27,6 +27,13 @@ final class MeanTest {
    @Test
    void update() {
       Mean m = new Mean();
+      assertEquals(0, m.getCount());
+      assertEquals(Double.NaN, m.getMean());
+
+      m.update(10, 0);
+      assertEquals(0, m.getCount());
+      assertEquals(Double.NaN, m.getMean());
+
       m.update(10);
       m.update(10);
       assertEquals(10, m.getMean());

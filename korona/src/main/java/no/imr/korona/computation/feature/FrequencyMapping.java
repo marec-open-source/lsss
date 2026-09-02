@@ -1,6 +1,5 @@
 package no.imr.korona.computation.feature;
 
-import no.imr.tools.math.Function1D;
 import no.imr.tools.plot.TransformedNumberAxis;
 import no.imr.tools.range.FloatRange;
 import org.jfree.chart.axis.AxisState;
@@ -12,20 +11,21 @@ import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.Set;
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * Maps frequency in kHz to some scale.
  */
 public enum FrequencyMapping {
-   IDENTITY(Function1D.identity(), Function1D.identity()),
+   IDENTITY(DoubleUnaryOperator.identity(), DoubleUnaryOperator.identity()),
    SQRT(x -> x >= 0 ? Math.sqrt(x) : -Math.sqrt(-x), x -> x >= 0 ? x * x : -x * x),
    CBRT(Math::cbrt, x -> x * x * x),
    LOG(Math::log, Math::exp);
 
-   private final Function1D kHzToX;
-   private final Function1D xToKHz;
+   private final DoubleUnaryOperator kHzToX;
+   private final DoubleUnaryOperator xToKHz;
 
-   FrequencyMapping(Function1D kHzToX, Function1D xToKHz) {
+   FrequencyMapping(DoubleUnaryOperator kHzToX, DoubleUnaryOperator xToKHz) {
       this.kHzToX = kHzToX;
       this.xToKHz = xToKHz;
    }
@@ -44,7 +44,7 @@ public enum FrequencyMapping {
    private static final class FrequencyAxis extends TransformedNumberAxis {
       private final Set<Integer> kHzTicks;
 
-      private FrequencyAxis(Set<Integer> kHzTicks, Function1D kHzToX, Function1D xToKHz) {
+      private FrequencyAxis(Set<Integer> kHzTicks, DoubleUnaryOperator kHzToX, DoubleUnaryOperator xToKHz) {
          super("Frequency [kHz]", kHzToX, xToKHz);
 
          this.kHzTicks = kHzTicks;

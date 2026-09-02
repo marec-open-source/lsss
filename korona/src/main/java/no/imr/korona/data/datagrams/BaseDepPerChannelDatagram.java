@@ -1,13 +1,14 @@
 package no.imr.korona.data.datagrams;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 public abstract class BaseDepPerChannelDatagram extends BaseDepDatagram implements PerChannelDatagram {
-   protected BaseDepPerChannelDatagram(long ntDate) {
-      super(ntDate);
+   protected BaseDepPerChannelDatagram(Instant instant) {
+      super(instant);
    }
 
-   protected BaseDepPerChannelDatagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate, byteBuffer);
+   protected BaseDepPerChannelDatagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant, byteBuffer);
    }
 }

@@ -15,6 +15,7 @@ import no.imr.tools.parameter.ParameterCollection;
 import no.imr.tools.parameter.gui.ConfigurableGUIDialog;
 import no.imr.tools.parameter.gui.ParameterEditor;
 import no.imr.tools.parameter.gui.input.GUIConfig;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.DeepInputListener;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiListeners;
@@ -51,7 +52,6 @@ import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Insets;
-import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
@@ -799,10 +799,11 @@ final class PackagesConfView implements ViewHolder.View {
 
    private boolean editPackage(UserDefinedPackage userDefinedPackage, String title) {
       UserDefinedPackageEditor editor = new UserDefinedPackageEditor(userDefinedPackage);
-      ParameterEditor parameterEditor = new ParameterEditor(editor.getParameters());
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
-      parameterEditor.getGUIConfig().setTextAlignment(GUIConfig.Alignment.LEFT);
-      parameterEditor.getGUIConfig().setCombineInputAndDescription(true);
+      ParameterEditor parameterEditor = new ParameterEditor(editor.getParameters(), new GUIConfig()
+            .setHorizontalFill(true)
+            .setTextAlignment(GUIConfig.Alignment.LEFT)
+            .setCombineInputAndDescription(true)
+      );
 
       BaseParameter<?> focusParameter = userDefinedPackage.id.isEmpty() ? editor.id : editor.label;
       JComponent focusComponent = parameterEditor.getInputComponent(focusParameter);
@@ -821,10 +822,11 @@ final class PackagesConfView implements ViewHolder.View {
 
    private boolean editAction(UserDefinedAction userDefinedAction, String title) {
       UserDefinedActionEditor editor = new UserDefinedActionEditor(userDefinedAction);
-      ParameterEditor parameterEditor = new ParameterEditor(editor.getParameters());
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
-      parameterEditor.getGUIConfig().setTextAlignment(GUIConfig.Alignment.LEFT);
-      parameterEditor.getGUIConfig().setCombineInputAndDescription(true);
+      ParameterEditor parameterEditor = new ParameterEditor(editor.getParameters(), new GUIConfig()
+            .setHorizontalFill(true)
+            .setTextAlignment(GUIConfig.Alignment.LEFT)
+            .setCombineInputAndDescription(true)
+      );
       editor.init(parameterEditor);
 
       JButton runButton = MiscIcons.PLAY.on(new JButton("Run"));
@@ -842,6 +844,9 @@ final class PackagesConfView implements ViewHolder.View {
             .setCloseOnOk(() -> editor.isOK(parameterEditor))
             .accessDialog(dialog -> {
                runButton.addActionListener(ae -> {
+                  if (!CurrentInputComponent.commitEdit()) {
+                     return;
+                  }
                   Optional<Map<String, Object>> input = UserDefinedUtils.showInputDialog(userDefinedAction, editor.getInputParameters(), runButton);
                   if (input.isEmpty()) {
                      return;
@@ -857,7 +862,8 @@ final class PackagesConfView implements ViewHolder.View {
                });
             })
             .extraButton(runButton)
-            .setNoScrollGUI(parameterEditor.getEditorComponent())
+            .setScrollable(false)
+            .setGUI(parameterEditor.getEditorComponent())
             .show();
       if (ok) {
          editor.apply();
@@ -876,9 +882,10 @@ final class PackagesConfView implements ViewHolder.View {
 
    private boolean editCallback(UserDefinedPackage userDefinedPackage, CallbackInfo callbackInfo, String title) {
       CallbackInfoEditor editor = new CallbackInfoEditor(userDefinedPackage, callbackInfo);
-      ParameterEditor parameterEditor = new ParameterEditor(editor.getParameters());
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
-      parameterEditor.getGUIConfig().setTextAlignment(GUIConfig.Alignment.LEFT);
+      ParameterEditor parameterEditor = new ParameterEditor(editor.getParameters(), new GUIConfig()
+            .setHorizontalFill(true)
+            .setTextAlignment(GUIConfig.Alignment.LEFT)
+      );
       editor.init(parameterEditor);
       boolean ok = new ConfigurableGUIDialog(scrollPane, title, new ParameterCollection(editor))
             .setCloseOnOk(() -> editor.isOK(parameterEditor))
@@ -892,9 +899,10 @@ final class PackagesConfView implements ViewHolder.View {
 
    private boolean editKeyStrokeInfo(UserDefinedPackage userDefinedPackage, KeyStrokeInfo keyStrokeInfo, String title) {
       KeyStrokeInfoEditor editor = new KeyStrokeInfoEditor(userDefinedPackage, keyStrokeInfo);
-      ParameterEditor parameterEditor = new ParameterEditor(editor.getParameters());
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
-      parameterEditor.getGUIConfig().setTextAlignment(GUIConfig.Alignment.LEFT);
+      ParameterEditor parameterEditor = new ParameterEditor(editor.getParameters(), new GUIConfig()
+            .setHorizontalFill(true)
+            .setTextAlignment(GUIConfig.Alignment.LEFT)
+      );
       editor.init(parameterEditor);
       boolean ok = new ConfigurableGUIDialog(scrollPane, title, new ParameterCollection(editor))
             .setCloseOnOk(() -> editor.isOK(parameterEditor))
@@ -908,9 +916,10 @@ final class PackagesConfView implements ViewHolder.View {
 
    private boolean editToolbarButtonInfo(UserDefinedPackage userDefinedPackage, ToolbarButtonInfo toolbarButtonInfo, String title) {
       ToolbarButtonInfoEditor editor = new ToolbarButtonInfoEditor(userDefinedPackage, toolbarButtonInfo);
-      ParameterEditor parameterEditor = new ParameterEditor(editor.getParameters());
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
-      parameterEditor.getGUIConfig().setTextAlignment(GUIConfig.Alignment.LEFT);
+      ParameterEditor parameterEditor = new ParameterEditor(editor.getParameters(), new GUIConfig()
+            .setHorizontalFill(true)
+            .setTextAlignment(GUIConfig.Alignment.LEFT)
+      );
       editor.init(parameterEditor);
       boolean ok = new ConfigurableGUIDialog(scrollPane, title, new ParameterCollection(editor))
             .setCloseOnOk(() -> editor.isOK(parameterEditor))
@@ -924,9 +933,10 @@ final class PackagesConfView implements ViewHolder.View {
 
    private boolean editMenuItemInfo(UserDefinedPackage userDefinedPackage, MenuItemInfo menuItemInfo, String title, boolean isMenu) {
       MenuItemInfoEditor editor = new MenuItemInfoEditor(userDefinedPackage, menuItemInfo, isMenu);
-      ParameterEditor parameterEditor = new ParameterEditor(editor.getParameters());
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
-      parameterEditor.getGUIConfig().setTextAlignment(GUIConfig.Alignment.LEFT);
+      ParameterEditor parameterEditor = new ParameterEditor(editor.getParameters(), new GUIConfig()
+            .setHorizontalFill(true)
+            .setTextAlignment(GUIConfig.Alignment.LEFT)
+      );
       editor.init(parameterEditor);
       boolean ok = new ConfigurableGUIDialog(scrollPane, title, new ParameterCollection(editor))
             .setCloseOnOk(() -> editor.isOK(parameterEditor))
@@ -977,12 +987,12 @@ final class PackagesConfView implements ViewHolder.View {
          glassPane.setVisible(true);
          glassPane.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 
-         drag();
+         drag(mouseEvent);
 
          MouseAdapter listener = new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-               drag();
+               drag(e);
             }
 
             @Override
@@ -999,8 +1009,8 @@ final class PackagesConfView implements ViewHolder.View {
          update();
       }
 
-      private void drag() {
-         Point glassPanePoint = MouseInfo.getPointerInfo().getLocation();
+      private void drag(MouseEvent e) {
+         Point glassPanePoint = e.getLocationOnScreen();
          SwingUtilities.convertPointFromScreen(glassPanePoint, glassPane);
          dragComponent.setLocation(glassPanePoint.x - grabOffset.x, glassPanePoint.y - grabOffset.y);
          glassPane.repaint();

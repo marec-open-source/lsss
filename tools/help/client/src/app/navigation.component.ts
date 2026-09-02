@@ -1,26 +1,23 @@
-import {ChangeDetectionStrategy, Component, inject, OnDestroy} from '@angular/core';
+import {Component, inject} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
-import {Subscription} from 'rxjs';
 import {ConfigService} from './config.service';
 import {NavItem} from './misc/NavItem';
 
 @Component({
-   changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-navigation',
    template: '',
    styles: '',
    imports: [],
 })
-export class NavigationComponent implements OnDestroy {
-   private routeSubscription: Subscription;
-
+export class NavigationComponent {
    constructor() {
       const configService = inject(ConfigService);
       const activatedRoute = inject(ActivatedRoute);
 
-      configService.navigation.next(undefined);
+      configService.navigation.set(undefined);
 
-      this.routeSubscription = activatedRoute.paramMap.subscribe(paramMap => {
+      activatedRoute.paramMap.pipe(takeUntilDestroyed()).subscribe(paramMap => {
 
          const helpSetId = paramMap.get('helpSet') ?? '';
          const pageId = paramMap.get('page') ?? '';
@@ -42,18 +39,14 @@ export class NavigationComponent implements OnDestroy {
          const pageTocItem = helpSet.pageIdToTocItem[pageId];
          if (!pageTocItem) {
             if (configService.routePrefix === '/set' && !pageId && !anchor) {
-               configService.navigation.next(new NavItem(helpSet));
+               configService.navigation.set(new NavItem(helpSet));
                return;
             }
             configService.replaceNavigationToTop(helpSet);
             return;
          }
 
-         configService.navigation.next(new NavItem(helpSet, pageId, anchor));
+         configService.navigation.set(new NavItem(helpSet, pageId, anchor));
       });
-   }
-
-   ngOnDestroy(): void {
-      this.routeSubscription.unsubscribe();
    }
 }

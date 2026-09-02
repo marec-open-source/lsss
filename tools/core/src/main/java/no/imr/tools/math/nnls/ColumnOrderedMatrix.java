@@ -16,8 +16,8 @@ public final class ColumnOrderedMatrix {
    }
 
    public ColumnOrderedMatrix(int m, int n, double[] values) {
-      if (values.length != m * n) {
-         throw new IllegalArgumentException();
+      if (m * n != values.length) {
+         throw new IllegalArgumentException(m + " * " + n + " != " + values.length);
       }
       this.m = m;
       this.n = n;
@@ -50,10 +50,10 @@ public final class ColumnOrderedMatrix {
 
    public void multiply(double[] x, double[] result) {
       if (x.length != n) {
-         throw new IllegalArgumentException();
+         throw new IllegalArgumentException(x.length + " != " + n);
       }
       if (result.length != m) {
-         throw new IllegalArgumentException();
+         throw new IllegalArgumentException(result.length + " != " + m);
       }
 
       for (int i = 0; i < m; i++) {

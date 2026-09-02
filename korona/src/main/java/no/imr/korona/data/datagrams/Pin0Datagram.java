@@ -1,6 +1,7 @@
 package no.imr.korona.data.datagrams;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * Ping information.
@@ -26,8 +27,8 @@ public sealed class Pin0Datagram extends DatagramPingItem permits Pin1Datagram {
    public final double relativeTransducerHeading;
    public final double soundVelocity;
 
-   public Pin0Datagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate);
+   public Pin0Datagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant);
 
       pingNTDate = byteBuffer.getLong();
       pingNumber = byteBuffer.getInt();

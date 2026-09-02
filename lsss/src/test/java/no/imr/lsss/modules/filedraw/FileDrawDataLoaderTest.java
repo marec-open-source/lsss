@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 final class FileDrawDataLoaderTest {
    @Test
    void readLine() throws IOException {
-      FileDrawLine line = FileDrawDataLoader.readLine(new BufferedReader(Reader.of("""
+      FileDrawLine line = FileDrawDataLoader.readFileDrawLine(new BufferedReader(Reader.of("""
             LSSS 3 3.00.41
             8
             # Comment a
@@ -25,9 +25,9 @@ final class FileDrawDataLoaderTest {
 
             """)));
       FileDrawLine expected = new FileDrawLine(List.of(
-            new FileDrawPoint(Instant.parse("2000-12-14T16:02:37Z").toEpochMilli(), 150.321984f),
-            new FileDrawPoint(Instant.parse("2000-12-14T16:03:00Z").toEpochMilli(), 160.043990f),
-            new FileDrawPoint(Instant.parse("2000-12-14T16:06:30Z").toEpochMilli(), 170.743539f)
+            new FileDrawPoint(Instant.parse("2000-12-14T16:02:37Z"), 150.321984f),
+            new FileDrawPoint(Instant.parse("2000-12-14T16:03:00Z"), 160.043990f),
+            new FileDrawPoint(Instant.parse("2000-12-14T16:06:30Z"), 170.743539f)
       ));
       assertEquals(expected, line);
    }

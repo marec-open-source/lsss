@@ -60,13 +60,9 @@ final class PowerDataTest {
          short[] power = new short[powerData.getCount()];
          Arrays.fill(power, p);
          powerData.setSvFromShortPower(power);
-
-         powerData.setSv(powerData.getSv());
-         powerData.setLogSv(powerData.getLogSv());
          JUnitUtils.assertAllEquals(p, powerData.computeShortPower());
 
          powerData.setLogSv(powerData.getLogSv());
-         powerData.setSv(powerData.getSv());
          JUnitUtils.assertAllEquals(p, powerData.computeShortPower());
       }
    }

@@ -7,6 +7,7 @@ import no.imr.tools.Utils;
 import no.imr.tools.time.NTDate;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * Sensor datagram.
@@ -19,8 +20,8 @@ public final class Sen0Datagram extends DatagramPingItem {
    public final String portName;
    public final byte[] message;
 
-   public Sen0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Sen0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       receivedNTDate = byteBuffer.getLong();
       protocol = ByteBufferUtils.readCString(byteBuffer, 32);
@@ -60,7 +61,7 @@ public final class Sen0Datagram extends DatagramPingItem {
    public void addPingItems(PingConversion pingConversion) {
       pingConversion.addPingItem(this);
       if (protocol.equalsIgnoreCase("nmea")) {
-         pingConversion.addPingItem(new NmeaPingItem(getNTDate(), messageAsString(), false));
+         pingConversion.addPingItem(new NmeaPingItem(getInstant(), messageAsString(), false));
       }
    }
 }

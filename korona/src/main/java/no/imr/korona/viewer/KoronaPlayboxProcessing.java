@@ -1,6 +1,7 @@
 package no.imr.korona.viewer;
 
 import no.imr.korona.computation.ModuleContainerComputation;
+import no.imr.tools.Utils;
 
 import java.io.IOException;
 
@@ -10,8 +11,10 @@ record KoronaPlayboxProcessing(
       DisplayRunner displayRunner
 ) {
    void close() throws IOException {
-      displayRunner.stop();
-      computation.close();
-      tmpFileWriter.close();
+      Utils.closeAll(
+            displayRunner::stop,
+            computation::close,
+            tmpFileWriter::close
+      );
    }
 }

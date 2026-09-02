@@ -1,6 +1,5 @@
 package no.imr.tools.parameter.gui.input;
 
-import com.google.common.html.HtmlEscapers;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.Unit;
@@ -61,9 +60,9 @@ public abstract class ParameterGUI<P extends BaseParameter<?>> {
          unitAndDescriptionPanel.add(unitLabel, BorderLayout.WEST);
       }
 
-      String description = parameter.getDescription();
+      String description = ParameterGuiUtils.descriptionAsHtml(parameter);
       if (!description.isEmpty()) {
-         descriptionLabel = GuiUtils.labelLikeHtmlTextPane(toHtml(parameter.getDescription()));
+         descriptionLabel = GuiUtils.labelLikeHtmlTextPane(description);
          descriptionLabel.setBorder(BorderFactory.createEmptyBorder(2, hasUnit ? 12 : 0, 2, 0));
          descriptionLabel.setFocusable(false);
          descriptionLabel.setDisabledTextColor(UiUtils.labelDisabledForeground());
@@ -71,14 +70,6 @@ public abstract class ParameterGUI<P extends BaseParameter<?>> {
          unitAndDescriptionPanel.add(descriptionLabel);
       } else {
          descriptionLabel = new JTextPane();
-      }
-   }
-
-   private static String toHtml(String text) {
-      if (text.startsWith("<html>")) {
-         return text.substring(6);
-      } else {
-         return HtmlEscapers.htmlEscaper().escape(text);
       }
    }
 
@@ -100,7 +91,10 @@ public abstract class ParameterGUI<P extends BaseParameter<?>> {
 
    void init(List<? extends BaseParameter<?>> parameters) {
       this.parameters = parameters;
-      nameLabel.addFocusListenerTo(getInputComponent());
+      JComponent inputComponent = getInputComponent();
+      if (inputComponent != null) {
+         nameLabel.addFocusListenerTo(inputComponent);
+      }
    }
 
    void setParentParameterGui(ParameterGUI<?> parentParameterGui) {
@@ -206,7 +200,9 @@ public abstract class ParameterGUI<P extends BaseParameter<?>> {
 
    private void updateInputToolTip() {
       JComponent inputComponent = getInputComponent();
-      inputComponent.setToolTipText(ParameterGuiUtils.getInputToolTip(parameter));
+      if (inputComponent != null) {
+         inputComponent.setToolTipText(ParameterGuiUtils.getInputToolTip(parameter));
+      }
    }
 
    public abstract void installGUI(GridBag gridBag);
@@ -217,11 +213,7 @@ public abstract class ParameterGUI<P extends BaseParameter<?>> {
     */
    public abstract void updateInput();
 
-   public abstract JComponent getInputComponent();
-
-   public boolean commitEdit() {
-      return true;
-   }
+   public abstract @Nullable JComponent getInputComponent();
 
    public void setHighlight(@Nullable Color color) {
       nameLabel.setHighlight(color);

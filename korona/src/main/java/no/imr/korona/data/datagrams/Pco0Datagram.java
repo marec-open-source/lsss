@@ -5,6 +5,7 @@ import no.imr.korona.data.ping.items.OtherIdxPingItem;
 import no.imr.tools.math.linalg.Vec3;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,8 +17,8 @@ public sealed class Pco0Datagram extends DatagramPingItem implements OtherIdxPin
 
    public final PingConfiguration pingConfiguration;
 
-   public Pco0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Pco0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       pingConfiguration = new PingConfiguration(byteBuffer);
    }

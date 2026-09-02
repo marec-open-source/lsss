@@ -87,13 +87,7 @@ public final class SaOverlay extends BaseEchogramOverlay implements PojoDataCont
             .build();
    }
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final Path2D path;
-
-      private DisplayData(Path2D path) {
-         this.path = path;
-      }
-
+   private record DisplayData(Path2D path) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setStroke(GuiUtils.STROKE_1);

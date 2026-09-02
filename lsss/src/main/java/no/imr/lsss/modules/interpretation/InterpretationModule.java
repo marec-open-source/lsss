@@ -15,6 +15,7 @@ import no.imr.korona.region.ChannelInterpretation;
 import no.imr.korona.region.ConditionalPingMask;
 import no.imr.korona.region.Region;
 import no.imr.korona.region.storing.StoringIntervalConfig;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.lsss.database.tables.QualityEnum;
 import no.imr.lsss.framework.BaseSystemFeaturePlugin;
 import no.imr.lsss.framework.InterpretationZSettings;
@@ -27,7 +28,6 @@ import no.imr.lsss.modules.integration.RegionIntegrationModule;
 import no.imr.lsss.modules.pojodata.PojoData;
 import no.imr.lsss.modules.pojodata.PojoDataContainer;
 import no.imr.tools.ResourceUtils;
-import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.concurrent.Exec;
 import no.imr.tools.database.DatabaseConnection;
@@ -89,7 +89,7 @@ public final class InterpretationModule extends BaseViewModule implements PojoDa
    public final BooleanParameter showQualityOptions = new BooleanParameter(
          new Name("ShowQualityOptions", "Show quality options"),
          false,
-         "Show quality options in module instead of instead of in dialog when storing");
+         "Show quality options in module instead of in dialog when storing");
 
    public final ObjectParameter<QualityEnum> quality = new ObjectParameter<>(
          new Name("Quality"),
@@ -189,7 +189,7 @@ public final class InterpretationModule extends BaseViewModule implements PojoDa
          previouslySelectedChannel = -1;
          normalizeFrequencies();
          if (frequencies.getValue().isEmpty()) {
-            int mainKHz = Utils.hzToKHz(getConfigurationManager().getSurveyMiscConf().mainFrequency.getFloatValue());
+            int mainKHz = KoronaUtils.hzToKHz(getConfigurationManager().getSurveyMiscConf().mainFrequency.getFloatValue());
             if (getInterpretationSettings().getDataFileSet().getRawFileConfiguration().getTransducers().stream().anyMatch(transducer -> transducer.getKHz() == mainKHz)) {
                frequencies.setValue(List.of(mainKHz));
             }
@@ -343,7 +343,7 @@ public final class InterpretationModule extends BaseViewModule implements PojoDa
          if (scatterSet.isEmpty()) {
             updateGridOverlays(List.of(), null, null);
          } else if (scatterSet.isEmptyForFrequency(getInterpretationSettings().getFrequency())) {
-            updateGridOverlays(List.of(), null, "Nothing stored on " + Utils.hzToKHz(getInterpretationSettings().getFrequency()) + " kHz");
+            updateGridOverlays(List.of(), null, "Nothing stored on " + KoronaUtils.hzToKHz(getInterpretationSettings().getFrequency()) + " kHz");
          } else {
             updateGridOverlays(List.of(), scatterSet, null);
          }

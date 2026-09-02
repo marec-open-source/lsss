@@ -2,6 +2,7 @@ package no.imr.korona.computation.towfish;
 
 import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
+import no.imr.tools.time.TimeUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,13 +21,13 @@ final class ConsysFileReader implements TowfishMetaData.MetadataFileReader {
    private static final String EKVLG = "$EKVLG";
    private static final String LENGTH = "L";
 
-   private final DateTimeFormatter dateTimeFormatter = Utils.createUTCDateTimeFormatter("dd.MM.yyyy,HH:mm:ss");
+   private final DateTimeFormatter dateTimeFormatter = TimeUtils.createUTCDateTimeFormatter("dd.MM.yyyy,HH:mm:ss");
 
    ConsysFileReader() {
    }
 
    @Override
-   public void updateMetaDataFileMap(Collection<Path> metaDataFiles, NavigableMap<Long, Path> metaDataFileMap) {
+   public void updateMetaDataFileMap(Collection<Path> metaDataFiles, NavigableMap<Instant, Path> metaDataFileMap) {
       //read first time and date in each file
       for (Path metaDataFile : metaDataFiles) {
          try (BufferedReader reader = Files.newBufferedReader(metaDataFile, Utils.ISO_8859_1)) {
@@ -34,7 +35,7 @@ final class ConsysFileReader implements TowfishMetaData.MetadataFileReader {
             while (s != null) {
                try {
                   Instant instant = parseDate(s);
-                  metaDataFileMap.put(instant.toEpochMilli(), metaDataFile);
+                  metaDataFileMap.put(instant, metaDataFile);
                   break;
                } catch (DateTimeParseException _) {
                   Log.global.warning("Cannot parse date in string " + s + " in file " + metaDataFile);
@@ -55,9 +56,11 @@ final class ConsysFileReader implements TowfishMetaData.MetadataFileReader {
    }
 
    @Override
-   public void parseFiles(Collection<Path> metaDataFiles, Map<Long, Float> depthMap, TowfishMetaData.Function<Long, Float> vesselLogData, TowfishMetaData.Function<Long, Float> cableLengthData) {
-      Map<Long, Float> vesselLogMap = vesselLogData.getMap();
-      Map<Long, Float> cableLengthMap = cableLengthData.getMap();
+   public void parseFiles(Collection<Path> metaDataFiles, Map<Instant, Float> depthMap,
+                          TowfishMetaData.Function<Instant, Float> vesselLogData,
+                          TowfishMetaData.Function<Instant, Float> cableLengthData) {
+      Map<Instant, Float> vesselLogMap = vesselLogData.getMap();
+      Map<Instant, Float> cableLengthMap = cableLengthData.getMap();
       for (Path metaDataFile : metaDataFiles) {
          try (BufferedReader reader = Files.newBufferedReader(metaDataFile, Utils.ISO_8859_1)) {
             String s = reader.readLine();
@@ -71,9 +74,8 @@ final class ConsysFileReader implements TowfishMetaData.MetadataFileReader {
                      s = reader.readLine();
                      continue;
                   }
-                  long millis = instant.toEpochMilli();
-                  s = s.replaceAll("=", " ");
-                  s = s.replaceAll("   ", " ");
+                  s = s.replace('=', ' ');
+                  s = s.replace("   ", " ");
                   String[] split = s.substring(20).split("[, ]");
                   //printData(split);
                   if (split.length == 0) {
@@ -82,15 +84,15 @@ final class ConsysFileReader implements TowfishMetaData.MetadataFileReader {
                   }
                   switch (split[0]) {
                      case PRESSURE -> {
-                        depthMap.put(millis, parsePressure(split));
+                        depthMap.put(instant, parsePressure(split));
                      }
                      case EKVLG -> {
                         if (split.length >= 5) {
-                           vesselLogMap.put(millis, parseVesselLog(split));
+                           vesselLogMap.put(instant, parseVesselLog(split));
                         }
                      }
                      case LENGTH -> {
-                        cableLengthMap.put(millis, parseCableLength(split));
+                        cableLengthMap.put(instant, parseCableLength(split));
                      }
                      default -> {
                      }
@@ -115,7 +117,7 @@ final class ConsysFileReader implements TowfishMetaData.MetadataFileReader {
 
    private static float parseCableLength(String[] cableLengthData) {
       String l = cableLengthData[1];
-      l = l.replaceAll("m", "");
+      l = l.replace("m", "");
       return Float.parseFloat(l);
    }
 }

@@ -4,7 +4,6 @@ import ucar.nc2.Variable;
 import ucar.nc2.constants.CF;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 public record NcTimeDef(
       Instant referenceTime,
@@ -37,6 +36,6 @@ public record NcTimeDef(
    }
 
    public Instant timeValueToInstant(long timeValue) {
-      return referenceTime.plus(timeValue * timeValueToNanosFactor, ChronoUnit.NANOS);
+      return referenceTime.plusNanos(Math.multiplyExact(timeValue, timeValueToNanosFactor));
    }
 }

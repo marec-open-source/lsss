@@ -31,6 +31,7 @@ import no.imr.tools.swing.MultiSplitPane;
 import no.imr.tools.swing.Toast;
 import no.imr.tools.swing.WorkerDialog;
 import no.imr.tools.swing.icons.MiscIcons;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.Box;
@@ -43,6 +44,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerListModel;
+import javax.swing.Timer;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Insets;
@@ -82,7 +84,7 @@ public final class KoronaPlaybox {
    private final JCheckBox autoRewindCheckBox = new JCheckBox("Auto rewind");
    private final JTextField surveyText = new JTextField();
    private final JTextField logTime = new JTextField(13);
-   private final DateTimeFormatter logTimeFormat = Utils.createUTCDateTimeFormatter("yyyy.MM.dd HH:mm:ss");
+   private final DateTimeFormatter logTimeFormat = TimeUtils.createUTCDateTimeFormatter("yyyy.MM.dd HH:mm:ss");
 
    private final JSpinner realtimeFactorSpinner = new JSpinner(new SpinnerListModel(
          List.of(1, 2, 5, 10, 20, 50, 100, 200, 500, 1000)));
@@ -94,6 +96,7 @@ public final class KoronaPlaybox {
    private List<VisualizerModule> visualizerModules = List.of();
    private List<PlayboxModule> playboxModules = List.of();
    private final JPanel displayPanel = new JPanel(new BorderLayout());
+   private final Timer initTimer = new Timer(100, _ -> initTimerTick());
 
    private DefaultVisualizerModule defaultVisualizerModule = new DefaultVisualizerModule(null, null);
 
@@ -221,6 +224,7 @@ public final class KoronaPlaybox {
    }
 
    private void closeComputation() {
+      stopInitTimer();
       try {
          if (processing != null) {
             processing.close();
@@ -252,6 +256,7 @@ public final class KoronaPlaybox {
       }
 
       if (computation != null) {
+         TmpFileWriter tmpFileWriter = null;
          try {
             PingSource pingSource;
             if (newVisualizerModules.isEmpty()) {
@@ -264,16 +269,13 @@ public final class KoronaPlaybox {
             } else {
                pingSource = computation;
             }
-            TmpFileWriter tmpFileWriter = new TmpFileWriter(pingSource);
+            tmpFileWriter = new TmpFileWriter(pingSource);
             DisplayRunner displayRunner = new DisplayRunner(this, tmpFileWriter);
             processing = new KoronaPlayboxProcessing(computation, tmpFileWriter, displayRunner);
             surveyText.setText(pingSource.getPingConfiguration().getRawFileConfiguration().getSurveyName());
-         } catch (IOException e) {
-            try {
-               computation.close();
-            } catch (IOException suppressed) {
-               e.addSuppressed(suppressed);
-            }
+         } catch (Exception e) {
+            Utils.closeOrSuppress(e, tmpFileWriter);
+            Utils.closeOrSuppress(e, computation);
             GuiUtils.showErrorDialog(displayPanel, "Error setting up computation", e);
          }
       }
@@ -417,6 +419,27 @@ public final class KoronaPlaybox {
       reset();
    }
 
+   private void stopInitTimer() {
+      if (initTimer.isRunning()) {
+         initTimer.stop();
+         logTime.setText("");
+      }
+   }
+
+   private void initTimerTick() {
+      if (processing == null) {
+         return;
+      }
+      List<BaseModuleComputation> moduleComputations = processing.computation().getModuleComputations();
+      for (int i = 0; i < moduleComputations.size(); i++) {
+         BaseModuleComputation moduleComputation = moduleComputations.get(i);
+         if (moduleComputation.getPingBuffering().getCountIn() == 0) {
+            logTime.setText("Init module " + (i + 1) + " / " + moduleComputations.size());
+            break;
+         }
+      }
+   }
+
    void displayRunnerDone() {
       if (processing != null && processing.displayRunner().isEndOfInput()) {
          closeComputation();
@@ -429,6 +452,7 @@ public final class KoronaPlaybox {
    }
 
    void displayRunnerTime(Instant time) {
+      stopInitTimer();
       logTime.setText(logTimeFormat.format(time));
    }
 
@@ -513,6 +537,7 @@ public final class KoronaPlaybox {
          reset();
       }
       if (processing != null) {
+         initTimer.start();
          processing.displayRunner().start();
       }
       updatePlayButton();
@@ -525,6 +550,7 @@ public final class KoronaPlaybox {
                   processing.displayRunner().stop();
                }
             });
+      stopInitTimer();
       updatePlayButton();
    }
 

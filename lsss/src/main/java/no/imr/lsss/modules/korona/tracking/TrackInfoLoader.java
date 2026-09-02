@@ -13,7 +13,6 @@ import no.imr.lsss.modules.korona.DataObjectLoader;
 import no.imr.tools.concurrent.ExecutorObservation;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,18 +31,17 @@ final class TrackInfoLoader {
             .collect(Collectors.toMap(Cas0Datagram::getRegionId, Function.identity()));
       return ping.getPingItems(TNF0Datagram.class)
             .filter(TNF0Datagram::isValid)
-            .map(tnf0Datagram -> {
+            .mapMulti((tnf0Datagram, consumer) -> {
                Cat0Datagram cat0Datagram = cat0Datagrams.get(tnf0Datagram.getId());
                PingIndex begin = dataFileSet.getPingIndexOrNull(ping.getPingNumber() - tnf0Datagram.getPingsSinceFirst());
                if (begin == null) {
-                  return null;
+                  return;
                }
                PingIndex end = dataFileSet.getPingIndexOrNull(ping.getPingNumber() - tnf0Datagram.getPingsSinceLast() + 1);
                if (end == null) {
-                  return null;
+                  return;
                }
-               return new TrackInfo(new TrackId(ping, tnf0Datagram.getId()), cat0Datagram, PingRange.of(begin, end));
-            })
-            .filter(Objects::nonNull);
+               consumer.accept(new TrackInfo(new TrackId(ping, tnf0Datagram.getId()), cat0Datagram, PingRange.of(begin, end)));
+            });
    }
 }

@@ -10,12 +10,13 @@ import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingSource;
 import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
-import no.imr.tools.netcdf.NcWrite;
+import no.imr.tools.netcdf.NcBuild;
+import no.imr.tools.netcdf.NetcdfUtils;
 import ucar.ma2.Array;
-import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
+import ucar.nc2.Group;
 import ucar.nc2.Variable;
 import ucar.nc2.constants.CF;
 import ucar.nc2.write.NetcdfFormatWriter;
@@ -26,13 +27,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.LongStream;
 
 final class DataQualityModuleComputation extends SimplePingModuleComputation {
    private final Path ncFile;
    private final int referenceChannel;
    private final List<DataQualityIndicator> dataQualityIndicators = new ArrayList<>();
-   private final List<Long> timeInMillisList = new ArrayList<>();
+   private final List<Instant> instantList = new ArrayList<>();
    private final List<Float> bottomDepthList = new ArrayList<>();
 
    DataQualityModuleComputation(DataQualityModule module, ComputationContext computationContext, PingSource pingSource) throws IOException {
@@ -55,7 +55,7 @@ final class DataQualityModuleComputation extends SimplePingModuleComputation {
 
    @Override
    protected void processPing(Ping ping) {
-      timeInMillisList.add(ping.getTimeInMillis());
+      instantList.add(ping.getInstant());
       bottomDepthList.add((float) ping.getBot0Datagram().getChannelDepths()[referenceChannel - 1]);
       for (DataQualityIndicator dataQualityIndicator : dataQualityIndicators) {
          dataQualityIndicator.processPing(ping);
@@ -64,7 +64,8 @@ final class DataQualityModuleComputation extends SimplePingModuleComputation {
 
    @Override
    protected void endOfInput() throws IOException {
-      NetcdfFormatWriter.Builder fileBuilder = NcWrite.newBuilder(ncFile)
+      NetcdfFormatWriter.Builder fileBuilder = NcBuild.newBuilder(ncFile);
+      Group.Builder groupBuilder = fileBuilder.getRootGroup()
             .addAttribute(new Attribute("content_type_name", "CRIMAC-quality-control"))
             .addAttribute(new Attribute("content_type_version", "0.1"))
             .addAttribute(new Attribute("content_type_description", "Data quality indicators"))
@@ -73,34 +74,35 @@ final class DataQualityModuleComputation extends SimplePingModuleComputation {
             .addAttribute(new Attribute("producer_git_commit", Utils.GIT_COMMIT))
             .addAttribute(new Attribute("creation_time", Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()));
 
-      long referenceTimeInMillis = getPingConfiguration().getRawFileConfiguration().getTimeInMillis();
+      Instant referenceTime = getPingConfiguration().getRawFileConfiguration().getInstant();
 
-      Dimension pingTimeDim = fileBuilder.addDimension(Nc.PING_TIME, timeInMillisList.size());
+      Dimension pingTimeDim = NcBuild.addDimension(groupBuilder, Nc.PING_TIME, instantList.size());
 
-      fileBuilder.addVariable(Nc.PING_TIME, DataType.LONG, List.of(pingTimeDim))
-            .addAttribute(new Attribute(CF.CALENDAR, "proleptic_gregorian"))
-            .addAttribute(new Attribute(CF.UNITS, "nanoseconds since " + Instant.ofEpochMilli(referenceTimeInMillis)));
+      groupBuilder.addVariable(NcBuild.timeVariable(Nc.PING_TIME, List.of(pingTimeDim), referenceTime));
 
       for (DataQualityIndicator dataQualityIndicator : dataQualityIndicators) {
          NcVariableInfo info = dataQualityIndicator.variableInfo();
-         Variable.Builder<?> variableBuilder = fileBuilder.addVariable(info.name(), DataType.FLOAT, List.of(pingTimeDim));
+         Variable.Builder<?> variableBuilder = NcBuild.floatVariable(info.name(), List.of(pingTimeDim));
          if (!info.unit().isEmpty()) {
             variableBuilder.addAttribute(new Attribute(CF.UNITS, info.unit()));
          }
+         groupBuilder.addVariable(variableBuilder);
       }
 
       try (NetcdfFormatWriter writer = fileBuilder.build()) {
-         long[] timeInMillis = Utils.toLongs(timeInMillisList);
-         long[] pingTimes = LongStream.of(timeInMillis)
-               .map(t -> (t - referenceTimeInMillis) * 1_000_000)
+         Group group = writer.getOutputFile().getRootGroup();
+
+         Instant[] instants = instantList.toArray(Instant[]::new);
+         long[] pingTimes = instantList.stream()
+               .mapToLong(instant -> referenceTime.until(instant, ChronoUnit.NANOS))
                .toArray();
          float[] bottomDepths = Utils.toFloats(bottomDepthList);
 
-         writer.write(writer.findVariable(Nc.PING_TIME), new int[]{0}, Array.makeFromJavaArray(pingTimes));
+         writer.write(NetcdfUtils.findVariable(group, Nc.PING_TIME), Array.makeFromJavaArray(pingTimes));
 
          for (DataQualityIndicator dataQualityIndicator : dataQualityIndicators) {
-            float[] values = dataQualityIndicator.computeResult(timeInMillis, bottomDepths);
-            writer.write(writer.findVariable(dataQualityIndicator.variableInfo().name()), new int[]{0}, Array.makeFromJavaArray(values));
+            float[] values = dataQualityIndicator.computeResult(instants, bottomDepths);
+            writer.write(NetcdfUtils.findVariable(group, dataQualityIndicator.variableInfo().name()), Array.makeFromJavaArray(values));
          }
 
       } catch (InvalidRangeException e) {

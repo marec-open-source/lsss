@@ -6,6 +6,7 @@ import no.imr.lsss.database.tables.hibernate.Scatter;
 import no.imr.lsss.database.tables.hibernate.SurveyPK;
 import no.imr.lsss.database.util.DatabaseTime;
 import no.imr.tools.Utils;
+import no.imr.tools.time.TimeUtils;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -28,7 +29,7 @@ final class PrintUser20 extends BaseMultiFrequencyXmlReport {
 
       SurveyPK surveyId = aPrintData.getSurvey().getCompId();
 
-      DateTimeFormatter utcDateFormat = Utils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss");
+      DateTimeFormatter utcDateFormat = TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss");
       String time = utcDateFormat.format(Instant.now());
 
       writeSimpleElement("report_time", time);
@@ -56,7 +57,7 @@ final class PrintUser20 extends BaseMultiFrequencyXmlReport {
          xmlStreamWriter.writeStartElement("distance");
          writeAttribute("log_start", aPrintData.getObservation(aMode).getDistance());
 
-         Instant startTime = Instant.ofEpochMilli(DatabaseTime.toMillis(aPrintData.getScatter(aMode)));
+         Instant startTime = DatabaseTime.toInstant(aPrintData.getScatter(aMode));
          xmlStreamWriter.writeAttribute("start_time", ReportUtils.DATE_TIME.format(startTime));
 
          {

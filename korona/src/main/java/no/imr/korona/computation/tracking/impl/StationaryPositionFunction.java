@@ -16,14 +16,14 @@ public final class StationaryPositionFunction implements PositionFunction {
 
    @Override
    public Measurement toMeasurement(StateVector stateVector) {
-      return globalPositionToMeasurement(stateVector.position(), stateVector.ts());
+      return globalPositionToMeasurement(stateVector.position(), stateVector.tsc());
    }
 
-   static Measurement globalPositionToMeasurement(Vec3 position, float ts) {
+   static Measurement globalPositionToMeasurement(Vec3 position, float tsc) {
       float range = position.length();
       float along = (float) Math.atan2(position.x(), position.z());
       float athwart = (float) Math.atan2(position.y(), position.z());
-      return new Measurement(range, along, athwart, ts);
+      return new Measurement(range, along, athwart, tsc);
    }
 
    @Override
@@ -32,8 +32,8 @@ public final class StationaryPositionFunction implements PositionFunction {
    }
 
    public static Vec3 measurementToGlobalPosition(Measurement measurement) {
-      double a = Math.tan(measurement.alongshipAngle());
-      double b = Math.tan(measurement.athwartshipAngle());
+      double a = Math.tan(measurement.alongshipAngleRad());
+      double b = Math.tan(measurement.athwartshipAngleRad());
       double z = measurement.range() / Math.sqrt(1 + a * a + b * b);
       double x = z * a;
       double y = z * b;

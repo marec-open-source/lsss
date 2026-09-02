@@ -12,7 +12,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public final class EchoLineData extends ChannelData {
 
@@ -120,7 +119,7 @@ public final class EchoLineData extends ChannelData {
                return new EchoLineSubDatagram.PowerEchoLine(echoLine.startSample, shortPower, angles);
             })
             .toList();
-      EchoLineSubDatagram echoLineSubDatagram = new EchoLineSubDatagram(getNTDate(), powerEchoLines);
+      EchoLineSubDatagram echoLineSubDatagram = new EchoLineSubDatagram(getInstant(), powerEchoLines);
       setRaw0DatagramParameters(echoLineSubDatagram.getRaw0Datagram());
       echoLineSubDatagram.getRaw0Datagram().mode = Raw0Datagram.DATA_TYPE_POWER;
       if (hasAngles()) {
@@ -155,26 +154,26 @@ public final class EchoLineData extends ChannelData {
    public void reduceData(int beginSampleIndex, int endSampleIndex) {
       throwExceptionIfReadOnly();
       echoLines = echoLines.stream()
-            .map(echoLine -> {
-               int originalBegin = echoLine.startSample();
+            .<EchoLine>mapMulti((echoLine, consumer) -> {
+               int originalBegin = echoLine.startSample;
                int originalEnd = originalBegin + echoLine.count();
                int begin = Math.max(beginSampleIndex, originalBegin);
                int end = Math.min(endSampleIndex, originalEnd);
                if (begin >= end) {
-                  return null;
+                  return;
                }
                if (begin == originalBegin && end == originalEnd) {
-                  return echoLine;
+                  consumer.accept(echoLine);
+               } else {
+                  consumer.accept(new EchoLine(
+                        begin,
+                        Arrays.copyOfRange(echoLine.sv, begin - originalBegin, end - originalBegin),
+                        echoLine.electricalAngles != null
+                              ? Arrays.copyOfRange(echoLine.electricalAngles, 2 * (begin - originalBegin), 2 * (end - originalBegin))
+                              : null
+                  ));
                }
-               return new EchoLine(
-                     begin,
-                     Arrays.copyOfRange(echoLine.sv, begin - originalBegin, end - originalBegin),
-                     echoLine.electricalAngles != null
-                           ? Arrays.copyOfRange(echoLine.electricalAngles, 2 * (begin - originalBegin), 2 * (end - originalBegin))
-                           : null
-               );
             })
-            .filter(Objects::nonNull)
             .toList();
 
       powerData = null;

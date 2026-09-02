@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class BackscatterModelTest {
    @Test
-   void testGaseousSphereModel() {
+   void gaseousSphereModel() {
       GaseousSphereModel gaseousSphereModel = new GaseousSphereModel();
       //used for siphonophores
 
@@ -26,7 +26,7 @@ final class BackscatterModelTest {
    }
 
    @Test
-   void testHardShelledSphereModel() {
+   void hardShelledSphereModel() {
       HardShelledSphereModel hardShelledSphereModel = new HardShelledSphereModel();
       //used for gastropods
 
@@ -49,7 +49,7 @@ final class BackscatterModelTest {
    }
 
    @Test
-   void testFluidSpheroidModel() {
+   void fluidProlateSpheroidModel() {
       FluidProlateSpheroidModel fluidSpheroidModel = new FluidProlateSpheroidModel();
       //used for copepods
 
@@ -69,7 +69,7 @@ final class BackscatterModelTest {
    }
 
    @Test
-   void testFluidBentCylinder() {
+   void fluidBentCylinderModel() {
       FluidBentCylinderModel fluidBentCylinderModel = new FluidBentCylinderModel();
       //used for euphausiids
 

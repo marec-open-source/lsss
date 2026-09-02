@@ -12,14 +12,20 @@ import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingConfiguration;
 import no.imr.korona.data.ping.PingSource;
 import no.imr.korona.data.ping.items.channel.BroadbandData;
+import no.imr.korona.data.ping.items.channel.ChannelData;
 import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
+import no.imr.tools.parameter.Name;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.xml.XmlUtils;
+import org.jspecify.annotations.Nullable;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 final class NetcdfWriterModuleComputation extends SimplePingModuleComputation {
@@ -40,29 +46,34 @@ final class NetcdfWriterModuleComputation extends SimplePingModuleComputation {
       PingConfiguration pingConfiguration = pingSource.getPingConfiguration();
       int referenceChannel = ModuleUtils.getMainChannelOrThrow(this, module.mainFrequency.getValue());
 
-      NcOptionalConfig optionalConfig = new NcOptionalConfig();
-      Path horizontalOffsetsFile = module.getOptionalConfigFile(HorizontalTransducerOffsetsFileService.NAME);
-      optionalConfig.horizontalTransducerParameterManager = horizontalOffsetsFile != null
-            ? new TransducerParameterManager(TransducerParameters.ParameterType.HORIZONTAL, XmlUtils.readDocument(horizontalOffsetsFile))
-            : null;
-      Path verticalOffsetsFile = module.getOptionalConfigFile(VerticalTransducerOffsetsFileService.NAME);
-      optionalConfig.verticalTransducerParameterManager = verticalOffsetsFile != null
-            ? new TransducerParameterManager(TransducerParameters.ParameterType.VERTICAL, XmlUtils.readDocument(verticalOffsetsFile))
-            : null;
+      NcConfig ncConfig = new NcConfig(pingConfiguration, referenceChannel);
+
+      List<PingByPingOutput> pingByPingOutputs = new ArrayList<>();
+      pingByPingOutputs.add(new BasicInfoOutput(
+            transducerParameterManager(TransducerParameters.ParameterType.HORIZONTAL, HorizontalTransducerOffsetsFileService.NAME),
+            transducerParameterManager(TransducerParameters.ParameterType.VERTICAL, VerticalTransducerOffsetsFileService.NAME)
+      ));
 
       try {
-         LogSvCompressor logSvCompressor = module.compressSv.getBooleanValue()
-               ? new LogSvCompressor(module.compressedLogSvRange.getValue(), module.compressedLogSvDelta.getFloatValue())
-               : null;
-         ncGridWriter = switch (module.writerType.getValue()) {
+         switch (module.writerType.getValue()) {
             case GRIDDED -> {
-               CommonGridOutput commonGridOutput = switch (module.griddedOutputType.getValue()) {
-                  case EMPTY -> new CommonGridEmptyOutput();
-                  case SV_AND_ANGLES -> new CommonGridSvAndAnglesOutput(module.writeAngles.getBooleanValue(), logSvCompressor);
-                  case PULSE_COMPRESSION -> new CommonGridPulseCompressionOutput();
-                  case BROADBAND_SV -> new CommonGridBroadbandSvOutput(module.fftWindowSize.getFloatValue(),
-                        totalBroadbandFrequencyRange(), module.deltaFrequency.getFloatValue() * 1000);
-               };
+               List<CommonGridOutput> commonGridOutputs = new ArrayList<>();
+               switch (module.griddedOutputType.getValue()) {
+                  case EMPTY -> {
+                  }
+                  case SV_AND_ANGLES -> {
+                     LogSvCompressor logSvCompressor = module.compressSv.getBooleanValue()
+                           ? new LogSvCompressor(module.compressedLogSvRange.getValue(), module.compressedLogSvDelta.getFloatValue())
+                           : null;
+                     commonGridOutputs.add(new CommonGridSvOutput(logSvCompressor));
+                     if (module.writeAngles.getBooleanValue()) {
+                        commonGridOutputs.add(new CommonGridAnglesOutput());
+                     }
+                  }
+                  case PULSE_COMPRESSION -> commonGridOutputs.add(new CommonGridPulseCompressionOutput());
+                  case BROADBAND_SV -> commonGridOutputs.add(new CommonGridBroadbandSvOutput(module.fftWindowSize.getFloatValue(),
+                        totalBroadbandFrequencyRange(), module.deltaFrequency.getFloatValue() * 1000));
+               }
 
                Optional<Float> optDeltaRange = module.deltaRange.getValue();
                float deltaRange = optDeltaRange.isPresent()
@@ -74,29 +85,37 @@ final class NetcdfWriterModuleComputation extends SimplePingModuleComputation {
                      ? optMaxRange.get()
                      : ModuleUtils.getInputChannelDataOrThrow(this, referenceChannel).getMaxRange();
 
-               CommonGridConfig commonGridConfig = new CommonGridConfig(commonGridOutput, deltaRange, maxRange);
-               yield new NcGridWriter(ncFile, pingConfiguration, referenceChannel, commonGridConfig, null, optionalConfig);
+               pingByPingOutputs.add(new CommonGridWriter(commonGridOutputs, deltaRange, maxRange));
             }
             case CHANNEL_GROUPS -> {
-               ChannelGroupOutput channelGroupOutput = switch (module.channelGroupOutputType.getValue()) {
-                  case EMPTY -> new ChannelGroupEmptyOutput();
-                  case PULSE_COMPRESSION -> new ChannelGroupPulseCompressionOutput(
+               List<ChannelGroupOutput> channelGroupOutputs = new ArrayList<>();
+               switch (module.channelGroupOutputType.getValue()) {
+                  case EMPTY -> {
+                  }
+                  case PULSE_COMPRESSION -> channelGroupOutputs.add(new ChannelGroupPulseCompressionOutput(
                         module.maxRange.getValue().orElse(null),
-                        module.writeAngles.getBooleanValue());
-                  case BROADBAND_SV -> new ChannelGroupBroadbandSvOutput(
+                        module.writeAngles.getBooleanValue()));
+                  case BROADBAND_SV -> channelGroupOutputs.add(new ChannelGroupBroadbandSvOutput(
                         module.deltaRange.getValue().orElse(null),
                         module.maxRange.getValue().orElse(null),
                         module.fftWindowSize.getFloatValue(),
                         module.deltaFrequency.getFloatValue() * 1000,
-                        module.writeAngles.getBooleanValue());
-               };
-               ChannelGroupConfig channelGroupConfig = new ChannelGroupConfig(channelGroupOutput, ModuleUtils.getInputChannelToChannelData(this));
-               yield new NcGridWriter(ncFile, pingConfiguration, referenceChannel, null, channelGroupConfig, optionalConfig);
+                        module.writeAngles.getBooleanValue()));
+               }
+               Map<Integer, ChannelData> channelToChannelData = ModuleUtils.getInputChannelToChannelData(this);
+               pingByPingOutputs.add(new EnvironmentGroupOutput());
+               pingByPingOutputs.add(new ChannelGroupWriter(channelGroupOutputs, channelToChannelData));
             }
-         };
+         }
+         ncGridWriter = new NcGridWriter(ncFile, pingByPingOutputs, ncConfig);
       } catch (InvalidRangeException e) {
          throw new IOException(e);
       }
+   }
+
+   private @Nullable TransducerParameterManager transducerParameterManager(TransducerParameters.ParameterType type, Name configFileName) throws IOException {
+      Path file = getModule().getOptionalConfigFile(configFileName);
+      return file != null ? new TransducerParameterManager(type, XmlUtils.readDocument(file)) : null;
    }
 
    private FloatRange totalBroadbandFrequencyRange() throws IOException {

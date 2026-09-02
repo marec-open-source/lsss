@@ -127,22 +127,27 @@ public final class MaskingEditOverlay extends BaseEchogramOverlay {
    }
 
    @Override
-   public boolean keyTyped(KeyEvent keyEvent) {
-      switch (Character.toLowerCase(keyEvent.getKeyChar())) {
+   public boolean keyPressed(KeyEvent keyEvent) {
+      switch (keyEvent.getKeyCode()) {
          case KeyEvent.VK_ESCAPE -> {
-            echogramSettings.useDefault();
+            if (operating) {
+               operating = false;
+               echogramSettings.useDefaultIfNotSticky();
+            } else {
+               echogramSettings.useDefault();
+            }
          }
-         case ' ' -> {
+         case KeyEvent.VK_SPACE -> {
             if (keyEvent.isControlDown()) {
                echogramSettings.deleteDrawMode.shiftValue(keyEvent.isShiftDown() ? -1 : 1);
             } else {
                echogramSettings.deleteSubMode.shiftValue(keyEvent.isShiftDown() ? -1 : 1);
             }
          }
-         case '+' -> {
+         case KeyEvent.VK_PLUS, KeyEvent.VK_ADD -> {
             adjustSize(2);
          }
-         case '-' -> {
+         case KeyEvent.VK_MINUS, KeyEvent.VK_SUBTRACT -> {
             adjustSize(-2);
          }
          default -> {
@@ -304,7 +309,7 @@ public final class MaskingEditOverlay extends BaseEchogramOverlay {
       }
    }
 
-   private final class DisplayData extends OverlayDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private DisplayData() {
       }
 

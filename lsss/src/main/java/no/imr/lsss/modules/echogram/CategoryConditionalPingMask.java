@@ -21,6 +21,7 @@ import no.imr.lsss.modules.korona.tracking.TrackInfoModule;
 import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public final class CategoryConditionalPingMask implements ConditionalPingMask {
       }
       Map<DiscreteVariable, boolean[]> newMasking = new HashMap<>();
       for (DiscreteVariable discreteVariable : lsss.getInterpretationSettings().getColorConverterContainer().getDiscreteVariables()) {
-         boolean[] array = new boolean[Byte.MAX_VALUE];
+         boolean[] array = new boolean[Byte.MAX_VALUE + 1];
          newMasking.put(discreteVariable, array);
          DiscreteColorMapping mapping = discreteVariable.getSettings().getDiscreteColorMapping();
          for (DiscreteColor discreteColor : mapping.getDiscreteColors()) {
@@ -128,12 +129,15 @@ public final class CategoryConditionalPingMask implements ConditionalPingMask {
       });
    }
 
-   private static void evaluateForSamples(DiscreteVariableResult evaluation, boolean[] categoriesToMask, List<FloatRange> doneRanges, List<FloatRange> maskRanges) {
-      byte[] byteData = evaluation.byteData();
-      float meterPerSample = evaluation.depthRange().getSize() / byteData.length;
-      float minDepth = evaluation.depthRange().min();
+   private static void evaluateForSamples(@Nullable DiscreteVariableResult evaluation, boolean[] categoriesToMask, List<FloatRange> doneRanges, List<FloatRange> maskRanges) {
+      if (evaluation == null) {
+         return;
+      }
+      byte[] byteData = evaluation.byteData;
+      float meterPerSample = evaluation.depthRange.getSize() / byteData.length;
+      float minDepth = evaluation.depthRange.min();
 
-      FloatRangeSet perSampleRangeSet = FloatRangeSet.of(evaluation.depthRange()).subtract(FloatRangeSet.of(doneRanges));
+      FloatRangeSet perSampleRangeSet = FloatRangeSet.of(evaluation.depthRange).subtract(FloatRangeSet.of(doneRanges));
 
       for (FloatRange floatRange : perSampleRangeSet) {
          boolean masked = false;

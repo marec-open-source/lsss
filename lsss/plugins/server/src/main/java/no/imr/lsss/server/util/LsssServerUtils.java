@@ -245,7 +245,7 @@ public final class LsssServerUtils {
       try {
          return JsonUtils.JSON_MAPPER.writeValueAsString(value);
       } catch (Exception e) {
-         throw new InternalServerErrorException("Error serializing value to json string", e);
+         throw new InternalServerErrorException("Error serializing value to JSON string", e);
       }
    }
 
@@ -299,7 +299,8 @@ public final class LsssServerUtils {
             .reduce(FloatRange.EMPTY_RANGE, FloatRange::union);
       return List.of(
             new ApiEchogramPoint(pingRange.begin(), depthRange.min()),
-            new ApiEchogramPoint(lastPingIndex, depthRange.max()));
+            new ApiEchogramPoint(lastPingIndex, depthRange.max())
+      );
    }
 
    public static NavigableMap<PingIndex, FloatRangeSet> toMask(DataFileSet dataFileSet, List<ApiPingMask> apiPingMasks) {

@@ -3,6 +3,7 @@ package no.imr.tools.database.queries;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
+import org.hibernate.query.SelectionQuery;
 
 import java.util.List;
 
@@ -18,14 +19,6 @@ public final class FetchQuery<T extends BaseDatabaseObject> implements ValuedDat
       this.query = query;
    }
 
-   public Class<T> getQueryClass() {
-      return clazz;
-   }
-
-   public String getQueryString() {
-      return query;
-   }
-
    @Override
    public List<T> executeAndGetValue(Session session) {
       return session.createSelectionQuery(query, clazz).list();
@@ -33,6 +26,10 @@ public final class FetchQuery<T extends BaseDatabaseObject> implements ValuedDat
 
    @Override
    public List<T> executeAndGetValue(StatelessSession session) {
-      return session.createSelectionQuery(query, clazz).list();
+      return createSelectionQuery(session).list();
+   }
+
+   public SelectionQuery<T> createSelectionQuery(StatelessSession session) {
+      return session.createSelectionQuery(query, clazz);
    }
 }

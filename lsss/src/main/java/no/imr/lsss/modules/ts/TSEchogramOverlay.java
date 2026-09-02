@@ -59,18 +59,12 @@ public final class TSEchogramOverlay extends BaseEchogramOverlay {
       if (path.getCurrentPoint() == null) {
          return null;
       }
-      return new DisplayData(path);
+      return transformed(new DisplayData(path));
    }
 
-   private final class DisplayData extends TransformedDisplayData {
-      private final Path2D.Float path;
-
-      private DisplayData(Path2D.Float path) {
-         this.path = path;
-      }
-
+   private record DisplayData(Path2D.Float path) implements OverlayDisplayData {
       @Override
-      public void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          g2d.setColor(Color.BLACK);
          g2d.setStroke(GuiUtils.STROKE_2);
          g2d.draw(path);

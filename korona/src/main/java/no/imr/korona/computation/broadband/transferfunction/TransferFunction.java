@@ -2,7 +2,6 @@ package no.imr.korona.computation.broadband.transferfunction;
 
 import com.google.common.math.IntMath;
 import no.imr.korona.computation.broadband.PulseCompression;
-import no.imr.tools.math.ArrayMath;
 import no.imr.tools.math.ComplexArray;
 import no.imr.tools.math.FftCache;
 import org.apache.commons.numbers.complex.Complex;
@@ -22,10 +21,13 @@ public interface TransferFunction {
       int fftSize = IntMath.ceilingPowerOfTwo(timeSignal.length);
       DoubleFFT_1D fft = FftCache.getDouble1D(fftSize);
 
-      double[] window = PulseCompression.generateWtx(slope, timeSignal.length);
-      ArrayMath.multiply(timeSignal, window);
-
       double[] paddedSignal = Arrays.copyOf(timeSignal, fftSize);
+      if (slope > 0) {
+         double[] wtx = PulseCompression.generateWtx(slope, timeSignal.length);
+         for (int i = 0; i < timeSignal.length; i++) {
+            paddedSignal[i] *= wtx[i];
+         }
+      }
 
       // In place forward DFT.
       fft.realForward(paddedSignal);

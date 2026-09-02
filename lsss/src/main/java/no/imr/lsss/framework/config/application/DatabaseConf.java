@@ -3,12 +3,15 @@ package no.imr.lsss.framework.config.application;
 import no.imr.lsss.framework.BaseSystemFeaturePlugin;
 import no.imr.lsss.framework.config.ConfigurationUnit;
 import no.imr.lsss.framework.config.UserProfile;
+import no.imr.lsss.incubator.LsssIncubatorFeatureToggles;
+import no.imr.tools.listening.Listener;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.gui.ParameterEditor;
 import no.imr.tools.swing.GuiUtils;
 import org.dom4j.Element;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -20,24 +23,25 @@ import java.util.List;
  * For configuring the database.
  */
 public final class DatabaseConf extends ConfigurationUnit {
+   private final @Nullable DatabaseReferenceDataConf databaseReferenceDataConf;
+
    public final BooleanParameter useLocalDatabase = new BooleanParameter(
          new Name("UseLocalDatabase", "Use survey local database"),
-         false) {
-      @Override
-      public boolean isEnabled() {
-         if (!getConfigurationManager().canEdit(UserProfile.SURVEY_SETUP)) {
-            return false;
-         }
-         if (getBooleanValue() || getConfigurationManager().getSurveyConf().useLocalDatabase.getBooleanValue()) {
-            return true;
-         }
-         return getLSSS().getSurveyManager().isOpen() && getConfigurationManager().getSurveyConf().getSurvey() != null;
-      }
-   };
+         false);
 
    DatabaseConf(BaseSystemFeaturePlugin plugin) {
       super(plugin, new Name("DatabaseConf", "Database"),
             "Configuration of database connection");
+
+      if (LsssIncubatorFeatureToggles.DATABASE_REFERENCE_DATA) {
+         databaseReferenceDataConf = addSubConfigurationUnit(new DatabaseReferenceDataConf(plugin));
+      } else {
+         databaseReferenceDataConf = null;
+      }
+   }
+
+   public @Nullable DatabaseReferenceDataConf getDatabaseReferenceDataConf() {
+      return databaseReferenceDataConf;
    }
 
    @Override
@@ -57,22 +61,43 @@ public final class DatabaseConf extends ConfigurationUnit {
          }
          updateSurveyLocalDescription();
       });
-      getConfigurationManager().getSurveyConf().useLocalDatabase.subscribe(_ -> {
-         boolean useLocal = getConfigurationManager().getSurveyConf().useLocalDatabase.getBooleanValue();
+      getConfigurationManager().getSurveyConf().useLocalDatabase.subscribe(useLocal -> {
          useLocal &= getLSSS().getSurveyManager().isOpen();
          doApply(useLocal, false);
       });
+      Listener.of(() -> {
+         useLocalDatabase.setEnabled(canUseLocalDatabase());
+      }).addTo(
+            getConfigurationManager().userProfile(),
+            useLocalDatabase,
+            getConfigurationManager().getSurveyConf().useLocalDatabase,
+            getLSSS().getSurveyManager().getChangeManager(),
+            getConfigurationManager().getSurveyConf().mSurvey
+      );
+
       getConfigurationManager().getSurveyConf().mSurvey.subscribe(_ -> updateSurveyLocalDescription());
 
       updateSurveyLocalDescription();
    }
 
+   private boolean canUseLocalDatabase() {
+      if (!getConfigurationManager().canEdit(UserProfile.SURVEY_SETUP)) {
+         return false;
+      }
+      if (useLocalDatabase.getBooleanValue() || getConfigurationManager().getSurveyConf().useLocalDatabase.getBooleanValue()) {
+         return true;
+      }
+      return getLSSS().getSurveyManager().isOpen() && getConfigurationManager().getSurveyConf().getSurvey() != null;
+   }
+
    private void updateSurveyLocalDescription() {
-      String description = "";
+      String description;
       if (!getLSSS().getSurveyManager().isOpen()) {
          description = "No survey opened";
       } else if (getConfigurationManager().getSurveyConf().getSurvey() == null) {
          description = "No survey selected";
+      } else {
+         description = "";
       }
       useLocalDatabase.setDescription(description);
       useLocalDatabase.notifyListeners();
@@ -109,9 +134,6 @@ public final class DatabaseConf extends ConfigurationUnit {
       ParameterEditor parameterEditor = new ParameterEditor(List.of(useLocalDatabase));
       localDatabasePanel.add(parameterEditor.getEditorComponent());
 
-      JPanel configurationPanel = new JPanel(new BorderLayout());
-      configurationPanel.add(globalDatabasePanel);
-      configurationPanel.add(localDatabasePanel, BorderLayout.SOUTH);
       return GuiUtils.createScrollPane(globalDatabasePanel, localDatabasePanel);
    }
 

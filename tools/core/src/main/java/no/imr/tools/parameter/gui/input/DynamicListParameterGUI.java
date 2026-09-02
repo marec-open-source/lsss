@@ -24,7 +24,7 @@ public final class DynamicListParameterGUI<V, P extends DynamicListParameter<V>>
             .mapToObj(i -> {
                String parameterName = getParameter().getName().persistentName();
                String subParameterName = i == 0 ? parameterName : parameterName + "_" + i;
-               ValueParameter<Optional<V>> subParameter = getParameter().createNewParameter(i, subParameterName);
+               ValueParameter<Optional<V>> subParameter = getParameter().newOptionalParameter(i, subParameterName);
                if (i < list.size()) {
                   subParameter.setValue(Optional.of(list.get(i)));
                }
@@ -76,13 +76,8 @@ public final class DynamicListParameterGUI<V, P extends DynamicListParameter<V>>
    }
 
    @Override
-   public JComponent getInputComponent() {
-      return ParameterGuiUtils.noInputComponent();
-   }
-
-   @Override
-   public boolean commitEdit() {
-      return parameterGUIs.stream().allMatch(ParameterGUI::commitEdit);
+   public @Nullable JComponent getInputComponent() {
+      return null;
    }
 
    @Override

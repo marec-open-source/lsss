@@ -16,7 +16,7 @@ public interface AppEventHandler {
 
    static AppEventHandler logging() {
       return event -> {
-         String text = Joiner.on(", ").withKeyValueSeparator("=").join(event);
+         String text = Joiner.on(", ").withKeyValueSeparator('=').join(event);
          Log.global.info("AppEvent: " + text);
       };
    }

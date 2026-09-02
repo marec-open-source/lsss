@@ -10,6 +10,7 @@ import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import no.imr.korona.data.util.geometry.EchogramPoint;
 import no.imr.korona.region.Region;
 import no.imr.korona.util.ExportRounding;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.korona.util.ts.PeakTSDetector;
 import no.imr.korona.util.ts.TSDetector;
 import no.imr.korona.viewer.util.FrequencySelectionPanel;
@@ -24,7 +25,6 @@ import no.imr.lsss.modules.pojodata.PojoDataContainer;
 import no.imr.lsss.modules.ts.BaseTsModule;
 import no.imr.lsss.modules.ts.TSModule;
 import no.imr.lsss.util.FrequencyPlotMarker;
-import no.imr.tools.Utils;
 import no.imr.tools.listening.ChangeManager;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.listening.ListenerRegistry;
@@ -510,7 +510,7 @@ public final class BroadbandTsModule extends BaseViewModule implements BaseTsMod
       }
 
       if (plotNarrowband.getBooleanValue() && !isBroadband(pingIndex, channel)) {
-         int kHz = Utils.hzToKHz(getInterpretationSettings().getDataFileSet().getFrequency(channel));
+         int kHz = KoronaUtils.hzToKHz(getInterpretationSettings().getDataFileSet().getFrequency(channel));
          regions.stream()
                .flatMap(region -> tsModule.get().getTSData(region, pingIndex, channel).stream())
                .forEach(tsData -> {

@@ -26,7 +26,7 @@ import java.util.Set;
  */
 public final class JsonUtils {
    public static final JsonMapper JSON_MAPPER = JsonMapper.builder()
-         .changeDefaultNullHandling(_ -> JsonSetter.Value.forValueNulls(Nulls.FAIL, Nulls.FAIL))
+         .changeDefaultNullHandling(_ -> JsonSetter.Value.forValueNulls(Nulls.SKIP, Nulls.SKIP))
          .changeDefaultPropertyInclusion(_ -> JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL))
          .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
          .defaultPrettyPrinter(new DefaultPrettyPrinter()

@@ -3,15 +3,10 @@ package no.imr.tools.parameter.gui.input;
 import javax.swing.JComponent;
 
 /**
- * Base class for components for editing parameters.
+ * Interface for components for editing parameters.
  */
-abstract class ParameterComponent {
-   ParameterComponent() {
-   }
+interface ParameterComponent {
+   JComponent getComponent();
 
-   abstract JComponent getComponent();
-
-   abstract void updateComponent();
-
-   abstract boolean commitEdit();
+   void updateComponent();
 }

@@ -20,16 +20,14 @@ import java.util.function.Supplier;
 
 /**
  * A table model to be used by {@link ParameterTableGUI}.
- *
- * @see BaseParameter
  */
 public final class ParameterTableModel<T extends ParameterContainer> extends AbstractTableModel {
    private final Supplier<T> newRowSupplier;
-   private final List<BaseParameter<?>> parameters = new ArrayList<>();
+   private final List<ValueParameter<?>> headerParameters = new ArrayList<>();
    private final Map<Integer, Integer> columnIndexToParameterIndex = new HashMap<>();
    private final List<T> rows;
    private boolean editable = true;
-   private Function<BaseParameter<?>, String> parameterToColumnName = BaseParameter::getDisplayName;
+   private Function<ValueParameter<?>, String> parameterToColumnName = ValueParameter::getDisplayName;
    private Function<ValueParameter<?>, @Nullable String> parameterToHeaderToolTip = ParameterGuiUtils::getNameToolTip;
    private Function<ValueParameter<?>, @Nullable String> parameterToInputToolTip = ParameterGuiUtils::getInputToolTip;
 
@@ -38,9 +36,9 @@ public final class ParameterTableModel<T extends ParameterContainer> extends Abs
       List<? extends BaseParameter<?>> allParameters = newRowSupplier.get().getParameters();
       for (int i = 0; i < allParameters.size(); i++) {
          BaseParameter<?> parameter = allParameters.get(i);
-         if (parameter.isVisible()) {
-            columnIndexToParameterIndex.put(parameters.size(), i);
-            parameters.add(parameter);
+         if (parameter.isVisible() && parameter instanceof ValueParameter<?> valueParameter) {
+            columnIndexToParameterIndex.put(headerParameters.size(), i);
+            headerParameters.add(valueParameter);
          }
       }
       this.rows = rows;
@@ -59,7 +57,7 @@ public final class ParameterTableModel<T extends ParameterContainer> extends Abs
       return this;
    }
 
-   public ParameterTableModel<T> setParameterToColumnName(Function<BaseParameter<?>, String> parameterToColumnName) {
+   public ParameterTableModel<T> setParameterToColumnName(Function<ValueParameter<?>, String> parameterToColumnName) {
       this.parameterToColumnName = parameterToColumnName;
       return this;
    }
@@ -118,12 +116,12 @@ public final class ParameterTableModel<T extends ParameterContainer> extends Abs
 
    @Override
    public int getColumnCount() {
-      return parameters.size();
+      return headerParameters.size();
    }
 
    @Override
    public String getColumnName(int column) {
-      BaseParameter<?> parameter = parameters.get(column);
+      ValueParameter<?> parameter = headerParameters.get(column);
       String name = parameterToColumnName.apply(parameter);
       return Utils.nameAndUnit(name, parameter.getUnit());
    }
@@ -158,7 +156,7 @@ public final class ParameterTableModel<T extends ParameterContainer> extends Abs
    }
 
    public ValueParameter<?> getHeaderParameter(int columnIndex) {
-      return (ValueParameter<?>) parameters.get(columnIndex);
+      return headerParameters.get(columnIndex);
    }
 
    ValueParameter<?> getParameter(int rowIndex, int columnIndex) {

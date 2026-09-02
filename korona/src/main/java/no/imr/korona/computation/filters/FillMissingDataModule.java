@@ -5,17 +5,13 @@ import no.imr.korona.computation.GeneralPingModule;
 import no.imr.korona.computation.GeneralPingModuleComputation;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingSource;
-import no.imr.korona.data.ping.items.channel.PowerData;
+import no.imr.korona.data.ping.items.channel.ChannelData;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 
 /**
- * Creates missing ping data.
- * Pings with missing PowerData will after passing through this module have same values on the missing
- * PowerData as the previous ping had.
- * <p>
- * This module is used in front of other modules that don't handle missing pings in the middle of a stream.
+ * Adds missing channel data.
  */
 public final class FillMissingDataModule extends GeneralPingModule {
    public FillMissingDataModule() {
@@ -41,14 +37,25 @@ public final class FillMissingDataModule extends GeneralPingModule {
          Ping ping = inputPing();
          if (ping != null && prevPing != null) {
             int transducerCount = ping.getRawFileConfiguration().getTransducerCount();
+            ChannelData heaveChannelData = ping.getFirstAvailableChannelData();
             for (int channel = 1; channel <= transducerCount; channel++) {
-               PowerData powerData = ping.getPowerData(channel);
-               PowerData prevPowerData = prevPing.getPowerData(channel);
-               if (isMissing(powerData) && !isMissing(prevPowerData)) {
-                  if (powerData != null) {
-                     ping.remove(powerData);
+               ChannelData channelData = ping.getChannelData(channel);
+               ChannelData prevChannelData = prevPing.getChannelData(channel);
+               if (isMissing(channelData) && !isMissing(prevChannelData)) {
+                  if (channelData != null) {
+                     ping.remove(channelData);
                   }
-                  ping.add(copy(prevPowerData, ping.getNTDate()));
+                  ChannelData copy = prevChannelData.makeCopy();
+                  copy.setInstant(ping.getInstant());
+                  if (heaveChannelData != null) {
+                     copy.setHeave(heaveChannelData.getHeave());
+                     copy.setRoll(heaveChannelData.getRoll());
+                     copy.setPitch(heaveChannelData.getPitch());
+                     copy.setHeading(heaveChannelData.getHeading());
+                  } else {
+                     heaveChannelData = copy;
+                  }
+                  ping.add(copy);
                }
             }
          }
@@ -58,13 +65,7 @@ public final class FillMissingDataModule extends GeneralPingModule {
       }
    }
 
-   private static boolean isMissing(@Nullable PowerData powerData) {
-      return powerData == null || powerData.getCount() == 0;
-   }
-
-   public static PowerData copy(PowerData powerData, long ntDate) {
-      PowerData copy = powerData.makeCopyWithAllData();
-      copy.setNTDate(ntDate);
-      return copy;
+   private static boolean isMissing(@Nullable ChannelData channelData) {
+      return channelData == null || channelData.getCount() == 0;
    }
 }

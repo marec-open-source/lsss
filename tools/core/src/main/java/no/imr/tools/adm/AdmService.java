@@ -6,10 +6,11 @@ import org.jspecify.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
-import javax.swing.JPanel;
+import java.awt.Component;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.function.Consumer;
 
 public interface AdmService {
    AdmService INSTANCE = ServiceLoader.load(AdmService.class)
@@ -27,8 +28,7 @@ public interface AdmService {
       return List.of();
    }
 
-   default @Nullable JPanel mainDisplayInfoPanel(ApplicationInfo applicationInfo) {
-      return null;
+   default void addToInfoPanel(Consumer<Component> container, ApplicationInfo applicationInfo) {
    }
 
    default AppEventHandler sendToServerAppEventHandler(Path file) {

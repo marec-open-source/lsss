@@ -12,6 +12,7 @@ import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.ping.items.configuration.TransmitMode;
 import no.imr.korona.region.Region;
 import no.imr.korona.util.ExportRounding;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.korona.viewer.coloring.SingleValueColorConverter;
 import no.imr.korona.viewer.variables.ContinuousVariable;
 import no.imr.korona.viewer.variables.ContinuousVariableResult;
@@ -30,6 +31,7 @@ import no.imr.tools.io.FileUtils;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.math.ArrayMath;
 import no.imr.tools.math.OnlineAverageAndVariance;
+import no.imr.tools.math.Quantile;
 import no.imr.tools.math.WelfordsMethod;
 import no.imr.tools.math.linalg.Vec2;
 import no.imr.tools.parameter.BaseParameter;
@@ -53,9 +55,9 @@ import no.imr.tools.swing.SuffixFileFilter;
 import no.imr.tools.swing.ViewHolder;
 import no.imr.tools.swing.WorkerDialog;
 import no.imr.tools.swing.WrappingFlowLayout;
+import no.imr.tools.time.TimeUtils;
 import no.imr.tools.xml.XmlUtils;
 import no.marec.lsss.api.util.parameters.ValueConstraints;
-import org.apache.commons.statistics.descriptive.Quantile;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -68,6 +70,7 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYBlockRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -85,7 +88,6 @@ import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Deque;
 import java.util.List;
 import java.util.function.Supplier;
@@ -226,7 +228,7 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
       if (byFrequencyData.isEmpty()) {
          return List.of();
       }
-      String name = Utils.hzToKHz(getInterpretationSettings().getFrequency()) + " kHz";
+      String name = KoronaUtils.hzToKHz(getInterpretationSettings().getFrequency()) + " kHz";
       PingIndex beginPingIndex = byFrequencyData.getFirst().pingIndex;
       int n = byFrequencyData.size();
       float deltaN = 1.0f;
@@ -252,7 +254,7 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
                float kHz = (peakPlotInfo.peakIndex() * deltaFrequency + firstFrequencyRange.min()) / 1000;
                peaks.addPoint(j * deltaN + beginPingIndex.getPingNumber(), kHz);
                peaks.addPoint((j + 1) * deltaN + beginPingIndex.getPingNumber(), kHz);
-               peakInfo.add(new PeakData(new Date(timeFrequencyData.pingIndex().getTimeInMillis()).toString(),
+               peakInfo.add(new PeakData(TimeUtils.JAVA_UTIL_DATE_FORMATTER.format(timeFrequencyData.pingIndex().getInstant()),
                      timeFrequencyData.pingIndex().getPingNumber(), kHz,
                      peakPlotInfo.prominenceData().prominence(), peakPlotInfo.std()));
             }
@@ -265,15 +267,14 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
             new ParameterExport("frequency", Unit.KHZ, ExportRounding.kHz()),
             new ParameterExport(broadbandSvModule.get().useTVG.getBooleanValue() ? "sv" : "noise", Unit.DB, ExportRounding.db()));
       if (autoRange.getBooleanValue()) {
-         float maxThreshold = Float.NEGATIVE_INFINITY;
-         float minThreshold = Float.POSITIVE_INFINITY;
-         double[] flattenedData = Utils.toDoubles(flatten(data));
-         maxThreshold = (float) Math.max(Quantile.withDefaults().evaluate(flattenedData, 0.99), maxThreshold);
-         minThreshold = (float) Math.min(Quantile.withDefaults().evaluate(flattenedData, 0.01), minThreshold);
+         float[] flattenedData = flatten(data);
+         float maxThreshold = Quantile.quickSelect(flattenedData, 0.99);
+         float minThreshold = Quantile.quickSelect(flattenedData, 0.01);
          colorRangeLimits.setValue(FloatRange.of(minThreshold, maxThreshold));
          colorRangeThresholds.setValue(FloatRange.of(minThreshold, maxThreshold));
       }
-      Info info = new Info(dataFileSet.getDataFile(beginPingIndex).getSegmentHandle().getBaseName(), new Date(beginPingIndex.getTimeInMillis()).toString(),
+      Info info = new Info(dataFileSet.getDataFile(beginPingIndex).getSegmentHandle().getBaseName(),
+            TimeUtils.JAVA_UTIL_DATE_FORMATTER.format(beginPingIndex.getInstant()),
             n, firstDepth, getInterpretationSettings().getFrequency(), transmitMode);
 
       return List.of(new PlotData(info, new RegularYXToZDataset(name,
@@ -413,7 +414,7 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
       Element root = DocumentHelper.createElement("peaks");
       for (PlotData dataset : datasets) {
          root.addElement("id")
-               .addAttribute("name", dataset.info.filename)
+               .addAttribute("name", dataset.info.fileName)
                .addAttribute("startDate", dataset.info.firstDate)
                .addAttribute("nPings", Integer.toString(dataset.info.nPings))
                .addAttribute("minDepth", Float.toString(dataset.info.firstDepth))
@@ -522,8 +523,8 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
       }
 
       @Override
-      public ContinuousVariableResult evaluate(int channel, Ping ping) {
-         return ContinuousVariableResult.EMPTY;
+      public @Nullable ContinuousVariableResult evaluate(int channel, Ping ping) {
+         return null;
       }
    }
 
@@ -637,7 +638,7 @@ public final class BroadbandByFrequencyModule extends BaseViewModule {
    private record PeakData(String date, long pingNumber, float frequency, float prominence, float std) {
    }
 
-   private record Info(String filename, String firstDate, int nPings, float firstDepth, float frequency, short transmitMode) {
+   private record Info(String fileName, String firstDate, int nPings, float firstDepth, float frequency, short transmitMode) {
    }
 
    private record PlotData(Info info, RegularYXToZDataset dataset, Graph peaks, PeakInfo peakInfo) {

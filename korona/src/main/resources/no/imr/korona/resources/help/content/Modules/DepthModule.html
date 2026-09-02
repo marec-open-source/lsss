@@ -39,12 +39,17 @@
       <a class="marec-parameter-ref" href="#DoNotUseKHz">Do not use kHz</a>.
    </li>
    <li>Find the maximum depth.</li>
-   <li>Clamp the remaining depths to be no less than
-      <a class="marec-parameter-ref" href="#MinDepthLimit">Min depth limit</a> above than the maximum depth.
-   </li>
-   <li>Reject the depths less than
-      <a class="marec-parameter-ref" href="#MinimumDepthThresholdFactor">Minimum depth threshold factor</a>
-      times the maximum depth.
+   <li>Reject the depths shallower than the deepest of:
+      <ul>
+         <li>
+            <a class="marec-parameter-ref" href="#MinimumDepthThresholdFactor">Minimum depth threshold factor</a>
+            times the maximum depth.
+         </li>
+         <li>
+            <a class="marec-parameter-ref" href="#MinimumDepthThresholdDistance">Minimum depth threshold distance</a>
+            above the maximum depth.
+         </li>
+      </ul>
    </li>
    <li>The coordinated depth is computed from the remaining depths:
       <ol type="a">
@@ -58,7 +63,7 @@
 </ol>
 <p>
    The bottom datagrams, <a href="../Datagrams/Bot0Datagram.html">BOT0</a>, that may accompany the raw data files are used to detect the case that
-   no bottom can be found. If the accompanied bottom datagrams exist and have detected zero-depth for all channels, this is
+   no bottom can be found. If the accompanying bottom datagrams exist and have detected zero-depth for all channels, this is
    used as an indication that there is no detectable bottom, and detection algorithms will not be called unless
    <a class="marec-parameter-ref" href="#AlwaysDetectBottom">Always detect bottom</a> is selected.
 </p>
@@ -73,7 +78,7 @@
 <h2 id="NewDatagrams">New datagrams</h2>
 <ul>
    <li>Depth datagrams, <a href="../Datagrams/Dep0Datagram.html">Dep0Datagram</a>. These datagrams (one per ping) represent the coordinated depth.</li>
-   <li>Bottom datagrams, <a href="../Datagrams/Bot0Datagram.html">Bot0Datagram</a>. These datagrams (one per ping) represent the channel-dependent depths (contains one depth per channel).</li>
+   <li>Bottom datagrams, <a href="../Datagrams/Bot0Datagram.html">Bot0Datagram</a>. These datagrams (one per ping) represent the channel-dependent depths (containing one depth per channel).</li>
 </ul>
 
 <h2 id="Parameters">Parameters</h2>
@@ -85,20 +90,13 @@
       Specifies the algorithm to be used in the bottom calculation.
       <br>Allowed values: <em>{ EK500, Gradient, Threshold }</em>
    </li>
-   <li><span class="marec-parameter-def" id="MinDepthLimit">Min depth limit:</span>
-      Specifies the maximal distance above bottom accepted as
-      the minimal bottom distance.
-   </li>
    <li><span class="marec-parameter-def" id="MinDepthValueFraction">Min depth value fraction = "Backstep":</span>
       For the minimal bottom calculation. The module backsteps from the
-      depth maximal bottom echo strength, until the echo strength is less than
+      depth of maximal bottom echo strength, until the echo strength is less than
       this fraction of the maximal bottom echo strength.
    </li>
    <li><span class="marec-parameter-def" id="SignalStrengthThreshold">Signal strength threshold:</span>
       The detected bottom must have signal strength larger than this value.
-   </li>
-   <li><span class="marec-parameter-def" id="MinimumDepthThresholdFactor">Minimum depth threshold factor:</span>
-      Shallowest acceptable depth relative to max depth.
    </li>
    <li><span class="marec-parameter-def" id="MaxRangeFactor">Max range factor:</span>
       Factor to multiply with given transducer ranges for ranges used in depth detection.
@@ -106,14 +104,17 @@
    <li><span class="marec-parameter-def" id="AlwaysDetectBottom">Always detect bottom:</span>
       Always try to detect bottom even if echosounder has zero bottom at all frequencies.
    </li>
-   <li><span class="marec-parameter-def" id="KeepBottomDeeperThanData">Keep bottom deeper than data</span>
+   <li><span class="marec-parameter-def" id="UseExistingBottom">Use existing bottom detections, if available:</span>
+      Create coordinated bottom from the bottom detections of the echosounder, if available.
+   </li>
+   <li><span class="marec-parameter-def" id="KeepBottomDeeperThanData">Keep bottom deeper than data:</span>
       Keep echosounder bottom if it is deeper than available data.
    </li>
    <li><span class="marec-parameter-def" id="MinBottomDepth">Minimum bottom depth:</span>
-      The detected bottom must be minimum this value.
+      The detected bottom must be at least this value.
    </li>
    <li><span class="marec-parameter-def" id="MaxBottomDepth">Maximum bottom depth:</span>
-      The detected bottom must be maximum this value.
+      The detected bottom must be at most this value.
    </li>
 </ul>
 
@@ -131,7 +132,13 @@
    <li><span class="marec-parameter-def" id="DoNotUseKHz">Do not use kHz:</span>
       Comma-separated list of frequencies to not use.
    </li>
+   <li><span class="marec-parameter-def" id="MinimumDepthThresholdFactor">Minimum depth threshold factor:</span>
+      Shallowest acceptable depth relative to max depth.
+   </li>
+   <li><span class="marec-parameter-def" id="MinimumDepthThresholdDistance">Minimum depth threshold distance:</span>
+      The maximum acceptable distance above the max depth.
+   </li>
    <li><span class="marec-parameter-def" id="CoordinatedBottomOffset">Coordinated bottom offset:</span>
-      Additional offset for coordinated bottom. Aa positive offset means smaller depth.
+      Additional offset for coordinated bottom. A positive offset means smaller depth.
    </li>
 </ul>

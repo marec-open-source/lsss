@@ -80,7 +80,7 @@ public abstract class PingTransform {
    }
 
    public TRS getTransform(Ping ping) {
-      ChannelData channelData = ping.getNonNullChannelData();
+      ChannelData channelData = ping.getFirstAvailableChannelData();
       if (channelData == null) {
          return TRS.IDENTITY;
       }

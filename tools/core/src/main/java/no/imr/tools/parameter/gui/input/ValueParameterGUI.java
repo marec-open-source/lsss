@@ -1,5 +1,6 @@
 package no.imr.tools.parameter.gui.input;
 
+import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.OptionalStringParameter;
 import no.imr.tools.parameter.StringParameter;
 import no.imr.tools.parameter.ValueParameter;
@@ -29,7 +30,7 @@ public final class ValueParameterGUI<V, P extends ValueParameter<V>> extends Par
 
       gridBag.getConstraints().anchor = getGUIConfig().getInputFieldAlignment().getGridBagConstraintsAnchor();
       if (getGUIConfig().getHorizontalFill(getParameter())
-            && (getParameter() instanceof StringParameter || getParameter() instanceof OptionalStringParameter)
+            && (getParameter() instanceof StringParameter || getParameter() instanceof OptionalStringParameter || getParameter().getProperty(BaseParameter.KEY_HORIZONTAL_FILL))
             && (parameterComponent instanceof ParameterTextField || !getParameter().getSuggestedValues().isEmpty())) {
          gridBag.activateHorizontalFill();
       }
@@ -46,10 +47,5 @@ public final class ValueParameterGUI<V, P extends ValueParameter<V>> extends Par
    @Override
    public JComponent getInputComponent() {
       return parameterComponent.getComponent();
-   }
-
-   @Override
-   public boolean commitEdit() {
-      return parameterComponent.commitEdit();
    }
 }

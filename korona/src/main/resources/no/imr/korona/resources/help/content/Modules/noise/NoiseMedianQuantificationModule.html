@@ -3,17 +3,17 @@
    This module can be used to quantify noise while the sonar operates in active mode.
 </p>
 <p>
-   The noise is quantified by picking a user defined number of equidistant samples per beam over a specified number of pings
+   The noise is quantified by picking a user-defined number of equidistant samples per beam over a specified number of pings
    and computing the median. Only the outer samples of the beam are used. If the maximum range of a beam is denoted MR,
    and the user specifies a detection distance of x meters, only the samples in the range
-   [MR-x, MR] is used.
+   [MR-x, MR] are used.
 </p>
 <p>
    The module creates and updates noise files per input file, per day and per survey. The files are written to at the end of
    the processing of the current file, and are placed in a subdirectory to the processed files.
 </p>
 <p>
-   NB: This module creates noise datagrams, the noise is removed with the NoiseRemoverModule.
+   NB: This module creates noise datagrams. The noise is removed with the NoiseRemoverModule.
 </p>
 
 <h2 id="NewDatagrams">New datagrams</h2>

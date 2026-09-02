@@ -3,6 +3,7 @@ package no.imr.lsss.database.reports;
 import no.imr.lsss.database.util.DatabaseTime;
 import no.imr.tools.Utils;
 import no.imr.tools.io.Print;
+import no.imr.tools.time.TimeUtils;
 
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
@@ -11,7 +12,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
 final class PrintUser16 extends BaseMultipleSpeciesPerFileReport {
-   private static final DateTimeFormatter DATE_TIME_FORMATTER = Utils.createUTCDateTimeFormatter("yyyy MM dd  HH:mm:ss");
+   private static final DateTimeFormatter DATE_TIME_FORMATTER = TimeUtils.createUTCDateTimeFormatter("yyyy MM dd  HH:mm:ss");
 
    PrintUser16(ReportEngine reportEngine) {
       super(16, reportEngine);
@@ -67,7 +68,7 @@ final class PrintUser16 extends BaseMultipleSpeciesPerFileReport {
          PrintData.Pelagic aPrintData,
          int aPrintFrequency, short aPrintTransceiver, ReportMode aMode) {
 
-      Instant time = Instant.ofEpochMilli(DatabaseTime.toMillis(aPrintData.getScatter(aMode)));
+      Instant time = DatabaseTime.toInstant(aPrintData.getScatter(aMode));
 
       DecimalFormatSymbols dfs = Utils.createDecimalFormatSymbols();
       DecimalFormat df0 = new DecimalFormat("#0", dfs);

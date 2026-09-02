@@ -1,7 +1,6 @@
 package no.imr.tools.plot;
 
 import no.imr.tools.SmartNumberFormat;
-import no.imr.tools.math.Function1D;
 import no.imr.tools.math.NiceNumber;
 import no.imr.tools.range.FloatRange;
 import org.jfree.chart.axis.NumberAxis;
@@ -17,17 +16,18 @@ import java.awt.geom.Rectangle2D;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.LongStream;
 
 public class TransformedNumberAxis extends NumberAxis {
-   private final Function1D transform;
-   private final Function1D inverse;
+   private final DoubleUnaryOperator transform;
+   private final DoubleUnaryOperator inverse;
 
-   public TransformedNumberAxis(Function1D transform, Function1D inverse) {
+   public TransformedNumberAxis(DoubleUnaryOperator transform, DoubleUnaryOperator inverse) {
       this(null, transform, inverse);
    }
 
-   public TransformedNumberAxis(@Nullable String label, Function1D transform, Function1D inverse) {
+   public TransformedNumberAxis(@Nullable String label, DoubleUnaryOperator transform, DoubleUnaryOperator inverse) {
       super(label);
 
       this.transform = transform;
@@ -55,11 +55,11 @@ public class TransformedNumberAxis extends NumberAxis {
 
    @Override
    public double valueToJava2D(double value, Rectangle2D area, RectangleEdge edge) {
-      value = transform.eval(value);
+      value = transform.applyAsDouble(value);
 
       Range range = getRange();
-      double axisMin = transform.eval(range.getLowerBound());
-      double axisMax = transform.eval(range.getUpperBound());
+      double axisMin = transform.applyAsDouble(range.getLowerBound());
+      double axisMax = transform.applyAsDouble(range.getUpperBound());
 
       double min;
       double max;
@@ -83,8 +83,8 @@ public class TransformedNumberAxis extends NumberAxis {
    @Override
    public double java2DToValue(double java2DValue, Rectangle2D area, RectangleEdge edge) {
       Range range = getRange();
-      double axisMin = transform.eval(range.getLowerBound());
-      double axisMax = transform.eval(range.getUpperBound());
+      double axisMin = transform.applyAsDouble(range.getLowerBound());
+      double axisMax = transform.applyAsDouble(range.getUpperBound());
 
       double min;
       double max;
@@ -105,7 +105,7 @@ public class TransformedNumberAxis extends NumberAxis {
          value = axisMin + (java2DValue - min) / (max - min) * (axisMax - axisMin);
       }
 
-      return inverse.eval(value);
+      return inverse.applyAsDouble(value);
    }
 
    @Override
@@ -137,8 +137,8 @@ public class TransformedNumberAxis extends NumberAxis {
    @Override
    public void zoomRange(double lowerPercent, double upperPercent) {
       Range range = getRange();
-      double start = transform.eval(range.getLowerBound());
-      double length = transform.eval(range.getUpperBound()) - start;
+      double start = transform.applyAsDouble(range.getLowerBound());
+      double length = transform.applyAsDouble(range.getUpperBound()) - start;
       double r0;
       double r1;
       if (isInverted()) {
@@ -148,8 +148,8 @@ public class TransformedNumberAxis extends NumberAxis {
          r0 = start + length * lowerPercent;
          r1 = start + length * upperPercent;
       }
-      r0 = inverse.eval(r0);
-      r1 = inverse.eval(r1);
+      r0 = inverse.applyAsDouble(r0);
+      r1 = inverse.applyAsDouble(r1);
       if (r1 > r0 && !Double.isInfinite(r1 - r0)) {
          setRange(new Range(r0, r1));
       }
@@ -158,10 +158,10 @@ public class TransformedNumberAxis extends NumberAxis {
    @Override
    public void resizeRange(double percent) {
       Range range = getRange();
-      double min = transform.eval(range.getLowerBound());
-      double max = transform.eval(range.getUpperBound());
+      double min = transform.applyAsDouble(range.getLowerBound());
+      double max = transform.applyAsDouble(range.getUpperBound());
       double center = (min + max) / 2;
-      resizeRange2(percent, inverse.eval(center));
+      resizeRange2(percent, inverse.applyAsDouble(center));
    }
 
    @Override
@@ -173,12 +173,12 @@ public class TransformedNumberAxis extends NumberAxis {
    public void resizeRange2(double percent, double anchorValue) {
       if (percent > 0) {
          Range range = getRange();
-         double min = transform.eval(range.getLowerBound());
-         double max = transform.eval(range.getUpperBound());
-         double ref = transform.eval(anchorValue);
+         double min = transform.applyAsDouble(range.getLowerBound());
+         double max = transform.applyAsDouble(range.getUpperBound());
+         double ref = transform.applyAsDouble(anchorValue);
          double newMin = ref - percent * (ref - min);
          double newMax = ref + percent * (max - ref);
-         setRange(new Range(inverse.eval(newMin), inverse.eval(newMax)));
+         setRange(new Range(inverse.applyAsDouble(newMin), inverse.applyAsDouble(newMax)));
       } else {
          setAutoRange(true);
       }
@@ -190,10 +190,10 @@ public class TransformedNumberAxis extends NumberAxis {
          setUpperMargin(0);
          return;
       }
-      double min = transform.eval(range.min());
-      double max = transform.eval(range.max());
+      double min = transform.applyAsDouble(range.min());
+      double max = transform.applyAsDouble(range.max());
       double delta = (max - min) * factor;
-      setLowerMargin((range.min() - inverse.eval(min - delta)) / range.getSize());
-      setUpperMargin((inverse.eval(max + delta) - range.max()) / range.getSize());
+      setLowerMargin((range.min() - inverse.applyAsDouble(min - delta)) / range.getSize());
+      setUpperMargin((inverse.applyAsDouble(max + delta) - range.max()) / range.getSize());
    }
 }

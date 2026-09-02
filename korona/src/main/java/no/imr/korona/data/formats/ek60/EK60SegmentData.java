@@ -110,7 +110,7 @@ class EK60SegmentData extends SegmentData {
          if (nextMru == null) {
             return Optional.of(lastMru);
          }
-         return Optional.of(DataUtils.interpolateMru(lastMru, nextMru, idx0Datagram.getNTDate()));
+         return Optional.of(DataUtils.interpolateMru(lastMru, nextMru, idx0Datagram.getInstant()));
       }).orElse(null);
    }
 

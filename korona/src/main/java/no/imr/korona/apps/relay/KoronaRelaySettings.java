@@ -9,6 +9,7 @@ import no.imr.tools.parameter.ParameterContainer;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.gui.ConfigurableGUIDialog;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.marec.lsss.api.util.parameters.ValueConstraints;
 
 import java.awt.Component;
@@ -41,10 +42,10 @@ public final class KoronaRelaySettings extends Configurable implements Parameter
    }
 
    void showEditor(Component referenceComponent, boolean editable) {
-      ParameterEditor parameterEditor = new ParameterEditor(getParameters());
-      parameterEditor.getGUIConfig().setParameterEnabledDecider(_ -> editable);
+      ParameterEditor parameterEditor = new ParameterEditor(getParameters(), new GUIConfig()
+            .setParameterEnabledDecider(_ -> editable)
+      );
       new ConfigurableGUIDialog(referenceComponent, getName().displayName(), this)
-            .setCloseOnOk(parameterEditor::commitEdits)
             .setGUI(parameterEditor.getEditorComponent())
             .show();
    }

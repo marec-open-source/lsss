@@ -70,7 +70,7 @@ final class PrintCompact extends BaseMultipleSpeciesPerFileReport {
       float[][] dataPrint = aPrintData.getSa(aMode);
 
       // Date
-      Instant time = Instant.ofEpochMilli(DatabaseTime.toMillis(scatter.getCompId()));
+      Instant time = DatabaseTime.toInstant(scatter.getCompId());
       Print.leftPaddedValue(aPrintWriter, 8, ReportUtils.DATE.format(time));
       Print.spaceAndLeftPaddedValue(aPrintWriter, 5, ReportUtils.TIME.format(time));
 
@@ -100,7 +100,7 @@ final class PrintCompact extends BaseMultipleSpeciesPerFileReport {
 
       // Comment if available
       for (int i = 0; i < aPrintData.getCommentCount(aMode); i++) {
-         Instant commentTime = Instant.ofEpochMilli(DatabaseTime.toMillis(aPrintData.getComment(aMode, i)));
+         Instant commentTime = DatabaseTime.toInstant(aPrintData.getComment(aMode, i));
          Print.leftPaddedValue(aPrintWriter, 8, ReportUtils.DATE.format(commentTime));
          Print.spaceAndLeftPaddedValue(aPrintWriter, 5, ReportUtils.TIME.format(commentTime));
          aPrintWriter.print("  ");

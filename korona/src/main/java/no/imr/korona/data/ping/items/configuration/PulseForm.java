@@ -14,15 +14,15 @@ public final class PulseForm {
    private PulseForm() {
    }
 
-   public static int stringPulseFormToInt(String stingPulseForm) {
+   public static int stringPulseFormToInt(String stringPulseForm) {
       try {
-         return Integer.parseInt(stingPulseForm);
+         return Integer.parseInt(stringPulseForm);
       } catch (NumberFormatException _) {
-         return switch (stingPulseForm.toLowerCase(Locale.ENGLISH)) {
+         return switch (stringPulseForm.toLowerCase(Locale.ENGLISH)) {
             case NARROWBAND_NAME -> NARROWBAND;
             case BROADBAND_LINEAR_UP_NAME -> BROADBAND_LINEAR_UP;
             case BROADBAND_LINEAR_DOWN_NAME -> BROADBAND_LINEAR_DOWN;
-            default -> throw new IllegalArgumentException("Unknown pulse form: " + stingPulseForm);
+            default -> throw new IllegalArgumentException("Unknown pulse form: " + stringPulseForm);
          };
       }
    }

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.ZoneOffset;
@@ -18,12 +19,10 @@ import java.time.ZoneOffset;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class BaseDatagramReaderTest {
-   private static final long NT_DATE = 0;
-
    @Test
    void maxNTDate() {
-      long millis = LocalDate.of(9999, Month.DECEMBER, 31).atStartOfDay(ZoneOffset.UTC).toEpochSecond() * 1000;
-      long maxNTDate = NTDate.timeInMillisToNTDate(millis);
+      Instant maxInstant = LocalDate.of(9999, Month.DECEMBER, 31).atStartOfDay().toInstant(ZoneOffset.UTC);
+      long maxNTDate = NTDate.instantToNTDate(maxInstant);
       assertEquals(BaseDatagramReader.MAX_NT_DATE, maxNTDate);
    }
 
@@ -32,7 +31,7 @@ final class BaseDatagramReaderTest {
       ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[4 * 4 + 2 * Idx0Datagram.SIZE_ON_FILE])
             .order(ByteOrder.LITTLE_ENDIAN);
 
-      Idx0Datagram idx0Datagram = new Idx0Datagram(NT_DATE, 56, 98, new GeoPoint(34, 45), 999);
+      Idx0Datagram idx0Datagram = new Idx0Datagram(Instant.ofEpochSecond(0), 56, 98, new GeoPoint(34, 45), 999);
 
       byteBuffer.putInt(-1); // Junk
 
@@ -42,7 +41,7 @@ final class BaseDatagramReaderTest {
 
       byteBuffer.putInt(-1); // Junk
 
-      idx0Datagram.setNTDate(NT_DATE + 1);
+      idx0Datagram.setInstant(Instant.ofEpochSecond(1));
       byteBuffer.putInt(Idx0Datagram.SIZE_ON_FILE - 8);
       idx0Datagram.writeIncludingHeader(byteBuffer);
       byteBuffer.putInt(Idx0Datagram.SIZE_ON_FILE - 8);
@@ -61,14 +60,14 @@ final class BaseDatagramReaderTest {
          BaseDatagram datagram = datagramReader.nextDatagram();
          assertNotNull(datagram);
          assertEquals(Idx0Datagram.TYPE, datagram.getDatagramType());
-         assertEquals(NT_DATE, datagram.getNTDate());
+         assertEquals(Instant.ofEpochSecond(0), datagram.getInstant());
          assertEquals(Idx0Datagram.SIZE_ON_FILE + 4L, datagramReader.getTotalRead());
          assertEquals(4L, datagramReader.getBytesSkipped());
 
          datagram = datagramReader.nextDatagram();
          assertNotNull(datagram);
          assertEquals(Idx0Datagram.TYPE, datagram.getDatagramType());
-         assertEquals(NT_DATE + 1, datagram.getNTDate());
+         assertEquals(Instant.ofEpochSecond(1), datagram.getInstant());
          assertEquals(2L * Idx0Datagram.SIZE_ON_FILE + 8L, datagramReader.getTotalRead());
          assertEquals(8L, datagramReader.getBytesSkipped());
 
@@ -84,7 +83,7 @@ final class BaseDatagramReaderTest {
       ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[Idx0Datagram.SIZE_ON_FILE - 4])
             .order(ByteOrder.LITTLE_ENDIAN);
 
-      Idx0Datagram idx0Datagram = new Idx0Datagram(NT_DATE, 56, 98, new GeoPoint(34, 45), 999);
+      Idx0Datagram idx0Datagram = new Idx0Datagram(Instant.EPOCH, 56, 98, new GeoPoint(34, 45), 999);
 
       byteBuffer.putInt(Idx0Datagram.SIZE_ON_FILE - 8);
       idx0Datagram.writeIncludingHeader(byteBuffer);
@@ -107,12 +106,12 @@ final class BaseDatagramReaderTest {
       ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[10000])
             .order(ByteOrder.LITTLE_ENDIAN);
       try (BaseDatagramWriter datagramWriter = new ByteBufferDatagramWriter(byteBuffer)) {
-         datagramWriter.writeDatagram(new Idx0Datagram(NT_DATE + 1, 1, 1, null, 1));
-         datagramWriter.writeDatagram(new UnknownDatagram(NT_DATE + 1, UnknownDatagram.type(-1), ByteBuffer.wrap(new byte[2])));
-         datagramWriter.writeDatagram(new UnknownDatagram(NT_DATE + 2, UnknownDatagram.type(-1), ByteBuffer.wrap(new byte[3])));
-         datagramWriter.writeDatagram(new Idx0Datagram(NT_DATE + 2, 2, 2, null, 2));
-         datagramWriter.writeDatagram(new UnknownDatagram(NT_DATE + 3, UnknownDatagram.type(-1), ByteBuffer.wrap(new byte[5])));
-         datagramWriter.writeDatagram(new Idx0Datagram(NT_DATE + 3, 3, 3, null, 3));
+         datagramWriter.writeDatagram(new Idx0Datagram(Instant.ofEpochSecond(1), 1, 1, null, 1));
+         datagramWriter.writeDatagram(new UnknownDatagram(Instant.ofEpochSecond(1), UnknownDatagram.type(-1), ByteBuffer.wrap(new byte[2])));
+         datagramWriter.writeDatagram(new UnknownDatagram(Instant.ofEpochSecond(2), UnknownDatagram.type(-1), ByteBuffer.wrap(new byte[3])));
+         datagramWriter.writeDatagram(new Idx0Datagram(Instant.ofEpochSecond(2), 2, 2, null, 2));
+         datagramWriter.writeDatagram(new UnknownDatagram(Instant.ofEpochSecond(3), UnknownDatagram.type(-1), ByteBuffer.wrap(new byte[5])));
+         datagramWriter.writeDatagram(new Idx0Datagram(Instant.ofEpochSecond(3), 3, 3, null, 3));
       }
 
       byteBuffer.flip();

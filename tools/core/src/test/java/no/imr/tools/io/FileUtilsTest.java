@@ -3,10 +3,15 @@ package no.imr.tools.io;
 import no.imr.tools.misc.test.UniqueTmpDir;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -112,6 +117,34 @@ final class FileUtilsTest {
       });
 
       FileUtils.deleteRecursively(dir);
+   }
+
+   @Test
+   void unzip() throws IOException {
+      Path dir = UniqueTmpDir.newSubDir("FileUtilsTest.unzip");
+      byte[] contents = {1, 2, 3};
+
+      FileUtils.unzip(toZipInputStream("a/b.dat", contents), dir);
+      assertArrayEquals(contents, Files.readAllBytes(dir.resolve(toPath("a/b.dat"))));
+
+      assertThrows(IOException.class, () -> {
+         FileUtils.unzip(toZipInputStream("../evil.dat", contents), dir);
+      });
+      assertThrows(IOException.class, () -> {
+         FileUtils.unzip(toZipInputStream("a/../../evil.dat", contents), dir);
+      });
+
+      FileUtils.deleteRecursively(dir);
+   }
+
+   private static ZipInputStream toZipInputStream(String entryName, byte[] contents) throws IOException {
+      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+      try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
+         zipOutputStream.putNextEntry(new ZipEntry(entryName));
+         zipOutputStream.write(contents);
+         zipOutputStream.closeEntry();
+      }
+      return new ZipInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
    }
 
    private static Path toFile(String path) {

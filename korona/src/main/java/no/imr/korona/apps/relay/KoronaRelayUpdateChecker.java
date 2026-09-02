@@ -1,5 +1,6 @@
 package no.imr.korona.apps.relay;
 
+import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.io.LockedFile;
 
@@ -86,11 +87,11 @@ public final class KoronaRelayUpdateChecker {
       private StatusFileUpdateLoader(Path statusFile) throws IOException {
          Path lockFile = statusFile.resolveSibling(KoronaRelay.STATUS_LOCK_FILENAME);
          lockedFile = LockedFile.getUnlocked(lockFile);
-         lockedFile.lock();
          try {
+            lockedFile.lock();
             koronaRelayStatus = new KoronaRelayStatus(statusFile);
-         } catch (IOException e) {
-            lockedFile.close();
+         } catch (Exception e) {
+            Utils.closeOrSuppress(e, lockedFile);
             throw e;
          }
       }

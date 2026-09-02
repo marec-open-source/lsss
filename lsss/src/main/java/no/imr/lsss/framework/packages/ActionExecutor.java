@@ -1,7 +1,6 @@
 package no.imr.lsss.framework.packages;
 
+@FunctionalInterface
 public interface ActionExecutor {
-   boolean isEnabled();
-
-   void run(ActionArgument argument);
+   void runIfEnabled(ActionArgument argument);
 }

@@ -17,7 +17,7 @@ public final class CommonCon1 {
    private CommonCon1() {
    }
 
-   private static GeometryUtils.TrigAngle[] calculateTrigAngels(int size, boolean vertical, float[] steeringRxX, float[] steeringRxY) {
+   private static GeometryUtils.TrigAngle[] calculateTrigAngles(int size, boolean vertical, float[] steeringRxX, float[] steeringRxY) {
       GeometryUtils.TrigAngle[] retVal = new GeometryUtils.TrigAngle[size];
       for (int i = 0; i < size; i++) {
          double angle = vertical ? getVerticalAngle(i + 1, steeringRxX) : getHorizontalAngle(i + 1, steeringRxY);
@@ -101,8 +101,8 @@ public final class CommonCon1 {
          this.steeringRxY = steeringRxY;
          this.frequencyRx = frequencyRx;
          this.frequencyTx = frequencyTx;
-         steeringRxXAngles = calculateTrigAngels(steeringRxX.length, true, steeringRxX, steeringRxY);
-         steeringRxYAngles = calculateTrigAngels(steeringRxY.length, false, steeringRxX, steeringRxY);
+         steeringRxXAngles = calculateTrigAngles(steeringRxX.length, true, steeringRxX, steeringRxY);
+         steeringRxYAngles = calculateTrigAngles(steeringRxY.length, false, steeringRxX, steeringRxY);
       }
 
       public static BeamArrays create(Element beamArraysElement) throws DatagramFormatException {

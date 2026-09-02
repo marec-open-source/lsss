@@ -22,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Does on the fly processing.
@@ -55,18 +54,15 @@ public final class ProcessingSegmentData extends SegmentData {
 
    public static List<ConcurrentPingModule> getApplicableModules(ModuleContainer moduleContainer) {
       return moduleContainer.getModules().stream()
-            .map(module -> {
+            .<ConcurrentPingModule>mapMulti((module, consumer) -> {
                if (module.active.getBooleanValue()) {
-                  if (module instanceof ConcurrentPingModule concurrentPingModule) {
-                     return concurrentPingModule;
-                  }
-                  if (!(module instanceof PlayboxModule)) {
-                     Log.global.warning("Cannot use module '" + module.getDisplayName() + "' in on the fly processing");
+                  switch (module) {
+                     case ConcurrentPingModule concurrentPingModule -> consumer.accept(concurrentPingModule);
+                     case PlayboxModule _ -> { /* Only for visualization. */ }
+                     default -> Log.global.warning("Cannot use module '" + module.getDisplayName() + "' in on the fly processing");
                   }
                }
-               return null;
             })
-            .filter(Objects::nonNull)
             .toList();
    }
 

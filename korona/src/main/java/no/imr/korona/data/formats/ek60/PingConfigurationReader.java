@@ -25,6 +25,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -81,7 +82,7 @@ final class PingConfigurationReader {
    }
 
    static void readMissingFil1Datagrams(FileDatagramReader datagramReader, Set<String> missingFil1ChannelIds, List<BaseDatagram> datagrams, RawFileConfiguration rawFileConfiguration) throws IOException {
-      Set<Long> pingTimes = new HashSet<>();
+      Set<Instant> pingTimes = new HashSet<>();
       while (true) {
          BaseDatagram datagram = datagramReader.nextDatagram();
          if (datagram == null) {
@@ -96,9 +97,9 @@ final class PingConfigurationReader {
             if (missingFil1ChannelIds.isEmpty()) {
                return;
             }
-            pingTimes.add(datagram.getNTDate());
+            pingTimes.add(datagram.getInstant());
             if (pingTimes.size() >= rawFileConfiguration.getTransducerCount()) {
-               // Did not get all FIL1 datagrams, but have read enough pings. So give up
+               // Did not get all FIL1 datagrams, but have read enough pings => Give up.
                Log.global.warning("Did not find FIL1 datagrams for all WBT channels in " + datagramReader.getFile() + ": " + missingFil1ChannelIds);
                return;
             }
@@ -184,7 +185,7 @@ final class PingConfigurationReader {
          Element configuration = xml0Configuration.getDocument().getRootElement();
          Element environment = xml0Environment.getDocument().getRootElement();
          Element initialParameter = xml0InitialParameter != null ? xml0InitialParameter.getDocument().getRootElement() : null;
-         RawFileConfiguration rawFileConfiguration = Xml0DatagramFactory.createRawFileConfiguration(xml0Configuration.getNTDate(),
+         RawFileConfiguration rawFileConfiguration = Xml0DatagramFactory.createRawFileConfiguration(xml0Configuration.getInstant(),
                configuration, environment, initialParameter, configurationItems, file);
          configurationItems.addFirst(rawFileConfiguration);
 

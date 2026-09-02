@@ -1,5 +1,8 @@
 package no.imr.korona.data.ping.items;
 
+import java.time.Instant;
+import java.util.List;
+
 public interface TableOfContentsPingItem extends PingItem {
-   long[] getNTDates();
+   List<Instant> getInstants();
 }

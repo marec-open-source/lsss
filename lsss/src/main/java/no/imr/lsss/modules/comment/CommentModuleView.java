@@ -15,7 +15,6 @@ import no.imr.tools.swing.PopupMenuAdapter;
 import no.imr.tools.swing.PopupMenuMouseListener;
 import no.imr.tools.swing.icons.MiscIcons;
 import no.imr.tools.swing.table.TableUtils;
-import no.imr.tools.time.NTDate;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -37,9 +36,9 @@ import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
-import java.util.LongSummaryStatistics;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -166,6 +165,7 @@ final class CommentModuleView extends BaseViewModule.BaseView {
 
       int[] selectedRows = table.getSelectedRows();
       List<Comment> selectedComments = IntStream.of(selectedRows)
+            .map(table::convertRowIndexToModel)
             .mapToObj(comments::get)
             .toList();
       List<Comment> openedSelectedComments = selectedComments.stream()
@@ -175,7 +175,7 @@ final class CommentModuleView extends BaseViewModule.BaseView {
       Survey survey = commentDataModule.getSurvey();
       Comment activeComment = commentDataModule.getActiveComment();
       PingIndex pingIndex = activeComment != null
-            ? module.getLSSS().getInterpretationSettings().getDataFileSet().getContainingPingIndex(PingMapping.millisToTimeValue(activeComment.timeInMillis()), PingMapping.TIME)
+            ? module.getLSSS().getInterpretationSettings().getDataFileSet().getContainingPingIndex(PingMapping.instantToTimeValue(activeComment.time()), PingMapping.TIME)
             : null;
       boolean editable = survey != null && pingIndex != null && !module.getLSSS().getRegionManager().isReadOnly(pingIndex)
             && commentDataModule.isOpenedComment(activeComment);
@@ -217,26 +217,23 @@ final class CommentModuleView extends BaseViewModule.BaseView {
       InterpretationSettings interpretationSettings = module.getLSSS().getInterpretationSettings();
       DataFileSet dataFileSet = interpretationSettings.getDataFileSet();
       if (comments.size() == 1) {
-         PingIndex pingIndex = dataFileSet.getClosestPingIndex(PingMapping.millisToTimeValue(comments.getFirst().timeInMillis()), PingMapping.TIME);
+         PingIndex pingIndex = dataFileSet.getClosestPingIndex(PingMapping.instantToTimeValue(comments.getFirst().time()), PingMapping.TIME);
          interpretationSettings.setCenter(pingIndex);
       } else {
-         LongSummaryStatistics stat = comments.stream()
-               .mapToLong(Comment::timeInMillis)
-               .summaryStatistics();
-         PingIndex a = dataFileSet.getClosestPingIndex(PingMapping.millisToTimeValue(stat.getMin()), PingMapping.TIME);
-         PingIndex b = dataFileSet.getClosestPingIndex(PingMapping.millisToTimeValue(stat.getMax()), PingMapping.TIME);
+         Instant min = comments.stream().map(Comment::time).min(Comparator.naturalOrder()).orElseThrow();
+         Instant max = comments.stream().map(Comment::time).max(Comparator.naturalOrder()).orElseThrow();
+         PingIndex a = dataFileSet.getClosestPingIndex(PingMapping.instantToTimeValue(min), PingMapping.TIME);
+         PingIndex b = dataFileSet.getClosestPingIndex(PingMapping.instantToTimeValue(max), PingMapping.TIME);
          interpretationSettings.setPingRange(PingRange.of(dataFileSet.previousOrSame(a), dataFileSet.nextOrSame(b)));
       }
    }
 
    private void openFiles(List<Comment> comments) {
-      LongSummaryStatistics stat = comments.stream()
-            .mapToLong(Comment::timeInMillis)
-            .map(NTDate::timeInMillisToNTDate)
-            .summaryStatistics();
       if (module.getLSSS().getSurveyManager().isUnmodifiedOrUserApproved()) {
          ConfigurationManager configurationManager = module.getLSSS().getConfigurationManager();
-         configurationManager.getDataConf().selectNTDateRange(new DefaultRange<>(stat.getMin(), stat.getMax() + 1));
+         Instant min = comments.stream().map(Comment::time).min(Comparator.naturalOrder()).orElseThrow();
+         Instant max = comments.stream().map(Comment::time).max(Comparator.naturalOrder()).orElseThrow();
+         configurationManager.getDataConf().selectTimeRange(new DefaultRange<>(min, max.plusNanos(1)));
          configurationManager.ok();
          commentDataModule.getSelection().replace(comments);
       }
@@ -244,7 +241,7 @@ final class CommentModuleView extends BaseViewModule.BaseView {
 
    void update() {
       comments = commentDataModule.getComments().stream()
-            .sorted(Comparator.comparingLong(Comment::timeInMillis))
+            .sorted(Comparator.comparing(Comment::time))
             .toList();
       skipSelectionListener = true;
       tableModel.fireTableDataChanged();
@@ -348,7 +345,7 @@ final class CommentModuleView extends BaseViewModule.BaseView {
       public Object getValueAt(int rowIndex, int columnIndex) {
          Comment comment = comments.get(rowIndex);
          return switch (columnIndex) {
-            case TIME_COLUMN -> CommentDataModule.DATE_TIME_FORMATTER.format(comment.toInstant());
+            case TIME_COLUMN -> CommentDataModule.DATE_TIME_FORMATTER.format(comment.time());
             case STANDARD_COMMENT_COLUMN -> comment.standardComment();
             case VALUE_COLUMN -> comment.value();
             case TEXT_COLUMN -> commentDataModule.commentToOneLineText(comment);

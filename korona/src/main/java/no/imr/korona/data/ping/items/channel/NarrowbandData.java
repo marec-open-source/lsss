@@ -16,6 +16,7 @@ import no.imr.tools.math.ComplexArrayUtils;
 import org.apache.commons.numbers.complex.Complex;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -24,8 +25,8 @@ import java.util.List;
 public final class NarrowbandData extends ComplexChannelData {
    private @Nullable PowerData powerData;
 
-   public NarrowbandData(long ntDate) {
-      super(ntDate);
+   public NarrowbandData(Instant instant) {
+      super(instant);
    }
 
    public NarrowbandData(ChannelData channelData) {
@@ -41,11 +42,6 @@ public final class NarrowbandData extends ComplexChannelData {
    public List<BaseDatagram> toDatagrams() {
       Xml0Datagram xml0Datagram = toXml0Parameter(PulseForm.NARROWBAND, element -> element.addAttribute("Frequency", Utils.toString(getFrequency())));
       return List.of(xml0Datagram, toRaw3Datagram());
-   }
-
-   @Override
-   public NarrowbandData makeCopy() {
-      return makeCopyWithAllData();
    }
 
    @Override
@@ -72,7 +68,8 @@ public final class NarrowbandData extends ComplexChannelData {
       return new NarrowbandData(this);
    }
 
-   public NarrowbandData makeCopyWithAllData() {
+   @Override
+   public NarrowbandData makeCopy() {
       NarrowbandData copy = makeCopyWithNoData();
       copy.setData(Utils.copy(getReal()), Utils.copy(getImag()), getSlope());
       return copy;

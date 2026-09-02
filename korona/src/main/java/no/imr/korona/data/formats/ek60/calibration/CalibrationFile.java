@@ -5,42 +5,44 @@ import no.imr.tools.xml.XmlException;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.time.Instant;
+import java.util.Objects;
 
 public final class CalibrationFile {
    public static final String FILE_NAME = "calibration.xml";
    public static final CalibrationFile EMPTY = new CalibrationFile(null);
 
    private final @Nullable Path file;
-   private final long lastModified;
+   private final @Nullable Instant lastModified;
    private final @Nullable Path ek80File;
-   private final long ek80LastModified;
+   private final @Nullable Instant ek80LastModified;
    private final CalibrationContent calibrationContent;
    private final @Nullable String error;
 
-   private volatile long nextCheckTime = System.currentTimeMillis() + 1000;
+   private volatile Instant nextCheckTime = Instant.now().plusSeconds(1);
    private volatile boolean modified;
 
    CalibrationFile(@Nullable Path file) {
       this.file = file;
-      lastModified = 0;
+      lastModified = null;
       ek80File = null;
-      ek80LastModified = 0;
+      ek80LastModified = null;
       calibrationContent = new CalibrationContent();
       error = null;
    }
 
-   CalibrationFile(Path file, long lastModified, Exception exception) {
+   CalibrationFile(Path file, @Nullable Instant lastModified, Exception exception) {
       this.file = file;
       this.lastModified = lastModified;
       ek80File = null;
-      ek80LastModified = 0;
+      ek80LastModified = null;
       calibrationContent = new CalibrationContent();
       error = exception.getCause() instanceof XmlException
             ? exception.getCause().getMessage()
             : exception.getMessage();
    }
 
-   public CalibrationFile(@Nullable Path file, long lastModified, @Nullable Path ek80File, long ek80LastModified, CalibrationContent calibrationContent) {
+   public CalibrationFile(@Nullable Path file, @Nullable Instant lastModified, @Nullable Path ek80File, @Nullable Instant ek80LastModified, CalibrationContent calibrationContent) {
       this.file = file;
       this.lastModified = lastModified;
       this.ek80File = ek80File;
@@ -62,20 +64,19 @@ public final class CalibrationFile {
    }
 
    public boolean isModified(boolean forceCheck) {
-      if (!forceCheck && System.currentTimeMillis() < nextCheckTime) {
-         return modified;
+      if (forceCheck || Instant.now().isAfter(nextCheckTime)) {
+         modified = isModified(file, lastModified) || isModified(ek80File, ek80LastModified);
+         nextCheckTime = Instant.now().plusSeconds(1);
       }
-      modified = isModified(file, lastModified) || isModified(ek80File, ek80LastModified);
-      nextCheckTime = System.currentTimeMillis() + 1000;
       return modified;
    }
 
-   private static boolean isModified(@Nullable Path file, long lastModified) {
-      return file != null && FileUtils.lastModifiedOr0(file) != lastModified;
+   private static boolean isModified(@Nullable Path file, @Nullable Instant lastModified) {
+      return file != null && !Objects.equals(FileUtils.lastModifiedOrNull(file), lastModified);
    }
 
    public boolean exists() {
-      return lastModified != 0;
+      return lastModified != null;
    }
 
    public @Nullable String getError() {

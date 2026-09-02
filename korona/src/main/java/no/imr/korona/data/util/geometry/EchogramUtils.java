@@ -8,7 +8,8 @@ import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.DataUtils;
 import no.imr.korona.data.util.geometry.depth.DepthTransform;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
+import no.imr.tools.math.MathUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -45,6 +46,20 @@ public final class EchogramUtils {
       return points;
    }
 
+   public static List<EchogramPoint> addMissingPoints(List<EchogramPoint> curve, PingContainer pingContainer, DepthTransform depthTransform) {
+      List<EchogramPoint> result = new ArrayList<>();
+      EchogramPoint previous = null;
+      for (EchogramPoint point : curve) {
+         if (previous != null && Math.abs(point.pingIndex().getPingNumber() - previous.pingIndex().getPingNumber()) > 1) {
+            List<EchogramPoint> line = computeLine(depthTransform, previous, point, pingContainer);
+            result.addAll(line.subList(1, line.size() - 1));
+         }
+         result.add(point);
+         previous = point;
+      }
+      return result;
+   }
+
    public static double computeCircumference(List<EchogramPoint> boundary) {
       if (boundary.isEmpty()) {
          return 0;
@@ -59,9 +74,9 @@ public final class EchogramUtils {
    }
 
    private static double computeDistance(EchogramPoint a, EchogramPoint b) {
-      double horizontalDist = Utils.nmiToMeter(a.pingIndex().getVesselDistance() - b.pingIndex().getVesselDistance());
+      double horizontalDist = KoronaUtils.nmiToMeter(a.pingIndex().getVesselDistance() - b.pingIndex().getVesselDistance());
       double verticalDist = a.depth() - b.depth();
-      return Utils.hypot(horizontalDist, verticalDist);
+      return MathUtils.hypot(horizontalDist, verticalDist);
    }
 
    public static PingContainer listPingContainer(PingConfiguration pingConfiguration, List<PingIndex> pingIndices) {
@@ -82,16 +97,7 @@ public final class EchogramUtils {
 
          @Override
          public PingIndex getClosestPingIndex(double value, PingMapping pingMapping) {
-            if (pingIndices.isEmpty()) {
-               return totalRange.end();
-            }
-            PingIndex closest = DataUtils.getClosestPingIndex(pingIndices, value, pingMapping);
-            PingIndex end = totalRange.end();
-            if (closest.getPingNumber() == end.getPingNumber() - 1
-                  && Math.abs(value - pingMapping.valueOf(end)) < Math.abs(value - pingMapping.valueOf(closest))) {
-               return end;
-            }
-            return closest;
+            return DataUtils.getClosestPingIndex(pingIndices, totalRange.end(), value, pingMapping);
          }
 
          @Override
@@ -99,9 +105,5 @@ public final class EchogramUtils {
             return DataUtils.getContainingPingIndex(pingIndices, totalRange.end(), value, pingMapping);
          }
       };
-   }
-
-   public static PingContainer emptyPingContainer() {
-      return listPingContainer(PingConfiguration.newEmpty(), List.of());
    }
 }

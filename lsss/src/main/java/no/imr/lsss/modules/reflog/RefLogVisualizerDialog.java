@@ -21,7 +21,7 @@ final class RefLogVisualizerDialog implements ItemContainer<LogLine> {
       allItems = refLogDataModule.getAllLogLines().toList();
 
       List<ItemFeature<LogLine>> features = new ArrayList<>();
-      features.add(ItemFeature.Time.fromMillis("Time", Unit.UTC, LogLine::timeInMillis, RefLogDataModule.DATE_TIME_FORMATTER));
+      features.add(ItemFeature.Time.fromInstant("Time", Unit.UTC, LogLine::time, RefLogDataModule.DATE_TIME_FORMATTER));
 
       List<String> stationTypes = allItems.stream()
             .map(LogLine::stationType)
@@ -39,7 +39,7 @@ final class RefLogVisualizerDialog implements ItemContainer<LogLine> {
                   logLine -> string(field, logLine)))
             .forEach(features::add);
 
-      itemVisualizer = new ItemVisualizer<>(features, this, Preferences.userRoot().node("/no/marec/lsss/RefLogVisualizerDialog"));
+      itemVisualizer = new ItemVisualizer<>(features, this, Preferences.userRoot().node("no/marec/lsss/RefLogVisualizerDialog"));
       itemVisualizer.show(refLogDataModule.getLSSS().getFrame(), "Ref log");
    }
 

@@ -11,6 +11,7 @@ import no.imr.tools.logging.Log;
 
 import javax.swing.JComponent;
 import javax.swing.JToggleButton;
+import java.time.Duration;
 import java.util.List;
 
 final class BackgroundDataLoading {
@@ -35,7 +36,7 @@ final class BackgroundDataLoading {
       while (button.isSelected()) {
          List<DataFile> dataFiles = dataManager.getDataFileSet().getDataFiles();
          if (dataFiles.isEmpty()) {
-            Utils.sleep(100);
+            Utils.sleep(Duration.ofMillis(100));
             continue;
          }
          DataFile dataFile = dataFiles.getFirst();
@@ -44,7 +45,7 @@ final class BackgroundDataLoading {
          PingRange pingRange = dataFile.getPingRange();
          int n = pingRange.getPingCount();
          for (int i = 0; button.isSelected() && i < n; i++) {
-            Utils.sleep(1);
+            Utils.sleep(Duration.ofMillis(1));
             PingIndex pingIndex = dataFile.pingNumberToPingIndex(pingRange.begin().getPingNumber() + i);
             Ping ping = dataFile.getPing(pingIndex);
             ping.getPingData();

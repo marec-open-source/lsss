@@ -31,9 +31,16 @@ public final class DatabaseUpgraderFactory implements UpgraderFactory<DatabaseCo
 
    private DatabaseConnection upgrade(String fromVersion, DatabaseConnection databaseConnection) throws UpgradeException {
       String connectionUrl = databaseConnection.executeStatelessValuedQuery(session -> {
-         return session.doReturningWork(connection -> connection.getMetaData().getURL());
+         return session.<@Nullable String>doReturningWork(connection -> connection.getMetaData().getURL());
       });
-      String databaseType = connectionUrl.split(":", 3)[1];
+      if (connectionUrl == null) {
+         throw new UpgradeException("Unable to determine database connection URL");
+      }
+      String[] connectionUrlParts = connectionUrl.split(":", 3);
+      if (connectionUrlParts.length < 3) {
+         throw new UpgradeException("Unable to parse database connection URL: " + connectionUrl);
+      }
+      String databaseType = connectionUrlParts[1];
 
       String upgradeScript = getUpgradeScript(fromVersion, databaseType);
 

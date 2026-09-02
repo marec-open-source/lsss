@@ -15,7 +15,7 @@ public final class Track {
 
    public Track(TrackIdGenerator trackIdGenerator, Ping ping, PositionFunction positionFunction, Measurement measurement, FloatRange rangeRange, int sampleCount) {
       id = trackIdGenerator.nextId(ping, measurement.range());
-      StateVector stateVector = new StateVector(positionFunction.toGlobalPosition(measurement), Vec3.ZERO, measurement.ts());
+      StateVector stateVector = new StateVector(positionFunction.toGlobalPosition(measurement), Vec3.ZERO, measurement.tsc());
       TrackPoint trackPoint = new TrackPoint(ping.getPingIndex(), new TargetPoint(stateVector, positionFunction));
       trackPoint.setEstimate(trackPoint.getPrediction());
       trackPoint.setMeasurement(measurement);

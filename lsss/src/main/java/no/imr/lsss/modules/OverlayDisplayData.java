@@ -3,10 +3,7 @@ package no.imr.lsss.modules;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
-public abstract class OverlayDisplayData {
-   protected OverlayDisplayData() {
-   }
-
+public interface OverlayDisplayData {
    /**
     * Draw on top of the overlaid module.
     * Text should be drawn in {@link #drawText(Graphics2D)}.
@@ -14,7 +11,7 @@ public abstract class OverlayDisplayData {
     *
     * @param g2d the Graphics2D
     */
-   public void draw(Graphics2D g2d) {
+   default void draw(Graphics2D g2d) {
    }
 
    /**
@@ -24,7 +21,7 @@ public abstract class OverlayDisplayData {
     *
     * @param g2d the Graphics2D
     */
-   public void drawText(Graphics2D g2d) {
+   default void drawText(Graphics2D g2d) {
    }
 
    /**
@@ -33,7 +30,11 @@ public abstract class OverlayDisplayData {
     * @param rectangle a rectangle
     * @return {@code true} if there is an intersection
     */
-   public boolean intersects(Rectangle2D rectangle) {
+   default boolean intersects(Rectangle2D rectangle) {
       return false;
+   }
+
+   interface Wrapper extends OverlayDisplayData {
+      OverlayDisplayData getOverlayDisplayData();
    }
 }

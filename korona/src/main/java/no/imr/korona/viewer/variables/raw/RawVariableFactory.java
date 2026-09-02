@@ -6,7 +6,7 @@ import no.imr.korona.viewer.variables.VariableGroup;
 
 import java.util.List;
 
-public final class RawVariableFactory extends VariableFactory {
+public final class RawVariableFactory implements VariableFactory {
    public static final VariableGroup RAW_VARIABLE_GROUP = new VariableGroup("Raw");
 
    public RawVariableFactory() {

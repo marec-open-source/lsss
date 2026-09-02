@@ -4,10 +4,11 @@ import no.imr.lsss.database.tables.ObservationTypeEnum;
 import no.imr.lsss.database.tables.hibernate.Observation;
 import no.imr.lsss.database.tables.hibernate.ObservationPK;
 import no.imr.tools.io.FileUtils;
+import no.imr.tools.io.Print;
 import no.imr.tools.logging.Log;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
-import org.hibernate.StatelessSession;
+import org.hibernate.query.SelectionQuery;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -27,17 +28,16 @@ final class GetObservation {
    }
 
    void generateObservationFile(
-         StatelessSession aSession,
-         String aQuery,
-         Path aObservationFile,
-         Path aObservationFileAll,
-         Charset aCharset) {
+         SelectionQuery<Observation> query,
+         Path observationFile,
+         Path observationFileAll,
+         Charset charset) {
 
-      try (ScrollableResults<Observation> observationResults = aSession.createSelectionQuery(aQuery, Observation.class)
+      try (ScrollableResults<Observation> observationResults = query
             .setReadOnly(true)
             .scroll(ScrollMode.FORWARD_ONLY);
-           PrintWriter f = FileUtils.newPrintWriter(aObservationFile, aCharset);
-           PrintWriter fAll = FileUtils.newPrintWriter(aObservationFileAll, aCharset)
+           PrintWriter f = FileUtils.newPrintWriter(observationFile, charset);
+           PrintWriter fAll = FileUtils.newPrintWriter(observationFileAll, charset)
       ) {
          while (observationResults.next()) {
             Observation obs = observationResults.get();
@@ -46,15 +46,15 @@ final class GetObservation {
             if (obsPK.getObservationType() == ObservationTypeEnum.SCATTERED_FISH_DATA.getValue() ||
                   obsPK.getObservationType() == ObservationTypeEnum.SCHOOL_OF_FISH_DATA.getValue()) {
                f.print(obsPK.getNation());
-               f.print(" " + obsPK.getPlatform());
-               f.print(" " + obsPK.getSurvey());
-               f.print(" " + obsPK.getObservationDate());
-               f.print(" " + obsPK.getObservationTime());
-               f.print(" " + obsPK.getObservationType());
-               f.print(" " + obs.getDistance());
-               f.print(" " + obs.getLatitude());
-               f.print(" " + obs.getLongitude());
-               f.print(" " + obs.getBottomDepth());
+               Print.spaceAndValue(f, obsPK.getPlatform());
+               Print.spaceAndValue(f, obsPK.getSurvey());
+               Print.spaceAndValue(f, obsPK.getObservationDate());
+               Print.spaceAndValue(f, obsPK.getObservationTime());
+               Print.spaceAndValue(f, obsPK.getObservationType());
+               Print.spaceAndValue(f, obs.getDistance());
+               Print.spaceAndValue(f, obs.getLatitude());
+               Print.spaceAndValue(f, obs.getLongitude());
+               Print.spaceAndValue(f, obs.getBottomDepth());
                if (obsPK.getObservationType() == ObservationTypeEnum.SCATTERED_FISH_DATA.getValue()) {
                   f.print(" SCATTER");
                } else if (obsPK.getObservationType() == ObservationTypeEnum.SCHOOL_OF_FISH_DATA.getValue()) {
@@ -75,15 +75,15 @@ final class GetObservation {
             }
 
             fAll.print(obsPK.getNation());
-            fAll.print(" " + obsPK.getPlatform());
-            fAll.print(" " + obsPK.getSurvey());
-            fAll.print(" " + obsPK.getObservationDate());
-            fAll.print(" " + obsPK.getObservationTime());
-            fAll.print(" " + obsPK.getObservationType());
-            fAll.print(" " + obs.getDistance());
-            fAll.print(" " + obs.getLatitude());
-            fAll.print(" " + obs.getLongitude());
-            fAll.print(" " + obs.getBottomDepth());
+            Print.spaceAndValue(fAll, obsPK.getPlatform());
+            Print.spaceAndValue(fAll, obsPK.getSurvey());
+            Print.spaceAndValue(fAll, obsPK.getObservationDate());
+            Print.spaceAndValue(fAll, obsPK.getObservationTime());
+            Print.spaceAndValue(fAll, obsPK.getObservationType());
+            Print.spaceAndValue(fAll, obs.getDistance());
+            Print.spaceAndValue(fAll, obs.getLatitude());
+            Print.spaceAndValue(fAll, obs.getLongitude());
+            Print.spaceAndValue(fAll, obs.getBottomDepth());
             if (obsPK.getObservationType() == ObservationTypeEnum.SCATTERED_FISH_DATA.getValue()) {
                fAll.print(" SCATTER");
             } else if (obsPK.getObservationType() == ObservationTypeEnum.SCHOOL_OF_FISH_DATA.getValue()) {
@@ -111,56 +111,54 @@ final class GetObservation {
    }
 
    // Get next observation from file. Observations are reused for all frequencies
-   static boolean nextObservation(BufferedReader aReader, Observation aObservation) {
+   static boolean nextObservation(BufferedReader reader, Observation observation) {
       try {
-         String line = aReader.readLine();
+         String line = reader.readLine();
          if (line == null) {
             return false;
          }
 
-         int startIndex;
-         int stopIndex;
-         ObservationPK obsPK = aObservation.getCompId();
+         ObservationPK obsPK = observation.getCompId();
 
-         startIndex = 0;
-         stopIndex = line.indexOf(' ', startIndex);
-         obsPK.setNation(Short.parseShort(line.substring(startIndex, stopIndex)));
+         int startIndex = 0;
+         int stopIndex = line.indexOf(' ', startIndex);
+         obsPK.setNation((short) Integer.parseInt(line, startIndex, stopIndex, 10));
 
          startIndex = stopIndex + 1;
          stopIndex = line.indexOf(' ', startIndex);
-         obsPK.setPlatform(Short.parseShort(line.substring(startIndex, stopIndex)));
+         obsPK.setPlatform((short) Integer.parseInt(line, startIndex, stopIndex, 10));
 
          startIndex = stopIndex + 1;
          stopIndex = line.indexOf(' ', startIndex);
-         obsPK.setSurvey(Integer.parseInt(line.substring(startIndex, stopIndex)));
+         obsPK.setSurvey(Integer.parseInt(line, startIndex, stopIndex, 10));
 
          startIndex = stopIndex + 1;
          stopIndex = line.indexOf(' ', startIndex);
-         obsPK.setObservationDate(Integer.parseInt(line.substring(startIndex, stopIndex)));
+         obsPK.setObservationDate(Integer.parseInt(line, startIndex, stopIndex, 10));
 
          startIndex = stopIndex + 1;
          stopIndex = line.indexOf(' ', startIndex);
-         obsPK.setObservationTime(Integer.parseInt(line.substring(startIndex, stopIndex)));
+         obsPK.setObservationTime(Integer.parseInt(line, startIndex, stopIndex, 10));
 
          startIndex = stopIndex + 1;
          stopIndex = line.indexOf(' ', startIndex);
-         obsPK.setObservationType(Short.parseShort(line.substring(startIndex, stopIndex)));
+         obsPK.setObservationType((short) Integer.parseInt(line, startIndex, stopIndex, 10));
 
          startIndex = stopIndex + 1;
          stopIndex = line.indexOf(' ', startIndex);
-         aObservation.setDistance(Float.parseFloat(line.substring(startIndex, stopIndex)));
+         observation.setDistance(Float.parseFloat(line.substring(startIndex, stopIndex)));
 
          startIndex = stopIndex + 1;
          stopIndex = line.indexOf(' ', startIndex);
-         aObservation.setLatitude(Float.parseFloat(line.substring(startIndex, stopIndex)));
+         observation.setLatitude(Float.parseFloat(line.substring(startIndex, stopIndex)));
 
          startIndex = stopIndex + 1;
          stopIndex = line.indexOf(' ', startIndex);
-         aObservation.setLongitude(Float.parseFloat(line.substring(startIndex, stopIndex)));
+         observation.setLongitude(Float.parseFloat(line.substring(startIndex, stopIndex)));
 
          startIndex = stopIndex + 1;
          stopIndex = line.indexOf(' ', startIndex);
-         aObservation.setBottomDepth(Float.parseFloat(line.substring(startIndex, stopIndex)));
+         observation.setBottomDepth(Float.parseFloat(line.substring(startIndex, stopIndex)));
 
          return true; // One line read
       } catch (Exception e) {

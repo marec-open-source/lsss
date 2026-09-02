@@ -22,6 +22,6 @@ public abstract class BasePlugin {
 
    @Override
    public String toString() {
-      return name.persistentName();
+      return getPersistentName();
    }
 }

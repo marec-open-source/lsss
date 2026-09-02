@@ -186,7 +186,11 @@ public final class FloatRange implements no.marec.lsss.api.util.FloatRange {
     * @return {@code (value - min) / (max - min)}
     */
    public float valueToFraction(float value) {
-      return (value - min) / (max - min);
+      float size = getSize();
+      if (size == 0) {
+         return value == min ? 0 : Float.NaN;
+      }
+      return (value - min) / size;
    }
 
    /**
@@ -196,7 +200,7 @@ public final class FloatRange implements no.marec.lsss.api.util.FloatRange {
     * @return {@code min + fraction * (max - min)}
     */
    public float fractionToValue(float fraction) {
-      return min + fraction * (max - min);
+      return min + fraction * getSize();
    }
 
    /**
@@ -208,7 +212,7 @@ public final class FloatRange implements no.marec.lsss.api.util.FloatRange {
       if (min < max) {
          return this;
       }
-      return of(Math.nextDown(min), Math.nextUp(max));
+      return expandToIncludeMax();
    }
 
    public FloatRange expandToIncludeMax() {

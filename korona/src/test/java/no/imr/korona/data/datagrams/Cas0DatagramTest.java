@@ -3,6 +3,7 @@ package no.imr.korona.data.datagrams;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,7 +18,7 @@ final class Cas0DatagramTest {
 
    @Test
    void cas0ByteBufferTest() {
-      Cas0Datagram cas0Datagram = new Cas0Datagram(111111111, 3, 4);
+      Cas0Datagram cas0Datagram = new Cas0Datagram(Instant.ofEpochSecond(111111111), 3, 4);
 
       cas0Datagram.setCategory(0, CAT1, DISC1, PROB1);
       cas0Datagram.setCategory(1, CAT2, DISC2, PROB2);
@@ -28,7 +29,7 @@ final class Cas0DatagramTest {
 
       byteBuffer.rewind();
 
-      Cas0Datagram cas0DatagramRead = new Cas0Datagram(111111111, byteBuffer);
+      Cas0Datagram cas0DatagramRead = new Cas0Datagram(Instant.ofEpochSecond(111111111), byteBuffer);
 
       assertEquals(CAT1, cas0DatagramRead.getBestCategory());
       assertEquals(CAT2, cas0DatagramRead.getCategory(1));

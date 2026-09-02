@@ -11,6 +11,8 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.ExportTransform;
 
+import java.time.Instant;
+
 public final class RollTransmitToReceive extends PingFunction {
    private boolean canBeUsed;
 
@@ -39,12 +41,12 @@ public final class RollTransmitToReceive extends PingFunction {
          return Double.NaN;
       }
       float roll = channelData.getRoll();
-      float pitch = channelData.getPitch();  //Should probably include pitch in returned value
+      // todo: Should probably include pitch as well.
       return roll;
    }
 
    @Override
-   public float[] postprocess(float[] y, long[] timeInMillis, float[] bottom) {
-      return RollIndicator.compute(y, timeInMillis, bottom);
+   public float[] postprocess(float[] y, Instant[] instants, float[] bottom) {
+      return RollIndicator.compute(y, instants, bottom);
    }
 }

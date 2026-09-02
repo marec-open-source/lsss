@@ -6,6 +6,7 @@ import no.imr.tools.io.FileInfo;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Comparator;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Comparator;
  */
 @FunctionalInterface
 public interface EndOfInputHandler {
-   boolean isEndOfInput(long millisWaiting, Comparator<FileInfo> comparator) throws IOException;
+   boolean isEndOfInput(Duration durationWaiting, Comparator<FileInfo> comparator) throws IOException;
 
    static EndOfInputHandler noWait() {
       return (_, _) -> true;
@@ -33,10 +34,10 @@ public interface EndOfInputHandler {
       }
 
       @Override
-      public boolean isEndOfInput(long millisWaiting, Comparator<FileInfo> comparator) throws IOException {
+      public boolean isEndOfInput(Duration durationWaiting, Comparator<FileInfo> comparator) throws IOException {
          // Wait a little bit since finding next raw requires listing potentially many files
          long previousWaitIndex = waitIndex;
-         waitIndex = millisWaiting / 2000;
+         waitIndex = durationWaiting.toSeconds() / 2;
          if (waitIndex > previousWaitIndex && KoronaUtils.nextRawFile(file.getParent(), file, comparator) != null) {
             return true;
          } else {

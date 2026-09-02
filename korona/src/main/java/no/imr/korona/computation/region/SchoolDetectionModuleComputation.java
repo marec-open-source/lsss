@@ -20,9 +20,11 @@ import no.imr.korona.data.util.DataUtils;
 import no.imr.korona.data.util.geometry.EchogramUtils;
 import no.imr.korona.data.util.mask.MaskOutlineTracer;
 import no.imr.korona.data.util.mask.MaskUtils;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.Min;
 import no.imr.tools.Utils;
 import no.imr.tools.math.GeometryUtils;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.range.ArrayRangeMap;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
@@ -31,6 +33,7 @@ import no.imr.tools.xml.XmlUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -53,7 +56,7 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
    private int relativePingNumberCounter;
    private double pingDistanceMeter;
    private final Set<DetectedRegion> activeRegions = new TreeSet<>(DetectedRegion.COMPARATOR);
-   private final List<Long> regionInfoNTDates = new ArrayList<>();
+   private final List<Instant> regionInfoInstants = new ArrayList<>();
 
    SchoolDetectionModuleComputation(SchoolDetectionModule module, ComputationContext computationContext, PingSource pingSource) throws IOException {
       super(module, computationContext, pingSource);
@@ -87,7 +90,7 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
 
       Ping nextPing = peekPingSourcePing(0);
       if (nextPing != null) {
-         pingDistanceMeter = Utils.nmiToMeter(nextPing.getVesselDistance() - ping.getVesselDistance());
+         pingDistanceMeter = KoronaUtils.nmiToMeter(nextPing.getVesselDistance() - ping.getVesselDistance());
       }
 
       PowerData powerData = ping.getPowerData(channel);
@@ -153,12 +156,12 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
                borderInfos.add(new RegionBorderDatagram.BorderInfo(region.id, depthRange.min(), depthRange.max(), region.getMeanLogSv(), isAccepted(region)));
             }
          }
-         ping.add(new RegionBorderDatagram(ping.getNTDate(), channel, logSvThreshold, borderInfos));
+         ping.add(new RegionBorderDatagram(ping.getInstant(), channel, logSvThreshold, borderInfos));
       }
       if (nextPing == null) {
          endAllRegions(ping);
-         if (!regionInfoNTDates.isEmpty()) {
-            ping.add(new RegionTableOfContentsDatagram(ping.getNTDate(), Utils.toLongs(regionInfoNTDates)));
+         if (!regionInfoInstants.isEmpty()) {
+            ping.add(new RegionTableOfContentsDatagram(ping.getInstant(), regionInfoInstants));
          }
       }
    }
@@ -196,12 +199,12 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
 
    private void endRegion(Ping ping, DetectedRegion region) {
       region.end();
-      long ntDate = ping.getNTDate();
-      if (regionInfoNTDates.isEmpty() || regionInfoNTDates.getLast() != ntDate) {
-         regionInfoNTDates.add(ntDate);
+      Instant instant = ping.getInstant();
+      if (regionInfoInstants.isEmpty() || !regionInfoInstants.getLast().equals(instant)) {
+         regionInfoInstants.add(instant);
       }
       postprocess(region);
-      ping.add(makeRegionInfoDatagram(ntDate, region));
+      ping.add(makeRegionInfoDatagram(instant, region));
    }
 
    private void postprocess(DetectedRegion region) {
@@ -251,7 +254,7 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
             .mapToDouble(e -> {
                double nmi = pingContainer.nextOrSame(e.getKey()).getVesselDistance() - e.getKey().getVesselDistance();
                double height = e.getValue().size();
-               return Utils.nmiToMeter(nmi) * height;
+               return KoronaUtils.nmiToMeter(nmi) * height;
             })
             .sum();
 
@@ -259,7 +262,7 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
             .mapToDouble(EchogramUtils::computeCircumference)
             .sum();
 
-      region.length = Utils.nmiToMeter(pingContainer.nextOrSame(mask.lastKey()).getVesselDistance() - mask.firstKey().getVesselDistance());
+      region.length = KoronaUtils.nmiToMeter(pingContainer.nextOrSame(mask.lastKey()).getVesselDistance() - mask.firstKey().getVesselDistance());
 
       region.maxHeight = mask.values().stream()
             .flatMap(FloatRangeSet::stream)
@@ -268,15 +271,15 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
             .orElse(0);
    }
 
-   private RegionInfoDatagram makeRegionInfoDatagram(long ntDate, DetectedRegion region) {
+   private RegionInfoDatagram makeRegionInfoDatagram(Instant instant, DetectedRegion region) {
       List<RegionInfoDatagram.MaskInterval> maskIntervals = new ArrayList<>();
       region.mask.forEach((pingIndex, depthRanges) -> {
          for (FloatRange depthRange : depthRanges) {
-            maskIntervals.add(new RegionInfoDatagram.MaskInterval(pingIndex.getNTDate(), depthRange.min(), depthRange.max()));
+            maskIntervals.add(new RegionInfoDatagram.MaskInterval(pingIndex.getInstant(), depthRange.min(), depthRange.max()));
          }
       });
 
-      RegionInfoDatagram datagram = new RegionInfoDatagram(ntDate, isAccepted(region), channel, logSvThreshold,
+      RegionInfoDatagram datagram = new RegionInfoDatagram(instant, isAccepted(region), channel, logSvThreshold,
             Utils.toInts(region.allIds), List.of(), maskIntervals);
 
       RegionInfoDatagram.BoundingBox boundingBox = datagram.getBoundingBox();
@@ -484,7 +487,7 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
             }
             if (prevRanges.get(iPrev).min() >= upperNextRange.max()) {
                // Prev range is below, so terminate perimeter.
-               perimeter += Utils.hypot(2 * pingDistanceMeter, nextRanges.get(iNext).getSize());
+               perimeter += MathUtils.hypot(2 * pingDistanceMeter, nextRanges.get(iNext).getSize());
                iNext++;
                continue;
             }
@@ -503,8 +506,8 @@ final class SchoolDetectionModuleComputation extends SimplePingModuleComputation
                break;
             }
             // Continue perimeter for outer edges of overlap.
-            perimeter += Utils.hypot(pingDistanceMeter, prevRanges.get(iPrev).min() - nextRanges.get(iNext).min());
-            perimeter += Utils.hypot(pingDistanceMeter, prevRanges.get(iPrevMax).max() - nextRanges.get(iNextMax).max());
+            perimeter += MathUtils.hypot(pingDistanceMeter, prevRanges.get(iPrev).min() - nextRanges.get(iNext).min());
+            perimeter += MathUtils.hypot(pingDistanceMeter, prevRanges.get(iPrevMax).max() - nextRanges.get(iNextMax).max());
 
             // Terminate perimeter for inner parts of prev.
             for (int i = iPrev; i < iPrevMax; i++) {

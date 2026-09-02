@@ -107,7 +107,7 @@ public final class GraphicalInfoEchogramOverlay extends BaseEchogramOverlay {
       List<RenderedInfo> renderedInfos = graphicalInfoPaths.values().stream()
             .flatMap(List::stream)
             .toList();
-      return new DisplayData(renderedInfos);
+      return transformed(new DisplayData(renderedInfos));
    }
 
    @Override
@@ -121,7 +121,7 @@ public final class GraphicalInfoEchogramOverlay extends BaseEchogramOverlay {
             .collect(Collectors.joining("<br>", "<html>", ""));
    }
 
-   private final class DisplayData extends TransformedDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private final List<RenderedInfo> renderedInfos;
 
       private DisplayData(List<RenderedInfo> renderedInfos) {
@@ -129,7 +129,7 @@ public final class GraphicalInfoEchogramOverlay extends BaseEchogramOverlay {
       }
 
       @Override
-      public void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          for (RenderedInfo renderedInfo : renderedInfos) {
             renderedInfo.draw(g2d);
          }

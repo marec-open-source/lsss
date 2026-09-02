@@ -2,7 +2,6 @@ package no.imr.korona.computation.plankton.editor;
 
 import no.imr.korona.computation.plankton.PlanktonRectangle;
 import no.imr.tools.range.DefaultRange;
-import no.imr.tools.time.DateTimeMillis;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -10,6 +9,7 @@ import org.dom4j.Element;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,8 +46,8 @@ final class PlanktonRectangleTableModelTest {
       PlanktonRectangle row0 = tableModel.getRow(0).getPlanktonRectangle();
       assertTrue(row0.isUse());
       assertEquals("speciesTest", row0.getSpecies());
-      assertEquals(DateTimeMillis.toMillis(20060101, 123459 * 1000), (long) row0.getMillisRange().begin());
-      assertEquals(DateTimeMillis.toMillis(20060101, 131400 * 1000), (long) row0.getMillisRange().end());
+      assertEquals(Instant.parse("2006-01-01T12:34:59Z"), row0.getTimeRange().begin());
+      assertEquals(Instant.parse("2006-01-01T13:14:00Z"), row0.getTimeRange().end());
       assertEquals(new DefaultRange<>(0f, 100f), row0.getDepthRange());
       assertArrayEquals(new double[]{12e-4, 20e-4, 20e-4, 40e-4, 40e-4, 60e-4}, row0.getSizeHistogram().getDividers(), 1e-18);
       assertArrayEquals(new double[]{16e-4, 30e-4, 50e-4}, row0.getSizeHistogram().getCenters(), 1e-18);
@@ -59,9 +59,9 @@ final class PlanktonRectangleTableModelTest {
       assertEquals("testModel2", tableModel.getRow(1).getAlgClass());
       PlanktonRectangle row1 = tableModel.getRow(1).getPlanktonRectangle();
       assertFalse(row1.isUse());
-      assertNull(row1.getSpecies());
-      assertEquals(DateTimeMillis.toMillis(20060102, 223459 * 1000), (long) row1.getMillisRange().begin());
-      assertEquals(DateTimeMillis.toMillis(20060102, 231400 * 1000), (long) row1.getMillisRange().end());
+      assertEquals("", row1.getSpecies());
+      assertEquals(Instant.parse("2006-01-02T22:34:59Z"), row1.getTimeRange().begin());
+      assertEquals(Instant.parse("2006-01-02T23:14:00Z"), row1.getTimeRange().end());
       assertEquals(new DefaultRange<>(1f, 101.3f), row1.getDepthRange());
       assertArrayEquals(new double[]{22e-4, 30e-4, 30e-4, 40e-4}, row1.getSizeHistogram().getDividers(), 1e-18);
       assertArrayEquals(new double[]{26e-4, 35e-4}, row1.getSizeHistogram().getCenters(), 1e-18);
@@ -77,8 +77,8 @@ final class PlanktonRectangleTableModelTest {
       row0 = tableModel.getRow(0).getPlanktonRectangle();
       assertFalse(row0.isUse());
       assertEquals("newSpecies", row0.getSpecies());
-      assertEquals(DateTimeMillis.toMillis(20060102, 223459 * 1000), (long) row0.getMillisRange().begin());
-      assertEquals(DateTimeMillis.toMillis(20060102, 231400 * 1000), (long) row0.getMillisRange().end());
+      assertEquals(Instant.parse("2006-01-02T22:34:59Z"), row0.getTimeRange().begin());
+      assertEquals(Instant.parse("2006-01-02T23:14:00Z"), row0.getTimeRange().end());
       assertEquals(new DefaultRange<>(1f, 101.3f), row0.getDepthRange());
       assertArrayEquals(new double[]{22e-4, 30e-4, 30e-4, 40e-4}, row0.getSizeHistogram().getDividers(), 1e-18);
       assertArrayEquals(new double[]{26e-4, 35e-4}, row0.getSizeHistogram().getCenters(), 1e-18);
@@ -87,7 +87,7 @@ final class PlanktonRectangleTableModelTest {
       assertEquals(1, tableModel.getRowCount());
       assertEquals(16, tableModel.getColumnCount());
 
-      row0.setSpecies(null);
+      row0.setSpecies("");
       Element element = DocumentHelper.createElement("model")
             .addAttribute("name", "test2");
       row1.toXml(element, 1e-4);

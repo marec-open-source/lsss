@@ -44,7 +44,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -77,17 +76,12 @@ import java.util.stream.Collectors;
 final class IcesConfView implements ViewHolder.View {
    private final IcesConf icesConf;
    private Map<String, SchemaWrapper> schemaNameToIcesCodes = Map.of();
-   private List<ParameterTableGUI<? extends IcesGroup>> parameterTableGUIs = List.of();
    private final JPanel mainPanel = new JPanel(new BorderLayout());
    private final JScrollPane scrollPane = GuiUtils.createScrollPane(mainPanel);
 
    IcesConfView(IcesConf icesConf) {
       this.icesConf = icesConf;
       loadSchemas();
-   }
-
-   boolean stopEditing() {
-      return parameterTableGUIs.stream().allMatch(ParameterTableGUI::stopEditing);
    }
 
    private void loadSchemas() {
@@ -115,9 +109,7 @@ final class IcesConfView implements ViewHolder.View {
       MultiLineHeaderRenderer mandatoryHeaderRenderer = new MultiLineHeaderRenderer();
       mandatoryHeaderRenderer.setFont(mandatoryHeaderRenderer.getFont().deriveFont(Font.BOLD));
 
-      parameterTableGUIs = List.of(instrumentGui, calibrationGui, dataAcquisitionGui, dataProcessingGui);
-
-      parameterTableGUIs.forEach(gui -> {
+      List.of(instrumentGui, calibrationGui, dataAcquisitionGui, dataProcessingGui).forEach(gui -> {
          gui.getModel()
                .setParameterToInputToolTip(IcesConfView::parameterToInputToolTip)
                .setParameterToHeaderToolTip(this::parameterToHeaderToolTip);
@@ -280,13 +272,8 @@ final class IcesConfView implements ViewHolder.View {
       resetValuesFromDataButton.addActionListener(_ -> icesConf.resetValuesFromData());
 
       JButton downloadFromIcesButton = new JButton("Download schemas");
-      Path dir = icesConf.icesSchemaDir();
-      if (dir == null) {
-         downloadFromIcesButton.setEnabled(false);
-         downloadFromIcesButton.setToolTipText("<html>Downloads schema files from acoustics.ices.dk<br>Go to Application configuration/Directories to configure MainDir");
-      } else {
-         downloadFromIcesButton.setToolTipText("<html>Downloads schema files from acoustics.ices.dk to<br>" + HtmlEscapers.htmlEscaper().escape(dir.toString()));
-      }
+      downloadFromIcesButton.setToolTipText("<html>Downloads schema files from acoustics.ices.dk to<br>"
+            + HtmlEscapers.htmlEscaper().escape(icesConf.icesSchemaDir().toString()));
       downloadFromIcesButton.addActionListener(_ -> downloadFromIces());
 
       JButton resetValuesIoImrButton = new JButton("Use IMR default values");
@@ -481,12 +468,6 @@ final class IcesConfView implements ViewHolder.View {
 
    private void downloadFromIces() {
       Path dir = icesConf.icesSchemaDir();
-      if (dir == null) {
-         JOptionPane.showMessageDialog(getComponent(),
-               "MainDir is not set\nGo to Application configuration/Directories to configure");
-         return;
-      }
-
       List<String> schemaNames = IcesConf.findSchemaNames().toList();
       ProgressView progressView = new ProgressView("Downloading from ices.dk...", schemaNames.size());
       new WorkerDialog(getComponent(), progressView.getComponent())

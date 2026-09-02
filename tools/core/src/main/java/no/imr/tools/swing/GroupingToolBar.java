@@ -54,7 +54,8 @@ public final class GroupingToolBar {
          toolBar.removeAll();
          boolean needSeparator = false;
          for (ToolBarGroup group : groups) {
-            if (group.equals(SEPARATOR)) {
+            if (group == SEPARATOR) {
+               // Must use identity to avoid being equal to other empty groups.
                needSeparator = true;
                continue;
             }

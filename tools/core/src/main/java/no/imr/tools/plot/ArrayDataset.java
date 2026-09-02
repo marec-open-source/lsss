@@ -19,7 +19,7 @@ public final class ArrayDataset extends BaseXYDataset {
    }
 
    @Override
-   public Comparable<?> getSeriesKey(int series) {
+   public String getSeriesKey(int series) {
       return name;
    }
 

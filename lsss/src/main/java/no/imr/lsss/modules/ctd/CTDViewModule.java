@@ -19,6 +19,7 @@ import no.imr.tools.plot.XYInfo;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.ViewHolder;
 import no.imr.tools.swing.icons.MiscIcons;
+import no.imr.tools.time.TimeUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.HorizontalAlignment;
@@ -39,11 +40,12 @@ import java.awt.event.ItemEvent;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Supplier;
 
 public final class CTDViewModule extends BaseViewModule implements PojoDataContainer {
-   static final DateTimeFormatter DATE_TIME_FORMATTER = Utils.createUTCDateTimeFormatter("yyyy.MM.dd HH:mm");
+   static final DateTimeFormatter DATE_TIME_FORMATTER = TimeUtils.createUTCDateTimeFormatter("yyyy.MM.dd HH:mm");
 
    private final ViewHolder<View> viewHolder = new ViewHolder<>(() -> new View(this));
 
@@ -63,7 +65,7 @@ public final class CTDViewModule extends BaseViewModule implements PojoDataConta
 
       registry.add(getInterpretationSettings().mouseover().pingIndex(), newCoalescingExecListener(optionalPingIndex -> {
          optionalPingIndex.ifPresent(pingIndex -> {
-            setCurrentCTDDataIndex(getClosestCTDDataIndex(pingIndex.getTimeInMillis()));
+            setCurrentCTDDataIndex(getClosestCTDDataIndex(pingIndex.getInstant()));
          });
       }));
 
@@ -91,7 +93,7 @@ public final class CTDViewModule extends BaseViewModule implements PojoDataConta
    }
 
    private void plotData() {
-      if (currentCTDData == null) {
+      if (currentCTDData == null || currentCTDData.columnNames().isEmpty() || currentCTDData.depthColumn() < 0) {
          plotEmptyPlot();
          return;
       }
@@ -116,7 +118,7 @@ public final class CTDViewModule extends BaseViewModule implements PojoDataConta
       chart.getXYPlot().getRangeAxis().setInverted(true);
 
       String text = Utils.format("%s   Station:%s   %s",
-            DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(currentCTDData.timeInMillis())),
+            DATE_TIME_FORMATTER.format(currentCTDData.time()),
             currentCTDData.stationNumber(),
             Earth.formatGeoPoint(currentCTDData.geographicalPosition(), "%.2f"));
       chart.addSubtitle(PlotUtils.newTextTitle(text, HorizontalAlignment.RIGHT));
@@ -160,16 +162,16 @@ public final class CTDViewModule extends BaseViewModule implements PojoDataConta
       plotData();
    }
 
-   private int getClosestCTDDataIndex(long targetTimeInMillis) {
+   private int getClosestCTDDataIndex(Instant targetTime) {
       int ctdDataIndex = -1;
       long smallestDiff = Long.MAX_VALUE;
 
       List<CTDData> ctdDatas = ctdDataModule.get().getCTDDatas();
       for (int i = 0; i < ctdDatas.size(); i++) {
-         CTDData currentCTDData = ctdDatas.get(i);
+         CTDData ctdData = ctdDatas.get(i);
 
-         long ctdTimeInMillis = currentCTDData.timeInMillis();
-         long diff = Math.abs(ctdTimeInMillis - targetTimeInMillis);
+         Instant ctdTime = ctdData.time();
+         long diff = Math.abs(targetTime.until(ctdTime, ChronoUnit.MILLIS));
 
          if (diff < smallestDiff) {
             smallestDiff = diff;

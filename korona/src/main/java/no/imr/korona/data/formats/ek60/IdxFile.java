@@ -6,6 +6,8 @@ import no.imr.korona.data.datagrams.BaseDatagram;
 import no.imr.korona.data.datagrams.DatagramTypeManager;
 import no.imr.korona.data.datagrams.Idx0Datagram;
 import no.imr.korona.data.formats.ek60.io.ByteBufferDatagramReader;
+import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
+import no.imr.korona.data.formats.ek60.io.OutputStreamDatagramWriter;
 import no.imr.korona.data.formats.ek60.io.RandomAccessDatagramReader;
 import no.imr.korona.data.ping.PingConfiguration;
 import no.imr.korona.data.ping.WrapAround;
@@ -13,12 +15,13 @@ import no.imr.korona.data.ping.items.PingConversion;
 import no.imr.korona.data.ping.items.PingItem;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.util.NoticeHandler;
+import no.imr.tools.ShouldNotHappenException;
 import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
 import org.jspecify.annotations.Nullable;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteOrder;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +47,7 @@ public record IdxFile(
       if (!useIdxFiles) {
          return MissingIdxFileHandler.load(file);
       }
-      try (RandomAccessDatagramReader datagramReader = new ByteBufferDatagramReader(FileUtils.toByteBuffer(file, ByteOrder.LITTLE_ENDIAN), datagramTypeManager)) {
+      try (RandomAccessDatagramReader datagramReader = new ByteBufferDatagramReader(ByteBufferUtils.toByteBuffer(file), datagramTypeManager)) {
          List<BaseDatagram> configurationDatagrams = new ArrayList<>();
          List<Idx0Datagram> firstIdx = List.of();
          while (true) {
@@ -110,5 +113,20 @@ public record IdxFile(
          }
          throw e;
       }
+   }
+
+   public byte[] toBytes() {
+      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+      try (OutputStreamDatagramWriter datagramWriter = new OutputStreamDatagramWriter(byteArrayOutputStream)) {
+         datagramWriter.writeDatagrams(rawFileConfiguration.toDatagrams());
+         for (PingItem pingItem : otherPingItems) {
+            datagramWriter.writeDatagrams(pingItem.toDatagrams());
+         }
+         datagramWriter.writeDatagrams(idx0Datagrams);
+      } catch (IOException e) {
+         // Should not happen since writing to memory.
+         throw new ShouldNotHappenException(e);
+      }
+      return byteArrayOutputStream.toByteArray();
    }
 }

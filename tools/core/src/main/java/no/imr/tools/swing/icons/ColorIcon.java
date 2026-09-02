@@ -17,7 +17,7 @@ public final class ColorIcon extends AbstractIcon {
    }
 
    @Override
-   public void paintIcon(Component c, Graphics2D g, int x, int y) {
+   protected void paintIcon(Component c, Graphics2D g, int x, int y) {
       g.setColor(color);
       g.fillRect(x, y, getIconWidth(), getIconHeight());
    }

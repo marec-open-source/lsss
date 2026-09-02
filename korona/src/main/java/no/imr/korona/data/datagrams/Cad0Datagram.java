@@ -9,6 +9,7 @@ import no.imr.tools.range.FloatRange;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * Categorization data.
@@ -26,8 +27,8 @@ public final class Cad0Datagram extends DatagramPingItem {
 
    private @Nullable Cac0Datagram cac0Datagram;
 
-   public Cad0Datagram(long ntDate, int categoryCount, int pixelCount, float sampleDistance, float firstDepth) {
-      super(ntDate);
+   public Cad0Datagram(Instant instant, int categoryCount, int pixelCount, float sampleDistance, float firstDepth) {
+      super(instant);
 
       if (categoryCount < 1) {
          throw new IllegalArgumentException("count: " + categoryCount);
@@ -42,8 +43,8 @@ public final class Cad0Datagram extends DatagramPingItem {
       probabilities = new byte[categoryCount][pixelCount];
    }
 
-   public Cad0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Cad0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       int categoryCount = byteBuffer.get();
       if (categoryCount < 1) {

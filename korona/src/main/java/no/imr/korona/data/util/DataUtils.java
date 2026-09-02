@@ -21,14 +21,17 @@ import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.geo.Earth;
 import no.imr.tools.geo.GeoBoxBuilder;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.range.DoubleRange;
 import no.imr.tools.range.FloatRange;
+import no.imr.tools.time.TimeUtils;
 import no.marec.lsss.api.util.GeoPoint;
 import org.jspecify.annotations.Nullable;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
@@ -87,6 +90,18 @@ public final class DataUtils {
       }
 
       return pingMappingArguments.get(i);
+   }
+
+   public static <T extends PingMappingArgument> T getClosestPingIndex(List<T> pingMappingArguments, T end, double value, PingMapping pingMapping) {
+      if (pingMappingArguments.isEmpty()) {
+         return end;
+      }
+      T closest = getClosestPingIndex(pingMappingArguments, value, pingMapping);
+      if (closest.getPingNumber() == end.getPingNumber() - 1
+            && Math.abs(value - pingMapping.valueOf(end)) < Math.abs(value - pingMapping.valueOf(closest))) {
+         return end;
+      }
+      return closest;
    }
 
    public static <T extends PingMappingArgument> @Nullable T getContainingPingIndex(List<T> pingMappingArguments, @Nullable PingMappingArgument end, double value, PingMapping pingMapping) {
@@ -180,7 +195,7 @@ public final class DataUtils {
       double dx = (geoPos.getX() - referenceGeoPos.getX()) * metersPerGeoDegree.getX();
       double dy = (geoPos.getY() - referenceGeoPos.getY()) * metersPerGeoDegree.getY();
       double meters = tangent.getX() * dx + tangent.getY() * dy;
-      double nmi = Utils.meterToNmi(meters);
+      double nmi = KoronaUtils.meterToNmi(meters);
       return dataFileSet.getClosestPingIndex(referencePingIndex, nmi, PingMapping.DISTANCE);
    }
 
@@ -221,7 +236,7 @@ public final class DataUtils {
 
       double dx = (next.getX() - prev.getX()) * metersPerGeoDegree.getX();
       double dy = (next.getY() - prev.getY()) * metersPerGeoDegree.getY();
-      double length = Utils.hypot(dx, dy);
+      double length = MathUtils.hypot(dx, dy);
 
       return length == 0 ? null : new Point2D.Double(dx / length, dy / length);
    }
@@ -291,10 +306,10 @@ public final class DataUtils {
          if (next == null) {
             return OptionalDouble.of(prev.heading());
          }
-         long t0 = prev.pingIndex().getNTDate();
-         long t1 = next.pingIndex().getNTDate();
-         double alpha = (double) (t1 - pingIndex.getNTDate()) / (double) (t1 - t0);
-         return OptionalDouble.of(Utils.interpolateDegrees(prev.heading(), next.heading(), alpha));
+         Instant t0 = prev.pingIndex().getInstant();
+         Instant t1 = next.pingIndex().getInstant();
+         double alpha = TimeUtils.toSeconds(t0, pingIndex.getInstant()) / TimeUtils.toSeconds(t0, t1);
+         return OptionalDouble.of(MathUtils.interpolateDegrees(prev.heading(), next.heading(), alpha));
       }
    }
 
@@ -339,13 +354,13 @@ public final class DataUtils {
       return KoronaUtils.getKnots(first, last);
    }
 
-   public static MruDatagram interpolateMru(MruDatagram first, MruDatagram second, long ntDate) {
-      float f = Math.clamp((float) (second.getNTDate() - ntDate) / (second.getNTDate() - first.getNTDate()), 0, 1);
-      return new Mru0Datagram(ntDate,
-            f * first.getHeave() + (1 - f) * second.getHeave(),
-            (float) Utils.interpolateDegrees(first.getRoll(), second.getRoll(), f),
-            (float) Utils.interpolateDegrees(first.getPitch(), second.getPitch(), f),
-            (float) Utils.interpolateDegrees(first.getHeading(), second.getHeading(), f));
+   public static MruDatagram interpolateMru(MruDatagram first, MruDatagram second, Instant instant) {
+      double f = Math.clamp(TimeUtils.toSeconds(first.getInstant(), instant) / TimeUtils.toSeconds(first.getInstant(), second.getInstant()), 0, 1);
+      return new Mru0Datagram(instant,
+            (float) MathUtils.interpolate(first.getHeave(), second.getHeave(), f),
+            (float) MathUtils.interpolateDegrees(first.getRoll(), second.getRoll(), f),
+            (float) MathUtils.interpolateDegrees(first.getPitch(), second.getPitch(), f),
+            (float) MathUtils.interpolateDegrees(first.getHeading(), second.getHeading(), f));
    }
 
    public static boolean hasSamples(Ping ping) {
@@ -415,7 +430,7 @@ public final class DataUtils {
 
    public static double getPingWidthMeters(DataFileSet dataFileSet, PingIndex pingIndex) {
       PingIndex nextPingIndex = dataFileSet.nextOrSame(pingIndex);
-      return Utils.nmiToMeter(nextPingIndex.getVesselDistance() - pingIndex.getVesselDistance());
+      return KoronaUtils.nmiToMeter(nextPingIndex.getVesselDistance() - pingIndex.getVesselDistance());
    }
 
    public static List<FloatRange> findDepthRanges(PowerData powerData, FloatRange depthLimit, float[] values, FloatRange valueRange) {

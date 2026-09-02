@@ -34,6 +34,7 @@ import org.apache.commons.numbers.complex.Complex;
 import org.dom4j.Element;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -51,8 +52,8 @@ public final class BroadbandData extends ComplexChannelData implements Broadband
    private @Nullable PowerData powerData;
    private @Nullable AngleData angleData;
 
-   public BroadbandData(long ntDate, int pulseForm) {
-      super(ntDate);
+   public BroadbandData(Instant instant, int pulseForm) {
+      super(instant);
 
       this.pulseForm = pulseForm;
    }
@@ -127,11 +128,6 @@ public final class BroadbandData extends ComplexChannelData implements Broadband
       return List.of(xml0Datagram, toRaw3Datagram());
    }
 
-   @Override
-   public BroadbandData makeCopy() {
-      return makeCopyWithAllData();
-   }
-
    public void initTransducer(RawFileTransducer transducer, float frequency) {
       transducer.setFrequency(frequency);
       transducer.setGainAndGainTable((float) getGain(frequency));
@@ -158,7 +154,7 @@ public final class BroadbandData extends ComplexChannelData implements Broadband
    }
 
    public Raw0Datagram toRaw0Datagram() {
-      Raw0Datagram raw0Datagram = new Raw0Datagram(getNTDate());
+      Raw0Datagram raw0Datagram = new Raw0Datagram(getInstant());
       setRaw0DatagramParameters(raw0Datagram);
       raw0Datagram.offset -= offsetCorrection;
       raw0Datagram.mode = (short) (getSectorCount() << 8 | Raw0Datagram.DATA_TYPE_COMPLEX_FLOAT_32);
@@ -172,7 +168,8 @@ public final class BroadbandData extends ComplexChannelData implements Broadband
       return new BroadbandData(this);
    }
 
-   public BroadbandData makeCopyWithAllData() {
+   @Override
+   public BroadbandData makeCopy() {
       BroadbandData copy = makeCopyWithNoData();
       copy.setData(Utils.copy(getReal()), Utils.copy(getImag()), getSlope());
       return copy;

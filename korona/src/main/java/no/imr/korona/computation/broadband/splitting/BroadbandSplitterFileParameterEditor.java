@@ -1,7 +1,6 @@
 package no.imr.korona.computation.broadband.splitting;
 
 import no.imr.korona.config.ConfigFileParameterEditor;
-import no.imr.korona.config.ConfigFileService;
 import no.imr.korona.config.ConfigFileSettings;
 import no.imr.korona.resources.KoronaHelp;
 import no.imr.tools.parameter.gui.ConfigurableGUIDialog;
@@ -16,20 +15,21 @@ import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public final class BroadbandSplitterFileParameterEditor extends ConfigFileParameterEditor {
-   BroadbandSplitterFileParameterEditor(ConfigFileService configFileService, ConfigFileSettings configFileSettings) {
+public final class BroadbandSplitterFileParameterEditor extends ConfigFileParameterEditor<BroadbandSplitterBandsFileService> {
+   BroadbandSplitterFileParameterEditor(BroadbandSplitterBandsFileService configFileService, ConfigFileSettings configFileSettings) {
       super(configFileService, configFileSettings);
    }
 
    @Override
    public boolean edit(@Nullable Component referenceComponent, boolean editable) {
+      BroadbandSplitterConfig config;
       try {
-         BroadbandSplitterConfig config = new BroadbandSplitterConfig(toXml(getFile()));
-         return show(referenceComponent, config, editable);
+         config = new BroadbandSplitterConfig(toXml(getFile()));
       } catch (IOException e) {
          GuiUtils.showErrorDialog(referenceComponent, "Error reading " + getFile(), e);
          return false;
       }
+      return show(referenceComponent, config, editable);
    }
 
    @Override
@@ -45,8 +45,8 @@ public final class BroadbandSplitterFileParameterEditor extends ConfigFileParame
       ParameterTableGUI<BroadbandSplitterBand> tableGUI = new ParameterTableGUI<>(tableModel);
       boolean ok = new ConfigurableGUIDialog(referenceComponent, "Broadband splitter bands", config)
             .setHelpID(KoronaHelp.BROADBAND_SPLITTER_BANDS)
-            .setCloseOnOk(tableGUI::stopEditing)
-            .setNoScrollGUI(tableGUI.createScrollPane())
+            .setScrollable(false)
+            .setGUI(tableGUI.createScrollPane())
             .show();
       if (ok) {
          getFileParameter().saveXml(referenceComponent, config.toXml());

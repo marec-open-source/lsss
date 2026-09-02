@@ -13,9 +13,9 @@ import no.imr.korona.region.schooledit.BoxBoundaryMoveEditor;
 import no.imr.korona.region.schooledit.MoveEditor;
 import no.imr.korona.region.schooledit.ScaleEditor;
 import no.imr.korona.region.schooledit.SchoolEditor;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import no.imr.korona.util.echogram.EchogramZSettings;
-import no.imr.tools.CyclicList;
 import no.imr.tools.Utils;
 import no.imr.tools.range.ArrayRangeSet;
 import no.imr.tools.range.FloatRange;
@@ -174,7 +174,7 @@ public final class School extends Region {
       addParameterValues(parameterElement, parameters.values());
       PingContainer pingContainer = getPingContainer();
       parameters.perChannelValues().forEach((channel, channelValues) -> {
-         int kHz = Utils.hzToKHz(pingContainer.getFrequency(channel));
+         int kHz = KoronaUtils.hzToKHz(pingContainer.getFrequency(channel));
          Element channelParameter = parameterElement.addElement(XML_PARAMETER_CHANNEL_PARAMETERS)
                .addAttribute(XML_PARAMETER_FREQUENCY, Integer.toString(kHz))
                .addAttribute(XML_PARAMETER_DATA_PROCESSED, Boolean.toString(parameters.dataProcessed()));
@@ -397,7 +397,7 @@ public final class School extends Region {
       }
       editor = null;
 
-      CyclicList<EchogramPoint> drawnBoundary = boundaryDrawEditor.getDrawnBoundary();
+      List<EchogramPoint> drawnBoundary = boundaryDrawEditor.getDrawnBoundary();
       NavigableMap<PingIndex, FloatRangeSet> additionalMask = MaskOutlineTracer.createMaskForSingleBoundary(drawnBoundary);
       if (additionalMask.isEmpty()) {
          return List.of();
@@ -502,7 +502,7 @@ public final class School extends Region {
                                                                 double closestDistSq) {
       SchoolBoundaryIntersectionInfo bestIntersectionInfo = null;
       for (SchoolBoundaryObject boundaryObject : boundaryObjects) {
-         SchoolBoundaryIntersectionInfo intersectionInfo = boundaryObject.getClosestIntersection(point, pingSettings, zSettings);
+         SchoolBoundaryIntersectionInfo intersectionInfo = boundaryObject.getClosestIntersection(this, point, pingSettings, zSettings);
          if (intersectionInfo.distanceSquared() < closestDistSq) {
             closestDistSq = intersectionInfo.distanceSquared();
             bestIntersectionInfo = intersectionInfo;

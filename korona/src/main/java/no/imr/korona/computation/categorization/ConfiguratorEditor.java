@@ -15,6 +15,7 @@ import no.imr.tools.parameter.ParameterCollection;
 import no.imr.tools.parameter.TextParameter;
 import no.imr.tools.parameter.gui.ConfigurableGUIDialog;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.PopupMenuMouseListener;
@@ -672,10 +673,10 @@ public final class ConfiguratorEditor {
       CategoryTableModel.Row row = categoryTableModel.rows.get(rowIndex);
       TextParameter commentParameter = new TextParameter(new Name("Comment"), Strings.nullToEmpty(row.comment));
       List<TextParameter> parameters = List.of(commentParameter);
-      ParameterEditor parameterEditor = new ParameterEditor(parameters);
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
+      ParameterEditor parameterEditor = new ParameterEditor(parameters, new GUIConfig()
+            .setHorizontalFill(true)
+      );
       boolean ok = new ConfigurableGUIDialog(referenceComponent, "Comment for " + row.name, new ParameterCollection(parameters))
-            .setCloseOnOk(parameterEditor::commitEdits)
             .setGUI(parameterEditor.getEditorComponent())
             .setMinimumSize(800, 0)
             .show();

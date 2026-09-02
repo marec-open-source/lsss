@@ -35,7 +35,7 @@ public final class FilesToCopy {
    }
 
    public void add(FileInfo sourceFile, Path destFile) {
-      nextLastModifiedSource = Math.max(nextLastModifiedSource, sourceFile.lastModifiedTime().toMillis());
+      nextLastModifiedSource = Math.max(nextLastModifiedSource, sourceFile.lastModified().toEpochMilli());
 
       if (Files.exists(destFile)) {
          if (isReplacementCandidate(sourceFile, destFile)) {
@@ -57,10 +57,10 @@ public final class FilesToCopy {
             Log.global.log(Level.WARNING, e.getMessage(), e);
          }
       }
-      return newer && !FileUtils.equalsRecursively(sourceFile.file(), destFile);
+      return newer && !FileUtils.isRecursivelyContainedIn(sourceFile.file(), destFile);
    }
 
    private boolean newerThanPrevLastModified(FileInfo sourceFile) {
-      return sourceFile.lastModifiedTime().toMillis() > previousLastModified;
+      return sourceFile.lastModified().toEpochMilli() > previousLastModified;
    }
 }

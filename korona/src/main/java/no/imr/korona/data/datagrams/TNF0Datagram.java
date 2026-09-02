@@ -1,6 +1,7 @@
 package no.imr.korona.data.datagrams;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 public final class TNF0Datagram extends DatagramPingItem implements TrackPingItem {
    public static final DatagramType TYPE = DatagramType.simple("TNF0", TNF0Datagram::new);
@@ -11,8 +12,8 @@ public final class TNF0Datagram extends DatagramPingItem implements TrackPingIte
    private final int pingsSinceFirst;
    private final int pingsSinceLast;
 
-   public TNF0Datagram(long ntDate, int id, int channel, boolean valid, int pingsSinceFirst, int pingsSinceLast) {
-      super(ntDate);
+   public TNF0Datagram(Instant instant, int id, int channel, boolean valid, int pingsSinceFirst, int pingsSinceLast) {
+      super(instant);
 
       this.id = id;
       this.channel = channel;
@@ -21,8 +22,8 @@ public final class TNF0Datagram extends DatagramPingItem implements TrackPingIte
       this.pingsSinceLast = pingsSinceLast;
    }
 
-   public TNF0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public TNF0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       id = byteBuffer.getInt();
       channel = 0xffff & byteBuffer.getShort();

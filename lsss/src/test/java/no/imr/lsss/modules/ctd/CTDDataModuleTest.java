@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +23,7 @@ final class CTDDataModuleTest {
    @Test
    void cnv() throws IOException {
       CTDData ctdData = load();
-      assertEquals(ZonedDateTime.of(2002, 11, 24, 5, 48, 25, 0, ZoneOffset.UTC).toInstant().toEpochMilli(), ctdData.timeInMillis());
+      assertEquals(LocalDate.of(2002, 11, 24).atTime(5, 48, 25).toInstant(ZoneOffset.UTC), ctdData.time());
       assertEquals(16.09750000000000, ctdData.geographicalPosition().getLongitude());
       assertEquals(68.37383333333334, ctdData.geographicalPosition().getLatitude());
       assertEquals(List.of("scan number", "pressure [db]", "temperature, IPTS-68 [deg C]", "conductivity [S/m]", "oxygen, current [æA]", "oxygen, temperature [deg C]",

@@ -20,6 +20,7 @@ import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.ExportTransform;
 import org.jfree.chart.plot.XYPlot;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.OptionalDouble;
 
@@ -45,15 +46,15 @@ public final class ImageDiffPingFunction extends PingFunction {
 
    @Override
    public double compute(DataFileSet dataFileSet, Ping ping, int channel) {
-      long lsssTime = ping.getTimeInMillis();
+      Instant lsssTime = ping.getInstant();
       DeepVisionMapping deepVisionMapping = deepVisionEngine.getDeepVisionMappingManager().getDeepVisionMapping();
       DeepVisionFileInfo fileInfo = deepVisionEngine.getDataAdministrator().lsssTimeToFileInfo(lsssTime, deepVisionMapping);
       if (fileInfo == null) {
          return Double.NaN;
       }
       List<DeepVisionFrame> frames = fileInfo.getDeepVisionFile().frames.frames;
-      long deepVisionTime = deepVisionMapping.lsssTimeToDeepVisionTime(lsssTime, fileInfo);
-      int i = Utils.binarySearchForLong(frames, deepVisionTime, DeepVisionDataUtils::timeInMillis);
+      Instant deepVisionTime = deepVisionMapping.lsssTimeToDeepVisionTime(lsssTime, fileInfo);
+      int i = Utils.binarySearch(frames, deepVisionTime, DeepVisionDataUtils::time);
       if (i < 0) {     // Not exact match
          i = -(i + 1); // Insertion index
          i--;          // Select previous
@@ -75,9 +76,9 @@ public final class ImageDiffPingFunction extends PingFunction {
    private void computeInBackground(DeepVisionFrameInfo frameInfo) {
       PingRange pingRange = deepVisionEngine.getLSSS().getInterpretationSettings().getPingRange();
       DeepVisionMapping deepVisionMapping = deepVisionEngine.getDeepVisionMappingManager().getDeepVisionMapping();
-      long deepVisionTime = DeepVisionDataUtils.timeInMillis(frameInfo.frame());
-      long lsssTime = deepVisionMapping.deepVisionTimeToLsssTime(deepVisionTime, frameInfo.deepVisionFileInfo());
-      if (pingRange.containsTimeInMillis(lsssTime)) {
+      Instant deepVisionTime = DeepVisionDataUtils.time(frameInfo.frame());
+      Instant lsssTime = deepVisionMapping.deepVisionTimeToLsssTime(deepVisionTime, frameInfo.deepVisionFileInfo());
+      if (pingRange.containsInstant(lsssTime)) {
          imageDiffCache.getImageDiff(frameInfo);
          notifier.listen();
       }

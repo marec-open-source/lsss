@@ -8,9 +8,11 @@ import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.track.SegmentHandle;
 import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
+import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.swing.ProgressView;
 import no.imr.tools.swing.WorkerDialog;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -76,7 +78,7 @@ public final class CreateMissingIdxGUI {
                if (asyncHandle.isCancelled()) {
                   return;
                }
-               EK60Utils.write(idxFile);
+               FileUtils.replaceFileSafely(idxFile.file(), idxFile.toBytes());
                previousIdxFile = idxFile;
             } catch (Exception e) {
                Log.global.log(Level.WARNING, "Error creating idx file for " + ek60SegmentHandle.getDisplayName(), e);
@@ -102,7 +104,7 @@ public final class CreateMissingIdxGUI {
 
       private static long getPingNumberShift(PingRange previousPingRange, List<Idx0Datagram> idxDatagrams) {
          long startPingNumber = previousPingRange.end().getPingNumber();
-         if (Math.abs(idxDatagrams.getFirst().getTimeInMillis() - previousPingRange.end().getTimeInMillis()) > 60_000) {
+         if (Math.abs(TimeUtils.toSeconds(previousPingRange.end().getInstant(), idxDatagrams.getFirst().getInstant())) > 60) {
             startPingNumber++;
          }
          return startPingNumber - idxDatagrams.getFirst().getPingNumber();

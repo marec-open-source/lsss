@@ -4,10 +4,14 @@ import no.imr.korona.data.DatagramSource;
 import no.imr.korona.data.datagrams.BaseDatagram;
 import no.imr.korona.data.datagrams.Idx0Datagram;
 import no.imr.korona.data.ping.WrapAround;
+import no.imr.tools.Utils;
 import no.imr.tools.math.Median;
+import no.imr.tools.time.NTDate;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -252,7 +256,7 @@ public final class IdxCorrectionFilter implements IdxSource {
       }
 
       private void correctForWrapAround(Idx0Datagram idx) {
-         if (wrapAround != null && idx.getNTDate() >= wrapAround.pingIndex().getNTDate()) {
+         if (wrapAround != null && !idx.getInstant().isBefore(wrapAround.pingIndex().getInstant())) {
             idx.setVesselDistance(idx.getVesselDistance() + wrapAround.vesselDistance());
          }
       }
@@ -314,7 +318,7 @@ public final class IdxCorrectionFilter implements IdxSource {
 
    private static final class TimeCorrectionFilter extends BaseBufferedFilter {
       private int correctionCount;
-      private long previousNTDate;
+      private Instant previousInstant = Instant.MIN;
       private double previousVesselDistance;
 
       private TimeCorrectionFilter(IdxSource idxSource) {
@@ -331,38 +335,37 @@ public final class IdxCorrectionFilter implements IdxSource {
          if (idx == null) {
             return null;
          }
-         if (previousNTDate >= idx.getNTDate()) {
+         if (!previousInstant.isBefore(idx.getInstant())) {
             correct(idx);
             correctionCount++;
          }
-         previousNTDate = idx.getNTDate();
+         previousInstant = idx.getInstant();
          previousVesselDistance = idx.getVesselDistance();
          return idx;
       }
 
       private void correct(Idx0Datagram idx) throws IOException {
-         long newNTDate;
+         Instant newInstant;
          Idx0Datagram next = nextInputIdx();
          if (next == null) {
-            newNTDate = previousNTDate + 1;
+            newInstant = previousInstant.plusNanos(NTDate.NANOSECONDS_PER_NT_DATE_UNIT);
          } else {
-            long prevNTDate = previousNTDate;
-            long nextNTDate = next.getNTDate();
-
             double prevDist = idx.getVesselDistance() - previousVesselDistance;
             double nextDist = next.getVesselDistance() - idx.getVesselDistance();
             double weightSum = nextDist + prevDist;
             if (weightSum == 0) {
-               newNTDate = prevNTDate + 1;
+               newInstant = previousInstant.plusNanos(NTDate.NANOSECONDS_PER_NT_DATE_UNIT);
             } else {
-               newNTDate = (long) ((nextDist * prevNTDate + prevDist * nextNTDate) / weightSum);
-               newNTDate = Math.min(newNTDate, nextNTDate - 1);
-               newNTDate = Math.max(newNTDate, prevNTDate + 1);
+               Instant nextInstant = next.getInstant();
+               newInstant = Utils.clamp(
+                     TimeUtils.interpolateInstant(previousInstant, nextInstant, prevDist / weightSum),
+                     previousInstant.plusNanos(NTDate.NANOSECONDS_PER_NT_DATE_UNIT),
+                     nextInstant.minusNanos(NTDate.NANOSECONDS_PER_NT_DATE_UNIT)
+               );
             }
-
             inputBuffer.push(next);
          }
-         idx.setNTDate(newNTDate);
+         idx.setInstant(newInstant);
       }
    }
 }

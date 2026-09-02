@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * A region is a part of the echogram interpretation.
  * <p>
- * A region can be either a layer of a school.
+ * A region can be either a layer or a school.
  */
 @DoNotImplement
 public interface Region {

@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.awt.Color;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -22,15 +23,15 @@ public final class Pic0Datagram extends DatagramPingItem {
 
    private final NavigableMap<Byte, PlanktonCategory> idToCategoryMap = new TreeMap<>();
 
-   public Pic0Datagram(long ntDate) {
-      super(ntDate);
+   public Pic0Datagram(Instant instant) {
+      super(instant);
 
       addCategory(UNCATEGORIZED);
       addCategory(NO_CATEGORY);
    }
 
-   public Pic0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      this(ntDate);
+   public Pic0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      this(instant);
 
       int numberOfCategories = byteBuffer.getInt();
       for (int i = 0; i < numberOfCategories; i++) {
@@ -183,8 +184,8 @@ public final class Pic0Datagram extends DatagramPingItem {
       }
 
       @Override
-      public int compareTo(PlanktonCategory o) {
-         return Byte.compare(number, o.number);
+      public int compareTo(PlanktonCategory other) {
+         return Byte.compare(number, other.number);
       }
    }
 }

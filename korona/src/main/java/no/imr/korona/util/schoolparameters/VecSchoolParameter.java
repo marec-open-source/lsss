@@ -41,7 +41,8 @@ public class VecSchoolParameter extends BaseFloatSchoolParameter {
       return List.of(
             name + ".x",
             name + ".y",
-            name + ".z");
+            name + ".z"
+      );
    }
 
    @Override
@@ -49,7 +50,8 @@ public class VecSchoolParameter extends BaseFloatSchoolParameter {
       return List.of(
             format(value.x()),
             format(value.y()),
-            format(value.z()));
+            format(value.z())
+      );
    }
 
    public Vec3 getValue() {

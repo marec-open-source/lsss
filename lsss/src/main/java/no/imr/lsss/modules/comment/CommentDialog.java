@@ -14,6 +14,8 @@ import no.imr.tools.parameter.StringParameter;
 import no.imr.tools.parameter.TextParameter;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.ScrollablePanel;
 import no.marec.lsss.api.util.parameters.ValueConstraints;
@@ -45,7 +47,7 @@ final class CommentDialog {
 
       StringParameter time = new StringParameter(new Name("Time", "Time [UTC]"));
       time.setEnabled(false);
-      time.setValue(CommentDataModule.DATE_TIME_FORMATTER.format(comment.toInstant()));
+      time.setValue(CommentDataModule.DATE_TIME_FORMATTER.format(comment.time()));
 
       List<StandardComment> standardComments = lsss.getDatabaseManager().getDatabaseData().getStandardComments(platform).getAll();
       StandardComment referencedStandardComment = standardComments.stream()
@@ -85,11 +87,12 @@ final class CommentDialog {
          }
       });
 
-      ParameterEditor parameterEditor = new ParameterEditor(List.of(time, standardComment, value, text));
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
+      GUIConfig guiConfig = new GUIConfig()
+            .setHorizontalFill(true);
       if (mode == Mode.VIEW) {
-         parameterEditor.getGUIConfig().setParameterEnabledDecider(_ -> false);
+         guiConfig.setParameterEnabledDecider(_ -> false);
       }
+      ParameterEditor parameterEditor = new ParameterEditor(List.of(time, standardComment, value, text), guiConfig);
       BaseParameter<?> focusedParameter = comment.standardComment() == StandardComment.FREE_TEXT_STANDARD_COMMENT ? text : value;
       SwingUtilities.invokeLater(parameterEditor.getInputComponent(focusedParameter)::requestFocusInWindow);
 
@@ -98,11 +101,11 @@ final class CommentDialog {
       JButton okButton = new JButton("OK");
       buttonPanel.add(okButton);
       okButton.addActionListener(_ -> {
-         if (!parameterEditor.commitEdits()) {
+         if (!CurrentInputComponent.commitEdit()) {
             return;
          }
          editedComment = new Comment(
-               comment.timeInMillis(),
+               comment.time(),
                standardComment.getValue().getCompId().getStandardComment(),
                value.getDoubleValue(),
                text.getValue()

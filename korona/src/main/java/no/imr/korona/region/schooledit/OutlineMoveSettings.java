@@ -8,14 +8,13 @@ import no.imr.korona.data.util.geometry.depth.DepthTransform;
 import no.imr.korona.region.SchoolBoundaryObject;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import no.imr.korona.util.echogram.EchogramZSettings;
-import no.imr.tools.CyclicList;
 
 import java.util.ArrayList;
 import java.util.List;
 
 final class OutlineMoveSettings {
    private final SchoolBoundaryObject schoolBoundary;
-   private CyclicList<EchogramPoint> movedBoundary = new CyclicList<>();
+   private List<EchogramPoint> movedBoundary = List.of();
 
    OutlineMoveSettings(SchoolBoundaryObject schoolBoundary) {
       this.schoolBoundary = schoolBoundary;
@@ -30,7 +29,7 @@ final class OutlineMoveSettings {
       pingRangeBuilder.add(schoolBoundary.getPingRange().begin());
       pingRangeBuilder.add(schoolBoundary.getPingRange().end());
 
-      CyclicList<EchogramPoint> newMovedBoundary = new CyclicList<>();
+      List<EchogramPoint> newMovedBoundary = new ArrayList<>();
       for (EchogramPoint echogramPoint : schoolBoundary.getBoundary()) {
          float z = depthTransform.depthToZ(echogramPoint) + dz;
          float x = pingSettings.pingIndexToX(echogramPoint.pingIndex()) + dx;
@@ -57,14 +56,14 @@ final class OutlineMoveSettings {
       return boundaryToSortedPoints(schoolBoundary.getBoundary());
    }
 
-   private static List<List<EchogramPoint>> boundaryToSortedPoints(CyclicList<EchogramPoint> boundary) {
+   private static List<List<EchogramPoint>> boundaryToSortedPoints(List<EchogramPoint> boundary) {
       if (boundary.isEmpty()) {
          return List.of();
       }
       List<List<EchogramPoint>> list = new ArrayList<>();
       list.addAll(SchoolEditUtils.leftToRightLists(boundary));
       // Close the boundary.
-      list.addAll(SchoolEditUtils.leftToRightLists(boundary.subList(-1, 1)));
+      list.addAll(SchoolEditUtils.leftToRightLists(List.of(boundary.getLast(), boundary.getFirst())));
       return list;
    }
 }

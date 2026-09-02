@@ -10,6 +10,7 @@ import no.imr.tools.listening.ChangeManager;
 import no.imr.tools.listening.ListenerRegistry;
 import no.imr.tools.logging.Log;
 import no.imr.tools.swing.WorkerDialog;
+import no.imr.tools.time.TimeUtils;
 import no.marec.lsss.api.util.GeoPoint;
 import org.jspecify.annotations.Nullable;
 
@@ -30,7 +31,7 @@ public final class CTDDataModule extends BaseDataModule {
       String name = file.getFileName().toString();
       return name.length() == 11 && Utils.startsWithIgnoringCase(name, "sta") && Utils.endsWithIgnoringCase(name, "cnv");
    };
-   private static final DateTimeFormatter CNV_DATE_TIME_FORMATTER = Utils.createUTCDateTimeFormatter("MMM dd yyy HH:mm:ss"); // Nov 24 2002 05:48:25
+   private static final DateTimeFormatter CNV_DATE_TIME_FORMATTER = TimeUtils.createUTCDateTimeFormatter("MMM dd yyyy HH:mm:ss"); // Nov 24 2002 05:48:25
 
    private final ChangeManager changeManager = new ChangeManager();
    private List<CTDData> ctdDatas = List.of();
@@ -71,7 +72,7 @@ public final class CTDDataModule extends BaseDataModule {
                         Log.global.log(Level.WARNING, "Error loading CTD file " + file + ": " + e.getMessage(), e);
                      }
                   }
-                  newCtdDatas.sort(Comparator.comparingLong(CTDData::timeInMillis));
+                  newCtdDatas.sort(Comparator.comparing(CTDData::time));
                });
       });
       ctdDatas = List.copyOf(newCtdDatas);
@@ -79,7 +80,7 @@ public final class CTDDataModule extends BaseDataModule {
    }
 
    static CTDData loadCnvFile(@Nullable Path file, BufferedReader reader) throws IOException {
-      long timeInMillis = 0;
+      Instant time = null;
       double longitude = Double.NaN;
       double latitude = Double.NaN;
       String stationNumber = "";
@@ -91,7 +92,7 @@ public final class CTDDataModule extends BaseDataModule {
             break;
          }
          if (line.startsWith("* System UpLoad Time = ")) { // * System UpLoad Time = Nov 24 2002 06:17:31
-            timeInMillis = CNV_DATE_TIME_FORMATTER.parse(trimmedStringAfter(line, '='), Instant::from).toEpochMilli();
+            time = CNV_DATE_TIME_FORMATTER.parse(trimmedStringAfter(line, '='), Instant::from);
          }
          if (line.startsWith("** Station: ")) { // ** Station: 1014
             stationNumber = trimmedStringAfter(line, ':');
@@ -121,6 +122,9 @@ public final class CTDDataModule extends BaseDataModule {
             break;
          }
       }
+      if (time == null) {
+         throw new IOException("No time info in file");
+      }
 
       List<float[]> rows = new ArrayList<>();
       while (true) {
@@ -149,8 +153,8 @@ public final class CTDDataModule extends BaseDataModule {
          rows.add(row);
       }
 
-      int depthColumn = findColumnIndex(columnNames, "pressure", 1);
-      return new CTDData(file, timeInMillis, stationNumber, new GeoPoint(longitude, latitude), depthColumn,
+      int depthColumn = findColumnIndex(columnNames, "pressure", columnNames.size() > 1 ? 1 : -1);
+      return new CTDData(file, time, stationNumber, new GeoPoint(longitude, latitude), depthColumn,
             List.copyOf(columnNames), List.copyOf(rows));
    }
 

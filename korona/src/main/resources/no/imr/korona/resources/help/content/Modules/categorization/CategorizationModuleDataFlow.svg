@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="540" height="250" viewBox="0 0 540 250"
+     font-family="sans-serif" font-size="12" text-anchor="middle">
+
+   <defs>
+      <path id="arrow" d="M0,0 v10 h10 v5 l10,-10 -10,-10 v5 z" fill="#66cdaa"/>
+      <use id="arrow-down" href="#arrow" transform="rotate(90)"/>
+   </defs>
+
+   <g transform="translate(0.5,0.5)">
+      <g fill="none" stroke="black" stroke-width="1">
+         <rect x="1" y="1" width="538" height="248"/>
+
+         <use href="#arrow" x="40" y="70"/>
+         <rect x="70" y="55" width="80" height="45"/>
+         <use href="#arrow" x="160" y="70"/>
+         <rect x="190" y="55" width="80" height="45"/>
+         <use href="#arrow" x="280" y="70"/>
+         <rect x="310" y="55" width="80" height="45"/>
+         <use href="#arrow" x="400" y="70"/>
+         <rect x="430" y="55" width="80" height="45"/>
+
+         <rect x="305" y="140" width="90" height="45"/>
+
+         <use href="#arrow-down" x="355" y="110"/>
+         <use href="#arrow-down" x="355" y="200"/>
+         <path id="arrow" d="M460,40 a80,100 0,0,0 -100,-5 h-10 l15,10 15,-10 h-10 a70,90 0,0,1 80,5 z" fill="#66cdaa"/>
+      </g>
+
+      <g fill="black">
+         <text x="10" y="25" font-size="20"  text-anchor="start">Categorization module</text>
+         <text x="20" y="80">In</text>
+         <text x="110" y="70">Feature</text>
+         <text x="110" y="90">extraction</text>
+         <text x="230" y="80">Categorizer</text>
+         <text x="350" y="80">Discriminant</text>
+         <text x="470" y="70">Contextual</text>
+         <text x="470" y="90">modification</text>
+
+         <text x="350" y="160">Categorization</text>
+         <text x="350" y="180">datagram</text>
+         <text x="350" y="240">Out</text>
+      </g>
+   </g>
+</svg>

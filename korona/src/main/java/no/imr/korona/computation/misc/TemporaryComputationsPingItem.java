@@ -5,6 +5,7 @@ import no.imr.korona.data.datagrams.Bot0Datagram;
 import no.imr.korona.data.ping.items.AbstractPingItem;
 import no.imr.korona.data.ping.items.PingItem;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,8 +13,8 @@ public final class TemporaryComputationsPingItem extends AbstractPingItem {
    final Bot0Datagram bot0Datagram;
    final List<PingItem> pingItems;
 
-   TemporaryComputationsPingItem(long ntDate, Bot0Datagram bot0Datagram, List<PingItem> pingItems) {
-      super(ntDate);
+   TemporaryComputationsPingItem(Instant instant, Bot0Datagram bot0Datagram, List<PingItem> pingItems) {
+      super(instant);
 
       this.bot0Datagram = bot0Datagram;
       this.pingItems = pingItems;
@@ -29,6 +30,6 @@ public final class TemporaryComputationsPingItem extends AbstractPingItem {
       List<PingItem> copiedPingItems = pingItems.stream()
             .map(PingItem::makeCopy)
             .collect(Collectors.toList());
-      return new TemporaryComputationsPingItem(getNTDate(), bot0Datagram.makeCopy(), copiedPingItems);
+      return new TemporaryComputationsPingItem(getInstant(), bot0Datagram.makeCopy(), copiedPingItems);
    }
 }

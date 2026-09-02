@@ -29,7 +29,7 @@ final class CTDVisualizerDialog implements ItemContainer<CTDVisualizerDialog.Ctd
       this.ctdDataModule = ctdDataModule;
 
       List<ItemFeature<CtdItem>> features = new ArrayList<>();
-      features.add(ItemFeature.Time.fromMillis("Station time", Unit.UTC, item -> item.ctdDataInfo.ctdData.timeInMillis(), CTDViewModule.DATE_TIME_FORMATTER));
+      features.add(ItemFeature.Time.fromInstant("Station time", Unit.UTC, item -> item.ctdDataInfo.ctdData.time(), CTDViewModule.DATE_TIME_FORMATTER));
       DecimalFormat geoPosFormat = Utils.createDecimalFormat("0.000000");
       features.add(new ItemFeature.Number<>("Longitude", Unit.DEGREES, item -> item.ctdDataInfo.ctdData.geographicalPosition().getLongitude(), geoPosFormat));
       features.add(new ItemFeature.Number<>("Latitude", Unit.DEGREES, item -> item.ctdDataInfo.ctdData.geographicalPosition().getLatitude(), geoPosFormat));

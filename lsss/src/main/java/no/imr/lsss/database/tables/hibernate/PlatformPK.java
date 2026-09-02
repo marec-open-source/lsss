@@ -1,6 +1,7 @@
 package no.imr.lsss.database.tables.hibernate;
 
 import jakarta.persistence.Embeddable;
+import no.imr.tools.database.hibernate.BaseCompDatabaseObject;
 import org.jspecify.annotations.Nullable;
 
 @Embeddable
@@ -14,6 +15,15 @@ public class PlatformPK implements BasePlatformPK {
    public PlatformPK(short nation, short platform) {
       this.nation = nation;
       this.platform = platform;
+   }
+
+   public PlatformPK(BasePlatformPK platformPK) {
+      nation = platformPK.getNation();
+      platform = platformPK.getPlatform();
+   }
+
+   public PlatformPK(BaseCompDatabaseObject<? extends BasePlatformPK> platform) {
+      this(platform.getCompId());
    }
 
    @Override

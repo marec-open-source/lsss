@@ -44,7 +44,7 @@ public abstract non-sealed class DynamicListParameter<T> extends BaseValueParame
       return converter;
    }
 
-   public abstract ValueParameter<Optional<T>> createNewParameter(int index, String persistentName);
+   public abstract ValueParameter<Optional<T>> newOptionalParameter(int index, String persistentName);
 
    @Override
    public Element toXml() {

@@ -7,6 +7,7 @@ import no.imr.korona.computation.misc.TemporaryComputationsEndModule;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.items.channel.ChannelData;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
+import no.imr.korona.util.SingleChannelParameter;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -19,6 +20,14 @@ public final class ModuleUtils {
    private ModuleUtils() {
    }
 
+   public static int selectedChannel(BaseModuleComputation computation, SingleChannelParameter parameter) throws ModuleConfigurationException {
+      int channel = parameter.selectedChannel(computation.getPingSource().getPingConfiguration().getRawFileConfiguration());
+      if (channel <= 0) {
+         throw new ModuleConfigurationException(computation.getModule(), parameter.getStringValue() + " matches no channels");
+      }
+      return channel;
+   }
+
    public static Map<Integer, ChannelData> getInputChannelToChannelData(BaseModuleComputation computation) throws IOException {
       int transducerCount = computation.getPingSource().getPingConfiguration().getRawFileConfiguration().getTransducerCount();
       Map<Integer, ChannelData> map = new HashMap<>();
@@ -28,7 +37,7 @@ public final class ModuleUtils {
             break;
          }
          ping.getNonNullChannelDatas().forEach(channelData -> {
-            map.computeIfAbsent(channelData.getChannel(), channel -> channelData);
+            map.computeIfAbsent(channelData.getChannel(), _ -> channelData);
          });
          if (map.size() >= transducerCount) {
             break;
@@ -64,8 +73,14 @@ public final class ModuleUtils {
             return channelData;
          }
       }
-      throw new ModuleConfigurationException(computation.getModule(), "Cannot find data on channel " + channel + " with "
-            + rawFileConfiguration.getTransducers().get(channel - 1).getKHz() + " kHz");
+      String message;
+      if (channel < 1 || channel > transducerCount) {
+         message = "No channel " + channel;
+      } else {
+         message = "Cannot find data on channel " + channel + " with "
+               + rawFileConfiguration.getTransducers().get(channel - 1).getKHz() + " kHz";
+      }
+      throw new ModuleConfigurationException(computation.getModule(), message);
    }
 
    static @Nullable TemporaryComputationsBeginModule getBeginModule(ModuleContainer moduleContainer, TemporaryComputationsEndModule endModule) {

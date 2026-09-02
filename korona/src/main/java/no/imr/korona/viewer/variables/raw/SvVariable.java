@@ -8,6 +8,7 @@ import no.imr.korona.viewer.variables.ContinuousVariableSettings;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.range.FloatRange;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Log Sv.
@@ -19,12 +20,12 @@ public final class SvVariable extends ContinuousRawVariable {
    }
 
    @Override
-   public ContinuousVariableResult evaluate(int channel, Ping ping) {
+   public @Nullable ContinuousVariableResult evaluate(int channel, Ping ping) {
       PowerData powerData = ping.getPowerData(channel);
       if (powerData == null) {
-         return ContinuousVariableResult.EMPTY;
+         return null;
       }
 
-      return new ContinuousVariableResult(powerData.getLogSv(), powerData.getDepthRange());
+      return ContinuousVariableResult.of(powerData.getLogSv(), powerData.getDepthRange());
    }
 }

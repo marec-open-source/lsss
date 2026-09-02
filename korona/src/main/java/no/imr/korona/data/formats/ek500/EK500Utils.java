@@ -6,13 +6,13 @@ import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.track.SegmentInfo;
 import no.imr.tools.time.DateTimeMillis;
-import no.imr.tools.time.NTDate;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,16 +20,16 @@ final class EK500Utils {
    private EK500Utils() {
    }
 
-   static long dateTimeToNTDate(int date, int time) {
-      return NTDate.timeInMillisToNTDate(DateTimeMillis.toMillis(date, time * 1000));
+   static Instant dateTimeToInstant(int date, int time) {
+      return DateTimeMillis.toInstant(date, time * 1000);
    }
 
-   static int ntDateToDate(long ntDate) {
-      return new DateTimeMillis(NTDate.ntDateToTimeInMillis(ntDate)).getDate();
+   static int instantToDate(Instant instant) {
+      return new DateTimeMillis(instant).getDate();
    }
 
-   static int ntDateToTime(long ntDate) {
-      return new DateTimeMillis(NTDate.ntDateToTimeInMillis(ntDate)).getTime() / 1000;
+   static int instantToTime(Instant instant) {
+      return new DateTimeMillis(instant).getTime() / 1000;
    }
 
    static List<TimeRecord> readTimeRecords(Path file, InfoRecord infoRecord) throws IOException {
@@ -67,14 +67,14 @@ final class EK500Utils {
       int iA = 0;
       int iB = 0;
       while (iA < listA.size() && iB < listB.size()) {
-         long ntDateA = listA.get(iA).getNTDate();
-         long ntDateB = listB.get(iB).getNTDate();
-         if (ntDateA == ntDateB) {
+         Instant instantA = listA.get(iA).getInstant();
+         Instant instantB = listB.get(iB).getInstant();
+         if (instantA.equals(instantB)) {
             equalCount++;
             iA++;
             iB++;
          } else {
-            if (ntDateA < ntDateB) {
+            if (instantA.isBefore(instantB)) {
                iA++;
             } else {
                iB++;
@@ -98,9 +98,9 @@ final class EK500Utils {
       EK500Settings ek500Settings = EK500Settings.createFromReferenceLocation(ek500FileSet.getMainFile());
 
       InfoRecord infoRecord = infoRecords.getFirst();
-      PingIndex begin = new DefaultPingIndex(infoRecord.getStartNTDate(), 0, infoRecord.startDistance, null);
-      PingIndex end = new DefaultPingIndex(infoRecord.getStopNTDate(), pingCount, infoRecord.stopDistance, null);
-      RawFileConfiguration rawFileConfiguration = EK500DatagramFactory.createRawFileConfiguration(begin.getNTDate(), ek500Settings, ek500FileSet, infoRecords);
+      PingIndex begin = new DefaultPingIndex(infoRecord.getStartInstant(), 0, infoRecord.startDistance, null);
+      PingIndex end = new DefaultPingIndex(infoRecord.getStopInstant(), pingCount, infoRecord.stopDistance, null);
+      RawFileConfiguration rawFileConfiguration = EK500DatagramFactory.createRawFileConfiguration(begin.getInstant(), ek500Settings, ek500FileSet, infoRecords);
 
       return new SegmentInfo(rawFileConfiguration, PingRange.of(begin, end));
    }

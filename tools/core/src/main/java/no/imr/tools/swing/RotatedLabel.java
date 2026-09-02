@@ -53,7 +53,10 @@ public final class RotatedLabel extends JLabel {
       g2d.translate(0, getHeight());
       g2d.rotate(Math.toRadians(-90));
       painting = true;
-      super.paint(g);
-      painting = false;
+      try {
+         super.paint(g);
+      } finally {
+         painting = false;
+      }
    }
 }

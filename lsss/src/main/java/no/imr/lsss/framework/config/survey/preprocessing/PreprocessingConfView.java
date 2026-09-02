@@ -12,6 +12,7 @@ import no.imr.tools.io.FileUtils;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.gui.ConfigurableGUIDialog;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.ProgressView;
@@ -23,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -51,8 +53,10 @@ final class PreprocessingConfView implements ViewHolder.View {
             .activateHorizontalFill();
       OnTheFlySetup onTheFlySetup = preprocessingConf.getOnTheFlySetup();
       if (onTheFlySetup != null) {
-         ParameterEditor onTheFlyParameterEditor = new ParameterEditor(onTheFlySetup.getParameters());
-         onTheFlyParameterEditor.getGUIConfig().setParameterEnabledDecider(preprocessingConf::isParameterEnabled);
+         ParameterEditor onTheFlyParameterEditor = new ParameterEditor(onTheFlySetup.getParameters(), new GUIConfig()
+               .setParameterEnabledDecider(preprocessingConf::isParameterEnabled)
+         );
+         gridBag.addWithLineBreak(new JLabel("<html><h3>On the fly preprocessing</h3>"));
          gridBag.addWithLineBreak(onTheFlyParameterEditor.getEditorComponent());
          addSeparator(gridBag);
       }
@@ -72,9 +76,16 @@ final class PreprocessingConfView implements ViewHolder.View {
    void updateSetups() {
       GridBag gridBag = new GridBag()
             .activateHorizontalFill();
-      for (PreprocessingSetup preprocessingSetup : preprocessingConf.getPreprocessingSetups()) {
-         gridBag.addWithLineBreak(new PreprocessingSetupGUI(preprocessingSetup, preprocessingConf).getComponent());
-         addSeparator(gridBag);
+      gridBag.addWithLineBreak(new JLabel("<html><h3>Main preprocessing setup - including survey feature library</h3>"));
+      gridBag.addWithLineBreak(new PreprocessingSetupGUI(preprocessingConf.getMainSetup(), preprocessingConf).getComponent());
+      addSeparator(gridBag);
+      List<PreprocessingSetup> additionalSetups = preprocessingConf.getAdditionalSetups();
+      if (!additionalSetups.isEmpty()) {
+         gridBag.addWithLineBreak(new JLabel("<html><h3>Additional preprocessing setups</h3>"));
+         for (PreprocessingSetup preprocessingSetup : additionalSetups) {
+            gridBag.addWithLineBreak(new PreprocessingSetupGUI(preprocessingSetup, preprocessingConf).getComponent());
+            addSeparator(gridBag);
+         }
       }
       GuiUtils.replaceContent(setupsPanel, gridBag.getPanel());
    }

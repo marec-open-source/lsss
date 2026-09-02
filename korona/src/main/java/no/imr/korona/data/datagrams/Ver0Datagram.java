@@ -3,6 +3,7 @@ package no.imr.korona.data.datagrams;
 import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * Version information.
@@ -15,8 +16,8 @@ public final class Ver0Datagram extends DatagramPingItem {
    public final String versionInfo;
    public final String productName;
 
-   public Ver0Datagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate);
+   public Ver0Datagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant);
 
       fileVersion = ByteBufferUtils.readCString(byteBuffer, 32);
       softwareVersion = ByteBufferUtils.readCString(byteBuffer, 32);

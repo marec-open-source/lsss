@@ -44,17 +44,20 @@ public final class Version implements Comparable<Version> {
    }
 
    @Override
-   public int compareTo(Version version) {
-      if (major != version.major) {
-         return major < version.major ? -1 : 1;
+   public int compareTo(Version other) {
+      int c = Integer.compare(major, other.major);
+      if (c != 0) {
+         return c;
       }
-      if (minor != version.minor) {
-         return minor < version.minor ? -1 : 1;
+      c = Integer.compare(minor, other.minor);
+      if (c != 0) {
+         return c;
       }
-      if (patch != version.patch) {
-         return patch < version.patch ? -1 : 1;
+      c = Integer.compare(patch, other.patch);
+      if (c != 0) {
+         return c;
       }
-      return getAfterDashForComparison().compareTo(version.getAfterDashForComparison());
+      return getAfterDashForComparison().compareTo(other.getAfterDashForComparison());
    }
 
    public boolean isOlderThan(Version version) {

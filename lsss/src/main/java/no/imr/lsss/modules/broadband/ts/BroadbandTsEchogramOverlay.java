@@ -105,22 +105,16 @@ public final class BroadbandTsEchogramOverlay extends BaseEchogramOverlay implem
       if (counter.get() == 0) {
          return null;
       }
-      return new DisplayData(peak, extent, counter.get() < 2000);
+      return transformed(new DisplayData(peak, extent, counter.get() < 2000));
    }
 
-   private final class DisplayData extends TransformedDisplayData {
-      private final Path2D.Float peak;
-      private final Path2D.Float extent;
-      private final boolean useFill;
-
-      private DisplayData(Path2D.Float peak, Path2D.Float extent, boolean useFill) {
-         this.peak = peak;
-         this.extent = extent;
-         this.useFill = useFill;
-      }
-
+   private record DisplayData(
+         Path2D.Float peak,
+         Path2D.Float extent,
+         boolean useFill
+   ) implements OverlayDisplayData {
       @Override
-      public void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          if (useFill) {
             g2d.setColor(FILL_COLOR);
             g2d.fill(extent);

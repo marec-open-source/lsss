@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -28,10 +29,9 @@ import java.util.List;
  */
 public final class Wizard {
    private final JDialog dialog;
-   private final JPanel mainPanel = new JPanel(new BorderLayout());
    private final JLabel indexLabel = new JLabel();
    private final JPanel configurationPanel = new JPanel(new BorderLayout());
-
+   private final JPanel bottomLeftPanel = new JPanel(new BorderLayout());
    private final JButton previousButton = MiscIcons.NAVIGATE_PREVIOUS.on(new JButton("Previous"));
    private final JButton nextButton = MiscIcons.NAVIGATE_NEXT.on(new JButton());
 
@@ -62,13 +62,15 @@ public final class Wizard {
       GuiUtils.setAccelerator(helpButton, KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
 
       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-      buttonPanel.setBackground(Color.WHITE);
-      buttonPanel.setBorder(BorderFactory.createEtchedBorder());
 
       buttonPanel.add(previousButton);
       buttonPanel.add(nextButton);
       buttonPanel.add(cancelButton);
       buttonPanel.add(helpButton);
+
+      JPanel bottomPanel = new JPanel(new BorderLayout());
+      bottomPanel.add(bottomLeftPanel, BorderLayout.WEST);
+      bottomPanel.add(buttonPanel, BorderLayout.EAST);
 
       indexLabel.setBackground(Color.WHITE);
       indexLabel.setVerticalAlignment(JLabel.TOP);
@@ -80,9 +82,24 @@ public final class Wizard {
 
       configurationPanel.setBorder(BorderFactory.createEtchedBorder());
 
+      JPanel mainPanel = new JPanel(new BorderLayout());
       mainPanel.add(indexPanel, BorderLayout.WEST);
-      mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+      mainPanel.add(bottomPanel, BorderLayout.SOUTH);
       mainPanel.add(configurationPanel);
+
+      dialog.getContentPane().add(mainPanel);
+      dialog.getRootPane().setDefaultButton(nextButton);
+      dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+      dialog.addWindowListener(new WindowAdapter() {
+         @Override
+         public void windowClosing(WindowEvent e) {
+            cancel();
+         }
+      });
+   }
+
+   public void setBottomLeft(JComponent component) {
+      GuiUtils.replaceContent(bottomLeftPanel, component);
    }
 
    public List<WizardStep> getWizardSteps() {
@@ -91,15 +108,6 @@ public final class Wizard {
 
    public void show(int width, int height) {
       setStepIndex(0);
-      dialog.getRootPane().setDefaultButton(nextButton);
-      dialog.getContentPane().add(mainPanel);
-      dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-      dialog.addWindowListener(new WindowAdapter() {
-         @Override
-         public void windowClosing(WindowEvent e) {
-            cancel();
-         }
-      });
       dialog.setSize(width, height);
       dialog.setLocationRelativeTo(dialog.getParent());
       GuiUtils.clampToScreen(dialog);
@@ -112,6 +120,10 @@ public final class Wizard {
 
    public boolean succeeded() {
       return succeeded;
+   }
+
+   public void refreshCurrentComponent() {
+      setStepIndex(stepIndex);
    }
 
    private void setStepIndex(int stepIndex) {

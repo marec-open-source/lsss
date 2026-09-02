@@ -19,7 +19,7 @@ final class LoaderJsonTest {
       }
       assertEquals(2, logLines.size());
       assertEquals(new LogLine(
-            Instant.parse("2021-04-16T06:26:00.828Z").toEpochMilli(),
+            Instant.parse("2021-04-16T06:26:00.828Z"),
             ActivityType.PELAGIC_TRAWL,
             true,
             "Pelagisk trål - start",
@@ -33,7 +33,8 @@ final class LoaderJsonTest {
                   new LogLineField("Redskapsnummer", ""),
                   new LogLineField("Serienummer", ""),
                   new LogLineField("Åpning", "m"),
-                  new LogLineField("Dørspredning", "m")),
+                  new LogLineField("Dørspredning", "m")
+            ),
             List.of("83.95", "73.35", "1", "3517", "", "", "3", "", "0")
       ), logLines.getFirst());
    }

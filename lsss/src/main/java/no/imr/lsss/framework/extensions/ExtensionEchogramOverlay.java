@@ -12,11 +12,9 @@ import no.marec.lsss.api.modules.LsssOverlayDisplayData;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.JPopupMenu;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.function.Function;
 
@@ -122,29 +120,6 @@ final class ExtensionEchogramOverlay extends BaseEchogramOverlay {
    @Override
    protected @Nullable OverlayDisplayData recomputeDisplayData() {
       LsssOverlayDisplayData data = overlay.computeDisplayData();
-      return data != null ? new DisplayData(data) : null;
-   }
-
-   private final class DisplayData extends TransformedDisplayData {
-      private final LsssOverlayDisplayData data;
-
-      private DisplayData(LsssOverlayDisplayData data) {
-         this.data = data;
-      }
-
-      @Override
-      protected void transformedDraw(Graphics2D g2d) {
-         data.draw(g2d);
-      }
-
-      @Override
-      public void drawText(Graphics2D g2d) {
-         data.drawText(g2d);
-      }
-
-      @Override
-      public boolean intersects(Rectangle2D rectangle) {
-         return data.intersects(rectangle);
-      }
+      return data != null ? transformed(new ExtensionOverlayDisplayData(data)) : null;
    }
 }

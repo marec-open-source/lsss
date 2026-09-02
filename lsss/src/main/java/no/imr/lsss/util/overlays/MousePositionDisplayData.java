@@ -8,7 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
-public final class MousePositionDisplayData extends OverlayDisplayData {
+public final class MousePositionDisplayData implements OverlayDisplayData {
    private final Rectangle2D.Float xMarker;
    private final Ellipse2D.@Nullable Float depthMarker;
 

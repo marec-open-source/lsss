@@ -4,6 +4,7 @@ import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.tools.math.ComplexArray;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 public final class Fil1Datagram extends DatagramPingItem {
    public static final DatagramType TYPE = DatagramType.simple("FIL1", Fil1Datagram::new);
@@ -14,12 +15,12 @@ public final class Fil1Datagram extends DatagramPingItem {
    public short decimationFactor;
    public ComplexArray coefficients = ComplexArray.EMPTY;
 
-   public Fil1Datagram(long ntDate) {
-      super(ntDate);
+   public Fil1Datagram(Instant instant) {
+      super(instant);
    }
 
-   public Fil1Datagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate);
+   public Fil1Datagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant);
 
       stage = byteBuffer.getShort();
       channel = byteBuffer.getShort();

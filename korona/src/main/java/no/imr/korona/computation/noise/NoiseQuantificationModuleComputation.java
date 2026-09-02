@@ -182,7 +182,7 @@ final class NoiseQuantificationModuleComputation extends GeneralPingModuleComput
       NoiseFile.NoiseData noiseData;
       if (nqp != null) {
          noiseData = toNoiseData(nqp, channel);
-         noiseFile.update(noiseData, channel, ping);
+         noiseFile.update(noiseData, channel, ping.getInstant());
       } else {
          noiseData = null;
       }
@@ -190,11 +190,11 @@ final class NoiseQuantificationModuleComputation extends GeneralPingModuleComput
       if (module.useFallbackNoiseQuantile.getBooleanValue() && selectedFallbackNoiseChannels.contains((int) channel)) {
          NoiseFile.NoiseData quantileNoiseData = noiseFile.findQuantileNoiseData(channel, module.fallbackNoiseQuantile.getFloatValue() / 100);
          if (quantileNoiseData != null) {
-            ping.add(new Nqp0Datagram(ping.getNTDate(), channel, quantileNoiseData.ne(), quantileNoiseData.nh(), quantileNoiseData.quality()));
+            ping.add(new Nqp0Datagram(ping.getInstant(), channel, quantileNoiseData.ne(), quantileNoiseData.nh(), quantileNoiseData.quality()));
          }
       } else {
          if (noiseData != null) {
-            ping.add(new Nqp0Datagram(ping.getNTDate(), channel, noiseData.ne(), noiseData.nh(), noiseData.quality()));
+            ping.add(new Nqp0Datagram(ping.getInstant(), channel, noiseData.ne(), noiseData.nh(), noiseData.quality()));
          } else {
             noiseFile.addFallbackNqp0Datagram(channel, ping);
          }
@@ -246,7 +246,7 @@ final class NoiseQuantificationModuleComputation extends GeneralPingModuleComput
 
             Ping timeStep = timeStepBuffer.get(index);
 
-            if (!module.centerTimeStepBuffer.getBooleanValue() || histograms[channel].getCenterTimeInMilli() > timeStep.getTimeInMillis()
+            if (!module.centerTimeStepBuffer.getBooleanValue() || histograms[channel].getCenterTime().isAfter(timeStep.getInstant())
                   || timeStepBuffer.size() - index > allowedBufferSize) {
                // Add reading from file here if histograms is not OK.
                createNQPDatagram(channel, timeStep);

@@ -4,6 +4,7 @@ import no.imr.korona.data.ping.Ping;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.ExportTransform;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A continuous variable.
@@ -27,5 +28,5 @@ public abstract non-sealed class ContinuousVariable extends BaseVariable {
       return exportTransform;
    }
 
-   public abstract ContinuousVariableResult evaluate(int channel, Ping ping);
+   public abstract @Nullable ContinuousVariableResult evaluate(int channel, Ping ping);
 }

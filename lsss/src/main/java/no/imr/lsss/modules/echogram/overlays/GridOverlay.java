@@ -86,17 +86,11 @@ public final class GridOverlay extends BaseEchogramOverlay {
       return new DisplayDataBuilder(gridIntegrators, scatterSet, message).build();
    }
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final Path2D gridPath;
-      private final List<GuiText> texts;
-      private final @Nullable GuiText messageText;
-
-      private DisplayData(Path2D gridPath, List<GuiText> texts, @Nullable GuiText messageText) {
-         this.gridPath = gridPath;
-         this.texts = texts;
-         this.messageText = messageText;
-      }
-
+   private record DisplayData(
+         Path2D gridPath,
+         List<GuiText> texts,
+         @Nullable GuiText messageText
+   ) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setStroke(GuiUtils.STROKE_1);

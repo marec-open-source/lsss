@@ -78,7 +78,7 @@ public final class Exec {
          return FORK_JOIN_POOL.awaitTermination(10, TimeUnit.SECONDS)
                && LONG_RUNNING_THREAD_POOL.awaitTermination(10, TimeUnit.SECONDS)
                && CACHED_THREAD_POOL.awaitTermination(10, TimeUnit.SECONDS)
-               && LONG_RUNNING_THREAD_POOL.awaitTermination(10, TimeUnit.SECONDS)
+               && LOW_PRIORITY_CACHED_THREAD_POOL.awaitTermination(10, TimeUnit.SECONDS)
                && SCHEDULER.awaitTermination(10, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
          Thread.currentThread().interrupt();

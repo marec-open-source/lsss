@@ -86,7 +86,7 @@ public final class PlanktonInversionSyntheticSyntheticData extends SyntheticData
    }
 
    @Override
-   protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+   public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
       double sV = 0;
       int dataOffset = 0;
 
@@ -235,7 +235,7 @@ public final class PlanktonInversionSyntheticSyntheticData extends SyntheticData
    }
 
    @Override
-   protected float getBottomDepth(PingIndex pingIndex, int channel) {
+   public float getBottomDepth(PingIndex pingIndex, int channel) {
       return 150;
    }
 }

@@ -34,10 +34,10 @@ public final class LineDisplayer extends JoglDisplayNode {
       }
 
       gl.glColor3f(color.x(), color.y(), color.z());
-      gl.glLineWidth(3);
+      gl.glLineWidth(3 * getUiScaleFactor());
 
       gl.glBegin(GL_LINE_STRIP);
-      JoglUtils.renderVertexList(gl, positions);
+      JoglUtils.glVertices(gl, positions);
       gl.glEnd();
    }
 }

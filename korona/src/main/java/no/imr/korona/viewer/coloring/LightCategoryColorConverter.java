@@ -41,6 +41,7 @@ public final class LightCategoryColorConverter extends DiscreteAndContinuousColo
    void getRGBs(int[] rgbs, byte[] categories, float[] values) {
       updateValueToBrightness();
 
+      int unknownRGB = getDiscreteVariable().getUnknownCategory().getColor().getRGB();
       FloatRange effectiveRange = getContinuousVariable().getSettings().getEffectiveRange();
 
       for (int i = 0; i < rgbs.length; i++) {
@@ -60,7 +61,7 @@ public final class LightCategoryColorConverter extends DiscreteAndContinuousColo
             continue;
          }
          if (!effectiveRange.contains(value)) {
-            rgbs[i] = getDiscreteVariable().getUnknownCategory().getColor().getRGB();
+            rgbs[i] = unknownRGB;
             continue;
          }
 
@@ -87,7 +88,7 @@ public final class LightCategoryColorConverter extends DiscreteAndContinuousColo
    }
 
    @Override
-   public void drawAddedLegend(Graphics2D g, int width, int height) {
+   void drawAddedLegend(Graphics2D g, int width, int height) {
       drawColorTable(g, width, height);
       drawMarks(g, width, height);
       drawText(g, height);
@@ -112,8 +113,8 @@ public final class LightCategoryColorConverter extends DiscreteAndContinuousColo
          float brightness = lightRange.fractionToValue(fraction);
          colorBuffer[y] = Color.HSBtoRGB(0, 0, brightness);
       }
-      Arrays.fill(colorBuffer, 0, yMin, getContinuousVariable().getSettings().isClipAbove() ? ValueColor.CLIP_DATA_RGB : colorBuffer[yMin]);
-      Arrays.fill(colorBuffer, yMax, height, ValueColor.CLIP_DATA_RGB);
+      Arrays.fill(colorBuffer, 0, yMin, getContinuousVariable().getSettings().isClipAbove() ? Color.WHITE.getRGB() : colorBuffer[yMin]);
+      Arrays.fill(colorBuffer, yMax, height, Color.WHITE.getRGB());
 
       image.setRGB(0, 0, 1, height, colorBuffer, 0, 1);
       for (int i = width * 2 / 3 - 1; i < width; i++) {

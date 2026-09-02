@@ -5,6 +5,7 @@ import no.imr.tools.Utils;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.swing.GuiListeners;
 import no.imr.tools.swing.WhenShowingListening;
+import no.imr.tools.time.TimeUtils;
 import no.imr.tools.visualizer.ItemContainer;
 import no.imr.tools.visualizer.ItemFeature;
 import no.imr.tools.visualizer.ItemVisualizer;
@@ -26,7 +27,7 @@ final class DataFileVisualizerDialog implements ItemContainer<DataFileTableModel
    DataFileVisualizerDialog(DataConf dataConf) {
       this.dataConf = dataConf;
 
-      DateTimeFormatter timeFormat = Utils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss");
+      DateTimeFormatter timeFormat = TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss");
       DecimalFormat geoPosFormat = Utils.createDecimalFormat("0.000000");
       DecimalFormat intFormat = Utils.createDecimalFormat("0");
 
@@ -58,12 +59,12 @@ final class DataFileVisualizerDialog implements ItemContainer<DataFileTableModel
             new ItemFeature.Number<>("File size", Unit.MEGABYTES, row -> {
                return row.getTotalFileSize(DataType.RAW) / (1024.0 * 1024.0);
             }, Utils.createDecimalFormat("0.000")),
-            ItemFeature.Time.fromMillis("File last modified", Unit.UTC, row -> {
+            ItemFeature.Time.fromInstant("File last modified", Unit.UTC, row -> {
                return row.getLastModified(DataType.RAW);
             }, timeFormat)
       );
 
-      itemVisualizer = new ItemVisualizer<>(features, this, Preferences.userRoot().node("/no/marec/lsss/DataFileVisualizerDialog"));
+      itemVisualizer = new ItemVisualizer<>(features, this, Preferences.userRoot().node("no/marec/lsss/DataFileVisualizerDialog"));
       WhenShowingListening.connect(itemVisualizer.getComponent(), dataConf.getFileTableChangeManager(), GuiListeners.coalescingLater(itemVisualizer::update));
       itemVisualizer.show(dataConf.getConfigurationManager().getDialog(), dataConf.getDisplayName());
    }

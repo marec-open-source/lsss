@@ -4,6 +4,7 @@ import no.imr.korona.data.datagrams.DatagramFormatException;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 public record DatagramSubType(
       int intCode,
@@ -29,12 +30,12 @@ public record DatagramSubType(
       return Integer.toString(intCode);
    }
 
-   public SubDatagram createSubDatagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      return reader.read(ntDate, byteBuffer);
+   public SubDatagram createSubDatagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      return reader.read(instant, byteBuffer);
    }
 
    @FunctionalInterface
    public interface Reader {
-      SubDatagram read(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException;
+      SubDatagram read(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException;
    }
 }

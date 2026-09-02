@@ -1,6 +1,7 @@
 package no.imr.tools.swing;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
+import no.imr.tools.LateInit;
 import no.imr.tools.ResourceUtils;
 import no.imr.tools.ShouldNotHappenException;
 import no.imr.tools.Utils;
@@ -77,6 +78,7 @@ import java.awt.KeyboardFocusManager;
 import java.awt.LayoutManager;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Stroke;
@@ -108,11 +110,9 @@ import java.util.Collection;
 import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -208,9 +208,9 @@ public final class GuiUtils {
    }
 
    public static <T> T getNowOrWait(Supplier<T> supplier) {
-      AtomicReference<@Nullable T> value = new AtomicReference<>();
+      LateInit<T> value = new LateInit<>();
       invokeNowOrWait(() -> value.set(supplier.get()));
-      return Objects.requireNonNull(value.get());
+      return value.get();
    }
 
    /**
@@ -343,7 +343,7 @@ public final class GuiUtils {
 
    public static int showOptionDialog(@Nullable Component referenceComponent, String title, String message, String[] options) {
       return JOptionPane.showOptionDialog(referenceComponent, message, title,
-            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options.length > 0 ? options[0] : null);
    }
 
    public static void showErrorDialog(@Nullable Component referenceComponent, String message) {
@@ -422,8 +422,12 @@ public final class GuiUtils {
       if (window == null) {
          return;
       }
+      PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+      if (pointerInfo == null) {
+         return;
+      }
+      Point m = pointerInfo.getLocation();
       Point p = SwingUtilities.convertPoint(component, component.getWidth() / 2, component.getHeight() / 2, window);
-      Point m = MouseInfo.getPointerInfo().getLocation();
       window.setLocation(m.x - p.x, m.y - p.y);
    }
 
@@ -495,7 +499,9 @@ public final class GuiUtils {
             Dimension dimension = component.getLayout().preferredLayoutSize(component);
             component.setMinimumSize(dimension);
             Container parent = component.getParent();
-            parent.revalidate();
+            if (parent != null) {
+               parent.revalidate();
+            }
          }
       });
    }
@@ -988,7 +994,7 @@ public final class GuiUtils {
    }
 
    public static String getComponentText(Component component) {
-      return switch (component) {
+      String text = switch (component) {
          case JTextComponent textComponent -> {
             yield textComponent.getText();
          }
@@ -1001,15 +1007,16 @@ public final class GuiUtils {
          case JTableHeader tableHeader -> {
             JTable table = tableHeader.getTable();
             if (table == null) {
-               yield "";
+               yield null;
             }
             TableModel model = table.getModel();
             yield IntStream.range(0, model.getColumnCount())
                   .mapToObj(model::getColumnName)
                   .collect(Collectors.joining("\n"));
          }
-         default -> "";
+         default -> null;
       };
+      return text != null ? text : "";
    }
 
    public static String htmlToPlainText(String html) {

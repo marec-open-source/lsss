@@ -95,9 +95,9 @@ final class BroadbandPeakDetectionModuleView extends BaseViewModule.BaseView {
       ParameterTableGUI<BroadbandTemporalNotchFilterConfig> tableGUI = new ParameterTableGUI<>(tableModel);
       boolean ok = new ConfigurableGUIDialog(getComponent(), "Broadband notch filters", config)
             .setHelpID(KoronaHelp.BROADBAND_NOTCH_FILTERS)
-            .setCloseOnOk(tableGUI::stopEditing)
             .setMinimumSize(800, 0)
-            .setNoScrollGUI(tableGUI.createScrollPane())
+            .setScrollable(false)
+            .setGUI(tableGUI.createScrollPane())
             .show();
       if (ok) {
          module.setBroadbandNotchFilterModuleConfig(config);
@@ -125,7 +125,7 @@ final class BroadbandPeakDetectionModuleView extends BaseViewModule.BaseView {
          try {
             XmlUtils.writeDocument(module.getBroadbandNotchFilterModuleConfig().toXml(), selectedFile);
          } catch (IOException e) {
-            GuiUtils.showErrorDialog(getComponent(), "Error saving " + selectedFile);
+            GuiUtils.showErrorDialog(getComponent(), "Error saving " + selectedFile, e);
          }
       }
    }

@@ -102,9 +102,7 @@ public final class OverlaidComponent<O extends Overlay> extends JComponent {
    }
 
    private void setActiveOverlay(Overlay overlay) {
-      if (activeOverlay != overlay) {
-         activeOverlay = overlay;
-      }
+      activeOverlay = overlay;
       setCursor(activeOverlay.getCursor());
    }
 

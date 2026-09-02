@@ -6,14 +6,16 @@ import no.imr.korona.data.track.SegmentHandle;
 import no.imr.lsss.resources.LsssIcons;
 import no.imr.tools.misc.HtmlStringBuilder;
 import no.imr.tools.swing.svg.SvgIcon;
+import no.imr.tools.time.TimeUtils;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +30,7 @@ public final class DataFileKoronaCellRenderer implements TableCellRenderer {
    @Override
    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
       if (value instanceof DataFileTableModel.FileRow fileRow) {
-         return renderFileRow(table, fileRow, row);
+         return renderFileRow(fileRow);
       } else {
          return emptyLabel();
       }
@@ -41,7 +43,7 @@ public final class DataFileKoronaCellRenderer implements TableCellRenderer {
       return label;
    }
 
-   private JComponent renderFileRow(JTable table, DataFileTableModel.FileRow fileRow, int row) {
+   private JComponent renderFileRow(DataFileTableModel.FileRow fileRow) {
       SegmentHandle processedSegmentHandle = fileRow.getSegmentHandle(DataType.PROCESSED);
       if (processedSegmentHandle == null) {
          return emptyLabel();
@@ -80,13 +82,13 @@ public final class DataFileKoronaCellRenderer implements TableCellRenderer {
 
       List<String> notices = new ArrayList<>();
 
-      if (row == table.getRowCount() - 1) {
-         notices.add("Last file in directory");
+      if (fileRow == dataFileTable.getDataFileTableModel().getMostRecentlyModifiedRow(DataType.PROCESSED)) {
+         notices.add("The most recently modified file in the directory");
       }
 
-      long lastModified = fileRow.getLastModified(DataType.PROCESSED);
-      if (lastModified + DataFileStatusCellRenderer.MODIFICATION_THRESHOLD > System.currentTimeMillis()) {
-         notices.add("Recently modified: " + new Date(lastModified));
+      Instant lastModified = fileRow.getLastModified(DataType.PROCESSED);
+      if (lastModified != null && lastModified.until(Instant.now(), ChronoUnit.MILLIS) < DataFileStatusCellRenderer.MODIFICATION_THRESHOLD_MILLIS) {
+         notices.add("Recently modified: " + TimeUtils.JAVA_UTIL_DATE_FORMATTER.format(lastModified));
       }
 
       if (!fileRow.getKoronaConflictingFiles().isEmpty()) {

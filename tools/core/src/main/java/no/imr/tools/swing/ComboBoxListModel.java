@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * A {@link ComboBoxModel} using a {@link List} to store all items.
  */
-public final class ComboBoxListModel<T> extends ListListModel<T> implements ComboBoxModel<T> {
+public final class ComboBoxListModel<T extends @Nullable Object> extends ListListModel<T> implements ComboBoxModel<T> {
    private @Nullable Object selectedItem;
 
    public ComboBoxListModel(@Nullable T selectedItem, List<T> items) {

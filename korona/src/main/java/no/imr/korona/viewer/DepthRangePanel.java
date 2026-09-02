@@ -173,7 +173,7 @@ public final class DepthRangePanel {
       float delta = (float) NiceNumber.niceNumber(maxDepthRange.getSize() / textCount, true);
 
       FloatRange shrunkRange = maxDepthRange.shrinkToMultipleOf(delta);
-      if (shrunkRange == FloatRange.EMPTY_RANGE) {
+      if (shrunkRange.isEmpty()) {
          return;
       }
       int count = Math.round(shrunkRange.getSize() / delta) + 1;
@@ -212,10 +212,10 @@ public final class DepthRangePanel {
          return;
       }
       int dx = getWidth() / channelCount;
-      int x = dx - 1;
-      for (int i = 0; i < channelCount; i++, x += dx) {
+      for (int i = 0; i < channelCount; i++) {
+         int xMax = (i + 1) * dx - 1;
          depthRangeChooser.getDepthRangeLists().get(i).getAllDepthRanges(depthRanges, dx);
-         drawLineChannel(g, x, depthRanges);
+         drawLineChannel(g, xMax, depthRanges);
       }
    }
 

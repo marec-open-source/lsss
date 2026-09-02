@@ -218,7 +218,7 @@ final class BroadbandSplitterModuleComputation extends ConcurrentPingModuleCompu
             outputDepths[outputChannelIndex++] = inputDepths[inputChannelIndex];
          }
       }
-      return new Bot0Datagram(bot0Datagram.getNTDate(), outputDepths);
+      return new Bot0Datagram(bot0Datagram.getInstant(), outputDepths);
    }
 
    record FrequencyBand(FloatRange frequencyRange, float nominalFrequency) {

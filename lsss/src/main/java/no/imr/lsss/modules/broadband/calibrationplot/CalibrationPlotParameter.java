@@ -5,11 +5,11 @@ import no.imr.korona.data.formats.ek60.calibration.CalibrationXml;
 import no.imr.korona.data.formats.ek60.calibration.ChannelCalibration;
 import no.imr.korona.data.ping.items.channel.BroadbandData;
 import no.imr.korona.util.ExportRounding;
-import no.imr.tools.math.Function1D;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.ExportTransform;
 
 import java.util.Optional;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
 enum CalibrationPlotParameter {
@@ -20,7 +20,7 @@ enum CalibrationPlotParameter {
 
    TRANSDUCER_IMPEDANCE(CalibrationXml.BROADBAND_TRANSDUCER_IMPEDANCE, "Transducer impedance", Unit.DB,
          "ztde", ExportRounding.db(),
-         broadbandData -> BroadbandData::getUncalibratedTransducerImpedance,
+         _ -> BroadbandData::getUncalibratedTransducerImpedance,
          calibration -> calibration.broadbandTransducerImpedance),
 
    EQUIVALENT_BEAM_ANGLE(CalibrationXml.BROADBAND_EQUIVALENT_BEAM_ANGLE, "Equivalent beam angle", Unit.DB,
@@ -40,30 +40,30 @@ enum CalibrationPlotParameter {
 
    ANGLE_OFFSET_ALONGSHIP(CalibrationXml.BROADBAND_ANGLE_OFFSET_ALONGSHIP, "Angle offset alongship", Unit.DEGREES,
          "angleOffsetAlongship", ExportRounding.degrees(),
-         broadbandData -> frequency -> broadbandData.getUncalibratedAlongAngleOffset(),
+         broadbandData -> _ -> broadbandData.getUncalibratedAlongAngleOffset(),
          calibration -> calibration.broadbandAngleOffsetAlongship),
 
-   ALONG_OFFSET_ATHWARTSHIP(CalibrationXml.BROADBAND_ANGLE_OFFSET_ATHWARTSHIP, "Angle offset athwartship", Unit.DEGREES,
+   ANGLE_OFFSET_ATHWARTSHIP(CalibrationXml.BROADBAND_ANGLE_OFFSET_ATHWARTSHIP, "Angle offset athwartship", Unit.DEGREES,
          "angleOffsetAthwartship", ExportRounding.degrees(),
-         broadbandData -> frequency -> broadbandData.getUncalibratedAthwartAngleOffset(),
+         broadbandData -> _ -> broadbandData.getUncalibratedAthwartAngleOffset(),
          calibration -> calibration.broadbandAngleOffsetAthwartship),
 
    ABSORPTION("α", "Absorption", Unit.DB_PER_METER,
          "absorption", ExportRounding.absorption(),
          broadbandData -> broadbandData.getAbsorption()::getAbsorption,
-         calibration -> Optional.empty());
+         _ -> Optional.empty());
 
    final String shortName;
    final String fullName;
    final Unit unit;
    final String exportName;
    final ExportTransform exportTransform;
-   final Function<BroadbandData, Function1D> uncalibrated;
+   final Function<BroadbandData, DoubleUnaryOperator> uncalibrated;
    final Function<ChannelCalibration, Optional<BroadbandFunction>> calibrated;
 
    CalibrationPlotParameter(String shortName, String fullName, Unit unit,
                             String exportName, ExportTransform exportTransform,
-                            Function<BroadbandData, Function1D> uncalibrated,
+                            Function<BroadbandData, DoubleUnaryOperator> uncalibrated,
                             Function<ChannelCalibration, Optional<BroadbandFunction>> calibrated) {
       this.shortName = shortName;
       this.fullName = fullName;

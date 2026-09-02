@@ -1,8 +1,11 @@
 package no.imr.tools.logging;
 
+import no.imr.tools.Utils;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.ErrorManager;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -33,7 +36,14 @@ public final class Log {
          if (isIgnorableLogging(record)) {
             return;
          }
-         HANDLERS.forEach(handler -> handler.publish(record));
+         for (Handler handler : HANDLERS) {
+            try {
+               handler.publish(record);
+            } catch (Exception e) {
+               // A failing handler must not abort the remaining handlers or propagate to the log call site.
+               reportError(null, e, ErrorManager.GENERIC_FAILURE);
+            }
+         }
       }
 
       @Override
@@ -47,14 +57,10 @@ public final class Log {
       }
    };
 
-   private static LogRecord maxLevelLogRecord = new LogRecord(Level.ALL, "");
-   private static final MaxLevelHandler MAX_LEVEL_HANDLER = new MaxLevelHandler() {
-      @Override
-      protected void newMaxLevel(LogRecord record) {
-         // Don't need to do anything here
-         maxLevelLogRecord = record;
-      }
-   };
+   private static volatile LogRecord maxLevelLogRecord = new LogRecord(Level.ALL, "");
+   private static final MaxLevelHandler MAX_LEVEL_HANDLER = new MaxLevelHandler(record -> {
+      maxLevelLogRecord = record;
+   });
 
    @SuppressWarnings("PMD.SystemPrintln")
    public static final Thread.UncaughtExceptionHandler UNCAUGHT_EXCEPTION_HANDLER = (t, e) -> {
@@ -135,68 +141,91 @@ public final class Log {
    }
 
    private static boolean isIgnorableLogging(LogRecord record) {
-      if (record.getLoggerName() == null) {
-         return false;
-      }
       switch (record.getLevel().intValue()) {
          case 1000 -> { // ERROR
-            if (record.getLoggerName().equals("org.glassfish.jersey.server.ServerRuntime$Responder")) {
-               Throwable thrown = record.getThrown();
-               Throwable cause = thrown != null ? getDeepestCause(thrown) : null;
-               String message = cause != null ? cause.getMessage() : null;
-               if (message != null) {
-                  if (message.contains("connection was aborted")) {
-                     record.setThrown(null);
-                     record.setMessage(message);
-                     record.setLevel(Level.INFO);
-                     return false;
+            switch (record.getLoggerName()) {
+               case "org.glassfish.jersey.server.ServerRuntime$Responder" -> {
+                  Throwable thrown = record.getThrown();
+                  Throwable cause = thrown != null ? getDeepestCause(thrown) : null;
+                  String message = cause != null ? cause.getMessage() : null;
+                  if (message != null) {
+                     if (message.contains("connection was aborted")) {
+                        record.setThrown(null);
+                        record.setMessage(message);
+                        record.setLevel(Level.INFO);
+                        return false;
+                     }
                   }
                }
-            }
-            if (record.getLoggerName().equals("org.hibernate.tool.hbm2ddl.SchemaExport")) {
-               String message = record.getMessage();
-               if (message != null) {
-                  if (message.equals("Schema 'SA' does not exist")
-                        || message.matches("user lacks privilege or object not found: PUBLIC\\.\\w+")
-                        || message.matches("ERROR: relation \"\\w+\" does not exist")
-                        || message.matches("'DROP TABLE' cannot be performed on '\\w+' because it does not exist.")
-                        || message.matches("'ALTER TABLE' cannot be performed on '\\w+' because it does not exist.")
-                        || message.matches("HHH000389: Unsuccessful: alter table \\w+ drop constraint \\w+")
-                        || message.matches("HHH000389: Unsuccessful: drop table \\w+")) {
-                     return true;
+               case "org.hibernate.tool.hbm2ddl.SchemaExport" -> {
+                  String message = record.getMessage();
+                  if (message != null) {
+                     if (message.equals("Schema 'SA' does not exist")
+                           || message.matches("user lacks privilege or object not found: PUBLIC\\.\\w+")
+                           || message.matches("ERROR: relation \"\\w+\" does not exist")
+                           || message.matches("'DROP TABLE' cannot be performed on '\\w+' because it does not exist.")
+                           || message.matches("'ALTER TABLE' cannot be performed on '\\w+' because it does not exist.")
+                           || message.matches("HHH000389: Unsuccessful: alter table \\w+ drop constraint \\w+")
+                           || message.matches("HHH000389: Unsuccessful: drop table \\w+")) {
+                        return true;
+                     }
                   }
+               }
+               case null, default -> {
                }
             }
          }
          case 900 -> { // WARN
-            if (record.getLoggerName().equals("org.hibernate.engine.jdbc.spi.SqlExceptionHelper")) {
-               String message = record.getMessage();
-               if (message != null) {
-                  if (message.equals("SQL Warning Code: -1100, SQLState: 02000")
-                        || message.equals("SQL Warning Code: 10000, SQLState: 02000")
-                        || message.equals("No row was found for FETCH, UPDATE or DELETE; or the result of a query is an empty table.")
-                        || message.equals("no data")
-                        || message.equals("SQL Warning Code: 0, SQLState: 00000")
-                        || message.matches("CREATE TABLE / PRIMARY KEY will create implicit index \"\\w+\" for table \"\\w+\"")) {
-                     return true;
+            switch (record.getLoggerName()) {
+               case "org.hibernate.orm.connections.pooling" -> {
+                  String message = record.getMessage();
+                  if (message != null) {
+                     if (message.equals("HHH10001002: Using built-in connection pool (not intended for production use)") && Utils.isTestRun()) {
+                        record.setLevel(Level.INFO);
+                        return false;
+                     }
                   }
                }
-            }
-            if (record.getLoggerName().equals("org.hibernate.tool.schema.internal.ExceptionHandlerLoggedImpl")) {
-               Throwable thrown = record.getThrown();
-               Throwable cause = thrown != null ? thrown.getCause() : null;
-               String message = cause != null ? cause.getMessage() : null;
-               if (message != null) {
-                  if (message.equals("Schema 'SA' does not exist")
-                        || message.equals("SQL Warning Code: 10000, SQLState: 02000")
-                        || message.equals("No row was found for FETCH, UPDATE or DELETE; or the result of a query is an empty table.")
-                        || message.equals("no data")
-                        || message.matches("user lacks privilege or object not found: PUBLIC.\\w+")
-                        || message.matches("'ALTER TABLE' cannot be performed on '\\w+' because it does not exist.")
-                        || message.matches("'DROP TABLE' cannot be performed on '\\w+' because it does not exist.")
-                        || message.matches("GDS Exception. 335544351. unsuccessful metadata update\nTable \\w+ already exists\nnull\nnull")) {
-                     return true;
+               case "org.hibernate.engine.jdbc.spi.SqlExceptionHelper" -> {
+                  String message = record.getMessage();
+                  if (message != null) {
+                     if (message.equals("SQL Warning Code: -1100, SQLState: 02000")
+                           || message.equals("SQL Warning Code: 10000, SQLState: 02000")
+                           || message.equals("No row was found for FETCH, UPDATE or DELETE; or the result of a query is an empty table.")
+                           || message.equals("no data")
+                           || message.equals("SQL Warning Code: 0, SQLState: 00000")
+                           || message.matches("CREATE TABLE / PRIMARY KEY will create implicit index \"\\w+\" for table \"\\w+\"")) {
+                        return true;
+                     }
                   }
+               }
+               case "org.hibernate.orm.jdbc.warn" -> {
+                  String message = record.getMessage();
+                  if (message != null) {
+                     if (message.equals("HHH000247: ErrorCode: -1100, SQLState: 02000")
+                           || message.equals("no data")) {
+                        return true;
+                     }
+                  }
+               }
+               case "org.hibernate.tool.schema.internal.ExceptionHandlerLoggedImpl" -> {
+                  Throwable thrown = record.getThrown();
+                  Throwable cause = thrown != null ? thrown.getCause() : null;
+                  String message = cause != null ? cause.getMessage() : null;
+                  if (message != null) {
+                     if (message.equals("Schema 'SA' does not exist")
+                           || message.equals("SQL Warning Code: 10000, SQLState: 02000")
+                           || message.equals("No row was found for FETCH, UPDATE or DELETE; or the result of a query is an empty table.")
+                           || message.equals("no data")
+                           || message.matches("user lacks privilege or object not found: PUBLIC.\\w+")
+                           || message.matches("'ALTER TABLE' cannot be performed on '\\w+' because it does not exist.")
+                           || message.matches("'DROP TABLE' cannot be performed on '\\w+' because it does not exist.")
+                           || message.matches("GDS Exception. 335544351. unsuccessful metadata update\nTable \\w+ already exists\nnull\nnull")) {
+                        return true;
+                     }
+                  }
+               }
+               case null, default -> {
                }
             }
          }

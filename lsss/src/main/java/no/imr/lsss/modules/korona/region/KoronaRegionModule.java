@@ -205,9 +205,16 @@ public final class KoronaRegionModule extends BaseDataModule {
       }
 
       @Override
-      public int compareTo(KoronaRegionIdentifier o) {
-         int timeCompare = Double.compare(startTime, o.startTime);
-         return timeCompare != 0 ? timeCompare : Float.compare(firstDepth, o.firstDepth);
+      public int compareTo(KoronaRegionIdentifier other) {
+         int timeCompare = Double.compare(startTime, other.startTime);
+         if (timeCompare != 0) {
+            return timeCompare;
+         }
+         int depthCompare = Float.compare(firstDepth, other.firstDepth);
+         if (depthCompare != 0) {
+            return depthCompare;
+         }
+         return Long.compare(pingCount, other.pingCount);
       }
    }
 }

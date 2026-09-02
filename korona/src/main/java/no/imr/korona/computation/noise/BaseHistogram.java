@@ -7,6 +7,7 @@ import no.imr.tools.math.Median;
 import org.jspecify.annotations.Nullable;
 
 import java.io.PrintWriter;
+import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
@@ -72,13 +73,13 @@ abstract class BaseHistogram extends SubModuleWithLogging {
     * and for calculating the median.
     */
    private static final class HistoryObject {
-      private final long timeInMillis;
+      private final Instant time;
       private final float[] data;
       private final HistogramData.Quality quality;
       private int[] hits; // the histogram corresponding to the data
 
       private HistoryObject(HistogramData histogramData, int[] hits) {
-         timeInMillis = histogramData.getPowerData().getTimeInMillis();
+         time = histogramData.getPowerData().getInstant();
          data = histogramData.getData();
          quality = histogramData.getQuality();
          this.hits = hits;
@@ -473,11 +474,11 @@ abstract class BaseHistogram extends SubModuleWithLogging {
       }
 
       // renormalize
-      float sum = 0;
-      for (int i = 1; i < n; i++) {
+      double sum = 0;
+      for (int i = 0; i < n; i++) {
          sum += probabilities[i] * (limits[i + 1] - limits[i]);
       }
-      ArrayMath.divide(probabilities, sum);
+      ArrayMath.divide(probabilities, (float) sum);
    }
 
    /**
@@ -564,15 +565,15 @@ abstract class BaseHistogram extends SubModuleWithLogging {
    /**
     * Find the center in time between the oldest and newest inputs in the histogram.
     *
-    * @return the center time in milliseconds or 0 if the histogram is empty
+    * @return the center time or epoch if the histogram is empty
     */
-   long getCenterTimeInMilli() {
+   Instant getCenterTime() {
       if (history.isEmpty()) {
-         return 0;
+         return Instant.EPOCH;
       }
-      long t0 = history.getFirst().timeInMillis;
-      long t1 = history.getLast().timeInMillis;
-      return (t0 + t1) / 2;
+      Instant t0 = history.getFirst().time;
+      Instant t1 = history.getLast().time;
+      return t0.plus(t0.until(t1).dividedBy(2));
    }
 
    /**

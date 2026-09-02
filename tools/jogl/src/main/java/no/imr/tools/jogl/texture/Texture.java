@@ -8,7 +8,7 @@ import java.util.List;
 
 public abstract class Texture implements JoglDisposable {
    private int textureID;
-   private boolean dirty;
+   private volatile boolean dirty;
 
    Texture() {
    }

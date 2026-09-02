@@ -4,8 +4,11 @@ import no.imr.tools.RandomUtils;
 import no.imr.tools.ToolsPreferences;
 import no.imr.tools.Utils;
 import no.imr.tools.parameter.Unit;
+import no.imr.tools.swing.icons.MiscIcons;
+import no.imr.tools.time.TimeUtils;
 
 import javax.swing.SwingUtilities;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -26,8 +29,8 @@ final class ItemVisualizerMain implements ItemContainer<ItemVisualizerMain.Item>
             .toList();
 
       List<ItemFeature<Item>> features = List.of(
-            ItemFeature.Time.fromMillis("time 1", Unit.UTC, item -> item.timeInMillis1, Utils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss")),
-            ItemFeature.Time.fromMillis("time 2", Unit.UTC, item -> item.timeInMillis2, Utils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss")),
+            ItemFeature.Time.fromInstant("time 1", Unit.UTC, item -> item.time1, TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss")),
+            ItemFeature.Time.fromInstant("time 2", Unit.UTC, item -> item.time2, TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss")),
             new ItemFeature.Category<>("category", CATEGORIES, item -> item.category, true),
             new ItemFeature.Number<>("x feature", Unit.METER, item -> item.x),
             new ItemFeature.Number<>("y feature", Unit.SECONDS, item -> item.y),
@@ -40,7 +43,8 @@ final class ItemVisualizerMain implements ItemContainer<ItemVisualizerMain.Item>
       itemVisualizer.show(null, "Test");
    }
 
-   static void main() {
+   static void main(String[] args) {
+      Utils.init(args, MiscIcons.SCATTER_PLOT.getImage());
       SwingUtilities.invokeLater(ItemVisualizerMain::new);
    }
 
@@ -61,8 +65,8 @@ final class ItemVisualizerMain implements ItemContainer<ItemVisualizerMain.Item>
    }
 
    static final class Item {
-      private final long timeInMillis1;
-      private final long timeInMillis2;
+      private final Instant time1;
+      private final Instant time2;
       private final String category;
       private final double x;
       private final double y;
@@ -71,8 +75,8 @@ final class ItemVisualizerMain implements ItemContainer<ItemVisualizerMain.Item>
       private final int i100;
 
       private Item(Random random) {
-         timeInMillis1 = random.nextLong(100_000_000L);
-         timeInMillis2 = random.nextLong(100_000_000_000L);
+         time1 = Instant.ofEpochSecond(random.nextLong(100_000L));
+         time2 = Instant.ofEpochSecond(random.nextLong(100_000_000L));
          category = RandomUtils.get(random, CATEGORIES);
          x = random.nextGaussian();
          y = random.nextGaussian() / 10;

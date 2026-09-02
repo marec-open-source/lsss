@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.time.Instant;
 
 public final class Raw4Datagram extends DatagramPingItem {
    public static final DatagramType TYPE = DatagramType.simple("RAW4", Raw4Datagram::new);
@@ -19,8 +20,8 @@ public final class Raw4Datagram extends DatagramPingItem {
    public float @Nullable [][] real;
    public float @Nullable [][] imag;
 
-   public Raw4Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Raw4Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       channelId = ByteBufferUtils.readCString(byteBuffer, 128);
       dataType = byteBuffer.getShort();

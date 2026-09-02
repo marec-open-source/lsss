@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 public final class SegmentInfoCache {
-   private static final int VERSION = 1;
+   private static final int VERSION = 3;
 
    private final String dataDirId;
    private final Path cacheFile;
@@ -114,7 +115,7 @@ public final class SegmentInfoCache {
       return cacheItem != null ? cacheItem.segmentInfo : null;
    }
 
-   public void add(SegmentHandle segmentHandle, long lastModified, long size, SegmentInfo segmentInfo) {
+   public void add(SegmentHandle segmentHandle, Instant lastModified, long size, SegmentInfo segmentInfo) {
       CacheItem cacheItem = new CacheItem(segmentHandle.getBaseName(), lastModified, size, segmentInfo);
       if (baseNameToCacheItem.putIfAbsent(cacheItem.baseName, cacheItem) == null) {
          needSave = true;
@@ -153,7 +154,7 @@ public final class SegmentInfoCache {
    }
 
    private static void writePingIndex(DataOutputStream out, PingIndex pingIndex) throws IOException {
-      out.writeLong(pingIndex.getNTDate());
+      writeInstant(out, pingIndex.getInstant());
       out.writeLong(pingIndex.getPingNumber());
       out.writeDouble(pingIndex.getVesselDistance());
       GeoPoint geoPoint = pingIndex.getGeographicalPosition();
@@ -162,23 +163,34 @@ public final class SegmentInfoCache {
    }
 
    private static PingIndex readPingIndex(DataInputStream in) throws IOException {
-      long ntDate = in.readLong();
+      Instant instant = readInstant(in);
       long pingNumber = in.readLong();
       double vesselDistance = in.readDouble();
       double longitude = in.readDouble();
       double latitude = in.readDouble();
       GeoPoint geoPoint = Double.isNaN(longitude) ? null : new GeoPoint(longitude, latitude);
-      return new DefaultPingIndex(ntDate, pingNumber, vesselDistance, geoPoint);
+      return new DefaultPingIndex(instant, pingNumber, vesselDistance, geoPoint);
    }
 
-   private record CacheItem(String baseName, long lastModified, long size, SegmentInfo segmentInfo) {
+   private static void writeInstant(DataOutputStream out, Instant instant) throws IOException {
+      out.writeLong(instant.getEpochSecond());
+      out.writeInt(instant.getNano());
+   }
+
+   private static Instant readInstant(DataInputStream in) throws IOException {
+      long epochSecond = in.readLong();
+      int nano = in.readInt();
+      return Instant.ofEpochSecond(epochSecond, nano);
+   }
+
+   private record CacheItem(String baseName, Instant lastModified, long size, SegmentInfo segmentInfo) {
 
       private static @Nullable CacheItem make(DataInputStream in,
                                               List<RawFileConfigurationInfo> indexToRawFileConfigurationInfo,
                                               Map<String, SegmentHandle> baseNameToSegmentHandle,
                                               Map<Path, BasicFileAttributes> attributes) throws IOException {
          String baseName = in.readUTF();
-         long lastModified = in.readLong();
+         Instant lastModified = readInstant(in);
          long size = in.readLong();
          PingIndex begin = readPingIndex(in);
          PingIndex end = readPingIndex(in);
@@ -191,7 +203,7 @@ public final class SegmentInfoCache {
             return null;
          }
          LastModifiedAndSize lastModifiedAndSize = segmentHandle.getLastModifiedAndSize(attributes, new AsyncHandle());
-         if (size != lastModifiedAndSize.size() || lastModified != lastModifiedAndSize.lastModified()) {
+         if (lastModifiedAndSize == null || size != lastModifiedAndSize.size() || !lastModified.equals(lastModifiedAndSize.lastModified())) {
             return null;
          }
          SegmentInfo segmentInfo = new SegmentInfo(rawFileConfigurationInfo, PingRange.of(begin, end));
@@ -200,7 +212,7 @@ public final class SegmentInfoCache {
 
       private void write(DataOutputStream out, Map<RawFileConfigurationInfo, Integer> rawFileConfigurationInfoToIndex) throws IOException {
          out.writeUTF(baseName);
-         out.writeLong(lastModified);
+         writeInstant(out, lastModified);
          out.writeLong(size);
          writePingIndex(out, segmentInfo.pingRange().begin());
          writePingIndex(out, segmentInfo.pingRange().end());

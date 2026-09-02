@@ -3,7 +3,7 @@ package no.imr.korona.computation.towfish;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.util.ResampledFloatArray;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
 
 /**
  * Merges raw datagrams.
@@ -14,7 +14,7 @@ final class RawMerger {
 
    static void merge(Ping basePing, Ping mergePing, float mergePingStartMeterOffset) {
       mergePing.getNonNullPowerDatas().forEach(mergeRaw -> {
-         int baseChannel = basePing.getRawFileConfiguration().lastChannelWithKHz(Utils.hzToKHz(mergeRaw.getFrequency()));
+         int baseChannel = basePing.getRawFileConfiguration().lastChannelWithKHz(KoronaUtils.hzToKHz(mergeRaw.getFrequency()));
          if (baseChannel <= 0) {
             return;
          }

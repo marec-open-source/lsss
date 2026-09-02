@@ -8,6 +8,7 @@ import no.imr.lsss.database.tables.hibernate.Nation;
 import no.imr.lsss.database.tables.hibernate.Platform;
 import no.imr.lsss.database.tables.hibernate.PlatformCodes;
 import no.imr.lsss.database.tables.hibernate.PlatformName;
+import no.imr.lsss.database.tables.hibernate.PlatformPK;
 import no.imr.lsss.database.tables.hibernate.Survey;
 import no.imr.lsss.framework.BaseSystemFeaturePlugin;
 import no.imr.lsss.framework.config.ConfigurationUnit;
@@ -175,9 +176,7 @@ public final class SurveyConf extends ConfigurationUnit {
          mPlatformAndName.setEnabled(mPlatformAndName.getAllowedValues().size() > 1);
       });
       mPlatformAndName.subscribe(optionalPlatformAndName -> {
-         Optional<Integer> platformId = optionalPlatformAndName.map(platformAndName -> {
-            return (int) platformAndName.platform().getCompId().getPlatform();
-         });
+         Optional<Integer> platformId = optionalPlatformAndName.map(PlatformAndName::platformId);
          mPlatformId.setValue(platformId);
       });
 
@@ -241,16 +240,30 @@ public final class SurveyConf extends ConfigurationUnit {
    public void setup() {
       super.setup();
 
-      getLSSS().getDatabaseManager().getConnectionChangeManager().addListener(this::updateAllowedNations);
+      getLSSS().getDatabaseManager().getConnectionChangeManager().addListener(() -> {
+         Nation n = getNation();
+         Platform p = getPlatform();
+         Survey s = getSurvey();
+         updateAllowedNations();
+         updateAllowedPlatforms();
+         updateAllowedSurveys();
+         setIfValid(n, p, s);
+      });
    }
 
    @Override
    public void fromConfigurationXml(Element configurationElement) {
       // Since nation, platform, survey are not persisted when absent:
       Element parametersElement = configurationElement.element(ParameterCollection.XML_PARAMETERS);
-      Set<String> parameterNames = parametersElement.elements().stream()
-            .map(e -> e.attributeValue(Configurable.XML_NAME))
-            .collect(Collectors.toSet());
+      Set<String> parameterNames;
+      if (parametersElement != null) {
+         parameterNames = parametersElement.elements().stream()
+               .map(e -> e.attributeValue(Configurable.XML_NAME))
+               .filter(Objects::nonNull)
+               .collect(Collectors.toSet());
+      } else {
+         parameterNames = Set.of();
+      }
       if (!parameterNames.contains(mNation.getPersistentName())) {
          mNation.setValue(Optional.empty());
       } else if (!parameterNames.contains(mPlatformAndName.getPersistentName())) {
@@ -268,7 +281,7 @@ public final class SurveyConf extends ConfigurationUnit {
    }
 
    private List<Platform> getPlatformsFromDatabase() {
-      Nation nation = mNation.getValue().orElse(null);
+      Nation nation = getNation();
       if (nation != null) {
          DatabaseConnection databaseConnection = getLSSS().getDatabaseManager().getDatabaseConnection();
          List<Platform> platforms = databaseConnection.executeFetchQuery(LsssQuery.fetch(Platform.class, DatabaseData.NATION, nation.getNation()));
@@ -375,9 +388,6 @@ public final class SurveyConf extends ConfigurationUnit {
 
    @Override
    protected UserProfile getMinimumUserProfileForEditing(BaseParameter<?> parameter) {
-      if (parameter == mNation || parameter == mPlatformAndName) {
-         return UserProfile.ADMINISTRATOR_MODE;
-      }
       if (parameter == mSurvey) {
          return UserProfile.SURVEY_SETUP;
       }
@@ -433,10 +443,14 @@ public final class SurveyConf extends ConfigurationUnit {
    }
 
    public void setIfValid(@Nullable Nation aNation, @Nullable Platform aPlatform, @Nullable Survey aSurvey) {
-      mNation.setValue(find(mNation.getAllowedValues(), aNation != null ? aNation.getNation() : null, Nation::getNation));
-      mPlatformAndName.setValue(find(mPlatformAndName.getAllowedValues(), aPlatform != null ? aPlatform.getCompId() : null,
-            platformAndName -> platformAndName.platform.getCompId()));
-      mSurvey.setValue(find(mSurvey.getAllowedValues(), aSurvey != null ? aSurvey.getCompId() : null, Survey::getCompId));
+      mNation.setValue(find(mNation.getAllowedValues(),
+            aNation != null ? aNation.getNation() : null, Nation::getNation));
+
+      mPlatformAndName.setValue(find(mPlatformAndName.getAllowedValues(),
+            aPlatform != null ? aPlatform.getCompId() : null, PlatformAndName::platformPK));
+
+      mSurvey.setValue(find(mSurvey.getAllowedValues(),
+            aSurvey != null ? aSurvey.getCompId() : null, Survey::getCompId));
    }
 
    private static <A, B> Optional<A> find(List<Optional<A>> list, @Nullable B item, Function<A, B> f) {
@@ -446,19 +460,27 @@ public final class SurveyConf extends ConfigurationUnit {
             .orElse(Optional.empty());
    }
 
-   record PlatformAndName(Platform platform, String name) implements Comparable<PlatformAndName> {
-      @Override
-      public String toString() {
-         return name + " (" + platform.getCompId().getPlatform() + ")";
+   public record PlatformAndName(Platform platform, String name) implements Comparable<PlatformAndName> {
+      private PlatformPK platformPK() {
+         return platform.getCompId();
+      }
+
+      private int platformId() {
+         return platformPK().getPlatform();
       }
 
       @Override
-      public int compareTo(PlatformAndName platformAndName) {
-         int nameComparison = name.compareToIgnoreCase(platformAndName.name);
+      public String toString() {
+         return name + " (" + platformId() + ")";
+      }
+
+      @Override
+      public int compareTo(PlatformAndName other) {
+         int nameComparison = name.compareToIgnoreCase(other.name);
          if (nameComparison != 0) {
             return nameComparison;
          }
-         return Integer.compare(platformAndName.platform.getCompId().getPlatform(), platform.getCompId().getPlatform()); // Reverse sorting on id.
+         return Integer.compare(other.platformId(), platformId()); // Reverse sorting on id.
       }
    }
 }

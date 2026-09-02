@@ -1,6 +1,5 @@
 package no.imr.lsss.modules.korona.tracking;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.Ping;
@@ -190,7 +189,7 @@ final class EchogramTrackData extends ConcurrentObject {
             RangePoint centerRangePoint = rangePoints.get(rangePoints.size() / 2);
             float x = (centerRangePoint.xMin + centerRangePoint.xMax) / 2;
             float y = (centerRangePoint.yMin + centerRangePoint.yMax) / 2;
-            labelText = new GuiText(Joiner.on(", ").join(labels), Color.BLACK, x, y,
+            labelText = new GuiText(String.join(", ", labels), Color.BLACK, x, y,
                   GuiText.HorizontalAlignment.CENTER, GuiText.VerticalAlignment.CENTER, null);
          }
 

@@ -2,24 +2,32 @@ package no.imr.korona.data.formats.missing;
 
 import no.imr.korona.data.ping.DefaultPingIndex;
 import no.imr.korona.data.ping.PingIndex;
+import no.imr.tools.math.MathUtils;
+import no.imr.tools.time.TimeUtils;
 import no.marec.lsss.api.util.GeoPoint;
+import org.jspecify.annotations.Nullable;
 
 /**
  * PingIndex defined by linear interpolation.
  */
 public final class MissingPingIndex extends DefaultPingIndex {
    private MissingPingIndex(PingIndex a, PingIndex b, long pingNumber, double f) {
-      setPingNumber(pingNumber);
+      super(
+            TimeUtils.interpolateInstant(a.getInstant(), b.getInstant(), f),
+            pingNumber,
+            MathUtils.interpolate(a.getVesselDistance(), b.getVesselDistance(), f),
+            interpolateGeoPos(a.getGeographicalPosition(), b.getGeographicalPosition(), f)
+      );
+   }
 
-      setNTDate(a.getNTDate() + Math.round(f * (b.getNTDate() - a.getNTDate())));
-      setVesselDistance(a.getVesselDistance() + f * (b.getVesselDistance() - a.getVesselDistance()));
-
-      GeoPoint aPos = a.getGeographicalPosition();
-      GeoPoint bPos = b.getGeographicalPosition();
-      if (aPos != null && bPos != null) {
-         double x = aPos.getX() + f * (bPos.getX() - aPos.getX());
-         double y = aPos.getY() + f * (bPos.getY() - aPos.getY());
-         setGeographicalPosition(new GeoPoint(x, y));
+   private static @Nullable GeoPoint interpolateGeoPos(@Nullable GeoPoint a, @Nullable GeoPoint b, double f) {
+      if (a != null && b != null) {
+         return new GeoPoint(
+               MathUtils.interpolate(a.getX(), b.getX(), f),
+               MathUtils.interpolate(a.getY(), b.getY(), f)
+         );
+      } else {
+         return null;
       }
    }
 

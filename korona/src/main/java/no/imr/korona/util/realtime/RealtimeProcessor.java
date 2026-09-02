@@ -22,6 +22,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Comparator;
 
 public class RealtimeProcessor {
@@ -48,14 +50,14 @@ public class RealtimeProcessor {
       }
 
       @Override
-      public boolean isEndOfInput(long millisWaiting, Comparator<FileInfo> comparator) throws IOException {
-         if (millisWaiting > 5_000) {
+      public boolean isEndOfInput(Duration durationWaiting, Comparator<FileInfo> comparator) throws IOException {
+         if (durationWaiting.toSeconds() >= 5) {
             processingStatus.setState(ProcessingStatus.State.IDLE, "Idle");
          }
-         if (millisWaiting > 15_000) {
+         if (durationWaiting.toSeconds() >= 15) {
             stopWaiting = true;
          }
-         return stopWaiting || nextFileWait.isEndOfInput(millisWaiting, fileComparator);
+         return stopWaiting || nextFileWait.isEndOfInput(durationWaiting, fileComparator);
       }
    }
 
@@ -174,10 +176,10 @@ public class RealtimeProcessor {
          pingReader.close();
          return true;
       }
-      // Set time of configuration datagrams to ping time minus 0.5 seconds
-      long configTimeInMillis = ping.getTimeInMillis() - 500;
+      // Set time of configuration datagrams to ping time minus 0.5 seconds.
+      Instant configTime = ping.getInstant().minusMillis(500);
       for (PingItem pingItem : pingReader.getPingConfiguration().getConfigurationItems()) {
-         pingItem.setTimeInMillis(configTimeInMillis);
+         pingItem.setInstant(configTime);
       }
       return false;
    }

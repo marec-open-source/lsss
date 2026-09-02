@@ -75,7 +75,7 @@ public final class MenuFilter {
       if (firstVisibleMenuElement != null) {
          MenuSelectionManager menuSelectionManager = MenuSelectionManager.defaultManager();
          MenuElement[] path = menuSelectionManager.getSelectedPath();
-         MenuElement lastElement = path[path.length - 1];
+         MenuElement lastElement = path.length > 0 ? path[path.length - 1] : null;
          if (lastElement instanceof JMenuItem item) {
             if (!item.isVisible()) {
                path[path.length - 1] = firstVisibleMenuElement;
@@ -100,8 +100,7 @@ public final class MenuFilter {
             case KeyEvent.VK_ENTER -> {
                MenuSelectionManager menuSelectionManager = MenuSelectionManager.defaultManager();
                MenuElement[] path = menuSelectionManager.getSelectedPath();
-               MenuElement lastElement = path[path.length - 1];
-               if (lastElement instanceof JMenuItem item) {
+               if (path.length > 0 && path[path.length - 1] instanceof JMenuItem item) {
                   menuSelectionManager.clearSelectedPath();
                   item.doClick(0);
                }

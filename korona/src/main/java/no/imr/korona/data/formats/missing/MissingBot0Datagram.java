@@ -15,6 +15,6 @@ public final class MissingBot0Datagram extends Bot0Datagram {
     * @param pingIndex            the corresponding PingIndex
     */
    public MissingBot0Datagram(RawFileConfiguration rawFileConfiguration, PingIndex pingIndex) {
-      super(pingIndex.getNTDate(), new double[rawFileConfiguration.getTransducerCount()]);
+      super(pingIndex.getInstant(), new double[rawFileConfiguration.getTransducerCount()]);
    }
 }

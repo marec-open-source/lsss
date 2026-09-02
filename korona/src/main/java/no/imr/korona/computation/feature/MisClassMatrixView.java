@@ -287,7 +287,7 @@ final class MisClassMatrixView {
          if (v > qualityMeasure) {
             candidateList.add(category);
             candidate = category;
-            qualityMeasure = Math.max(qualityMeasure, v);
+            qualityMeasure = v;
          }
          j++;
       }

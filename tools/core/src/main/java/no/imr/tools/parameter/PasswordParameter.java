@@ -2,6 +2,8 @@ package no.imr.tools.parameter;
 
 import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
+import no.marec.lsss.api.util.parameters.ValueConstraint;
+import no.marec.lsss.api.util.parameters.ValueConstraints;
 import org.dom4j.Element;
 
 import javax.crypto.Cipher;
@@ -15,7 +17,7 @@ import java.util.logging.Level;
  */
 public class PasswordParameter extends ValueParameter<String> {
    public PasswordParameter(Name name) {
-      this(name, "", "");
+      this(name, "");
    }
 
    public PasswordParameter(Name name, String initialValue) {
@@ -23,7 +25,11 @@ public class PasswordParameter extends ValueParameter<String> {
    }
 
    public PasswordParameter(Name name, String initialValue, String description) {
-      super(name, initialValue, Unit.NONE, ValueConverters.STRING, description);
+      this(name, initialValue, ValueConstraints.none(), description);
+   }
+
+   public PasswordParameter(Name name, String initialValue, ValueConstraint<String> constraint, String description) {
+      super(name, initialValue, Unit.NONE, constraint, ValueConverters.STRING, description);
 
       setPersistable(false); // Not persistable by default.
    }
@@ -63,7 +69,7 @@ public class PasswordParameter extends ValueParameter<String> {
          byte[] encrypted = HexFormat.of().parseHex(text);
          byte[] plaintext = crypt(Cipher.DECRYPT_MODE, encrypted);
          return new String(plaintext, Utils.UTF_8);
-      } catch (GeneralSecurityException e) {
+      } catch (Exception e) {
          throw new ParameterException(this, "Error decrypting password", e);
       }
    }

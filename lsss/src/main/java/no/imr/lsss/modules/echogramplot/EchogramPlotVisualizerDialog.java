@@ -6,12 +6,15 @@ import no.imr.lsss.framework.InterpretationSettings;
 import no.imr.lsss.modules.echogramplot.functions.PingFunction;
 import no.imr.tools.Utils;
 import no.imr.tools.parameter.Unit;
+import no.imr.tools.plot.ExportTransform;
 import no.imr.tools.swing.GuiListeners;
 import no.imr.tools.swing.WhenShowingListening;
+import no.imr.tools.time.TimeUtils;
 import no.imr.tools.visualizer.ItemContainer;
 import no.imr.tools.visualizer.ItemFeature;
 import no.imr.tools.visualizer.ItemVisualizer;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -31,14 +34,15 @@ final class EchogramPlotVisualizerDialog implements ItemContainer<EchogramPlotVi
       allPingFunctions = List.copyOf(module.getAllPingFunctions());
 
       List<ItemFeature<Item>> features = new ArrayList<>();
-      features.add(ItemFeature.Time.fromMillis("Time", Unit.UTC, item -> item.ping.getTimeInMillis(), Utils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss")));
+      features.add(ItemFeature.Time.fromInstant("Time", Unit.UTC, item -> item.ping.getInstant(), TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss")));
 
       for (int i = 0; i < allPingFunctions.size(); i++) {
          PingFunction pingFunction = allPingFunctions.get(i);
          int index = i;
+         ExportTransform transform = pingFunction.getParameterExport().transform();
          features.add(new ItemFeature.Number<>(pingFunction.getName().displayName(), pingFunction.getUnit(),
                item -> item.values[index],
-               item -> Utils.toString(pingFunction.getParameterExport().transform().applyAsDouble(item.values[index]))));
+               item -> Utils.toString(transform.applyAsDouble(item.values[index]))));
       }
 
       itemVisualizer = new ItemVisualizer<>(features, this, module.getLSSS().getPreferences("EchogramPlotVisualizerDialog"));
@@ -86,12 +90,12 @@ final class EchogramPlotVisualizerDialog implements ItemContainer<EchogramPlotVi
       DataFileSet dataFileSet = interpretationSettings.getDataFileSet();
       int channel = interpretationSettings.getChannel();
       List<Ping> pings = interpretationSettings.getPingSampler().getAvailablePings();
-      long[] timeInMillis = new long[pings.size()];
+      Instant[] instants = new Instant[pings.size()];
       float[] bottom = new float[pings.size()];
       float[][] values = new float[allPingFunctions.size()][pings.size()];
       for (int iPing = 0; iPing < pings.size(); iPing++) {
          Ping ping = pings.get(iPing);
-         timeInMillis[iPing] = ping.getTimeInMillis();
+         instants[iPing] = ping.getInstant();
          bottom[iPing] = dataFileSet.getCoordinatedDepth(ping.getPingIndex());
          for (int iFunction = 0; iFunction < allPingFunctions.size(); iFunction++) {
             PingFunction pingFunction = allPingFunctions.get(iFunction);
@@ -100,7 +104,7 @@ final class EchogramPlotVisualizerDialog implements ItemContainer<EchogramPlotVi
       }
       for (int iFunction = 0; iFunction < allPingFunctions.size(); iFunction++) {
          PingFunction pingFunction = allPingFunctions.get(iFunction);
-         values[iFunction] = pingFunction.postprocess(values[iFunction], timeInMillis, bottom);
+         values[iFunction] = pingFunction.postprocess(values[iFunction], instants, bottom);
       }
       return IntStream.range(0, pings.size())
             .mapToObj(iPing -> {

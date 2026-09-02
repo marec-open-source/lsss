@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -34,14 +35,14 @@ final class ModuleContainerTest {
       try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
 
          int pingItemCount = 0;
-         long maxNTDate = Long.MIN_VALUE;
+         Instant lastInstant = Instant.MIN;
          while (true) {
             Ping ping = computation.nextPing();
             if (ping == null) {
                break;
             }
-            assertTrue(ping.getNTDate() >= maxNTDate);
-            maxNTDate = ping.getNTDate();
+            assertTrue(ping.getInstant().isAfter(lastInstant));
+            lastInstant = ping.getInstant();
             pingItemCount += ping.getPingItems().size();
          }
          assertEquals(syntheticDataFile.getPingCount() * syntheticDataFile.getPingConfiguration().getRawFileConfiguration().getTransducerCount(), pingItemCount);

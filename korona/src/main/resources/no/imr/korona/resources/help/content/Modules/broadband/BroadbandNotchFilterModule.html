@@ -3,11 +3,11 @@
    This module removes spike noise from the frequency spectrum of the broadband signal and writes out the filtered broadband channels.
 </p>
 <p>
-   The noise removal is achieved by applying one or several notch filters, i.e. a (very) narrow band-stop filter. See the <a href=#Details>Details</a>
+   The noise removal is achieved by applying one or several notch filters, i.e. a (very) narrow band-stop filter. See the <a href="#Details">Details</a>
    section below for the exact mathematical definition and further background information.
 </p>
 <p>
-   In order to apply a notch filter in LSSS, its parameters need to be specified in the file.
+   In order to apply a notch filter in KORONA, its parameters need to be specified in the file.
 </p>
 
 <h2 id="Parameters">Parameters</h2>
@@ -32,7 +32,7 @@
    <li>bandwidth.</li>
 </ul>
 <p>
-   The figure below showing the magnitude frequency response of a single notch filter illustrated the meaning of these two parameters.
+   The figure below shows the magnitude frequency response of a single notch filter and illustrates the meaning of these two parameters.
 </p>
 <figure id="NotchFilterMagnitude">
    <img src="notch-filter-magnitude.svg" width=576 height=430>
@@ -62,7 +62,7 @@
    <img src="TransferFunctionNotch.png" width="165" height="50">
 </figure>
 <p>
-   where &omega; is the rejection frequency and q the quality factor determining the bandwidth. The q-factor is found iteratively for a prescribed
+   where &omega; is the rejection frequency and q is the quality factor determining the bandwidth. The q-factor is found iteratively for a prescribed
    bandwidth.
 </p>
 <p>

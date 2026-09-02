@@ -38,7 +38,7 @@ final class ExpressionModuleTest {
 
       SyntheticData syntheticData = new SyntheticData() {
          @Override
-         protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+         public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
             float[] sv = new float[10];
             Arrays.fill(sv, values[powerData.getChannel()]);
             powerData.setSv(sv);

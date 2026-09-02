@@ -158,7 +158,7 @@ public abstract class VolumeDisplayer extends BaseVolumeDisplayer {
    }
 
    @Override
-   public void draw(GL2 gl) {
+   protected void draw(GL2 gl) {
       if (disabled) {
          return;
       }

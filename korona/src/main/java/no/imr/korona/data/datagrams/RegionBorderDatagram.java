@@ -3,6 +3,7 @@ package no.imr.korona.data.datagrams;
 import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -15,16 +16,16 @@ public final class RegionBorderDatagram extends DatagramPingItem implements Comp
    private final float threshold;
    private final List<BorderInfo> borderInfos;
 
-   public RegionBorderDatagram(long ntDate, int channel, float threshold, List<BorderInfo> borderInfos) {
-      super(ntDate);
+   public RegionBorderDatagram(Instant instant, int channel, float threshold, List<BorderInfo> borderInfos) {
+      super(instant);
 
       this.channel = channel;
       this.threshold = threshold;
       this.borderInfos = borderInfos;
    }
 
-   public RegionBorderDatagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public RegionBorderDatagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       channel = byteBuffer.getInt();
       threshold = byteBuffer.getFloat();
@@ -56,8 +57,8 @@ public final class RegionBorderDatagram extends DatagramPingItem implements Comp
    }
 
    @Override
-   public int compareTo(RegionBorderDatagram o) {
-      return Float.compare(threshold, o.threshold);
+   public int compareTo(RegionBorderDatagram other) {
+      return Float.compare(threshold, other.threshold);
    }
 
    public record BorderInfo(

@@ -3,6 +3,7 @@ package no.imr.korona.data.datagrams;
 import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -13,8 +14,8 @@ public final class Sin0Datagram extends DatagramPingItem {
 
    public final List<Transceiver> transceivers;
 
-   public Sin0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Sin0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       transceivers = ByteBufferUtils.readCountAndList(byteBuffer, 4 + 2 + 32, Transceiver::new);
    }

@@ -4,6 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/// An [InputStream] that copies every byte read from the underlying stream into an [OutputStream].
+///
+/// Bytes are copied to `out` as they are read, including bytes consumed via `skip`
+/// (skipping is served through `read`, so skipped bytes are copied too).
+///
+/// `mark`/`reset` are deliberately not supported: bytes already written to `out` cannot be
+/// un-written, so rewinding would duplicate them.
+///
+/// `out` is flushed but not closed by [#close]; the caller retains ownership of it.
 public final class TeeInputStream extends InputStream {
    private final InputStream in;
    private final OutputStream out;
@@ -37,32 +46,16 @@ public final class TeeInputStream extends InputStream {
    }
 
    @Override
-   public long skip(long n) throws IOException {
-      return in.skip(n);
-   }
-
-   @Override
    public int available() throws IOException {
       return in.available();
    }
 
    @Override
    public void close() throws IOException {
-      in.close();
-   }
-
-   @Override
-   public void mark(int readlimit) {
-      in.mark(readlimit);
-   }
-
-   @Override
-   public void reset() throws IOException {
-      in.reset();
-   }
-
-   @Override
-   public boolean markSupported() {
-      return in.markSupported();
+      try {
+         out.flush();
+      } finally {
+         in.close();
+      }
    }
 }

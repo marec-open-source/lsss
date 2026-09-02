@@ -13,23 +13,24 @@ import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.List;
 
 public final class EchoLineSubDatagram extends SubDatagram {
    public static final DatagramSubType SUB_TYPE = new DatagramSubType(DatagramSubTypeId.ECHO_LINE,
          "Echo line data", EchoLineSubDatagram::new);
 
-   private final Raw0Datagram raw0Datagram = new Raw0Datagram(0);
+   private final Raw0Datagram raw0Datagram = new Raw0Datagram(Instant.EPOCH);
    private final List<PowerEchoLine> powerEchoLines;
 
-   EchoLineSubDatagram(long ntDate, List<PowerEchoLine> powerEchoLines) {
-      super(ntDate);
+   EchoLineSubDatagram(Instant instant, List<PowerEchoLine> powerEchoLines) {
+      super(instant);
 
       this.powerEchoLines = powerEchoLines;
    }
 
-   private EchoLineSubDatagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   private EchoLineSubDatagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       raw0Datagram.readConfig(byteBuffer);
       boolean hasAngles = (raw0Datagram.mode & Raw0Datagram.DATA_TYPE_ANGLES) != 0;

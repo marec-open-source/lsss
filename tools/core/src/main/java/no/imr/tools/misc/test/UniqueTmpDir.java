@@ -1,14 +1,15 @@
 package no.imr.tools.misc.test;
 
-import no.imr.tools.Utils;
 import no.imr.tools.concurrent.Exec;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.misc.ThreadDump;
+import no.imr.tools.time.TimeUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -39,7 +40,7 @@ public final class UniqueTmpDir {
       try {
          Path tmpDir = Path.of(System.getProperty("java.io.tmpdir"), "marec");
          FileUtils.createDirectories(tmpDir);
-         String prefix = "UniqueTmp." + Utils.createLocalDateTimeFormatter("yyyy-MM-dd_HH-mm-ss").format(Instant.now()) + ".";
+         String prefix = "UniqueTmp." + TimeUtils.createLocalDateTimeFormatter("yyyy-MM-dd_HH-mm-ss").format(Instant.now()) + ".";
          return Files.createTempDirectory(tmpDir, prefix);
       } catch (IOException e) {
          e.printStackTrace(System.err);
@@ -63,14 +64,15 @@ public final class UniqueTmpDir {
    }
 
    private static void deleteOldTmpDirs() {
+      Instant threshold = Instant.now().minus(1, ChronoUnit.DAYS);
       try {
          for (Path file : FileUtils.listFiles(DIR.getParent())) {
             if (!file.getFileName().toString().startsWith("UniqueTmp.")) {
                continue;
             }
             try {
-               long time = FileUtils.lastModified(file);
-               if (time > System.currentTimeMillis() - 24 * 3600 * 1000) {
+               Instant time = FileUtils.lastModified(file);
+               if (time.isAfter(threshold)) {
                   continue;
                }
                FileUtils.deleteRecursively(file);

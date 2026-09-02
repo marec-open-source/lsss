@@ -8,7 +8,7 @@ import no.imr.korona.computation.tracking.data.TargetPoint;
 import no.imr.korona.computation.tracking.data.Track;
 import no.imr.korona.computation.tracking.data.TrackPoint;
 import no.imr.tools.math.linalg.Vec3;
-import no.imr.tools.time.NTDate;
+import no.imr.tools.time.TimeUtils;
 
 public final class AlphaBetaEstimator implements Estimator {
    private final float alpha;
@@ -31,11 +31,11 @@ public final class AlphaBetaEstimator implements Estimator {
       Vec3 pos = predictedPos.plus(residual.times(alpha));
 
       TrackPoint ref = track.getLastPointWithEstimate();
-      float dt = (trackPoint.getPingIndex().getNTDate() - ref.getPingIndex().getNTDate()) / (float) NTDate.UNITS_PER_SECOND;
+      float dt = (float) TimeUtils.toSeconds(ref.getPingIndex().getInstant(), trackPoint.getPingIndex().getInstant());
 
       Vec3 predictedVelocity = prediction.stateVector().velocity();
       Vec3 velocity = predictedVelocity.plus(residual.times(beta / dt));
 
-      return new StateVector(pos, velocity, measurement.ts());
+      return new StateVector(pos, velocity, measurement.tsc());
    }
 }

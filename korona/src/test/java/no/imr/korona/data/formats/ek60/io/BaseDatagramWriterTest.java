@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,6 +28,6 @@ final class BaseDatagramWriterTest {
    }
 
    private static UnknownDatagram createUnknownDatagram(int byteCount) {
-      return new UnknownDatagram(0, UnknownDatagram.type(0), ByteBuffer.wrap(new byte[byteCount]));
+      return new UnknownDatagram(Instant.EPOCH, UnknownDatagram.type(0), ByteBuffer.wrap(new byte[byteCount]));
    }
 }

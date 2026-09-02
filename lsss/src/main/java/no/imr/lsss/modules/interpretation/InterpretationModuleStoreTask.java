@@ -4,24 +4,20 @@ import com.google.common.collect.Multimap;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.region.Interpretation;
 import no.imr.korona.region.Region;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.lsss.database.tables.QualityEnum;
-import no.imr.tools.Utils;
-import no.imr.tools.swing.ColorUtils;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
-import java.awt.BorderLayout;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -86,7 +82,7 @@ final class InterpretationModuleStoreTask extends StoreTask {
          }
          if (uninitializedRegions.keySet().size() > completelyUninitializedCount) {
             g.add(createWarningLabel("Some regions not initialized on all storable frequencies."));
-            g.add(new JLabel("Copy interpretation from " + Utils.hzToKHz(interpretationModule.getLSSS().getInterpretationSettings().getFrequency()) + " kHz?"));
+            g.add(new JLabel("Copy interpretation from " + KoronaUtils.hzToKHz(interpretationModule.getLSSS().getInterpretationSettings().getFrequency()) + " kHz?"));
             g.add(Box.createVerticalStrut(5));
          }
          g.add(inheritButton);
@@ -128,14 +124,6 @@ final class InterpretationModuleStoreTask extends StoreTask {
       return gridBag.getPanel();
    }
 
-   private static JComponent createWarningLabel(String text) {
-      JPanel panel = new JPanel(new BorderLayout());
-      panel.setBackground(ColorUtils.TOMATO);
-      panel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-      panel.add(new JLabel(text));
-      return panel;
-   }
-
    private JRadioButton createQualityRadioButton(String text, QualityEnum qualityEnum) {
       JRadioButton radioButton = new JRadioButton(text, interpretationModule.getQuality() == qualityEnum);
       radioButton.addActionListener(_ -> interpretationModule.setQuality(qualityEnum));
@@ -147,8 +135,8 @@ final class InterpretationModuleStoreTask extends StoreTask {
       PingRange pingRange = interpretationModule.getLSSS().getInterpretationSettings().getPingRange();
       InterpretationSummary.ScatterSet scatterSet = interpretationModule.getLSSS().getInterpretationSummary().getScatterSet(pingRange);
       String text = "<html>Delete " + scatterSet.getSize() + " scatters between<br>"
-            + new Date(pingRange.begin().getTimeInMillis()) + "<br>and<br>"
-            + new Date(pingRange.end().getTimeInMillis());
+            + TimeUtils.JAVA_UTIL_DATE_FORMATTER.format(pingRange.begin().getInstant()) + "<br>and<br>"
+            + TimeUtils.JAVA_UTIL_DATE_FORMATTER.format(pingRange.end().getInstant());
       return new JLabel(text);
    }
 

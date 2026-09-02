@@ -64,7 +64,7 @@ final class RecursiveCopier {
                scanJobs.add(new CopyItem(sourceFile, destFile));
             } else {
                BasicFileAttributes destAttrs = destDirListing.map().get(destFile);
-               if (destAttrs == null || destAttrs.lastModifiedTime().compareTo(sourceFileInfo.lastModifiedTime()) < 0) {
+               if (destAttrs == null || destAttrs.lastModifiedTime().compareTo(sourceFileInfo.attributes().lastModifiedTime()) < 0) {
                   filesNames.add(sourceFile.getFileName().toString());
                }
             }

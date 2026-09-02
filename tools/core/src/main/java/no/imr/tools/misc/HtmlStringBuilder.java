@@ -34,6 +34,11 @@ public final class HtmlStringBuilder {
       return this;
    }
 
+   public HtmlStringBuilder text(long text) {
+      stringBuilder.append(text);
+      return this;
+   }
+
    public HtmlStringBuilder multilineText(String text) {
       stringBuilder.append(HtmlEscapers.htmlEscaper().escape(text).replace("\n", "<br>"));
       return this;

@@ -36,7 +36,7 @@ public final class ComplexToRealModuleComputation extends ConcurrentPingModuleCo
          int channel = channelIndex + 1;
          ChannelData channelData = inputChannelToChannelData.get(channel);
          if (channelData == null) {
-            if (peekPingSourcePing(0) == null) {
+            if (peekPingSourcePing(0) != null) {
                Log.global.warning("No data for channel " + channel + ", " + transducer.getChannelId());
             }
             continue;

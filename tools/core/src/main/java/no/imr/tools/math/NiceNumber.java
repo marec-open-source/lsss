@@ -17,11 +17,14 @@ public final class NiceNumber {
     * @return nice number
     */
    public static double niceNumber(double x, boolean round) {
-      if (x == 0) {
-         return 1;
+      if (x <= 0) {
+         if (x == 0) {
+            return 1;
+         }
+         throw new IllegalArgumentException("Negative value: " + x);
       }
 
-      int exp = (int) Math.floor(Math.log10(x)); /* exponent of x */
+      double exp = Math.floor(Math.log10(x)); /* exponent of x */
       if (exp >= 0) { // Two branches to avoid computing pow(10, negative exponent) which cannot be represented exactly
          double scale = Math.pow(10, exp); // NB: non-negative exponent
          double f = x / scale;            /* fractional part of x, between 1 and 10 */

@@ -81,7 +81,6 @@ public interface LsssOverlay extends LsssModule {
     *
     * @param mouseEvent the event to be processed
     */
-
    default void mouseEntered(MouseEvent mouseEvent) {
    }
 
@@ -113,7 +112,7 @@ public interface LsssOverlay extends LsssModule {
     * Called when this overlay is active and a key has been typed.
     *
     * @param keyEvent the event to be processed
-    * @return {@code true} is this overlay used the event
+    * @return {@code true} if this overlay used the event
     */
    default boolean keyTyped(KeyEvent keyEvent) {
       return false;
@@ -123,7 +122,7 @@ public interface LsssOverlay extends LsssModule {
     * Called when this overlay is active and a key has been pressed.
     *
     * @param keyEvent the event to be processed
-    * @return {@code true} is this overlay used the event
+    * @return {@code true} if this overlay used the event
     */
    default boolean keyPressed(KeyEvent keyEvent) {
       return false;
@@ -133,7 +132,7 @@ public interface LsssOverlay extends LsssModule {
     * Called when this overlay is active and a key has been released.
     *
     * @param keyEvent the event to be processed
-    * @return {@code true} is this overlay used the event
+    * @return {@code true} if this overlay used the event
     */
    default boolean keyReleased(KeyEvent keyEvent) {
       return false;

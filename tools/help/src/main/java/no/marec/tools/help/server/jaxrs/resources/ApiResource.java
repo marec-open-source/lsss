@@ -14,7 +14,6 @@ import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.logging.LoggingManager;
 import no.imr.tools.misc.JsonUtils;
-import no.imr.tools.web.WebUtils;
 import no.marec.tools.help.server.jaxrs.JaxRsApplication;
 import no.marec.tools.help.server.pojo.ClientConfig;
 import no.marec.tools.help.server.pojo.HelpSet;
@@ -22,9 +21,7 @@ import no.marec.tools.jaxrs.JaxRsUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -90,29 +87,16 @@ public final class ApiResource {
    @GET
    @Path("file/{path: .*}")
    public Response getFile(@Context Request request, @PathParam("path") String path) throws IOException {
-      if (!path.contains(SRC_MAIN_RESOURCES)) {
-         return JaxRsUtils.getFile(request, LoggingManager.getTopInstallationDir().resolve(FileUtils.toNativeSeparatorChar(path)));
-      }
-
-      Date lastModified;
-      byte[] entity;
-      URLConnection connection = pathToUrl(path).openConnection();
-      try (InputStream in = connection.getInputStream()) {
-         long lastModifiedMillis = connection.getLastModified();
-         if (lastModifiedMillis > 0) {
-            lastModified = new Date(lastModifiedMillis);
-            Response.ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModified);
-            if (responseBuilder != null) {
-               return responseBuilder.build();
-            }
-         } else {
-            lastModified = null;
+      if (path.contains(SRC_MAIN_RESOURCES)) {
+         return JaxRsUtils.getUrl(request, pathToUrl(path));
+      } else {
+         java.nio.file.Path dir = LoggingManager.getTopInstallationDir();
+         java.nio.file.Path file = dir.resolve(FileUtils.toNativeSeparatorChar(path)).normalize();
+         if (!file.startsWith(dir)) {
+            throw new NotFoundException(path);
          }
-         entity = in.readAllBytes();
+         return JaxRsUtils.getFile(request, file);
       }
-      return Response.ok(entity, WebUtils.getMediaType(path))
-            .lastModified(lastModified)
-            .build();
    }
 
    private URL pathToUrl(String path) {

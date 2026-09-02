@@ -24,7 +24,9 @@ import no.imr.tools.logging.Log;
 import no.imr.tools.misc.HtmlStringBuilder;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.swing.ColorUtils;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.DeepInputListener;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
@@ -83,6 +85,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -96,7 +101,6 @@ import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -123,7 +127,7 @@ public final class ModuleEditor {
    private @Nullable Element modulesClipboard;
    private Set<BaseModule> highlightModules = Set.of();
    private @Nullable CommentModule lastGroupButtonClickModule;
-   private long lastGroupButtonClickTime;
+   private Instant lastGroupButtonClickTime = Instant.EPOCH;
    private boolean ok;
 
    private final boolean editable;
@@ -157,6 +161,7 @@ public final class ModuleEditor {
 
    private ParameterEditor parameterEditor = new ParameterEditor(List.of());
    private final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(modulePanel), lowerPanel);
+   private List<?> lastDividerInfo = List.of();
 
    public ModuleEditor(ModuleContainer moduleContainer, boolean editable, @Nullable Component referenceComponent) {
       this.moduleContainer = moduleContainer;
@@ -376,7 +381,12 @@ public final class ModuleEditor {
       int maxWidth = modulePanel.getParent().getWidth() - (insets.left + insets.right);
       int height = wrappingLines.relayout(maxWidth).height;
       int splitPaneDividerSize = UiUtils.splitPaneDividerSize();
-      splitPane.setDividerLocation(height + insets.top + insets.bottom + splitPaneDividerSize);
+      int dividerLocation = height + insets.top + insets.bottom + splitPaneDividerSize;
+      List<?> dividerInfo = List.of(dividerLocation, moduleButtons.size(), dialog.getWidth());
+      if (!dividerInfo.equals(lastDividerInfo) || dividerLocation < splitPane.getDividerLocation()) {
+         splitPane.setDividerLocation(dividerLocation);
+         lastDividerInfo = dividerInfo;
+      }
    }
 
    private void modulesActive(boolean active) {
@@ -476,7 +486,10 @@ public final class ModuleEditor {
          return null;
       }
       JMenu partialSetupsMenu = MiscIcons.EMPTY.on(new JMenu("Partial setups"));
-      partialSetupsMenu.setToolTipText("A partial setup is a sequence of modules that can be reused");
+      partialSetupsMenu.setToolTipText("""
+            <html>
+            A partial setup is a sequence of modules that can be reused.<br>
+            Partial setup with low leading number to be used before one with higher leading number.""");
       Path partialSetupsDir = configDir.resolve(moduleConfigurationSubDirName, "PartialSetups");
       GuiUtils.autoCreateContentMenu(partialSetupsMenu, () -> {
          populatePartialSetupsMenu(partialSetupsMenu, partialSetupsDir);
@@ -570,7 +583,7 @@ public final class ModuleEditor {
 
    private PartialSetupInfo getPartialSetupInfo(FileInfo fileInfo) {
       PartialSetupInfo partialSetupInfo = PartialSetupInfo.CACHE.getIfPresent(fileInfo.file());
-      if (partialSetupInfo != null && partialSetupInfo.lastModified == fileInfo.lastModifiedTime().toMillis()) {
+      if (partialSetupInfo != null && partialSetupInfo.lastModified.equals(fileInfo.lastModified())) {
          return partialSetupInfo;
       }
       Set<ModuleCategory> categories;
@@ -599,7 +612,7 @@ public final class ModuleEditor {
          categories = Set.of();
          tooltip = HtmlEscapers.htmlEscaper().escape(e.toString());
       }
-      partialSetupInfo = new PartialSetupInfo(fileInfo.lastModifiedTime().toMillis(), categories, tooltip);
+      partialSetupInfo = new PartialSetupInfo(fileInfo.lastModified(), categories, tooltip);
       PartialSetupInfo.CACHE.put(fileInfo.file(), partialSetupInfo);
       return partialSetupInfo;
    }
@@ -630,7 +643,7 @@ public final class ModuleEditor {
    }
 
    private void accept() {
-      if (!parameterEditor.commitEdits()) {
+      if (!CurrentInputComponent.commitEdit()) {
          return;
       }
       ok = true;
@@ -724,7 +737,7 @@ public final class ModuleEditor {
          categories = module.getModuleInfo().categories();
       }
       if (!categories.isEmpty() && !categories.equals(Set.of(ModuleCategory.NO_MODIFICATION))) {
-         int width = Math.min(4, Math.max(1, 16 / categories.size()));
+         int width = Math.clamp(16 / categories.size(), 1, 4);
          int verticalMargin = 2;
          int x = 2;
          for (ModuleCategory category : categories) {
@@ -791,10 +804,10 @@ public final class ModuleEditor {
                   && selectedModules.equals(Set.of(commentModule)) && !ctrlDown && !shiftDown) {
                // This is a click on a group start button.
                // Make sure a double click does not toggle twice.
-               if (lastGroupButtonClickModule != commentModule || System.currentTimeMillis() - lastGroupButtonClickTime > 500) {
+               if (lastGroupButtonClickModule != commentModule || lastGroupButtonClickTime.until(Instant.now(), ChronoUnit.MILLIS) > 500) {
                   // This is not the second click in a double click => Toggle the group.
                   lastGroupButtonClickModule = commentModule;
-                  lastGroupButtonClickTime = System.currentTimeMillis();
+                  lastGroupButtonClickTime = Instant.now();
                   commentModule.groupCollapsed.toggle();
                } else {
                   // This is the second click in a double click => Do nothing.
@@ -1163,9 +1176,10 @@ public final class ModuleEditor {
       Set<Name> set = new LinkedHashSet<>(module.getRequiredConfigFileServiceNames());
       set.removeAll(moduleContainer.getConfigFileSettings().getFileServiceNames());
       if (!set.isEmpty()) {
-         StringBuilder message = new StringBuilder("<html>" + module.getDisplayName() + " requires config files not available in current context:<br>");
+         HtmlStringBuilder message = new HtmlStringBuilder()
+               .text(module.getDisplayName()).html(" requires config files not available in current context:<br>");
          for (Name name : set) {
-            message.append(name.displayName()).append("<br>");
+            message.text(name.displayName()).html("<br>");
          }
          GuiUtils.showErrorDialog(dialog, message.toString());
          return;
@@ -1320,8 +1334,12 @@ public final class ModuleEditor {
    }
 
    private ParameterEditor createParameterEditor(BaseModule module) {
-      ParameterEditor editor = new ParameterEditor(module.getParameters());
-      module.customizeGUIConfig(editor.getGUIConfig());
+      GUIConfig guiConfig = new GUIConfig()
+            .setParameterEnabledDecider(parameter -> {
+               return editable && (parameter == module.active || module.active.getBooleanValue());
+            });
+      module.customizeGUIConfig(guiConfig);
+      ParameterEditor editor = new ParameterEditor(module.getParameters(), guiConfig);
 
       boolean activeInitially = module.active.getBooleanValue();
       AtomicBoolean onlyOnce = new AtomicBoolean();
@@ -1331,10 +1349,6 @@ public final class ModuleEditor {
                rewind();
             }
          }
-      });
-
-      editor.getGUIConfig().setParameterEnabledDecider(parameter -> {
-         return editable && (parameter == module.active || module.active.getBooleanValue());
       });
 
       return editor;
@@ -1511,7 +1525,7 @@ public final class ModuleEditor {
       @Override
       protected void paintIcon(Component c, Graphics2D g, int x, int y) {
          if (!categories.isEmpty() && !categories.equals(Set.of(ModuleCategory.NO_MODIFICATION))) {
-            int width = Math.min(4, Math.max(1, getIconWidth() / categories.size()));
+            int width = Math.clamp(getIconWidth() / categories.size(), 1, 4);
             int height = 12;
             x += (getIconWidth() - categories.size() * width) / 2;
             y += (getIconHeight() - height) / 2;
@@ -1577,12 +1591,12 @@ public final class ModuleEditor {
    }
 
    private record PartialSetupInfo(
-         long lastModified,
+         Instant lastModified,
          Set<ModuleCategory> categories,
          String tooltip
    ) {
       private static final Cache<Path, PartialSetupInfo> CACHE = CacheBuilder.newBuilder()
-            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .expireAfterAccess(Duration.ofMinutes(10))
             .build();
    }
 }

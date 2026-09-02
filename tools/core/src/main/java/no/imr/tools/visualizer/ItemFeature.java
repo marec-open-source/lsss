@@ -115,13 +115,6 @@ public abstract sealed class ItemFeature<T> {
          return new Time<>(name, unit, itemToDouble, itemToString, dateTimeFormatter);
       }
 
-      public static <T> Time<T> fromMillis(String name, Unit unit, ToLongFunction<T> itemToTimeInMillis, DateTimeFormatter dateTimeFormatter) {
-         Function<T, String> itemToString = item -> {
-            return dateTimeFormatter.format(Instant.ofEpochMilli(itemToTimeInMillis.applyAsLong(item)));
-         };
-         return new Time<>(name, unit, itemToTimeInMillis::applyAsLong, itemToString, dateTimeFormatter);
-      }
-
       @Override
       ValueAxis toAxis(boolean horizontal) {
          return new DateAxis(null, TimeZone.getTimeZone(dateTimeFormatter.getZone()), Locale.ENGLISH);

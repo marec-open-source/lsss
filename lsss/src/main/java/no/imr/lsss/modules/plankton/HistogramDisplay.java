@@ -13,7 +13,6 @@ import no.imr.tools.swing.ViewHolder;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.Range;
@@ -40,7 +39,7 @@ final class HistogramDisplay {
       xAxis.setAutoRangeIncludesZero(false);
       ValueAxis yAxis = PlotUtils.newNumberAxis("Abundance [1 / m³]");
       XYBarRenderer renderer = new XYBarRenderer();
-      renderer.setDefaultToolTipGenerator(new StandardXYToolTipGenerator());
+      renderer.setDefaultToolTipGenerator(PlotUtils.newXYToolTipGenerator());
       renderer.setShadowVisible(false);
       plot = new XYPlot(null, xAxis, yAxis, renderer) {
          @Override

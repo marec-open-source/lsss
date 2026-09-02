@@ -15,16 +15,17 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 public final class FileChooserToolTip {
    private final JFileChooser fileChooser;
    private final Function<Path, @Nullable String> fileToToolTip;
-   private final Map<Path, @Nullable String> fileToToolTipCache = new HashMap<>();
+   private final Map<Path, Optional<String>> fileToToolTipCache = new ConcurrentHashMap<>();
    private final CoalescingExecutor loader = new CoalescingExecutor(Exec.CACHED_THREAD_POOL);
-   private @Nullable Path file;
+   private volatile @Nullable Path file;
 
    private FileChooserToolTip(JFileChooser fileChooser, Function<Path, @Nullable String> fileToToolTip) {
       this.fileChooser = fileChooser;
@@ -64,21 +65,21 @@ public final class FileChooserToolTip {
             return;
          }
       }
+      Path updatedFile = file;
       String toolTip;
-      if (file == null) {
+      if (updatedFile == null) {
          toolTip = null;
-      } else if (fileToToolTipCache.containsKey(file)) {
-         toolTip = fileToToolTipCache.get(file);
+      } else if (fileToToolTipCache.get(updatedFile) instanceof Optional<String> opt) {
+         toolTip = opt.orElse(null);
       } else {
-         Path deferredFile = file;
          loader.execute(() -> {
-            if (!deferredFile.equals(file) || fileToToolTipCache.containsKey(deferredFile)) {
+            if (!updatedFile.equals(file) || fileToToolTipCache.containsKey(updatedFile)) {
                return;
             }
-            String tip = fileToToolTip.apply(deferredFile);
-            fileToToolTipCache.put(deferredFile, tip);
+            String tip = fileToToolTip.apply(updatedFile);
+            fileToToolTipCache.put(updatedFile, Optional.ofNullable(tip));
             SwingUtilities.invokeLater(() -> {
-               if (deferredFile.equals(file)) {
+               if (updatedFile.equals(file)) {
                   component.setToolTipText(tip);
                }
             });
@@ -97,6 +98,10 @@ public final class FileChooserToolTip {
       if (col != 0) {
          return null;
       }
-      return table.getModel().getValueAt(row, col).toString();
+      Object value = table.getModel().getValueAt(row, col);
+      if (value == null) {
+         return null;
+      }
+      return value.toString();
    }
 }

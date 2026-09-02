@@ -54,9 +54,9 @@ public final class Raw3ToChannelData {
          switch (pulseForm) {
             case PulseForm.NARROWBAND -> {
                if (raw3Datagram.power != null) {
-                  channelData = new PowerData(raw3Datagram.getNTDate());
+                  channelData = new PowerData(raw3Datagram.getInstant());
                } else if (raw3Datagram.real != null && raw3Datagram.imag != null) {
-                  NarrowbandData narrowbandData = new NarrowbandData(raw3Datagram.getNTDate());
+                  NarrowbandData narrowbandData = new NarrowbandData(raw3Datagram.getInstant());
                   channelData = narrowbandData;
                   narrowbandData.setData(raw3Datagram.real, raw3Datagram.imag, slope);
                } else {
@@ -72,7 +72,7 @@ public final class Raw3ToChannelData {
                         + " is not supported yet", pingConversion.getPingConfiguration());
                   return null;
                } else if (raw3Datagram.real != null && raw3Datagram.imag != null) {
-                  BroadbandData broadbandData = new BroadbandData(raw3Datagram.getNTDate(), pulseForm);
+                  BroadbandData broadbandData = new BroadbandData(raw3Datagram.getInstant(), pulseForm);
                   channelData = broadbandData;
                   broadbandData.setData(raw3Datagram.real, raw3Datagram.imag, slope);
                } else {

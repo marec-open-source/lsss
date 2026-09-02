@@ -4,12 +4,12 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 public final class PulseCompressionCache {
    private static final LoadingCache<PulseCompressionConfig, PulseCompression> PULSE_COMPRESSION_CACHE = CacheBuilder.newBuilder()
          .maximumSize(100)
-         .expireAfterAccess(5, TimeUnit.MINUTES)
+         .expireAfterAccess(Duration.ofMinutes(5))
          .build(CacheLoader.from(PulseCompression::new));
 
    private PulseCompressionCache() {

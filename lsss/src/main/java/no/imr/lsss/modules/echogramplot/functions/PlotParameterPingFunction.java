@@ -10,9 +10,9 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.ExportTransform;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class PlotParameterPingFunction {
    private PlotParameterPingFunction() {
@@ -77,7 +77,7 @@ public final class PlotParameterPingFunction {
    private static final class OtherDataPerPing extends PingFunction {
       private final DataFileSet otherDataFileSet;
       private final PingIndexConverter pingIndexConverter;
-      private final Map<PingIndex, Float> cache = new HashMap<>();
+      private final Map<PingIndex, Float> cache = new ConcurrentHashMap<>(); // Can be accessed concurrently from plot and from export.
 
       private OtherDataPerPing(Name name, Unit unit, DataFileSet otherDataFileSet, PingIndexConverter pingIndexConverter) {
          super(name, unit, ExportTransform.identity());

@@ -4,6 +4,8 @@ import no.imr.korona.data.datagrams.Idx0Datagram;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 final class PingRangeTest {
@@ -13,9 +15,9 @@ final class PingRangeTest {
 
    @BeforeEach
    void beforeEach() {
-      PingIndex a = new Idx0Datagram(5, 50, 50, null, 0);
-      PingIndex b = new Idx0Datagram(7, 66, 51, null, 0);
-      PingIndex c = new Idx0Datagram(8, 81, 57, null, 0);
+      PingIndex a = new Idx0Datagram(Instant.ofEpochSecond(5), 50, 50, null, 0);
+      PingIndex b = new Idx0Datagram(Instant.ofEpochSecond(7), 66, 51, null, 0);
+      PingIndex c = new Idx0Datagram(Instant.ofEpochSecond(8), 81, 57, null, 0);
 
       totalRange = PingRange.of(a, c);
       firstHalf = PingRange.of(a, b);
@@ -43,10 +45,10 @@ final class PingRangeTest {
    }
 
    @Test
-   void equals() {
+   void equalsTest() {
       assertEquals(totalRange, totalRange);
       assertEquals(totalRange, PingRange.of(totalRange.begin(), totalRange.end()));
-      assertNotEquals(PingRange.EMPTY_RANGE, PingRange.of(new DefaultPingIndex(), new DefaultPingIndex()));
+      assertEquals(PingRange.EMPTY_RANGE, PingRange.of(EmptyPingIndex.INSTANCE, EmptyPingIndex.INSTANCE));
       assertEquals(PingRange.EMPTY_RANGE, PingRange.EMPTY_RANGE);
       assertNotEquals(PingRange.EMPTY_RANGE, totalRange);
       assertNotEquals(PingRange.EMPTY_RANGE, new Object());
@@ -72,6 +74,16 @@ final class PingRangeTest {
 
       assertTrue(totalRange.contains(secondHalf));
       assertFalse(secondHalf.contains(totalRange));
+   }
+
+   @Test
+   void containsInstant() {
+      assertFalse(totalRange.containsInstant(totalRange.begin().getInstant().plusNanos(-1)));
+      assertTrue(totalRange.containsInstant(totalRange.begin().getInstant()));
+      assertTrue(totalRange.containsInstant(totalRange.begin().getInstant().plusNanos(1)));
+      assertTrue(totalRange.containsInstant(totalRange.end().getInstant().plusNanos(-1)));
+      assertFalse(totalRange.containsInstant(totalRange.end().getInstant()));
+      assertFalse(totalRange.containsInstant(totalRange.end().getInstant().plusNanos(1)));
    }
 
    @Test

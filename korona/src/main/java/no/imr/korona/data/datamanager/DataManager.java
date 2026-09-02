@@ -1,8 +1,5 @@
 package no.imr.korona.data.datamanager;
 
-import no.imr.korona.data.ping.Ping;
-import no.imr.korona.data.ping.PingData;
-import no.imr.tools.Pair;
 import no.imr.tools.concurrent.Exec;
 import no.imr.tools.listening.ArgChangeManager;
 
@@ -13,7 +10,7 @@ import java.util.List;
  */
 public final class DataManager {
    private final DataConfiguration dataConfiguration;
-   private final ArgChangeManager<Pair<Ping, PingData>> pingLoadedChangeManager = new ArgChangeManager<>();
+   private final ArgChangeManager<LoadedPing> pingLoadedChangeManager = new ArgChangeManager<>();
    private final ArgChangeManager<DataFileSet> dataFileSetChangeManager = new ArgChangeManager<>();
 
    private DataFileSet dataFileSet;
@@ -67,11 +64,11 @@ public final class DataManager {
       dataFileSetChangeManager.notifyListeners(dataFileSet);
    }
 
-   void pingLoaded(Pair<Ping, PingData> pingAndData) {
-      pingLoadedChangeManager.notifyListeners(pingAndData);
+   void pingLoaded(LoadedPing loadedPing) {
+      pingLoadedChangeManager.notifyListeners(loadedPing);
    }
 
-   ArgChangeManager<Pair<Ping, PingData>> getPingLoadedChangeManager() {
+   ArgChangeManager<LoadedPing> getPingLoadedChangeManager() {
       return pingLoadedChangeManager;
    }
 }

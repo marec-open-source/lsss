@@ -2,6 +2,7 @@ package no.imr.tools.parameter.gui.input;
 
 import no.imr.tools.parameter.SeparatorParameter;
 import no.imr.tools.swing.GridBag;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.Box;
 import javax.swing.JComponent;
@@ -38,8 +39,8 @@ public final class SeparatorParameterGUI extends ParameterGUI<SeparatorParameter
    }
 
    @Override
-   public JComponent getInputComponent() {
-      return ParameterGuiUtils.noInputComponent();
+   public @Nullable JComponent getInputComponent() {
+      return null;
    }
 
    private static Box createLineComponent() {

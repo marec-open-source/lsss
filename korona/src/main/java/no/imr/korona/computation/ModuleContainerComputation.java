@@ -4,6 +4,7 @@ import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingConfiguration;
 import no.imr.korona.data.ping.PingReader;
 import no.imr.korona.data.ping.PingSource;
+import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.io.FileUtils;
 import org.jspecify.annotations.Nullable;
@@ -54,11 +55,7 @@ public final class ModuleContainerComputation implements PingSource {
          }
          this.pingSource = pingSource;
       } catch (Exception e) {
-         try {
-            close();
-         } catch (Exception suppressed) {
-            e.addSuppressed(suppressed);
-         }
+         Utils.closeOrSuppress(e, this);
          throw e;
       }
    }

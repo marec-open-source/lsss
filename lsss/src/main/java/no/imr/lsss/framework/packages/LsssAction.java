@@ -74,7 +74,6 @@ public abstract class LsssAction implements ActionExecutor {
       }
    }
 
-   @Override
    public boolean isEnabled() {
       return enabled;
    }
@@ -83,12 +82,18 @@ public abstract class LsssAction implements ActionExecutor {
       return changeManager;
    }
 
-   @Override
    public void run(ActionArgument argument) {
       if (!enabled) {
          throw new NoCanDoException("Action " + id + " is not enabled");
       }
       doRun(argument);
+   }
+
+   @Override
+   public void runIfEnabled(ActionArgument argument) {
+      if (enabled) {
+         doRun(argument);
+      }
    }
 
    protected abstract void doRun(ActionArgument argument);

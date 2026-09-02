@@ -11,6 +11,9 @@ record BroadbandTsData(
 ) implements BaseTsData {
 
    float getDeltaFrequency() {
+      if (values.length <= 1) {
+         return 0;
+      }
       return frequencyRange.getSize() / (values.length - 1);
    }
 }

@@ -8,23 +8,23 @@ import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.geometry.EchogramPoint;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import no.imr.korona.util.echogram.EchogramZSettings;
-import no.imr.tools.CyclicList;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.range.IntRange;
-import org.jspecify.annotations.Nullable;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 
 public final class SchoolBoundaryObject {
    private static final long PING_RANGE_INTERVAL = 100;
 
-   private final CyclicList<EchogramPoint> boundary;
+   private final List<EchogramPoint> boundary;
    private final ListMultimap<PingRange, IntRange> pingRangeToIndexRanges = ArrayListMultimap.create();
    private final PingRange pingRange;
 
-   public SchoolBoundaryObject(CyclicList<EchogramPoint> boundary, PingContainer pingContainer) {
+   public SchoolBoundaryObject(List<EchogramPoint> boundary, PingContainer pingContainer) {
       this.boundary = boundary;
       pingRange = updateIndexRangeMap(pingContainer);
    }
@@ -90,7 +90,7 @@ public final class SchoolBoundaryObject {
       return PingRange.ofUnsorted(minPingIndex, maxPingIndex);
    }
 
-   public CyclicList<EchogramPoint> getBoundary() {
+   public List<EchogramPoint> getBoundary() {
       return boundary;
    }
 
@@ -119,21 +119,20 @@ public final class SchoolBoundaryObject {
       return 0;
    }
 
-   private static @Nullable EchogramPoint imagePointToEchogramPoint(EchogramPingSettings pingSettings, EchogramZSettings zSettings, Point2D point) {
-      PingIndex pingIndex = pingSettings.xToContainingPingIndex(point.getX());
-      return pingIndex != null ? new EchogramPoint(pingIndex, zSettings.yToDepth(point.getY(), pingIndex)) : null;
+   private static EchogramPoint imagePointToClosestEchogramPoint(EchogramPingSettings pingSettings, EchogramZSettings zSettings, Point2D point) {
+      PingIndex pingIndex = pingSettings.xToClosestPingIndex(point.getX());
+      return new EchogramPoint(pingIndex, zSettings.yToDepth(point.getY(), pingIndex));
    }
 
    private static Point2D.Float echogramPointToImagePoint(EchogramPingSettings pingSettings, EchogramZSettings zSettings, EchogramPoint point) {
       return new Point2D.Float(pingSettings.pingIndexToX(point.pingIndex()), zSettings.depthToY(point.depth(), point.pingIndex()));
    }
 
-   public SchoolBoundaryIntersectionInfo getClosestIntersection(EchogramPoint point, EchogramPingSettings pingSettings, EchogramZSettings zSettings) {
+   public SchoolBoundaryIntersectionInfo getClosestIntersection(School school, EchogramPoint point, EchogramPingSettings pingSettings, EchogramZSettings zSettings) {
       //todo: needs to be improved
       double closestDistSquared = Double.MAX_VALUE;
       Point2D.Float imagePoint = echogramPointToImagePoint(pingSettings, zSettings, point);
-      int closestIndexA = -1;
-      int closestIndexB = -1;
+      int closestIndexA = 0;
       // Sort the ping ranges according to distance from this point.
       Collection<PingRange> pingRanges = sortedPingRanges(pingRangeToIndexRanges.keySet(), imagePoint.x, pingSettings);
 
@@ -158,13 +157,11 @@ public final class SchoolBoundaryObject {
                      imagePoint.getX(), imagePoint.getY());
                if (dist < closestDistSquared) {
                   closestDistSquared = dist;
-                  closestIndexA = i < boundary.size() ? i : -1;
-                  closestIndexB = i + 1 < boundary.size() ? i + 1 : 0;
+                  closestIndexA = i;
                } else if (dist == closestDistSquared) {
                   // if the line is extending to the right, we choose this one
                   if (boundary.get(i + 1).pingIndex().compareTo(point.pingIndex()) > 0) {
-                     closestIndexA = i < boundary.size() ? i : -1;
-                     closestIndexB = i + 1 < boundary.size() ? i + 1 : 0;
+                     closestIndexA = i;
                   }
                }
                startPoint = endPoint;
@@ -183,18 +180,16 @@ public final class SchoolBoundaryObject {
                imagePoint.getX(), imagePoint.getY());
          if (dist < closestDistSquared) {
             closestDistSquared = dist;
-            closestIndexA = -1;
-            closestIndexB = 0;
+            closestIndexA = boundary.size() - 1;
          } else if (dist == closestDistSquared) {
             // if the line is extending to the right, we choose this one
             if (boundary.getFirst().pingIndex().compareTo(point.pingIndex()) > 0) {
-               closestIndexA = -1;
-               closestIndexB = 0;
+               closestIndexA = boundary.size() - 1;
             }
          }
       }
-      EchogramPoint pointA = closestIndexA < 0 ? boundary.getLast() : boundary.get(closestIndexA);
-      EchogramPoint pointB = boundary.get(closestIndexB);
+      EchogramPoint pointA = boundary.get(closestIndexA);
+      EchogramPoint pointB = boundary.get((closestIndexA + 1) % boundary.size());
 
       //linear interpolation between closestIndexA and closestIndexB
       Point2D startPoint = echogramPointToImagePoint(pingSettings, zSettings, pointA);
@@ -211,16 +206,11 @@ public final class SchoolBoundaryObject {
          closestPoint = pointB;
       } else {
          Point2D interpolatedPoint = new Point2D.Double(
-               (1 - s) * startPoint.getX() + s * endPoint.getX(),
-               (1 - s) * startPoint.getY() + s * endPoint.getY()
+               MathUtils.interpolate(startPoint.getX(), endPoint.getX(), s),
+               MathUtils.interpolate(startPoint.getY(), endPoint.getY(), s)
          );
-         EchogramPoint echogramPoint = imagePointToEchogramPoint(pingSettings, zSettings, interpolatedPoint);
-         if (echogramPoint == null) {
-            closestPoint = s < 0.5 ? pointA : pointB;
-         } else {
-            closestPoint = echogramPoint;
-         }
+         closestPoint = imagePointToClosestEchogramPoint(pingSettings, zSettings, interpolatedPoint);
       }
-      return new SchoolBoundaryIntersectionInfo(this, closestIndexA, closestIndexB, closestPoint, closestDistSquared);
+      return new SchoolBoundaryIntersectionInfo(school, this, closestIndexA, closestPoint, closestDistSquared);
    }
 }

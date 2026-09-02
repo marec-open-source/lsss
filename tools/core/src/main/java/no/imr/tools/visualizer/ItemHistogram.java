@@ -97,7 +97,9 @@ final class ItemHistogram<T> extends ItemView<T> {
       GridBag yGridBag = new GridBag();
       yGridBag.addWithLineBreak(new RotatedLabel("Count"));
 
-      panel.add(new ItemHistogramChartPanel(this, new JFreeChart(null, null, plot, false)));
+      JFreeChart chart = new JFreeChart(null, null, plot, false);
+      chart.setBackgroundPaint(null);
+      panel.add(new ItemHistogramChartPanel(this, chart));
       panel.add(xGridBag.getPanel(), BorderLayout.SOUTH);
       panel.add(yGridBag.getPanel(), BorderLayout.WEST);
    }

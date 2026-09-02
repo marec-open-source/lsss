@@ -1,9 +1,10 @@
 package no.imr.korona.computation.plankton;
 
-import no.imr.tools.Utils;
 import no.imr.tools.range.ArrayRangeMap;
 import no.imr.tools.range.RangeMap;
 import no.imr.tools.range.RangeUtils;
+import no.imr.tools.xml.XmlParse;
+import no.imr.tools.xml.XmlParseException;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -11,6 +12,7 @@ import org.dom4j.Element;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +43,11 @@ public final class PlanktonFile {
    public PlanktonFile(Document document) throws PlanktonFileException {
       Element root = document.getRootElement();
 
-      sizeFactor = Utils.parseDouble(root.attributeValue(XML_SIZE_FACTOR), 1);
+      try {
+         sizeFactor = XmlParse.doubleAttribute(root, XML_SIZE_FACTOR, 1);
+      } catch (XmlParseException e) {
+         throw new PlanktonFileException(e);
+      }
       for (Element element : root.elements(XML_MODEL)) {
          String name = element.attributeValue(XML_NAME);
          PlanktonRectangle planktonRectangle = new PlanktonRectangle(element, sizeFactor);
@@ -76,12 +82,12 @@ public final class PlanktonFile {
       this.sizeFactor = sizeFactor;
    }
 
-   public RangeMap<Float, PlanktonRectangle> getDepthMap(String name, long timeInMillis) {
+   public RangeMap<Float, PlanktonRectangle> getDepthMap(String name, Instant time) {
       List<PlanktonRectangle> planktonRectangles = nameToPlanktonRectangles.get(name);
       if (planktonRectangles != null) {
          RangeMap<Float, PlanktonRectangle> rangeMap = new ArrayRangeMap<>();
          for (PlanktonRectangle planktonRectangle : planktonRectangles) {
-            if (planktonRectangle.isUse() && planktonRectangle.getMillisRange().contains(timeInMillis)) {
+            if (planktonRectangle.isUse() && planktonRectangle.getTimeRange().contains(time)) {
                rangeMap.put(planktonRectangle.getDepthRange(), planktonRectangle);
             }
          }

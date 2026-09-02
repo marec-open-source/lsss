@@ -149,7 +149,7 @@ public final class NoiseAcceptanceModule extends SimplePingModule {
                         ne = noiseFileChecker.getNe(channel);
                         float nh = noiseFileChecker.getNh(channel);
                         // Create a new NQP0 datagram with Ne and Nh values from file.
-                        Nqp0Datagram nqpFromFile = new Nqp0Datagram(nqp.getNTDate(), (short) channel,
+                        Nqp0Datagram nqpFromFile = new Nqp0Datagram(nqp.getInstant(), (short) channel,
                               ne, nh, nqp.getQuality());
                         ping.remove(nqp);
                         ping.add(nqpFromFile);
@@ -197,7 +197,7 @@ public final class NoiseAcceptanceModule extends SimplePingModule {
    private static @Nullable NoiseFileChecker makeFileNoiseFileChecker(Path noiseDir, RawFileConfiguration rawFileConfiguration) throws IOException {
       // Use the noise file closest in time before the current time
       List<Path> files = NoiseUtils.listNoiseFiles(noiseDir.resolve(NoiseUtils.FILE_NOISE_FILE_PREFIX), NoiseUtils.surveyFilePredicate());
-      Path closestFile = NoiseUtils.findClosestNoiseFileBefore(rawFileConfiguration.getTimeInMillis(), files);
+      Path closestFile = NoiseUtils.findClosestNoiseFileBefore(rawFileConfiguration.getInstant(), files);
       if (closestFile != null) {
          return new NoiseFileChecker("File", closestFile);
       }

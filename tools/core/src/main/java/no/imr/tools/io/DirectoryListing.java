@@ -1,10 +1,12 @@
 package no.imr.tools.io;
 
 import no.imr.tools.concurrent.AsyncHandle;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Instant;
 import java.util.Map;
 
 public record DirectoryListing(
@@ -30,8 +32,8 @@ public record DirectoryListing(
       return map.containsKey(path);
    }
 
-   public long lastModifiedOr0(Path path) {
+   public @Nullable Instant lastModifiedOrNull(Path path) {
       BasicFileAttributes attributes = map.get(path);
-      return attributes != null ? attributes.lastModifiedTime().toMillis() : 0;
+      return attributes != null ? attributes.lastModifiedTime().toInstant() : null;
    }
 }

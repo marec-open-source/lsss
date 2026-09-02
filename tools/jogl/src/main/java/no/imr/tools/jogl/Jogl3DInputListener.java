@@ -1,7 +1,7 @@
 package no.imr.tools.jogl;
 
-import no.imr.tools.Utils;
 import no.imr.tools.jogl.node.JoglPerspectiveModule;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.math.linalg.Matrix3;
 import no.imr.tools.math.linalg.TRS;
 import no.imr.tools.math.linalg.Vec3;
@@ -124,10 +124,10 @@ public final class Jogl3DInputListener implements MouseListener, MouseMotionList
       Vec3 center = trs.transformPoint(modelProvider.getCenter());
 
       if ((e.getModifiersEx() & InputEvent.ALT_DOWN_MASK) != 0) {
-         float startX = (float) lastX / world.getWidth() - 0.5f;
-         float startY = (float) lastY / world.getHeight() - 0.5f;
-         float endX = startX + (float) dx / world.getWidth();
-         float endY = startY - (float) dy / world.getHeight();
+         float startX = (float) lastX / world.getJava2dWidth() - 0.5f;
+         float startY = (float) lastY / world.getJava2dHeight() - 0.5f;
+         float endX = startX + (float) dx / world.getJava2dWidth();
+         float endY = startY - (float) dy / world.getJava2dHeight();
          Matrix3 dR = createRotationAroundZ(startX, startY, endX, endY);
          trs = trs.rotate(dR, center);
          modelProvider.setTRS(trs);
@@ -140,7 +140,7 @@ public final class Jogl3DInputListener implements MouseListener, MouseMotionList
          zoom(dy / 4, new Vec3(0, 0, 1));
       } else {
          Vec3 rotAxis = new Vec3(-dy, dx, 0).unit();
-         double angle = Utils.hypot(dx, dy);
+         double angle = MathUtils.hypot(dx, dy);
          Matrix3 dR = Matrix3.createRotation(angle, rotAxis);
          trs = trs.rotate(dR, center);
          modelProvider.setTRS(trs);
@@ -170,8 +170,8 @@ public final class Jogl3DInputListener implements MouseListener, MouseMotionList
    }
 
    private Vec3 getDir(int pixelX, int pixelY) {
-      float h = world.getHeight();
-      float w = world.getWidth();
+      float h = world.getJava2dHeight();
+      float w = world.getJava2dWidth();
       float y = h / 2 - pixelY;
       float x = pixelX - w / 2;
       float z = -(float) ((h / 2) / Math.tan(Math.toRadians(world.getFovy() / 2)));
@@ -186,7 +186,7 @@ public final class Jogl3DInputListener implements MouseListener, MouseMotionList
       } else {
          float cross = startVec.crossGetZ(endVec);
 
-         float rotation = (float) Math.acos(startVec.unit().dot(endVec.unit()));
+         float rotation = (float) MathUtils.acosClamped(startVec.unit().dot(endVec.unit()));
          if (cross > 0) {
             rotation = -rotation;
          }

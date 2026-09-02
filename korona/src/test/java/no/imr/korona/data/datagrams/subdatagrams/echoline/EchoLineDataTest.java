@@ -23,12 +23,12 @@ final class EchoLineDataTest {
    void test() throws DatagramFormatException {
       SyntheticData syntheticData = new SyntheticData() {
          @Override
-         protected float getEffectivePulseDuration(PingIndex pingIndex, int channel) {
+         public float getEffectivePulseDuration(PingIndex pingIndex, int channel) {
             return super.getPulseDuration(pingIndex, channel) * 0.8f;
          }
 
          @Override
-         protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+         public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
             short[] power = new short[30];
             Arrays.fill(power, PowerData.EK60_SHORT_POWER_NULL);
             power[10] = -1000;
@@ -53,7 +53,7 @@ final class EchoLineDataTest {
       LsssDatagram lsssDatagram = Utils.getFirstOrThrow(datagrams, LsssDatagram.class);
       ByteBuffer byteBuffer = lsssDatagram.toByteBufferExcludingHeader();
 
-      LsssDatagram lsssDatagram2 = new LsssDatagram(echoLineData.getNTDate(), byteBuffer, new DatagramTypeManager());
+      LsssDatagram lsssDatagram2 = new LsssDatagram(echoLineData.getInstant(), byteBuffer, new DatagramTypeManager());
       EchoLineSubDatagram echoLineSubDatagram = (EchoLineSubDatagram) lsssDatagram2.getSubDatagram();
 
       EchoLineData echoLineData2 = new EchoLineData(echoLineSubDatagram, syntheticDataFile.getPingConfiguration(), powerData.getEffectivePulseDuration());

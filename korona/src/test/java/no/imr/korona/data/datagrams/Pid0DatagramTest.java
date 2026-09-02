@@ -8,6 +8,7 @@ import no.imr.tools.test.JUnitUtils;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,7 +65,7 @@ final class Pid0DatagramTest {
 
       Pic0Datagram.PlanktonCategory testCategory = new Pic0Datagram.PlanktonCategory("TestTest", "Test", 13, Color.RED);
 
-      Pic0Datagram pic0 = new Pic0Datagram(0);
+      Pic0Datagram pic0 = new Pic0Datagram(Instant.EPOCH);
       pic0.addCategory(testCategory);
 
       Pid0Datagram.LengthDistribution lengthDistribution = new Pid0Datagram.LengthDistribution(sizeHistogram.getDividers(), sizeHistogram.getAbundances());
@@ -72,7 +73,7 @@ final class Pid0DatagramTest {
 
       PowerData powerData = syntheticDataFile.createPowerData(syntheticDataFile.createPingIndex(0), 1);
       assertNotNull(powerData);
-      Pid0Datagram pid0 = new Pid0Datagram(powerData, 0);
+      Pid0Datagram pid0 = new Pid0Datagram(powerData, Instant.EPOCH);
       pid0.setCategorySamples(0, List.of(planktonData));
 
       List<Pid0Datagram.PlanktonSample> planktonSamples = pid0.getPlanktonSamples(pic0);

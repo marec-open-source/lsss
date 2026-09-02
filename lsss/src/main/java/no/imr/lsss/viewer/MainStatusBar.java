@@ -13,6 +13,7 @@ import no.imr.lsss.framework.config.application.preview.PreviewFeaturesConf;
 import no.imr.lsss.framework.config.survey.preprocessing.OnTheFlySetup;
 import no.imr.tools.Utils;
 import no.imr.tools.database.DatabaseConnection;
+import no.imr.tools.misc.HtmlStringBuilder;
 import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.swing.ColorUtils;
 import no.imr.tools.swing.GuiListeners;
@@ -287,17 +288,17 @@ final class MainStatusBar {
       boolean show;
       if (segmentData instanceof ProcessingSegmentData processingSegmentData) {
          show = true;
-         StringBuilder sb = new StringBuilder("<html>"
-               + "On the fly processing is active"
-               + "<br>Click to edit"
-               + "<br>Ctrl + Click to edit modules");
+         HtmlStringBuilder sb = new HtmlStringBuilder()
+               .html("On the fly processing is active"
+                     + "<br>Click to edit"
+                     + "<br>Ctrl + Click to edit modules");
          List<ConcurrentPingModuleComputation> computations = processingSegmentData.getModuleComputations();
          for (int i = 0; i < computations.size(); i++) {
             if (i > 3 && i < computations.size() - 2) {
-               sb.append("<br>...");
+               sb.html("<br>...");
                i = computations.size() - 1;
             }
-            sb.append("<br>").append(i + 1).append(". ").append(computations.get(i).getModule().getDisplayName());
+            sb.html("<br>").text(i + 1).html(". ").text(computations.get(i).getModule().getDisplayName());
          }
          onTheFlyLabel.setToolTipText(sb.toString());
       } else {

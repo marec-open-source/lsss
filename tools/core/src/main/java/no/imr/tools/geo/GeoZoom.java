@@ -1,6 +1,6 @@
 package no.imr.tools.geo;
 
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 import no.marec.lsss.api.util.GeoPoint;
 import org.jspecify.annotations.Nullable;
 
@@ -67,7 +67,7 @@ public final class GeoZoom {
 
    public GeoZoom withGeoCenterAndLatitudeExtent(GeoPoint newGeoCenter, double newLatitudeExtent) {
       newLatitudeExtent = Math.clamp(newLatitudeExtent, MIN_LATITUDE_EXTENT, Math.max(180, 360 / getGeoAspectRatio(newGeoCenter.getY())));
-      double x = Utils.mod(newGeoCenter.getX() + 180, 360) - 180;
+      double x = MathUtils.normalizeAngle0To360(newGeoCenter.getX() + 180) - 180;
       double maxY = Math.max(0, 90 - newLatitudeExtent / 2);
       double y = Math.clamp(newGeoCenter.getY(), -maxY, maxY);
 

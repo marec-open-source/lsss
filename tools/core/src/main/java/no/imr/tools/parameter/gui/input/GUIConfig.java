@@ -24,56 +24,62 @@ public final class GUIConfig {
       return parameter.isEnabled() && parameterEnabledDecider.test(parameter);
    }
 
-   public void setParameterEnabledDecider(Predicate<BaseParameter<?>> parameterEnabledDecider) {
+   public GUIConfig setParameterEnabledDecider(Predicate<BaseParameter<?>> parameterEnabledDecider) {
       this.parameterEnabledDecider = parameterEnabledDecider;
+      return this;
    }
 
    public int getTextInputColumns() {
       return textInputColumns;
    }
 
-   public void setTextInputColumns(int textInputColumns) {
+   public GUIConfig setTextInputColumns(int textInputColumns) {
       this.textInputColumns = textInputColumns;
+      return this;
    }
 
    public boolean getHorizontalFill(BaseParameter<?> parameter) {
       return horizontalFill.apply(parameter);
    }
 
-   public void setHorizontalFill(boolean fill) {
+   public GUIConfig setHorizontalFill(boolean fill) {
       horizontalFill = _ -> fill;
+      return this;
    }
 
    public Function<BaseParameter<?>, Alignment> getTextAlignment() {
       return textAlignment;
    }
 
-   public void setTextAlignment(Function<BaseParameter<?>, Alignment> textAlignment) {
+   public GUIConfig setTextAlignment(Function<BaseParameter<?>, Alignment> textAlignment) {
       this.textAlignment = textAlignment;
+      return this;
    }
 
-   public void setTextAlignment(Alignment alignment) {
-      setTextAlignment(_ -> alignment);
+   public GUIConfig setTextAlignment(Alignment alignment) {
+      return setTextAlignment(_ -> alignment);
    }
 
    public Alignment getInputFieldAlignment() {
       return inputFieldAlignment;
    }
 
-   public void setInputFieldAlignment(Alignment alignment) {
+   public GUIConfig setInputFieldAlignment(Alignment alignment) {
       inputFieldAlignment = alignment;
+      return this;
    }
 
    public boolean combineInputAndDescription(BaseParameter<?> parameter) {
       return combineInputAndDescription.apply(parameter);
    }
 
-   public void setCombineInputAndDescription(Function<BaseParameter<?>, Boolean> combineInputAndDescription) {
+   public GUIConfig setCombineInputAndDescription(Function<BaseParameter<?>, Boolean> combineInputAndDescription) {
       this.combineInputAndDescription = combineInputAndDescription;
+      return this;
    }
 
-   public void setCombineInputAndDescription(boolean combine) {
-      setCombineInputAndDescription(_ -> combine);
+   public GUIConfig setCombineInputAndDescription(boolean combine) {
+      return setCombineInputAndDescription(_ -> combine);
    }
 
    public Runnable getDoRelayout() {

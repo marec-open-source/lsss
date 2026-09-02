@@ -1,6 +1,6 @@
 package no.imr.tools.concurrent;
 
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public final class MultiSerialExecutor {
     * @param task a task
     */
    public void execute(Object key, Runnable task) {
-      SerialExecutor executor = executors.get(Utils.mod(key.hashCode(), executors.size()));
+      SerialExecutor executor = executors.get(MathUtils.mod(key.hashCode(), executors.size()));
       executor.execute(task);
    }
 }

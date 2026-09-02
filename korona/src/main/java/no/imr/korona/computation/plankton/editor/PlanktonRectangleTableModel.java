@@ -11,6 +11,10 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,19 +136,19 @@ final class PlanktonRectangleTableModel extends AbstractTableModel {
       return numberOfColumns;
    }
 
-   private static @Nullable String getDateRangeAndCheckForDefault(long input, long defaultValue) {
-      if (input != defaultValue) {
-         DateTimeMillis date = new DateTimeMillis(input);
-         return DateTimeMillis.intDateToString(date.getDate());
+   private static @Nullable String getDateRangeAndCheckForDefault(Instant input, Instant defaultValue) {
+      if (!input.equals(defaultValue)) {
+         LocalDate localDate = LocalDate.ofInstant(input, ZoneOffset.UTC);
+         return DateTimeMillis.localDateToString(localDate);
       } else {
          return null;
       }
    }
 
-   private static @Nullable String getTimeRangeAndCheckForDefault(long input, long defaultValue) {
-      if (input != defaultValue) {
-         DateTimeMillis date = new DateTimeMillis(input);
-         return DateTimeMillis.centisTimeToString(date.getTime() / 10);
+   private static @Nullable String getTimeRangeAndCheckForDefault(Instant input, Instant defaultValue) {
+      if (!input.equals(defaultValue)) {
+         LocalTime localTime = LocalTime.ofInstant(input, ZoneOffset.UTC);
+         return DateTimeMillis.localTimeToCentisString(localTime);
       } else {
          return null;
       }
@@ -163,20 +167,20 @@ final class PlanktonRectangleTableModel extends AbstractTableModel {
          return planktonRectangleRow.getPlanktonRectangle().getSpecies();
       }
       if (columnIndex == START_DATE_COLUMN && showAll) {
-         return getDateRangeAndCheckForDefault(planktonRectangleRow.getPlanktonRectangle().getMillisRange().begin(),
-               PlanktonRectangle.DEFAULT_START_MILLIS);
+         return getDateRangeAndCheckForDefault(planktonRectangleRow.getPlanktonRectangle().getTimeRange().begin(),
+               PlanktonRectangle.DEFAULT_START_TIME);
       }
       if (columnIndex == START_TIME_COLUMN && showAll) {
-         return getTimeRangeAndCheckForDefault(planktonRectangleRow.getPlanktonRectangle().getMillisRange().begin(),
-               PlanktonRectangle.DEFAULT_START_MILLIS);
+         return getTimeRangeAndCheckForDefault(planktonRectangleRow.getPlanktonRectangle().getTimeRange().begin(),
+               PlanktonRectangle.DEFAULT_START_TIME);
       }
       if (columnIndex == STOP_DATE_COLUMN && showAll) {
-         return getDateRangeAndCheckForDefault(planktonRectangleRow.getPlanktonRectangle().getMillisRange().end(),
-               PlanktonRectangle.DEFAULT_STOP_MILLIS);
+         return getDateRangeAndCheckForDefault(planktonRectangleRow.getPlanktonRectangle().getTimeRange().end(),
+               PlanktonRectangle.DEFAULT_STOP_TIME);
       }
       if (columnIndex == STOP_TIME_COLUMN && showAll) {
-         return getTimeRangeAndCheckForDefault(planktonRectangleRow.getPlanktonRectangle().getMillisRange().end(),
-               PlanktonRectangle.DEFAULT_STOP_MILLIS);
+         return getTimeRangeAndCheckForDefault(planktonRectangleRow.getPlanktonRectangle().getTimeRange().end(),
+               PlanktonRectangle.DEFAULT_STOP_TIME);
       }
       if (columnIndex == UPPER_COLUMN && showAll) {
          if (planktonRectangleRow.getPlanktonRectangle().getDepthRange().begin() != Float.NEGATIVE_INFINITY) {
@@ -225,8 +229,8 @@ final class PlanktonRectangleTableModel extends AbstractTableModel {
       return null;
    }
 
-   private boolean checkTimeRangeValidity(long startMillis, long stopMillis) {
-      if (startMillis > stopMillis) {
+   private boolean checkTimeRangeValidity(Instant start, Instant stop) {
+      if (start.isAfter(stop)) {
          JOptionPane.showMessageDialog(dialog,
                "Start date > stop date, please select an earlier start date or later stop date.", "LSSS", JOptionPane.INFORMATION_MESSAGE);
          return false;
@@ -251,59 +255,62 @@ final class PlanktonRectangleTableModel extends AbstractTableModel {
          planktonRectangle.setSpecies((String) value);
       } else if (col == START_DATE_COLUMN && showAll) {
          if (!((String) value).isEmpty()) {
-            int startDate = -1;
+            LocalDate startDate = null;
             try {
-               startDate = DateTimeMillis.stringDateToInt((String) value);
+               startDate = DateTimeMillis.toLocalDate((String) value).orElse(null);
             } catch (DateTimeException e) {
                JOptionPane.showMessageDialog(dialog,
                      "Invalid date. Please enter as YYYY-MM-DD\n(" + e + ")", "", JOptionPane.INFORMATION_MESSAGE);
             }
-            if (startDate != -1) {
-               long millis = DateTimeMillis.toMillis(startDate, new DateTimeMillis(planktonRectangle.getMillisRange().begin()).getTime());
-               if (checkTimeRangeValidity(millis, planktonRectangle.getMillisRange().end())) {
-                  planktonRectangle.setMillisRange(new DefaultRange<>(millis, planktonRectangle.getMillisRange().end()));
+            if (startDate != null) {
+               LocalTime time = LocalTime.ofInstant(planktonRectangle.getTimeRange().begin(), ZoneOffset.UTC);
+               Instant instant = startDate.atTime(time).toInstant(ZoneOffset.UTC);
+               if (checkTimeRangeValidity(instant, planktonRectangle.getTimeRange().end())) {
+                  planktonRectangle.setTimeRange(new DefaultRange<>(instant, planktonRectangle.getTimeRange().end()));
                   fireTableDataChanged();
                }
             }
          }
       } else if (col == START_TIME_COLUMN && showAll) {
          if (!((String) value).isEmpty()) {
-            int date = new DateTimeMillis(planktonRectangle.getMillisRange().begin()).getDate();
-            if (date == 19700101) {
-               date = new DateTimeMillis(System.currentTimeMillis()).getDate();
+            LocalDate date = LocalDate.ofInstant(planktonRectangle.getTimeRange().begin(), ZoneOffset.UTC);
+            if (DateTimeMillis.localDateToInt(date) == 1970_01_01) {
+               date = LocalDate.now();
             }
-            long millis = DateTimeMillis.toMillis(date, DateTimeMillis.centisTimeToInt((String) value) * 10);
-            if (checkTimeRangeValidity(millis, planktonRectangle.getMillisRange().end())) {
-               planktonRectangle.setMillisRange(new DefaultRange<>(millis, planktonRectangle.getMillisRange().end()));
+            LocalTime time = DateTimeMillis.centisTimeToLocalTime((String) value);
+            Instant instant = date.atTime(time).toInstant(ZoneOffset.UTC);
+            if (checkTimeRangeValidity(instant, planktonRectangle.getTimeRange().end())) {
+               planktonRectangle.setTimeRange(new DefaultRange<>(instant, planktonRectangle.getTimeRange().end()));
                fireTableDataChanged();
             }
          }
       } else if (col == STOP_DATE_COLUMN && showAll) {
          if (!((String) value).isEmpty()) {
-            int stopDate = -1;
+            LocalDate stopDate = null;
             try {
-               stopDate = DateTimeMillis.stringDateToInt((String) value);
-            } catch (IllegalArgumentException e) {
+               stopDate = DateTimeMillis.toLocalDate((String) value).orElse(null);
+            } catch (DateTimeException e) {
                JOptionPane.showMessageDialog(dialog,
                      "Invalid date. Please enter as YYYY-MM-DD\n(" + e + ")", "", JOptionPane.INFORMATION_MESSAGE);
             }
-            if (stopDate != -1) {
-               long millis = DateTimeMillis.toMillis(stopDate, new DateTimeMillis(planktonRectangle.getMillisRange().end()).getTime());
-               if (checkTimeRangeValidity(planktonRectangle.getMillisRange().begin(), millis)) {
-                  planktonRectangle.setMillisRange(new DefaultRange<>(planktonRectangle.getMillisRange().begin(), millis));
+            if (stopDate != null) {
+               LocalTime time = LocalTime.ofInstant(planktonRectangle.getTimeRange().end(), ZoneOffset.UTC);
+               Instant instant = stopDate.atTime(time).toInstant(ZoneOffset.UTC);
+               if (checkTimeRangeValidity(planktonRectangle.getTimeRange().begin(), instant)) {
+                  planktonRectangle.setTimeRange(new DefaultRange<>(planktonRectangle.getTimeRange().begin(), instant));
                   fireTableDataChanged();
                }
             }
          }
       } else if (col == STOP_TIME_COLUMN && showAll) {
          if (!((String) value).isEmpty()) {
-            int date = new DateTimeMillis(planktonRectangle.getMillisRange().end()).getDate();
-            if (date == 99991231) {
-               date = new DateTimeMillis(System.currentTimeMillis()).getDate();
+            LocalDate date = LocalDate.ofInstant(planktonRectangle.getTimeRange().end(), ZoneOffset.UTC);
+            if (DateTimeMillis.localDateToInt(date) == 9999_12_31) {
+               date = LocalDate.now();
             }
-            long millis = DateTimeMillis.toMillis(date, DateTimeMillis.centisTimeToInt((String) value) * 10);
-            if (checkTimeRangeValidity(planktonRectangle.getMillisRange().begin(), millis)) {
-               planktonRectangle.setMillisRange(new DefaultRange<>(planktonRectangle.getMillisRange().begin(), millis));
+            Instant instant = date.atTime(DateTimeMillis.centisTimeToLocalTime((String) value)).toInstant(ZoneOffset.UTC);
+            if (checkTimeRangeValidity(planktonRectangle.getTimeRange().begin(), instant)) {
+               planktonRectangle.setTimeRange(new DefaultRange<>(planktonRectangle.getTimeRange().begin(), instant));
                fireTableDataChanged();
             }
          }

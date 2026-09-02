@@ -42,11 +42,9 @@ public final class TableUtils {
       return col < 0 ? col : table.convertColumnIndexToModel(col);
    }
 
-   public static void stopCellEditing(JTable table) {
+   public static boolean stopCellEditing(JTable table) {
       TableCellEditor cellEditor = table.getCellEditor();
-      if (cellEditor != null) {
-         cellEditor.stopCellEditing();
-      }
+      return cellEditor == null || cellEditor.stopCellEditing();
    }
 
    public static DefaultTableCellRenderer defaultTableCellRenderer(int horizontalAlignment) {
@@ -76,11 +74,13 @@ public final class TableUtils {
    public static void setTableSelection(JTable table, IntPredicate rowPredicate) {
       table.getSelectionModel().setValueIsAdjusting(true);
       table.clearSelection();
-      int rowCount = table.getRowCount();
+      int rowCount = table.getModel().getRowCount();
       for (int i = 0; i < rowCount; i++) {
          if (rowPredicate.test(i)) {
             int row = table.convertRowIndexToView(i);
-            table.addRowSelectionInterval(row, row);
+            if (row >= 0) {
+               table.addRowSelectionInterval(row, row);
+            }
          }
       }
       table.getSelectionModel().setValueIsAdjusting(false);
@@ -147,7 +147,7 @@ public final class TableUtils {
       }
       AbstractTableModel tableModel = (AbstractTableModel) table.getModel();
       List<String> lines = data.lines().toList();
-      int sourceColumnCount = lines.stream().mapToInt(line -> line.split("\t").length).max().orElse(1);
+      int sourceColumnCount = lines.stream().mapToInt(line -> line.split("\t", -1).length).max().orElse(1);
       int[] targetRows = table.getSelectedRows();
       int[] targetColumns = table.getSelectedColumns();
       if (targetRows.length == 1 && targetColumns.length == 1) {
@@ -163,7 +163,7 @@ public final class TableUtils {
          } else {
             break;
          }
-         String[] words = line.split("\t");
+         String[] words = line.split("\t", -1);
          int row = targetRows[i];
          for (int j = 0; j < targetColumns.length; j++) {
             String word;

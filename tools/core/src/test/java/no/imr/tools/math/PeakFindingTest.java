@@ -2,6 +2,8 @@ package no.imr.tools.math;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 final class PeakFindingTest {
@@ -65,7 +67,14 @@ final class PeakFindingTest {
    }
 
    @Test
-   void testSingle() {
+   void none() {
+      assertEquals(List.of(), PeakFinding.getPeaks(new float[]{1, 1, 1, 1, 1, 1, 1}));
+      assertEquals(List.of(), PeakFinding.getPeaks(new float[]{1, 2, 3, 4, 5, 6, 7}));
+      assertEquals(List.of(), PeakFinding.getPeaks(new float[]{7, 6, 5, 4, 3, 2, 1}));
+   }
+
+   @Test
+   void single() {
       float[] singlePeakEven = generateSinglePeak(80);
       float[] singlePeakOdd = generateSinglePeak(81);
 
@@ -74,7 +83,7 @@ final class PeakFindingTest {
    }
 
    @Test
-   void testMultiple() {
+   void multiple() {
       float[] multiplePeakEven = generateMultipleIdenticalPeaks(800, 11);
       float[] multiplePeakOdd = generateMultipleIdenticalPeaks(801, 11);
 
@@ -85,7 +94,7 @@ final class PeakFindingTest {
    }
 
    @Test
-   void testSingleMultiDim() {
+   void singleMultiDim() {
       float[] singlePeakEven = generateSingleMultiDimPeak(80);
       float[] singlePeakOdd = generateSingleMultiDimPeak(81);
 
@@ -94,7 +103,7 @@ final class PeakFindingTest {
    }
 
    @Test
-   void testMultipleMultiDim() {
+   void multipleMultiDim() {
       float[] multiplePeakEven = generateMultipleIdenticalMultiDimPeaks(8000, 54);
       float[] multiplePeakOdd = generateMultipleIdenticalMultiDimPeaks(8001, 54);
 
@@ -106,7 +115,7 @@ final class PeakFindingTest {
    }
 
    @Test
-   void testMultipleSuperImposedMultiDim() {
+   void multipleSuperImposedMultiDim() {
       float[] multiplePeakEven = generateSuperimposedMultiDimPeaks(8000, 54, 300);
       float[] multiplePeakOdd = generateSuperimposedMultiDimPeaks(8001, 54, 300);
 

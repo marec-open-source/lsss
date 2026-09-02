@@ -54,23 +54,23 @@ public final class RandomSyntheticData extends SyntheticData {
    }
 
    @Override
-   protected int getTransducerCount() {
+   public int getTransducerCount() {
       return frequencies.length;
    }
 
    @Override
-   protected float getFrequency(int channel) {
+   public float getFrequency(int channel) {
       return frequencies[channel - 1];
    }
 
    @Override
-   protected void addParameters(Map<String, String> parameters) {
+   public void addParameters(Map<String, String> parameters) {
       super.addParameters(parameters);
       parameters.put(SEED, Long.toString(seed));
    }
 
    @Override
-   protected void setParameter(String name, String value) {
+   public void setParameter(String name, String value) {
       if (name.equals(SEED)) {
          setSeed(Long.parseLong(value));
       } else {
@@ -79,18 +79,18 @@ public final class RandomSyntheticData extends SyntheticData {
    }
 
    @Override
-   protected float getTransducerDepth(PingIndex pingIndex, int channel) {
+   public float getTransducerDepth(PingIndex pingIndex, int channel) {
       return getRawInfo(pingIndex, channel).transducerDepth;
    }
 
    @Override
-   protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+   public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
       RawInfo rawInfo = getRawInfo(pingIndex, powerData.getChannel());
       rawDataType.defineData(new Random(rawInfo.rawDataSeed), powerData, rawInfo);
    }
 
    @Override
-   protected boolean hasPowerData(PingIndex pingIndex, int channel) {
+   public boolean hasPowerData(PingIndex pingIndex, int channel) {
       return getRawInfo(pingIndex, channel).hasRaw;
    }
 

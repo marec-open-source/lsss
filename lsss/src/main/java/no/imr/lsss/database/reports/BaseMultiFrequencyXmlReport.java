@@ -55,7 +55,7 @@ abstract class BaseMultiFrequencyXmlReport extends BaseMultiFrequencyReport {
    private void openXml(Path file) throws IOException, XMLStreamException {
       OutputStream outputStream = getReportEngine().newOutputStream(file);
       writer = new BufferedWriter(new OutputStreamWriter(outputStream, Utils.UTF_8));
-      IndentingXMLStreamWriter indentingXMLEventWriter = new IndentingXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+      IndentingXMLStreamWriter indentingXMLEventWriter = new IndentingXMLStreamWriter(XMLOutputFactory.newFactory().createXMLStreamWriter(writer));
       indentingXMLEventWriter.setIndentStep("   ");
       xmlStreamWriter = indentingXMLEventWriter;
    }

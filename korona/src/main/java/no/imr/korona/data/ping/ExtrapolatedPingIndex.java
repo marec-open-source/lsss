@@ -1,7 +1,7 @@
 package no.imr.korona.data.ping;
 
-import no.imr.tools.time.NTDate;
 import no.marec.lsss.api.util.GeoPoint;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -19,10 +19,12 @@ public final class ExtrapolatedPingIndex extends DefaultPingIndex {
       double hours = seconds / 3600;
       double knots = 11;
 
-      setNTDate(pingIndex.getNTDate() + (long) (seconds * NTDate.UNITS_PER_SECOND));
-      setPingNumber(pingIndex.getPingNumber() + 1);
-      setVesselDistance(pingIndex.getVesselDistance() + hours * knots);
-      setGeographicalPosition(pingIndex.getGeographicalPosition()); // use same location
+      super(
+            pingIndex.getInstant().plusNanos((long) (seconds * 1e9)),
+            pingIndex.getPingNumber() + 1,
+            pingIndex.getVesselDistance() + hours * knots,
+            pingIndex.getGeographicalPosition() // use same location
+      );
    }
 
    /**
@@ -36,17 +38,22 @@ public final class ExtrapolatedPingIndex extends DefaultPingIndex {
     */
    public ExtrapolatedPingIndex(PingIndex first, PingIndex second) {
       // Avoid overflow by using the form b + (b - a) instead of 2*b - a.
+      super(
+            second.getInstant().plus(first.getInstant().until(second.getInstant())),
+            second.getPingNumber() + (second.getPingNumber() - first.getPingNumber()),
+            second.getVesselDistance() + (second.getVesselDistance() - first.getVesselDistance()),
+            extrapolateGeoPos(first.getGeographicalPosition(), second.getGeographicalPosition())
+      );
+   }
 
-      setNTDate(second.getNTDate() + (second.getNTDate() - first.getNTDate()));
-      setPingNumber(second.getPingNumber() + (second.getPingNumber() - first.getPingNumber()));
-      setVesselDistance(second.getVesselDistance() + (second.getVesselDistance() - first.getVesselDistance()));
-
-      GeoPoint firstPos = first.getGeographicalPosition();
-      GeoPoint secondPos = second.getGeographicalPosition();
-      if (firstPos != null && secondPos != null) {
-         double x = secondPos.getX() + (secondPos.getX() - firstPos.getX());
-         double y = secondPos.getY() + (secondPos.getY() - firstPos.getY());
-         setGeographicalPosition(new GeoPoint(x, y));
+   private static @Nullable GeoPoint extrapolateGeoPos(@Nullable GeoPoint first, @Nullable GeoPoint second) {
+      if (first != null && second != null) {
+         return new GeoPoint(
+               second.getX() + (second.getX() - first.getX()),
+               second.getY() + (second.getY() - first.getY())
+         );
+      } else {
+         return null;
       }
    }
 

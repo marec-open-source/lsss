@@ -80,6 +80,9 @@ public final class HelpServerMain {
       String path = FileUtils.toSlashSeparatorChar(file.toString());
       String srcMainResources = "/src/main/resources/";
       int i = path.indexOf(srcMainResources);
+      if (i < 0) {
+         throw new IllegalArgumentException(file + " does not contain '" + srcMainResources + "'");
+      }
       return path.substring(i + srcMainResources.length());
    }
 }

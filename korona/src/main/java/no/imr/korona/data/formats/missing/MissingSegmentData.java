@@ -75,7 +75,7 @@ public final class MissingSegmentData extends SegmentData {
    }
 
    private static PowerData createPowerData(RawFileConfiguration rawFileConfiguration, PingIndex pingIndex, int channel) {
-      PowerData powerData = new PowerData(pingIndex.getNTDate());
+      PowerData powerData = new PowerData(pingIndex.getInstant());
       powerData.setChannel(channel);
       powerData.setFrequency(rawFileConfiguration.getTransducers().get(channel - 1).getFrequency());
       powerData.setTransmitPower(2000);

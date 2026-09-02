@@ -1,13 +1,22 @@
 package no.imr.korona.viewer.variables;
 
 import no.imr.korona.data.ping.Ping;
-import no.imr.tools.Utils;
 import no.imr.tools.range.FloatRange;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The result of a call to {@link DiscreteVariable#evaluate(Ping)}.
  */
-public record DiscreteVariableResult(byte[] byteData, FloatRange depthRange) {
+public final class DiscreteVariableResult {
+   public final byte[] byteData;
+   public final FloatRange depthRange;
 
-   public static final DiscreteVariableResult EMPTY = new DiscreteVariableResult(Utils.EMPTY_BYTE_ARRAY, FloatRange.EMPTY_RANGE);
+   private DiscreteVariableResult(byte[] byteData, FloatRange depthRange) {
+      this.byteData = byteData;
+      this.depthRange = depthRange;
+   }
+
+   public static @Nullable DiscreteVariableResult of(byte[] byteData, FloatRange depthRange) {
+      return byteData.length > 0 ? new DiscreteVariableResult(byteData, depthRange) : null;
+   }
 }

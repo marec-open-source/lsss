@@ -29,7 +29,7 @@ public final class PelagicEchogramExporter extends EchogramExporter {
    }
 
    @Override
-   public void doExport(AsyncHandle asyncHandle, ProgressHandler progressHandler) throws IOException {
+   protected void doExport(AsyncHandle asyncHandle, ProgressHandler progressHandler) throws IOException {
       exportEchogram(getLSSS().getInterpretationSettings().getDataFileSet(), getLSSS().getInterpretationSettings().getPingRange(), asyncHandle, progressHandler);
    }
 

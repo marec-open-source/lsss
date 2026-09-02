@@ -1,8 +1,5 @@
 package no.imr.korona.data.util.mask;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import no.imr.korona.data.datamanager.PingContainer;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.tools.Utils;
@@ -12,29 +9,31 @@ import no.imr.tools.range.FloatRangeSet;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.TreeMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public final class GrowEngine {
    private final PingContainer pingContainer;
-   private final LoadingCache<PingIndex, List<FloatRange>> candidateDepthRangesCache;
+   private final Function<PingIndex, List<FloatRange>> mutableDepthRangeExtractor;
    private final Queue<Seed> seeds = new ArrayDeque<>();
    private Predicate<PingIndex> usablePings = _ -> true;
    private Consumer<Integer> pingCountListener = Utils.emptyConsumer();
 
-   public GrowEngine(PingContainer pingContainer, DepthRangeExtractor depthRangeExtractor) {
+   public GrowEngine(PingContainer pingContainer, Function<PingIndex, FloatRangeSet> depthRangeExtractor) {
       this.pingContainer = pingContainer;
-      candidateDepthRangesCache = CacheBuilder.newBuilder()
-            .build(CacheLoader.from(pingIndex -> {
-               // Create new list since the growing will remove depth ranges.
-               return new ArrayList<>(depthRangeExtractor.depthRanges(pingIndex).getFloatRanges());
-            }));
+      mutableDepthRangeExtractor = pingIndex -> {
+         // Create a new mutable list since the growing will remove depth ranges.
+         return new ArrayList<>(depthRangeExtractor.apply(pingIndex).getFloatRanges());
+      };
    }
 
    public GrowEngine setUsablePings(Predicate<PingIndex> usablePings) {
@@ -62,12 +61,13 @@ public final class GrowEngine {
    public Optional<NavigableMap<PingIndex, FloatRangeSet>> growSchoolMask(AsyncHandle asyncHandle) {
       int pingCount = 0;
       NavigableMap<PingIndex, FloatRangeSet> schoolMask = new TreeMap<>();
+      Map<PingIndex, List<FloatRange>> candidateDepthRangesCache = new HashMap<>();
       while (!seeds.isEmpty()) {
          if (asyncHandle.isCancelled()) {
             return Optional.empty();
          }
          Seed seed = seeds.remove();
-         List<FloatRange> candidateDepthRanges = candidateDepthRangesCache.getUnchecked(seed.pingIndex());
+         List<FloatRange> candidateDepthRanges = candidateDepthRangesCache.computeIfAbsent(seed.pingIndex(), mutableDepthRangeExtractor);
          List<FloatRange> acceptedDepthRanges = new ArrayList<>();
          for (Iterator<FloatRange> iterator = candidateDepthRanges.iterator(); iterator.hasNext(); ) {
             FloatRange candidateDepthRange = iterator.next();

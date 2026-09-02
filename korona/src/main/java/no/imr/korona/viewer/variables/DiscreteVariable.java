@@ -4,6 +4,7 @@ import no.imr.korona.data.datagrams.DiscreteCategory;
 import no.imr.korona.data.ping.Ping;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A discrete variable.
@@ -21,5 +22,5 @@ public abstract non-sealed class DiscreteVariable extends BaseVariable {
 
    public abstract DiscreteCategory getUnknownCategory();
 
-   public abstract DiscreteVariableResult evaluate(Ping ping);
+   public abstract @Nullable DiscreteVariableResult evaluate(Ping ping);
 }

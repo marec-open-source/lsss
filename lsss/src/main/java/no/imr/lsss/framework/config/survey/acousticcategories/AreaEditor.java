@@ -16,6 +16,7 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.StringParameter;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.swing.AddRemoveListPanel;
 import no.imr.tools.swing.GuiUtils;
 import no.marec.lsss.api.util.parameters.ValueConstraint;
@@ -110,8 +111,8 @@ final class AreaEditor {
 
       AddRemoveListPanel<AcousticCategory> selectorPanel = new AddRemoveListPanel<>(
             allAcousticCategories, selectedAcousticCategories, "Add acoustic categories to area",
-            new AcousticCategoryConf.AcousticCategoryJList(lsss.getConfigurationManager().getLanguageUtils()),
-            new AcousticCategoryConf.AcousticCategoryJList(lsss.getConfigurationManager().getLanguageUtils()));
+            AcousticCategoryConf.newAcousticCategoryJList(lsss.getConfigurationManager().getLanguageUtils()),
+            AcousticCategoryConf.newAcousticCategoryJList(lsss.getConfigurationManager().getLanguageUtils()));
       selectorPanel.setAllLabel("All acoustic categories");
       selectorPanel.setSelectedLabel("Assigned acoustic categories");
 
@@ -186,8 +187,9 @@ final class AreaEditor {
             areaID,
             areaName,
             nation
-      ));
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
+      ), new GUIConfig()
+            .setHorizontalFill(true)
+      );
 
       JPanel panel = new JPanel(new BorderLayout());
       panel.add(parameterEditor.getEditorComponent());

@@ -17,7 +17,7 @@ public interface StatelessDatabaseQuery extends StatelessValuedDatabaseQuery<Opt
    void execute(StatelessSession session);
 
    static StatelessDatabaseQuery empty() {
-      return session -> {
+      return _ -> {
       };
    }
 
@@ -45,7 +45,17 @@ public interface StatelessDatabaseQuery extends StatelessValuedDatabaseQuery<Opt
       return session -> session.upsertMultiple(objects);
    }
 
+   @SuppressWarnings("SqlSourceToSinkFlow")
    static StatelessDatabaseQuery nativeSql(String sql) {
       return session -> session.createNativeQuery(sql, (Class<?>) null).executeUpdate();
+   }
+
+   @SuppressWarnings("SqlSourceToSinkFlow")
+   static StatelessDatabaseQuery nativeSql(List<String> sqls) {
+      return session -> {
+         for (String sql : sqls) {
+            session.createNativeQuery(sql, (Class<?>) null).executeUpdate();
+         }
+      };
    }
 }

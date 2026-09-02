@@ -5,7 +5,7 @@ import no.imr.lsss.modules.OverlayDisplayData;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
-public abstract class ZoomBaseEngine extends OverlayDisplayData {
+public abstract class ZoomBaseEngine implements OverlayDisplayData {
    ZoomBaseEngine() {
    }
 

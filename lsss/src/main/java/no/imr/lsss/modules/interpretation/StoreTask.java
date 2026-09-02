@@ -1,9 +1,14 @@
 package no.imr.lsss.modules.interpretation;
 
 import no.imr.lsss.plugins.FeaturePlugin;
+import no.imr.tools.swing.ColorUtils;
 import org.jspecify.annotations.Nullable;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 
 public abstract class StoreTask {
    private final FeaturePlugin plugin;
@@ -44,4 +49,12 @@ public abstract class StoreTask {
    public abstract boolean store();
 
    public abstract void delete();
+
+   protected static JComponent createWarningLabel(String text) {
+      JPanel panel = new JPanel(new BorderLayout());
+      panel.setBackground(ColorUtils.TOMATO);
+      panel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+      panel.add(new JLabel(text));
+      return panel;
+   }
 }

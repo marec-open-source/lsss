@@ -7,6 +7,8 @@ import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.time.Duration;
+import java.time.Instant;
 
 /**
  * Registers if a component hierarchy receives input from user.
@@ -16,13 +18,13 @@ public final class ActivityListener extends MouseAndKeyAdapter {
    private final Timer timer = new Timer(1000, _ -> tick());
 
    private final DeepInputListener deepInputListener;
-   private long thresholdMillis;
-   private long lastActionTime = System.currentTimeMillis();
+   private Duration threshold;
+   private Instant lastActionTime = Instant.now();
    private boolean active = true;
 
-   public ActivityListener(Component component, long thresholdMillis) {
+   public ActivityListener(Component component, Duration threshold) {
       deepInputListener = new DeepInputListener(component, this);
-      this.thresholdMillis = thresholdMillis;
+      this.threshold = threshold;
       timer.start();
    }
 
@@ -35,8 +37,8 @@ public final class ActivityListener extends MouseAndKeyAdapter {
       return changeManager;
    }
 
-   public void setThresholdMillis(long thresholdMillis) {
-      this.thresholdMillis = thresholdMillis;
+   public void setThreshold(Duration threshold) {
+      this.threshold = threshold;
    }
 
    public boolean isActive() {
@@ -44,13 +46,13 @@ public final class ActivityListener extends MouseAndKeyAdapter {
    }
 
    private void tick() {
-      if (System.currentTimeMillis() > lastActionTime + thresholdMillis) {
+      if (Instant.now().isAfter(lastActionTime.plus(threshold))) {
          setActive(false);
       }
    }
 
    private void action() {
-      lastActionTime = System.currentTimeMillis();
+      lastActionTime = Instant.now();
       setActive(true);
    }
 

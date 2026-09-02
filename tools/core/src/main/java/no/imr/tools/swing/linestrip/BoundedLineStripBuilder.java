@@ -41,7 +41,7 @@ public final class BoundedLineStripBuilder implements LineStripBuilder {
          }
          lineStripBuilder.addPoint(x, y);
          addedPoint = true;
-      } else {
+      } else if (addedPoint) {
          lineStripBuilder.endLineStrip();
          addedPoint = false;
       }

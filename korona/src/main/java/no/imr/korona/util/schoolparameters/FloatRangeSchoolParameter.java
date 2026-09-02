@@ -50,14 +50,16 @@ public final class FloatRangeSchoolParameter extends BaseFloatSchoolParameter {
    public List<String> getExportNames() {
       return List.of(
             XML_MIN,
-            XML_MAX);
+            XML_MAX
+      );
    }
 
    @Override
    public List<String> getExportValues() {
       return List.of(
             Utils.toString(range.min()),
-            Utils.toString(range.max()));
+            Utils.toString(range.max())
+      );
    }
 
    public FloatRange getRange() {

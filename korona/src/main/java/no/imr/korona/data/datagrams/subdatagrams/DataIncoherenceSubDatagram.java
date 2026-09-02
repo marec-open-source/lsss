@@ -1,6 +1,7 @@
 package no.imr.korona.data.datagrams.subdatagrams;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 public final class DataIncoherenceSubDatagram extends BaseSubDatagram {
    public static final DatagramSubType SUB_TYPE = new DatagramSubType(DatagramSubTypeId.DATA_INCOHERENCE,
@@ -10,16 +11,16 @@ public final class DataIncoherenceSubDatagram extends BaseSubDatagram {
    private final int kHz;
    private final float incoherenceValue;
 
-   public DataIncoherenceSubDatagram(long ntDate, short channel, int kHz, float incoherenceValue) {
-      super(ntDate);
+   public DataIncoherenceSubDatagram(Instant instant, short channel, int kHz, float incoherenceValue) {
+      super(instant);
 
       this.channel = channel;
       this.kHz = kHz;
       this.incoherenceValue = incoherenceValue;
    }
 
-   public DataIncoherenceSubDatagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate);
+   public DataIncoherenceSubDatagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant);
 
       channel = byteBuffer.getShort();
       kHz = byteBuffer.getInt();

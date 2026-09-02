@@ -15,9 +15,9 @@ import org.jspecify.annotations.Nullable;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.OptionalDouble;
-import java.util.concurrent.TimeUnit;
 
 public final class ImageDiffCache {
    private final LoadingCache<DeepVisionFileInfo, CacheData> cache = CacheBuilder.newBuilder()
@@ -25,7 +25,7 @@ public final class ImageDiffCache {
          .build(CacheLoader.from(CacheData::new));
    private final Cache<ImageKey, BufferedImage> images = CacheBuilder.newBuilder()
          .maximumSize(10)
-         .expireAfterAccess(10, TimeUnit.SECONDS)
+         .expireAfterAccess(Duration.ofSeconds(10))
          .build();
    private final ImageComparer imageComparer = new ImageComparer(100, 100);
 

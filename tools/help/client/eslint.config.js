@@ -1,12 +1,12 @@
 // @ts-check
-const eslint = require("@eslint/js");
-const { defineConfig } = require("eslint/config");
-const tseslint = require("typescript-eslint");
-const angular = require("angular-eslint");
+const eslint = require('@eslint/js');
+const { defineConfig } = require('eslint/config');
+const tseslint = require('typescript-eslint');
+const angular = require('angular-eslint');
 
 module.exports = defineConfig([
       {
-         files: ["**/*.ts"],
+         files: ['**/*.ts'],
          extends: [
             eslint.configs.recommended,
             tseslint.configs.recommended,
@@ -15,31 +15,31 @@ module.exports = defineConfig([
          ],
          processor: angular.processInlineTemplates,
          rules: {
-            "@angular-eslint/directive-selector": [
-               "error",
+            '@angular-eslint/directive-selector': [
+               'error',
                {
-                  type: "attribute",
-                  prefix: "marec",
-                  style: "camelCase",
+                  type: 'attribute',
+                  prefix: 'marec',
+                  style: 'camelCase',
                },
             ],
-            "@angular-eslint/component-selector": [
-               "error",
+            '@angular-eslint/component-selector': [
+               'error',
                {
-                  type: "element",
-                  prefix: "marec",
-                  style: "kebab-case",
+                  type: 'element',
+                  prefix: 'marec',
+                  style: 'kebab-case',
                },
             ],
-            "@typescript-eslint/no-inferrable-types": "off",
+            '@typescript-eslint/no-inferrable-types': 'off',
          },
       },
       {
-         files: ["**/*.html"],
+         files: ['**/*.html'],
          extends: [
             angular.configs.templateRecommended,
             angular.configs.templateAccessibility,
          ],
          rules: {},
-      }
+      },
 ]);

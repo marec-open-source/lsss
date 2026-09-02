@@ -24,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -140,7 +141,7 @@ public final class ExpandingTrack extends Track {
          private final NextFileWait nextFileWait = new NextFileWait(rawFile, asyncHandle);
 
          @Override
-         public boolean isEndOfInput(long millisWaiting, Comparator<FileInfo> comparator) throws IOException {
+         public boolean isEndOfInput(Duration durationWaiting, Comparator<FileInfo> comparator) throws IOException {
             if (!hasWaited) {
                hasWaited = true;
                if (lastPingNotAdded != null) {
@@ -154,7 +155,7 @@ public final class ExpandingTrack extends Track {
                }
             }
             noDataListener.accept(Optional.empty());
-            return nextFileWait.isEndOfInput(millisWaiting, comparator);
+            return nextFileWait.isEndOfInput(durationWaiting, comparator);
          }
       }, datagramTypeManager);
       lastPingNotAdded = segment.expand(asyncHandle); // Must call expand before adding segment to track so that ping shift can be computed

@@ -1,17 +1,21 @@
 package no.imr.korona.data.util.mask;
 
+import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.datamanager.PingContainer;
+import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingRange;
+import no.imr.korona.data.ping.items.channel.PowerData;
+import no.imr.korona.data.util.DataUtils;
 import no.imr.korona.data.util.geometry.EchogramPoint;
 import no.imr.korona.data.util.geometry.EchogramUtils;
 import no.imr.korona.data.util.geometry.depth.DepthTransform;
+import no.imr.korona.region.RegionManager;
 import no.imr.korona.region.schooledit.ScaleMaskComputation;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import no.imr.korona.util.echogram.EchogramZSettings;
-import no.imr.tools.CyclicList;
-import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
 
@@ -192,8 +196,23 @@ public final class MaskUtils {
       return subtract(complementMask, outsideMask);
    }
 
-   private static DepthRangeExtractor depthRangeExtractor(NavigableMap<PingIndex, FloatRangeSet> mask) {
+   private static Function<PingIndex, FloatRangeSet> depthRangeExtractor(NavigableMap<PingIndex, FloatRangeSet> mask) {
       return pingIndex -> mask.getOrDefault(pingIndex, FloatRangeSet.of());
+   }
+
+   public static Function<PingIndex, FloatRangeSet> schoolCandidateDepthRangeExtractor(RegionManager regionManager, DataFileSet dataFileSet, int channel) {
+      return pingIndex -> {
+         Ping ping = dataFileSet.getPing(pingIndex);
+         PowerData powerData = ping.getPowerData(channel);
+         if (powerData == null) {
+            return FloatRangeSet.of();
+         }
+         FloatRange boundaryDepthRange = regionManager.getLayerManager().getBoundaryDepthRange(pingIndex);
+         FloatRange logSvRange = regionManager.getThresholdManager().getLogSvRange(pingIndex);
+         FloatRangeSet depthRanges = FloatRangeSet.of(DataUtils.findDepthRanges(powerData, boundaryDepthRange, powerData.getLogSv(), logSvRange));
+         FloatRangeSet schoolDepthRanges = regionManager.getSchoolManager().depthRangesForPingIndex(pingIndex);
+         return depthRanges.subtract(schoolDepthRanges);
+      };
    }
 
    public static NavigableMap<PingIndex, FloatRangeSet> fillHoles(NavigableMap<PingIndex, FloatRangeSet> mask, PingContainer pingContainer) {
@@ -202,14 +221,66 @@ public final class MaskUtils {
    }
 
    public static NavigableMap<PingIndex, FloatRangeSet> smooth(NavigableMap<PingIndex, FloatRangeSet> mask, float dz,
-                                                               PingContainer pingContainer, EchogramPingSettings pingSettings, EchogramZSettings zSettings) {
+                                                               EchogramPingSettings pingSettings, EchogramZSettings zSettings) {
+      NavigableMap<PingIndex, FloatRangeSet> result = mask;
       if (dz != 0) {
-         mask = new ScaleMaskComputation(pingContainer, pingSettings, zSettings, mask, true)
+         NavigableMap<PingIndex, FloatRangeSet> convexHull = convexHull(result, pingSettings, zSettings.getDepthTransform());
+         result = new ScaleMaskComputation(pingSettings, zSettings, result, true)
                .computeMask(dz);
-         mask = new ScaleMaskComputation(pingContainer, pingSettings, zSettings, mask, true)
+         result = new ScaleMaskComputation(pingSettings, zSettings, result, true)
                .computeMask(-dz);
+         result = subtract(result, complement(convexHull, pingSettings.getPingContainer()));
       }
-      return mask;
+      return result;
+   }
+
+   public static NavigableMap<PingIndex, FloatRangeSet> convexHull(NavigableMap<PingIndex, FloatRangeSet> mask,
+                                                                   EchogramPingSettings pingSettings, DepthTransform depthTransform) {
+      record HullPoint(PingIndex pingIndex, float x, float z) {
+         private static void add(List<HullPoint> points, HullPoint c, boolean upper) {
+            while (points.size() > 1) {
+               HullPoint b = points.getLast();
+               HullPoint a = points.get(points.size() - 2);
+               float cross = (b.x - a.x) * (c.z - b.z) - (c.x - b.x) * (b.z - a.z);
+               if (upper && cross > 0 || !upper && cross < 0) {
+                  break;
+               }
+               points.removeLast();
+            }
+            points.add(c);
+         }
+
+         private static List<EchogramPoint> toBoundary(List<HullPoint> points, PingContainer pingContainer, DepthTransform depthTransform) {
+            return EchogramUtils.addMissingPoints(points.stream()
+                  .map(p -> new EchogramPoint(p.pingIndex, depthTransform.zToDepth(p.z, p.pingIndex)))
+                  .toList(), pingContainer, depthTransform);
+         }
+      }
+
+      List<HullPoint> upperHull = new ArrayList<>();
+      List<HullPoint> lowerHull = new ArrayList<>();
+
+      for (Map.Entry<PingIndex, FloatRangeSet> entry : mask.entrySet()) {
+         PingIndex pingIndex = entry.getKey();
+         float x = pingSettings.pingIndexToX(pingIndex);
+         FloatRange boundingRange = entry.getValue().getBoundingRange();
+
+         HullPoint cUpper = new HullPoint(pingIndex, x, depthTransform.depthToZ(boundingRange.min(), pingIndex));
+         HullPoint.add(upperHull, cUpper, true);
+
+         HullPoint cLower = new HullPoint(pingIndex, x, depthTransform.depthToZ(boundingRange.max(), pingIndex));
+         HullPoint.add(lowerHull, cLower, false);
+      }
+
+      List<EchogramPoint> upperBoundary = HullPoint.toBoundary(upperHull, pingSettings.getPingContainer(), depthTransform);
+      List<EchogramPoint> lowerBoundary = HullPoint.toBoundary(lowerHull, pingSettings.getPingContainer(), depthTransform);
+      NavigableMap<PingIndex, FloatRangeSet> result = new TreeMap<>();
+      for (int i = 0; i < upperBoundary.size(); i++) {
+         EchogramPoint upper = upperBoundary.get(i);
+         EchogramPoint lower = lowerBoundary.get(i);
+         result.put(upper.pingIndex(), FloatRangeSet.of(FloatRange.of(upper.depth(), lower.depth())));
+      }
+      return result;
    }
 
    public static NavigableMap<PingIndex, FloatRangeSet> smoothBoundary(NavigableMap<PingIndex, FloatRangeSet> mask, PingContainer pingContainer) {
@@ -222,17 +293,17 @@ public final class MaskUtils {
             if (depthRangeSet == null) {
                continue;
             }
-            EchogramPoint pm1 = points.get(Utils.mod(i - 1, n));
-            EchogramPoint p1 = points.get(Utils.mod(i + 1, n));
+            EchogramPoint pm1 = points.get(MathUtils.mod(i - 1, n));
+            EchogramPoint p1 = points.get(MathUtils.mod(i + 1, n));
             if (pm1.pingIndex().getPingNumber() < p0.pingIndex().getPingNumber()) {
                // pm1 to p0 is left to right.
                if (p0.pingIndex().getPingNumber() >= p1.pingIndex().getPingNumber()) {
                   // p0 to p1 is NOT left to right.
                   continue;
                }
-               EchogramPoint p2 = points.get(Utils.mod(i + 2, n));
+               EchogramPoint p2 = points.get(MathUtils.mod(i + 2, n));
                if (p1.pingIndex().getPingNumber() >= p2.pingIndex().getPingNumber()) {
-                  // p1 to p1 is NOT left ro right, so
+                  // p1 to p2 is NOT left to right, so
                   // p1 is extrapolated and should not be used for smoothing.
                   continue;
                }
@@ -242,9 +313,9 @@ public final class MaskUtils {
                   // p0 to p1 is NOT right to left.
                   continue;
                }
-               EchogramPoint pm2 = points.get(Utils.mod(i - 2, n));
+               EchogramPoint pm2 = points.get(MathUtils.mod(i - 2, n));
                if (pm2.pingIndex().getPingNumber() <= pm1.pingIndex().getPingNumber()) {
-                  // pm1 to pm2 ot NOT right to left, so
+                  // pm2 to pm1 is NOT right to left, so
                   // pm1 is extrapolated and should not be used for smoothing.
                   continue;
                }
@@ -262,7 +333,7 @@ public final class MaskUtils {
    }
 
    public static NavigableMap<PingIndex, FloatRangeSet> incompleteBoundaryToMask(List<EchogramPoint> incompleteBoundary, PingContainer pingContainer, DepthTransform depthTransform) {
-      CyclicList<EchogramPoint> filledBoundary = new CyclicList<>();
+      List<EchogramPoint> filledBoundary = new ArrayList<>();
       for (int i = 0; i < incompleteBoundary.size(); i++) {
          EchogramPoint point = incompleteBoundary.get(i);
          filledBoundary.add(point);

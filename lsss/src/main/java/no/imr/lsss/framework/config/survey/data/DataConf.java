@@ -114,6 +114,7 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -220,7 +221,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
    private @Nullable KoronaRelayUpdateChecker processedUpdateChecker;
    private boolean isCheckingForKoronaUpdates;
 
-   private final ArgChangeManager<Range<Long>> ntDateSelectionChangeManager = new ArgChangeManager<>();
+   private final ArgChangeManager<Range<Instant>> timeSelectionChangeManager = new ArgChangeManager<>();
    private final ChangeManager fileTableChangeManager = new ChangeManager();
 
    protected DataConf(FeaturePlugin plugin, Name name, DataSetManager dataSetManager, SegmentHandleFactory segmentHandleFactory) {
@@ -333,8 +334,8 @@ public abstract class DataConf extends SurveyDirectoryConf {
       }
    }
 
-   public ArgChangeManager<Range<Long>> getNTDateSelectionChangeManager() {
-      return ntDateSelectionChangeManager;
+   public ArgChangeManager<Range<Instant>> getTimeSelectionChangeManager() {
+      return timeSelectionChangeManager;
    }
 
    public ChangeManager getFileTableChangeManager() {
@@ -794,27 +795,27 @@ public abstract class DataConf extends SurveyDirectoryConf {
       return null;
    }
 
-   public Range<Long> getSelectedNTDateRange() {
+   public Range<Instant> getSelectedTimeRange() {
       IntRange indexes = getSelectedFileRowIndexes();
 
       if (indexes.isEmpty()) {
-         return new DefaultRange<>(0L, 0L);
+         return new DefaultRange<>(Instant.EPOCH, Instant.EPOCH);
       }
 
       SegmentInfo firstSegmentInfo = getSegmentInfo(indexes.begin(), indexes.end() - 1);
       SegmentInfo lastSegmentInfo = getSegmentInfo(indexes.end() - 1, indexes.begin());
 
       if (firstSegmentInfo == null || lastSegmentInfo == null) {
-         return new DefaultRange<>(0L, 0L);
+         return new DefaultRange<>(Instant.EPOCH, Instant.EPOCH);
       }
 
-      long beginNTDate = firstSegmentInfo.pingRange().begin().getNTDate();
-      long endNTDate = lastSegmentInfo.pingRange().end().getNTDate();
-      if (beginNTDate > endNTDate) {
-         return new DefaultRange<>(0L, 0L);
+      Instant beginTime = firstSegmentInfo.pingRange().begin().getInstant();
+      Instant endTime = lastSegmentInfo.pingRange().end().getInstant();
+      if (beginTime.isAfter(endTime)) {
+         return new DefaultRange<>(Instant.EPOCH, Instant.EPOCH);
       }
 
-      return new DefaultRange<>(beginNTDate, endNTDate);
+      return new DefaultRange<>(beginTime, endTime);
    }
 
    protected boolean getCheckCompatibility() {
@@ -885,7 +886,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
 
          dataSetLoader.asyncOpenFiles(DataType.RAW, fileOpenRequest);
 
-         ntDateSelectionChangeManager.notifyListeners(getSelectedNTDateRange());
+         timeSelectionChangeManager.notifyListeners(getSelectedTimeRange());
       }));
    }
 
@@ -1144,10 +1145,10 @@ public abstract class DataConf extends SurveyDirectoryConf {
       return segmentInfos;
    }
 
-   public @Nullable SegmentHandle ntDateToOriginalSegmentHandle(long ntDate) {
+   public @Nullable SegmentHandle instantToOriginalSegmentHandle(Instant instant) {
       for (DataFileTableModel.FileRow fileRow : view.dataFileTableModel.getFileRows()) {
          SegmentInfo segmentInfo = fileRow.getSegmentInfo();
-         if (segmentInfo != null && segmentInfo.pingRange().containsNTDate(ntDate)) {
+         if (segmentInfo != null && segmentInfo.pingRange().containsInstant(instant)) {
             return fileRow.getRawSegmentHandle();
          }
       }
@@ -1215,14 +1216,14 @@ public abstract class DataConf extends SurveyDirectoryConf {
       }
    }
 
-   public void selectNTDateRange(Range<Long> ntDateRange) {
+   public void selectTimeRange(Range<Instant> timeRange) {
       String first = "";
       String last = "";
 
       List<DataFileTableModel.FileRow> fileRows = view.dataFileTableModel.getFileRows();
       for (int i = 0; i < fileRows.size(); i++) {
          SegmentInfo segmentInfo = getSegmentInfo(i, i);
-         if (segmentInfo != null && segmentInfo.pingRange().toNTDateRange().intersects(ntDateRange)) {
+         if (segmentInfo != null && segmentInfo.pingRange().toTimeRange().intersects(timeRange)) {
             String baseName = fileRows.get(i).getRawSegmentHandle().getBaseName();
             if (first.isEmpty()) {
                first = baseName;
@@ -1612,7 +1613,7 @@ public abstract class DataConf extends SurveyDirectoryConf {
       private static void addSelectItem(JPopupMenu popupMenu, DataConf sourceDataConf, DataConf targetDataConf, SvgIcon icon) {
          JMenuItem item = icon.on(popupMenu.add("Select '" + targetDataConf.getDisplayName() + "' files from '" + sourceDataConf.getDisplayName() + "' selection"));
          item.addActionListener(_ -> {
-            targetDataConf.selectNTDateRange(sourceDataConf.getSelectedNTDateRange());
+            targetDataConf.selectTimeRange(sourceDataConf.getSelectedTimeRange());
             TableUtils.scrollToSelectedRows(targetDataConf.view.dataFileTable);
          });
       }

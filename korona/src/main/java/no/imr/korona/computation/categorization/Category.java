@@ -16,6 +16,7 @@ import no.imr.tools.io.FileInfo;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.swing.ColorUtils;
+import no.imr.tools.time.TimeUtils;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -62,13 +63,13 @@ public final class Category implements DiscreteCategory {
       private String getDirName() {
          Path rawFile = echogramWindow.getRawFile();
          String raw = rawFile != null ? rawFile.getFileName().toString() : "NoFile";
-         String time = timeInMillisToString(echogramWindow.getPings().getFirst().getTimeInMillis());
+         String time = timeToString(echogramWindow.getPings().getFirst().getInstant());
          float depth = echogramWindow.getMinDepth();
          return raw + "-" + time + "-" + depth;
       }
 
-      private static String timeInMillisToString(long timeInMillis) {
-         return Utils.createUTCDateTimeFormatter("yyyyMMddHHmmss").format(Instant.ofEpochMilli(timeInMillis));
+      private static String timeToString(Instant time) {
+         return TimeUtils.createUTCDateTimeFormatter("yyyyMMddHHmmss").format(time);
       }
    }
 

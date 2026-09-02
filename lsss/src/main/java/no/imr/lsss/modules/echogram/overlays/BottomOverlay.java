@@ -64,20 +64,15 @@ public final class BottomOverlay extends BaseEchogramOverlay {
       channelPathBuilder.endLineStrip();
       coordinatedPathBuilder.endLineStrip();
 
-      return new DisplayData(channelPath, coordinatedPath);
+      return transformed(new DisplayData(channelPath, coordinatedPath));
    }
 
-   private final class DisplayData extends TransformedDisplayData {
-      private final Path2D.Float channelPath;
-      private final Path2D.Float coordinatedPath;
-
-      private DisplayData(Path2D.Float channelPath, Path2D.Float coordinatedPath) {
-         this.channelPath = channelPath;
-         this.coordinatedPath = coordinatedPath;
-      }
-
+   private record DisplayData(
+         Path2D.Float channelPath,
+         Path2D.Float coordinatedPath
+   ) implements OverlayDisplayData {
       @Override
-      public void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          g2d.setStroke(GuiUtils.STROKE_1);
          g2d.setColor(Color.BLACK);
          g2d.draw(channelPath);

@@ -3,6 +3,7 @@ package no.imr.korona.data.datagrams;
 import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 public final class Mru1Datagram extends MruDatagram {
    public static final DatagramType TYPE = DatagramType.simple("MRU1", Mru1Datagram::new);
@@ -41,8 +42,8 @@ public final class Mru1Datagram extends MruDatagram {
    public final int delayedHeaveUtcNanosecond;  // UTC nanosecond          ns       uint32   4U
    public final float delayedHeave;             // Delayed heave           m        float    4F
 
-   public Mru1Datagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate);
+   public Mru1Datagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant);
 
       startId = ByteBufferUtils.readCString(byteBuffer, 4);
       datagramLength = byteBuffer.getShort();

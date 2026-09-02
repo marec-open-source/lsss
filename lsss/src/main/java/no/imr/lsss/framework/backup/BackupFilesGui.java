@@ -32,6 +32,7 @@ import no.imr.tools.parameter.gui.ParameterEditor;
 import no.imr.tools.parameter.misc.ReferenceDirectory;
 import no.imr.tools.parameter.misc.ReferenceDirectoryCollection;
 import no.imr.tools.parameter.misc.ReferenceDirectoryManager;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.WorkerDialog;
@@ -61,7 +62,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -82,9 +82,10 @@ public final class BackupFilesGui {
 
       SurveyDirStructure dirStructure = lsss.getConfigurationManager().getApplicationConfiguration().getDirectoryConf().getSelectedBackupDirStructure();
       allBackupItems = findAllBackupItems(lsss, dirStructure);
-      backupItems = allBackupItems.parallelStream()
+      List<BackupItem> existingBackupItems = allBackupItems.parallelStream()
             .filter(BackupItem::exists)
-            .sequential()
+            .toList();
+      backupItems = existingBackupItems.stream()
             .filter(Utils.distinctBy(BackupItem::sourceDir))
             .map(backupItem -> {
                BackupInfo.DirInfo dirInfo = previousInfo.dirInfo(backupItem);
@@ -98,7 +99,7 @@ public final class BackupFilesGui {
       JFrame lsssFrame = lsss.getFrame();
       dialog = new JDialog(lsssFrame, "Backup survey data", Dialog.ModalityType.DOCUMENT_MODAL);
 
-      Path dir = previousInfo.backupInfo.outputDirectory;
+      Path dir = previousInfo.backupInfo().outputDirectory;
       if (dir == null) {
          dir = getDefaultDestinationDir();
       }
@@ -116,7 +117,7 @@ public final class BackupFilesGui {
 
       JButton copyButton = new JButton("Copy current survey");
       copyButton.addActionListener(_ -> {
-         if (!parameterEditor.commitEdits()) {
+         if (!CurrentInputComponent.commitEdit()) {
             return;
          }
 
@@ -127,17 +128,17 @@ public final class BackupFilesGui {
          BackupInfo currentInfo = new BackupInfo();
          currentInfo.outputDirectory = destinationDir;
          currentInfo.directories = allBackupItems.stream()
-               .map(item -> {
-                  if (!selectedBackupItems.contains(item)) {
+               .<BackupInfo.DirInfo>mapMulti((item, consumer) -> {
+                  if (selectedBackupItems.contains(item)) {
+                     consumer.accept(new BackupInfo.DirInfo(item.name().persistentName(), item.sourceDir(), true));
+                  } else {
                      BackupInfo.DirInfo previousDirInfo = previousInfo.dirInfo(item);
                      if (previousDirInfo != null) {
                         previousDirInfo.selected = false;
+                        consumer.accept(previousDirInfo);
                      }
-                     return previousDirInfo;
                   }
-                  return new BackupInfo.DirInfo(item.name().persistentName(), item.sourceDir(), true);
                })
-               .filter(Objects::nonNull)
                .toList();
          currentInfo.options = BackupFilesUtils.toSaveOptions(exclusionOptions);
          writeBackupInfo(infoFile, currentInfo);
@@ -150,7 +151,7 @@ public final class BackupFilesGui {
             Configuration configuration = databasePlugin.getConfiguration(ConnectionType.CONNECT);
             sourceConnection.waitUntilFinished();
             sourceConnection.disconnect();
-            databaseReconnect = () -> sourceConnection.connect(ConnectionType.CONNECT, configuration, LsssDatabaseUtils.getDatabaseClasses(lsss));
+            databaseReconnect = () -> sourceConnection.connect(ConnectionType.CONNECT, configuration, LsssDatabaseUtils.getAllDatabaseClasses(lsss));
          } else {
             databaseReconnect = null;
          }

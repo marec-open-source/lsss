@@ -20,7 +20,8 @@ public abstract class FeatureExtractor implements Comparable<FeatureExtractor> {
    public static final String ADDITIONAL_FEATURE_DEPTH = "depth";
    public static final List<String> ALL_ADDITIONAL_FEATURES = List.of(
          ADDITIONAL_FEATURE_SV38,
-         ADDITIONAL_FEATURE_DEPTH);
+         ADDITIONAL_FEATURE_DEPTH
+   );
 
    /**
     * The name of the feature that is extracted by this feature extractor.

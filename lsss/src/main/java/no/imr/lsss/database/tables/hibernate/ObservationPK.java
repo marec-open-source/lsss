@@ -24,6 +24,15 @@ public class ObservationPK implements BaseSurveyPK, BaseObservationTimeContainer
       this.observationType = observationType;
    }
 
+   public ObservationPK(BaseSurveyPK surveyPK, int observationDate, int observationTime, short observationType) {
+      nation = surveyPK.getNation();
+      platform = surveyPK.getPlatform();
+      survey = surveyPK.getSurvey();
+      this.observationDate = observationDate;
+      this.observationTime = observationTime;
+      this.observationType = observationType;
+   }
+
    @Override
    public short getNation() {
       return nation;

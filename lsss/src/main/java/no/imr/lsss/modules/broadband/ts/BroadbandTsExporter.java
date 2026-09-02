@@ -17,10 +17,10 @@ import no.imr.lsss.modules.broadband.pojo.ts.BroadbandTsExportPerChannel;
 import no.imr.lsss.modules.broadband.pojo.ts.BroadbandTsExportPerPing;
 import no.imr.lsss.modules.broadband.pojo.ts.BroadbandTsExportPerTarget;
 import no.imr.tools.ProgressHandler;
-import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.math.ArrayMath;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.parameter.Name;
@@ -72,6 +72,7 @@ public final class BroadbandTsExporter extends StreamingExporter {
       DataFileSet dataFileSet = getLSSS().getInterpretationSettings().getDataFileSet();
 
       BroadbandTsModule broadbandTsModule = getLSSS().getModuleManager().getModule(BroadbandTsModule.class);
+      TSDetector tsDetector = broadbandTsModule.createTSDetector();
 
       List<Integer> channels = allFrequencies.getBooleanValue()
             ? IntStream.rangeClosed(1, dataFileSet.getRawFileConfiguration().getTransducerCount()).boxed().toList()
@@ -90,7 +91,7 @@ public final class BroadbandTsExporter extends StreamingExporter {
          Listener progressListener = progressHandler.asCountingListener(pingIndexes.size());
          for (PingIndex pingIndex : pingIndexes) {
             progressListener.listen();
-            BroadbandTsExportPerPing perPing = makeExport(broadbandTsModule, channels, pingIndex, channelInfoAccumulator, asyncHandle);
+            BroadbandTsExportPerPing perPing = makeExport(broadbandTsModule, tsDetector, channels, pingIndex, channelInfoAccumulator, asyncHandle);
             if (asyncHandle.isCancelled()) {
                return;
             }
@@ -164,7 +165,7 @@ public final class BroadbandTsExporter extends StreamingExporter {
       return exportInfo;
    }
 
-   private BroadbandTsExportPerPing makeExport(BroadbandTsModule broadbandTsModule, List<Integer> channels, PingIndex pingIndex, BroadbandChannelInfoAccumulator channelInfoAccumulator, AsyncHandle asyncHandle) {
+   private BroadbandTsExportPerPing makeExport(BroadbandTsModule broadbandTsModule, TSDetector tsDetector, List<Integer> channels, PingIndex pingIndex, BroadbandChannelInfoAccumulator channelInfoAccumulator, AsyncHandle asyncHandle) {
       BroadbandTsExportPerPing perPing = new BroadbandTsExportPerPing(pingIndex);
 
       DataFileSet dataFileSet = getLSSS().getDataManager().getDataFileSet();
@@ -172,8 +173,6 @@ public final class BroadbandTsExporter extends StreamingExporter {
       if (asyncHandle.isCancelled()) {
          return perPing;
       }
-
-      TSDetector tsDetector = broadbandTsModule.createTSDetector();
 
       for (int channel : channels) {
          BroadbandData broadbandData = ping.getBroadbandData(channel);
@@ -200,10 +199,10 @@ public final class BroadbandTsExporter extends StreamingExporter {
 
                perTarget.tsc = tsData.values();
                ArrayMath.round(perTarget.tsc, 100);
-               perTarget.range = Utils.round(broadbandData.depthToRange(tsData.depth()), 1000);
+               perTarget.range = MathUtils.round(broadbandData.depthToRange(tsData.depth()), 1000);
                int peakIndex = broadbandData.depthToSampleIndex(tsData.depth());
-               perTarget.alongshipAngle = Utils.round(broadbandData.getMechanicalAlongAngle(peakIndex, perChannel.nominalFrequency), 100);
-               perTarget.athwartshipAngle = Utils.round(broadbandData.getMechanicalAthwartAngle(peakIndex, perChannel.nominalFrequency), 100);
+               perTarget.alongshipAngle = MathUtils.round(broadbandData.getMechanicalAlongAngle(peakIndex, perChannel.nominalFrequency), 100);
+               perTarget.athwartshipAngle = MathUtils.round(broadbandData.getMechanicalAthwartAngle(peakIndex, perChannel.nominalFrequency), 100);
             }
          }
          if (!perChannel.targets.isEmpty()) {

@@ -1,41 +1,46 @@
 package no.imr.tools.time;
 
-import no.imr.tools.Utils;
+import no.imr.tools.concurrent.AsyncHandle;
+import org.jspecify.annotations.Nullable;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Synchronization with real time.
  */
 public final class RealtimeSyncer {
-   private long lastRealTime;
-   private long lastSyncTime;
+   private Instant lastRealTime = Instant.now();
+   private @Nullable Instant lastSyncTime;
 
    public RealtimeSyncer() {
    }
 
-   public void sync(long syncTimeInMillis, double realtimeFactor, boolean fastForward) {
-      long sleepTime = getSleepTime(syncTimeInMillis, realtimeFactor, fastForward);
-      if (sleepTime > 0) {
-         Utils.sleep(sleepTime);
+   public void sync(AsyncHandle asyncHandle, Instant syncTime, double realtimeFactor, boolean fastForward) {
+      Duration sleepDuration = getSleepDuration(syncTime, realtimeFactor, fastForward);
+      if (sleepDuration.isPositive()) {
+         asyncHandle.sleep(sleepDuration.toMillis());
       }
-      update(syncTimeInMillis);
+      update(syncTime);
    }
 
-   public long getSleepTime(long syncTimeInMillis, double realtimeFactor, boolean fastForward) {
-      if (lastSyncTime == 0 || fastForward) {
-         return 0;
+   public Duration getSleepDuration(Instant syncTime, double realtimeFactor, boolean fastForward) {
+      if (lastSyncTime == null || fastForward) {
+         return Duration.ZERO;
       } else {
-         long syncTimeDelta = syncTimeInMillis - lastSyncTime;
-         // Remove very long jumps in time
-         syncTimeDelta = Math.min(syncTimeDelta, 10 * 1000);
+         long syncTimeDelta = lastSyncTime.until(syncTime, ChronoUnit.NANOS);
+         // Remove very long jumps in time.
+         syncTimeDelta = Math.min(syncTimeDelta, 10 * 1_000_000_000L);
 
          long realTimeDelta = (long) (syncTimeDelta / realtimeFactor);
-         long nextRealTime = lastRealTime + realTimeDelta;
-         return nextRealTime - System.currentTimeMillis();
+         Instant nextRealTime = lastRealTime.plusNanos(realTimeDelta);
+         return Instant.now().until(nextRealTime);
       }
    }
 
-   public void update(long syncTimeInMillis) {
-      lastRealTime = System.currentTimeMillis();
-      lastSyncTime = syncTimeInMillis;
+   public void update(Instant syncTime) {
+      lastRealTime = Instant.now();
+      lastSyncTime = syncTime;
    }
 }

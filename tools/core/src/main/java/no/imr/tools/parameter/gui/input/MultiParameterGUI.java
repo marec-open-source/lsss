@@ -5,6 +5,7 @@ import no.imr.tools.parameter.MultiParameter;
 import no.imr.tools.parameter.ValueParameter;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.WrappingFlowLayout;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.Box;
 import javax.swing.JComponent;
@@ -45,7 +46,10 @@ public final class MultiParameterGUI extends ParameterGUI<MultiParameter<?>> {
          Box box = Box.createHorizontalBox();
          box.add(subName);
          box.add(Box.createHorizontalStrut(5));
-         box.add(subParameterGUI.getInputComponent());
+         JComponent inputComponent = subParameterGUI.getInputComponent();
+         if (inputComponent != null) {
+            box.add(inputComponent);
+         }
          box.add(Box.createHorizontalStrut(6));
          box.add(subParameterGUI.getUnitLabel());
          box.add(Box.createHorizontalStrut(15));
@@ -75,12 +79,7 @@ public final class MultiParameterGUI extends ParameterGUI<MultiParameter<?>> {
    }
 
    @Override
-   public JComponent getInputComponent() {
-      return ParameterGuiUtils.noInputComponent();
-   }
-
-   @Override
-   public boolean commitEdit() {
-      return parameterGUIs.values().stream().allMatch(ParameterGUI::commitEdit);
+   public @Nullable JComponent getInputComponent() {
+      return null;
    }
 }

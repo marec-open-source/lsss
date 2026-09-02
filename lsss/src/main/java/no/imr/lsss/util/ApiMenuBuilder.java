@@ -2,7 +2,6 @@ package no.imr.lsss.util;
 
 import no.imr.korona.data.util.geometry.EchogramPoint;
 import no.imr.korona.region.Region;
-import no.imr.korona.region.School;
 import no.imr.lsss.LSSS;
 import no.imr.lsss.database.reports.ReportGenerator;
 import no.imr.lsss.framework.config.ConfigurationManager;
@@ -283,7 +282,7 @@ public final class ApiMenuBuilder {
                            .item(String.valueOf(region.getObjectNumber()))
                            .subMenu(region.getObjectNumber() + "/", objectNumberBuilder -> {
                               objectNumberBuilder
-                                    .item("mask", region instanceof School)
+                                    .item("mask")
                                     .item("scrutiny");
                            });
                   });

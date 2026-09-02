@@ -52,7 +52,7 @@ public final class NewSurveyConfigFileWrapper implements ParameterContainer {
                new Name("Additional" + configFileService.getName().persistentName()),
                masterConfigFileWrapper.additionalFiles.getValue(), Unit.NONE, ValueConverters.PATH) {
             @Override
-            public FileParameter createNewParameter(int index, String persistentName) {
+            public FileParameter newOptionalParameter(int index, String persistentName) {
                FileParameter newParameter = new FileParameter(
                      new Name(persistentName, configFileService.getName().displayName()),
                      null, FileParameter.Mode.FILE) {

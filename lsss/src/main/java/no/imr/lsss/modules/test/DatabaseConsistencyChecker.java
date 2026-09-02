@@ -12,6 +12,8 @@ import no.imr.tools.database.DatabaseConnection;
 import no.imr.tools.database.queries.QueryBuilder;
 import org.hibernate.StatelessSession;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,10 +50,10 @@ final class DatabaseConsistencyChecker {
                   && scatterObject.getObservationTime() == firstScatter.getCompId().getObservationTime()
                   : scatterObject + ", " + firstScatter;
 
-            long firstMillis = DatabaseTime.toMillis(firstScatter);
-            long lastMillis = DatabaseTime.toMillis(lastScatter);
+            Instant firstTime = DatabaseTime.toInstant(firstScatter);
+            Instant lastTime = DatabaseTime.toInstant(lastScatter);
 
-            long expectedDuration = (lastMillis - firstMillis) / 10 + lastScatter.getDuration();
+            long expectedDuration = firstTime.until(lastTime, ChronoUnit.MILLIS) / 10 + lastScatter.getDuration();
             assert scatterObject.getDuration() == expectedDuration :
                   scatterObject + ", expected duration: " + expectedDuration;
          }

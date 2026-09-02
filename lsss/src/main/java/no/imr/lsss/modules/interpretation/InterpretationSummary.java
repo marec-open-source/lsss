@@ -18,6 +18,8 @@ import no.imr.lsss.database.tables.hibernate.Survey;
 import no.imr.lsss.database.tables.hibernate.SurveyPK;
 import no.imr.lsss.database.util.DatabaseTime;
 import no.imr.lsss.util.LsssUtils;
+import no.imr.tools.Max;
+import no.imr.tools.Min;
 import no.imr.tools.Utils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import no.imr.tools.database.queries.DeleteQuery;
@@ -33,6 +35,8 @@ import no.imr.tools.swing.WorkerDialog;
 import org.hibernate.StatelessSession;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -58,7 +62,7 @@ public final class InterpretationSummary {
    private final Listener delayedNotifyListeners = Listeners.coalescingDelayed(2000, changeManager);
    private final ScatterSet scatterSet = new ScatterSet();
    private final Map<Integer, ScatterObjectInfo> scatterObjectInfos = new HashMap<>();
-   private RangeSet<PingIndex> storedPings = RangeUtils.emptyRangeSet();
+   private volatile RangeSet<PingIndex> storedPings = RangeUtils.emptyRangeSet();
 
    public InterpretationSummary(LSSS lsss) {
       this.lsss = lsss;
@@ -124,10 +128,10 @@ public final class InterpretationSummary {
    }
 
    ScatterSet getScatterSet(PingRange pingRange) {
-      return getScatterSet(pingRange.toMillisRange());
+      return getScatterSet(pingRange.toTimeRange());
    }
 
-   private ScatterSet getScatterSet(Range<Long> timeRange) {
+   private ScatterSet getScatterSet(Range<Instant> timeRange) {
       return new ScatterSet(scatterSet, timeRange);
    }
 
@@ -242,7 +246,7 @@ public final class InterpretationSummary {
       return StoreUtils.createObservation(scatterObject, lsss.getInterpretationSettings().getDataFileSet());
    }
 
-   void delete(Range<Long> timeRange) {
+   void delete(Range<Instant> timeRange) {
       delete(getScatterSet(timeRange));
    }
 
@@ -250,18 +254,18 @@ public final class InterpretationSummary {
       List<Scatter> allScatters = new ArrayList<>();
       Set<Integer> updatedScatterObjectNumbers = new HashSet<>();
 
-      long minMillis = Long.MAX_VALUE;
-      long maxMillis = Long.MIN_VALUE;
-      long endMillis = Long.MIN_VALUE;
+      Instant minInstant = Instant.MAX;
+      Instant maxInstant = Instant.MIN;
+      Instant endInstant = Instant.MIN;
 
       for (Map<Integer, NavigableSet<Scatter>> scatterMap : scatterSetToDelete.typeToScatterMap.values()) {
          for (NavigableSet<Scatter> scatters : scatterMap.values()) {
             allScatters.addAll(scatters);
             for (Scatter scatter : scatters) {
-               long millis = DatabaseTime.toMillis(scatter);
-               minMillis = Math.min(minMillis, millis);
-               maxMillis = Math.max(maxMillis, millis);
-               endMillis = Math.max(endMillis, millis + 10L * scatter.getDuration());
+               Instant instant = DatabaseTime.toInstant(scatter);
+               minInstant = Min.of(minInstant, instant);
+               maxInstant = Max.of(maxInstant, instant);
+               endInstant = Max.of(endInstant, instant.plusMillis(10L * scatter.getDuration()));
 
                Integer scatterObjectNumber = scatter.getCompId().getObject();
                scatterObjectInfos.get(scatterObjectNumber).scatters.remove(scatter);
@@ -280,8 +284,8 @@ public final class InterpretationSummary {
          return;
       }
       SurveyPK surveyPK = survey.getCompId();
-      DatabaseTime min = new DatabaseTime(minMillis);
-      DatabaseTime max = new DatabaseTime(maxMillis);
+      DatabaseTime min = new DatabaseTime(minInstant);
+      DatabaseTime max = new DatabaseTime(maxInstant);
       DeleteQuery deleteScatterDataQuery = StoreUtils.deleteQuery(ScatterData.class, surveyPK, min, max);
       DeleteQuery deleteScatterQuery = StoreUtils.deleteQuery(Scatter.class, surveyPK, min, max);
       DeleteQuery deleteScatterObservationQuery = StoreUtils.deleteQueryBuilder(Observation.class, surveyPK, min, max).and()
@@ -290,8 +294,8 @@ public final class InterpretationSummary {
             /**/ .eq(DatabaseData.OBSERVATION_TYPE, ObservationTypeEnum.SCHOOL_OF_FISH_DATA.getValue())
             .parenthesisEnd()
             .build();
-      DatabaseTime navigationMin = new DatabaseTime(minMillis + 10); // NAVIGATION_DATA_INPUT is added at end of each scatter
-      DatabaseTime navigationMax = new DatabaseTime(endMillis);
+      DatabaseTime navigationMin = new DatabaseTime(minInstant.plusMillis(10)); // NAVIGATION_DATA_INPUT is added at end of each scatter
+      DatabaseTime navigationMax = new DatabaseTime(endInstant);
       DeleteQuery deleteNavigationObservationQuery = StoreUtils.deleteQueryBuilder(Observation.class, surveyPK, navigationMin, navigationMax).and()
             .parenthesisBegin()
             /**/ .eq(DatabaseData.OBSERVATION_TYPE, ObservationTypeEnum.NAVIGATION_DATA_INPUT.getValue())
@@ -343,8 +347,8 @@ public final class InterpretationSummary {
       return Integer.compare(o1.getCompId().getObject(), o2.getCompId().getObject());
    };
 
-   private static Scatter createDummyScatter(long timeInMillis, int object) {
-      DatabaseTime databaseTime = new DatabaseTime(timeInMillis);
+   private static Scatter createDummyScatter(Instant instant, int object) {
+      DatabaseTime databaseTime = new DatabaseTime(instant);
       return new Scatter(new ScatterPK((short) 0, (short) 0, 0, object, databaseTime.getDate(), databaseTime.getTime(), 0, (short) 0, (short) 0));
    }
 
@@ -360,7 +364,7 @@ public final class InterpretationSummary {
          }
       }
 
-      private ScatterSet(ScatterSet scatterSet, Range<Long> timeRange) {
+      private ScatterSet(ScatterSet scatterSet, Range<Instant> timeRange) {
          this();
 
          if (timeRange.isEmpty()) {
@@ -385,7 +389,7 @@ public final class InterpretationSummary {
                   if (lastScatter == null) {
                      break;
                   }
-                  if (DatabaseTime.toMillis(lastScatter) + 10L * lastScatter.getDuration() > timeRange.end()) {
+                  if (DatabaseTime.toInstant(lastScatter).plusMillis(10L * lastScatter.getDuration()).isAfter(timeRange.end())) {
                      // Last scatter is NOT completely contained in timeRange.
                      subScatters = scatters.subSet(beginScatter, true, lastScatter, false);
                   } else {
@@ -399,9 +403,9 @@ public final class InterpretationSummary {
          }
       }
 
-      private Range<Long> shrinkToPelagicRange(Range<Long> timeRange) {
-         long min = Long.MAX_VALUE;
-         long max = Long.MIN_VALUE;
+      private Range<Instant> shrinkToPelagicRange(Range<Instant> timeRange) {
+         Instant min = Instant.MAX;
+         Instant max = Instant.MIN;
          Scatter beginScatter = createDummyScatter(timeRange.begin(), 0);
          Scatter endScatter = createDummyScatter(timeRange.end(), 0);
          for (NavigableSet<Scatter> scatters : typeToScatterMap.get(ScatterTypeEnum.PELAGIC).values()) {
@@ -409,18 +413,18 @@ public final class InterpretationSummary {
 
             Scatter first = Utils.nextOrNull(subScatters.iterator());
             if (first != null) {
-               min = Math.min(min, DatabaseTime.toMillis(first));
+               min = Min.of(min, DatabaseTime.toInstant(first));
             }
 
             Scatter last = Utils.nextOrNull(subScatters.descendingIterator());
             if (last != null) {
-               long lastBegin = DatabaseTime.toMillis(last);
-               long lastEnd = lastBegin + 10L * last.getDuration();
-               max = Math.max(max, lastEnd > timeRange.end() ? lastBegin : lastEnd);
+               Instant lastBegin = DatabaseTime.toInstant(last);
+               Instant lastEnd = lastBegin.plusMillis(10L * last.getDuration());
+               max = Max.of(max, lastEnd.isAfter(timeRange.end()) ? lastBegin : lastEnd);
             }
          }
 
-         return min > max ? new DefaultRange<>(0L, 0L) : new DefaultRange<>(min, max);
+         return min.isAfter(max) ? new DefaultRange<>(Instant.EPOCH, Instant.EPOCH) : new DefaultRange<>(min, max);
       }
 
       private Map<Integer, NavigableSet<Scatter>> getScatterMap(ScatterTypeEnum scatterTypeEnum) {
@@ -436,23 +440,23 @@ public final class InterpretationSummary {
          if (scatters.isEmpty()) {
             return scatters;
          }
-         Scatter begin = createDummyScatter(pingRange.begin().getTimeInMillis(), 0);
-         Scatter end = createDummyScatter(pingRange.end().getTimeInMillis(), 0);
+         Scatter begin = createDummyScatter(pingRange.begin().getInstant(), 0);
+         Scatter end = createDummyScatter(pingRange.end().getInstant(), 0);
          return scatters.subSet(begin, true, end, false);
       }
 
       public @Nullable Scatter getScatter(ScatterTypeEnum scatterTypeEnum, float frequency, PingIndex pingIndex, float z) {
          NavigableSet<Scatter> scatters = getScatters(typeToScatterMap.get(scatterTypeEnum), frequency);
-         long timeInMillis = pingIndex.getTimeInMillis();
-         Scatter endScatter = createDummyScatter(timeInMillis, Integer.MAX_VALUE);
+         Instant instant = pingIndex.getInstant();
+         Scatter endScatter = createDummyScatter(instant, Integer.MAX_VALUE);
          NavigableSet<Scatter> subScatters = scatters.headSet(endScatter, true);
          while (!subScatters.isEmpty()) {
             Scatter lastScatter = subScatters.last();
-            if (DatabaseTime.toMillis(lastScatter) + 10L * lastScatter.getDuration() <= timeInMillis) {
-               // scatter ends before pingIndex => lastScatter does not contain pingIndex.
+            if (!DatabaseTime.toInstant(lastScatter).plusMillis(10L * lastScatter.getDuration()).isAfter(instant)) {
+               // Scatter ends before pingIndex => lastScatter does not contain pingIndex.
                return null;
             }
-            // Now: databaseTime.getMillis() <= timeInMillis < databaseTime.getMillis() + 10 * lastScatter.getDuration()
+            // Now: databaseTime.getInstant() <= instant < databaseTime.getInstant().plusMillis(10 * lastScatter.getDuration())
             if (StoreUtils.getStoredZRange(lastScatter).contains(z)) {
                // Depth requirements satisfied: scatter is found.
                return lastScatter;
@@ -473,24 +477,28 @@ public final class InterpretationSummary {
          return size;
       }
 
-      public Range<Long> getTimeRange() {
-         long minTime = Long.MAX_VALUE;
-         long maxTime = Long.MIN_VALUE;
+      public Range<Instant> getTimeRange() {
+         Instant minTime = Instant.MAX;
+         Instant maxTime = Instant.MIN;
          for (Map<Integer, NavigableSet<Scatter>> scatterMap : typeToScatterMap.values()) {
             for (NavigableSet<Scatter> scatters : scatterMap.values()) {
                if (scatters.isEmpty()) {
                   continue;
                }
-               minTime = Math.min(minTime, DatabaseTime.toMillis(scatters.first()));
+               minTime = Min.of(minTime, DatabaseTime.toInstant(scatters.first()));
                Scatter last = scatters.last();
-               maxTime = Math.max(maxTime, DatabaseTime.toMillis(last) + 10L * last.getDuration());
+               maxTime = Max.of(maxTime, DatabaseTime.toInstant(last).plusMillis(10L * last.getDuration()));
             }
          }
-         return minTime <= maxTime ? new DefaultRange<>(minTime, maxTime) : new DefaultRange<>(0L, 0L);
+         return minTime.isBefore(maxTime)
+               ? new DefaultRange<>(minTime, maxTime)
+               : new DefaultRange<>(Instant.EPOCH, Instant.EPOCH);
       }
 
       public boolean isEmpty() {
-         return getSize() == 0;
+         return typeToScatterMap.values().stream()
+               .flatMap(scatterMap -> scatterMap.values().stream())
+               .allMatch(Set::isEmpty);
       }
 
       public boolean isEmptyForFrequency(float frequency) {
@@ -544,9 +552,9 @@ public final class InterpretationSummary {
          ScatterPK firstScatterPK = scatters.first().getCompId();
          ScatterPK lastScatterPK = scatters.last().getCompId();
 
-         long firstTime = DatabaseTime.toMillis(firstScatterPK);
-         long lastTime = DatabaseTime.toMillis(lastScatterPK);
-         long duration = (lastTime - firstTime) / 10;
+         Instant firstTime = DatabaseTime.toInstant(firstScatterPK);
+         Instant lastTime = DatabaseTime.toInstant(lastScatterPK);
+         long duration = firstTime.until(lastTime, ChronoUnit.MILLIS) / 10;
 
          scatterObject.setDuration((int) duration + scatters.last().getDuration());
          scatterObject.setObservationDate(firstScatterPK.getObservationDate());

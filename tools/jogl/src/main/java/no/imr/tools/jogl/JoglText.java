@@ -1,52 +1,69 @@
 package no.imr.tools.jogl;
 
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.util.gl2.GLUT;
+import com.jogamp.opengl.util.awt.TextRenderer;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.jogamp.opengl.GL2.*;
 
 public final class JoglText {
-   private final GLUT glut;
-   private final double coordinatesPerPixel;
-   private final int font;
+   private final double coordinatesPerGlPixel;
    private final double margin;
-   private final double dy;
+   private final double boxHeight;
    private final List<Text> texts = new ArrayList<>();
+   private final TextRenderer textRenderer;
 
-   public JoglText(GLUT glut, double coordinatesPerPixel, int font, int textHeight) {
-      this.glut = glut;
-      this.coordinatesPerPixel = coordinatesPerPixel;
-      this.font = font;
-      margin = 2 * coordinatesPerPixel;
-      dy = textHeight * coordinatesPerPixel + 2 * margin;
+   public JoglText(double coordinatesPerGlPixel, Font font, float uiScaleFactor) {
+      this.coordinatesPerGlPixel = coordinatesPerGlPixel;
+      margin = 2 * coordinatesPerGlPixel * uiScaleFactor;
+      font = font.deriveFont(font.getSize() * uiScaleFactor);
+      boxHeight = font.getSize() * coordinatesPerGlPixel + 2 * margin;
+      textRenderer = new TextRenderer(font, true, false);
+   }
+
+   public void dispose() {
+      textRenderer.dispose();
    }
 
    public void add(String text, double x, HorizontalAlignment horizontalAlignment, double y, VerticalAlignment verticalAlignment, Color color) {
-      int textLength = glut.glutBitmapLength(font, text);
-      double dx = textLength * coordinatesPerPixel + 2 * margin;
-      texts.add(new Text(text, horizontalAlignment.adjust(x, dx), verticalAlignment.adjust(y, dy), dx, color));
+      if (text.isEmpty()) {
+         return;
+      }
+      double dx = getBoxWidth(text);
+      texts.add(new Text(text, horizontalAlignment.adjust(x, dx), verticalAlignment.adjust(y, boxHeight), dx, color));
+   }
+
+   public double getBoxHeight() {
+      return boxHeight;
+   }
+
+   public double getBoxWidth(String text) {
+      return textRenderer.getBounds(text).getWidth() * coordinatesPerGlPixel + 2 * margin;
    }
 
    public void draw(GL2 gl) {
       gl.glColor4f(0, 0, 0, 0.5f);
       gl.glEnable(GL_BLEND);
       gl.glBegin(GL_QUADS);
-      texts.forEach(text -> JoglUtils.glVertexBox(gl, text.x, text.y, text.dx, dy));
+      for (Text text : texts) {
+         JoglUtils.glVertexBox(gl, text.x, text.y, text.boxWidth, boxHeight);
+      }
       gl.glEnd();
       gl.glDisable(GL_BLEND);
 
-      texts.forEach(text -> {
-         JoglUtils.glColor(gl, text.color);
-         gl.glRasterPos2d(text.x + margin, text.y + 2 * margin); // Text seems to extend below baseline
-         glut.glutBitmapString(font, text.text);
-      });
+      textRenderer.begin3DRendering();
+      for (Text text : texts) {
+         textRenderer.setColor(text.color);
+         textRenderer.draw3D(text.text, (float) (text.x + margin), (float) (text.y + 2 * margin), 0, (float) coordinatesPerGlPixel);
+      }
+      textRenderer.end3DRendering();
    }
 
-   private record Text(String text, double x, double y, double dx, Color color) {
+   private record Text(String text, double x, double y, double boxWidth, Color color) {
    }
 
    public enum HorizontalAlignment {

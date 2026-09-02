@@ -11,7 +11,7 @@
       <div style="height: 10px;"></div>
    </li>
    <li><span class="marec-parameter-def" id="SeabedMounted">Seabed mounted echosounder:</span>
-      Whether the echosounder is mounded on the seabed, i.e., is pointing upwards.
+      Whether the echosounder is mounted on the seabed, i.e., is pointing upwards.
    </li>
    <li><span class="marec-parameter-def" id="SeabedMountedDistanceToSeabed">Seabed mounted echosounder: Distance to seabed:</span>
       The distance from the seabed mounted echosounder to the seabed.
@@ -38,6 +38,9 @@
       The maximum frequency to be used when computing the coordinated bottom.
    </li>
    <li><span class="marec-parameter-def" id="MinimumDepthThresholdFactor">Shallowest acceptable depth relative to max depth:</span>
+      Used in the coordinated bottom calculation.
+   </li>
+   <li><span class="marec-parameter-def" id="MinimumDepthThresholdDistance">The maximum acceptable distance above the max depth:</span>
       Used in the coordinated bottom calculation.
       <div style="height: 10px;"></div>
    </li>
@@ -119,9 +122,17 @@
       <a class="marec-parameter-ref" href="#MaxFrequencyForBottom">MaxFrequencyForBottom</a>.
    </li>
    <li>Find the maximum depth.</li>
-   <li>Reject the depths less than
-      <a class="marec-parameter-ref" href="#MinimumDepthThresholdFactor">MinimumDepthThresholdFactor</a>
-      times the maximum depth.
+   <li>Reject the depths shallower than the deepest of:
+      <ul>
+         <li>
+            <a class="marec-parameter-ref" href="#MinimumDepthThresholdFactor">MinimumDepthThresholdFactor</a>
+            times the maximum depth.
+         </li>
+         <li>
+            <a class="marec-parameter-ref" href="#MinimumDepthThresholdDistance">MinimumDepthThresholdDistance</a>
+            above the maximum depth.
+         </li>
+      </ul>
    </li>
    <li>The coordinated depth is computed from the remaining depths:
       <ol type="a">

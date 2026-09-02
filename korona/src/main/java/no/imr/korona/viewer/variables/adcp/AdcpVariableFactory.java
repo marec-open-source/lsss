@@ -9,7 +9,7 @@ import no.imr.tools.range.FloatRange;
 
 import java.util.List;
 
-public final class AdcpVariableFactory extends VariableFactory {
+public final class AdcpVariableFactory implements VariableFactory {
    public static final VariableGroup ADCP_VARIABLE_GROUP = new VariableGroup("ADCP");
 
    public AdcpVariableFactory() {
@@ -23,10 +23,10 @@ public final class AdcpVariableFactory extends VariableFactory {
       return new VariableCollection(
             List.of(),
             List.of(
-                  new AdcpBeamVariable("correlation", correlationSettings, Unit.METER_PER_SECOND, 0),
-                  new AdcpBeamVariable("correlation", correlationSettings, Unit.METER_PER_SECOND, 1),
-                  new AdcpBeamVariable("correlation", correlationSettings, Unit.METER_PER_SECOND, 2),
-                  new AdcpBeamVariable("correlation", correlationSettings, Unit.METER_PER_SECOND, 3),
+                  new AdcpBeamVariable("correlation", correlationSettings, Unit.PERCENT, 0),
+                  new AdcpBeamVariable("correlation", correlationSettings, Unit.PERCENT, 1),
+                  new AdcpBeamVariable("correlation", correlationSettings, Unit.PERCENT, 2),
+                  new AdcpBeamVariable("correlation", correlationSettings, Unit.PERCENT, 3),
 
                   new AdcpVariable("current_velocity_geographical_down", velocitySettings, Unit.METER_PER_SECOND),
                   new AdcpVariable("current_velocity_geographical_east", velocitySettings, Unit.METER_PER_SECOND),

@@ -76,6 +76,12 @@ public abstract non-sealed class BaseModuleOverlay extends BaseLsssModule {
       setEnabled(enabledByUser && getOverlaidModule().isEnabled());
    }
 
+   public @Nullable OverlayDisplayData getUnwrappedDisplayData() {
+      return displayData instanceof OverlayDisplayData.Wrapper wrapper
+            ? wrapper.getOverlayDisplayData()
+            : displayData;
+   }
+
    public @Nullable OverlayDisplayData getDisplayData() {
       return displayData;
    }

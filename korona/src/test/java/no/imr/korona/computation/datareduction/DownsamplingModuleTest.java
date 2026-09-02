@@ -58,7 +58,7 @@ final class DownsamplingModuleTest {
       }
 
       @Override
-      protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+      public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
          float[] sv = new float[10];
          Arrays.fill(sv, 10_000);
          powerData.setSv(sv);

@@ -9,4 +9,8 @@ public final class PlanktonFileException extends IOException {
    public PlanktonFileException(String msg) {
       super(msg);
    }
+
+   public PlanktonFileException(Exception e) {
+      super(e);
+   }
 }

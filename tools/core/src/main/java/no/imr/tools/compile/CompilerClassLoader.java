@@ -12,10 +12,11 @@ import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.nio.file.Files;
@@ -23,6 +24,7 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
@@ -51,7 +53,7 @@ public final class CompilerClassLoader {
       try {
          return readCache(cacheFile);
       } catch (Exception e) {
-         if (Files.exists(cacheFile)) {
+         if (!FileUtils.notExists(e, cacheFile)) {
             Log.global.log(Level.WARNING, "Error reading cache file " + cacheFile, e);
          }
       }
@@ -75,21 +77,24 @@ public final class CompilerClassLoader {
 
       DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
       StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(diagnosticCollector, Locale.ENGLISH, Utils.UTF_8);
-      InMemoryJavaFileManager fileManager = new InMemoryJavaFileManager(standardFileManager);
+      try (InMemoryJavaFileManager fileManager = new InMemoryJavaFileManager(standardFileManager)) {
+         List<String> options = List.of(
+               "-classpath", System.getProperty("java.class.path"),
+               "-nowarn"
+         );
+         URI sourceFile = InMemoryJavaFileManager.classNameToFile(className, ".java");
+         JavaFileObject sourceFileObject = SimpleJavaFileObject.forSource(sourceFile, source);
+         StringWriter out = new StringWriter();
+         JavaCompiler.CompilationTask compilationTask = compiler.getTask(out, fileManager, diagnosticCollector, options, null, List.of(sourceFileObject));
+         boolean success = compilationTask.call();
+         if (!success) {
+            throw new CompileException(diagnosticCollector, out.toString());
+         }
 
-      List<String> options = List.of(
-            "-classpath", System.getProperty("java.class.path"),
-            "-nowarn");
-      URI sourceFile = InMemoryJavaFileManager.classNameToFile(className, ".java");
-      JavaFileObject sourceFileObject = SimpleJavaFileObject.forSource(sourceFile, source);
-      StringWriter out = new StringWriter();
-      JavaCompiler.CompilationTask compilationTask = compiler.getTask(out, fileManager, diagnosticCollector, options, null, List.of(sourceFileObject));
-      compilationTask.call();
-      if (!diagnosticCollector.getDiagnostics().isEmpty()) {
-         throw new CompileException(diagnosticCollector, out.toString());
+         return fileManager.createClassLoader();
+      } catch (IOException e) {
+         throw new CompileException("Error closing compiler file manager", e);
       }
-
-      return fileManager.createClassLoader();
    }
 
    public static <T> T instantiate(Class<T> superClass, String className, String source) throws CompileException {
@@ -104,28 +109,39 @@ public final class CompilerClassLoader {
    }
 
    private static void writeCache(InMemoryClassLoader classLoader, Path file) throws IOException {
+      Map<String, byte[]> classes = classLoader.getClasses();
       ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-      try (ObjectOutputStream out = new ObjectOutputStream(bytesOut)) {
-         out.writeObject(classLoader.getClasses());
+      try (DataOutputStream out = new DataOutputStream(bytesOut)) {
+         out.writeInt(classes.size());
+         for (Map.Entry<String, byte[]> entry : classes.entrySet()) {
+            out.writeUTF(entry.getKey());
+            out.writeInt(entry.getValue().length);
+            out.write(entry.getValue());
+         }
       }
       FileUtils.replaceFileSafely(file, bytesOut.toByteArray());
    }
 
-   private static InMemoryClassLoader readCache(Path file) throws IOException, ClassNotFoundException {
-      InMemoryClassLoader inMemoryClassLoader;
-      try (ObjectInputStream in = new ObjectInputStream(FileUtils.newBufferedInputStream(file))) {
-         @SuppressWarnings("unchecked")
-         Map<String, byte[]> classMap = (Map<String, byte[]>) in.readObject();
-         inMemoryClassLoader = new InMemoryClassLoader(classMap);
-      }
-      Exec.CACHED_THREAD_POOL.execute(() -> {
-         try {
-            FileUtils.setLastAccessed(file, System.currentTimeMillis());
-         } catch (IOException e) {
-            Log.global.log(Level.WARNING, "Error setting last accessed time on " + file, e);
+   private static InMemoryClassLoader readCache(Path file) throws IOException {
+      // Read the whole file first so in.available() gives the exact remaining byte count.
+      try (DataInputStream in = new DataInputStream(new ByteArrayInputStream(Files.readAllBytes(file)))) {
+         int count = in.readInt();
+         if (count < 0 || count > in.available()) {
+            throw new IOException("Corrupt cache file " + file);
          }
-      });
-      return inMemoryClassLoader;
+         Map<String, byte[]> classMap = HashMap.newHashMap(count);
+         for (int i = 0; i < count; i++) {
+            String name = in.readUTF();
+            int length = in.readInt();
+            if (length < 0 || length > in.available()) {
+               throw new IOException("Corrupt cache file " + file);
+            }
+            byte[] bytes = new byte[length];
+            in.readFully(bytes);
+            classMap.put(name, bytes);
+         }
+         return new InMemoryClassLoader(classMap);
+      }
    }
 
    private static Path getCacheFile(String className, String source) {

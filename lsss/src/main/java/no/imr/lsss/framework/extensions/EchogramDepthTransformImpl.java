@@ -3,7 +3,6 @@ package no.imr.lsss.framework.extensions;
 import no.imr.korona.data.ping.PingMapping;
 import no.imr.lsss.LSSS;
 import no.imr.lsss.framework.InterpretationZSettings;
-import no.imr.tools.time.NTDate;
 import no.marec.lsss.api.data.PingIndex;
 import no.marec.lsss.api.echogram.EchogramDepthTransform;
 import org.jspecify.annotations.Nullable;
@@ -45,7 +44,7 @@ final class EchogramDepthTransformImpl implements EchogramDepthTransform {
 
    private no.imr.korona.data.ping.@Nullable PingIndex toPingIndex(Instant instant) {
       return lsss.getDataManager().getDataFileSet().getContainingPingIndex(
-            PingMapping.ntDateToTimeValue(NTDate.instantToNTDate(instant)), PingMapping.TIME);
+            PingMapping.instantToTimeValue(instant), PingMapping.TIME);
    }
 
    private no.imr.korona.data.ping.PingIndex toLsssPingIndex(PingIndex pingIndex) {

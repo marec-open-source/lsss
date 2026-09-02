@@ -40,7 +40,6 @@ public final class EchogramNavigationView {
 
       GuiUtils.createButtonGroup(fastBackward, backward, pause, forward, fastForward, home);
 
-      JPanel panel = this.panel;
       panel.add(fastBackward);
       panel.add(backward);
       panel.add(pause);

@@ -51,7 +51,7 @@ final class VLine extends BaseLine {
       parasite = charAt(line, 61);
       specialCode = substring(line, 62, 66);
       vertebra = substring(line, 66, 68);
-      age = substring(line, 68, 30 + 40);
+      age = substring(line, 68, 70);
       spawnAge = substring(line, 70, 72);
       spawnZone = substring(line, 72, 74);
       otolithRead = charAt(line, 74);

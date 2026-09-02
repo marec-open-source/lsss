@@ -8,6 +8,7 @@ import no.imr.lsss.modules.trawl.spd.SpdStation;
 import no.imr.tools.Utils;
 import no.imr.tools.math.WelfordsMethod;
 import no.imr.tools.range.FloatRange;
+import no.imr.tools.time.TimeUtils;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 final class FishStation {
-   static final DateTimeFormatter DATE_TIME_FORMATTER = Utils.createUTCDateTimeFormatter("yyyy.MM.dd HH:mm");
+   static final DateTimeFormatter DATE_TIME_FORMATTER = TimeUtils.createUTCDateTimeFormatter("yyyy.MM.dd HH:mm");
 
    final int serialNumber;
    final int stationNumber;

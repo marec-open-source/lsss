@@ -55,6 +55,18 @@ public class BiologicalSpecies implements BaseNationObject<BiologicalSpeciesPK>,
       this.compId = compId;
    }
 
+   public BiologicalSpecies(BiologicalSpeciesPK compId,
+                            String initials, String commonName, String englishName, String latinName,
+                            String nodc, int itis) {
+      this.compId = compId;
+      this.initials = initials;
+      this.commonName = commonName;
+      this.englishName = englishName;
+      this.latinName = latinName;
+      this.nodc = nodc;
+      this.itis = itis;
+   }
+
    @EmbeddedId
    @Override
    public BiologicalSpeciesPK getCompId() {
@@ -174,8 +186,8 @@ public class BiologicalSpecies implements BaseNationObject<BiologicalSpeciesPK>,
    }
 
    @Override
-   public int compareTo(BiologicalSpecies biologicalSpecies) {
-      return Utils.compare(comparisonStrings(), biologicalSpecies.comparisonStrings(), Collator.getInstance(Locale.ENGLISH));
+   public int compareTo(BiologicalSpecies other) {
+      return Utils.compare(comparisonStrings(), other.comparisonStrings(), Collator.getInstance(Locale.ENGLISH));
    }
 
    private List<String> comparisonStrings() {

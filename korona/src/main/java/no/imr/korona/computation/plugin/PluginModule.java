@@ -89,7 +89,7 @@ public final class PluginModule extends GeneralPingModule {
       if (implementation.isEmpty()) {
          return new EmptyPluginComputation();
       }
-      Matcher packageMatcher = Pattern.compile("package\\s+((\\w|\\.|\\s)+)").matcher(implementation);
+      Matcher packageMatcher = Pattern.compile("package\\s+([\\w.\\s]+)").matcher(implementation);
       String packageName = packageMatcher.find() ? packageMatcher.group(1).replaceAll("\\s", "") : "";
       Matcher classNameMatcher = Pattern.compile("class\\s+(\\w+).*(implements|extends)").matcher(implementation);
       if (!classNameMatcher.find()) {

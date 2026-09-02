@@ -8,6 +8,7 @@ import no.imr.korona.data.datagrams.subdatagrams.DatagramSubTypeId;
 import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.List;
 
 public final class TsDatagram extends BaseSubDatagram implements PerChannelDatagram {
@@ -17,15 +18,15 @@ public final class TsDatagram extends BaseSubDatagram implements PerChannelDatag
    private int channel;
    private final List<TsDatagramDetection> detections;
 
-   public TsDatagram(long ntDate, int channel, List<TsDatagramDetection> detections) {
-      super(ntDate);
+   public TsDatagram(Instant instant, int channel, List<TsDatagramDetection> detections) {
+      super(instant);
 
       this.channel = channel;
       this.detections = detections;
    }
 
-   private TsDatagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   private TsDatagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       channel = byteBuffer.getInt();
       detections = ByteBufferUtils.readCountAndList(byteBuffer, TsDatagramDetection.BYTE_SIZE, TsDatagramDetection::new);

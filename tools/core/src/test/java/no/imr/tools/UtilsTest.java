@@ -24,87 +24,12 @@ final class UtilsTest {
    }
 
    @Test
-   void avoidInfinity() {
-      assertEquals(0, Utils.avoidInfinity(0));
-
-      assertEquals(Float.MAX_VALUE, Utils.avoidInfinity(Float.MAX_VALUE));
-      assertEquals(Float.MAX_VALUE, Utils.avoidInfinity(Float.POSITIVE_INFINITY));
-
-      assertEquals(-Float.MAX_VALUE, Utils.avoidInfinity(-Float.MAX_VALUE));
-      assertEquals(-Float.MAX_VALUE, Utils.avoidInfinity(Float.NEGATIVE_INFINITY));
-   }
-
-   @Test
-   void testModInt() {
-      assertEquals(0, Utils.mod(10, 10));
-      assertEquals(9, Utils.mod(9, 10));
-      assertEquals(1, Utils.mod(1, 10));
-      assertEquals(0, Utils.mod(0, 10));
-      assertEquals(9, Utils.mod(-1, 10));
-      assertEquals(1, Utils.mod(-9, 10));
-      assertEquals(0, Utils.mod(-10, 10));
-
-      for (int i = -3; i <= 3; i++) {
-         assertEquals(0, Utils.mod(3 * i, 3));
-         assertEquals(1, Utils.mod(3 * i + 1, 3));
-         assertEquals(2, Utils.mod(3 * i - 1, 3));
-      }
-   }
-
-   @Test
-   void testModDouble() {
-      assertEquals(0, Utils.mod(10.0, 10.0));
-      assertEquals(1.1, Utils.mod(3.1, 2));
-      assertEquals(1.1, Utils.mod(5.1, 2), 1e-15);
-      for (int i = -3; i <= 3; i++) {
-         assertEquals(1.1, Utils.mod(3 * i + 1.1, 3.0), 1e-15);
-      }
-   }
-
-   @Test
-   void testRoundFloat() {
-      assertEquals(1.1f, Utils.round(1.11f, 10));
-      assertEquals(Float.NaN, Utils.round(Float.NaN, 10));
-      assertEquals(Float.NEGATIVE_INFINITY, Utils.round(Float.NEGATIVE_INFINITY, 10));
-      assertEquals(Float.POSITIVE_INFINITY, Utils.round(Float.POSITIVE_INFINITY, 10));
-   }
-
-   @Test
-   void testRoundDouble() {
-      assertEquals(1.1, Utils.round(1.11, 10));
-      assertEquals(Double.NaN, Utils.round(Double.NaN, 10));
-      assertEquals(Double.NEGATIVE_INFINITY, Utils.round(Double.NEGATIVE_INFINITY, 10));
-      assertEquals(Double.POSITIVE_INFINITY, Utils.round(Double.POSITIVE_INFINITY, 10));
-   }
-
-   @Test
-   void roundToNumberOfDigits() {
-      assertEquals(0, Utils.roundToNumberOfDigits(0, 1));
-
-      assertEquals(100, Utils.roundToNumberOfDigits(111, 1));
-      assertEquals(-100, Utils.roundToNumberOfDigits(-111, 1));
-
-      assertEquals(110, Utils.roundToNumberOfDigits(111, 2));
-      assertEquals(-110, Utils.roundToNumberOfDigits(-111, 2));
-
-      assertEquals(111, Utils.roundToNumberOfDigits(111, 3));
-      assertEquals(-111, Utils.roundToNumberOfDigits(-111, 3));
-
-      assertEquals(111, Utils.roundToNumberOfDigits(111, 4));
-      assertEquals(-111, Utils.roundToNumberOfDigits(-111, 4));
-
-      assertEquals(1.23, Utils.roundToNumberOfDigits(1.23456, 3));
-      assertEquals(-1.23, Utils.roundToNumberOfDigits(-1.23456, 3));
-
-      assertEquals(1.235, Utils.roundToNumberOfDigits(1.23456, 4));
-      assertEquals(-1.235, Utils.roundToNumberOfDigits(-1.23456, 4));
-
-      assertEquals(1.235e6, Utils.roundToNumberOfDigits(1.2345e6, 4));
-      assertEquals(-1.235e6, Utils.roundToNumberOfDigits(-1.2345e6, 4));
-
-      assertEquals(Double.NaN, Utils.roundToNumberOfDigits(Double.NaN, 4));
-      assertEquals(Double.NEGATIVE_INFINITY, Utils.roundToNumberOfDigits(Double.NEGATIVE_INFINITY, 4));
-      assertEquals(Double.POSITIVE_INFINITY, Utils.roundToNumberOfDigits(Double.POSITIVE_INFINITY, 4));
+   void clamp() {
+      assertEquals("b", Utils.clamp("a", "b", "d"));
+      assertEquals("b", Utils.clamp("b", "b", "d"));
+      assertEquals("c", Utils.clamp("c", "b", "d"));
+      assertEquals("d", Utils.clamp("d", "b", "d"));
+      assertEquals("d", Utils.clamp("e", "b", "d"));
    }
 
    @Test
@@ -116,7 +41,7 @@ final class UtilsTest {
    }
 
    @Test
-   void testStartsWithIgnoringCase() {
+   void startsWithIgnoringCase() {
       assertTrue(Utils.startsWithIgnoringCase("a", "A"));
       assertTrue(Utils.startsWithIgnoringCase("a", "a"));
       assertFalse(Utils.startsWithIgnoringCase("a", "b"));
@@ -126,7 +51,7 @@ final class UtilsTest {
    }
 
    @Test
-   void testEndsWithIgnoringCase() {
+   void endsWithIgnoringCase() {
       assertTrue(Utils.endsWithIgnoringCase("a", "A"));
       assertTrue(Utils.endsWithIgnoringCase("a", "a"));
       assertFalse(Utils.endsWithIgnoringCase("a", "b"));
@@ -136,7 +61,7 @@ final class UtilsTest {
    }
 
    @Test
-   void testContainsIgnoringCase() {
+   void containsIgnoringCase() {
       assertTrue(Utils.containsIgnoringCase("", ""));
       assertFalse(Utils.containsIgnoringCase("", "a"));
       assertTrue(Utils.containsIgnoringCase("ab", "aB"));
@@ -145,6 +70,16 @@ final class UtilsTest {
       assertTrue(Utils.containsIgnoringCase("cabc", "Ab"));
       assertTrue(Utils.containsIgnoringCase("abc", "Ab"));
       assertFalse(Utils.containsIgnoringCase("ab", "bb"));
+   }
+
+   @Test
+   void commonPrefixLength() {
+      assertEquals(0, Utils.commonPrefixLength("", ""));
+      assertEquals(0, Utils.commonPrefixLength("x", "y"));
+      assertEquals(0, Utils.commonPrefixLength("x", "X"));
+      assertEquals(1, Utils.commonPrefixLength("x", "x"));
+      assertEquals(1, Utils.commonPrefixLength("xx", "xy"));
+      assertEquals(2, Utils.commonPrefixLength("xy", "xy"));
    }
 
    @Test
@@ -216,7 +151,7 @@ final class UtilsTest {
    }
 
    @Test
-   void testFloatToString() {
+   void floatToString() {
       assertEquals("0", Utils.toString(0f));
       assertEquals("0", Utils.toString(-0.0f));
 
@@ -229,15 +164,15 @@ final class UtilsTest {
       float x = 1.123456789123456789123456789123456789123456789f;
       assertEquals(Float.toString(x), Utils.toString(x));
 
-      assertEquals("1E25", Utils.toString(1.0E25f));
-      assertEquals("1E-35", Utils.toString(1.0E-35f));
+      assertEquals("1E25", Utils.toString(1.0e25f));
+      assertEquals("1E-35", Utils.toString(1.0e-35f));
 
-      assertEquals("1.2E10", Utils.toString(1.2E10f));
+      assertEquals("1.2E10", Utils.toString(1.2e10f));
       assertEquals("0.008", Utils.toString(0.008));
    }
 
    @Test
-   void testDoubleToString() {
+   void doubleToString() {
       assertEquals("0", Utils.toString(0.0));
       assertEquals("0", Utils.toString(-0.0));
 
@@ -250,21 +185,52 @@ final class UtilsTest {
       double x = 1.123456789123456789123456789123456789123456789;
       assertEquals(Double.toString(x), Utils.toString(x));
 
-      assertEquals("1E25", Utils.toString(1.0E25));
-      assertEquals("1E-35", Utils.toString(1.0E-35));
+      assertEquals("1E25", Utils.toString(1.0e25));
+      assertEquals("1E-35", Utils.toString(1.0e-35));
 
-      assertEquals("1.2E10", Utils.toString(1.2E10));
+      assertEquals("1.2E10", Utils.toString(1.2e10));
       assertEquals("0.008", Utils.toString(0.008));
    }
 
    @Test
-   void testRemoveTrailingZeros() {
+   void removeTrailingZeros() {
+      assertEquals("0", Utils.removeTrailingZeros("0"));
       assertEquals("0", Utils.removeTrailingZeros("0."));
       assertEquals("0", Utils.removeTrailingZeros("0.0000"));
       assertEquals("0", Utils.removeTrailingZeros("0,0000"));
+      assertEquals("1.23", Utils.removeTrailingZeros("1.23"));
+      assertEquals("1.23", Utils.removeTrailingZeros("1.230"));
+      assertEquals("1.23", Utils.removeTrailingZeros("1.2300"));
       assertEquals("1E10", Utils.removeTrailingZeros("1.0000E10"));
       assertEquals("1e10", Utils.removeTrailingZeros("1,0000e10"));
       assertEquals("1.2E10", Utils.removeTrailingZeros("1.2E10"));
+      assertEquals("1.2E10", Utils.removeTrailingZeros("1.20E10"));
+      assertEquals("1.2E10", Utils.removeTrailingZeros("1.200E10"));
+      assertEquals("-1.2E-10", Utils.removeTrailingZeros("-1.200E-10"));
+   }
+
+   @Test
+   void numberToString() {
+      assertEquals("0", Utils.numberToString(0));
+      assertEquals("1", Utils.numberToString(1));
+      assertEquals("-1", Utils.numberToString(-1));
+
+      // Values > 1.
+      assertEquals("1235", Utils.numberToString(1234.56));
+      assertEquals("123", Utils.numberToString(123.456));
+      assertEquals("12.3", Utils.numberToString(12.345));
+      assertEquals("1.23", Utils.numberToString(1.2345));
+
+      // Values in [0.1, 1).
+      assertEquals("0.5", Utils.numberToString(0.5));
+      assertEquals("0.98", Utils.numberToString(0.97656));
+
+      // Values < 0.1.
+      assertEquals("0.07", Utils.numberToString(0.07));
+      assertEquals("0.008", Utils.numberToString(0.0081));
+      assertEquals("0.005", Utils.numberToString(0.0045));
+      assertEquals("0.0003", Utils.numberToString(0.0003));
+      assertEquals("-0.00008", Utils.numberToString(-0.00008));
    }
 
    @Test
@@ -275,7 +241,7 @@ final class UtilsTest {
    }
 
    @Test
-   void testByteSizeString() {
+   void getByteSizeString() {
       assertEquals("1 B", Utils.getByteSizeString(1));
       assertEquals("10 B", Utils.getByteSizeString(10));
       assertEquals("100 B", Utils.getByteSizeString(100));
@@ -295,17 +261,8 @@ final class UtilsTest {
    }
 
    @Test
-   void testRun() {
+   void isTestRun() {
       assertTrue(Utils.isTestRun());
-   }
-
-   @Test
-   void interpolateDegrees() {
-      assertEquals(45, Utils.interpolateDegrees(0, 90, 0.5));
-      assertEquals(90, Utils.interpolateDegrees(0, 90, 0));
-      assertEquals(0, Utils.interpolateDegrees(45, 360 - 45, 0.5));
-      assertEquals(1, Utils.interpolateDegrees(46, 360 - 44, 0.5));
-      assertEquals(359, Utils.interpolateDegrees(44, 360 - 46, 0.5));
    }
 
    @Test

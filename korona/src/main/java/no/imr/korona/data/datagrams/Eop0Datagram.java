@@ -1,6 +1,7 @@
 package no.imr.korona.data.datagrams;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * End of ping.
@@ -8,8 +9,8 @@ import java.nio.ByteBuffer;
 public final class Eop0Datagram extends DatagramPingItem {
    public static final DatagramType TYPE = DatagramType.simple("EOP0", Eop0Datagram::new);
 
-   public Eop0Datagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate);
+   public Eop0Datagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant);
    }
 
    @Override

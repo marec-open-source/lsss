@@ -23,16 +23,19 @@ final class MinTest {
       assertEquals(1f, Min.of(1f, 2f, 3f));
       assertEquals(1f, Min.of(3f, 1f, 2f));
       assertEquals(1f, Min.of(2f, 3f, 1f));
+      assertEquals(Float.NaN, Min.of(2f, 3f, Float.NaN));
 
       assertEquals(1.0, Min.of(1.0, 2.0, 3.0));
       assertEquals(1.0, Min.of(3.0, 1.0, 2.0));
       assertEquals(1.0, Min.of(2.0, 3.0, 1.0));
+      assertEquals(Double.NaN, Min.of(2.0, 3.0, Double.NaN));
 
       assertEquals(1, Min.of(1, 2, 3, 4));
       assertEquals(2, Min.of(new int[]{1, 2, 3, 4}, 1, 3));
 
       assertEquals(1f, Min.of(1f, 2f, 3f, 4f));
       assertEquals(2f, Min.of(new float[]{1f, 2f, 3f, 4f}, 1, 3));
+      assertEquals(Float.NaN, Min.of(new float[]{1f, Float.NaN, 3f, 4f}, 1, 3));
 
       assertEquals("a", Min.of("a", "b"));
       assertEquals("a", Min.of("b", "a"));

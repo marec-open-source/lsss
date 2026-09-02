@@ -1,15 +1,18 @@
 package no.imr.tools.logging;
 
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 /**
  * A log handler that records max log level.
  */
-public abstract class MaxLevelHandler extends HandlerAdapter {
-   private Level maxLevel = Level.ALL;
+public final class MaxLevelHandler extends HandlerAdapter {
+   private final Consumer<LogRecord> maxLevelConsumer;
+   private volatile Level maxLevel = Level.ALL;
 
-   protected MaxLevelHandler() {
+   public MaxLevelHandler(Consumer<LogRecord> maxLevelConsumer) {
+      this.maxLevelConsumer = maxLevelConsumer;
    }
 
    public Level getMaxLevel() {
@@ -24,10 +27,12 @@ public abstract class MaxLevelHandler extends HandlerAdapter {
    public void publish(LogRecord record) {
       Level level = record.getLevel();
       if (level.intValue() > maxLevel.intValue()) {
-         maxLevel = level;
-         newMaxLevel(record);
+         synchronized (this) {
+            if (level.intValue() > maxLevel.intValue()) {
+               maxLevel = level;
+               maxLevelConsumer.accept(record);
+            }
+         }
       }
    }
-
-   protected abstract void newMaxLevel(LogRecord record);
 }

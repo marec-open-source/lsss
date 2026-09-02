@@ -4,11 +4,12 @@ import no.marec.lsss.api.util.GeoPoint;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.List;
 
 record CTDData(
       @Nullable Path file,
-      long timeInMillis,
+      Instant time,
       String stationNumber,
       GeoPoint geographicalPosition,
       int depthColumn,

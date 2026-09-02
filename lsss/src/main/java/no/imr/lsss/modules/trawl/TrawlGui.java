@@ -217,7 +217,8 @@ final class TrawlGui {
       this.file = file;
       try {
          stations = file != null ? loadFishStations(file) : List.of();
-      } catch (IOException e) {
+      } catch (Exception e) {
+         stations = List.of();
          GuiUtils.showErrorDialog(mainPanel, "Error opening file: " + file, e);
       }
       stationTextField.setEnabled(!stations.isEmpty());

@@ -5,7 +5,9 @@ import no.imr.korona.data.ping.items.channel.ChannelData;
 import no.imr.tools.Utils;
 import no.imr.tools.math.ArrayKernel;
 import no.imr.tools.parameter.Unit;
+import no.imr.tools.time.TimeUtils;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,12 +29,12 @@ public final class RollIndicator extends DataQualityIndicator {
    }
 
    @Override
-   float[] computeResult(long[] timeInMillis, float[] bottomDepths) {
+   float[] computeResult(Instant[] instants, float[] bottomDepths) {
       float[] roll = Utils.toFloats(rollList);
-      return compute(roll, timeInMillis, bottomDepths);
+      return compute(roll, instants, bottomDepths);
    }
 
-   public static float[] compute(float[] y, long[] timeInMillis, float[] bottom) {
+   public static float[] compute(float[] y, Instant[] instants, float[] bottom) {
       float[] yCopy = ArrayKernel.createGaussian(1).smooth(y);
       int maxRadius = 150;  //For 1 sec ping-rate, 30 means (2 x 30 seconds =) 1 minute
       float soundSpeed = 1500; //For now, more accurate probably not needed
@@ -56,7 +58,7 @@ public final class RollIndicator extends DataQualityIndicator {
             float deltaRoll = Math.abs(yCopy[j] - yCopy[j + 1]);
             if (!Float.isNaN(deltaRoll)) {
                totalRoll += deltaRoll;
-               totalTime += (timeInMillis[j + 1] - timeInMillis[j]) / 1000.0;
+               totalTime += TimeUtils.toSeconds(instants[j], instants[j + 1]);
              }
             //Alt: totalRoll = Math.max(totalRoll, Math.abs(yCopy[j] - yCopy[j + 1]));
             //System.out.printf("  %5.2f - %5.2f => %5.2f => totalRoll=%5.2f, \n", yCopy[j], yCopy[j + 1], yCopy[j] - yCopy[j + 1], totalRoll);

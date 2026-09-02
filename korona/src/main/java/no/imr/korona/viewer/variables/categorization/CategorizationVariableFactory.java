@@ -6,7 +6,7 @@ import no.imr.korona.viewer.variables.VariableGroup;
 
 import java.util.List;
 
-public final class CategorizationVariableFactory extends VariableFactory {
+public final class CategorizationVariableFactory implements VariableFactory {
    public static final VariableGroup CATEGORIZATION_VARIABLE_GROUP = new VariableGroup("Categorization");
 
    public CategorizationVariableFactory() {

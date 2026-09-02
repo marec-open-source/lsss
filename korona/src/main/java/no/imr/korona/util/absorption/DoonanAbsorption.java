@@ -6,12 +6,8 @@ package no.imr.korona.util.absorption;
  * deep-water fish biomass. ICES Journal of Marine Science 60: 1-9.
  * <p>
  * Note that the paper has two errors in the formulae given in the conclusions.
- * Returns the absorption coefficient [dB/km] for
- * % the given acoustic frequency (f [kHz]), salinity
- * % (S, [ppt]), temperature (T, [degC]), and depth
- * % (D, [m]).
  */
-public final class DoonanAbsorption extends Absorption {
+public final class DoonanAbsorption implements Absorption {
    private final double a2_p2_f2_by_c;
    private final double f2_f2;
    private final double a3_p3;

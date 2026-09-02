@@ -3,6 +3,7 @@ package no.imr.korona.data.datagrams;
 import no.imr.korona.computation.misc.DepthModule;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * Base class for depth datagrams.
@@ -17,12 +18,12 @@ public abstract class BaseDepDatagram extends DatagramPingItem {
    private float depth;
    private float minimumDepth;
 
-   protected BaseDepDatagram(long ntDate) {
-      super(ntDate);
+   protected BaseDepDatagram(Instant instant) {
+      super(instant);
    }
 
-   protected BaseDepDatagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate);
+   protected BaseDepDatagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant);
 
       depth = byteBuffer.getFloat();
       minimumDepth = byteBuffer.getFloat();

@@ -7,6 +7,7 @@ import no.imr.korona.data.datagrams.subdatagrams.DatagramSubTypeId;
 import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 public final class BottomRangesSubDatagram extends BaseSubDatagram {
    public static final DatagramSubType SUB_TYPE = new DatagramSubType(DatagramSubTypeId.BOTTOM_RANGES,
@@ -14,14 +15,14 @@ public final class BottomRangesSubDatagram extends BaseSubDatagram {
 
    private final float[] channelRanges;
 
-   public BottomRangesSubDatagram(long ntDate, float[] channelRanges) {
-      super(ntDate);
+   public BottomRangesSubDatagram(Instant instant, float[] channelRanges) {
+      super(instant);
 
       this.channelRanges = channelRanges;
    }
 
-   private BottomRangesSubDatagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   private BottomRangesSubDatagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       channelRanges = ByteBufferUtils.readCountAndFloatArray(byteBuffer);
    }

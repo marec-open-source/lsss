@@ -166,7 +166,7 @@ public final class TrackLabelling {
                   TrackInfo editedTrackInfo = trackInfoModule.getTrackEditing().getNewTracks().get(trackId);
                   return editedTrackInfo != null
                         ? editedTrackInfo.pingRange().intersects(dataFile.getPingRange())
-                        : trackId.rawFileConfigurationNTDate() == dataFile.getRawFileConfiguration().getNTDate();
+                        : trackId.rawFileConfigurationInstant().equals(dataFile.getRawFileConfiguration().getInstant());
                })
                .sorted() // Consistent ordering to avoid changes in work file
                .forEach(trackId -> {

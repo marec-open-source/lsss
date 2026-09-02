@@ -21,7 +21,7 @@ import java.nio.file.Path;
 /**
  * Editor for {@link ModuleContainer}.
  */
-public final class CdsEditor extends ConfigFileParameterEditor {
+public final class CdsEditor extends ConfigFileParameterEditor<ConfigFileService> {
    private final Korona korona;
    private final FileParameter cdsFileParameter;
 

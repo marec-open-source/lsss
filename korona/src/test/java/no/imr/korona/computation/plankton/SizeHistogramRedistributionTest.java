@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class SizeHistogramRedistributionTest {
    @Test
-   void testRedistribute() {
+   void redistribute() {
       SizeHistogram histogram;
       SizeHistogramRedistribution sizeHistogramRedistribution = new SizeHistogramRedistribution();
 
@@ -36,9 +36,9 @@ final class SizeHistogramRedistributionTest {
       assertTrue(sizeHistogramRedistribution.redistribute(histogram));
       assertArrayEquals(new double[]{0, 1 /**/, 1, 2 /* gap */, 6, 7}, histogram.getDividers());
 
-      histogram = new SizeHistogram(new double[]{0, 1, 1, 2, 2, 2.5  /* gap */, 3, 3 + 1E-4 /* gap */, 6, 7, 7, 8, 8, 9});
+      histogram = new SizeHistogram(new double[]{0, 1, 1, 2, 2, 2.5  /* gap */, 3, 3 + 1e-4 /* gap */, 6, 7, 7, 8, 8, 9});
       JUnitUtils.set(histogram.getAbundances(), 1, 1, 1, 1, 0, 1, 1);
       assertFalse(sizeHistogramRedistribution.redistribute(histogram, 1));
-      assertArrayEquals(new double[]{0, 1, 1, 2, 2, 2.5  /* gap */, 3, 3 + 1E-4 /* gap */, 6, 7, 7, 8, 8, 9}, histogram.getDividers());
+      assertArrayEquals(new double[]{0, 1, 1, 2, 2, 2.5  /* gap */, 3, 3 + 1e-4 /* gap */, 6, 7, 7, 8, 8, 9}, histogram.getDividers());
    }
 }

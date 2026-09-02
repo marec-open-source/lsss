@@ -121,12 +121,50 @@ final class FloatRangeTest {
 
    @Test
    void fraction() {
-      assertEquals(0.1, FloatRange.of(0, 10).valueToFraction(1), 1e-6);
+      FloatRange r = FloatRange.of(0, 10);
+      assertEquals(-0.1f, r.valueToFraction(-1));
+      assertEquals(0, r.valueToFraction(0));
+      assertEquals(0.1f, r.valueToFraction(1));
+      assertEquals(1, r.valueToFraction(10));
+      assertEquals(2, r.valueToFraction(20));
 
-      assertEquals(1, FloatRange.of(0, 10).fractionToValue(0.1f), 1e-6);
+      assertEquals(-1, r.fractionToValue(-0.1f));
+      assertEquals(0, r.fractionToValue(0));
+      assertEquals(1, r.fractionToValue(0.1f));
+      assertEquals(10, r.fractionToValue(1));
+      assertEquals(20, r.fractionToValue(2));
 
-      FloatRange r = FloatRange.of(-34, 5);
+      r = FloatRange.of(1, 1);
+      assertEquals(Float.NaN, r.valueToFraction(0));
+      assertEquals(0, r.valueToFraction(1));
+      assertEquals(Float.NaN, r.valueToFraction(2));
+      assertEquals(1, r.fractionToValue(-1));
+      assertEquals(1, r.fractionToValue(0));
+      assertEquals(1, r.fractionToValue(1));
+      assertEquals(1, r.fractionToValue(2));
+
+      r = FloatRange.of(-34, 5);
       assertEquals(4.5, r.fractionToValue(r.valueToFraction(4.5f)));
+   }
+
+   @Test
+   void expandToNonDegenerated() {
+      assertEquals(FloatRange.of(1, 2), FloatRange.of(1, 2).expandToNonDegenerated());
+
+      FloatRange r = FloatRange.of(1, 1).expandToNonDegenerated();
+      assertTrue(r.contains(1));
+      assertFalse(r.contains(Math.nextDown(1)));
+      assertFalse(r.contains(Math.nextUp(1)));
+
+      assertTrue(FloatRange.of(-0, -0).expandToNonDegenerated().contains(0));
+      assertTrue(FloatRange.of(0, 0).expandToNonDegenerated().contains(-0));
+      assertTrue(FloatRange.of(-1, -1).expandToNonDegenerated().contains(-1));
+   }
+
+   @Test
+   void expandToIncludeMax() {
+      assertTrue(FloatRange.of(1, 1).expandToIncludeMax().contains(1));
+      assertTrue(FloatRange.of(1, 2).expandToIncludeMax().contains(2));
    }
 
    @Test

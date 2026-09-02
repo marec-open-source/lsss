@@ -97,6 +97,6 @@ final class ChannelRemovalModuleComputation extends ConcurrentPingModuleComputat
          int oldChannel = newToOldChannel[newChannel];
          newChannelDepths[newChannel - 1] = oldChannelDepths[oldChannel - 1];
       }
-      return new Bot0Datagram(bot0Datagram.getNTDate(), newChannelDepths);
+      return new Bot0Datagram(bot0Datagram.getInstant(), newChannelDepths);
    }
 }

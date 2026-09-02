@@ -32,7 +32,7 @@ final class EmptyPingRemovalModuleTest {
       int firstPingNumber = 10;
       ConstantSyntheticData syntheticData = new ConstantSyntheticData() {
          @Override
-         protected boolean hasPowerData(PingIndex pingIndex, int channel) {
+         public boolean hasPowerData(PingIndex pingIndex, int channel) {
             String s = inputPingInfos.get((int) (pingIndex.getPingNumber() - firstPingNumber));
             return s.charAt(channel - 1) == '#';
          }

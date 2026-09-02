@@ -7,13 +7,13 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 
 public final class AnimatedShape {
-   private final AnimatedRendered animatedRendered;
+   private final AnimatedRenderer animatedRenderer;
    private final Timer timer;
 
-   public AnimatedShape(Repaintable repaintable, AnimatedRendered animatedRendered) {
-      this.animatedRendered = animatedRendered;
+   public AnimatedShape(Repaintable repaintable, AnimatedRenderer animatedRenderer) {
+      this.animatedRenderer = animatedRenderer;
       timer = new Timer(100, _ -> {
-         animatedRendered.update();
+         animatedRenderer.update();
          repaintable.repaint();
       });
       timer.start();
@@ -24,6 +24,6 @@ public final class AnimatedShape {
    }
 
    public void draw(Graphics2D g, Shape shape) {
-      animatedRendered.draw(g, shape);
+      animatedRenderer.draw(g, shape);
    }
 }

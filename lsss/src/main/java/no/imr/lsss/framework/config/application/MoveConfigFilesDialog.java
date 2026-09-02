@@ -220,10 +220,10 @@ final class MoveConfigFilesDialog {
                   }
                   case CONFLICT -> {
                      try {
-                        if (FileUtils.lastModified(destinationFile) >= FileUtils.lastModified(sourceFile)) {
-                           Files.delete(sourceFile);
-                        } else {
+                        if (FileUtils.lastModified(destinationFile).isBefore(FileUtils.lastModified(sourceFile))) {
                            FileUtils.move(sourceFile, destinationFile);
+                        } else {
+                           Files.delete(sourceFile);
                         }
                      } catch (IOException e) {
                         Log.global.log(Level.WARNING, "Error handling conflicting file " + sourceFile, e);

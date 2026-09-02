@@ -1,12 +1,13 @@
 #!/bin/bash
 
-if [[ "$MAREC_JAVA_HOME" != "" ]]; then JAVA="$MAREC_JAVA_HOME/bin/java";
+if [[ -n "$MAREC_JAVA_HOME" ]]; then JAVA="$MAREC_JAVA_HOME/bin/java";
 elif [[ -d "$TOP_INSTALLATION_DIR/jre" ]]; then JAVA="$TOP_INSTALLATION_DIR/jre/bin/java";
-elif [[ "$JAVA_HOME" != "" ]]; then JAVA="$JAVA_HOME/bin/java";
+elif [[ -n "$JAVA_HOME" ]]; then JAVA="$JAVA_HOME/bin/java";
 else JAVA=java;
 fi
 
-export MAX_MEMORY_MB="$("$JAVA" -classpath "$TOP_INSTALLATION_DIR/lib/jar/marec-tools-core.jar" no.imr.tools.main.PrintMaxMemoryMbMain)"
+MAX_MEMORY_MB="$("$JAVA" -classpath "$TOP_INSTALLATION_DIR/lib/jar/marec-tools-core.jar" no.imr.tools.main.PrintMaxMemoryMbMain)"
+if [[ -z "$MAX_MEMORY_MB" ]]; then MAX_MEMORY_MB=3000; fi
 
 case "$(uname)" in
   Darwin) OS_TYPE="macos" ;;

@@ -13,7 +13,6 @@ import no.imr.lsss.modules.pojodata.PojoDataContainer;
 import no.imr.lsss.util.FrequencyPlotMarker;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.listening.ListenerRegistry;
-import no.imr.tools.math.Function1D;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.Graph;
 import no.imr.tools.plot.ParameterExport;
@@ -31,6 +30,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 
 public final class BroadbandCalibrationPlotModule extends BaseViewModule implements PojoDataContainer {
@@ -143,7 +143,7 @@ public final class BroadbandCalibrationPlotModule extends BaseViewModule impleme
             new ParameterExport(parameter.exportName, parameter.unit, parameter.exportTransform));
    }
 
-   private static Graph makeDefaultGraph(CalibrationPlotParameter parameter, Function1D function, FloatRange frequencyRange) {
+   private static Graph makeDefaultGraph(CalibrationPlotParameter parameter, DoubleUnaryOperator function, FloatRange frequencyRange) {
       int n = 20;
       float frequencyStep = frequencyRange.getSize() / (n - 1);
       Graph graph = new Graph(parameter.fullName + " (default)")
@@ -151,7 +151,7 @@ public final class BroadbandCalibrationPlotModule extends BaseViewModule impleme
             .setColor(Color.GRAY);
       for (int i = 0; i < n; i++) {
          float hz = frequencyRange.min() + i * frequencyStep;
-         graph.addPoint(hz / 1000, function.eval(hz));
+         graph.addPoint(hz / 1000, function.applyAsDouble(hz));
       }
       return graph;
    }

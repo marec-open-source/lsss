@@ -42,7 +42,7 @@ public final class BottomEchogramModule extends EchogramModule {
       }
 
       @Override
-      protected void addToPopupMenu(JPopupMenu popupMenu) {
+      void addToPopupMenu(JPopupMenu popupMenu) {
          JMenu depthTransformMenu = new JMenu("Depth transform");
          popupMenu.add(depthTransformMenu);
          RawFileConfiguration rawFileConfiguration = module.getInterpretationSettings().getDataFileSet().getRawFileConfiguration();

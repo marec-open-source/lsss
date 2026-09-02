@@ -3,14 +3,17 @@ package no.imr.korona.data.ping;
 import no.imr.korona.data.datagrams.Pin0Datagram;
 import no.imr.korona.data.ping.items.NmeaPingItem;
 import no.imr.korona.data.util.Nmea;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.geo.Earth;
-import no.imr.tools.time.NTDate;
+import no.imr.tools.math.MathUtils;
+import no.imr.tools.time.TimeUtils;
 import no.marec.lsss.api.util.GeoPoint;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
@@ -27,12 +30,12 @@ public final class PingIndexCorrectionFilter implements PingSource {
    private final Deque<Ping> pingQueue = new ArrayDeque<>();
    private boolean triedInitializeGeoPos;
 
-   private long lastNTDate;
+   private @Nullable Instant lastInstant;
    private boolean speedValid;
    private double speedKnots;
    private double vesselDistance;
    private @Nullable GeoPoint geographicalPosition;
-   private long timeOfLastGeoPos;
+   private @Nullable Instant timeOfLastGeoPos;
    private boolean hasSeenGGA;
    private boolean hasSeenNmeaWithGeoPos;
    private boolean hasSeenVesselDistance;
@@ -114,7 +117,7 @@ public final class PingIndexCorrectionFilter implements PingSource {
       pingIndex.setVesselDistance(vesselDistance);
       pingIndex.setGeographicalPosition(geographicalPosition);
 
-      lastNTDate = pingIndex.getNTDate();
+      lastInstant = pingIndex.getInstant();
 
       return ping;
    }
@@ -134,21 +137,20 @@ public final class PingIndexCorrectionFilter implements PingSource {
       if (pingQueue.isEmpty()) {
          return true;
       }
-      return pingQueue.getLast().getTimeInMillis() - pingQueue.getFirst().getTimeInMillis() < 10_000;
+      return pingQueue.getFirst().getInstant().until(pingQueue.getLast().getInstant(), ChronoUnit.SECONDS) < 10;
    }
 
    private void updateSpeed(NmeaPingItem nmeaPingItem) {
       if (pingIndexCorrectionOptions.updateSpeedBasedOnGeoPositions()) {
          Nmea nmea = nmeaPingItem.getNmea();
          Optional<GeoPoint> geoPos = nmea.getGeographicalPosition();
-         if (geographicalPosition != null && geoPos.isPresent() && canUseForGeoPos(nmea.getType())) {
-            long ntDateDiff = nmeaPingItem.getNTDate() - timeOfLastGeoPos;
-            if (ntDateDiff <= 0) {
+         if (geographicalPosition != null && timeOfLastGeoPos != null && geoPos.isPresent() && canUseForGeoPos(nmea.getType())) {
+            double secondsDiff = TimeUtils.toSeconds(timeOfLastGeoPos, nmeaPingItem.getInstant());
+            if (secondsDiff <= 0) {
                return;
             }
-            double hours = ntDateDiff / (3600.0 * NTDate.UNITS_PER_SECOND);
-            double nmi = Utils.meterToNmi(Earth.getApproximateDistance(geographicalPosition, geoPos.get()));
-            double knots = nmi / hours;
+            double meter = Earth.getApproximateDistance(geographicalPosition, geoPos.get());
+            double knots = KoronaUtils.meterPerSecondToKnots(meter / secondsDiff);
             updateSpeed(knots);
          }
       } else {
@@ -169,7 +171,7 @@ public final class PingIndexCorrectionFilter implements PingSource {
       if (geoPos.isPresent() && canUseForGeoPos(nmea.getType())) {
          hasSeenNmeaWithGeoPos = true;
          geographicalPosition = geoPos.get();
-         timeOfLastGeoPos = nmeaPingItem.getNTDate();
+         timeOfLastGeoPos = nmeaPingItem.getInstant();
       }
    }
 
@@ -198,21 +200,21 @@ public final class PingIndexCorrectionFilter implements PingSource {
             }
          }
 
-         if (hasSeenVesselDistance) {
+         if (lastInstant != null && hasSeenVesselDistance) {
             Ping nextPingWithVesselDistance = nextPingWithVesselDistance(asyncHandle);
             if (nextPingWithVesselDistance != null) {
                getVesselDistance(nextPingWithVesselDistance).ifPresent(nextVesselDistance -> {
-                  double a = (double) (ping.getNTDate() - lastNTDate) / (nextPingWithVesselDistance.getNTDate() - lastNTDate);
-                  vesselDistance = (1 - a) * vesselDistance + a * nextVesselDistance;
+                  double a = TimeUtils.toSeconds(lastInstant, ping.getInstant()) / TimeUtils.toSeconds(lastInstant, nextPingWithVesselDistance.getInstant());
+                  vesselDistance = MathUtils.interpolate(vesselDistance, nextVesselDistance, a);
                });
             }
             return;
          }
       }
 
-      if (lastNTDate != 0 && speedValid) {
-         long ntDateDiff = ping.getNTDate() - lastNTDate;
-         double hours = ntDateDiff / (3600.0 * NTDate.UNITS_PER_SECOND);
+      if (lastInstant != null && speedValid) {
+         double secondsDiff = TimeUtils.toSeconds(lastInstant, ping.getInstant());
+         double hours = secondsDiff / 3600.0;
          double nmi = speedKnots * hours;
          vesselDistance += nmi;
       }

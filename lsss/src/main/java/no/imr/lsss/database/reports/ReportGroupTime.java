@@ -3,9 +3,11 @@ package no.imr.lsss.database.reports;
 import no.imr.lsss.database.ices.IcesAcousticMetadata;
 import no.imr.lsss.database.tables.ScatterTypeEnum;
 import no.imr.lsss.database.tables.hibernate.AcousticCategory;
+import no.imr.lsss.database.tables.hibernate.AcousticCategoryPK;
 import no.imr.lsss.database.tables.hibernate.Observation;
 import no.imr.lsss.database.tables.hibernate.ObservationPK;
 import no.imr.lsss.database.tables.hibernate.Purpose;
+import no.imr.lsss.database.tables.hibernate.PurposePK;
 import no.imr.lsss.database.tables.hibernate.Scatter;
 import no.imr.lsss.database.tables.hibernate.ScatterData;
 import no.imr.lsss.database.tables.hibernate.Survey;
@@ -99,8 +101,8 @@ final class ReportGroupTime extends ReportGroup {
          aPrintDataBottom.clearData(ReportMode.NATIVE);
 
          //Queries
-         String queryGeneral =
-               " where a.compId.nation   = " + aSelectedSurvey.getCompId().getNation() +
+         String criterionGeneral =
+               "a.compId.nation   = " + aSelectedSurvey.getCompId().getNation() +
                      " and   a.compId.platform = " + aSelectedSurvey.getCompId().getPlatform() +
                      " and   a.compId.survey   = " + aSelectedSurvey.getCompId().getSurvey() +
                      " and ( a.compId.observationDate > " + reportEngine.getStartDate() +
@@ -108,17 +110,17 @@ final class ReportGroupTime extends ReportGroup {
                      " and ( a.compId.observationDate < " + reportEngine.getStopDate() +
                      "  or  (a.compId.observationDate = " + reportEngine.getStopDate() + " and a.compId.observationTime <= " + reportEngine.getStopTime() + ") )";
 
-         String queryObservation = "from Observation a " + queryGeneral +
+         String queryObservation = "from Observation a where " + criterionGeneral +
                " order by a.compId.observationDate, a.compId.observationTime";
 
-         String queryScatter = "from Scatter a " + queryGeneral +
+         String queryScatter = "from Scatter a where " + criterionGeneral +
                " and a.compId.scatterType in (" + scatterTypePelagic + "," + scatterTypeBottom + ")" +
                " order by a.compId.observationDate, a.compId.observationTime, " +
                "          a.compId.object, " +
                "          a.compId.frequency,       a.compId.transceiver, " +
                "          a.compId.scatterType";
 
-         String queryScatterData = "from ScatterData a " + queryGeneral +
+         String queryScatterData = "from ScatterData a where " + criterionGeneral +
                " and a.compId.scatterType in (" + scatterTypePelagic + "," + scatterTypeBottom + ")" +
                " order by a.compId.observationDate, a.compId.observationTime, " +
                "          a.compId.object, " +
@@ -131,8 +133,8 @@ final class ReportGroupTime extends ReportGroup {
          Path observationFile = aDirectory.resolve(ReportGenerator.SCRATCH_FILE_PREFIX + "time_xml_acoustic_observations");
          Path observationFileAll = aDirectory.resolve(ReportGenerator.SCRATCH_FILE_PREFIX + "time_xml_acoustic_observations_all");
          GetObservation getObservation = new GetObservation();
-         getObservation.generateObservationFile(session, queryObservation, observationFile, observationFileAll, reportEngine.getCharset());
-         lastDistanceInterval = GetLastDistanceInterval.getLastDistanceInterval(session, queryScatter);
+         getObservation.generateObservationFile(session.createSelectionQuery(queryObservation, Observation.class), observationFile, observationFileAll, reportEngine.getCharset());
+         lastDistanceInterval = GetLastDistanceInterval.getLastDistanceInterval(session.createSelectionQuery(queryScatter, Scatter.class));
 
          try (BufferedReader fObsStop = Files.newBufferedReader(observationFileAll, reportEngine.getCharset());
               RewindableBufferedReader fObs = new RewindableBufferedReader(observationFile, reportEngine.getCharset());
@@ -175,49 +177,29 @@ final class ReportGroupTime extends ReportGroup {
             if (reportEngine.getPrintScrutinizedSpCheck()) {
                List<Integer> categoryCodeList = reportEngine.getScrutinizedSpeciesList(session, aSelectedSurvey);
                for (Integer categoryCode : categoryCodeList) {
-                  String query = String.format("from AcousticCategory a " +
-                              "where a.compId.nation=%1d " +
-                              "and   a.compId.platform=%1d " +
-                              "and   a.compId.acousticCategory=%1d " +
-                              "order by a.compId.acousticCategory ",
+                  AcousticCategory acousticCategory = session.get(AcousticCategory.class, new AcousticCategoryPK(
                         aSelectedSurvey.getCompId().getNation(),
                         aSelectedSurvey.getCompId().getPlatform(),
-                        categoryCode);
+                        categoryCode));
 
-                  String purposeQuery = String.format("from Purpose a " +
-                              "where a.compId.nation=%1d " +
-                              "and   a.compId.platform=%1d " +
-                              "and   a.compId.survey=%1d " +
-                              "and   a.compId.acousticCategory=%1d " +
-                              "order by a.compId.acousticCategory ",
+                  Purpose purpose = session.get(Purpose.class, new PurposePK(
                         aSelectedSurvey.getCompId().getNation(),
                         aSelectedSurvey.getCompId().getPlatform(),
                         aSelectedSurvey.getCompId().getSurvey(),
-                        categoryCode);
+                        categoryCode));
 
-                  try (ScrollableResults<AcousticCategory> acousticCategoryResults = session.createSelectionQuery(query, AcousticCategory.class)
-                        .setReadOnly(true)
-                        .scroll(ScrollMode.FORWARD_ONLY)) {
-                     if (acousticCategoryResults.next()) {
-                        Purpose purpose;
-                        AcousticCategory acousticCategory = acousticCategoryResults.get();
-                        aPrintData.setAcousticCategoryPrint(acousticCategory);
-                        aPrintDataBottom.setAcousticCategoryPrint(acousticCategory);
-                        try (ScrollableResults<Purpose> purposeResults = session.createSelectionQuery(purposeQuery, Purpose.class)
-                              .setReadOnly(true)
-                              .scroll(ScrollMode.FORWARD_ONLY)) {
-                           if (purposeResults.next()) {
-                              purpose = purposeResults.get();
-                              aPrintData.addPurposePrint(purpose);
-                              if (aPrintData.getScatter(aMode).getBottomActive() == 1) {
-                                 aPrintDataBottom.addPurposePrint(purpose);
-                              }
-                           } else { // purpose_exist == false
-                              aPrintData.addUnknownPurposePrint(aSelectedSurvey, acousticCategory);
-                              if (aPrintData.getScatter(aMode).getBottomActive() == 1) {
-                                 aPrintDataBottom.addUnknownPurposePrint(aSelectedSurvey, acousticCategory);
-                              }
-                           }
+                  if (acousticCategory != null) {
+                     aPrintData.setAcousticCategoryPrint(acousticCategory);
+                     aPrintDataBottom.setAcousticCategoryPrint(acousticCategory);
+                     if (purpose != null) {
+                        aPrintData.addPurposePrint(purpose);
+                        if (aPrintData.getScatter(aMode).getBottomActive() == 1) {
+                           aPrintDataBottom.addPurposePrint(purpose);
+                        }
+                     } else { // purpose_exist == false
+                        aPrintData.addUnknownPurposePrint(aSelectedSurvey, acousticCategory);
+                        if (aPrintData.getScatter(aMode).getBottomActive() == 1) {
+                           aPrintDataBottom.addUnknownPurposePrint(aSelectedSurvey, acousticCategory);
                         }
                      }
                   }
@@ -225,24 +207,16 @@ final class ReportGroupTime extends ReportGroup {
             } else { // !printScrutinizedSpCheck.isSelected()
                List<Purpose> sortedSpeciesPurposeList = ReportEngine.getSortedSpeciesPurposeList(session, aSelectedSurvey);
                for (Purpose aPurpose : sortedSpeciesPurposeList) {
-                  String query = String.format("from AcousticCategory a " +
-                              "where a.compId.nation=%1d " +
-                              "and   a.compId.platform=%1d " +
-                              "and   a.compId.acousticCategory=%1d ",
+                  AcousticCategory acousticCategory = session.get(AcousticCategory.class, new AcousticCategoryPK(
                         aPurpose.getCompId().getNation(),
                         aPurpose.getCompId().getPlatform(),
-                        aPurpose.getCompId().getAcousticCategory());
+                        aPurpose.getCompId().getAcousticCategory()));
 
-                  try (ScrollableResults<AcousticCategory> acousticCategoryResults = session.createSelectionQuery(query, AcousticCategory.class)
-                        .setReadOnly(true)
-                        .scroll(ScrollMode.FORWARD_ONLY)) {
-                     if (acousticCategoryResults.next()) {
-                        AcousticCategory acousticCategory = acousticCategoryResults.get();
-                        aPrintData.setAcousticCategoryPrint(acousticCategory);
-                        aPrintDataBottom.setAcousticCategoryPrint(acousticCategory);
-                        aPrintData.addPurposePrint(aPurpose);
-                        aPrintDataBottom.addPurposePrint(aPurpose);
-                     }
+                  if (acousticCategory != null) {
+                     aPrintData.setAcousticCategoryPrint(acousticCategory);
+                     aPrintDataBottom.setAcousticCategoryPrint(acousticCategory);
+                     aPrintData.addPurposePrint(aPurpose);
+                     aPrintDataBottom.addPurposePrint(aPurpose);
                   }
                } // for
             } //if
@@ -358,8 +332,8 @@ final class ReportGroupTime extends ReportGroup {
                   }
 
                   // Get stop time of interval
-                  DatabaseTime currentStop = new DatabaseTime(DatabaseTime.toMillis(currentDa, currentTi)
-                        + aPrintData.getScatter(ReportMode.NATIVE).getDuration() * 10L);
+                  DatabaseTime currentStop = new DatabaseTime(DatabaseTime.toInstant(currentDa, currentTi)
+                        .plusMillis(aPrintData.getScatter(ReportMode.NATIVE).getDuration() * 10L));
                   int currentStopTime = currentStop.getTime();
                   int currentStopDate = currentStop.getDate();
 

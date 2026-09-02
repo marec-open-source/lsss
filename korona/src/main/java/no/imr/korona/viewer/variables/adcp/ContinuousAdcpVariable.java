@@ -9,6 +9,7 @@ import no.imr.tools.logging.Log;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.ExportTransform;
+import org.jspecify.annotations.Nullable;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -32,10 +33,10 @@ abstract class ContinuousAdcpVariable extends ContinuousVariable {
    }
 
    @Override
-   public final ContinuousVariableResult evaluate(int channel, Ping ping) {
+   public final @Nullable ContinuousVariableResult evaluate(int channel, Ping ping) {
       AdcpLookup adcpLookup = AdcpData.lookup(variablePath, ping);
       if (adcpLookup == null) {
-         return ContinuousVariableResult.EMPTY;
+         return null;
       }
       AdcpFile adcpFile = adcpLookup.adcpFile();
       Variable variable = adcpLookup.variable();
@@ -43,12 +44,12 @@ abstract class ContinuousAdcpVariable extends ContinuousVariable {
       try {
          synchronized (adcpFile.dataset) {
             float[] values = evaluate(variable, timeIndex);
-            return new ContinuousVariableResult(values, adcpFile.depthRange(timeIndex, values.length));
+            return ContinuousVariableResult.of(values, adcpFile.depthRange(timeIndex, values.length));
          }
       } catch (IOException e) {
          Log.global.log(Level.WARNING, "Error reading " + variable.getFullName()
                + " from " + adcpFile.dataset.getLocation(), e);
-         return ContinuousVariableResult.EMPTY;
+         return null;
       }
    }
 

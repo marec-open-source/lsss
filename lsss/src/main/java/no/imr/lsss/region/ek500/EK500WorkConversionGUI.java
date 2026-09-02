@@ -10,6 +10,8 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.ObjectParameter;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GuiUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -84,14 +86,15 @@ public final class EK500WorkConversionGUI {
       selectedColumn.setMinWidth(60);
       selectedColumn.setMaxWidth(60);
 
-      ParameterEditor parameterEditor = new ParameterEditor(List.of(workIn, workOut, mainFrequency, defaultSpecies));
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
+      ParameterEditor parameterEditor = new ParameterEditor(List.of(workIn, workOut, mainFrequency, defaultSpecies), new GUIConfig()
+            .setHorizontalFill(true)
+      );
       parameterEditor.getEditorComponent().setBorder(GuiUtils.DEFAULT_MARGIN);
 
       JPanel panel = new JPanel(new BorderLayout());
       panel.add(parameterEditor.getEditorComponent(), BorderLayout.NORTH);
       panel.add(new JScrollPane(table));
-      panel.add(createBottomPanel(parameterEditor), BorderLayout.SOUTH);
+      panel.add(createBottomPanel(), BorderLayout.SOUTH);
 
       mainDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
       mainDialog.getContentPane().add(panel);
@@ -101,11 +104,11 @@ public final class EK500WorkConversionGUI {
       mainDialog.setVisible(true);
    }
 
-   private JPanel createBottomPanel(ParameterEditor parameterEditor) {
+   private JPanel createBottomPanel() {
       JButton okButton = new JButton("Convert");
       okButton.setToolTipText("Convert selected work files");
       okButton.addActionListener(_ -> {
-         if (!parameterEditor.commitEdits()) {
+         if (!CurrentInputComponent.commitEdit()) {
             return;
          }
          if (convert()) {

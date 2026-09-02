@@ -9,11 +9,14 @@ import no.imr.lsss.database.tables.hibernate.Survey;
 import no.imr.lsss.database.types.DatabasePlugin;
 import no.imr.lsss.database.types.GenericDatabasePlugin;
 import no.imr.lsss.database.types.HsqldbDatabasePlugin;
+import no.imr.lsss.database.types.HsqldbFileDatabasePlugin;
 import no.imr.lsss.database.types.JavaDBDatabasePlugin;
 import no.imr.lsss.database.types.JavaDBFileDatabasePlugin;
 import no.imr.lsss.database.types.PostgreSQLDatabasePlugin;
 import no.imr.lsss.framework.config.survey.survey.SurveyConf;
 import no.imr.tools.database.DatabaseConnection;
+import no.imr.tools.database.HsqldbUtils;
+import no.imr.tools.database.JavaDBUtils;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.listening.ChangeManager;
 import no.imr.tools.logging.Log;
@@ -47,7 +50,6 @@ public final class DatabaseManager {
    private final List<DatabasePlugin> databasePlugins = new ArrayList<>();
    private final DatabaseConnectionManager globalDatabaseConnectionManager;
    private final DatabaseConnectionManager surveyLocalDatabaseConnectionManager;
-   private final JavaDBFileDatabasePlugin javaDBPluginLocal = new JavaDBFileDatabasePlugin(new Name("JavaDBPluginLocal"));
    private final ChangeManager connectionChangeManager = new ChangeManager();
    private final ChangeManager busyChangeManager = new ChangeManager();
    private boolean useSurveyLocalDatabase;
@@ -57,15 +59,15 @@ public final class DatabaseManager {
    public DatabaseManager(LSSS lsss) {
       this.lsss = lsss;
 
-      JavaDBDatabasePlugin javaDB = new JavaDBDatabasePlugin(lsss);
+      HsqldbDatabasePlugin hsqldb = new HsqldbDatabasePlugin(lsss);
 
       databasePlugins.add(new GenericDatabasePlugin(lsss));
-      databasePlugins.add(new HsqldbDatabasePlugin(lsss));
-      databasePlugins.add(javaDB);
+      databasePlugins.add(hsqldb);
+      databasePlugins.add(new JavaDBDatabasePlugin(lsss));
       databasePlugins.add(new PostgreSQLDatabasePlugin(lsss));
 
-      globalDatabaseConnectionManager = new DatabaseConnectionManager(lsss, javaDB);
-      surveyLocalDatabaseConnectionManager = new DatabaseConnectionManager(lsss, javaDBPluginLocal);
+      globalDatabaseConnectionManager = new DatabaseConnectionManager(lsss, hsqldb);
+      surveyLocalDatabaseConnectionManager = new DatabaseConnectionManager(lsss, null);
 
       globalDatabaseConnectionManager.getChangeManager().addListener(connectionChangeManager);
       surveyLocalDatabaseConnectionManager.getChangeManager().addListener(connectionChangeManager);
@@ -96,7 +98,7 @@ public final class DatabaseManager {
 
    public Element toXml() {
       if (globalXml != null) {
-         return (Element) globalXml.clone();
+         return globalXml.createCopy();
       } else {
          return globalDatabaseConnectionManager.toXml();
       }
@@ -157,6 +159,7 @@ public final class DatabaseManager {
 
       Log.global.info("Switching to global database");
       surveyLocalDatabaseConnectionManager.closeConnection();
+      surveyLocalDatabaseConnectionManager.setDatabasePlugin(null);
       useSurveyLocalDatabase = false;
       if (globalDatabaseConnected) {
          globalDatabaseConnectionManager.openConnection();
@@ -186,11 +189,11 @@ public final class DatabaseManager {
             new WorkerDialog(referenceComponent, statusView.getComponent())
                   .setMinimumSize(new Dimension(400, 0))
                   .startWithoutCancel(() -> {
-                     DatabaseImporter.Result result = new DatabaseImporter(lsss, databaseDir, SURVEY_LOCAL_DATABASE)
+                     DatabaseImporter.Result result = new DatabaseImporter(lsss)
                            .setInteractiveMode(true)
                            .setStatusListener(statusView::setSecondaryText)
                            .setAskBeforeDeletingExistingSurveys(false)
-                           .importFromDatabase(referenceComponent);
+                           .importFromDatabase(referenceComponent, databaseDir, SURVEY_LOCAL_DATABASE);
 
                      if (result == DatabaseImporter.Result.DONE) {
                         String message = "Deleting survey local database: " + databaseDir;
@@ -237,32 +240,45 @@ public final class DatabaseManager {
                      FileUtils.createDirectories(databaseDir);
                      Survey survey = lsss.getConfigurationManager().getSurveyConf().getSurvey();
                      assert survey != null;
-                     new DatabaseExporter(lsss, databaseDir, SURVEY_LOCAL_DATABASE)
+                     new DatabaseExporter(lsss, databaseDir, SURVEY_LOCAL_DATABASE, DatabaseExporter.Type.HSQLDB)
                            .setDumpTextFiles(false)
                            .setStatusListener(statusView::setSecondaryText)
                            .exportSurveys(List.of(survey));
                   });
          }
       }
-      connectToSurveyLocalDatabase(databaseDir);
+      connectToSurveyLocalDatabase(databaseDir, SURVEY_LOCAL_DATABASE);
    }
 
    /**
     * Connects to a survey local database. Expects that the database exists.
     *
-    * @param databasePath the location of the database
+    * @param dir          the location of the database
+    * @param databaseName the database name
     */
-   private void connectToSurveyLocalDatabase(Path databasePath) {
+   private void connectToSurveyLocalDatabase(Path dir, String databaseName) {
+      DatabasePlugin surveyLocalPlugin;
+      if (HsqldbUtils.isHsqldbDatabase(dir, databaseName)) {
+         surveyLocalPlugin = new HsqldbFileDatabasePlugin(new Name("SurveyLocalDB"), dir, databaseName);
+      } else if (JavaDBUtils.isJavaDBDatabase(dir, databaseName)) {
+         if (JavaDBMigration.interactivelyConvertJavaDBToHsqldb(lsss, dir, databaseName, lsss::getReferenceComponent, "survey local")) {
+            surveyLocalPlugin = new HsqldbFileDatabasePlugin(new Name("SurveyLocalDB"), dir, databaseName);
+         } else {
+            surveyLocalPlugin = new JavaDBFileDatabasePlugin(new Name("SurveyLocalDB"), dir, databaseName);
+         }
+      } else {
+         Log.global.warning("Unknown database type in " + dir);
+         return;
+      }
       SurveyConf surveyConf = lsss.getConfigurationManager().getSurveyConfiguration().getSurveyConf();
       Nation nation = surveyConf.getNation();
       Platform platform = surveyConf.getPlatform();
       Survey survey = surveyConf.getSurvey();
 
-      Log.global.info("Switching to survey local database " + databasePath + " " + SURVEY_LOCAL_DATABASE);
+      Log.global.info("Switching to survey local database " + dir + " " + databaseName);
       globalDatabaseConnectionManager.closeConnection();
       useSurveyLocalDatabase = true;
-      javaDBPluginLocal.setDir(databasePath);
-      javaDBPluginLocal.setDatabaseName(SURVEY_LOCAL_DATABASE);
+      surveyLocalDatabaseConnectionManager.setDatabasePlugin(surveyLocalPlugin);
       surveyLocalDatabaseConnectionManager.openConnection();
 
       surveyConf.setIfValid(nation, platform, survey);

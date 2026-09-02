@@ -78,9 +78,6 @@ final class UserDefinedUtils {
             })
             .accessCancelButton(cancelButton -> cancelButton.setToolTipText(null))
             .setCloseOnOk(() -> {
-               if (!parameterEditor.commitEdits()) {
-                  return false;
-               }
                for (ValueParameter<?> parameter : parameters) {
                   Object value = parameter.getValue();
                   if (value instanceof Optional<?> optional && optional.isEmpty()) {

@@ -8,10 +8,9 @@ import no.imr.korona.data.util.mask.MaskUtils;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import no.imr.korona.util.echogram.EchogramZSettings;
 import no.imr.tools.ImmutableUtils;
-import no.imr.tools.Pair;
-import no.imr.tools.Utils;
 import no.imr.tools.listening.ChangeManager;
 import no.imr.tools.logging.Log;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
 import org.dom4j.DocumentHelper;
@@ -28,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -265,15 +263,13 @@ public final class SchoolManager extends BaseRegionManager<School> {
    void constrainSchoolsAfterLayerEdit(PingRange pingRange) {
       List<School> changedSchools = regionsIntersectingPingRange(pingRange)
             .filter(School::constrainToLayers)
-            .map(school -> {
+            .<School>mapMulti((school, consumer) -> {
                if (school.isEmpty()) {
                   getRegionManager().deleteSchoolWithoutUndo(school);
-                  return null;
                } else {
-                  return school;
+                  consumer.accept(school);
                }
             })
-            .filter(Objects::nonNull)
             .toList();
       if (!changedSchools.isEmpty()) {
          getRegionManager().notifyRegionBoundaryChanged(pingRange, changedSchools);
@@ -315,28 +311,28 @@ public final class SchoolManager extends BaseRegionManager<School> {
       return newSchool;
    }
 
-   public @Nullable Pair<School, SchoolBoundaryIntersectionInfo> findClosestVisibleWritableSchool(EchogramPoint point, EchogramPingSettings pingSettings, EchogramZSettings zSettings, @Nullable School closeCandidate) {
+   public @Nullable SchoolBoundaryIntersectionInfo findClosestVisibleWritableSchool(EchogramPoint point, EchogramPingSettings pingSettings, EchogramZSettings zSettings, @Nullable School closeCandidate) {
       PingRange visiblePingRange = getVisiblePingRange();
       double x = pingSettings.pingIndexToX(point.pingIndex());
       double closestDistSq = Double.POSITIVE_INFINITY;
-      Pair<School, SchoolBoundaryIntersectionInfo> closestSchool = null;
+      SchoolBoundaryIntersectionInfo closestSchool = null;
       if (closeCandidate != null && closeCandidate.isWritable() && closeCandidate.intersectsPingRange(visiblePingRange)) {
          SchoolBoundaryIntersectionInfo intersectionInfo = closeCandidate.distanceFrom(point, pingSettings, zSettings, closestDistSq);
          if (intersectionInfo != null) {
             closestDistSq = intersectionInfo.distanceSquared();
-            closestSchool = new Pair<>(closeCandidate, intersectionInfo);
+            closestSchool = intersectionInfo;
          }
       }
       for (School school : schools) {
          PingRange schoolPingRange = school.getPingRange();
          if (schoolPingRange.end().getPingNumber() < point.pingIndex().getPingNumber()) {
             // Entire school is to the left.
-            if (closestDistSq <= Utils.sq(x - pingSettings.pingIndexToX(schoolPingRange.end()))) {
+            if (closestDistSq <= MathUtils.sq(x - pingSettings.pingIndexToX(schoolPingRange.end()))) {
                continue;
             }
          } else if (schoolPingRange.begin().getPingNumber() > point.pingIndex().getPingNumber()) {
             // Entire school is to the right.
-            if (closestDistSq <= Utils.sq(x - pingSettings.pingIndexToX(schoolPingRange.begin()))) {
+            if (closestDistSq <= MathUtils.sq(x - pingSettings.pingIndexToX(schoolPingRange.begin()))) {
                continue;
             }
          }
@@ -346,7 +342,7 @@ public final class SchoolManager extends BaseRegionManager<School> {
          SchoolBoundaryIntersectionInfo intersectionInfo = school.distanceFrom(point, pingSettings, zSettings, closestDistSq);
          if (intersectionInfo != null) {
             closestDistSq = intersectionInfo.distanceSquared();
-            closestSchool = new Pair<>(school, intersectionInfo);
+            closestSchool = intersectionInfo;
          }
       }
       return closestSchool;

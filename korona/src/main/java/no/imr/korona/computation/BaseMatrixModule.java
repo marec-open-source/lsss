@@ -16,7 +16,7 @@ import java.util.List;
  * Module used for buffering up and manipulating pings.
  * <p>
  * This module is helpful for implementing matrix filters where one performs calculations on a source 'image' and writes the
- * result into a destination 'image', The data that is returned by reading (getRawDataFromBuffer) will not be affected by updating data (setData),
+ * result into a destination 'image'. The data that is returned by reading (getRawDataFromBuffer) will not be affected by updating data (setData),
  * although the data that is going out of the module will be affected.<br>
  * The module achieves this with a minimum of buffering;
  * Working with a buffer of 2*center+1 pings only requires buffering up (and delaying) center pings.
@@ -89,7 +89,7 @@ public abstract class BaseMatrixModule extends GeneralPingModule {
    public final BooleanParameter onlyLast = new BooleanParameter(
          new Name("OnlyLast", "Only last"),
          false,
-         "When true, only last channel is processed, if false all channels are processed");
+         "When true, only the last channel is processed; if false, all channels are processed");
 
    public final IntParameter channelsToProcess = new IntParameter(
          new Name("ChannelsToProcess", "Channels to process"),
@@ -104,12 +104,12 @@ public abstract class BaseMatrixModule extends GeneralPingModule {
    public final FloatParameter startDepth = new FloatParameter(
          new Name("StartDepth", "Start depth"),
          10, Unit.METER,
-         "Start depth (or range) for filter");
+         "Start depth in meters for the filter");
 
    public final FloatParameter endDepth = new FloatParameter(
          new Name("EndDepth", "End depth"),
          1000, Unit.METER,
-         "End depth (or range) in meter for filter");
+         "End depth in meters for the filter");
 
    /**
     * Index of the middle ping in raw0Array.
@@ -166,15 +166,10 @@ public abstract class BaseMatrixModule extends GeneralPingModule {
    public abstract BaseMatrixModuleComputation createComputation(ComputationContext computationContext, PingSource pingSource) throws IOException;
 
    /**
-    * Enums of valuetypes one can query from the datagrams.
+    * Enum of value types one can query from the datagrams.
     */
    public enum ValueType {
       LOG_SV {
-         @Override
-         public float getValueFromSv(float sv) {
-            return PowerData.svToLogSv(sv);
-         }
-
          @Override
          public float getValueFromLogSv(float logSv) {
             return logSv;
@@ -187,11 +182,6 @@ public abstract class BaseMatrixModule extends GeneralPingModule {
       },
       SV {
          @Override
-         public float getValueFromSv(float sv) {
-            return sv;
-         }
-
-         @Override
          public float getValueFromLogSv(float logSv) {
             return PowerData.logSvToSv(logSv);
          }
@@ -203,8 +193,6 @@ public abstract class BaseMatrixModule extends GeneralPingModule {
       };
 
       public abstract float getValueFromLogSv(float logSv);
-
-      public abstract float getValueFromSv(float sv);
 
       public abstract float[] getArray(PowerData powerData);
    }

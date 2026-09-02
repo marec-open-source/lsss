@@ -23,10 +23,12 @@ import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.gui.ParameterEditor;
 import no.imr.tools.parameter.gui.ParameterTableGUI;
 import no.imr.tools.parameter.gui.ParameterTableModel;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.range.ArrayRangeSet;
 import no.imr.tools.range.DefaultRange;
 import no.imr.tools.range.Range;
 import no.imr.tools.range.RangeSet;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GuiUtils;
 import no.marec.lsss.api.util.parameters.ValueConstraints;
 import org.jspecify.annotations.Nullable;
@@ -170,8 +172,9 @@ public final class PlatformEditor implements ParameterContainer {
    }
 
    private JComponent createMainPanel() {
-      ParameterEditor parameterEditor = new ParameterEditor(getParameters());
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
+      ParameterEditor parameterEditor = new ParameterEditor(getParameters(), new GUIConfig()
+            .setHorizontalFill(true)
+      );
 
       JPanel panel = new JPanel(new BorderLayout());
       panel.add(parameterEditor.getEditorComponent(), BorderLayout.NORTH);
@@ -191,10 +194,7 @@ public final class PlatformEditor implements ParameterContainer {
    private JPanel createButtonsPanel() {
       JButton okButton = new JButton("OK");
       okButton.addActionListener(_ -> {
-         if (!nameTableGui.stopEditing()) {
-            return;
-         }
-         if (!codeTableGui.stopEditing()) {
+         if (!CurrentInputComponent.commitEdit()) {
             return;
          }
          if (!storeToDatabase()) {

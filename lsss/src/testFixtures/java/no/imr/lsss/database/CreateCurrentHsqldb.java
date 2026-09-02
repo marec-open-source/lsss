@@ -19,7 +19,7 @@ final class CreateCurrentHsqldb {
       if (Files.exists(dir)) {
          throw new IllegalStateException("Directory already exists: " + dir);
       }
-      Configuration configuration = HsqldbUtils.createConfiguration(dir, "lsss", "sa", "");
+      Configuration configuration = HsqldbUtils.createConfiguration(dir, "lsss");
       DatabaseConnection databaseConnection = new DatabaseConnection(
             ConnectionType.INITIALIZE, configuration, LsssDatabaseContent.DATABASE_CLASSES);
       new LsssDatabaseContent().copyDefaultDataIntoTables(databaseConnection, LsssDatabaseUtils::isSystemClass);

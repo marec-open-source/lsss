@@ -4,6 +4,7 @@ import no.imr.korona.data.ping.PingIndex;
 import no.imr.tools.concurrent.Exec;
 import org.jspecify.annotations.Nullable;
 
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +19,7 @@ public final class PingIndexAnimation {
    private boolean running;
    private int step = 1;
    private float realtimeFactor = 1;
-   private Future<?> future = new CompletableFuture<>();
+   private Future<?> future = CompletableFuture.completedFuture(null);
 
    public PingIndexAnimation(Supplier<DataFileSet> dataFileSetSupplier,
                              Supplier<@Nullable PingIndex> pingIndexSupplier,
@@ -77,7 +78,7 @@ public final class PingIndexAnimation {
          stop();
          return;
       }
-      long dt = Math.min(10_000, Math.round(Math.abs(p2.getTimeInMillis() - p1.getTimeInMillis()) / realtimeFactor));
+      long dt = Math.min(10_000, Math.round(Math.abs(p1.getInstant().until(p2.getInstant(), ChronoUnit.MILLIS)) / realtimeFactor));
       future = Exec.schedule(this::go, dt, TimeUnit.MILLISECONDS);
    }
 }

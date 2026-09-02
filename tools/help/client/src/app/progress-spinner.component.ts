@@ -1,8 +1,7 @@
-import {ChangeDetectionStrategy, Component, effect, input, InputSignal, signal, WritableSignal} from '@angular/core';
+import {Component, effect, input, InputSignal, signal, WritableSignal} from '@angular/core';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @Component({
-   changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-progress-spinner',
    templateUrl: './progress-spinner.component.html',
    styleUrl: './progress-spinner.component.scss',

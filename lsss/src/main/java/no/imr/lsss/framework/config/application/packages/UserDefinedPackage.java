@@ -105,8 +105,8 @@ public final class UserDefinedPackage {
       packagesConf.getChangeManager().notifyListeners();
    }
 
-   public Optional<SvgIcon> uiInfoToIcon(ActionReference info) {
-      LsssAction action = uiInfoToLsssAction(info);
+   public Optional<SvgIcon> uiInfoToIcon(ActionReference actionReference) {
+      LsssAction action = uiInfoToLsssAction(actionReference);
       return action != null ? action.getIcon() : Optional.empty();
    }
 
@@ -118,25 +118,25 @@ public final class UserDefinedPackage {
       return action != null ? action.getLabel() : info.actionId;
    }
 
-   public String uiInfoToPackageId(ActionReference info) {
-      String packageId = info.packageId;
+   public String uiInfoToPackageId(ActionReference actionReference) {
+      String packageId = actionReference.packageId;
       return packageId.isEmpty() ? id : packageId;
    }
 
-   public @Nullable LsssAction uiInfoToLsssAction(ActionReference info) {
-      LsssPackage lsssPackage = getLSSS().getPackageManager().getPackage(uiInfoToPackageId(info));
+   public @Nullable LsssAction uiInfoToLsssAction(ActionReference actionReference) {
+      LsssPackage lsssPackage = getLSSS().getPackageManager().getPackage(uiInfoToPackageId(actionReference));
       return lsssPackage != null
-            ? lsssPackage.getAction(info.actionId)
+            ? lsssPackage.getAction(actionReference.actionId)
             : null;
    }
 
-   public String uiInfoToToolTip(ActionReference info) {
-      LsssAction action = uiInfoToLsssAction(info);
+   public String uiInfoToToolTip(ActionReference actionReference) {
+      LsssAction action = uiInfoToLsssAction(actionReference);
       if (action != null) {
          return action.getToolTipText();
       }
       return new HtmlStringBuilder()
-            .text(uiInfoToPackageId(info)).text("/").text(info.actionId)
+            .text(uiInfoToPackageId(actionReference)).text("/").text(actionReference.actionId)
             .html("<div style='color: red;'>Action not found!</div>")
             .build();
    }
@@ -162,34 +162,30 @@ public final class UserDefinedPackage {
    }
 
    void update() {
-      Map<String, Map<KeyStroke, List<ActionExecutor>>> keyStrokeMap = info.keyStrokes.stream()
+      Map<String, Map<KeyStroke, ActionExecutor>> keyStrokeMap = info.keyStrokes.stream()
             .collect(Collectors.groupingBy(
                   keyStrokeInfo -> keyStrokeInfo.context,
                   Collectors.groupingBy(
                         keyStrokeInfo -> KeyStroke.getKeyStroke(keyStrokeInfo.keyStroke),
-                        Collectors.mapping(this::toActionTask, Collectors.toUnmodifiableList()))));
+                        Collectors.collectingAndThen(Collectors.toList(), this::toActionExecutor))));
       lsssPackage.setKeyStrokeMap(keyStrokeMap);
    }
 
-   private ActionExecutor toActionTask(ActionReference info) {
-      return new ActionExecutor() {
-         @Override
-         public boolean isEnabled() {
-            LsssAction lsssAction = uiInfoToLsssAction(info);
-            return lsssAction == null || lsssAction.isEnabled();
-         }
-
-         @Override
-         public void run(ActionArgument argument) {
-            runAction(info, argument);
+   private ActionExecutor toActionExecutor(List<? extends ActionReference> actionReferences) {
+      return argument -> {
+         for (ActionReference actionReference : actionReferences) {
+            LsssAction lsssAction = uiInfoToLsssAction(actionReference);
+            if (lsssAction != null) {
+               lsssAction.runIfEnabled(argument);
+            }
          }
       };
    }
 
-   public void runAction(ActionReference info, ActionArgument argument) {
-      LsssAction action = uiInfoToLsssAction(info);
+   public void runAction(ActionReference actionReference, ActionArgument argument) {
+      LsssAction action = uiInfoToLsssAction(actionReference);
       if (action == null) {
-         getLSSS().showError("No action with id " + uiInfoToPackageId(info) + '/' + info.actionId);
+         getLSSS().showError("No action with id " + uiInfoToPackageId(actionReference) + '/' + actionReference.actionId);
       } else {
          action.run(argument);
       }

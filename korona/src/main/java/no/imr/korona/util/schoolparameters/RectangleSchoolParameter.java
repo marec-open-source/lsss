@@ -53,7 +53,8 @@ public class RectangleSchoolParameter extends BaseFloatSchoolParameter {
             name + ".x.min",
             name + ".y.min",
             name + ".x.max",
-            name + ".y.max");
+            name + ".y.max"
+      );
    }
 
    @Override
@@ -62,6 +63,7 @@ public class RectangleSchoolParameter extends BaseFloatSchoolParameter {
             format(value.getMinX()),
             format(value.getMinY()),
             format(value.getMaxX()),
-            format(value.getMaxY()));
+            format(value.getMaxY())
+      );
    }
 }

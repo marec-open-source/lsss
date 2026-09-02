@@ -1,8 +1,7 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, input, InputSignal} from '@angular/core';
+import {Component, input, InputSignal} from '@angular/core';
 
 @Component({
-   changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-error-response',
    templateUrl: './error-response.component.html',
    styleUrl: './error-response.component.scss',

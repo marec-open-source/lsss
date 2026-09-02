@@ -239,12 +239,16 @@ public final class PingPlotModule extends BaseViewModule implements PojoDataCont
       Ping ping = getInterpretationSettings().getDataFileSet().getPing(pingIndex);
 
       ContinuousVariable variable = getVariable();
+      FloatRange maxRange = variable.getSettings().getMaxRange();
+      FloatRange plotRange = maxRange.expand(maxRange.getSize());
       ContinuousVariableResult result = variable.evaluate(getInterpretationSettings().getChannel(), ping);
-
+      if (result == null) {
+         return null;
+      }
       PerPingDepthTransform perPingDepthTransform = zSettings.getDepthTransform().forPing(pingIndex);
       FloatRange zoomedDepthRange = perPingDepthTransform.zToDepth(zSettings.getZoomedZRange());
-      int minBegin = Math.clamp(result.depthToIndex(zoomedDepthRange.min()), 0, result.floatData().length);
-      int maxEnd = Math.clamp(result.depthToIndex(zoomedDepthRange.max()), 0, result.floatData().length);
+      int minBegin = Math.clamp(result.depthToIndex(zoomedDepthRange.min()), 0, result.floatData.length);
+      int maxEnd = Math.clamp(result.depthToIndex(zoomedDepthRange.max()), 0, result.floatData.length);
       RangeSet<Integer> indexes = new ArrayRangeSet<>();
       if (onlySelectedRegions.getBooleanValue()) {
          for (Region region : getRegionManager().getSelectedRegions()) {
@@ -262,11 +266,11 @@ public final class PingPlotModule extends BaseViewModule implements PojoDataCont
             .setXYInfo(new XYInfo(
                   new ParameterExport(variable.getName().persistentName(), variable.getUnit(), variable.getExportTransform()),
                   new ParameterExport(zSettings.isPelagic() ? "depth" : "z", Unit.METER, ExportRounding.depth())));
-      float[] values = result.floatData();
+      float[] values = result.floatData;
       for (Range<Integer> indexRange : indexes) {
          graph.addSeparator();
          for (int i = indexRange.begin(); i < indexRange.end(); i++) {
-            graph.addPoint(values[i], perPingDepthTransform.depthToZ(result.indexToDepth(i)));
+            graph.addPoint(plotRange.clamp(values[i]), perPingDepthTransform.depthToZ(result.indexToDepth(i)));
          }
       }
       return graph;

@@ -47,8 +47,8 @@ public final class SvgImage extends Image implements MultiResolutionImage {
          return;
       }
       SvgContent svgContent = getSvgContent();
-      width = (int) svgContent.width;
-      height = (int) svgContent.height;
+      width = (int) svgContent.getWidth();
+      height = (int) svgContent.getHeight();
    }
 
    private SvgContent getSvgContent() {

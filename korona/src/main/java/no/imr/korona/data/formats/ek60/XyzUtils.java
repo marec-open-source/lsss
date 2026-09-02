@@ -10,6 +10,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,16 +59,16 @@ final class XyzUtils {
          while (botIndex < bot0Datagrams.size() && xyzIndex < xyzLines.size()) {
             Bot0Datagram bot0Datagram = bot0Datagrams.get(botIndex);
             XyzLine xyzLine = xyzLines.get(xyzIndex);
-            long botTime = bot0Datagram.getTimeInMillis();
-            long xyzTime = xyzLine.timeInMillis;
-            if (Math.abs(botTime - xyzTime) <= 10) {
-               // Match within precision of xyz file, i.e., HHmmss.ff
+            Instant botTime = bot0Datagram.getInstant();
+            Instant xyzTime = xyzLine.instant;
+            if (Math.abs(xyzTime.until(botTime, ChronoUnit.MILLIS)) <= 10) {
+               // Match within precision of xyz file, i.e., HHmmss.ff.
                bot0Datagram.getChannelDepths()[channelIndex] = xyzLine.depth;
                botIndex++;
                xyzIndex++;
             } else {
-               // Not a match => the earliest time steps forward
-               if (xyzTime < botTime) {
+               // Not a match => The earliest time steps forward.
+               if (xyzTime.isBefore(botTime)) {
                   xyzIndex++;
                } else {
                   botIndex++;

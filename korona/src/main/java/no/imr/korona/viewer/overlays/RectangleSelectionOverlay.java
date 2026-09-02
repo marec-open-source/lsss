@@ -4,7 +4,7 @@ import no.imr.tools.ShouldNotHappenException;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.swing.animatedshape.AnimatedShape;
-import no.imr.tools.swing.animatedshape.DashedAnimatedShape;
+import no.imr.tools.swing.animatedshape.DashedAnimatedRenderer;
 import no.marec.lsss.api.util.observing.Subscription;
 
 import java.awt.Cursor;
@@ -18,7 +18,7 @@ import java.awt.geom.Rectangle2D;
 
 public final class RectangleSelectionOverlay extends EchogramOverlay {
    private final RectangleRegion rectangleRegion;
-   private final AnimatedShape animatedDraw = new AnimatedShape(this, new DashedAnimatedShape());
+   private final AnimatedShape animatedShape = new AnimatedShape(this, new DashedAnimatedRenderer());
    private final Subscription subscription;
    private int outcode;
    private Point previousPosition = new Point();
@@ -30,13 +30,13 @@ public final class RectangleSelectionOverlay extends EchogramOverlay {
 
    @Override
    public void draw(Graphics2D g) {
-      animatedDraw.draw(g, getSelectedRectangle());
+      animatedShape.draw(g, getSelectedRectangle());
    }
 
    @Override
    public void close() {
       super.close();
-      animatedDraw.stop();
+      animatedShape.stop();
       subscription.unsubscribe();
    }
 

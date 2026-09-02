@@ -137,7 +137,7 @@ public final class ProgressView {
       secondaryLabel.setText(secondaryText);
 
       if (secondaryFraction < 0) {
-         secondaryProgressBar.setIndeterminate(false);
+         secondaryProgressBar.setIndeterminate(true);
          secondaryProgressBar.setValue(0);
          secondaryProgressBar.setString("");
       } else {
@@ -150,9 +150,11 @@ public final class ProgressView {
    }
 
    private static String getValueText(JProgressBar progressBar, boolean asPercentage) {
-      return asPercentage
-            ? 100L * progressBar.getValue() / progressBar.getMaximum() + " %"
-            : progressBar.getValue() + " / " + progressBar.getMaximum();
+      int value = progressBar.getValue();
+      int max = progressBar.getMaximum();
+      return asPercentage && max > 0
+            ? 100L * value / max + " %"
+            : value + " / " + max;
    }
 
    public void setMainText(String mainText) {

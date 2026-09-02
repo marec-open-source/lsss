@@ -16,7 +16,7 @@ final class ToolbarButtonInfoEditor implements ParameterContainer {
          "",
          "Filters list of actions");
 
-   private final ActionParameter action = new ActionParameter();
+   private final ActionParameter action;
 
    private final StringParameter text = new StringParameter(new Name("Text"),
          "",
@@ -28,6 +28,8 @@ final class ToolbarButtonInfoEditor implements ParameterContainer {
    ToolbarButtonInfoEditor(UserDefinedPackage userDefinedPackage, ToolbarButtonInfo toolbarButtonInfo) {
       this.userDefinedPackage = userDefinedPackage;
       this.toolbarButtonInfo = toolbarButtonInfo;
+
+      action = new ActionParameter(userDefinedPackage, toolbarButtonInfo);
 
       text.setValue(toolbarButtonInfo.text);
    }
@@ -42,13 +44,10 @@ final class ToolbarButtonInfoEditor implements ParameterContainer {
    }
 
    void init(ParameterEditor parameterEditor) {
-      action.init(parameterEditor, filter, userDefinedPackage, toolbarButtonInfo);
+      action.init(parameterEditor, filter);
    }
 
    boolean isOK(ParameterEditor parameterEditor) {
-      if (!parameterEditor.commitEdits()) {
-         return false;
-      }
       if (action.getValue().isEmpty()) {
          JOptionPane.showMessageDialog(parameterEditor.getEditorComponent(), "Please select an action", "Error", JOptionPane.ERROR_MESSAGE);
          parameterEditor.getInputComponent(action).requestFocusInWindow();

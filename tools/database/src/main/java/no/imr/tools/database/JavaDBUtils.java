@@ -1,8 +1,8 @@
 package no.imr.tools.database;
 
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
-import no.imr.tools.database.queries.FetchQuery;
 import no.imr.tools.database.queries.StatelessDatabaseQuery;
+import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
 import org.hibernate.cfg.Configuration;
 
@@ -13,13 +13,15 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Locale;
-import java.util.StringTokenizer;
+import java.util.Map;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public final class JavaDBUtils {
    private static final String JDBC_DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
-   private static final String JDBC_DERBY_PREFIX = "jdbc:derby:";
+   private static final String JDBC_FILE_PREFIX = "jdbc:derby:";
 
    static {
       System.setProperty("derby.stream.error.field", "java.lang.System.err");
@@ -28,29 +30,29 @@ public final class JavaDBUtils {
    private JavaDBUtils() {
    }
 
-   public static void shutDown(Path dir, String name) {
-      shutDown(getConnectionURL(dir, name, ConnectionType.CONNECT));
+   public static void shutDown(Path dir, String databaseName) {
+      shutDown(getConnectionURL(dir, databaseName, ConnectionType.CONNECT));
    }
 
    public static void shutDown(String connectionURL) {
       try (Connection connection = DriverManager.getConnection(connectionURL + ";shutdown=true")) {
          assert connection.isClosed();
       } catch (SQLException e) {
-         //javadb shutdown throws an exception when successful, see documentation for expected state.
+         // JavaDB shutdown throws an exception when successful, see documentation for expected state.
          if (e.getSQLState().equals("08006")) {
             Log.global.info(e.getMessage());
          } else {
-            Log.global.log(Level.WARNING, "Error shutting down embedded JavaDB", e);
+            Log.global.log(Level.WARNING, "Error shutting down JavaDB embedded database", e);
          }
       }
    }
 
-   public static String getConnectionURL(Path dir, String name, ConnectionType connectionType) {
+   public static String getConnectionURL(Path dir, String databaseName, ConnectionType connectionType) {
       String path = dir.toAbsolutePath().toString().replace(File.separatorChar, '/');
       if (!path.endsWith("/")) {
          path = path + "/";
       }
-      String connectionString = JDBC_DERBY_PREFIX + path + name;
+      String connectionString = JDBC_FILE_PREFIX + path + databaseName;
       if (connectionType == ConnectionType.INITIALIZE) {
          connectionString += ";create=true";
          // Rolf: log-file on different disk "T", but do not seem to improve speed:
@@ -59,11 +61,12 @@ public final class JavaDBUtils {
       return connectionString;
    }
 
-   public static Configuration createConfiguration(Path dir, String name, ConnectionType connectionType) {
-      return createConfiguration(dir, name, connectionType, "", "");
+   public static Configuration createConfiguration(Path dir, String databaseName, ConnectionType connectionType) {
+      return createConfiguration(dir, databaseName, connectionType, "", "");
    }
 
-   public static Configuration createConfiguration(Path dir, String name, ConnectionType connectionType, String username, String password) {
+   public static Configuration createConfiguration(Path dir, String databaseName, ConnectionType connectionType,
+                                                   String username, String password) {
       //Settings prior to 2009.09.25 (until LSSS-1.3.2):
       //System.setProperty("derby.storage.pageCacheSize", "2500");  //Default: 1000
 
@@ -73,7 +76,7 @@ public final class JavaDBUtils {
       System.setProperty("derby.replication.logBufferSize", "65536");
       // This may be a bit dangerous: System.setProperty("derby.system.durability","test");
 
-      String connectionURL = getConnectionURL(dir, name, connectionType);
+      String connectionURL = getConnectionURL(dir, databaseName, connectionType);
 
       return DatabaseUtils.createConfiguration(JDBC_DRIVER, connectionURL, username, password);
    }
@@ -83,14 +86,14 @@ public final class JavaDBUtils {
    }
 
    public static Configuration createInMemoryConfiguration(String databaseName) {
-      return DatabaseUtils.createConfiguration(JDBC_DRIVER, inMemoryConnectionUrl(databaseName) + ";create=true", "sa", "");
+      return DatabaseUtils.createConfiguration(JDBC_DRIVER, inMemoryConnectionUrl(databaseName) + ";create=true", "", "");
    }
 
    public static void dropInMemoryDatabase(String databaseName) {
       try (Connection connection = DriverManager.getConnection(inMemoryConnectionUrl(databaseName) + ";drop=true")) {
          assert connection.isClosed();
       } catch (SQLException e) {
-         //javadb shutdown throws an exception when successful, see documentation for expected state.
+         // JavaDB shutdown throws an exception when successful, see documentation for expected state.
          if (e.getSQLState().equals("08006")) {
             Log.global.info(e.getMessage());
          } else {
@@ -99,49 +102,9 @@ public final class JavaDBUtils {
       }
    }
 
-   /**
-    * Strips the two first words from the input query.
-    * FetchQuery creates a query on the form
-    * {@code "from ClassName className where className.compId.ColumnName = Object"}.
-    * When using SQL through JDBC, it is not guaranteed that the ClassName matches a
-    * table name. The three first words are therefore removed. The caller of
-    * this function is responsible for adding "select * from [tablename]" to
-    * the string in order to get a meaningful query.
-    * <p>
-    * It is assumed that the column name matches the field name.
-    * There is no guarantee for this other than convention.
-    *
-    * @param query the query to make a string from
-    * @return a string on the form "where ColumnName = Object"
-    */
-   private static String stripQuerySQLString(FetchQuery<?> query) {
-      StringTokenizer t = new StringTokenizer(query.getQueryString());
-
-      t.nextToken(); //Remove "from"
-      t.nextToken(); //Remove class name.
-      t.nextToken(); //Remove class instance name.
-
-      //Keep the rest.
-      StringBuilder builder = new StringBuilder();
-
-      while (t.hasMoreTokens()) {
-         builder.append(' ');
-         String token = t.nextToken();
-         //Remove . and path from field reference.
-         String[] fieldName = token.split("\\.");
-         if (fieldName.length == 0) {
-            builder.append(token);
-         } else {
-            builder.append(fieldName[fieldName.length - 1]);
-         }
-      }
-
-      return builder.toString();
-   }
-
    public static void importTableFromTextFile(DatabaseConnection databaseConnection, Class<? extends BaseDatabaseObject> clazz, Path file) {
       String tableName = DatabaseUtils.getTableName(clazz).toUpperCase(Locale.ENGLISH);
-      String sql = "CALL SYSCS_UTIL.SYSCS_IMPORT_TABLE('APP','" + tableName + "', '" + file.toAbsolutePath() + "',';','\"', null, 0)";
+      String sql = "CALL SYSCS_UTIL.SYSCS_IMPORT_TABLE('APP','" + tableName + "', '" + toEscapedPath(file) + "',';','\"', null, 0)";
       databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.nativeSql(sql));
    }
 
@@ -151,15 +114,35 @@ public final class JavaDBUtils {
     *
     * @param databaseConnection database connection
     * @param clazz              the table to be dumped
-    * @param fetchQuery         what to dump
+    * @param criteria           what to dump
     * @param file               the output file
     */
-   public static <T extends BaseDatabaseObject> void dumpTableToTextFile(DatabaseConnection databaseConnection, Class<T> clazz, FetchQuery<T> fetchQuery, Path file) throws IOException {
+   public static void dumpTableToTextFile(DatabaseConnection databaseConnection, Class<? extends BaseDatabaseObject> clazz,
+                                          List<Map.Entry<DatabaseColumn, Integer>> criteria, Path file) throws IOException {
       Files.deleteIfExists(file);
+      String whereClause = criteria.isEmpty() ? "" :
+            criteria.stream()
+                  .map(e -> e.getKey().name() + "=" + e.getValue())
+                  .collect(Collectors.joining(" and ", "where ", ""));
       String sql = "CALL SYSCS_UTIL.SYSCS_EXPORT_QUERY " +
-            "('select * from " + DatabaseUtils.getTableName(clazz) + " " + stripQuerySQLString(fetchQuery) + "', '" +
-            file.toAbsolutePath() + "',';',null,null)";
+            "('select * from " + DatabaseUtils.getTableName(clazz).toUpperCase(Locale.ENGLISH) + " " + whereClause + "', '" +
+            toEscapedPath(file) + "',';',null,null)";
       databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.nativeSql(sql));
+   }
+
+   private static String toEscapedPath(Path file) {
+      return file.toAbsolutePath().toString().replace("'", "''");
+   }
+
+   public static void prepareToConnect(ConnectionType connectionType, Path dir, String databaseName) throws IOException {
+      if (connectionType == ConnectionType.INITIALIZE) {
+         FileUtils.createDirectories(dir);
+         FileUtils.deleteRecursively(dir.resolve(databaseName));
+      }
+   }
+
+   public static boolean isJavaDBDatabase(Path dir, String databaseName) {
+      return isJavaDBDirectory(dir.resolve(databaseName));
    }
 
    public static boolean isJavaDBDirectory(Path dir) {

@@ -1,9 +1,8 @@
-import {ChangeDetectionStrategy, Component, inject, input, InputSignal} from '@angular/core';
+import {Component, inject, input, InputSignal} from '@angular/core';
 import {TocItem} from './api/TocItem';
 import {ConfigService} from './config.service';
 
 @Component({
-   changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-toc-list',
    templateUrl: './toc-list.component.html',
    styleUrl: './toc-list.component.scss',

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * {@link DataFormatPlugin} for EK60 data.
+ * {@link DataFormatPlugin} for synthetic data.
  */
 public final class SyntheticDataFormatPlugin extends DataFormatPlugin {
    public static final String LSSS_SS_SUFFIX = ".lsss-ss";

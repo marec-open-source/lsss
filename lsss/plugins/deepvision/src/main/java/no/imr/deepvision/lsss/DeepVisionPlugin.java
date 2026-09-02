@@ -23,6 +23,7 @@ import no.imr.lsss.modules.echogram.EchogramModule;
 import no.imr.lsss.modules.echogramplot.EchogramPlotModule;
 import no.imr.lsss.plugins.FeaturePlugin;
 import no.imr.tools.help.HelpSystemHelpSet;
+import no.imr.tools.io.FileUtils;
 import no.imr.tools.parameter.Name;
 
 import java.nio.file.Path;
@@ -125,8 +126,8 @@ public final class DeepVisionPlugin extends FeaturePlugin {
       }
       return file -> {
          String filePath = file.toString();
-         if (!filePath.startsWith(deepVisionDir.toString())) {
-            // File is not in the Deep Vision directory => Do no exclude.
+         if (!FileUtils.isInDir(file, deepVisionDir)) {
+            // File is not in the Deep Vision directory => Do not exclude.
             return false;
          }
          for (String imageSuffix : imageFileSuffixes) {
@@ -135,7 +136,7 @@ public final class DeepVisionPlugin extends FeaturePlugin {
                return imageDirectories.contains(file.getParent()) && !activeImageFiles.contains(file);
             }
          }
-         // Not image file => Do no exclude.
+         // Not image file => Do not exclude.
          return false;
       };
    }

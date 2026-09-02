@@ -5,6 +5,7 @@ import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.HeaderParameter;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.svg.SvgIcon;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -52,7 +53,7 @@ public final class HeaderParameterGUI extends ParameterGUI<HeaderParameter> {
    }
 
    @Override
-   public JComponent getInputComponent() {
-      return ParameterGuiUtils.noInputComponent();
+   public @Nullable JComponent getInputComponent() {
+      return null;
    }
 }

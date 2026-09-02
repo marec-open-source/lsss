@@ -92,7 +92,7 @@ public interface RangeMap<K extends Comparable<? super K>, V> extends Iterable<R
    }
 
    default boolean containsNoKeys(Range<K> range) {
-      return stream(range).noneMatch(_ -> true);
+      return !containsAnyKey(range);
    }
 
    /**

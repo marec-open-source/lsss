@@ -4,7 +4,6 @@ import no.imr.korona.util.echogram.EchogramZSettings;
 import no.imr.lsss.framework.packages.LsssAction;
 import no.imr.lsss.framework.packages.LsssPackage;
 import no.imr.lsss.framework.packages.TaskLsssAction;
-import no.imr.tools.Pair;
 import no.imr.tools.concurrent.Exec;
 import no.imr.tools.range.DoubleRange;
 import no.imr.tools.range.FloatRange;
@@ -31,7 +30,7 @@ public final class NavigationHistory {
    private NavigationState currentState;
    private @Nullable NavigationStateContainer recentlyAddedStateContainer;
    private @Nullable Object coalescingIdentifier;
-   private Future<?> coalesceEndFuture = new CompletableFuture<>();
+   private Future<?> coalesceEndFuture = CompletableFuture.completedFuture(null);
 
    public final LsssAction backAction = new TaskLsssAction("goBack", "Go back to previous location",
          _ -> doWithNoAddCheckPoint(undoManager::undo))
@@ -134,17 +133,17 @@ public final class NavigationHistory {
     */
    public final class NavigationState {
       private final DoubleRange valueRange = interpretationSettings.getValueRange();
-      private final List<Pair<EchogramZSettings, FloatRange>> z;
+      private final List<ZSettingsState> zSettingsStates;
 
       private NavigationState() {
-         z = zSettingsList.stream()
-               .map(zSettingsContainer -> new Pair<>(zSettingsContainer, zSettingsContainer.getZoomedZRange()))
+         zSettingsStates = zSettingsList.stream()
+               .map(zSettingsContainer -> new ZSettingsState(zSettingsContainer, zSettingsContainer.getZoomedZRange()))
                .toList();
       }
 
       public void apply() {
          interpretationSettings.setValueRange(valueRange);
-         z.forEach(entry -> entry.first().setZ(entry.second()));
+         zSettingsStates.forEach(ZSettingsState::apply);
       }
 
       @Override
@@ -154,14 +153,20 @@ public final class NavigationHistory {
          }
          return obj instanceof NavigationState that
                && valueRange.equals(that.valueRange)
-               && z.equals(that.z);
+               && zSettingsStates.equals(that.zSettingsStates);
       }
 
       @Override
       public int hashCode() {
          int result = valueRange.hashCode();
-         result = 31 * result + z.hashCode();
+         result = 31 * result + zSettingsStates.hashCode();
          return result;
+      }
+   }
+
+   private record ZSettingsState(EchogramZSettings zSettings, FloatRange z) {
+      private void apply() {
+         zSettings.setZ(z);
       }
    }
 

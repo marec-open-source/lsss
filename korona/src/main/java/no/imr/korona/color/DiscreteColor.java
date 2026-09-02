@@ -10,7 +10,7 @@ import java.awt.Color;
  */
 public final class DiscreteColor implements Comparable<DiscreteColor> {
    private final int value;
-   private final Color color;
+   private final int rgb;
    private final float hue;
    private final float saturation;
    private final String name;
@@ -21,7 +21,7 @@ public final class DiscreteColor implements Comparable<DiscreteColor> {
 
    public DiscreteColor(int value, Color color, String name) {
       this.value = value;
-      this.color = color;
+      rgb = color.getRGB();
       float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
       hue = hsb[0];
       saturation = hsb[1];
@@ -37,11 +37,7 @@ public final class DiscreteColor implements Comparable<DiscreteColor> {
    }
 
    public int getRGB() {
-      return color.getRGB();
-   }
-
-   public Color getColor() {
-      return color;
+      return rgb;
    }
 
    public float getHue() {
@@ -72,7 +68,7 @@ public final class DiscreteColor implements Comparable<DiscreteColor> {
    }
 
    @Override
-   public int compareTo(DiscreteColor o) {
-      return Integer.compare(value, o.value);
+   public int compareTo(DiscreteColor other) {
+      return Integer.compare(value, other.value);
    }
 }

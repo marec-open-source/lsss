@@ -1,14 +1,12 @@
 package no.imr.tools.xml;
 
-import org.dom4j.DocumentException;
-
 import java.io.IOException;
 
 /**
- * Wrapper exception for {@link DocumentException}.
+ * Wrapper exception for XML errors.
  */
 public final class XmlException extends IOException {
-   public XmlException(String message) {
+   XmlException(String message) {
       super(message);
    }
 

@@ -7,75 +7,61 @@ import no.imr.tools.range.DefaultRange;
 import no.imr.tools.range.Range;
 import no.imr.tools.time.DateTimeMillis;
 
+import java.time.Instant;
+
 /**
  * Representation of date and time in LSSS database format.
  * Note: time and date in UTC.
  */
 public final class DatabaseTime {
-   private final long millis;
+   private final Instant instant;
    private final int date;
    private final int time;
 
-   /**
-    * Creates a new DatabaseTime.
-    *
-    * @param millis the time in milliseconds
-    */
-   public DatabaseTime(long millis) {
-      long roundedMillis = roundMillis(millis);
-      this.millis = roundedMillis;
-      DateTimeMillis dateTimeMillis = new DateTimeMillis(roundedMillis);
+   public DatabaseTime(Instant instant) {
+      Instant truncatedInstant = truncatedInstant(instant);
+      this.instant = truncatedInstant;
+      DateTimeMillis dateTimeMillis = new DateTimeMillis(truncatedInstant);
       date = dateTimeMillis.getDate();
       time = dateTimeMillis.getTime() / 10;
    }
 
    /**
-    * Rounds a time to a time representable by the database resolution, 100th of a second.
+    * Truncates a time to a time representable by the database resolution, 100th of a second.
     *
-    * @param millis the time in milliseconds
-    * @return millis - millis % 10
+    * @param instant the time
+    * @return the truncated time
     */
-   public static long roundMillis(long millis) {
-      return millis - millis % 10;
+   public static Instant truncatedInstant(Instant instant) {
+      int excessNanos = instant.getNano() % 10_000_000;
+      return excessNanos == 0 ? instant : instant.minusNanos(excessNanos);
+   }
+
+   public static Range<Instant> toTimeRange(PingRange pingRange) {
+      return new DefaultRange<>(truncatedInstant(pingRange.begin().getInstant()), truncatedInstant(pingRange.end().getInstant()));
    }
 
    /**
-    * Convert a ping range to the corresponding time range.
-    *
-    * @param pingRange a ping range
-    * @return a time range in milliseconds
-    */
-   public static Range<Long> toMillisRange(PingRange pingRange) {
-      return new DefaultRange<>(roundMillis(pingRange.begin().getTimeInMillis()), roundMillis(pingRange.end().getTimeInMillis()));
-   }
-
-   /**
-    * Converts date and time to milliseconds.
+    * Converts date and time to an instant.
     *
     * @param date date in format "YYYYMMDD"
     * @param time time in format HHMMSSXX, where XX is hundreds of a second
-    * @return milliseconds
+    * @return an instant
     */
-   public static long toMillis(int date, int time) {
-      return DateTimeMillis.toMillis(date, time * 10);
+   public static Instant toInstant(int date, int time) {
+      return DateTimeMillis.toInstant(date, time * 10);
    }
 
-   public static long toMillis(BaseCompDatabaseObject<? extends BaseObservationTimeContainer> databaseObject) {
-      return toMillis(databaseObject.getCompId());
+   public static Instant toInstant(BaseCompDatabaseObject<? extends BaseObservationTimeContainer> databaseObject) {
+      return toInstant(databaseObject.getCompId());
    }
 
-   public static long toMillis(BaseObservationTimeContainer observationTimeContainer) {
-      return toMillis(observationTimeContainer.getObservationDate(), observationTimeContainer.getObservationTime());
+   public static Instant toInstant(BaseObservationTimeContainer observationTimeContainer) {
+      return toInstant(observationTimeContainer.getObservationDate(), observationTimeContainer.getObservationTime());
    }
 
-   /**
-    * Returns the date/time in milliseconds.
-    *
-    * @return the date/time
-    * @see System#currentTimeMillis
-    */
-   public long getMillis() {
-      return millis;
+   public Instant getInstant() {
+      return instant;
    }
 
    /**

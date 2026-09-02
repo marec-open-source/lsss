@@ -12,10 +12,10 @@ import no.imr.lsss.framework.export.StreamingExporter;
 import no.imr.lsss.framework.export.pojo.ExportInfo;
 import no.imr.lsss.modules.broadband.BroadbandChannelInfoAccumulator;
 import no.imr.tools.ProgressHandler;
-import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.math.ComplexArray;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.misc.JsonWriter;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
@@ -169,7 +169,7 @@ public final class BroadbandBottomDataExporter extends StreamingExporter {
                         pingIndex -> json.writeString(pingIndex.getInstant().toString()));
 
                   jsonWriter.writeArrayField("depths", block.bottomDepths,
-                        bottomDepth -> json.writeNumber(Utils.round(bottomDepth, 1000)));
+                        bottomDepth -> json.writeNumber(MathUtils.round(bottomDepth, 1000)));
 
                   jsonWriter.writeArrayField("re", block.pingIndices, pingIndex -> {
                      progressListener.listen();
@@ -182,9 +182,9 @@ public final class BroadbandBottomDataExporter extends StreamingExporter {
                         return;
                      }
 
-                     FloatRange depthRange = getDepthRange(ping, channel);
-
                      jsonWriter.writeArray(() -> {
+                        FloatRange depthRange = getDepthRange(ping, channel);
+
                         ComplexArray pulseCompressedSignal = broadbandData.getAveragePulseCompressedSignal();
 
                         int sampleIndexBegin = broadbandData.depthToSampleIndex(depthRange.min());
@@ -197,7 +197,7 @@ public final class BroadbandBottomDataExporter extends StreamingExporter {
                            json.writeNumber(0);
                         }
                         for (int i = clampedSampleIndexBegin; i < clampedSampleIndexEnd; i++) {
-                           json.writeNumber(Utils.roundToNumberOfDigits(pulseCompressedSignal.re(i), 6));
+                           json.writeNumber(MathUtils.roundToNumberOfDigits(pulseCompressedSignal.re(i), 6));
                         }
                         for (int i = clampedSampleIndexEnd; i < sampleIndexEnd; i++) {
                            json.writeNumber(0);
@@ -215,9 +215,9 @@ public final class BroadbandBottomDataExporter extends StreamingExporter {
                         return;
                      }
 
-                     FloatRange depthRange = getDepthRange(ping, channel);
-
                      jsonWriter.writeArray(() -> {
+                        FloatRange depthRange = getDepthRange(ping, channel);
+
                         ComplexArray pulseCompressedSignal = broadbandData.getAveragePulseCompressedSignal();
 
                         int sampleIndexBegin = broadbandData.depthToSampleIndex(depthRange.min());
@@ -230,7 +230,7 @@ public final class BroadbandBottomDataExporter extends StreamingExporter {
                            json.writeNumber(0);
                         }
                         for (int i = clampedSampleIndexBegin; i < clampedSampleIndexEnd; i++) {
-                           json.writeNumber(Utils.roundToNumberOfDigits(pulseCompressedSignal.im(i), 6));
+                           json.writeNumber(MathUtils.roundToNumberOfDigits(pulseCompressedSignal.im(i), 6));
                         }
                         for (int i = clampedSampleIndexEnd; i < sampleIndexEnd; i++) {
                            json.writeNumber(0);

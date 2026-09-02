@@ -16,6 +16,7 @@ import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -27,6 +28,10 @@ public final class TestUtils {
    }
 
    public static JMenu createDebugMenu(LoggingManager loggingManager) {
+      return createDebugMenu(loggingManager, Utils.emptyConsumer());
+   }
+
+   public static JMenu createDebugMenu(LoggingManager loggingManager, Consumer<JMenu> additional) {
       JMenu menu = new JMenu("Debug");
 
       GuiUtils.autoCreateContentMenu(menu, () -> {
@@ -98,6 +103,8 @@ public final class TestUtils {
          JMenuItem exitWithErrorItem = menu.add("Exit with error");
          exitWithErrorItem.setMnemonic(KeyEvent.VK_X);
          exitWithErrorItem.addActionListener(_ -> System.exit(ExitCodes.TEST));
+
+         additional.accept(menu);
       });
 
       return menu;

@@ -7,6 +7,8 @@ import no.imr.tools.range.FloatRange;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 final class BoundingBoxTest {
@@ -20,17 +22,17 @@ final class BoundingBoxTest {
 
    @BeforeEach
    void beforeEach() {
-      idx0 = new Idx0Datagram(0, 0, 0, null, 0);
-      idx1 = new Idx0Datagram(1, 50, 1, null, 0);
-      idx2 = new Idx0Datagram(2, 67, 2, null, 0);
-      idx3 = new Idx0Datagram(3, 200, 3, null, 0);
-      idx4 = new Idx0Datagram(4, 290, 4, null, 0);
+      idx0 = new Idx0Datagram(Instant.ofEpochSecond(0), 0, 0, null, 0);
+      idx1 = new Idx0Datagram(Instant.ofEpochSecond(1), 50, 1, null, 0);
+      idx2 = new Idx0Datagram(Instant.ofEpochSecond(2), 67, 2, null, 0);
+      idx3 = new Idx0Datagram(Instant.ofEpochSecond(3), 200, 3, null, 0);
+      idx4 = new Idx0Datagram(Instant.ofEpochSecond(4), 290, 4, null, 0);
 
       box = new BoundingBox(PingRange.of(idx1, idx3), FloatRange.of(0, 500));
    }
 
    @Test
-   void testEquals() {
+   void equalsAndHashCode() {
       assertEquals(box, box);
       assertEquals(box, new BoundingBox(box.pingRange(), box.depthRange()));
       assertNotEquals(box, new BoundingBox(box.pingRange(), FloatRange.of(0, 501)));
@@ -42,7 +44,7 @@ final class BoundingBoxTest {
    }
 
    @Test
-   void testContains() {
+   void contains() {
       assertFalse(box.pingRange().contains(idx0));
       assertTrue(box.pingRange().contains(idx1));
       assertTrue(box.pingRange().contains(idx2));
@@ -71,7 +73,7 @@ final class BoundingBoxTest {
    }
 
    @Test
-   void testIntersects() {
+   void intersects() {
       assertTrue(box.intersects(box));
       assertTrue(box.intersects(new BoundingBox(box.pingRange(), box.depthRange())));
 
@@ -82,7 +84,7 @@ final class BoundingBoxTest {
    }
 
    @Test
-   void testUnion() {
+   void union() {
       assertEquals(box, BoundingBox.union(box, box));
       assertEquals(box, BoundingBox.union(BoundingBox.EMPTY_BOX, box));
       assertEquals(box, BoundingBox.union(box, BoundingBox.EMPTY_BOX));

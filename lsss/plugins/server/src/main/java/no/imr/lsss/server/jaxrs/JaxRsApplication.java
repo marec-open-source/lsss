@@ -32,7 +32,7 @@ public final class JaxRsApplication {
       this.lsss = lsss;
       LsssServerSettings lsssServerSettings = lsss.getConfigurationManager().getAppMiscConf().getLsssServerConf().getLsssServerSettings();
       jsonMapper = JsonMapper.builder()
-            .changeDefaultNullHandling(_ -> JsonSetter.Value.forValueNulls(Nulls.FAIL, Nulls.FAIL))
+            .changeDefaultNullHandling(_ -> JsonSetter.Value.forValueNulls(Nulls.SKIP, Nulls.SKIP))
             .changeDefaultPropertyInclusion(_ -> JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL))
             .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
             .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)

@@ -8,32 +8,32 @@ import org.dom4j.Element;
 import java.time.Instant;
 
 public final class CalibrationType {
-   private final RangeMap<Long, CalibrationEntry> calibrationEntries = new ArrayRangeMap<>();
+   private final RangeMap<Instant, CalibrationEntry> calibrationEntries = new ArrayRangeMap<>();
 
    public CalibrationType() {
    }
 
-   public RangeMap<Long, CalibrationEntry> getEntries() {
+   public RangeMap<Instant, CalibrationEntry> getEntries() {
       return calibrationEntries;
    }
 
    public CalibrationEntry getEntry(RawFileConfiguration rawFileConfiguration) {
-      return getEntry(rawFileConfiguration.getTimeInMillis());
+      return getEntry(rawFileConfiguration.getInstant());
    }
 
-   public CalibrationEntry getEntry(long timeInMillis) {
-      return calibrationEntries.getOrDefault(timeInMillis, CalibrationEntry.EMPTY);
+   public CalibrationEntry getEntry(Instant time) {
+      return calibrationEntries.getOrDefault(time, CalibrationEntry.EMPTY);
    }
 
-   public void putEntry(long begin, long end, CalibrationEntry entry) {
+   public void putEntry(Instant begin, Instant end, CalibrationEntry entry) {
       calibrationEntries.put(begin, end, entry);
    }
 
    void addXml(Element element) {
       calibrationEntries.forEach(entry -> {
          Element calibrationElement = element.addElement(CalibrationXml.CALIBRATION)
-               .addAttribute(CalibrationXml.BEGIN, entry.range().begin() != Long.MIN_VALUE ? Instant.ofEpochMilli(entry.range().begin()).toString() : null)
-               .addAttribute(CalibrationXml.END, entry.range().end() != Long.MAX_VALUE ? Instant.ofEpochMilli(entry.range().end()).toString() : null);
+               .addAttribute(CalibrationXml.BEGIN, !entry.range().begin().equals(Instant.MIN) ? entry.range().begin().toString() : null)
+               .addAttribute(CalibrationXml.END, !entry.range().end().equals(Instant.MAX) ? entry.range().end().toString() : null);
          entry.value().addXml(calibrationElement);
       });
    }

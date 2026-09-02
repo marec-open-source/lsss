@@ -13,12 +13,12 @@ import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import no.imr.korona.data.track.SegmentInfo;
+import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.math.ArrayMath;
 import no.imr.tools.netcdf.NcTimeDef;
 import no.imr.tools.netcdf.NetcdfDataException;
 import no.imr.tools.netcdf.NetcdfUtils;
-import no.imr.tools.time.NTDate;
 import no.marec.lsss.api.util.GeoPoint;
 import org.jspecify.annotations.Nullable;
 import ucar.ma2.Array;
@@ -33,6 +33,7 @@ import ucar.nc2.Variable;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -83,16 +84,16 @@ final class NetcdfFileData implements Closeable {
          absorptionVar = findVariable(Nc.ABSORPTION);
          receiveDurationEffectiveVar = findVariable(Nc.RECEIVE_DURATION_EFFECTIVE);
 
-         Variable logSvCompressedVar = dataset.getRootGroup().findVariableLocal(Nc.LOG_SV_COMPRESSED);
+         Variable logSvCompressedVar = findOptionalVariable(Nc.LOG_SV_COMPRESSED);
          if (logSvCompressedVar != null) {
             logSvDecompressor = new LogSvDecompressor(logSvCompressedVar);
             svVar = logSvCompressedVar;
          } else {
             logSvDecompressor = null;
-            svVar = NetcdfUtils.findVariable(dataset.getRootGroup(), Nc.SV);
+            svVar = findVariable(Nc.SV);
          }
-         angleAlongshipVar = NetcdfUtils.findOptionalVariable(dataset.getRootGroup(), Nc.ANGLE_ALONGSHIP);
-         angleAthwartshipVar = NetcdfUtils.findOptionalVariable(dataset.getRootGroup(), Nc.ANGLE_ATHWARTSHIP);
+         angleAlongshipVar = findOptionalVariable(Nc.ANGLE_ALONGSHIP);
+         angleAthwartshipVar = findOptionalVariable(Nc.ANGLE_ATHWARTSHIP);
 
          frequencies = NetcdfUtils.readFloatArray(findVariable(Nc.FREQUENCY));
          pulseDurations = NetcdfUtils.readFloatArray(findVariable(Nc.PULSE_LENGTH));
@@ -108,11 +109,7 @@ final class NetcdfFileData implements Closeable {
          sampleDistance = (float) (NetcdfUtils.readDouble(rangeVar, 1) - startRange);
 
       } catch (Exception e) {
-         try {
-            dataset.close();
-         } catch (IOException suppressed) {
-            e.addSuppressed(suppressed);
-         }
+         Utils.closeOrSuppress(e, dataset);
          throw e;
       }
    }
@@ -126,14 +123,18 @@ final class NetcdfFileData implements Closeable {
       return NetcdfUtils.findVariable(dataset.getRootGroup(), variableName);
    }
 
+   private @Nullable Variable findOptionalVariable(String variableName) {
+      return NetcdfUtils.findOptionalVariable(dataset.getRootGroup(), variableName);
+   }
+
    SegmentInfo createSegmentInfo() throws IOException, InvalidRangeException {
       PingRange pingRange = createPingRange();
-      RawFileConfiguration rawFileConfiguration = createRawFileConfiguration(pingRange.begin().getNTDate());
+      RawFileConfiguration rawFileConfiguration = createRawFileConfiguration(pingRange.begin().getInstant());
       return new SegmentInfo(rawFileConfiguration, pingRange);
    }
 
-   RawFileConfiguration createRawFileConfiguration(long ntDate) throws IOException {
-      RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(ntDate);
+   RawFileConfiguration createRawFileConfiguration(Instant instant) throws IOException {
+      RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(instant);
       rawFileConfiguration.setDataFile(file);
 
       String[] channelId = readStringArray(findVariable(Nc.CHANNEL_ID));
@@ -185,7 +186,7 @@ final class NetcdfFileData implements Closeable {
 
       Section firstSection = new Section(new int[]{0}, new int[]{1});
       PingIndex first = new DefaultPingIndex(
-            NTDate.instantToNTDate(pingTimeDef.timeValueToInstant(pingTimeVar.read(firstSection).getLong(0))),
+            pingTimeDef.timeValueToInstant(pingTimeVar.read(firstSection).getLong(0)),
             pingNumberVar.read(firstSection).getLong(0),
             distanceVar.read(firstSection).getDouble(0),
             toGeoPos(longitudeVar.read(firstSection).getDouble(0), latitudeVar.read(firstSection).getDouble(0))
@@ -194,7 +195,7 @@ final class NetcdfFileData implements Closeable {
       int n = pingTimeVar.getShape(0);
       Section lastSection = new Section(new int[]{n - 1}, new int[]{1});
       PingIndex end = new DefaultPingIndex(
-            NTDate.timeInMillisToNTDate(pingTimeDef.timeValueToInstant(pingTimeVar.read(lastSection).getLong(0)).toEpochMilli() + 1),
+            pingTimeDef.timeValueToInstant(pingTimeVar.read(lastSection).getLong(0)).plusMillis(1),
             pingNumberVar.read(lastSection).getLong(0),
             distanceVar.read(lastSection).getDouble(0),
             toGeoPos(longitudeVar.read(lastSection).getDouble(0), latitudeVar.read(lastSection).getDouble(0))
@@ -214,7 +215,7 @@ final class NetcdfFileData implements Closeable {
       return IntStream.range(0, pingTimes.length)
             .<PingIndex>mapToObj(i -> {
                return new DefaultPingIndex(
-                     NTDate.instantToNTDate(pingTimeDef.timeValueToInstant(pingTimes[i])),
+                     pingTimeDef.timeValueToInstant(pingTimes[i]),
                      pingNumbers[i],
                      distances[i],
                      toGeoPos(longitudes[i], latitudes[i])
@@ -228,7 +229,13 @@ final class NetcdfFileData implements Closeable {
    }
 
    List<Bot0Datagram> createBot0Datagrams(List<PingIndex> pingIndices) throws IOException {
-      ArrayFloat.D2 bottomDepthArray = (ArrayFloat.D2) findVariable(Nc.BOTTOM_DEPTH).read();
+      Variable bottomDepthVariable = findOptionalVariable(Nc.BOTTOM_DEPTH);
+      if (bottomDepthVariable == null) {
+         return pingIndices.stream()
+               .map(pingIndex -> new Bot0Datagram(pingIndex.getInstant(), frequencies.length))
+               .toList();
+      }
+      ArrayFloat.D2 bottomDepthArray = (ArrayFloat.D2) bottomDepthVariable.read();
       return IntStream.range(0, pingIndices.size())
             .mapToObj(i -> {
                double[] bot0Depths = new double[frequencies.length];
@@ -236,7 +243,7 @@ final class NetcdfFileData implements Closeable {
                   int ncChannelIndex = koronaToNcChannelIndex[koronaChannelIndex];
                   bot0Depths[koronaChannelIndex] = bottomDepthArray.get(ncChannelIndex, i);
                }
-               return new Bot0Datagram(pingIndices.get(i).getNTDate(), bot0Depths);
+               return new Bot0Datagram(pingIndices.get(i).getInstant(), bot0Depths);
             })
             .toList();
    }
@@ -297,7 +304,7 @@ final class NetcdfFileData implements Closeable {
             }
             ArrayMath.multiply(sv, PowerData.IMR_CONSTANT);
          }
-         PowerData powerData = new PowerData(pingIndex.getNTDate());
+         PowerData powerData = new PowerData(pingIndex.getInstant());
          powerData.setChannel(koronaChannelIndex + 1);
          powerData.setTransducerDepth(transducerDepth);
          powerData.setFrequency(frequencies[ncChannelIndex]);

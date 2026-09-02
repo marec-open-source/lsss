@@ -16,6 +16,8 @@ import no.imr.lsss.database.tables.hibernate.PlatformPK;
 import no.imr.lsss.database.tables.hibernate.StandardComment;
 import no.imr.tools.database.DatabaseColumn;
 import no.imr.tools.database.DatabaseConnection;
+import no.imr.tools.database.DatabaseUtils;
+import no.imr.tools.database.TableWithOnlyPrimaryKeyColumns;
 import no.imr.tools.database.hibernate.BaseCompDatabaseObject;
 import no.imr.tools.database.queries.QueryBuilder;
 import no.imr.tools.database.queries.StatelessDatabaseQuery;
@@ -132,18 +134,36 @@ public final class DatabaseData {
       for (T entry : defaultEntries) {
          entry.getCompId().setNation(nation);
       }
-      databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.upsert(defaultEntries));
+      if (clazz.getAnnotation(TableWithOnlyPrimaryKeyColumns.class) != null) {
+         DatabaseUtils.updateOrInsert(databaseConnection, defaultEntries, LsssQuery.fetch(clazz, NATION, nation));
+      } else {
+         databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.upsert(defaultEntries));
+      }
       return defaultEntries;
    }
 
    private static <T extends BaseCompDatabaseObject<? extends BasePlatformPK>> List<T> copyFromDefaultPlatform(DatabaseConnection databaseConnection, Class<T> clazz, PlatformPK platformPK) {
       List<T> defaultEntries = databaseConnection.executeFetchQuery(
-            LsssQuery.forPlatform(QueryBuilder.fetch(clazz), (short) 0, (short) 0).build());
+            LsssQuery.forPlatform(QueryBuilder.fetch(clazz), platformPK.getNation(), (short) 0).build());
+
+      if (defaultEntries.isEmpty()) {
+         defaultEntries = databaseConnection.executeFetchQuery(
+               LsssQuery.forPlatform(QueryBuilder.fetch(clazz), (short) 0, (short) 0).build());
+         for (T entry : defaultEntries) {
+            entry.getCompId().setNation(platformPK.getNation());
+         }
+         databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.insert(defaultEntries));
+      }
+
       for (T entry : defaultEntries) {
-         entry.getCompId().setNation(platformPK.getNation());
          entry.getCompId().setPlatform(platformPK.getPlatform());
       }
-      databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.upsert(defaultEntries));
+      if (clazz.getAnnotation(TableWithOnlyPrimaryKeyColumns.class) != null) {
+         DatabaseUtils.updateOrInsert(databaseConnection, defaultEntries,
+               LsssQuery.forPlatform(QueryBuilder.fetch(clazz), platformPK).build());
+      } else {
+         databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.upsert(defaultEntries));
+      }
       return defaultEntries;
    }
 
@@ -228,7 +248,7 @@ public final class DatabaseData {
 
       public @Nullable StandardComment getFreeTextStandardComment() {
          for (StandardComment standardComment : all) {
-            if (standardComment.getCompId().getStandardComment() == 0) {
+            if (standardComment.getCompId().getStandardComment() == StandardComment.FREE_TEXT_STANDARD_COMMENT) {
                return standardComment;
             }
          }

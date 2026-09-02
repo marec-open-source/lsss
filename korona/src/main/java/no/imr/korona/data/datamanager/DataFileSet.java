@@ -14,7 +14,7 @@ import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.ping.WrapAround;
 import no.imr.korona.data.track.SegmentHandle;
 import no.imr.korona.data.util.DataUtils;
-import no.imr.tools.Pair;
+import no.imr.tools.Min;
 import no.imr.tools.ProgressHandler;
 import no.imr.tools.ShouldNotHappenException;
 import no.imr.tools.Utils;
@@ -30,10 +30,12 @@ import no.imr.tools.range.FloatRangeBuilder;
 import no.imr.tools.range.Range;
 import no.imr.tools.range.RangeMap;
 import no.imr.tools.range.RangeSet;
-import no.imr.tools.time.NTDate;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +56,7 @@ public final class DataFileSet implements PingContainer {
    private final Executor pingLoaderExecutor = new SerialExecutor(Exec.CACHED_THREAD_POOL);
    private final List<DataFile> dataFiles;
    private final RangeSet<PingIndex> missingPings = new ArrayRangeSet<>();
-   private final RangeMap<Long, Double> wrapAroundRangeMap = new ArrayRangeMap<>();
+   private final RangeMap<Instant, Double> wrapAroundRangeMap = new ArrayRangeMap<>();
    private final PingConfiguration pingConfiguration;
    private final PingRange totalPingRange;
    private final List<PingIndex> pingIndices;
@@ -170,15 +172,20 @@ public final class DataFileSet implements PingContainer {
 
    private void addWrapAround(@Nullable WrapAround wrapAround) {
       if (wrapAround != null) {
-         long key = wrapAround.pingIndex().getNTDate();
-         double value = wrapAroundRangeMap.getOrDefault(key, 0.0) + wrapAround.vesselDistance();
-         wrapAroundRangeMap.put(key, Long.MAX_VALUE, value);
+         Instant key = wrapAround.pingIndex().getInstant();
+         double value = getWrapAround(key) + wrapAround.vesselDistance();
+         wrapAroundRangeMap.put(key, Instant.MAX, value);
       }
    }
 
    public double getVesselDistanceUncorrectedForWrapAround(PingIndex pingIndex) {
-      double wrapAroundCorrection = wrapAroundRangeMap.getOrDefault(pingIndex.getNTDate(), 0.0);
+      double wrapAroundCorrection = getWrapAround(pingIndex.getInstant());
       return pingIndex.getVesselDistance() - wrapAroundCorrection;
+   }
+
+   private double getWrapAround(Instant key) {
+      Double nullableValue = wrapAroundRangeMap.get(key);
+      return nullableValue != null ? nullableValue : 0.0;
    }
 
    private void openFiles(FileOpenRequest fileOpenRequest) {
@@ -249,6 +256,7 @@ public final class DataFileSet implements PingContainer {
             String incompatibility = dataFile.getPingConfiguration().getIncompatibility(previousDataFile.getPingConfiguration());
             if (incompatibility != null) {
                fileOpenRequest.getObserver().handleIncompatibleDataFile(dataFile.getSegmentHandle(), incompatibility);
+               dataFile.close();
                return null;
             }
          }
@@ -256,10 +264,11 @@ public final class DataFileSet implements PingContainer {
          PingIndex firstInNext = dataFile.getPingIndices().getFirst();
          PingIndex lastInPrevious = previousDataFile.getPingIndices().getLast();
 
-         long ntDateDiff = firstInNext.getNTDate() - lastInPrevious.getNTDate();
-         if (ntDateDiff <= 0) {
+         long nanosDiff = lastInPrevious.getInstant().until(firstInNext.getInstant(), ChronoUnit.NANOS);
+         if (nanosDiff <= 0) {
             fileOpenRequest.getObserver().handleIncompatibleDataFile(dataFile.getSegmentHandle(),
-                  "Incorrect time ordering by " + Utils.format("%.3g", -ntDateDiff / (double) NTDate.UNITS_PER_SECOND) + " seconds");
+                  "Incorrect time ordering by " + Utils.format("%.3g", -nanosDiff / 1e9) + " seconds");
+            dataFile.close();
             return null;
          }
 
@@ -268,7 +277,7 @@ public final class DataFileSet implements PingContainer {
             addWrapAround(new WrapAround(dataFile.getPingRange().begin(), WrapAround.roundToPowerOfTen(previousFileUncorrectedVesselDistance)));
          }
 
-         Double wrapAroundCorrection = wrapAroundRangeMap.get(firstInNext.getNTDate());
+         Double wrapAroundCorrection = wrapAroundRangeMap.get(firstInNext.getInstant());
          if (wrapAroundCorrection != null) {
             dataFile.shiftVesselDistance(wrapAroundCorrection, false);
          }
@@ -289,9 +298,9 @@ public final class DataFileSet implements PingContainer {
             List<? extends PingIndex> previousPingIndices = previousDataFile.getPingIndices();
             if (previousPingIndices.size() > 1) {
                // Interpolate from extrapolated time.
-               long deltaNTDate = lastInPrevious.getNTDate() - previousPingIndices.get(previousPingIndices.size() - 2).getNTDate();
-               long targetNTDate = Math.min(lastInPrevious.getNTDate() + deltaNTDate, firstInNext.getNTDate() - 1);
-               f = (double) (targetNTDate - lastInPrevious.getNTDate()) / (double) (firstInNext.getNTDate() - lastInPrevious.getNTDate());
+               long deltaNanos = previousPingIndices.get(previousPingIndices.size() - 2).getInstant().until(lastInPrevious.getInstant(), ChronoUnit.NANOS);
+               Instant targetInstant = Min.of(lastInPrevious.getInstant().plusNanos(deltaNanos), firstInNext.getInstant().minusNanos(100));
+               f = TimeUtils.toSeconds(lastInPrevious.getInstant(), targetInstant) / TimeUtils.toSeconds(lastInPrevious.getInstant(), firstInNext.getInstant());
             } else {
                // Interpolate from ping number.
                f = 1 / (double) (firstInNext.getPingNumber() - lastInPrevious.getPingNumber());
@@ -429,7 +438,7 @@ public final class DataFileSet implements PingContainer {
       if (pingIndex.equals(totalPingRange.end())) {
          PingIndex previousPingIndex = previousOrNull(pingIndex);
          if (previousPingIndex == null) {
-            return new Bot0Datagram(0, 0);
+            return new Bot0Datagram(Instant.EPOCH, 0);
          }
          return getBot0Datagram(previousPingIndex);
       }
@@ -472,16 +481,7 @@ public final class DataFileSet implements PingContainer {
 
    @Override
    public PingIndex getClosestPingIndex(double value, PingMapping pingMapping) {
-      if (pingIndices.isEmpty()) {
-         return totalPingRange.end();
-      }
-      PingIndex closest = DataUtils.getClosestPingIndex(pingIndices, value, pingMapping);
-      PingIndex end = totalPingRange.end();
-      if (closest.getPingNumber() == end.getPingNumber() - 1
-            && Math.abs(value - pingMapping.valueOf(end)) < Math.abs(value - pingMapping.valueOf(closest))) {
-         return end;
-      }
-      return closest;
+      return DataUtils.getClosestPingIndex(pingIndices, totalPingRange.end(), value, pingMapping);
    }
 
    @Override
@@ -502,7 +502,7 @@ public final class DataFileSet implements PingContainer {
                if (dataFile != null) {
                   Ping ping = dataFile.getPing(pingIndex);
                   PingData pingData = ping.getPingData();
-                  pingLoaded(new Pair<>(ping, pingData));
+                  pingLoaded(new LoadedPing(ping, pingData));
                }
             }));
             if (futures.size() >= n) {
@@ -529,8 +529,8 @@ public final class DataFileSet implements PingContainer {
       dataFiles.forEach(DataFile::discardLoadedData);
    }
 
-   void pingLoaded(Pair<Ping, PingData> pingAndData) {
-      dataManagers.forEach(dataManager -> dataManager.pingLoaded(pingAndData));
+   void pingLoaded(LoadedPing loadedPing) {
+      dataManagers.forEach(dataManager -> dataManager.pingLoaded(loadedPing));
    }
 
    public enum Compatibility {

@@ -1,6 +1,7 @@
 package no.imr.tools;
 
 import no.imr.tools.listening.Listener;
+import no.imr.tools.math.MathUtils;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -16,7 +17,7 @@ public interface ProgressHandler {
    }
 
    default ProgressHandler subHandlerForRange(double min, double max) {
-      return fraction -> setProgress(min + fraction * (max - min));
+      return fraction -> setProgress(MathUtils.interpolate(min, max, fraction));
    }
 
    default Listener asCountingListener(long totalCount) {

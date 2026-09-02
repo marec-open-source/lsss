@@ -3,6 +3,7 @@ package no.imr.tools.parameter.gui;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.Configurable;
 import no.imr.tools.parameter.ParameterCollection;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.VerticalScrollablePanel;
 
@@ -14,14 +15,14 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public final class ConfigurableGUI {
-   private Consumer<ParameterEditor> parameterEditorAdaptor = _ -> {
+   private Consumer<GUIConfig> parameterGUIConfigAdaptor = _ -> {
    };
 
    public ConfigurableGUI() {
    }
 
-   public ConfigurableGUI setParameterEditorAdaptor(Consumer<ParameterEditor> parameterEditorAdaptor) {
-      this.parameterEditorAdaptor = parameterEditorAdaptor;
+   public ConfigurableGUI setParameterGUIConfigAdaptor(Consumer<GUIConfig> parameterGUIConfigAdaptor) {
+      this.parameterGUIConfigAdaptor = parameterGUIConfigAdaptor;
       return this;
    }
 
@@ -68,8 +69,9 @@ public final class ConfigurableGUI {
    }
 
    private JComponent createParameterGUI(List<? extends BaseParameter<?>> parameters) {
-      ParameterEditor parameterEditor = new ParameterEditor(parameters);
-      parameterEditorAdaptor.accept(parameterEditor);
+      GUIConfig guiConfig = new GUIConfig();
+      parameterGUIConfigAdaptor.accept(guiConfig);
+      ParameterEditor parameterEditor = new ParameterEditor(parameters, guiConfig);
       return parameterEditor.getEditorComponent();
    }
 

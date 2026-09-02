@@ -414,20 +414,18 @@ public final class TSModule extends BaseViewModule implements BaseTsModule, Pojo
             graphs.add(graph);
 
             int[] countForChannel = selectedRegionsData[channelIndex];
-            float maxNumber = 0;
             for (int i = 0; i < histogramBinCount; i++) {
                graph.addPoint(histogramRange.min() + i * deltaTS.getFloatValue(), countForChannel[i]);
                if (getInterpretationSettings().getChannel() == channel) {
                   graph.addPoint(histogramRange.min() + (i + 1) * deltaTS.getFloatValue(), countForChannel[i]);
                }
-               if (maxNumber < countForChannel[i]) {
-                  maxNumber = countForChannel[i];
+               if (highestColumn < countForChannel[i]) {
+                  highestColumn = countForChannel[i];
                }
                if (getInterpretationSettings().getChannel() == channel) {
                   numberOfDetectionsForCurrentChannel += countForChannel[i];
                }
             }
-            highestColumn = (int) Math.max(highestColumn, maxNumber);
          }
       }
       plotGraphs(graphs, highestColumn, numberOfDetectionsForCurrentChannel);

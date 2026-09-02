@@ -35,7 +35,7 @@ public final class EmptyPingRemovalModule extends GeneralPingModule {
             if (ping == null) {
                return null;
             }
-            if (ping.getNonNullChannelData() != null) {
+            if (ping.getFirstAvailableChannelData() != null) {
                Ping fixedPing = fixPingNumber(ping);
                nextPingNumber = fixedPing.getPingNumber() + 1;
                return fixedPing;

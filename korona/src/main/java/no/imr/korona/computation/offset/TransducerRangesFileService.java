@@ -1,8 +1,8 @@
 package no.imr.korona.computation.offset;
 
-import no.imr.korona.config.ConfigFileParameterEditor;
 import no.imr.korona.config.ConfigFileSettings;
 import no.imr.korona.config.KoronaConfigFileService;
+import no.imr.tools.parameter.FileParameter;
 import no.imr.tools.parameter.Name;
 
 import java.nio.file.Path;
@@ -25,7 +25,7 @@ public final class TransducerRangesFileService extends KoronaConfigFileService {
    }
 
    @Override
-   protected ConfigFileParameterEditor createFileParameterEditor(ConfigFileSettings configFileSettings) {
+   protected FileParameter.Editor createFileParameterEditor(ConfigFileSettings configFileSettings) {
       return new TransducerFileParameterEditor(this, configFileSettings, TransducerParameters.ParameterType.RANGE);
    }
 

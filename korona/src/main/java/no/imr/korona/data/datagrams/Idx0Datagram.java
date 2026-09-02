@@ -20,8 +20,8 @@ public final class Idx0Datagram extends DatagramPingItem implements PingIndex {
    private @Nullable GeoPoint geographicalPosition;
    private long fileOffset;
 
-   public Idx0Datagram(long ntDate, long pingNumber, double vesselDistance, @Nullable GeoPoint geographicalPosition, long fileOffset) {
-      super(ntDate);
+   public Idx0Datagram(Instant instant, long pingNumber, double vesselDistance, @Nullable GeoPoint geographicalPosition, long fileOffset) {
+      super(instant);
 
       this.pingNumber = pingNumber;
       this.vesselDistance = vesselDistance;
@@ -30,7 +30,7 @@ public final class Idx0Datagram extends DatagramPingItem implements PingIndex {
    }
 
    public Idx0Datagram(PingIndex pingIndex, long fileOffset) {
-      this(pingIndex.getNTDate(), pingIndex.getPingNumber(), pingIndex.getVesselDistance(),
+      this(pingIndex.getInstant(), pingIndex.getPingNumber(), pingIndex.getVesselDistance(),
             pingIndex.getGeographicalPosition(), fileOffset);
    }
 
@@ -38,14 +38,14 @@ public final class Idx0Datagram extends DatagramPingItem implements PingIndex {
       this(idx0Datagram, idx0Datagram.getFileOffset());
    }
 
-   public Idx0Datagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate);
+   public Idx0Datagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant);
 
       pingNumber = 0xffffffffL & byteBuffer.getInt(); // NB: ping number is stored as unsigned int on file
       vesselDistance = byteBuffer.getDouble();
       double latitude = byteBuffer.getDouble();  // 0.0 = no value
       double longitude = byteBuffer.getDouble(); // 0.0 = no value
-      if (latitude != 0 && longitude != 0) {
+      if (latitude != 0 || longitude != 0) {
          geographicalPosition = new GeoPoint(longitude, latitude);
       }
       fileOffset = byteBuffer.getLong();
@@ -61,7 +61,7 @@ public final class Idx0Datagram extends DatagramPingItem implements PingIndex {
    }
 
    public void copyFrom(Idx0Datagram idx0Datagram) {
-      setNTDate(idx0Datagram.getNTDate());
+      setInstant(idx0Datagram.getInstant());
       pingNumber = idx0Datagram.pingNumber;
       vesselDistance = idx0Datagram.vesselDistance;
       geographicalPosition = idx0Datagram.geographicalPosition;
@@ -101,18 +101,6 @@ public final class Idx0Datagram extends DatagramPingItem implements PingIndex {
    @Override
    public void setGeographicalPosition(@Nullable GeoPoint geographicalPosition) {
       this.geographicalPosition = geographicalPosition;
-   }
-
-   @Override
-   public long getTimeInMillis() {
-      // Needed since inheriting default implementations from two interfaces
-      return super.getTimeInMillis();
-   }
-
-   @Override
-   public Instant getInstant() {
-      // Needed since inheriting default implementations from two interfaces
-      return super.getInstant();
    }
 
    /**

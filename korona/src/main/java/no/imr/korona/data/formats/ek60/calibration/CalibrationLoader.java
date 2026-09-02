@@ -15,21 +15,21 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 final class CalibrationLoader {
    private static final LoadingCache<Path, CalibrationFile> DIR_TO_CALIBRATION_FILE = CacheBuilder.newBuilder()
-         .expireAfterAccess(5, TimeUnit.MINUTES)
+         .expireAfterAccess(Duration.ofMinutes(5))
          .build(CacheLoader.from(dir -> {
             Path file = dir.resolve(CalibrationFile.FILE_NAME);
             try {
                return loadCalibration(file);
             } catch (Exception e) {
                Log.global.log(Level.WARNING, "Error reading calibration file " + file, e);
-               return new CalibrationFile(file, FileUtils.lastModifiedOr0(file), e);
+               return new CalibrationFile(file, FileUtils.lastModifiedOrNull(file), e);
             }
          }));
 
@@ -55,7 +55,7 @@ final class CalibrationLoader {
       Element rootElement = document.getRootElement();
 
       Path ek80File;
-      long ek80LastModified;
+      Instant ek80LastModified;
       CalibrationContent calibrationContent;
 
       String refEK80 = rootElement.attributeValue(CalibrationXml.REF_EK80);
@@ -66,7 +66,7 @@ final class CalibrationLoader {
          calibrationContent = new CalibrationContent(defaultCalibrationType, ImmutableMap.of());
       } else {
          ek80File = null;
-         ek80LastModified = 0;
+         ek80LastModified = null;
          calibrationContent = parseCalibrationContent(rootElement);
       }
 
@@ -108,17 +108,17 @@ final class CalibrationLoader {
             .map(ChannelCalibration::new)
             .toList();
 
-      long begin = parseOptionalDate(beginAttribute, Long.MIN_VALUE);
-      long end = parseOptionalDate(endAttribute, Long.MAX_VALUE);
+      Instant begin = parseOptionalDate(beginAttribute, Instant.MIN);
+      Instant end = parseOptionalDate(endAttribute, Instant.MAX);
 
       calibrationType.putEntry(begin, end, new CalibrationEntry(defaultChannelCalibration, channelCalibrations));
    }
 
-   private static long parseOptionalDate(@Nullable String value, long defaultValue) {
+   private static Instant parseOptionalDate(@Nullable String value, Instant defaultValue) {
       if (value == null || value.isBlank()) {
          return defaultValue;
       }
-      return Instant.parse(value).toEpochMilli();
+      return Instant.parse(value);
    }
 
    private static CalibrationType loadEK80Calibration(Path file) throws IOException {
@@ -141,7 +141,7 @@ final class CalibrationLoader {
          ChannelCalibration channelCalibration = Xml0DatagramFactory.createChannelCalibration(transducerElement, nameAndSerialNumber);
          builder.put(nameAndSerialNumber, channelCalibration);
       });
-      calibrationType.putEntry(Long.MIN_VALUE, Long.MAX_VALUE, new CalibrationEntry(ChannelCalibration.EMPTY, ImmutableMap.of(), ImmutableMap.of(), builder.build()));
+      calibrationType.putEntry(Instant.MIN, Instant.MAX, new CalibrationEntry(ChannelCalibration.EMPTY, ImmutableMap.of(), ImmutableMap.of(), builder.build()));
       return calibrationType;
    }
 }

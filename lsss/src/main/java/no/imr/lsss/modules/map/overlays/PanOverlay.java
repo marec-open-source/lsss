@@ -73,15 +73,7 @@ public final class PanOverlay extends BaseMapOverlay {
       getMapModule().setGeoCenter(new GeoPoint(x, y));
    }
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final int width;
-      private final int height;
-
-      private DisplayData(int width, int height) {
-         this.width = width;
-         this.height = height;
-      }
-
+   private record DisplayData(int width, int height) implements OverlayDisplayData {
       @Override
       public boolean intersects(Rectangle2D rectangle) {
          double x = rectangle.getCenterX();

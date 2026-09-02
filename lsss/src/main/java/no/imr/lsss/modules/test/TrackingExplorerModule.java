@@ -91,8 +91,8 @@ public final class TrackingExplorerModule extends BaseViewModule {
       Graph alongRangeGraph = createGraph(Color.BLACK);
       Graph athwartRangeGraph = createGraph(Color.BLACK);
       Graph alongAthwartGraph = createGraph(Color.BLACK);
-      FloatRangeBuilder alongRange = new FloatRangeBuilder();
-      FloatRangeBuilder athwartRange = new FloatRangeBuilder();
+      FloatRangeBuilder alongRangeRad = new FloatRangeBuilder();
+      FloatRangeBuilder athwartRangeRad = new FloatRangeBuilder();
       FloatRangeBuilder rangeRange = new FloatRangeBuilder();
 
       int n = 0;
@@ -130,13 +130,13 @@ public final class TrackingExplorerModule extends BaseViewModule {
                   Vec3 p = pingPositionFunction.toGlobalPosition(new Measurement(powerData, i, 0));
                   Measurement m = referencePositionFunction.toMeasurement(new StateVector(p, Vec3.ZERO, 0));
 
-                  alongRangeGraph.addPoint(Math.toDegrees(m.alongshipAngle()), m.range());
-                  athwartRangeGraph.addPoint(Math.toDegrees(m.athwartshipAngle()), m.range());
-                  alongAthwartGraph.addPoint(Math.toDegrees(m.alongshipAngle()), Math.toDegrees(m.athwartshipAngle()));
+                  alongRangeGraph.addPoint(Math.toDegrees(m.alongshipAngleRad()), m.range());
+                  athwartRangeGraph.addPoint(Math.toDegrees(m.athwartshipAngleRad()), m.range());
+                  alongAthwartGraph.addPoint(Math.toDegrees(m.alongshipAngleRad()), Math.toDegrees(m.athwartshipAngleRad()));
 
                   rangeRange.expand(m.range());
-                  alongRange.expand(m.alongshipAngle());
-                  athwartRange.expand(m.athwartshipAngle());
+                  alongRangeRad.expand(m.alongshipAngleRad());
+                  athwartRangeRad.expand(m.athwartshipAngleRad());
                }
             }
          }
@@ -147,7 +147,7 @@ public final class TrackingExplorerModule extends BaseViewModule {
       }
       return new DisplayData(alongRangeGraph, athwartRangeGraph, alongAthwartGraph,
             pingPositionFunction, referencePositionFunction,
-            rangeRange.toFloatRange(), alongRange.toFloatRange(), athwartRange.toFloatRange());
+            rangeRange.toFloatRange(), alongRangeRad.toFloatRange(), athwartRangeRad.toFloatRange());
    }
 
    private static Graph createGraph(Color color) {
@@ -181,8 +181,8 @@ public final class TrackingExplorerModule extends BaseViewModule {
          PositionFunction positionFunction,
          PositionFunction referencePositionFunction,
          FloatRange rangeRange,
-         FloatRange alongRange,
-         FloatRange athwartRange
+         FloatRange alongRangeRad,
+         FloatRange athwartRangeRad
    ) {
       private void addToPanel(JPanel panel, @Nullable Measurement mouseMeasurement) {
          List<Graph> alongRangeGraphs = new ArrayList<>();
@@ -191,11 +191,11 @@ public final class TrackingExplorerModule extends BaseViewModule {
 
          if (mouseMeasurement != null
                && rangeRange.contains(mouseMeasurement.range())
-               && alongRange.contains(mouseMeasurement.alongshipAngle())
-               && athwartRange.contains(mouseMeasurement.athwartshipAngle())) {
-            addMouseGraph(alongRangeGraphs, Math.toDegrees(mouseMeasurement.alongshipAngle()), mouseMeasurement.range());
-            addMouseGraph(athwartRangeGraphs, Math.toDegrees(mouseMeasurement.athwartshipAngle()), mouseMeasurement.range());
-            addMouseGraph(alongAthwartGraphs, Math.toDegrees(mouseMeasurement.alongshipAngle()), Math.toDegrees(mouseMeasurement.athwartshipAngle()));
+               && alongRangeRad.contains(mouseMeasurement.alongshipAngleRad())
+               && athwartRangeRad.contains(mouseMeasurement.athwartshipAngleRad())) {
+            addMouseGraph(alongRangeGraphs, Math.toDegrees(mouseMeasurement.alongshipAngleRad()), mouseMeasurement.range());
+            addMouseGraph(athwartRangeGraphs, Math.toDegrees(mouseMeasurement.athwartshipAngleRad()), mouseMeasurement.range());
+            addMouseGraph(alongAthwartGraphs, Math.toDegrees(mouseMeasurement.alongshipAngleRad()), Math.toDegrees(mouseMeasurement.athwartshipAngleRad()));
          }
          alongRangeGraphs.add(alongRangeGraph);
          athwartRangeGraphs.add(athwartRangeGraph);

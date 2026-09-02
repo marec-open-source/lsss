@@ -1,7 +1,7 @@
 package no.imr.korona.data;
 
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
 
 /**
  * Class for getting channel number for a raw data channel based on frequency.
@@ -23,6 +23,6 @@ public final class FrequencyChannelSelector implements ChannelSelector {
    }
 
    public int getKHz() {
-      return Utils.hzToKHz(frequency);
+      return KoronaUtils.hzToKHz(frequency);
    }
 }

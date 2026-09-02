@@ -6,15 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class ES60CorrectionModuleTest {
    @Test
-   void testMeanHistogram() {
-      ES60CorrectionModule.ES60CorrectionModuleJob.MeanHistogram meanHist = new ES60CorrectionModule.ES60CorrectionModuleJob.MeanHistogram();
-      for (int i = 0; i < 100; i++) {
-         meanHist.updateHist(i, 20f);
-      }
-      assertEquals(20f, meanHist.getAverage());
-   }
-
-   @Test
    void testDeviationHistogram() {
       int waveNo = 1265;
       ES60CorrectionModule.ES60CorrectionModuleJob.DeviationHistogram devHist = new ES60CorrectionModule.ES60CorrectionModuleJob.DeviationHistogram(waveNo);

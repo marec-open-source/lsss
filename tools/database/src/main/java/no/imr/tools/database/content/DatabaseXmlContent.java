@@ -2,7 +2,9 @@ package no.imr.tools.database.content;
 
 import no.imr.tools.database.DatabaseConnection;
 import no.imr.tools.database.DatabaseUtils;
+import no.imr.tools.database.TableWithOnlyPrimaryKeyColumns;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
+import no.imr.tools.database.queries.QueryBuilder;
 import no.imr.tools.database.queries.StatelessDatabaseQuery;
 import no.imr.tools.io.FilePredicates;
 import no.imr.tools.io.FileUtils;
@@ -50,11 +52,15 @@ public final class DatabaseXmlContent {
    }
 
    public void save(DatabaseConnection connection) {
-      content.forEach((c, list) -> {
+      content.forEach((clazz, list) -> {
          if (list.isEmpty()) {
             return;
          }
-         connection.executeStatelessQuery(StatelessDatabaseQuery.upsert(list));
+         if (clazz.getAnnotation(TableWithOnlyPrimaryKeyColumns.class) != null) {
+            DatabaseUtils.updateOrInsert(connection, list, QueryBuilder.fetch(clazz).build());
+         } else {
+            connection.executeStatelessQuery(StatelessDatabaseQuery.upsert(list));
+         }
       });
    }
 }

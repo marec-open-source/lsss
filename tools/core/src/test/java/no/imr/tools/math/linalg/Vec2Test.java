@@ -26,6 +26,11 @@ final class Vec2Test {
    }
 
    @Test
+   void cross() {
+      assertEquals(-2, new Vec2(1, 2).cross(new Vec2(3, 4)));
+   }
+
+   @Test
    void times() {
       assertEquals(new Vec2(10, 15), new Vec2(2, 3).times(5));
       assertEquals(new Vec2(10, 18), new Vec2(2, 3).times(5, 6));

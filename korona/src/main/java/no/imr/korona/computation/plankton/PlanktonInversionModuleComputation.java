@@ -20,6 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -73,7 +74,7 @@ final class PlanktonInversionModuleComputation extends GeneralPingModuleComputat
 
       updateExcludedCategories();
 
-      Pic0Datagram pic0Datagram = createPic0Datagram(newPingConfiguration.getRawFileConfiguration().getNTDate());
+      Pic0Datagram pic0Datagram = createPic0Datagram(newPingConfiguration.getRawFileConfiguration().getInstant());
       newPingConfiguration.getConfigurationItems().add(pic0Datagram);
       setNewPingConfiguration(newPingConfiguration);
    }
@@ -131,8 +132,8 @@ final class PlanktonInversionModuleComputation extends GeneralPingModuleComputat
       return new SingleModelInverter(inversionParameters, frequencies, module.getSelectedScatterers());
    }
 
-   private Pic0Datagram createPic0Datagram(long ntDate) {
-      Pic0Datagram pic0 = new Pic0Datagram(ntDate);
+   private Pic0Datagram createPic0Datagram(Instant instant) {
+      Pic0Datagram pic0 = new Pic0Datagram(instant);
 
       for (PlanktonScatterer<?> planktonScatterer : module.getSelectedScatterers()) {
          pic0.addCategory(planktonScatterer.getPlanktonCategory());
@@ -171,7 +172,7 @@ final class PlanktonInversionModuleComputation extends GeneralPingModuleComputat
 
    private @Nullable PowerData getReferenceDatagram(Ping ping) {
       PowerData powerData = ping.getPowerData(mainChannel);
-      return powerData != null ? powerData : ping.getNonNullPowerData();
+      return powerData != null ? powerData : ping.getFirstAvailablePowerData();
    }
 
    private int getDepthSamplesPerBin(PowerData referencePowerData) {
@@ -215,14 +216,14 @@ final class PlanktonInversionModuleComputation extends GeneralPingModuleComputat
          if (referenceDatagram == null) {
             continue;
          }
-         Pid0Datagram pid0 = new Pid0Datagram(referenceDatagram, ping.getNTDate());
+         Pid0Datagram pid0 = new Pid0Datagram(referenceDatagram, ping.getInstant());
          pid0List.add(pid0);
          ping.add(pid0);
       }
 
       // Update initial size map for this time
       for (PlanktonScatterer<? extends BackscatterModel> planktonScatterer : module.getSelectedScatterers()) {
-         planktonScatterer.setInitialSizeHistogramMap(planktonFile.getDepthMap(planktonScatterer.getPlanktonCategory().getLegend(), subSampler.getCenterMillis()));
+         planktonScatterer.setInitialSizeHistogramMap(planktonFile.getDepthMap(planktonScatterer.getPlanktonCategory().getLegend(), subSampler.getCenterTime()));
       }
 
       // todo: Optimize: The rest of this function could be parallelized.

@@ -5,7 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import no.imr.korona.data.ping.items.channel.ChannelData;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 /**
  * Cached TVG.
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public final class TvgCache {
    private static final LoadingCache<TVG.Parameters, TVG> CACHE = CacheBuilder.newBuilder()
          .maximumSize(100)
-         .expireAfterAccess(10, TimeUnit.MINUTES)
+         .expireAfterAccess(Duration.ofMinutes(10))
          .build(CacheLoader.from(TVG::new));
 
    private TvgCache() {

@@ -196,6 +196,9 @@ final class FishTarget {
             }
          }
          case SaSpecies.SaFish saFish -> {
+            if (lengthSampleNo == 0) {
+               yield 0;
+            }
             double sigma = 0;
             for (FishIndividual individual : individuals) {
                float length = individual.lengthCm();

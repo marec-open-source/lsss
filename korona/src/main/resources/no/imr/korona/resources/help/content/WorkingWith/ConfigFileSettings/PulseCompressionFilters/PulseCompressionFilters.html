@@ -7,7 +7,7 @@
    The order of the filter elements defines the sequence the respective filters are applied in.
 </p>
 <p>
-   Each filter element consists, in turn of the following elements
+   Each filter element consists of the following elements:
 </p>
 <ul>
    <li><strong>decimationFactor</strong>: integer defining the downsampling factor to be applied after filtering,</li>
@@ -20,15 +20,15 @@
    Such a symbolic reference is defined by the presence of a refStage attribute in the filter element. Any decimation factor, and/or re will be ignored in this case.
 </p>
 <p>
-   The following conditions can be specified in the appliesTo tag, in all possible combinations
+   The following conditions can be specified in the appliesTo tag, in all possible combinations:
 </p>
 <ul>
-   <li><strong>pulseForm</strong>: filter is only applied if sent pulse is of specified form. Valid values are "fm_linear_up_sweep" and, "fm_linear_up_sweep".
+   <li><strong>pulseForm</strong>: filter is only applied if sent pulse is of specified form. Valid values are "fm_linear_up_sweep" and "fm_linear_down_sweep".
       Simrad encoding of the pulse forms as integers 1 and 5 might also be used,
    </li>
    <li><strong>pulseDuration</strong>: filter is only applied if sent pulse is of specified duration (in seconds),</li>
-   <li><strong>minSlope</strong>: filter is only applied if the sent pulse has a slope that is greater or equal to the here defined slope, and</li>
-   <li><strong>maxSlope</strong>: filter is only applied if the sent pulse has a slope that is less the here defined slope.</li>
+   <li><strong>minSlope</strong>: filter is only applied if the sent pulse has a slope that is greater than or equal to the here defined slope, and</li>
+   <li><strong>maxSlope</strong>: filter is only applied if the sent pulse has a slope that is less than the here defined slope.</li>
 </ul>
 
 <h2 id="Example">Example XML file</h2>

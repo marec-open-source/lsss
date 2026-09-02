@@ -48,7 +48,8 @@ final class BoundedLineStripBuilderTest {
                   List.of(
                         new Vec2(15, 100),
                         new Vec2(15, 0)
-                  )),
+                  )
+            ),
             listBuilder.getList());
    }
 }

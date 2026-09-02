@@ -7,10 +7,11 @@ import no.imr.korona.data.ping.PingSource;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.time.Instant;
 
 final class TimeIntervalModuleComputation extends GeneralPingModuleComputation {
-   private final long minMillis;
-   private final long maxMillis;
+   private final Instant minTime;
+   private final Instant maxTime;
 
    private final long minRelativePingNumber;
    private final long maxRelativePingNumber;
@@ -21,8 +22,8 @@ final class TimeIntervalModuleComputation extends GeneralPingModuleComputation {
    TimeIntervalModuleComputation(TimeIntervalModule module, ComputationContext computationContext, PingSource pingSource) {
       super(module, computationContext, pingSource);
 
-      minMillis = module.startDate.toMillisOrDefault(Long.MIN_VALUE);
-      maxMillis = module.endDate.toMillisOrDefault(Long.MAX_VALUE);
+      minTime = module.startDate.getValue().orElse(Instant.MIN);
+      maxTime = module.endDate.getValue().orElse(Instant.MAX);
 
       minRelativePingNumber = module.startRelativePingNumber.getValue().orElse(Integer.MIN_VALUE);
       maxRelativePingNumber = module.endRelativePingNumber.getValue().orElse(Integer.MAX_VALUE);
@@ -37,13 +38,13 @@ final class TimeIntervalModuleComputation extends GeneralPingModuleComputation {
          Ping ping = inputPing();
          relativePingNumber++;
          if (getAsyncHandle().isCancelled() || ping == null
-               || ping.getTimeInMillis() > maxMillis
+               || ping.getInstant().isAfter(maxTime)
                || relativePingNumber > maxRelativePingNumber
          ) {
             ended = true;
             return null;
          }
-         if (ping.getTimeInMillis() >= minMillis
+         if (!ping.getInstant().isBefore(minTime)
                && relativePingNumber >= minRelativePingNumber
          ) {
             return ping;

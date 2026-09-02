@@ -48,14 +48,6 @@ public abstract class Ping implements PingMappingArgument, Comparable<Ping>, no.
    }
 
    @Override
-   public long getTimeInMillis() {
-      return getPingIndex().getTimeInMillis();
-   }
-
-   public long getNTDate() {
-      return getPingIndex().getNTDate();
-   }
-
    public Instant getInstant() {
       return getPingIndex().getInstant();
    }
@@ -120,12 +112,12 @@ public abstract class Ping implements PingMappingArgument, Comparable<Ping>, no.
       return getPingData().getNonNullChannelDatas();
    }
 
-   public @Nullable ChannelData getNonNullChannelData() {
-      return getPingData().getNonNullChannelData();
+   public @Nullable ChannelData getFirstAvailableChannelData() {
+      return getPingData().getFirstAvailableChannelData();
    }
 
-   public @Nullable PowerData getNonNullPowerData() {
-      ChannelData channelData = getNonNullChannelData();
+   public @Nullable PowerData getFirstAvailablePowerData() {
+      ChannelData channelData = getFirstAvailableChannelData();
       return channelData != null ? channelData.getPowerData() : null;
    }
 
@@ -148,8 +140,8 @@ public abstract class Ping implements PingMappingArgument, Comparable<Ping>, no.
    }
 
    @Override
-   public int compareTo(Ping ping) {
-      return getPingIndex().compareTo(ping.getPingIndex());
+   public int compareTo(Ping other) {
+      return getPingIndex().compareTo(other.getPingIndex());
    }
 
    public @Nullable Dep0Datagram getDep0Datagram() {

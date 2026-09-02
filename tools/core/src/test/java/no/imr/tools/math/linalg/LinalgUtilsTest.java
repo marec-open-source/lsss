@@ -1,5 +1,6 @@
 package no.imr.tools.math.linalg;
 
+import no.imr.tools.test.JUnitUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -12,49 +13,29 @@ final class LinalgUtilsTest {
    void angle() {
       assertEquals(Math.PI / 2, LinalgUtils.angle(new Vec2(1, 0), new Vec2(0, 1)));
       assertEquals(Math.PI / 2, LinalgUtils.angle(new Vec3(1, 0, 0), new Vec3(0, 0, 1)));
+
+      // These vectors give `dot(a, b) / (|a|*|b|)` outside of [-1, 1] due to rounding and converting float to double:
+      assertEquals(0, LinalgUtils.angle(new Vec2(0.1f, 0.1f), new Vec2(0.937852f, 0.9380717f)));
+      assertEquals(0, LinalgUtils.angle(new Vec3(0.1f, 0.1f, 0.1f), new Vec3(0.82194793f, 0.82243353f, 0.8223702f)));
+
+      // Vector with a length of 0:
+      assertEquals(Double.NaN, LinalgUtils.angle(new Vec2(1, 1), new Vec2(0, 0)));
+      assertEquals(Double.NaN, LinalgUtils.angle(new Vec3(1, 1, 1), new Vec3(0, 0, 0)));
    }
 
    @Test
-   void pointInTriangle() {
-      Vec2 point0 = new Vec2(1, 1);
-
-      Vec2 triangleCornerA = new Vec2(0, 0);
-      Vec2 triangleCornerB = new Vec2(3, 0);
-      Vec2 triangleCornerC = new Vec2(0, 3);
-
-      //anti-clockwise triangle
-      assertTrue(LinalgUtils.pointInTriangle(point0, triangleCornerA, triangleCornerB, triangleCornerC));
-      //clockwise triangle
-      assertTrue(LinalgUtils.pointInTriangle(point0, triangleCornerA, triangleCornerC, triangleCornerB));
-
-      Vec2 point1 = new Vec2(1, -1);
-      assertFalse(LinalgUtils.pointInTriangle(point1, triangleCornerA, triangleCornerB, triangleCornerC));
-
-      Vec2 point2 = new Vec2(3, 3);
-      assertFalse(LinalgUtils.pointInTriangle(point2, triangleCornerA, triangleCornerB, triangleCornerC));
-
-      Vec2 point3 = new Vec2(-1, 1);
-      assertFalse(LinalgUtils.pointInTriangle(point3, triangleCornerA, triangleCornerB, triangleCornerC));
-   }
-
-   @Test
-   void createOrthonormalBasis() {
-      testNormal(new Vec3(1, 1, 1).unit());
-      testNormal(new Vec3(1, 2, 3).unit());
-      testNormal(new Vec3(3, 1, 2).unit());
-      testNormal(new Vec3(2, 3, 1).unit());
-   }
-
-   private static void testNormal(Vec3 normal) {
-      List<Vec3> basis = LinalgUtils.createOrthonormalBasis(normal);
-
-      assertEquals(0, normal.dot(basis.get(0)), 0.001);
-      assertEquals(0, normal.dot(basis.get(1)), 0.001);
-      assertEquals(0, basis.get(0).dot(basis.get(1)), 0.001);
+   void findMean() {
+      JUnitUtils.assertEquals(new Vec3(Float.NaN, Float.NaN, Float.NaN), LinalgUtils.findMean(List.of()));
+      JUnitUtils.assertEquals(Vec3.ZERO, LinalgUtils.findMean(List.of(Vec3.ZERO)));
+      JUnitUtils.assertEquals(new Vec3(2, 3, 4), LinalgUtils.findMean(List.of(
+            new Vec3(1, 2, 3), new Vec3(3, 4, 5))));
    }
 
    @Test
    void findOrthogonalRegressionDirection() {
+      assertThrows(IllegalArgumentException.class, () -> LinalgUtils.findOrthogonalRegressionDirection(List.of()));
+      assertThrows(IllegalArgumentException.class, () -> LinalgUtils.findOrthogonalRegressionDirection(List.of(Vec3.ZERO)));
+
       Vec3 dir = new Vec3(0.1f, 0.5f, -0.9f).unit();
       List<Vec3> points = new ArrayList<>();
       for (int i = 0; i < 5; i++) {
@@ -76,8 +57,9 @@ final class LinalgUtilsTest {
    }
 
    @Test
-   void distanceToPlane() {
-      assertEquals(-1, LinalgUtils.distanceToPlane(new Vec3(0, 0, 0), new Vec3(1, 0, 0), new Vec3(1, 0, 0)));
+   void signedDistanceToPlane() {
+      assertEquals(-1, LinalgUtils.signedDistanceToPlane(new Vec3(0, 0, 0), new Vec3(1, 0, 0), new Vec3(1, 0, 0)));
+      assertEquals(2, LinalgUtils.signedDistanceToPlane(new Vec3(3, 0, 0), new Vec3(1, 0, 0), new Vec3(1, 0, 0)));
    }
 
    @Test
@@ -85,5 +67,6 @@ final class LinalgUtilsTest {
       Ray ray = new Ray(new Vec3(0, 0, 0), new Vec3(1, 0, 0));
       assertEquals(new Vec3(2, 0, 0), LinalgUtils.planeIntersection(ray, new Vec3(2, 2, 2), new Vec3(1, 0, 0)));
       assertNull(LinalgUtils.planeIntersection(ray, new Vec3(-2, 2, 2), new Vec3(1, 0, 0)));
+      assertNull(LinalgUtils.planeIntersection(ray, new Vec3(-2, 2, 2), new Vec3(0, 1, 0)));
    }
 }

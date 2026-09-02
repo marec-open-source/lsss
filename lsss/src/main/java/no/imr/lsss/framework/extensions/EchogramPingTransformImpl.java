@@ -3,7 +3,6 @@ package no.imr.lsss.framework.extensions;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import no.imr.lsss.framework.InterpretationSettings;
 import no.imr.tools.Utils;
-import no.imr.tools.time.NTDate;
 import no.marec.lsss.api.data.PingIndex;
 import no.marec.lsss.api.echogram.EchogramPingTransform;
 import org.jspecify.annotations.Nullable;
@@ -22,12 +21,12 @@ final class EchogramPingTransformImpl implements EchogramPingTransform {
 
    @Override
    public double instantToX(Instant time) {
-      return pingSettings.ntDateToX(NTDate.instantToNTDate(time));
+      return pingSettings.instantToX(time);
    }
 
    @Override
    public Instant xToInstant(double x) {
-      return NTDate.ntDateToInstant(pingSettings.xToNTDate(x));
+      return pingSettings.xToInstant(x);
    }
 
    @Override

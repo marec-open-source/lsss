@@ -19,7 +19,7 @@ public final class ColormapIcon extends AbstractIcon {
 
    @Override
    protected void paintIcon(Component c, Graphics2D g, int x, int y) {
-      int n = (int) Math.round(getIconHeight() * g.getTransform().getScaleY());
+      int n = Math.max(1, (int) Math.round(getIconHeight() * g.getTransform().getScaleY()));
       float deltaValue = 1f / n;
       float deltaY = (float) getIconHeight() / n;
       Rectangle2D.Float rectangle = new Rectangle2D.Float(x + 1, 0, getIconWidth() - 2, deltaY);

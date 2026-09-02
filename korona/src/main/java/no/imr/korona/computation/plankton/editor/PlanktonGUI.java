@@ -8,6 +8,7 @@ import no.imr.tools.logging.Log;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.icons.MiscIcons;
 import no.imr.tools.swing.table.MultiLineHeaderRenderer;
+import no.imr.tools.swing.table.TableUtils;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.DocumentHelper;
 import org.jspecify.annotations.Nullable;
@@ -41,7 +42,7 @@ import java.util.logging.Level;
 
 /**
  * A GUI for editing initial plankton size
- * distribution xml file.
+ * distribution XML file.
  */
 public final class PlanktonGUI {
    private final JDialog dialog;
@@ -222,6 +223,10 @@ public final class PlanktonGUI {
 
       JButton okButton = new JButton("OK");
       okButton.addActionListener(_ -> {
+         if (!TableUtils.stopCellEditing(table)) {
+            return;
+         }
+
          PlanktonFile planktonFileOut = new PlanktonFile();
 
          for (int i = 0; i < tableModel.getRowCount(); i++) {

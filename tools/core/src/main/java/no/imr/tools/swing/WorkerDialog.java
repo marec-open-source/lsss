@@ -170,7 +170,7 @@ public final class WorkerDialog {
          }
       });
       JOptionPane optionPane = new JOptionPane(messageSupplier.get(), JOptionPane.INFORMATION_MESSAGE);
-      optionPane.setOptions(cancellable ? new Object[]{cancelButton} : Utils.EMPTY_OBJECT_ARRAY);
+      optionPane.setOptions(cancellable ? new Object[]{cancelButton} : new Object[0]);
       Component referenceComponent = referenceComponentSupplier.get();
       dialog = optionPane.createDialog(referenceComponent, "Working");
       dialog.setModalityType(modalDialog ? Dialog.ModalityType.DOCUMENT_MODAL : Dialog.ModalityType.MODELESS);
@@ -189,7 +189,7 @@ public final class WorkerDialog {
       dialog.setVisible(true);
    }
 
-   private Result waitForFuture(Future<Void> future) {
+   private Result waitForFuture(Future<@Nullable Void> future) {
       boolean success = false;
       try {
          finishCountDownLatch.await(); // Waits until finished with success, error, or cancellation.

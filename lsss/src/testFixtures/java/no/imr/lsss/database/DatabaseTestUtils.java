@@ -37,7 +37,7 @@ public final class DatabaseTestUtils {
    }
 
    public static void createTestDatabase(LSSS lsss) {
-      lsss.getDatabaseManager().getConnectionManager().createDatabase("Creating test database", LsssDatabaseUtils::isSystemClass);
+      lsss.getDatabaseManager().getConnectionManager().createDatabase("Creating test database", LsssDatabaseUtils::isSystemClass, false);
    }
 
    public static void addFileDatabasePluginHsqldb(LSSS lsss, Path dir, String name) {
@@ -68,7 +68,8 @@ public final class DatabaseTestUtils {
       List<Purpose> purposes = List.of(
             new Purpose(survey, acousticCategories.get(0), DatabaseData.Purpose.MAIN),
             new Purpose(survey, acousticCategories.get(1), DatabaseData.Purpose.USABLE),
-            new Purpose(survey, acousticCategories.get(2), DatabaseData.Purpose.OTHER));
+            new Purpose(survey, acousticCategories.get(2), DatabaseData.Purpose.OTHER)
+      );
       databaseConnection.executeStatelessQuery(StatelessDatabaseQuery.insert(purposes));
 
       databaseManager.getConnectionManager().resetDatabaseData();

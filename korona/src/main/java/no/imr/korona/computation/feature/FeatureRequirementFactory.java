@@ -7,17 +7,17 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import no.imr.tools.compile.CompileException;
 import no.imr.tools.compile.CompilerClassLoader;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class FeatureRequirementFactory {
    private static final LoadingCache<String, FeatureRequirement> CACHE = CacheBuilder.newBuilder()
          .maximumSize(100)
-         .expireAfterAccess(5, TimeUnit.MINUTES)
+         .expireAfterAccess(Duration.ofMinutes(5))
          .build(new CacheLoader<>() {
             @Override
             public FeatureRequirement load(String key) throws CompileException {

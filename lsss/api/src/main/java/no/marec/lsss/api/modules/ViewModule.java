@@ -7,7 +7,7 @@ import javax.swing.JPopupMenu;
 /**
  * A view module provided by an LSSS plugin.
  * <p>
- * This class represents the behaviour of the view module, while
+ * This interface represents the behaviour of the view module, while
  * the actual view module can be accessed via {@link ViewModuleAccess}.
  */
 public interface ViewModule extends LsssModule {

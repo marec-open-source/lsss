@@ -14,8 +14,10 @@ import no.imr.lsss.modules.BaseLsssModule;
 import no.imr.lsss.plugins.FeaturePlugin;
 import no.imr.tools.LateInit;
 import no.imr.tools.listening.ChangeManager;
+import no.imr.tools.listening.ListenableProperty;
 import no.imr.tools.logging.Log;
 import no.imr.tools.swing.ViewHolder;
+import no.marec.lsss.api.util.observing.ObservableValue;
 import org.dom4j.Element;
 
 import javax.swing.JDialog;
@@ -28,7 +30,7 @@ import java.util.prefs.Preferences;
 public final class ConfigurationManager {
    private final LSSS lsss;
    private final LanguageUtils languageUtils = new LanguageUtils(this);
-   private UserProfile userProfile = UserProfile.NORMAL_USE;
+   private final ListenableProperty<UserProfile> userProfile = new ListenableProperty<>(UserProfile.NORMAL_USE);
    private final LsssConfiguration lsssConfiguration;
    private final LateInit<Element> blankSurveyXml = new LateInit<>();
    private final ViewHolder<ConfigurationManagerView> viewHolder = new ViewHolder<>(() -> new ConfigurationManagerView(this));
@@ -61,15 +63,19 @@ public final class ConfigurationManager {
       return languageUtils;
    }
 
-   public UserProfile getUserProfile() {
+   public ObservableValue<UserProfile> userProfile() {
       return userProfile;
    }
 
+   public UserProfile getUserProfile() {
+      return userProfile.getValue();
+   }
+
    public void setUserProfile(UserProfile userProfile) {
-      if (this.userProfile == userProfile) {
+      if (this.userProfile.getValue() == userProfile) {
          return;
       }
-      this.userProfile = userProfile;
+      this.userProfile.setValue(userProfile);
       Log.global.info("New access level: " + userProfile);
       viewHolder.ifView(ConfigurationManagerView::updateUserProfile);
    }
@@ -81,7 +87,7 @@ public final class ConfigurationManager {
     * @return {@code true} if the actual user profile is sufficient
     */
    public boolean canEdit(UserProfile minimumUserProfile) {
-      return userProfile.ordinal() >= minimumUserProfile.ordinal();
+      return getUserProfile().ordinal() >= minimumUserProfile.ordinal();
    }
 
    public LsssConfiguration getLsssConfiguration() {

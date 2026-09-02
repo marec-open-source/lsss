@@ -4,7 +4,7 @@ import no.imr.korona.computation.broadband.EK80Parameters;
 import no.imr.korona.computation.broadband.PulseCompressionFilterChain;
 import no.imr.korona.data.datagrams.Con0Datagram;
 import no.imr.korona.data.formats.ek60.calibration.ChannelCalibration;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.math.linalg.Vec3;
 import no.marec.lsss.api.data.ChannelConfiguration;
 import org.jspecify.annotations.Nullable;
@@ -196,7 +196,7 @@ public final class RawFileTransducer implements ChannelConfiguration {
    }
 
    public int getKHz() {
-      return Utils.hzToKHz(frequency);
+      return KoronaUtils.hzToKHz(frequency);
    }
 
    public float getGain() {

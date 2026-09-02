@@ -34,20 +34,20 @@ public final class BroadbandTemporalNotchFilterConfig implements ParameterContai
    }
 
    @Override
-   public int compareTo(BroadbandTemporalNotchFilterConfig o) {
-      int c = Float.compare(rejectionFrequency.getFloatValue(), o.rejectionFrequency.getFloatValue());
+   public int compareTo(BroadbandTemporalNotchFilterConfig other) {
+      int c = Float.compare(rejectionFrequency.getFloatValue(), other.rejectionFrequency.getFloatValue());
       if (c != 0) {
          return c;
       }
-      c = Float.compare(bandwidth.getFloatValue(), o.bandwidth.getFloatValue());
+      c = Float.compare(bandwidth.getFloatValue(), other.bandwidth.getFloatValue());
       if (c != 0) {
          return c;
       }
-      c = getEffectiveStartTime().compareTo(o.getEffectiveStartTime());
+      c = getEffectiveStartTime().compareTo(other.getEffectiveStartTime());
       if (c != 0) {
          return c;
       }
-      return getEffectiveStopTime().compareTo(o.getEffectiveStopTime());
+      return getEffectiveStopTime().compareTo(other.getEffectiveStopTime());
    }
 
    public BroadbandNotchFilterConfig getBroadbandNotchFilterConfig() {

@@ -3,7 +3,12 @@ package no.imr.lsss.database;
 import no.imr.lsss.LSSS;
 import no.imr.lsss.database.tables.hibernate.Nation;
 import no.imr.lsss.database.types.DatabasePlugin;
+import no.imr.lsss.database.types.HsqldbDatabasePlugin;
+import no.imr.lsss.database.types.JavaDBDatabasePlugin;
+import no.imr.lsss.framework.config.application.DatabaseReferenceDataConf;
 import no.imr.lsss.plugins.FeaturePlugin;
+import no.imr.tools.Utils;
+import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.database.ConnectionType;
 import no.imr.tools.database.DatabaseConnection;
 import no.imr.tools.database.DatabaseContent;
@@ -21,6 +26,7 @@ import org.hibernate.cfg.Environment;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.JOptionPane;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -87,7 +93,7 @@ public final class DatabaseConnectionManager {
             })
             .startWithoutCancel(() -> {
                Log.global.info("Connecting to database: " + connectionUrl);
-               databaseConnection.connect(ConnectionType.CONNECT, configuration, LsssDatabaseUtils.getDatabaseClasses(lsss));
+               databaseConnection.connect(ConnectionType.CONNECT, configuration, LsssDatabaseUtils.getAllDatabaseClasses(lsss));
             });
 
       if (databaseConnection.isConnected()) {
@@ -107,7 +113,7 @@ public final class DatabaseConnectionManager {
    /**
     * Creates a new database and copies the specified default data from registered feature FeaturePlugins.
     */
-   public void createDatabase(String title, Predicate<Class<? extends BaseDatabaseObject>> predicate) {
+   public void createDatabase(String title, Predicate<Class<? extends BaseDatabaseObject>> predicate, boolean importReferenceData) {
       if (databaseConnection.isConnected()) {
          closeConnection();
       }
@@ -117,12 +123,18 @@ public final class DatabaseConnectionManager {
 
       new WorkerDialog(lsss.getReferenceComponent(), title)
             .setOnError(e -> {
-               lsss.showError(title + "failed. URL: " + connectionUrl + ".", e);
+               lsss.showError(title + " failed. URL: " + connectionUrl + ".", e);
             })
             .startWithoutCancel(() -> {
                Log.global.info(title + ": " + connectionUrl);
-               databaseConnection.connect(ConnectionType.INITIALIZE, configuration, LsssDatabaseUtils.getDatabaseClasses(lsss));
+               databaseConnection.connect(ConnectionType.INITIALIZE, configuration, LsssDatabaseUtils.getAllDatabaseClasses(lsss));
                copyDefaultDataFromPlugins(predicate);
+               if (importReferenceData) {
+                  DatabaseReferenceDataConf databaseReferenceDataConf = lsss.getConfigurationManager().getApplicationConfiguration().getDatabaseConf().getDatabaseReferenceDataConf();
+                  if (databaseReferenceDataConf != null) {
+                     databaseReferenceDataConf.doImportReferenceData(new AsyncHandle());
+                  }
+               }
             });
 
       connectionStateChanged();
@@ -132,7 +144,7 @@ public final class DatabaseConnectionManager {
     * Creates a new database and copies all default data from registered feature FeaturePlugins.
     */
    public void initializeDatabase() {
-      createDatabase("Initializing new database", _ -> true);
+      createDatabase("Initializing new database", _ -> true, true);
    }
 
    /**
@@ -143,7 +155,7 @@ public final class DatabaseConnectionManager {
       databaseClasses.add(Nation.class);
       Predicate<Class<? extends BaseDatabaseObject>> predicate = databaseClasses::contains;
 
-      createDatabase("Creating new empty database", predicate);
+      createDatabase("Creating new empty database", predicate, false);
    }
 
    private Configuration getConfiguration(ConnectionType connectionType) {
@@ -151,7 +163,26 @@ public final class DatabaseConnectionManager {
          throw new IllegalStateException();
       }
       databasePlugin.askForPasswordIfNecessary();
+      if (databasePlugin instanceof JavaDBDatabasePlugin javaDBDatabasePlugin
+            && connectionType == ConnectionType.CONNECT
+            && lsss.getDatabaseManager().getGlobalDatabaseConnectionManager() == this) {
+         Path dir = javaDBDatabasePlugin.getDir();
+         String databaseName = javaDBDatabasePlugin.databaseName.getValue();
+         if (JavaDBMigration.interactivelyConvertJavaDBToHsqldb(lsss, dir, databaseName, lsss::getReferenceComponent, "global")) {
+            DatabaseManager databaseManager = lsss.getDatabaseManager();
+            HsqldbDatabasePlugin hsqldbDatabasePlugin = Utils.getFirstOrThrow(databaseManager.getDatabasePlugins(), HsqldbDatabasePlugin.class);
+            hsqldbDatabasePlugin.databaseName.setValue(javaDBDatabasePlugin.databaseName.getValue());
+            hsqldbDatabasePlugin.directory.setValue(javaDBDatabasePlugin.directory.getValue());
+            hsqldbDatabasePlugin.storageFormat.setValue(HsqldbDatabasePlugin.HsqldbStorageFormat.BINARY);
+            setDatabasePlugin(hsqldbDatabasePlugin);
+         }
+      }
       Configuration configuration = databasePlugin.getConfiguration(connectionType);
+      try {
+         databasePlugin.prepareToConnect(connectionType);
+      } catch (Exception e) {
+         Log.global.log(Level.WARNING, "Error preparing database " + configuration.getProperty(Environment.JAKARTA_JDBC_URL), e);
+      }
 
       StringBuilder stringBuilder = new StringBuilder("Database connection properties:");
       Properties properties = configuration.getProperties();

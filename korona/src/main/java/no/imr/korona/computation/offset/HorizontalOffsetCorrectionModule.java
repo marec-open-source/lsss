@@ -11,7 +11,7 @@ import no.imr.korona.data.ping.PingSource;
 import no.imr.korona.data.ping.items.PingItem;
 import no.imr.korona.data.ping.items.channel.ChannelData;
 import no.imr.korona.data.ping.items.channel.PowerData;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.xml.XmlUtils;
@@ -73,7 +73,7 @@ public final class HorizontalOffsetCorrectionModule extends GeneralPingModule {
       }
 
       private static double getVesselDistanceInMeters(Ping ping) {
-         return Utils.nmiToMeter(ping.getVesselDistance());
+         return KoronaUtils.nmiToMeter(ping.getVesselDistance());
       }
 
       private Ping processPing(Ping ping) {
@@ -128,8 +128,7 @@ public final class HorizontalOffsetCorrectionModule extends GeneralPingModule {
                PowerData closestDatagram = beforeIsClosest ? powerDataBefore : powerDataAfter;
                PowerData farthestDatagram = beforeIsClosest ? powerDataAfter : powerDataBefore;
 
-               PowerData newDatagram = closestDatagram.makeCopyWithAnglesOnly();
-               newDatagram.setNTDate(powerData.getNTDate());
+               PowerData newDatagram = powerData.makeCopy();
 
                double closestWeight = beforeIsClosest
                      ? afterDist / pingDist
@@ -141,15 +140,19 @@ public final class HorizontalOffsetCorrectionModule extends GeneralPingModule {
                float[] closestDatagramSv = closestDatagram.getSv();
                float[] farthestDatagramSv = farthestDatagram.getSv();
                for (int i = 0; i < sv.length; i++) {
-                  float closest = closestDatagramSv[i];
                   float depth = newDatagram.getSampleDepth(i);
-                  int farthestSampleNumber = farthestDatagram.depthToSampleIndex(depth);
-                  if (farthestSampleNumber >= 0 && farthestSampleNumber < farthestDatagramSv.length) {
-                     float farthest = farthestDatagramSv[farthestSampleNumber];
-                     sv[i] = (float) (closestWeight * closest + farthestWeight * farthest);
-                  } else {
-                     sv[i] = closest;
+                  int closestSampleIndex = closestDatagram.depthToSampleIndex(depth);
+                  if (closestSampleIndex < 0 || closestSampleIndex >= closestDatagramSv.length) {
+                     sv[i] = 0;
+                     continue;
                   }
+                  int farthestSampleIndex = farthestDatagram.depthToSampleIndex(depth);
+                  if (farthestSampleIndex < 0 || farthestSampleIndex >= farthestDatagramSv.length) {
+                     sv[i] = 0;
+                     continue;
+                  }
+                  sv[i] = (float) (closestWeight * closestDatagramSv[closestSampleIndex]
+                        + farthestWeight * farthestDatagramSv[farthestSampleIndex]);
                }
                newDatagram.setSv(sv);
 

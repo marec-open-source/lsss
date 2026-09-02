@@ -5,7 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import no.imr.tools.Utils;
 import no.imr.tools.adm.AppEvent;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
@@ -14,7 +14,7 @@ final class AppEventErrorHandler extends HandlerAdapter {
 
    private final LoggingManager loggingManager;
    private final Cache<String, Boolean> cache = CacheBuilder.newBuilder()
-         .expireAfterWrite(5, TimeUnit.MINUTES)
+         .expireAfterWrite(Duration.ofMinutes(5))
          .build();
 
    AppEventErrorHandler(LoggingManager loggingManager) {

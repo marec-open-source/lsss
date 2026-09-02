@@ -74,13 +74,10 @@ public final class EchogramImagePhantomOverlay extends BasePhantomOverlay {
       } else {
          processPings(getPhantomEchogramSettings().getPingSampler().getAvailablePings());
       }
-      return new DisplayData();
+      return new DisplayData(echogramImage);
    }
 
-   private final class DisplayData extends OverlayDisplayData {
-      private DisplayData() {
-      }
-
+   private record DisplayData(EchogramImage echogramImage) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          echogramImage.draw(g2d);

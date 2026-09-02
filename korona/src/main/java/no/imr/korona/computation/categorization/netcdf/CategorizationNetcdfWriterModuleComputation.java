@@ -26,7 +26,8 @@ import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.misc.JsonUtils;
-import no.imr.tools.netcdf.NcWrite;
+import no.imr.tools.netcdf.NcBuild;
+import no.imr.tools.netcdf.NetcdfUtils;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
 import ucar.ma2.Array;
@@ -34,8 +35,8 @@ import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
+import ucar.nc2.Group;
 import ucar.nc2.Variable;
-import ucar.nc2.constants.CF;
 import ucar.nc2.write.NetcdfFormatWriter;
 
 import java.io.IOException;
@@ -48,7 +49,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 final class CategorizationNetcdfWriterModuleComputation extends SimplePingModuleComputation {
-   private final long referenceTimeInMillis;
+   private final Instant referenceTime;
    private final int referenceChannel;
    private final NetcdfFormatWriter writer;
    private final Variable pingTimeVar;
@@ -89,7 +89,7 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
             ));
 
       PingConfiguration pingConfiguration = pingSource.getPingConfiguration();
-      referenceTimeInMillis = pingConfiguration.getRawFileConfiguration().getTimeInMillis();
+      referenceTime = pingConfiguration.getRawFileConfiguration().getInstant();
 
       referenceChannel = ModuleUtils.getMainChannelOrThrow(this, module.mainFrequency.getValue());
 
@@ -118,7 +118,8 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
                   Function.identity()
             ));
 
-      NetcdfFormatWriter.Builder fileBuilder = NcWrite.newBuilder(ncFile)
+      NetcdfFormatWriter.Builder fileBuilder = NcBuild.newBuilder(ncFile);
+      Group.Builder groupBuilder = fileBuilder.getRootGroup()
             .addAttribute(new Attribute("content_type_name", "CRIMAC-predictions"))
             .addAttribute(new Attribute("content_type_version", "0.1"))
             .addAttribute(new Attribute("content_type_description", "Categorization"))
@@ -127,47 +128,43 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
             .addAttribute(new Attribute("producer_git_commit", Utils.GIT_COMMIT))
             .addAttribute(new Attribute("creation_time", Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()));
 
-      Dimension pingTimeDim = fileBuilder.addUnlimitedDimension(NcAnnotation.PING_TIME);
-      Dimension rangeDim = fileBuilder.addDimension(NcAnnotation.RANGE, rangeLength);
-      Dimension categoryDim = fileBuilder.addDimension(NcAnnotation.CATEGORY, categories.size());
+      Dimension pingTimeDim = NcBuild.addUnlimitedDimension(groupBuilder, NcAnnotation.PING_TIME);
+      Dimension rangeDim = NcBuild.addDimension(groupBuilder, NcAnnotation.RANGE, rangeLength);
+      Dimension categoryDim = NcBuild.addDimension(groupBuilder, NcAnnotation.CATEGORY, categories.size());
 
-      fileBuilder.addVariable(NcAnnotation.PING_TIME, DataType.LONG, List.of(pingTimeDim))
-            .addAttribute(new Attribute(CF.CALENDAR, "proleptic_gregorian"))
-            .addAttribute(new Attribute(CF.UNITS, "nanoseconds since " + Instant.ofEpochMilli(referenceTimeInMillis)));
-      fileBuilder.addVariable(NcAnnotation.RANGE, DataType.DOUBLE, List.of(rangeDim));
-      fileBuilder.addVariable(NcAnnotation.CATEGORY, DataType.INT, List.of(categoryDim));
+      groupBuilder.addVariable(NcBuild.timeVariable(NcAnnotation.PING_TIME, List.of(pingTimeDim), referenceTime));
+      groupBuilder.addVariable(NcBuild.doubleVariable(NcAnnotation.RANGE, List.of(rangeDim)));
+      groupBuilder.addVariable(NcBuild.newVariable(NcAnnotation.CATEGORY, DataType.INT, List.of(categoryDim)));
 
-      NcWrite.addFloatVariable(fileBuilder.getRootGroup(), NcAnnotation.ANNOTATION, List.of(categoryDim, pingTimeDim, rangeDim), List.of());
+      groupBuilder.addVariable(NcBuild.floatVariable(NcAnnotation.ANNOTATION, List.of(categoryDim, pingTimeDim, rangeDim)));
 
       writer = fileBuilder.build();
 
       try {
          try {
-            pingTimeVar = findVariable(NcAnnotation.PING_TIME);
-            annotationVar = findVariable(NcAnnotation.ANNOTATION);
+            Group group = writer.getOutputFile().getRootGroup();
 
-            Variable categoryVar = findVariable(NcAnnotation.CATEGORY);
+            pingTimeVar = NetcdfUtils.findVariable(group, NcAnnotation.PING_TIME);
+            annotationVar = NetcdfUtils.findVariable(group, NcAnnotation.ANNOTATION);
+
+            Variable categoryVar = NetcdfUtils.findVariable(group, NcAnnotation.CATEGORY);
             int[] categoryArray = categories.stream()
                   .mapToInt(category -> {
                      return koronaNameToAnnotationId.getOrDefault(category.getName(),
                            1_000_000 + category.getNumber());
                   })
                   .toArray();
-            writer.write(categoryVar, new int[]{0}, Array.makeFromJavaArray(categoryArray));
+            writer.write(categoryVar, Array.makeFromJavaArray(categoryArray));
 
-            Variable rangeVar = findVariable(NcAnnotation.RANGE);
+            Variable rangeVar = NetcdfUtils.findVariable(group, NcAnnotation.RANGE);
             double[] ranges = new double[rangeLength];
             for (int i = 0; i < rangeLength; i++) {
                ranges[i] = i * deltaRange;
             }
-            writer.write(rangeVar, new int[]{0}, Array.makeFromJavaArray(ranges));
+            writer.write(rangeVar, Array.makeFromJavaArray(ranges));
 
          } catch (Exception e) {
-            try {
-               writer.close();
-            } catch (IOException suppressed) {
-               e.addSuppressed(suppressed);
-            }
+            Utils.closeOrSuppress(e, writer);
             throw e;
          }
       } catch (InvalidRangeException e) {
@@ -191,7 +188,7 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
    protected void processPing(Ping ping) throws IOException {
       pingIndices.add(ping.getPingIndex());
       try {
-         long t = (ping.getTimeInMillis() - referenceTimeInMillis) * 1_000_000;
+         long t = referenceTime.until(ping.getInstant(), ChronoUnit.NANOS);
          writer.write(pingTimeVar, new int[]{pingTimeIndex}, Array.makeFromJavaArray(new long[]{t}));
 
          ChannelData referenceChannelData = ping.getChannelData(referenceChannel);
@@ -329,10 +326,6 @@ final class CategorizationNetcdfWriterModuleComputation extends SimplePingModule
       pingInfos.clear();
 
       writer.close();
-   }
-
-   private Variable findVariable(String name) {
-      return Objects.requireNonNull(writer.findVariable(name), name);
    }
 
    private record PingInfo(

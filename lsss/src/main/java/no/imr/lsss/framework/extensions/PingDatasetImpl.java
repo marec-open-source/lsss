@@ -2,7 +2,6 @@ package no.imr.lsss.framework.extensions;
 
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.PingMapping;
-import no.imr.tools.time.NTDate;
 import no.marec.lsss.api.data.Ping;
 import no.marec.lsss.api.data.PingConfiguration;
 import no.marec.lsss.api.data.PingDataset;
@@ -36,12 +35,12 @@ final class PingDatasetImpl implements PingDataset {
 
    @Override
    public @Nullable PingIndex getContainingPingIndex(Instant instant) {
-      return dataFileSet.getContainingPingIndex(PingMapping.ntDateToTimeValue(NTDate.instantToNTDate(instant)), PingMapping.TIME);
+      return dataFileSet.getContainingPingIndex(PingMapping.instantToTimeValue(instant), PingMapping.TIME);
    }
 
    @Override
    public PingIndex getClosestPingIndex(Instant instant) {
-      return dataFileSet.getClosestPingIndex(PingMapping.ntDateToTimeValue(NTDate.instantToNTDate(instant)), PingMapping.TIME);
+      return dataFileSet.getClosestPingIndex(PingMapping.instantToTimeValue(instant), PingMapping.TIME);
    }
 
    @Override

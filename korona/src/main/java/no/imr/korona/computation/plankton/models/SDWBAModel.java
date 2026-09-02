@@ -13,7 +13,7 @@ import org.apache.commons.numbers.complex.Complex;
  * <p>
  * Coefficients does not match coefficients in referenced paper, since
  * the necessary complex coefficients are not listed there.
- * Instead, coefficients were calculated using matlab routines obtained from Demer and Conti.
+ * Instead, coefficients were calculated using MATLAB routines obtained from Demer and Conti.
  */
 public final class SDWBAModel extends BackscatterModel {
    private double soundSpeed = 1500;
@@ -22,7 +22,7 @@ public final class SDWBAModel extends BackscatterModel {
 
    private SDWBAParameterSetName parameterSetName = SDWBAParameterSetName.N42;
    private SDWBAParameterSet parameterSet = getParameterSet(parameterSetName);
-   private static final double L0 = 38.35E-3;
+   private static final double L0 = 38.35e-3;
 
    public SDWBAModel() {
       referenceVolume = calculateReferenceVolume();
@@ -65,11 +65,11 @@ public final class SDWBAModel extends BackscatterModel {
 
    /**
     * {@return the volume of a reference length krill fattened by 40%}
-    * Numbers taken from Krill31_6mmData from Demer & Conti MatLab files.
+    * Numbers taken from Krill31_6mmData from Demer & Conti MATLAB files.
     */
    private static double calculateReferenceVolume() {
       double f = 1.4; //Fatten by 40%, Demer & Conti (2003)
-      double s = 0.0338494915254237 / L0; //Scale from 33.85 to 38.35 mm as specified in paper and MatLab source.
+      double s = 0.0338494915254237 / L0; //Scale from 33.85 to 38.35 mm as specified in paper and MATLAB source.
 
       double totalVolume = 0;
       totalVolume += getSingleCylinderVolume(0, 0.000189517601043, 0.0338494915254237 - 0.0325311082138201, f, s);
@@ -164,70 +164,70 @@ public final class SDWBAModel extends BackscatterModel {
                Complex.ofCartesian(12.8525592649783, 14.8976981212302),
                Complex.ofCartesian(0.108760421979364, 0.0183977419572372),
                Complex.ofCartesian(0.736553246765406, 0.162748301811755),
-               -2.15631346E-11,
-               1.28056380E-08,
-               -2.86317054E-06,
-               2.94657329E-04,
-               -1.34836415E-02,
-               2.24117772E-01,
-               -7.94216518E+01,
-               38.35E-3,
+               -2.15631346e-11,
+               1.28056380e-08,
+               -2.86317054e-06,
+               2.94657329e-04,
+               -1.34836415e-02,
+               2.24117772e-01,
+               -7.94216518e+01,
+               38.35e-3,
                1.00);
 
          case N91 -> new SDWBAParameterSet(
                Complex.ofCartesian(7.52315404877615, 10.3006864545960),
                Complex.ofCartesian(0.106210952421554, 0.0285066239370059),
                Complex.ofCartesian(0.778361587641021, -0.0207533674614561),
-               -1.28990802E-11,
-               5.66626275E-09,
-               -7.75476884E-07,
-               2.08030645E-05,
-               2.59344869E-03,
-               -1.26389993E-01,
-               -7.58057613E+01,
-               38.35E-3,
+               -1.28990802e-11,
+               5.66626275e-09,
+               -7.75476884e-07,
+               2.08030645e-05,
+               2.59344869e-03,
+               -1.26389993e-01,
+               -7.58057613e+01,
+               38.35e-3,
                1.00);
 
          case N42 -> new SDWBAParameterSet(
                Complex.ofCartesian(1.72353848060309, 0.0672250104899089),
                Complex.ofCartesian(0.0366895293024863, 7.79702757133156e-09),
                Complex.ofCartesian(1.06493061525432, -0.122995407733648),
-               -3.43679776E-11,
-               2.14491847E-08,
-               -5.11346110E-06,
-               5.74395078E-04,
-               -2.97910371E-02,
-               5.71025319E-01,
-               -7.36389498E+01,
-               38.35E-3,
+               -3.43679776e-11,
+               2.14491847e-08,
+               -5.11346110e-06,
+               5.74395078e-04,
+               -2.97910371e-02,
+               5.71025319e-01,
+               -7.36389498e+01,
+               38.35e-3,
                1.00);
 
          case N31 -> new SDWBAParameterSet(
                Complex.ofCartesian(2.34491429117671, 0.704385409754882),
                Complex.ofCartesian(0.0414237421001590, 3.20233944297361e-09),
                Complex.ofCartesian(0.980876735873980, -0.133774190703865),
-               -4.44095744E-11,
-               2.80128990E-08,
-               -6.74306180E-06,
-               7.65628157E-04,
-               -4.03208327E-02,
-               7.84022568E-01,
-               -7.38869780E+01,
-               38.35E-3,
+               -4.44095744e-11,
+               2.80128990e-08,
+               -6.74306180e-06,
+               7.65628157e-04,
+               -4.03208327e-02,
+               7.84022568e-01,
+               -7.38869780e+01,
+               38.35e-3,
                1.00);
 
          case N155 -> new SDWBAParameterSet(
                Complex.ofCartesian(3.31708692324769, 3.44176020898030),
                Complex.ofCartesian(0.0404738088714930, 0.00522940319387602),
                Complex.ofCartesian(0.757755717918850, 0.0376171527395027),
-               -1.91364527E-11,
-               1.18826702E-08,
-               -2.80784428E-06,
-               3.11827195E-04,
-               -1.59861907E-02,
-               2.91485193E-01,
-               -7.65454608E+01,
-               38.35E-3,
+               -1.91364527e-11,
+               1.18826702e-08,
+               -2.80784428e-06,
+               3.11827195e-04,
+               -1.59861907e-02,
+               2.91485193e-01,
+               -7.65454608e+01,
+               38.35e-3,
                1.00
          );
 
@@ -239,84 +239,84 @@ public final class SDWBAModel extends BackscatterModel {
                Complex.ofCartesian(10.4288776339155, -17.9318090826156),
                Complex.ofCartesian(0.0979775204454693, -0.0182244323195380),
                Complex.ofCartesian(0.613483339918718, -0.304551749052857),
-               -2.54458499E-12,
-               1.55979051E-09,
-               -3.67737782E-07,
-               4.03829917E-05,
-               -1.86308847E-03,
-               2.93210052E-02,
-               -8.34574115E+01,
-               38.35E-3,
+               -2.54458499e-12,
+               1.55979051e-09,
+               -3.67737782e-07,
+               4.03829917e-05,
+               -1.86308847e-03,
+               2.93210052e-02,
+               -8.34574115e+01,
+               38.35e-3,
                1.00);
 
          case N305 -> new SDWBAParameterSet(
                Complex.ofCartesian(5.54945673132851, 17.5327908001405),
                Complex.ofCartesian(0.0877370356252193, 0.0245558097101512),
                Complex.ofCartesian(0.411628656267204, 0.445437250898885),
-               1.75709162E-13,
-               -6.02112180E-10,
-               2.68619553E-07,
-               -4.49997605E-05,
-               3.24942059E-03,
-               -8.54798991E-02,
-               -8.73937402E+01,
-               38.35E-3,
+               1.75709162e-13,
+               -6.02112180e-10,
+               2.68619553e-07,
+               -4.49997605e-05,
+               3.24942059e-03,
+               -8.54798991e-02,
+               -8.73937402e+01,
+               38.35e-3,
                1.00);
 
          case N1510 -> new SDWBAParameterSet(
                Complex.ofCartesian(20.3156201588140, 21.7596813102021),
                Complex.ofCartesian(0.120788095870287, 0.0109629147112886),
                Complex.ofCartesian(0.746331820718933, 0.319803270351786),
-               -8.61509989E-12,
-               5.24299955E-09,
-               -1.19756257E-06,
-               1.24500154E-04,
-               -5.54401924E-03,
-               9.31587986E-02,
-               -8.19425514E+01,
-               38.35E-3,
+               -8.61509989e-12,
+               5.24299955e-09,
+               -1.19756257e-06,
+               1.24500154e-04,
+               -5.54401924e-03,
+               9.31587986e-02,
+               -8.19425514e+01,
+               38.35e-3,
                1.00);
 
          case N1110 -> new SDWBAParameterSet(
                Complex.ofCartesian(11.6925980377791, -7.60786613455369),
                Complex.ofCartesian(0.0902641859047165, -8.60330955945535e-11),
                Complex.ofCartesian(0.775889399146003, -0.0806364314146719),
-               -1.19164334E-11,
-               7.46484220E-09,
-               -1.77999124E-06,
-               1.98879302E-04,
-               -1.01851773E-02,
-               1.97007649E-01,
-               -7.70731417E+01,
-               38.35E-3,
+               -1.19164334e-11,
+               7.46484220e-09,
+               -1.77999124e-06,
+               1.98879302e-04,
+               -1.01851773e-02,
+               1.97007649e-01,
+               -7.70731417e+01,
+               38.35e-3,
                1.00);
 
          case N01 -> new SDWBAParameterSet(
                Complex.ofCartesian(1.71823822293669, 0.399222106374487),
                Complex.ofCartesian(0.0354117292905677, 8.48120431348391e-09),
                Complex.ofCartesian(1.02355949220042, -0.149485469528387),
-               1.49957250E-11,
-               -7.76829132E-09,
-               1.38622903E-06,
-               -8.95489718E-05,
-               1.99588738E-04,
-               1.04838908E-01,
-               -7.03778691E+01,
-               38.35E-3,
+               1.49957250e-11,
+               -7.76829132e-09,
+               1.38622903e-06,
+               -8.95489718e-05,
+               1.99588738e-04,
+               1.04838908e-01,
+               -7.03778691e+01,
+               38.35e-3,
                1.00);
 
          case N1515 -> new SDWBAParameterSet(
                Complex.ofCartesian(1184410.02237206, 1334829.48071225),
                Complex.ofCartesian(-45.1827464276868, -48.3643416827434),
                Complex.ofCartesian(80082.2963901306, 109762.275149103),
-               -5.86066708E-11,
-               3.81707065E-08,
-               -9.68292003E-06,
-               1.20293448E-03,
-               -7.52184003E-02,
-               2.16056899E+00,
-               -9.56089936E+01,
-               38.35E-3,
+               -5.86066708e-11,
+               3.81707065e-08,
+               -9.68292003e-06,
+               1.20293448e-03,
+               -7.52184003e-02,
+               2.16056899e+00,
+               -9.56089936e+01,
+               38.35e-3,
                1.00);
       };
    }

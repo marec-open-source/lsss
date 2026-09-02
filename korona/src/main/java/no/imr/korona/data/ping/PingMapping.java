@@ -1,7 +1,9 @@
 package no.imr.korona.data.ping;
 
 import no.imr.tools.range.DoubleRange;
-import no.imr.tools.time.NTDate;
+import no.imr.tools.time.TimeUtils;
+
+import java.time.Instant;
 
 /**
  * Different horizontal mappings of pings.
@@ -38,50 +40,22 @@ public enum PingMapping {
    },
 
    /**
-    * Mapping based on time. Use
-    * {@link #millisToTimeValue(long)}
-    * or
-    * {@link #ntDateToTimeValue(long)}
-    * for correct time format.
+    * Mapping based on time in unit of seconds.
     */
    TIME("Time", "seconds") {
       @Override
       public double valueOf(PingMappingArgument a) {
-         return (double) a.getTimeInMillis() / 1000.0;
+         return instantToTimeValue(a.getInstant());
       }
 
       @Override
       public double distance(PingMappingArgument a, PingMappingArgument b) {
-         return (double) (b.getTimeInMillis() - a.getTimeInMillis()) / 1000.0;
+         return TimeUtils.toSeconds(a.getInstant(), b.getInstant());
       }
    };
 
-   /**
-    * Returns the value of a time according to {@link #TIME}.
-    *
-    * @param millis a time in milliseconds
-    * @return the value according to {@link #TIME}
-    */
-   public static double millisToTimeValue(long millis) {
-      return (double) millis / 1000.0;
-   }
-
-   public static long timeValueToMillis(double timeValue) {
-      return (long) (timeValue * 1000);
-   }
-
-   /**
-    * Returns the value of a time according to {@link #TIME}.
-    *
-    * @param ntDate a time in NT date format
-    * @return the value according to {@link #TIME}
-    */
-   public static double ntDateToTimeValue(long ntDate) {
-      return millisToTimeValue(NTDate.ntDateToTimeInMillis(ntDate));
-   }
-
-   public static long timeValueToNTDate(double timeValue) {
-      return NTDate.timeInMillisToNTDate(timeValueToMillis(timeValue));
+   public static double instantToTimeValue(Instant instant) {
+      return instant.getEpochSecond() + instant.getNano() / 1e9;
    }
 
    private final String name;

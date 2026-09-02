@@ -15,15 +15,16 @@ import org.jspecify.annotations.Nullable;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import java.awt.Insets;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
@@ -152,7 +153,7 @@ public final class FileParameterGUI extends ParameterGUI<FileParameter> {
 
    private void updateTextField() {
       textField.updateComponent();
-      JFormattedTextField textFieldComponent = textField.getComponent();
+      JTextField textFieldComponent = textField.getComponent();
       if (errorMessage != null) {
          textFieldComponent.setBackground(ColorUtils.TOMATO);
          textFieldComponent.setToolTipText(errorMessage);
@@ -168,11 +169,6 @@ public final class FileParameterGUI extends ParameterGUI<FileParameter> {
    @Override
    public JComponent getInputComponent() {
       return textField.getComponent();
-   }
-
-   @Override
-   public boolean commitEdit() {
-      return textField.commitEdit();
    }
 
    private void updateCreateButton() {
@@ -197,7 +193,7 @@ public final class FileParameterGUI extends ParameterGUI<FileParameter> {
 
       int returnState = fileChooser.showOpenDialog(browseButton);
       if (returnState == JFileChooser.APPROVE_OPTION) {
-         getParameter().applyFileChooser(fileChooser);
+         getParameter().applyFileChooserResult(fileChooser.getSelectedFile().toPath());
       }
    }
 
@@ -216,7 +212,28 @@ public final class FileParameterGUI extends ParameterGUI<FileParameter> {
    }
 
    private void addToPopupMenu(JPopupMenu menu) {
-      menu.add(MenuItems.showInFileExplorer(getParameter().getFile()));
+      Path file = getParameter().getFile();
+      menu.add(MenuItems.showInFileExplorer(file));
+
+      if (!fileExists && file != null) {
+         Exec.CACHED_THREAD_POOL.execute(() -> {
+            Path fileRoot = file.getRoot();
+            if (fileRoot == null) {
+               return;
+            }
+            Path relativePath = fileRoot.relativize(file);
+            for (Path root : FileUtils.listExistingRoots()) {
+               Path alternative = root.resolve(relativePath);
+               if (!alternative.equals(file) && Files.exists(alternative)) {
+                  SwingUtilities.invokeLater(() -> {
+                     JMenuItem alternativeItem = menu.add("Set to " + alternative);
+                     alternativeItem.addActionListener(_ -> getParameter().setFile(alternative));
+                     menu.pack();
+                  });
+               }
+            }
+         });
+      }
 
       FileParameter.Copier copier = getParameter().getCopier();
       if (copier != null) {

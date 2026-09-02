@@ -2,9 +2,9 @@ package no.imr.tools;
 
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
-import com.google.common.math.BigIntegerMath;
 import no.imr.tools.logging.Log;
 import no.imr.tools.logging.LoggingManager;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.misc.ThrowingRunnable;
 import no.imr.tools.misc.test.UniqueTmpDir;
 import no.imr.tools.parameter.Unit;
@@ -17,9 +17,6 @@ import java.awt.Image;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -31,17 +28,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -61,6 +55,7 @@ import java.util.function.ToLongFunction;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Gatherer;
 import java.util.stream.Stream;
@@ -72,9 +67,9 @@ public final class Utils {
    public static final Instant START_TIME = Instant.now();
 
    // Substituted during build:
-   public static final boolean IS_BUILT_VERSION = /* @END_BLOCK_COMMENT@ true;                                @LINE_COMMENT@ */ false;
-   public static final Instant BUILD_TIME =       /* @END_BLOCK_COMMENT@ Instant.ofEpochMilli(@BUILD_TIME@L); @LINE_COMMENT@ */ Instant.now().truncatedTo(ChronoUnit.SECONDS);
-   public static final String GIT_COMMIT =        /* @END_BLOCK_COMMENT@ "@GIT_COMMIT@";                      @LINE_COMMENT@ */ "XXX";
+   public static final boolean IS_BUILT_VERSION = /* @END_BLOCK_COMMENT@ true;                                         @LINE_COMMENT@ */ false;
+   public static final Instant BUILD_TIME =       /* @END_BLOCK_COMMENT@ Instant.ofEpochSecond(@BUILD_EPOCH_SECOND@L); @LINE_COMMENT@ */ Instant.now().truncatedTo(ChronoUnit.SECONDS);
+   public static final String GIT_COMMIT =        /* @END_BLOCK_COMMENT@ "@GIT_COMMIT@";                               @LINE_COMMENT@ */ "XXX";
 
    public static final boolean IS_DIST_VERSION = ResourceUtils.getUrl("no/imr/tools/resources/images/icons/Empty.svg")
          .toString().contains("/lib/jar/marec-tools-core.jar!/no/");
@@ -83,13 +78,13 @@ public final class Utils {
    private static boolean debugRun;
    private static boolean smokeTestRun;
 
-   public static final boolean[] EMPTY_BOOLEAN_ARRAY = new boolean[0];
-   public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+   // public static final boolean[] EMPTY_BOOLEAN_ARRAY = new boolean[0];
+   // public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
    // public static final short[] EMPTY_SHORT_ARRAY = new short[0];
    public static final int[] EMPTY_INT_ARRAY = new int[0];
    public static final float[] EMPTY_FLOAT_ARRAY = new float[0];
    public static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
-   public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
+   // public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
    public static final Charset UTF_8 = StandardCharsets.UTF_8;
    public static final Charset ISO_8859_1 = StandardCharsets.ISO_8859_1;
@@ -107,17 +102,17 @@ public final class Utils {
    /**
     * Wrapper for {@link Thread#sleep(long)} that catches and ignores InterruptedException.
     *
-    * @param millis the length of time to sleep in milliseconds
+    * @param duration the duration to sleep
     */
-   public static void sleep(long millis) {
+   public static void sleep(Duration duration) {
       try {
-         Thread.sleep(millis);
+         Thread.sleep(duration);
       } catch (InterruptedException _) {
          Thread.currentThread().interrupt();
       }
    }
 
-   public static <T> @Nullable T awaitFuture(Future<T> future) {
+   public static <T extends @Nullable Object> @Nullable T awaitFuture(Future<T> future) {
       try {
          return future.get();
       } catch (CancellationException _) {
@@ -128,26 +123,6 @@ public final class Utils {
          Log.global.log(Level.WARNING, e.getMessage(), e);
       }
       return null;
-   }
-
-   public static String getDurationString(long millis) {
-      long seconds = millis / 1000;
-
-      long hours = seconds / 3600;
-      seconds = seconds % 3600;
-
-      long minutes = seconds / 60;
-      seconds = seconds % 60;
-
-      return format("%d:%02d:%02d", hours, minutes, seconds);
-   }
-
-   public static double meterToNmi(double meter) {
-      return meter / 1852.0;
-   }
-
-   public static double nmiToMeter(double nmi) {
-      return nmi * 1852.0;
    }
 
    public static String intern(String string) {
@@ -175,6 +150,15 @@ public final class Utils {
          i = indexOfIgnoringCase(string, firstChar, i + 1);
       }
       return false;
+   }
+
+   public static int commonPrefixLength(String a, String b) {
+      int n = Math.min(a.length(), b.length());
+      int i = 0;
+      while (i < n && a.charAt(i) == b.charAt(i)) {
+         i++;
+      }
+      return i;
    }
 
    public static int indexOfIgnoringCase(List<String> list, String s) {
@@ -406,21 +390,11 @@ public final class Utils {
    public static <T> List<Optional<T>> toOptionals(Collection<@Nullable T> nullableValues) {
       return nullableValues.stream()
             .map(Optional::ofNullable)
-            .collect(Collectors.toList());
+            .toList();
    }
 
    public static <T> List<T> toList(Collection<? extends T> a, Collection<? extends T> b) {
       return Stream.concat(a.stream(), b.stream()).toList();
-   }
-
-   /**
-    * Converts Hz to kHz.
-    *
-    * @param hz the frequency in Hz
-    * @return the frequency in kHz
-    */
-   public static int hzToKHz(float hz) {
-      return (int) (hz / 1000.0f);
    }
 
    /**
@@ -442,7 +416,7 @@ public final class Utils {
          }
       }
 
-      return a.size() - b.size();
+      return Integer.compare(a.size(), b.size());
    }
 
    public static <T extends Comparable<? super T>> Collection<T> sorted(Collection<T> collection) {
@@ -452,86 +426,6 @@ public final class Utils {
       List<T> sorted = new ArrayList<>(collection);
       sorted.sort(null);
       return sorted;
-   }
-
-   public static float avoidInfinity(float value) {
-      if (value == Float.NEGATIVE_INFINITY) {
-         return -Float.MAX_VALUE;
-      }
-      if (value == Float.POSITIVE_INFINITY) {
-         return Float.MAX_VALUE;
-      }
-      return value;
-   }
-
-   /**
-    * Remove infinite values.
-    *
-    * @param values an array with some possibly infinite values
-    * @return true if infinities were found and removed
-    */
-   public static boolean avoidInfinities(float[] values) {
-      boolean foundInfinity = false;
-      for (int i = 0; i < values.length; i++) {
-         if (Float.isInfinite(values[i])) {
-            foundInfinity = true;
-            values[i] = avoidInfinity(values[i]);
-         }
-      }
-      return foundInfinity;
-   }
-
-   public static double normalizeAngle0To360(double angle) {
-      return mod(angle, 360);
-   }
-
-   /**
-    * Returns the common residue, which is non-negative, of
-    * <blockquote><pre>
-    * value (mod modulus).
-    * </pre></blockquote>
-    * Note that a % m &lt;= 0 if a &lt;= 0.
-    *
-    * @param value   the value
-    * @param modulus the modulus &gt; 0
-    * @return the remainder in [0, modulus)
-    * @throws IllegalArgumentException if modulus &lt;= 0;
-    */
-   public static int mod(int value, int modulus) {
-      if (modulus <= 0) {
-         throw new IllegalArgumentException("Non-positive modulus " + modulus);
-      }
-      int result = value % modulus;
-      return result >= 0 ? result : result + modulus;
-   }
-
-   public static double mod(double value, double modulus) {
-      if (modulus <= 0) {
-         throw new IllegalArgumentException("Non-positive modulus " + modulus);
-      }
-      double result = value % modulus;
-      return result >= 0 ? result : result + modulus;
-   }
-
-   public static float round(float value, float roundingFactor) {
-      return Float.isFinite(value) ? Math.round(value * roundingFactor) / roundingFactor : value;
-   }
-
-   public static double round(double value, double roundingFactor) {
-      return Double.isFinite(value) ? Math.round(value * roundingFactor) / roundingFactor : value;
-   }
-
-   public static double roundToNumberOfDigits(double value, int numberOfDigits) {
-      if (numberOfDigits < 1) {
-         throw new IllegalArgumentException(Integer.toString(numberOfDigits));
-      }
-      if (value == 0 || !Double.isFinite(value)) {
-         return value;
-      }
-      BigDecimal bigDecimal = BigDecimal.valueOf(value);
-      BigInteger unscaledValue = bigDecimal.unscaledValue().abs();
-      int digits = BigIntegerMath.log10(unscaledValue, RoundingMode.FLOOR) + 1;
-      return bigDecimal.setScale(bigDecimal.scale() - digits + numberOfDigits, RoundingMode.HALF_UP).doubleValue();
    }
 
    /**
@@ -553,7 +447,7 @@ public final class Utils {
          }
          iResult = shift > 0 ? shift - 1 : shift;
       }
-      return allValues.get(mod(iResult, allValues.size()));
+      return allValues.get(MathUtils.mod(iResult, allValues.size()));
    }
 
    /**
@@ -565,21 +459,17 @@ public final class Utils {
     */
    public static <T extends Enum<T>> T shift(T value, int shift) {
       T[] values = value.getDeclaringClass().getEnumConstants();
-      return values[mod(value.ordinal() + shift, values.length)];
+      return values[MathUtils.mod(value.ordinal() + shift, values.length)];
    }
 
-   public static double sq(double x) {
-      return x * x;
-   }
-
-   public static float hypot(float x, float y) {
-      // Math.hypot is ~100x slower than this:
-      return (float) Math.sqrt(x * x + y * y);
-   }
-
-   public static double hypot(double x, double y) {
-      // Math.hypot is ~100x slower than this:
-      return Math.sqrt(x * x + y * y);
+   public static <T extends Comparable<? super T>> T clamp(T value, T min, T max) {
+      if (value.compareTo(min) < 0) {
+         return min;
+      }
+      if (value.compareTo(max) > 0) {
+         return max;
+      }
+      return value;
    }
 
    public static <T> Consumer<T> emptyConsumer() {
@@ -625,7 +515,7 @@ public final class Utils {
       return null;
    }
 
-   public static <R> Gatherer<Object, ?, R> allOfType(Class<R> clazz) {
+   public static <R> Gatherer<@Nullable Object, ?, R> allOfType(Class<R> clazz) {
       return Gatherer.of(Gatherer.Integrator.ofGreedy((_, element, downstream) -> {
          return !clazz.isInstance(element) || downstream.push(clazz.cast(element));
       }));
@@ -640,6 +530,20 @@ public final class Utils {
       return Stream.concat(
             Stream.of(top),
             childrenExtractor.apply(top).stream().flatMap(child -> recursiveStream(child, childrenExtractor)));
+   }
+
+   public static <T> Collector<T, ?, List<T>> toSortedListCollector() {
+      return Collectors.collectingAndThen(Collectors.toCollection(ArrayList::new), list -> {
+         list.sort(null);
+         return list;
+      });
+   }
+
+   public static <T> Collector<T, ?, List<T>> toSortedListCollector(Comparator<? super T> c) {
+      return Collectors.collectingAndThen(Collectors.toCollection(ArrayList::new), list -> {
+         list.sort(c);
+         return list;
+      });
    }
 
    public static <T> @Nullable T nextOrNull(Iterator<T> iterator) {
@@ -678,7 +582,7 @@ public final class Utils {
     * @see #getPrecisionString(double)
     */
    public static String getPrecisionString(float x) {
-      return getPrecisionString((double) Math.nextUp(x));
+      return getPrecisionString((double) Math.nextUp(Math.abs(x)));
    }
 
    /**
@@ -688,7 +592,7 @@ public final class Utils {
     * @return a format string
     */
    public static String getPrecisionString(double x) {
-      int precision = Math.max(0, (int) -Math.floor(Math.log10(Math.nextUp(x))));
+      int precision = Math.max(0, (int) -Math.floor(Math.log10(Math.nextUp(Math.abs(x)))));
       return "%." + precision + "f";
    }
 
@@ -699,28 +603,23 @@ public final class Utils {
     * @return the reformatted number
     */
    public static String removeTrailingZeros(String number) {
-      int exponentialIndex = -1;
-      for (int i = number.length() - 1; i > 0; i--) {
-         char c = number.charAt(i);
-         if (c == '.' || c == ',') {
-            int removeEnd = exponentialIndex == -1 ? number.length() : exponentialIndex;
-            int removeBegin = removeEnd;
-            while (number.charAt(removeBegin - 1) == '0') {
-               removeBegin--;
+      for (int i = 0; i < number.length(); i++) {
+         char ci = number.charAt(i);
+         if (ci == '.' || ci == ',') {
+            int removeBegin = i;
+            for (int j = i + 1; j < number.length(); j++) {
+               char cj = number.charAt(j);
+               if (cj == 'E' || cj == 'e') {
+                  return removeBegin == j
+                        ? number
+                        : number.substring(0, removeBegin) + number.substring(j);
+               } else if (cj != '0') {
+                  removeBegin = j + 1;
+               }
             }
-            if (removeBegin == i + 1) {
-               removeBegin--;
-            }
-            if (removeBegin == removeEnd) {
-               return number;
-            }
-            String result = number.substring(0, removeBegin);
-            if (removeEnd == exponentialIndex) {
-               result += number.substring(exponentialIndex);
-            }
-            return result;
-         } else if (c == 'E' || c == 'e') {
-            exponentialIndex = i;
+            return removeBegin == number.length()
+                  ? number
+                  : number.substring(0, removeBegin);
          }
       }
       return number;
@@ -753,41 +652,26 @@ public final class Utils {
       if (d >= 0) {
          precision = Math.max(0, 2 - (int) Math.floor(d));
       } else {
-         precision = Math.max(2, (int) Math.floor(-d));
+         precision = Math.max(2, (int) Math.floor(-d) + 1);
       }
 
       String result = format("%." + precision + "f", value);
-      if (removeTrailingZeros) {
-         result = removeTrailingZeros(result);
-      }
-      return result;
+      return removeTrailingZeros ? removeTrailingZeros(result) : result;
    }
 
    /**
-    * Converts a string to a number without throwing NumberFormatException.
+    * Converts a string to a double without throwing NumberFormatException.
     *
     * @param string a string
-    * @return the parsed number, or {@code null} if parse error
+    * @return the parsed double, or {@code null} if parse error
     */
-   public static @Nullable Number stringToNumber(String string) {
+   public static @Nullable Double stringToNumber(String string) {
       try {
          string = string.replace(',', '.');
-         return Float.valueOf(string);
+         return Double.valueOf(string);
       } catch (NumberFormatException _) {
          return null;
       }
-   }
-
-   public static int parseInt(@Nullable String string, int defaultValue) {
-      return string != null ? Integer.parseInt(string) : defaultValue;
-   }
-
-   public static float parseFloat(@Nullable String string, float defaultValue) {
-      return string != null ? Float.parseFloat(string) : defaultValue;
-   }
-
-   public static double parseDouble(@Nullable String string, double defaultValue) {
-      return string != null ? Double.parseDouble(string) : defaultValue;
    }
 
    /**
@@ -828,7 +712,7 @@ public final class Utils {
    }
 
    /**
-    * Creates a non-localized instance of {@link DecimalFormatSymbols} with decimal separator '.' and minus sign '-'.
+    * Creates a non-localized instance of {@link DecimalFormatSymbols} with decimal separator "." and minus sign "-".
     *
     * @return a new instance of {@link DecimalFormatSymbols}
     */
@@ -840,14 +724,6 @@ public final class Utils {
       return new DecimalFormat(pattern, createDecimalFormatSymbols());
    }
 
-   public static DateTimeFormatter createUTCDateTimeFormatter(String pattern) {
-      return DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH).withZone(ZoneOffset.UTC);
-   }
-
-   public static DateTimeFormatter createLocalDateTimeFormatter(String pattern) {
-      return DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH).withZone(ZoneId.systemDefault());
-   }
-
    public static String nameAndUnit(String name, Unit unit) {
       return nameAndUnit(name, unit.text());
    }
@@ -857,7 +733,7 @@ public final class Utils {
    }
 
    /**
-    * Returns a human-readable size string, with max 3 digits and a unit.
+    * Returns a human-readable size string, rounded to about 3 significant digits, with a unit.
     *
     * @param bytes number of bytes
     * @return a string with size and unit
@@ -894,14 +770,6 @@ public final class Utils {
       }
    }
 
-   public static double interpolateDegrees(double deg1, double deg2, double weight1) {
-      double result = deg1 * weight1 + deg2 * (1 - weight1);
-      if (Math.abs(deg2 - deg1) > 180) {
-         result += 180;
-      }
-      return result < 360 ? result : result - 360;
-   }
-
    public static @Nullable String getSystemPropertyOrEnv(String key) {
       String property = System.getProperty(key);
       if (property != null) {
@@ -911,13 +779,15 @@ public final class Utils {
    }
 
    public static String getSystemProperties() {
-      StringBuilder sb = new StringBuilder("System properties:");
-      System.getProperties().forEach((key, value) -> sb.append('\n').append(key).append('=').append(value));
+      StringBuilder sb = new StringBuilder(16384).append("System properties:");
+      System.getProperties().forEach((key, value) -> {
+         sb.append('\n').append(key).append('=').append(value);
+      });
       sb
             .append("\nGit commit=").append(GIT_COMMIT)
             .append("\nMax memory=").append(Runtime.getRuntime().maxMemory())
             .append("\nProcessors=").append(Runtime.getRuntime().availableProcessors())
-            .append("\nToday=").append(new Date());
+            .append("\nNow=").append(Instant.now());
       return sb.toString();
    }
 
@@ -945,6 +815,37 @@ public final class Utils {
       return stringWriter.toString();
    }
 
+   @SafeVarargs
+   public static <E extends Throwable> void closeAll(ThrowingRunnable<? extends E>... closeables) throws E {
+      Throwable exception = null;
+      for (ThrowingRunnable<? extends E> closeable : closeables) {
+         try {
+            closeable.run();
+         } catch (Throwable e) {
+            if (exception == null) {
+               exception = e;
+            } else {
+               exception.addSuppressed(e);
+            }
+         }
+      }
+      if (exception != null) {
+         @SuppressWarnings("unchecked")
+         E e = (E) exception;
+         throw e;
+      }
+   }
+
+   public static void closeOrSuppress(Throwable e, @Nullable AutoCloseable closeable) {
+      if (closeable != null) {
+         try {
+            closeable.close();
+         } catch (Throwable suppressed) {
+            e.addSuppressed(suppressed);
+         }
+      }
+   }
+
    public static <E extends Throwable> void tryAndCleanup(ThrowingRunnable<? extends E> task, ThrowingRunnable<? extends E> cleanup) throws E {
       try {
          task.run();
@@ -959,59 +860,13 @@ public final class Utils {
       cleanup.run();
    }
 
-   public static void write(PrintWriter out, List<String> values, char separator) {
-      for (int i = 0; i < values.size(); i++) {
-         if (i != 0) {
-            out.print(separator);
-         }
-         out.print(values.get(i));
-      }
-      out.println();
-   }
-
-   public static void write(PrintWriter out, List<String> values, List<Integer> widths, boolean rightAligned) {
-      assert values.size() == widths.size();
-
-      int actualIndex = 0;
-      int targetIndex = 0;
-
-      for (int i = 0; i < values.size(); i++) {
-         String value = values.get(i);
-         targetIndex += widths.get(i);
-
-         if (i != 0) {
-            out.print(' ');
-            actualIndex++;
-            targetIndex++;
-         }
-         actualIndex += value.length();
-
-         int blanks = Math.max(0, targetIndex - actualIndex);
-         actualIndex += blanks;
-
-         int blanksBefore = rightAligned ? blanks : 0;
-         int blanksAfter = blanks - blanksBefore;
-
-         writeBlanks(out, blanksBefore);
-         out.print(value);
-         writeBlanks(out, blanksAfter);
-      }
-      out.println();
-   }
-
-   private static void writeBlanks(PrintWriter out, int count) {
-      for (int i = 0; i < count; i++) {
-         out.print(' ');
-      }
-   }
-
    public static String readBuildVersion(String key) {
       if (IS_BUILT_VERSION) {
          throw new IllegalStateException();
       }
       try {
          String s = Files.readString(LoggingManager.getTopInstallationDir().resolve("buildSrc/src/main/kotlin/no/marec/gradle/BuildVersions.kt"));
-         Matcher matcher = Pattern.compile(key + "[^=]*= \"([^\"]+)").matcher(s);
+         Matcher matcher = Pattern.compile("\\b" + key + "\\b[^=]*= \"([^\"]+)\"").matcher(s);
          if (matcher.find()) {
             return matcher.group(1);
          }

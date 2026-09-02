@@ -8,7 +8,7 @@ public final class EK500PingIndex extends DefaultPingIndex {
    private final @Nullable IndexRecord[] indexRecords;
 
    EK500PingIndex(IndexRecord indexRecord, int channelCount) {
-      super(indexRecord.getNTDate(), -1, indexRecord.distance, new GeoPoint(indexRecord.longitude, indexRecord.latitude));
+      super(indexRecord.getInstant(), -1, indexRecord.distance, new GeoPoint(indexRecord.longitude, indexRecord.latitude));
 
       indexRecords = new IndexRecord[channelCount];
    }

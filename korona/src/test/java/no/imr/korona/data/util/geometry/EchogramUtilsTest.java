@@ -59,4 +59,35 @@ final class EchogramUtilsTest {
             ),
             EchogramUtils.computeLine(IdentityDepthTransform.INSTANCE, new EchogramPoint(p1, 200), new EchogramPoint(p1, 100), dataFileSet));
    }
+
+   @Test
+   void addMissingPoints() {
+      DataManager dataManager = DataManagerTestUtils.testDataManager();
+      DataManagerTestUtils.open(dataManager, new ConstantSyntheticData(1000, 0).withFirstAndLastPingNumber(1, 10).toSegmentHandle());
+
+      DataFileSet dataFileSet = dataManager.getDataFileSet();
+      PingIndex p1 = dataFileSet.getTotalRange().begin();
+      PingIndex p2 = dataFileSet.getPingIndex(p1.getPingNumber() + 1);
+      PingIndex p3 = dataFileSet.getPingIndex(p1.getPingNumber() + 2);
+      PingIndex p4 = dataFileSet.getPingIndex(p1.getPingNumber() + 3);
+      PingIndex p5 = dataFileSet.getPingIndex(p1.getPingNumber() + 4);
+
+      assertEquals(List.of(
+                  new EchogramPoint(p1, 100),
+                  new EchogramPoint(p2, 200),
+                  new EchogramPoint(p3, 300),
+                  new EchogramPoint(p4, 400),
+                  new EchogramPoint(p5, 500),
+                  new EchogramPoint(p4, 400),
+                  new EchogramPoint(p3, 300),
+                  new EchogramPoint(p2, 200)
+            ),
+            EchogramUtils.addMissingPoints(List.of(
+                  new EchogramPoint(p1, 100),
+                  new EchogramPoint(p2, 200),
+                  new EchogramPoint(p5, 500),
+                  new EchogramPoint(p2, 200)
+            ), dataFileSet, IdentityDepthTransform.INSTANCE)
+      );
+   }
 }

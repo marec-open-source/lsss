@@ -8,6 +8,7 @@ import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import no.imr.lsss.modules.BaseModuleOverlay;
 import no.imr.lsss.modules.OverlayDisplayData;
+import no.imr.tools.misc.HtmlStringBuilder;
 import no.imr.tools.range.ArrayRangeSet;
 import no.imr.tools.range.RangeSet;
 import no.imr.tools.swing.GuiUtils;
@@ -91,11 +92,11 @@ public final class FileMarkerEngine {
 
    public @Nullable String getToolTipText() {
       if (activeDataFile != null) {
-         StringBuilder toolTipText = new StringBuilder("<html>")
-               .append(activeDataFile.getSegmentHandle().getDisplayName());
+         HtmlStringBuilder toolTipText = new HtmlStringBuilder()
+               .text(activeDataFile.getSegmentHandle().getDisplayName());
          String info = activeDataFile.getSegmentData().getInfo();
          if (info != null) {
-            toolTipText.append("<br>").append(info);
+            toolTipText.html("<br>").html(info);
          }
          return toolTipText.toString();
       } else {
@@ -115,7 +116,7 @@ public final class FileMarkerEngine {
       }
    }
 
-   private final class DisplayData extends OverlayDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private final float y1 = overlay.getHeight();
       private final float y0 = y1 - markerHeight;
       private final float radius = lineThickness / 2f;

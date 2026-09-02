@@ -8,6 +8,7 @@ import no.imr.tools.logging.Log;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,18 +30,15 @@ final class TimeShiftManager {
       return CACHE.getUnchecked(directory);
    }
 
-   private static long getNTDateDiff(IndexRecord indexRecord, TimeRecord timeRecord) {
-      return timeRecord.getNTDate(indexRecord) - indexRecord.getNTDate();
-   }
-
    /**
     * Representative time shifts for all files in a directory.
     */
    static final class DirectoryTimeShift {
-      private final Map<Integer, Long> transceiverAndFrequencyToTimeShift = new HashMap<>();
+      private final Map<Integer, Duration> transceiverAndFrequencyToTimeShift = new HashMap<>();
 
       private DirectoryTimeShift(Path directory) {
-         Map<Integer, List<Long>> map = new HashMap<>();
+         Map<Integer, List<Duration>> map = new HashMap<>();
+         Map<Integer, Integer> fileCounts = new HashMap<>();
 
          List<Path> files;
          try {
@@ -63,10 +61,10 @@ final class TimeShiftManager {
                      int transceiver = Integer.parseInt(matcher.group(3));
 
                      int key = getKey(frequency, transceiver);
-                     List<Long> timeShifts = map.computeIfAbsent(key, _ -> new ArrayList<>());
-                     if (timeShifts.size() > MAX_FILES_PER_FREQUENCY) {
+                     if (fileCounts.merge(key, 1, Integer::sum) > MAX_FILES_PER_FREQUENCY) {
                         continue;
                      }
+                     List<Duration> timeShifts = map.computeIfAbsent(key, _ -> new ArrayList<>());
 
                      String baseName = fileName.substring(0, fileName.length() - EK500DataFormatPlugin.TIME_SUFFIX.length());
                      Path infoFile = directory.resolve(baseName + EK500DataFormatPlugin.INFO_SUFFIX);
@@ -80,8 +78,8 @@ final class TimeShiftManager {
                      for (int i = 0; i < n; i++) {
                         IndexRecord indexRecord = indexRecords.get(i);
                         TimeRecord timeRecord = timeRecords.get(i);
-                        long timeShiftNTDate = getNTDateDiff(indexRecord, timeRecord);
-                        timeShifts.add(timeShiftNTDate);
+                        Duration timeShift = indexRecord.getInstant().until(timeRecord.getInstant(indexRecord));
+                        timeShifts.add(timeShift);
                      }
                   } catch (IOException e) {
                      Log.global.log(Level.INFO, "Error analyzing " + file, e);
@@ -90,8 +88,8 @@ final class TimeShiftManager {
             }
          }
 
-         for (Map.Entry<Integer, List<Long>> entry : map.entrySet()) {
-            List<Long> timeShifts = entry.getValue();
+         for (Map.Entry<Integer, List<Duration>> entry : map.entrySet()) {
+            List<Duration> timeShifts = entry.getValue();
             if (!timeShifts.isEmpty()) {
                timeShifts.sort(null);
                transceiverAndFrequencyToTimeShift.put(entry.getKey(), timeShifts.get(timeShifts.size() / 2));
@@ -99,9 +97,9 @@ final class TimeShiftManager {
          }
       }
 
-      long getTimeShiftNTDate(InfoRecord infoRecord) {
-         Long timeShift = transceiverAndFrequencyToTimeShift.get(getKey(infoRecord.frequency, infoRecord.transceiver));
-         return timeShift != null ? timeShift : 0;
+      Duration getTimeShift(InfoRecord infoRecord) {
+         Duration timeShift = transceiverAndFrequencyToTimeShift.get(getKey(infoRecord.frequency, infoRecord.transceiver));
+         return timeShift != null ? timeShift : Duration.ZERO;
       }
 
       private static int getKey(int frequency, int transceiver) {

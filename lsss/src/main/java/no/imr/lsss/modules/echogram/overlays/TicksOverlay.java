@@ -117,13 +117,7 @@ public final class TicksOverlay extends BaseEchogramOverlay {
       return new DisplayData(path);
    }
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final Path2D.Float path;
-
-      private DisplayData(Path2D.Float path) {
-         this.path = path;
-      }
-
+   private record DisplayData(Path2D.Float path) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setColor(Color.YELLOW);

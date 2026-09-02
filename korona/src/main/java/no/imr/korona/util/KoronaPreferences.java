@@ -7,6 +7,6 @@ public final class KoronaPreferences {
    }
 
    public static Preferences node(String name) {
-      return Preferences.userRoot().node("/no/marec/korona").node(name);
+      return Preferences.userRoot().node("no/marec/korona").node(name);
    }
 }

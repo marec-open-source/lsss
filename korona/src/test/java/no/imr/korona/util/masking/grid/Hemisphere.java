@@ -4,7 +4,7 @@ import no.imr.korona.util.masking.grid.surfaces.Surface;
 
 import java.awt.geom.Rectangle2D;
 
-final class Hemisphere extends Surface {
+final class Hemisphere implements Surface {
    private final double radius2;
    private final boolean up;
    private final Rectangle2D boundingBox;

@@ -74,6 +74,6 @@ final class TsDetectionModuleComputation extends ConcurrentPingModuleComputation
       List<TsDatagramDetection> detections = tsDetections.stream()
             .map(tsDataCandidate -> new TsDatagramDetection(channelData, tsDataCandidate))
             .toList();
-      ping.add(new TsDatagram(channelData.getNTDate(), channel, detections));
+      ping.add(new TsDatagram(channelData.getInstant(), channel, detections));
    }
 }

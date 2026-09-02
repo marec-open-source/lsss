@@ -33,7 +33,7 @@ import no.imr.tools.range.Range;
 import no.imr.tools.swing.ProgressView;
 import no.imr.tools.swing.WorkerDialog;
 import no.imr.tools.swing.icons.MiscIcons;
-import no.imr.tools.time.NTDate;
+import no.imr.tools.time.TimeUtils;
 import no.imr.tools.xml.XmlParseException;
 import no.marec.lsss.api.util.GeoPoint;
 import org.dom4j.Element;
@@ -43,6 +43,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,10 +59,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class CommentDataModule extends BaseDataModule {
-   static final DateTimeFormatter DATE_TIME_FORMATTER = Utils.createUTCDateTimeFormatter("yyyy.MM.dd HH:mm:ss");
+   static final DateTimeFormatter DATE_TIME_FORMATTER = TimeUtils.createUTCDateTimeFormatter("yyyy.MM.dd HH:mm:ss");
 
-   private final NavigableMap<Long, Comment> timeInMillisToComment = new ConcurrentSkipListMap<>();
-   private Range<Long> openedTimeInMillis = new DefaultRange<>(0L, 0L);
+   private final NavigableMap<Instant, Comment> timeToComment = new ConcurrentSkipListMap<>();
+   private Range<Instant> openedTimeRange = new DefaultRange<>(Instant.EPOCH, Instant.EPOCH);
    private final ChangeManager changeManager = new ChangeManager();
    private boolean needStoreToDatabase;
 
@@ -86,19 +87,19 @@ public final class CommentDataModule extends BaseDataModule {
    }
 
    Collection<Comment> getComments() {
-      return timeInMillisToComment.values();
+      return timeToComment.values();
    }
 
-   Collection<Comment> getComments(Range<Long> timeInMillisRange) {
-      return timeInMillisToComment.subMap(timeInMillisRange.begin(), timeInMillisRange.end()).values();
+   Collection<Comment> getComments(Range<Instant> timeRange) {
+      return timeToComment.subMap(timeRange.begin(), timeRange.end()).values();
    }
 
    Collection<Comment> getOpenedComments() {
-      return getComments(openedTimeInMillis);
+      return getComments(openedTimeRange);
    }
 
    boolean isOpenedComment(Comment comment) {
-      return openedTimeInMillis.contains(comment.timeInMillis());
+      return openedTimeRange.contains(comment.time());
    }
 
    ChangeManager getChangeManager() {
@@ -161,9 +162,9 @@ public final class CommentDataModule extends BaseDataModule {
          text.text("Standard comment #" + comment.standardComment() + ": " + standardCommentText);
       }
       text.html("<p>").text("Value: ").text(Utils.toString(comment.value()));
-      text.html("<p>").text("Time: ").text(DATE_TIME_FORMATTER.format(comment.toInstant()));
+      text.html("<p>").text("Time: ").text(DATE_TIME_FORMATTER.format(comment.time()));
 
-      SegmentHandle segmentHandle = getConfigurationManager().getDataConf().ntDateToOriginalSegmentHandle(NTDate.timeInMillisToNTDate(comment.timeInMillis()));
+      SegmentHandle segmentHandle = getConfigurationManager().getDataConf().instantToOriginalSegmentHandle(comment.time());
       if (segmentHandle != null) {
          text.html("<p>").text("File: ").text(segmentHandle.getDisplayName());
       }
@@ -204,10 +205,10 @@ public final class CommentDataModule extends BaseDataModule {
          return item;
       }
       boolean editable = !getRegionManager().isReadOnly(pingIndex);
-      Comment comment = timeInMillisToComment.get(DatabaseTime.roundMillis(pingIndex.getTimeInMillis()));
+      Comment comment = timeToComment.get(DatabaseTime.truncatedInstant(pingIndex.getInstant()));
       if (comment == null) {
          if (editable) {
-            item.addActionListener(_ -> editComment(survey, new Comment(pingIndex.getTimeInMillis(), ""), CommentDialog.Mode.ADD));
+            item.addActionListener(_ -> editComment(survey, new Comment(pingIndex.getInstant(), ""), CommentDialog.Mode.ADD));
          } else {
             item.setEnabled(false);
          }
@@ -244,7 +245,7 @@ public final class CommentDataModule extends BaseDataModule {
    }
 
    private void saveComment(Comment comment) {
-      Comment previousComment = timeInMillisToComment.put(comment.timeInMillis(), comment);
+      Comment previousComment = timeToComment.put(comment.time(), comment);
       if (previousComment != null && selection.getSelectedComments().contains(previousComment)) {
          selection.remove(List.of(previousComment));
          selection.add(List.of(comment));
@@ -273,7 +274,7 @@ public final class CommentDataModule extends BaseDataModule {
          if (comment.equals(activeComment)) {
             setActiveComment(null);
          }
-         timeInMillisToComment.remove(comment.timeInMillis());
+         timeToComment.remove(comment.time());
       }
       changeManager.notifyListeners();
 
@@ -315,15 +316,13 @@ public final class CommentDataModule extends BaseDataModule {
    }
 
    private PingIndex commentToPingIndex(Comment comment) {
-      return getInterpretationSettings().getDataFileSet().getClosestPingIndex(PingMapping.millisToTimeValue(comment.timeInMillis()), PingMapping.TIME);
+      return getInterpretationSettings().getDataFileSet().getClosestPingIndex(PingMapping.instantToTimeValue(comment.time()), PingMapping.TIME);
    }
 
    private static ObservationPK createObservationPK(Survey survey, Comment comment) {
-      DatabaseTime databaseTime = new DatabaseTime(comment.timeInMillis());
+      DatabaseTime databaseTime = new DatabaseTime(comment.time());
       return new ObservationPK(
-            survey.getCompId().getNation(),
-            survey.getCompId().getPlatform(),
-            survey.getCompId().getSurvey(),
+            survey.getCompId(),
             databaseTime.getDate(),
             databaseTime.getTime(),
             ObservationTypeEnum.NAVIGATION_DATA_INPUT.getValue());
@@ -360,7 +359,7 @@ public final class CommentDataModule extends BaseDataModule {
                            }
                            Ping ping = dataFile.getPing(pingIndex);
                            ping.getPingItems(Tag0Datagram.class).forEach(tag0Datagram -> {
-                              Comment comment = new Comment(pingIndex.getTimeInMillis(), tag0Datagram.getAnnotation());
+                              Comment comment = new Comment(pingIndex.getInstant(), tag0Datagram.getAnnotation());
                               saveComment(comment);
                               count.incrementAndGet();
                            });
@@ -374,18 +373,18 @@ public final class CommentDataModule extends BaseDataModule {
       }
    }
 
-   private NavigableMap<Long, Comment> fetchCommentsFromDatabase() {
+   private NavigableMap<Instant, Comment> fetchCommentsFromDatabase() {
       Survey survey = getSurvey();
       if (survey == null) {
          return Collections.emptyNavigableMap();
       }
       return getLSSS().getDatabaseManager().getDatabaseConnection().executeFetchQuery(LsssQuery.fetch(ObservationComment.class, survey)).stream()
             .map(observationComment -> new Comment(
-                  DatabaseTime.toMillis(observationComment),
+                  DatabaseTime.toInstant(observationComment),
                   observationComment.getStandardComment(),
                   valueAsBigDecimal(observationComment).doubleValue(),
                   observationComment.getText()))
-            .collect(Collectors.toMap(Comment::timeInMillis, Function.identity(), (a, _) -> a, TreeMap::new));
+            .collect(Collectors.toMap(Comment::time, Function.identity(), (a, _) -> a, TreeMap::new));
    }
 
    private void surveyChanged() {
@@ -409,16 +408,16 @@ public final class CommentDataModule extends BaseDataModule {
       if (survey == null) {
          return;
       }
-      if (openedTimeInMillis.isEmpty()) {
+      if (openedTimeRange.isEmpty()) {
          return;
       }
       needStoreToDatabase = false;
 
-      NavigableMap<Long, Comment> timeInMillisToDatabaseComment = fetchCommentsFromDatabase();
-      SortedMap<Long, Comment> databaseComments = timeInMillisToDatabaseComment.subMap(openedTimeInMillis.begin(), openedTimeInMillis.end());
-      SortedMap<Long, Comment> db = new TreeMap<>(databaseComments);
+      NavigableMap<Instant, Comment> timeToDatabaseComment = fetchCommentsFromDatabase();
+      SortedMap<Instant, Comment> databaseComments = timeToDatabaseComment.subMap(openedTimeRange.begin(), openedTimeRange.end());
+      SortedMap<Instant, Comment> db = new TreeMap<>(databaseComments);
       for (Comment workFileComment : getOpenedComments()) {
-         Comment dbComment = db.remove(workFileComment.timeInMillis());
+         Comment dbComment = db.remove(workFileComment.time());
          if (workFileComment.equals(dbComment)) {
             continue;
          }
@@ -428,7 +427,7 @@ public final class CommentDataModule extends BaseDataModule {
    }
 
    private final class CommentWorkFileExtra extends WorkFileExtra {
-      private NavigableMap<Long, Comment> timeInMillisToDatabaseComment = Collections.emptyNavigableMap();
+      private NavigableMap<Instant, Comment> timeToDatabaseComment = Collections.emptyNavigableMap();
 
       private CommentWorkFileExtra() {
          super("comments");
@@ -436,8 +435,8 @@ public final class CommentDataModule extends BaseDataModule {
 
       @Override
       public void toXml(DataFile dataFile, Element element) {
-         Range<Long> dataFileTimeInMillis = DatabaseTime.toMillisRange(dataFile.getPingRange());
-         timeInMillisToComment.subMap(dataFileTimeInMillis.begin(), dataFileTimeInMillis.end()).values().stream()
+         Range<Instant> dataFileTimeRange = DatabaseTime.toTimeRange(dataFile.getPingRange());
+         timeToComment.subMap(dataFileTimeRange.begin(), dataFileTimeRange.end()).values().stream()
                .map(Comment::toXml)
                .forEach(element::add);
       }
@@ -446,19 +445,19 @@ public final class CommentDataModule extends BaseDataModule {
       public void beginFromXml() {
          activeComment = null;
          selection.replace(List.of());
-         timeInMillisToComment.clear();
-         openedTimeInMillis = DatabaseTime.toMillisRange(getInterpretationSettings().getDataFileSet().getTotalRange());
-         timeInMillisToDatabaseComment = fetchCommentsFromDatabase();
-         timeInMillisToComment.putAll(timeInMillisToDatabaseComment.headMap(openedTimeInMillis.begin()));
-         timeInMillisToComment.putAll(timeInMillisToDatabaseComment.tailMap(openedTimeInMillis.end()));
+         timeToComment.clear();
+         openedTimeRange = DatabaseTime.toTimeRange(getInterpretationSettings().getDataFileSet().getTotalRange());
+         timeToDatabaseComment = fetchCommentsFromDatabase();
+         timeToComment.putAll(timeToDatabaseComment.headMap(openedTimeRange.begin()));
+         timeToComment.putAll(timeToDatabaseComment.tailMap(openedTimeRange.end()));
       }
 
       @Override
       public void fromXml(DataFile dataFile, @Nullable Element element, int originalVersion) {
          if (originalVersion < 2) {
             // Work file did not know about comments => Use comments in database.
-            Range<Long> dataFileTimeInMillis = DatabaseTime.toMillisRange(dataFile.getPingRange());
-            timeInMillisToComment.putAll(timeInMillisToDatabaseComment.subMap(dataFileTimeInMillis.begin(), dataFileTimeInMillis.end()));
+            Range<Instant> dataFileTimeRange = DatabaseTime.toTimeRange(dataFile.getPingRange());
+            timeToComment.putAll(timeToDatabaseComment.subMap(dataFileTimeRange.begin(), dataFileTimeRange.end()));
             return;
          }
          if (element == null) {
@@ -467,7 +466,7 @@ public final class CommentDataModule extends BaseDataModule {
          element.elements().forEach(commentElement -> {
             try {
                Comment comment = Comment.fromXml(commentElement);
-               timeInMillisToComment.put(comment.timeInMillis(), comment);
+               timeToComment.put(comment.time(), comment);
             } catch (XmlParseException e) {
                Log.global.warning("Error parsing comment in " + dataFile.getSegmentHandle().getDisplayName() + ": " + e);
             }
@@ -477,7 +476,7 @@ public final class CommentDataModule extends BaseDataModule {
       @Override
       public void endFromXml() {
          needStoreToDatabase = true;
-         timeInMillisToDatabaseComment = Collections.emptyNavigableMap();
+         timeToDatabaseComment = Collections.emptyNavigableMap();
          changeManager.notifyListeners();
       }
    }

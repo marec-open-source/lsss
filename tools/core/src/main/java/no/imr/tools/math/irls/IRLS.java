@@ -36,6 +36,10 @@ public final class IRLS {
          fittableModel.updateResiduals(weightedObservations);
          double previousChiSquared = chiSquared;
          chiSquared = calculateChiSquared(weightedObservations);
+         if (chiSquared == 0) {
+            // Perfect fit. This test avoids maxIterations if chiSquared = 0 in the first iteration.
+            break;
+         }
          double chiChange = Math.abs(chiSquared - previousChiSquared);
          if (chiChange < xi * previousChiSquared) {
             break;
@@ -51,7 +55,7 @@ public final class IRLS {
    private static double calculateChiSquared(List<WeightedObservation> weightedObservations) {
       double chiSquared = 0;
       for (WeightedObservation weightedObservation : weightedObservations) {
-         if (weightedObservation.getWeight() > Double.MIN_VALUE) {
+         if (weightedObservation.getWeight() > 0) {
             double r = weightedObservation.getResidual();
             chiSquared += r * r;
          }

@@ -45,7 +45,7 @@ public final class DataFilePreview {
          draw((Graphics2D) g);
       }
    };
-   private final DataFormatManager dataFormatManager;
+   private final DataFormatManager dataFormatManager = new DataFormatManager();
    private final DefaultDataConfiguration dataConfiguration = new DefaultDataConfiguration();
    private final DataManager dataManager = new DataManager(dataConfiguration);
    private final SingleValueColorConverter colorConverter = new SingleValueColorConverter(new SvVariable(), Colormaps.COMBINED);
@@ -57,8 +57,6 @@ public final class DataFilePreview {
    private @Nullable Path file;
 
    public DataFilePreview() {
-      dataFormatManager = new DataFormatManager();
-
       component.setPreferredSize(new Dimension(WIDTH, 1));
       component.setBorder(BorderFactory.createEtchedBorder());
       component.addComponentListener(new ComponentAdapter() {
@@ -122,7 +120,7 @@ public final class DataFilePreview {
       FileOpenRequest fileOpenRequest = new FileOpenRequest(List.of(segmentHandle));
       dataManager.asyncOpenFiles(fileOpenRequest);
       fileOpenRequest.getAsyncHandle().waitUntilFinished();
-      if (dataManager.getDataFileSet().getTotalRange().isEmpty()) {
+      if (dataManager.getDataFileSet().isEmpty()) {
          setText("No data");
          return;
       }

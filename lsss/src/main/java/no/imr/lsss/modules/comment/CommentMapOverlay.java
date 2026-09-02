@@ -21,9 +21,9 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -65,46 +65,42 @@ public final class CommentMapOverlay extends BaseMapOverlay {
    @Override
    protected @Nullable OverlayDisplayData recomputeDisplayData() {
       ExtendedSurveyLine extendedSurveyLine = getInterpretationSettings().getMapSettings().getExtendedSurveyLine();
-      Range<Long> millisRange = extendedSurveyLine.getTotalPingRange().toMillisRange();
-      Collection<Comment> comments = commentDataModule.get().getComments(millisRange);
+      Range<Instant> timeRange = extendedSurveyLine.getTotalPingRange().toTimeRange();
+      Collection<Comment> comments = commentDataModule.get().getComments(timeRange);
       if (comments.isEmpty()) {
          return null;
       }
       Rectangle2D geoRect = getMapModule().getGeoRect();
       GeoTransform geoTransform = getMapModule().getGeoTransform();
       List<Marker> markers = comments.stream()
-            .map(comment -> {
-               PingIndex pingIndex = extendedSurveyLine.getClosestPingIndex(PingMapping.millisToTimeValue(comment.timeInMillis()), PingMapping.TIME);
+            .<Marker>mapMulti((comment, consumer) -> {
+               PingIndex pingIndex = extendedSurveyLine.getClosestPingIndex(PingMapping.instantToTimeValue(comment.time()), PingMapping.TIME);
                GeoPoint geoPoint = pingIndex.getGeographicalPosition();
                if (geoPoint == null || !geoRect.contains(geoPoint)) {
-                  return null;
+                  return;
                }
                Point2D.Float pixPoint = new Point2D.Float();
                geoTransform.geoToPix(geoPoint, pixPoint);
-               return new Marker(comment, pixPoint.x, pixPoint.y);
+               consumer.accept(new Marker(comment, pixPoint.x, pixPoint.y));
             })
-            .filter(Objects::nonNull)
             .toList();
       if (markers.isEmpty()) {
          return null;
       }
-      return new DisplayData(markers);
+      return new DisplayData(markers, commentDataModule.get());
    }
 
    private record Marker(Comment comment, float x, float y) {
    }
 
-   private final class DisplayData extends OverlayDisplayData {
-      private final List<Marker> markers;
-
-      private DisplayData(List<Marker> markers) {
-         this.markers = markers;
-      }
-
+   private record DisplayData(
+         List<Marker> markers,
+         CommentDataModule commentDataModule
+   ) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
-         Comment activeComment = commentDataModule.get().getActiveComment();
-         Set<Comment> selectedComments = commentDataModule.get().getSelection().getSelectedComments();
+         Comment activeComment = commentDataModule.getActiveComment();
+         Set<Comment> selectedComments = commentDataModule.getSelection().getSelectedComments();
          Marker activeMarker = null;
          for (Marker marker : markers) {
             if (marker.comment == activeComment) {
@@ -134,7 +130,7 @@ public final class CommentMapOverlay extends BaseMapOverlay {
       @Override
       public boolean intersects(Rectangle2D rectangle) {
          Comment comment = getIntersectingComment(rectangle);
-         commentDataModule.get().setActiveComment(comment);
+         commentDataModule.setActiveComment(comment);
          return comment != null;
       }
 

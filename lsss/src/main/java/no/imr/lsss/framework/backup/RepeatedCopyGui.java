@@ -1,11 +1,11 @@
 package no.imr.lsss.framework.backup;
 
 import no.imr.lsss.viewer.Shortcuts;
-import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.concurrent.Exec;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.BorderFactory;
@@ -25,7 +25,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.function.Supplier;
 
 final class RepeatedCopyGui {
@@ -131,11 +130,11 @@ final class RepeatedCopyGui {
    }
 
    private void waitTimerTick() {
-      long waitMillis = Instant.now().until(nextCopyTime, ChronoUnit.MILLIS);
-      if (waitMillis <= 0) {
-         startCopy();
+      Duration waitDuration = Instant.now().until(nextCopyTime);
+      if (waitDuration.isPositive()) {
+         remainingWaitTimeLabel.setText(TimeUtils.getDurationString(waitDuration));
       } else {
-         remainingWaitTimeLabel.setText(Utils.getDurationString(waitMillis));
+         startCopy();
       }
    }
 }

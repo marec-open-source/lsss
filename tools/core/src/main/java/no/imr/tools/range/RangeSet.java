@@ -15,7 +15,9 @@ public interface RangeSet<K extends Comparable<? super K>> extends Iterable<Rang
 
    boolean containsAll(Range<K> range);
 
-   boolean containsNone(Range<K> range);
+   default boolean containsNone(Range<K> range) {
+      return !containsAny(range);
+   }
 
    int size();
 

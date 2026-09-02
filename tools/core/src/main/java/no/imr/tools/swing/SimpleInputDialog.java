@@ -106,7 +106,7 @@ public final class SimpleInputDialog<T> {
       JPanel mainPanel = new JPanel(new BorderLayout());
       mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
       mainPanel.add(contentPanel);
-      mainPanel.add(BorderLayout.SOUTH, buttonPanel);
+      mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
       dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
       dialog.getRootPane().setDefaultButton(okButton);

@@ -23,7 +23,7 @@ final class PingCache {
          int channel = powerData.getChannel();
          float[] svArray = powerData.getSv();
 
-         WelfordsMethod welfordsMethod = svSum.getWelfordsMethod()[channel - 1];
+         WelfordsMethod welfordsMethod = svSum.getWelfordsMethod(channel - 1);
 
          for (FloatRange depthRange : regionManager.getDepthRangesForChannel(region, ping, channel)) {
             int iBegin = powerData.depthToClampedSampleIndex(depthRange.min());

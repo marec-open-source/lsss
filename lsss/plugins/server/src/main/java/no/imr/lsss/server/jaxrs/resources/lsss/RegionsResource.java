@@ -38,7 +38,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableMap;
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -56,11 +55,12 @@ public final class RegionsResource {
    public Stream<ApiPingMask> getDeletion() {
       Mask mask = lsss.getRegionManager().getMaskingManager().getMask(lsss.getInterpretationSettings().getChannel());
       return lsss.getInterpretationSettings().getDataFileSet().getPingIndices().stream()
-            .map(pingIndex -> {
+            .mapMulti((pingIndex, consumer) -> {
                List<FloatRange> depthRanges = mask.get(pingIndex).getFloatRanges();
-               return depthRanges.isEmpty() ? null : new ApiPingMask(pingIndex, depthRanges);
-            })
-            .filter(Objects::nonNull);
+               if (!depthRanges.isEmpty()) {
+                  consumer.accept(new ApiPingMask(pingIndex, depthRanges));
+               }
+            });
    }
 
    @POST
@@ -221,7 +221,7 @@ public final class RegionsResource {
 
       List<Predicate<Region>> predicates = new ArrayList<>();
       if (request.all != null) {
-         predicates.add(region -> request.all);
+         predicates.add(_ -> request.all);
       }
       if (request.layers != null) {
          predicates.add(region -> request.layers == region instanceof Layer);

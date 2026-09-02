@@ -1,6 +1,6 @@
 <h1>Edge detection module</h1>
 <p>
-   Detects edges by using sobel horizontal and vertical filter.
+   Detects edges by using Sobel horizontal and vertical filters.
    Filter can be prolonged vertically by setting <a class="marec-parameter-ref" href="#VertResolution">Vertical resolution</a>.
    Value if gradient is 0 is -120, and increases linearly with strength of edge.
    Value is multiplied with scaleFactor.
@@ -18,25 +18,25 @@
       Shows more detailed settings (Only last, Channels to process, Automatic depth range, Start depth, End depth).
    </li>
    <li><span class="marec-parameter-def" id="OnlyLast">Only last:</span>
-      When true, only last channel is processed, if false all channels are processed.
+      When true, only the last channel is processed; if false, all channels are processed.
    </li>
    <li><span class="marec-parameter-def" id="ChannelsToProcess">Channels to process:</span>
       Process the n last channels (-1 for all channels).
    </li>
    <li><span class="marec-parameter-def" id="AutomaticDepthRange">Automatic depth range:</span>
       If true and Bottom detection module is used, then the range goes to the detected seabed,
-      if true and Bottom detection module is not used, the range goes to max depth of the ping.
+      if true and Bottom detection module is not used, the range goes to the max depth of the ping.
    </li>
    <li><span class="marec-parameter-def" id="StartDepth">Start depth:</span>
-      Start depth in meter for filter.
+      Start depth in meters for the filter.
    </li>
    <li><span class="marec-parameter-def" id="EndDepth">End depth:</span>
-      End depth in meter for filter.
+      End depth in meters for the filter.
    </li>
    <li><span class="marec-parameter-def" id="ScaleFactor">Scale factor:</span>
       Scale of filter.
    </li>
    <li><span class="marec-parameter-def" id="VertResolution">Vertical resolution:</span>
-      Vertical resolution of filter(integer).
+      Vertical resolution of filter (integer).
    </li>
 </ul>

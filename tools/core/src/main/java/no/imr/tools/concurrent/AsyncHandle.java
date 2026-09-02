@@ -100,6 +100,7 @@ public final class AsyncHandle implements no.marec.lsss.api.util.AsyncHandle, Ma
       AtomicInteger state = new AtomicInteger(0);
       executor.execute(() -> {
          try {
+            // NB: Set state _before_ checking cancelled.
             state.set(1);
             if (cancelled) {
                return;
@@ -117,6 +118,7 @@ public final class AsyncHandle implements no.marec.lsss.api.util.AsyncHandle, Ma
             if (state.get() == 2) {
                break; // done
             }
+            // NB: Check cancelled _before_ checking state.
             if (cancelled && state.get() == 0) {
                break; // cancelled and not started
             }

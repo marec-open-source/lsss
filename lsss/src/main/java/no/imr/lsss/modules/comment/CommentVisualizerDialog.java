@@ -19,7 +19,7 @@ final class CommentVisualizerDialog implements ItemContainer<Comment> {
       this.commentDataModule = commentDataModule;
 
       List<ItemFeature<Comment>> features = List.of(
-            ItemFeature.Time.fromMillis("Time", Unit.UTC, Comment::timeInMillis, CommentDataModule.DATE_TIME_FORMATTER),
+            ItemFeature.Time.fromInstant("Time", Unit.UTC, Comment::time, CommentDataModule.DATE_TIME_FORMATTER),
             new ItemFeature.Int<>("Standard comment", Unit.NONE, Comment::standardComment),
             new ItemFeature.Number<>("Value", Unit.NONE, Comment::value),
             new ItemFeature.Text<>("Text", commentDataModule::commentToOneLineText)

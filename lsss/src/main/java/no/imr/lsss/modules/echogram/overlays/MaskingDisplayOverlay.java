@@ -315,7 +315,7 @@ public final class MaskingDisplayOverlay extends BaseEchogramOverlay {
    private RangeSet<Integer> createExclusionUpdates(int beginX, int endX) {
       EchogramPingSettings pingSettings = getPingSettings();
       RangeSet<Integer> updates = new ArrayRangeSet<>();
-      getRegionManager().getExclusionManager().getExclusions().stream().forEach(pingRange -> {
+      getRegionManager().getExclusionManager().getExclusions().forEach(pingRange -> {
          int x0 = Math.max(beginX, pingSettings.pingIndexToXIndex(pingRange.begin()));
          int x1 = Math.min(endX, pingSettings.pingIndexToXIndex(pingRange.end()));
          if (x0 >= x1) {
@@ -402,7 +402,7 @@ public final class MaskingDisplayOverlay extends BaseEchogramOverlay {
       }
    }
 
-   private final class DisplayData extends OverlayDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private DisplayData() {
       }
 

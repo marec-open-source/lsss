@@ -40,6 +40,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableSet;
@@ -50,7 +51,7 @@ final class TrackingModuleComputation extends GeneralPingModuleComputation imple
 
    private final TargetTracker targetTracker;
    private final List<Integer> validIds = new ArrayList<>();
-   private final NavigableSet<Long> ntDates = new TreeSet<>();
+   private final NavigableSet<Instant> instants = new TreeSet<>();
    private final float blindZone;
    private final int channel;
    private @Nullable Ping ping;
@@ -72,7 +73,7 @@ final class TrackingModuleComputation extends GeneralPingModuleComputation imple
       return switch (module.targetTrackerType.getValue()) {
          case AGGREGATION -> {
             yield createTargetTracker(
-                  new AggregationCandidateExtractor(channel, tsRange(), 2 * module.maxGainCompensation.getFloatValue()),
+                  new AggregationCandidateExtractor(channel, tscRange(), 2 * module.maxGainCompensation.getFloatValue()),
                   new AggregationAssociator(module.maxMissingSamples.getIntValue()),
                   new AggregationInitiator(module.initiationGateFunction.create(), module.initiationMinLength.getIntValue()),
                   new AggregationCompositor());
@@ -114,7 +115,7 @@ final class TrackingModuleComputation extends GeneralPingModuleComputation imple
          case MOVING -> new MovingPositionFunction();
       };
 
-      targetCandidateExtractor = new FilteringTargetCandidateExtractor(targetCandidateExtractor, tsRange(), module.maxDepth.getValue().orElse(Float.POSITIVE_INFINITY),
+      targetCandidateExtractor = new FilteringTargetCandidateExtractor(targetCandidateExtractor, tscRange(), module.maxDepth.getValue().orElse(Float.POSITIVE_INFINITY),
             module.maxAlongshipAngle.getFloatValue(), module.maxAthwartshipAngle.getFloatValue());
 
       Terminator terminator = new SimpleTerminator(module.maxMissingPings.getIntValue());
@@ -128,7 +129,7 @@ final class TrackingModuleComputation extends GeneralPingModuleComputation imple
             module.gateFunction.create(), trackIdGenerator);
    }
 
-   private FloatRange tsRange() {
+   private FloatRange tscRange() {
       return FloatRange.of(module.minTS.getFloatValue(), module.maxTS.getFloatValue());
    }
 
@@ -144,7 +145,7 @@ final class TrackingModuleComputation extends GeneralPingModuleComputation imple
 
       if (peekPingSourcePing(0) == null) {
          targetTracker.end();
-         ping.add(new TTC0Datagram(ping.getNTDate(), Utils.toInts(validIds), Utils.toLongs(ntDates)));
+         ping.add(new TTC0Datagram(ping.getInstant(), Utils.toInts(validIds), List.copyOf(instants)));
       }
 
       return ping;
@@ -181,7 +182,7 @@ final class TrackingModuleComputation extends GeneralPingModuleComputation imple
       float minDepth = powerData.rangeToDepth(trackPoint.getRangeRange().min());
       float maxDepth = powerData.rangeToDepth(trackPoint.getRangeRange().max());
       float peakDepth = powerData.rangeToDepth(trackPoint.getMeasurement().range());
-      ping.add(new TBR0Datagram(ping.getNTDate(), id, channel, FloatRange.of(minDepth, maxDepth), peakDepth));
+      ping.add(new TBR0Datagram(ping.getInstant(), id, channel, FloatRange.of(minDepth, maxDepth), peakDepth));
    }
 
    @Override
@@ -191,10 +192,10 @@ final class TrackingModuleComputation extends GeneralPingModuleComputation imple
       }
       int pingsSinceFirst = (int) (ping.getPingNumber() - track.getPoints().getFirst().getPingIndex().getPingNumber());
       int pingsSinceLast = (int) (ping.getPingNumber() - track.getLastPointWithEstimate().getPingIndex().getPingNumber());
-      ping.add(new TNF0Datagram(ping.getNTDate(), track.getId(), channel, valid, pingsSinceFirst, pingsSinceLast));
+      ping.add(new TNF0Datagram(ping.getInstant(), track.getId(), channel, valid, pingsSinceFirst, pingsSinceLast));
       if (valid) {
          validIds.add(track.getId());
-         ntDates.add(ping.getNTDate());
+         instants.add(ping.getInstant());
       }
    }
 }

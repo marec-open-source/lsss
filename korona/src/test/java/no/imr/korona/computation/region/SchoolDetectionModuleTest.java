@@ -18,6 +18,7 @@ import no.imr.tools.test.JUnitUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -214,17 +215,17 @@ final class SchoolDetectionModuleTest {
       JUnitUtils.runWithRandom(random -> {
          SyntheticData syntheticData = new SyntheticData() {
             @Override
-            protected int getTransducerCount() {
+            public int getTransducerCount() {
                return 1;
             }
 
             @Override
-            protected float getFrequency(int channel) {
+            public float getFrequency(int channel) {
                return 38_000;
             }
 
             @Override
-            protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+            public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
                float[] sv = new float[100];
                int n = random.nextInt(5);
                for (int i = 0; i < n; i++) {
@@ -304,11 +305,11 @@ final class SchoolDetectionModuleTest {
       } else {
          assertEquals(1, regionTableOfContentsDatagrams.size());
          RegionTableOfContentsDatagram toc = regionTableOfContentsDatagrams.getFirst();
-         long[] infoNTDates = regionInfoDatagrams.stream()
-               .mapToLong(BaseDatagram::getNTDate)
+         List<Instant> infoInstants = regionInfoDatagrams.stream()
+               .map(BaseDatagram::getInstant)
                .distinct()
-               .toArray();
-         assertArrayEquals(toc.getNTDates(), infoNTDates);
+               .toList();
+         assertEquals(toc.getInstants(), infoInstants);
       }
       assertEquals(0, activeBorderIds.size());
 

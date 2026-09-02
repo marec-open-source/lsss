@@ -5,8 +5,11 @@ import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.tools.listening.ChangeManager;
-import no.imr.tools.time.NTDate;
+import no.imr.tools.math.MathUtils;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
+
+import java.time.Instant;
 
 /**
  * The horizontal configuration of an echogram.
@@ -69,36 +72,28 @@ public abstract class EchogramPingSettings {
       return Math.round(pingIndexToX(pingIndex));
    }
 
-   public long xToMillis(double x) {
-      return NTDate.ntDateToTimeInMillis(xToNTDate(x));
-   }
-
-   public long xToNTDate(double x) {
+   public Instant xToInstant(double x) {
       PingIndex a = xToContainingPingIndex(x);
       if (a == null) {
          a = xToClosestPingIndex(x);
-         return a.getNTDate();
+         return a.getInstant();
       }
       PingIndex b = getPingContainer().nextOrNull(a);
       if (b == null) {
-         return a.getNTDate();
+         return a.getInstant();
       }
       double xa = pingIndexToX(a);
       double xb = pingIndexToX(b);
       double dx = xb - xa;
       if (dx == 0) {
-         return a.getNTDate();
+         return a.getInstant();
       }
       double f = (x - xa) / dx;
-      return (long) ((1 - f) * a.getNTDate() + f * b.getNTDate());
+      return TimeUtils.interpolateInstant(a.getInstant(), b.getInstant(), f);
    }
 
-   public float millisToX(long millis) {
-      return valueToX(PingMapping.millisToTimeValue(millis), PingMapping.TIME);
-   }
-
-   public float ntDateToX(long ntDate) {
-      return valueToX(PingMapping.ntDateToTimeValue(ntDate), PingMapping.TIME);
+   public float instantToX(Instant instant) {
+      return valueToX(PingMapping.instantToTimeValue(instant), PingMapping.TIME);
    }
 
    public float valueToX(double value, PingMapping pingMapping) {
@@ -116,8 +111,8 @@ public abstract class EchogramPingSettings {
       double valA = pingMapping.valueOf(a);
       double valB = pingMapping.valueOf(b);
       double diff = valB - valA;
-      float f = diff == 0 ? 0 : (float) ((value - valA) / diff);
-      return (1 - f) * pingIndexToX(a) + f * pingIndexToX(b);
+      double f = diff == 0 ? 0 : (value - valA) / diff;
+      return (float) MathUtils.interpolate(pingIndexToX(a), pingIndexToX(b), f);
    }
 
    public double xToValue(double x, PingMapping pingMapping) {
@@ -135,7 +130,7 @@ public abstract class EchogramPingSettings {
       double xA = pingIndexToX(a);
       double xB = pingIndexToX(b);
       double diff = xB - xA;
-      double f = diff == 0 ? 0 : ((x - xA) / diff);
-      return (1 - f) * pingMapping.valueOf(a) + f * pingMapping.valueOf(b);
+      double f = diff == 0 ? 0 : (x - xA) / diff;
+      return MathUtils.interpolate(pingMapping.valueOf(a), pingMapping.valueOf(b), f);
    }
 }

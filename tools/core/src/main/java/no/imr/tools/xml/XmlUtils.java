@@ -26,13 +26,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -42,7 +42,7 @@ import java.util.zip.GZIPOutputStream;
 public final class XmlUtils {
    public static final String VERSION = "version";
 
-   private static final ThreadLocal<SAXReader> THREAD_LOCAL_SAX_READER = ThreadLocal.withInitial(SAXReader::createDefault);
+   private static final ThreadLocal<@Nullable SoftReference<SAXReader>> THREAD_LOCAL_SAX_READER = new ThreadLocal<>();
 
    private XmlUtils() {
    }
@@ -130,11 +130,21 @@ public final class XmlUtils {
 
    public static Document readDocument(InputStream inputStream) throws IOException {
       try {
-         SAXReader saxReader = THREAD_LOCAL_SAX_READER.get();
+         SAXReader saxReader = getThreadLocalSaxReader();
          return saxReader.read(inputStream);
       } catch (DocumentException e) {
          throw new XmlException(e);
       }
+   }
+
+   private static SAXReader getThreadLocalSaxReader() {
+      SoftReference<SAXReader> saxReaderRef = THREAD_LOCAL_SAX_READER.get();
+      SAXReader saxReader = saxReaderRef != null ? saxReaderRef.get() : null;
+      if (saxReader == null) {
+         saxReader = SAXReader.createDefault();
+         THREAD_LOCAL_SAX_READER.set(new SoftReference<>(saxReader));
+      }
+      return saxReader;
    }
 
    public static String readRootElementName(Path file) throws IOException {
@@ -146,7 +156,7 @@ public final class XmlUtils {
    }
 
    private static String readRootElementName(InputStream inputStream) throws XMLStreamException, IOException {
-      XMLEventReader xmlEventReader = XMLInputFactory.newInstance().createXMLEventReader(inputStream);
+      XMLEventReader xmlEventReader = XMLInputFactory.newFactory().createXMLEventReader(inputStream);
       try {
          while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = xmlEventReader.nextEvent();
@@ -265,12 +275,12 @@ public final class XmlUtils {
       }
    }
 
-   public static Optional<Element> getFirstWithAttribute(Collection<Element> elements, String attributeName, String attributeValue) {
+   public static @Nullable Element getFirstWithAttribute(Collection<Element> elements, String attributeName, String attributeValue) {
       for (Element element : elements) {
          if (attributeValue.equals(element.attributeValue(attributeName))) {
-            return Optional.of(element);
+            return element;
          }
       }
-      return Optional.empty();
+      return null;
    }
 }

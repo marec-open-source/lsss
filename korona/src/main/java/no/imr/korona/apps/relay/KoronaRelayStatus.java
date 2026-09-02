@@ -13,7 +13,7 @@ import java.util.Set;
 
 /**
  * File for holding data from status.xml.
- * It holds a list of {@link KoronaRelayUpdate}s, which based on an input filename
+ * It holds a list of {@link KoronaRelayUpdate}s, which based on an input file name
  * knows the destination files to copy to.
  */
 final class KoronaRelayStatus {

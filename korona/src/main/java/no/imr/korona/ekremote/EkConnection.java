@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -57,7 +59,7 @@ final class EkConnection {
    private int sequenceNumber = 1;
    private int requestId = 1;
 
-   private long incomingAliveTime = System.currentTimeMillis();
+   private Instant incomingAliveTime = Instant.now();
    private int incomingSequenceNumber = 1;
 
    EkConnection(InetAddress inetAddress, int port, Consumer<String> failureListener) throws IOException {
@@ -142,7 +144,7 @@ final class EkConnection {
    }
 
    private void handleAliveResponse(AliveResponse response) {
-      incomingAliveTime = System.currentTimeMillis();
+      incomingAliveTime = Instant.now();
       if (incomingSequenceNumber != response.sequenceNumber()) {
          // todo: Request retransmit
          failureListener.accept("Sequence number mismatch: Expected: " + incomingSequenceNumber + ", got: " + response);
@@ -174,7 +176,7 @@ final class EkConnection {
    }
 
    private void sendAliveMessage() {
-      if (System.currentTimeMillis() - incomingAliveTime > ALIVE_RECEIVE_THRESHOLD) {
+      if (incomingAliveTime.until(Instant.now(), ChronoUnit.MILLIS) > ALIVE_RECEIVE_THRESHOLD) {
          failureListener.accept("Not getting alive reports");
          return;
       }
@@ -243,7 +245,7 @@ final class EkConnection {
 
          Element responseElement = requestResponse.responseXml().element(messageRequest.getResponseXmlElementName());
          if (responseElement == null) {
-            throw new ResponseException("Response xml does not contain element " + messageRequest.getResponseXmlElementName()
+            throw new ResponseException("Response XML does not contain element " + messageRequest.getResponseXmlElementName()
                   + ": " + XmlUtils.toCompactString(requestResponse.responseXml()));
          }
 

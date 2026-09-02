@@ -10,8 +10,8 @@ import no.imr.korona.data.ping.PingSource;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.util.ResampledFloatArray;
-import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
+import no.imr.tools.math.MathUtils;
 import org.jspecify.annotations.Nullable;
 
 final class CombinationModuleComputation extends ConcurrentPingModuleComputation {
@@ -93,7 +93,7 @@ final class CombinationModuleComputation extends ConcurrentPingModuleComputation
 
          float[] data = module.logarithmicOperands.getBooleanValue() ? result.getLogSv() : result.getSv();
 
-         if (Utils.avoidInfinities(data)) {
+         if (MathUtils.avoidInfinities(data)) {
             Log.global.warning("CombinationModule: Result contains infinite values. Values will be clamped to min/max float value.");
          }
 

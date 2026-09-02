@@ -9,6 +9,8 @@ import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.DataUtils;
 import no.imr.korona.region.Region;
+import no.imr.korona.region.ThresholdManager;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import no.imr.korona.viewer.coloring.ColorConverterContainer;
 import no.imr.korona.viewer.variables.ContinuousVariableSettings;
@@ -16,7 +18,6 @@ import no.imr.korona.viewer.variables.PerPingSettings;
 import no.imr.korona.viewer.variables.raw.RelativeFrequencyResponseVariable;
 import no.imr.lsss.LSSS;
 import no.imr.lsss.framework.config.survey.GridConf;
-import no.imr.tools.Utils;
 import no.imr.tools.concurrent.Exec;
 import no.imr.tools.concurrent.ExecutorObservation;
 import no.imr.tools.concurrent.ObservingExecutor;
@@ -26,6 +27,7 @@ import no.imr.tools.listening.ChangeManager;
 import no.imr.tools.listening.ListenableProperty;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.listening.Listeners;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.range.DoubleRange;
 import no.imr.tools.range.FloatRange;
@@ -124,27 +126,29 @@ public final class InterpretationSettings {
    public void setup() {
       lsss.getConfigurationManager().getSurveyMiscConf().mainFrequency.addListenerAndNotify(frequency -> {
          RelativeFrequencyResponseVariable variable = colorConverterContainer.getContinuousVariable(RelativeFrequencyResponseVariable.class);
-         variable.setReferenceKHz(Utils.hzToKHz(frequency));
+         variable.setReferenceKHz(KoronaUtils.hzToKHz(frequency));
       });
       colorConverterContainer.getSV().getSettings().setPerPingSettings(new PerPingSettings() {
+         private final ThresholdManager thresholdManager = lsss.getRegionManager().getThresholdManager();
+
          @Override
          public FloatRange getClipRange(PingIndex pingIndex) {
-            return lsss.getRegionManager().getThresholdManager().getLogSvRange(pingIndex);
+            return thresholdManager.getLogSvRange(pingIndex);
          }
 
          @Override
          public NavigableSet<Float> getLowerThresholds() {
-            return lsss.getRegionManager().getThresholdManager().getLowerThresholds(getPingRange());
+            return thresholdManager.getLowerThresholds(getPingRange());
          }
 
          @Override
          public NavigableSet<Float> getUpperThresholds() {
-            return lsss.getRegionManager().getThresholdManager().getUpperThresholds(getPingRange());
+            return thresholdManager.getUpperThresholds(getPingRange());
          }
 
          @Override
          public boolean varyingClipAbove() {
-            return lsss.getRegionManager().getThresholdManager().getUpperThresholdActive(getPingRange()).size() > 1;
+            return thresholdManager.getUpperThresholdActive(getPingRange()).size() > 1;
          }
       });
       Listener updateSvSettingsListener = () -> {
@@ -293,7 +297,7 @@ public final class InterpretationSettings {
    public void shiftChannel(int shift) {
       int n = getDataFileSet().getRawFileConfiguration().getTransducerCount();
       int channelIndex = channel - 1;
-      channelIndex = Utils.mod(channelIndex + shift, n);
+      channelIndex = MathUtils.mod(channelIndex + shift, n);
       setChannel(channelIndex + 1);
    }
 
@@ -750,11 +754,6 @@ public final class InterpretationSettings {
       pingSampler.cancelPingRequest();
       nextSegmentPingSampler.cancelPingRequest();
       otherDataPingSampler.cancelPingRequest();
-
-      zoomRangePingSampler.waitForPingRequest();
-      pingSampler.waitForPingRequest();
-      nextSegmentPingSampler.waitForPingRequest();
-      otherDataPingSampler.waitForPingRequest();
    }
 
    private void requestPings() {

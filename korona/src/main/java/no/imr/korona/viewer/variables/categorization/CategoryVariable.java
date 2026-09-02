@@ -61,15 +61,15 @@ public final class CategoryVariable extends DiscreteVariable {
    }
 
    @Override
-   public DiscreteVariableResult evaluate(Ping ping) {
+   public @Nullable DiscreteVariableResult evaluate(Ping ping) {
       Cac0Datagram cac0Datagram = this.cac0Datagram;
       Cad0Datagram cad0Datagram = ping.getPingItem(Cad0Datagram.class);
       if (cac0Datagram == null || cad0Datagram == null) {
-         return DiscreteVariableResult.EMPTY;
+         return null;
       }
 
       byte unknownCategory = cac0Datagram.getUnknownCategory().getNumber();
       byte[] byteData = cad0Datagram.getBestCategories(this, unknownCategory);
-      return new DiscreteVariableResult(byteData, cad0Datagram.getDepthRange());
+      return DiscreteVariableResult.of(byteData, cad0Datagram.getDepthRange());
    }
 }

@@ -8,7 +8,6 @@ import no.imr.korona.region.School;
 import no.imr.korona.region.SchoolBoundaryObject;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import no.imr.korona.util.echogram.EchogramZSettings;
-import no.imr.tools.CyclicList;
 import no.imr.tools.concurrent.CoalescingExecutor;
 import no.imr.tools.range.FloatRangeSet;
 
@@ -26,27 +25,27 @@ public final class ScaleEditor extends SchoolEditor {
    private final EchogramZSettings zSettings;
    private final CoalescingExecutor maskComputer;
    private final ScaleMaskComputation maskComputationInfo;
-   private Set<CyclicList<EchogramPoint>> editedBoundary = new HashSet<>();
+   private Set<List<EchogramPoint>> editedBoundary = new HashSet<>();
 
    public ScaleEditor(School school, Consumer<School> editConfirm, EchogramPoint point, EchogramPingSettings pingSettings, EchogramZSettings zSettings) {
       super(school, editConfirm);
 
-      pingContainer = getRegionManager().getPingContainer();
+      pingContainer = pingSettings.getPingContainer();
       originalBoundaries = school.getBoundaryObjects();
       grabPoint = point;
       this.zSettings = zSettings;
       maskComputer = new CoalescingExecutor(getRegionManager().getRegionConfiguration().getBackgroundExecutor());
-      maskComputationInfo = new ScaleMaskComputation(pingContainer, pingSettings, zSettings,
+      maskComputationInfo = new ScaleMaskComputation(pingSettings, zSettings,
             getOriginalSchoolMaskRepresentation().getSchoolMask(), false);
    }
 
    @Override
    public List<List<EchogramPoint>> getSortedEditPoints() {
       List<List<EchogramPoint>> list = new ArrayList<>();
-      for (CyclicList<EchogramPoint> echogramPoints : editedBoundary) {
+      for (List<EchogramPoint> echogramPoints : editedBoundary) {
          list.addAll(SchoolEditUtils.leftToRightLists(echogramPoints));
-         //close the boundary
-         list.addAll(SchoolEditUtils.leftToRightLists(echogramPoints.subList(-1, 1)));
+         // Close the boundary.
+         list.addAll(SchoolEditUtils.leftToRightLists(List.of(echogramPoints.getLast(), echogramPoints.getFirst())));
       }
       return list;
    }
@@ -57,8 +56,8 @@ public final class ScaleEditor extends SchoolEditor {
       for (SchoolBoundaryObject boundary : originalBoundaries) {
          List<EchogramPoint> echogramPoints = boundary.getBoundary();
          list.addAll(SchoolEditUtils.leftToRightLists(echogramPoints));
-         //close the boundary
-         list.addAll(SchoolEditUtils.leftToRightLists(echogramPoints.subList(-1, 1)));
+         // Close the boundary.
+         list.addAll(SchoolEditUtils.leftToRightLists(List.of(echogramPoints.getLast(), echogramPoints.getFirst())));
       }
       return list;
    }

@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -117,17 +118,17 @@ public final class DeepVisionDataAdministrator {
       if (pingRange.isEmpty()) {
          return List.of();
       }
-      Range<Long> rangeInMillis = pingRange.toMillisRange();
+      Range<Instant> range = pingRange.toTimeRange();
       return deepVisionFiles.stream()
-            .filter(fileInfo -> deepVisionMapping.deepVisionTimeRangeToLsssTimeRange(fileInfo.getTimeRangeMillis(), fileInfo).intersects(rangeInMillis))
+            .filter(fileInfo -> deepVisionMapping.deepVisionTimeRangeToLsssTimeRange(fileInfo.getTimeRange(), fileInfo).intersects(range))
             .toList();
    }
 
-   public @Nullable DeepVisionFileInfo lsssTimeToFileInfo(long lsssTime, DeepVisionMapping deepVisionMapping) {
+   public @Nullable DeepVisionFileInfo lsssTimeToFileInfo(Instant lsssTime, DeepVisionMapping deepVisionMapping) {
       return deepVisionFiles.stream()
             .filter(info -> {
-               long deepVisionTime = deepVisionMapping.lsssTimeToDeepVisionTime(lsssTime, info);
-               return info.getTimeRangeMillis().contains(deepVisionTime);
+               Instant deepVisionTime = deepVisionMapping.lsssTimeToDeepVisionTime(lsssTime, info);
+               return info.getTimeRange().contains(deepVisionTime);
             })
             .findFirst()
             .orElse(null);

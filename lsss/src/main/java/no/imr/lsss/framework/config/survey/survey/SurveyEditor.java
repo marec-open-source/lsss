@@ -11,6 +11,8 @@ import no.imr.lsss.database.util.DatabaseTime;
 import no.imr.lsss.framework.config.survey.data.DataConf;
 import no.imr.lsss.framework.config.survey.misc.ices.IcesCode;
 import no.imr.lsss.framework.config.survey.misc.ices.IcesUtils;
+import no.imr.tools.Max;
+import no.imr.tools.Min;
 import no.imr.tools.database.DatabaseConnection;
 import no.imr.tools.database.queries.StatelessDatabaseQuery;
 import no.imr.tools.geo.GeoBoxBuilder;
@@ -28,7 +30,10 @@ import no.imr.tools.parameter.TextParameter;
 import no.imr.tools.parameter.TimeParameter;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GuiUtils;
+import no.imr.tools.time.TimeUtils;
 import no.marec.lsss.api.util.GeoPoint;
 import no.marec.lsss.api.util.parameters.ValueConstraints;
 import org.jspecify.annotations.Nullable;
@@ -43,6 +48,8 @@ import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.geom.Rectangle2D;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.Optional;
@@ -127,7 +134,7 @@ public final class SurveyEditor implements ParameterContainer {
             unavailableSurveyIds.add(survey.getCompId().getSurvey());
          }
 
-         DatabaseTime currentTime = new DatabaseTime(System.currentTimeMillis());
+         DatabaseTime currentTime = new DatabaseTime(Instant.now());
          int newSurveyId = unavailableSurveyIds.isEmpty() ? 1 : unavailableSurveyIds.last() + 1;
          SurveyPK surveyPK = new SurveyPK(
                aPlatform.getCompId().getNation(),
@@ -165,8 +172,9 @@ public final class SurveyEditor implements ParameterContainer {
             mStartDate
       );
 
-      parameterEditor = new ParameterEditor(getParameters());
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
+      parameterEditor = new ParameterEditor(getParameters(), new GUIConfig()
+            .setHorizontalFill(true)
+      );
 
       Component referenceComponent = mLSSS.getReferenceComponent();
       mDialog = new JDialog(GuiUtils.windowForComponent(referenceComponent), title, Dialog.ModalityType.DOCUMENT_MODAL);
@@ -213,7 +221,7 @@ public final class SurveyEditor implements ParameterContainer {
 
       JButton okButton = new JButton("OK");
       okButton.addActionListener(_ -> {
-         if (!parameterEditor.commitEdits()) {
+         if (!CurrentInputComponent.commitEdit()) {
             return;
          }
          store(mLSSS.getDatabaseManager().getDatabaseConnection());
@@ -261,8 +269,8 @@ public final class SurveyEditor implements ParameterContainer {
    }
 
    private void computeBounds() {
-      long minTime = Long.MAX_VALUE;
-      long maxTime = Long.MIN_VALUE;
+      Instant minTime = Instant.MAX;
+      Instant maxTime = Instant.MIN;
       GeoBoxBuilder geoBoxBuilder = new GeoBoxBuilder();
       for (DataConf dataConf : mLSSS.getConfigurationManager().getDataConf().getAllDataConfs()) {
          for (SegmentInfo segmentInfo : dataConf.getAllOriginalSegmentInfos()) {
@@ -271,8 +279,8 @@ public final class SurveyEditor implements ParameterContainer {
                continue;
             }
 
-            minTime = Math.min(minTime, pingRange.begin().getTimeInMillis());
-            maxTime = Math.max(maxTime, pingRange.end().getTimeInMillis());
+            minTime = Min.of(minTime, pingRange.begin().getInstant());
+            maxTime = Max.of(maxTime, pingRange.end().getInstant());
 
             GeoPoint beginGeoPos = pingRange.begin().getGeographicalPosition();
             if (beginGeoPos != null) {
@@ -286,11 +294,11 @@ public final class SurveyEditor implements ParameterContainer {
       }
 
       StringBuilder message = new StringBuilder();
-      if (minTime > maxTime) {
+      if (minTime.isAfter(maxTime)) {
          message.append("No times found in data files.\n");
       } else {
-         DateParameter.setFromMillis((long) Math.floor(minTime / 1000.0) * 1000, mStartDate, mStartTime);
-         DateParameter.setFromMillis((long) Math.ceil(maxTime / 1000.0) * 1000, mStopDate, mStopTime);
+         DateParameter.setFromInstant(minTime.truncatedTo(ChronoUnit.SECONDS), mStartDate, mStartTime);
+         DateParameter.setFromInstant(TimeUtils.ceiledTo(maxTime, ChronoUnit.SECONDS), mStopDate, mStopTime);
       }
 
       Rectangle2D geoBox = geoBoxBuilder.build();

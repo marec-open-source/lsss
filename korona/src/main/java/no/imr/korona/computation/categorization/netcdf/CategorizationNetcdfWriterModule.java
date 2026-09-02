@@ -32,12 +32,12 @@ public final class CategorizationNetcdfWriterModule extends SimplePingModule {
                The channel with the main frequency is used for converting depth to range""");
 
    public final OptionalFloatParameter deltaRange = new OptionalFloatParameter(
-         new Name("DeltaRange", "Delta range"),
+         new Name("DeltaRange", "Delta range (range resolution)"),
          Optional.empty(), Unit.METER, ValueConstraints.gt(0f),
          "Leave blank to determine automatically");
 
    public final OptionalFloatParameter maxRange = new OptionalFloatParameter(
-         new Name("MaxRange", "Max range"),
+         new Name("MaxRange", "Max range from transducer"),
          Optional.empty(), Unit.METER, ValueConstraints.gt(0f),
          "Leave blank to determine automatically");
 

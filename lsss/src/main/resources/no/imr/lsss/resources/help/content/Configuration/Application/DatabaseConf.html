@@ -13,18 +13,32 @@
       database. Note that initializing a database will delete all existing data.
    </li>
 </ol>
+
+<h3 id="PostgreSQL">PostgreSQL</h3>
 <p>
-   Most database types require access to an account on an external database server.
-   This is the case for PostgreSQL.
+   The PostgreSQL database type requires access to an account on an external database server.
    It may also be required, depending on account privileges, that the database is already created on the database server.
 </p>
+
+<h3 id="HSQLDB">HSQLDB</h3>
 <p>
-   The databases HSQLDB and Java DB do not require any additional installation.
-   The content of HSQLDB is stored in files (text or binary), and kept in memory
-   while in use. This means that it is suitable only for relatively small databases.
-   <br>
-   Java DB stores data to binary files. It has no limitations on the size of
-   the database.
+   The HSQLDB database type does not require any additional database server installation.
+   The database tables can be stored either as binary files or as text files containing SQL.
+   Storing database tables as SQL might be useful for debugging purposes,
+   but may not be suitable for large databases used in production.
+</p>
+
+<h3 id="JavaDB">JavaDB</h3>
+<p>
+   The JavaDB database type was the default database type in LSSS up to version 3.2.0,
+   but it is now deprecated and no longer recommended.
+   The JavaDB name was a rebranding of <a href="https://db.apache.org/derby/">Apache Derby</a>
+   that Oracle included in the JDK until
+   <a href="https://blogs.oracle.com/java/deferring-to-derby-in-jdk-9">2015</a>.
+   In 2025, Apache Derby was <a href="https://db.apache.org/derby/#Derby+Retired">retired</a>,
+   making it necessary for LSSS to switch the default database type, and eventually to
+   drop support for JavaDB.
+   As an alternative, please use the <a href="#HSQLDB">HSQLDB</a> database type.
 </p>
 
 <h3 id="GenericDatabaseConnection">Generic database connection</h3>
@@ -50,7 +64,7 @@
       The fully qualified class name of the JDBC driver.
    </li>
    <li><span class="marec-parameter-def" id="SqlDialect">SQL dialect:</span>
-      The fully qualified class name of the Hibernate SQL dialect.
+      The fully qualified class name of the Hibernate SQL dialect, if necessary.
    </li>
    <li><span class="marec-parameter-def" id="ConnectionUrl">Connection URL:</span>
       The URL for connecting.

@@ -3,6 +3,7 @@ package no.imr.korona.data.util.geometry.depth;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.util.geometry.EchogramPoint;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.misc.ToFloatFunction;
 import no.imr.tools.range.FloatRange;
 
@@ -64,7 +65,7 @@ public interface DepthTransform {
       return pingIndex -> {
          double distance = pingMapping.distance(a.pingIndex(), pingIndex);
          double f = distance / totalDistance;
-         double z = (1 - f) * az + f * bz;
+         double z = MathUtils.interpolate(az, bz, f);
          return zToDepth((float) z, pingIndex);
       };
    }

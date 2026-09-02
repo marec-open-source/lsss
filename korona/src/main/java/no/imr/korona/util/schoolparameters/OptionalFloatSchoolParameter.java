@@ -18,7 +18,7 @@ public final class OptionalFloatSchoolParameter extends FloatSchoolParameter {
    }
 
    @Override
-   public String getExportValue() {
+   protected String getExportValue() {
       return isAvailable() ? super.getExportValue() : NOT_AVAILABLE;
    }
 

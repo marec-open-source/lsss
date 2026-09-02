@@ -8,28 +8,30 @@ import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.korona.data.ping.items.TableOfContentsPingItem;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
+import java.util.List;
 
 public final class GraphicalInfoTocSubDatagram extends BaseSubDatagram implements TableOfContentsPingItem {
    public static final DatagramSubType SUB_TYPE = new DatagramSubType(DatagramSubTypeId.GRAPHICAL_INFO_TOC,
          "Graphical info toc", GraphicalInfoTocSubDatagram::new);
 
-   private final long[] ntDates;
+   private final List<Instant> instants;
 
-   public GraphicalInfoTocSubDatagram(long ntDate, long[] ntDates) {
-      super(ntDate);
+   public GraphicalInfoTocSubDatagram(Instant instant, List<Instant> instants) {
+      super(instant);
 
-      this.ntDates = ntDates;
+      this.instants = instants;
    }
 
-   private GraphicalInfoTocSubDatagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   private GraphicalInfoTocSubDatagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
-      ntDates = ByteBufferUtils.readCountAndLongArray(byteBuffer);
+      instants = ByteBufferUtils.readInstantsAsNTDates(byteBuffer);
    }
 
    @Override
    public void write(ByteBuffer byteBuffer) {
-      ByteBufferUtils.writeCountAndLongArray(byteBuffer, ntDates);
+      ByteBufferUtils.writeInstantsAsNTDates(byteBuffer, instants);
    }
 
    @Override
@@ -38,7 +40,7 @@ public final class GraphicalInfoTocSubDatagram extends BaseSubDatagram implement
    }
 
    @Override
-   public long[] getNTDates() {
-      return ntDates;
+   public List<Instant> getInstants() {
+      return instants;
    }
 }

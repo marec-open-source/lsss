@@ -6,6 +6,7 @@ import no.imr.korona.data.datagrams.subdatagrams.SubDatagram;
 import no.imr.korona.data.ping.items.PingConversion;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * Container datagram for different types of {@link BaseSubDatagram}.
@@ -15,19 +16,19 @@ public final class LsssDatagram extends BaseDatagram {
 
    private final SubDatagram subDatagram;
 
-   public LsssDatagram(long ntDate, ByteBuffer byteBuffer, DatagramTypeManager datagramTypeManager) throws DatagramFormatException {
-      super(ntDate);
+   public LsssDatagram(Instant instant, ByteBuffer byteBuffer, DatagramTypeManager datagramTypeManager) throws DatagramFormatException {
+      super(instant);
 
       int subtype = 0xffff & byteBuffer.getShort();
       DatagramSubType datagramSubType = datagramTypeManager.getDatagramSubType(subtype);
       if (datagramSubType == null) {
          throw new DatagramFormatException(Integer.toString(subtype));
       }
-      subDatagram = datagramSubType.createSubDatagram(ntDate, byteBuffer);
+      subDatagram = datagramSubType.createSubDatagram(instant, byteBuffer);
    }
 
    public LsssDatagram(SubDatagram subDatagram) {
-      super(subDatagram.getNTDate());
+      super(subDatagram.getInstant());
 
       this.subDatagram = subDatagram;
    }

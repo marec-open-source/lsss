@@ -11,4 +11,13 @@ public interface InternalLsssUtils {
    void drawText(Graphics2D g, String text, int x, int y);
 
    boolean lineStripIntersectsRectangle(Path2D lineStrip, Rectangle2D rectangle);
+
+   static String escapeHtml(String s) {
+      return s
+            .replace("\"", "&quot;")
+            .replace("'", "&#39;")
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;");
+   }
 }

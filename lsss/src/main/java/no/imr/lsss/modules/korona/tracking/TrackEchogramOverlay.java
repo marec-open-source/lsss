@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -145,7 +146,7 @@ public final class TrackEchogramOverlay extends BaseEchogramOverlay {
       mergeItem.setEnabled(context.selectedTrackIds.size() > 1);
       mergeItem.addActionListener(_ -> context.merge());
 
-      JMenuItem splitItem = popupMenu.add("Split this this track");
+      JMenuItem splitItem = popupMenu.add("Split this track");
       splitItem.setMnemonic(KeyEvent.VK_S);
       splitItem.setEnabled(!context.pingIndex.equals(context.trackPingRange.begin()));
       splitItem.addActionListener(_ -> context.split());
@@ -331,7 +332,7 @@ public final class TrackEchogramOverlay extends BaseEchogramOverlay {
             }
          }
       });
-      return new DisplayData(selectedTrackData, unselectedTrackData, editTrackData);
+      return transformed(new DisplayData(selectedTrackData, unselectedTrackData, editTrackData));
    }
 
    private boolean isDisplayable(TrackId trackId) {
@@ -459,10 +460,10 @@ public final class TrackEchogramOverlay extends BaseEchogramOverlay {
          }
          PingIndex p1 = getPingSettings().xToClampedContainingPingIndex(lastPoint.x);
          PingIndex p2 = getPingSettings().xToClampedContainingPingIndex(point.x);
-         Function1D xToY = Function1D.linear(lastPoint, point);
+         DoubleUnaryOperator xToY = Function1D.linear(lastPoint, point);
          getInterpretationSettings().getDataFileSet().getPingIndices(PingRange.ofUnsorted(p1, p2)).forEach(pingIndex -> {
             float x = getPingSettings().pingIndexToX(pingIndex);
-            float y = (float) xToY.eval(x);
+            float y = (float) xToY.applyAsDouble(x);
             edit(pingIndex, getZSettings().yToDepth(y, pingIndex));
          });
          edit(p2, getZSettings().yToDepth(point.y, p2));
@@ -492,7 +493,7 @@ public final class TrackEchogramOverlay extends BaseEchogramOverlay {
       }
    }
 
-   private final class DisplayData extends TransformedDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private final List<EchogramTrackData.TrackData> selectedTrackData;
       private final List<EchogramTrackData.TrackData> unselectedTrackData;
       private final EchogramTrackData.@Nullable TrackData editTrackData;
@@ -504,7 +505,7 @@ public final class TrackEchogramOverlay extends BaseEchogramOverlay {
       }
 
       @Override
-      public void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          if (showExtent.getBooleanValue()) {
             g2d.setColor(TRACK_FILL_COLOR);
             unselectedTrackData.forEach(trackData -> g2d.fill(trackData.extent()));

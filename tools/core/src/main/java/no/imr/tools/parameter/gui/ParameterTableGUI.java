@@ -9,6 +9,7 @@ import no.imr.tools.parameter.ValueParameter;
 import no.imr.tools.parameter.gui.input.ParameterGuiUtils;
 import no.imr.tools.parameter.gui.input.ParameterListCellRenderer;
 import no.imr.tools.swing.ComboBoxListModel;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.PopupMenuMouseListener;
 import no.imr.tools.swing.SimpleDocumentListener;
 import no.imr.tools.swing.UiUtils;
@@ -21,6 +22,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -32,13 +34,13 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.HierarchyEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -54,8 +56,7 @@ import java.util.List;
 public final class ParameterTableGUI<T extends ParameterContainer> {
    private final ParameterTableModel<T> model;
    private final JTable table;
-   private boolean lastEditOK;
-   private boolean errorDialogShowing;
+   private @Nullable JDialog errorDialog;
 
    public ParameterTableGUI(ParameterTableModel<T> model) {
       this.model = model;
@@ -80,6 +81,11 @@ public final class ParameterTableGUI<T extends ParameterContainer> {
                default -> {
                }
             }
+         }
+      });
+      table.addHierarchyListener(e -> {
+         if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 && !table.isShowing()) {
+            closeErrorDialog();
          }
       });
    }
@@ -110,13 +116,8 @@ public final class ParameterTableGUI<T extends ParameterContainer> {
       component.addMouseListener(new PopupMenuMouseListener(this::makePopupMenu));
    }
 
-   public boolean stopEditing() {
-      TableCellEditor cellEditor = table.getCellEditor();
-      return cellEditor == null || cellEditor.stopCellEditing() && lastEditOK;
-   }
-
    private @Nullable JPopupMenu makePopupMenu(MouseEvent mouseEvent) {
-      if (!stopEditing()) {
+      if (!CurrentInputComponent.commitEdit()) {
          return null;
       }
 
@@ -129,7 +130,7 @@ public final class ParameterTableGUI<T extends ParameterContainer> {
          if (viewColumn >= 0) {
             table.setColumnSelectionInterval(viewColumn, viewColumn);
          } else {
-            table.setColumnSelectionInterval(0, table.getColumnCount());
+            table.setColumnSelectionInterval(0, table.getColumnCount() - 1);
          }
       }
 
@@ -193,22 +194,42 @@ public final class ParameterTableGUI<T extends ParameterContainer> {
    }
 
    private void selectRowInterval(int index0, int index1) {
-      table.setRowSelectionInterval(table.convertRowIndexToView(index0), table.convertRowIndexToView(index1));
+      int viewRow0 = table.convertRowIndexToView(index0);
+      int viewRow1 = table.convertRowIndexToView(index1);
+      table.setRowSelectionInterval(viewRow0, viewRow1);
       table.setColumnSelectionInterval(0, table.getColumnCount() - 1);
+      table.scrollRectToVisible(table.getCellRect(viewRow0, 0, true));
+   }
+
+   private void closeErrorDialog() {
+      if (errorDialog != null) {
+         errorDialog.dispose();
+         errorDialog = null;
+      }
    }
 
    private final class ParameterTable extends JTable {
+      private boolean lastEditOK;
+
       private ParameterTable(ParameterTableModel<T> parameterTableModel) {
          super(parameterTableModel);
 
          getTableHeader().addMouseListener(new PopupMenuMouseListener(mouseEvent -> {
-            return makePopupMenu(SwingUtilities.convertMouseEvent(getTableHeader(), mouseEvent, table));
+            return makePopupMenu(SwingUtilities.convertMouseEvent(getTableHeader(), mouseEvent, this));
          }));
 
-         FocusAdapter focusListener = new FocusAdapter() {
+         FocusListener focusListener = new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+               CurrentInputComponent.set(ParameterTable.this, () -> {
+                  TableUtils.stopCellEditing(ParameterTable.this);
+                  return lastEditOK;
+               });
+            }
+
             @Override
             public void focusLost(FocusEvent e) {
-               stopEditing();
+               TableUtils.stopCellEditing(ParameterTable.this);
             }
          };
 
@@ -242,17 +263,15 @@ public final class ParameterTableGUI<T extends ParameterContainer> {
       }
 
       private static <V> DefaultCellEditor createCellEditor(ValueParameter<V> parameter) {
-         List<V> values = parameter.getAllowedValues();
-         if (values == null) {
-            values = parameter.getSuggestedValues();
-         }
+         List<V> allowedValues = parameter.getAllowedValues();
+         List<V> values = allowedValues != null ? allowedValues : parameter.getSuggestedValues();
          if (!values.isEmpty()) {
             List<String> stringValues = values.stream()
                   .map(parameter::toValueString)
                   .toList();
             JComboBox<String> comboBox = new JComboBox<>(new ComboBoxListModel<>(parameter.getStringValue(), stringValues, false));
             comboBox.setRenderer(new ParameterListCellRenderer<>(parameter, values, stringValues));
-            comboBox.setEditable(parameter.getAllowedValues() == null);
+            comboBox.setEditable(allowedValues == null);
             return new DefaultCellEditor(comboBox);
          }
 
@@ -270,7 +289,7 @@ public final class ParameterTableGUI<T extends ParameterContainer> {
          return new JTableHeader(getColumnModel()) {
             @Override
             public @Nullable String getToolTipText(MouseEvent event) {
-               int columnIndex = TableUtils.pointToModelColumn(table, event.getPoint());
+               int columnIndex = TableUtils.pointToModelColumn(ParameterTable.this, event.getPoint());
                if (columnIndex < 0) {
                   return null;
                }
@@ -302,16 +321,19 @@ public final class ParameterTableGUI<T extends ParameterContainer> {
             super.setValueAt(aValue, row, column);
             lastEditOK = true;
          } catch (ParameterException e) {
-            if (!errorDialogShowing) {
-               errorDialogShowing = true;
+            if (errorDialog == null) {
                try {
-                  ParameterGuiUtils.showErrorDialog(e, this);
+                  errorDialog = ParameterGuiUtils.createErrorDialog(e, this);
+                  errorDialog.setVisible(true);
                } finally {
-                  errorDialogShowing = false;
+                  closeErrorDialog();
                   SwingUtilities.invokeLater(() -> {
                      editCellAt(row, column);
                      Component editorComponent = getEditorComponent();
                      if (editorComponent != null) {
+                        if (editorComponent instanceof JComboBox<?> comboBox && comboBox.isEditable()) {
+                           editorComponent = comboBox.getEditor().getEditorComponent();
+                        }
                         editorComponent.requestFocusInWindow();
                      }
                   });

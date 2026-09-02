@@ -5,9 +5,13 @@ import no.imr.tools.range.DefaultRange;
 import no.imr.tools.range.Range;
 import no.imr.tools.range.RangeUtils;
 import no.imr.tools.time.DateTimeMillis;
+import no.imr.tools.xml.XmlParse;
+import no.imr.tools.xml.XmlParseException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.jspecify.annotations.Nullable;
+
+import java.time.Instant;
 
 /**
  * Wrapper for SizeHistogram. Contains in addition the
@@ -15,16 +19,16 @@ import org.jspecify.annotations.Nullable;
  * plus species and the 'use' flag.
  */
 public final class PlanktonRectangle {
-   public static final long DEFAULT_START_MILLIS = DateTimeMillis.toMillis(1970_01_01, 0);
-   public static final long DEFAULT_STOP_MILLIS = DateTimeMillis.toMillis(9999_12_31, 23_59_00_000);
+   public static final Instant DEFAULT_START_TIME = DateTimeMillis.toInstant(1970_01_01, 0);
+   public static final Instant DEFAULT_STOP_TIME = DateTimeMillis.toInstant(9999_12_31, 23_59_00_000);
 
    private final SizeHistogram sizeHistogram;
    private boolean use = true;
 
-   private @Nullable String species = "";
+   private String species = "";
 
-   private Range<Long> millisRange = RangeUtils.ALL_LONGS;
-   private Range<Float> depthRange = RangeUtils.ALL_FLOATS;
+   private Range<Instant> timeRange;
+   private Range<Float> depthRange;
 
    private static final String XML_USE = "use";
    private static final String XML_START = "start";
@@ -36,53 +40,59 @@ public final class PlanktonRectangle {
 
    public PlanktonRectangle() {
       sizeHistogram = new SizeHistogram();
+      timeRange = new DefaultRange<>(DEFAULT_START_TIME, DEFAULT_STOP_TIME);
+      depthRange = RangeUtils.ALL_FLOATS;
    }
 
    public PlanktonRectangle(Element element, double sizeFactor) throws PlanktonFileException {
       use = Boolean.parseBoolean(element.attributeValue(XML_USE));
-      species = element.attributeValue(XML_SPECIES);
+      species = element.attributeValue(XML_SPECIES, "");
       Element startElement = element.element(XML_START);
       Element stopElement = element.element(XML_STOP);
-      millisRange = new DefaultRange<>(
-            parseTime(startElement, 19700101, 0),
-            parseTime(stopElement, 99991231, 235900)
-      );
-      depthRange = new DefaultRange<>(
-            parseDepth(startElement, Float.NEGATIVE_INFINITY),
-            parseDepth(stopElement, Float.POSITIVE_INFINITY)
-      );
+      try {
+         timeRange = new DefaultRange<>(
+               parseTime(startElement, 1970_01_01, 0),
+               parseTime(stopElement, 9999_12_31, 23_59_00)
+         );
+         depthRange = new DefaultRange<>(
+               parseDepth(startElement, Float.NEGATIVE_INFINITY),
+               parseDepth(stopElement, Float.POSITIVE_INFINITY)
+         );
+      } catch (XmlParseException e) {
+         throw new PlanktonFileException(e);
+      }
       sizeHistogram = new SizeHistogram(element, sizeFactor);
    }
 
-   private static long parseTime(@Nullable Element element, int date, int time) {
+   private static Instant parseTime(@Nullable Element element, int date, int time) throws XmlParseException {
       if (element != null) {
-         date = Utils.parseInt(element.attributeValue(XML_DATE), date);
-         time = Utils.parseInt(element.attributeValue(XML_TIME), time);
+         date = XmlParse.intAttribute(element, XML_DATE, date);
+         time = XmlParse.intAttribute(element, XML_TIME, time);
       }
-      return DateTimeMillis.toMillis(date, time * 1000);
+      return DateTimeMillis.toInstant(date, time * 1000);
    }
 
-   private static float parseDepth(@Nullable Element element, float depth) {
+   private static float parseDepth(@Nullable Element element, float depth) throws XmlParseException {
       if (element != null) {
-         depth = Utils.parseFloat(element.attributeValue(XML_DEPTH), depth);
+         depth = XmlParse.floatAttribute(element, XML_DEPTH, depth);
       }
       return depth;
    }
 
    public void toXml(Element element, double sizeFactor) {
       element.addAttribute(XML_USE, Boolean.toString(use));
-      element.addAttribute(XML_SPECIES, species);
-      addRangeBoundary(element, XML_START, millisRange.begin(), DEFAULT_START_MILLIS, depthRange.begin(), Float.NEGATIVE_INFINITY);
-      addRangeBoundary(element, XML_STOP, millisRange.end(), DEFAULT_STOP_MILLIS, depthRange.end(), Float.POSITIVE_INFINITY);
+      element.addAttribute(XML_SPECIES, species.isEmpty() ? null : species);
+      addRangeBoundary(element, XML_START, timeRange.begin(), DEFAULT_START_TIME, depthRange.begin(), Float.NEGATIVE_INFINITY);
+      addRangeBoundary(element, XML_STOP, timeRange.end(), DEFAULT_STOP_TIME, depthRange.end(), Float.POSITIVE_INFINITY);
 
       sizeHistogram.toXml(element, sizeFactor);
    }
 
-   private static void addRangeBoundary(Element element, String xmlName, long actualTime, long defaultTime, float actualDepth, float defaultDepth) {
-      if (actualTime != defaultTime || actualDepth != defaultDepth) {
+   private static void addRangeBoundary(Element element, String xmlName, Instant actualTime, Instant defaultTime, float actualDepth, float defaultDepth) {
+      if (!actualTime.equals(defaultTime) || actualDepth != defaultDepth) {
          Element rangeElement = DocumentHelper.createElement(xmlName);
 
-         if (actualTime != defaultTime) {
+         if (!actualTime.equals(defaultTime)) {
             DateTimeMillis dateTimeMillis = new DateTimeMillis(actualTime);
             rangeElement.addAttribute(XML_DATE, Long.toString(dateTimeMillis.getDate()));
             rangeElement.addAttribute(XML_TIME, Long.toString(dateTimeMillis.getTime() / 1000));
@@ -104,16 +114,16 @@ public final class PlanktonRectangle {
       this.use = use;
    }
 
-   public Range<Long> getMillisRange() {
-      return millisRange;
+   public Range<Instant> getTimeRange() {
+      return timeRange;
    }
 
    public Range<Float> getDepthRange() {
       return depthRange;
    }
 
-   public void setMillisRange(Range<Long> millisRange) {
-      this.millisRange = millisRange;
+   public void setTimeRange(Range<Instant> timeRange) {
+      this.timeRange = timeRange;
    }
 
    public void setDepthRange(Range<Float> depthRange) {
@@ -124,11 +134,11 @@ public final class PlanktonRectangle {
       return sizeHistogram;
    }
 
-   public @Nullable String getSpecies() {
+   public String getSpecies() {
       return species;
    }
 
-   public void setSpecies(@Nullable String species) {
+   public void setSpecies(String species) {
       this.species = species;
    }
 }

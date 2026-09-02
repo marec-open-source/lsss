@@ -106,7 +106,7 @@ public final class ColorUtils {
    public static final Color MIDNIGHTBLUE = new Color(0x191970);
    public static final Color MINTCREAM = new Color(0xf5fffa);
    public static final Color MISTYROSE = new Color(0xffe4e1);
-   public static final Color MOCASSIN = new Color(0xffe4b5);
+   public static final Color MOCCASIN = new Color(0xffe4b5);
    public static final Color NAVAJOWHITE = new Color(0xffdead);
    public static final Color NAVY = new Color(0x000080);
    public static final Color OLDLACE = new Color(0xfdf5e6);
@@ -375,7 +375,7 @@ public final class ColorUtils {
             .put("midnightblue", MIDNIGHTBLUE)
             .put("mintcream", MINTCREAM)
             .put("mistyrose", MISTYROSE)
-            .put("moccasin", MOCASSIN)
+            .put("moccasin", MOCCASIN)
             .put("navajowhite", NAVAJOWHITE)
             .put("navy", NAVY)
             .put("oldlace", OLDLACE)

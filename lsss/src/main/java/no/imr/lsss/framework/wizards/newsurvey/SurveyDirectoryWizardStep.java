@@ -67,7 +67,11 @@ final class SurveyDirectoryWizardStep extends WizardStep {
             + "For example: " + lsss.getConfigurationManager().getDataConf().getRawDir().getDisplayName()
             + " will be set to &lt;Survey directory>" + File.separator + directoryConf.getSelectedSurveyDirStructure().getRelativePath(DataConfLSSS.RAW_SUB_DIR)
             + "</p><br><br>"), BorderLayout.NORTH);
-      panel.add(new ParameterEditor(List.of(surveyDirectory, surveyFile)).getEditorComponent());
+      panel.add(new ParameterEditor(List.of(
+            surveyDirectory,
+            surveyFile,
+            lsss.getConfigurationManager().getApplicationConfiguration().getDirectoryConf().surveyDirStructure
+      )).getEditorComponent());
    }
 
    private void setDefaultSurveyDirectory() {

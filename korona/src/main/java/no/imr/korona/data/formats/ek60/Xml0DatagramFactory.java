@@ -19,6 +19,7 @@ import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import no.imr.korona.data.ping.items.configuration.TransceiverType;
 import no.imr.korona.data.ping.items.configuration.TransducerNameAndSerialNumber;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.Utils;
 import no.imr.tools.Version;
 import no.imr.tools.logging.Log;
@@ -31,6 +32,7 @@ import org.dom4j.Element;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -60,9 +62,9 @@ public final class Xml0DatagramFactory {
    private Xml0DatagramFactory() {
    }
 
-   static RawFileConfiguration createRawFileConfiguration(long ntDate, Element configuration, Element environment, @Nullable Element initialParameter,
+   static RawFileConfiguration createRawFileConfiguration(Instant instant, Element configuration, Element environment, @Nullable Element initialParameter,
                                                           List<PingItem> configurationItems, Path file) throws XmlParseException {
-      RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(ntDate);
+      RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(instant);
 
       Element header = XmlParse.element(configuration, "Header");
       String fileFormatVersion = XmlParse.stringAttribute(header, "FileFormatVersion", "");
@@ -81,17 +83,21 @@ public final class Xml0DatagramFactory {
       rawFileConfiguration.setSoundVelocityAverage(soundSpeed);
       rawFileConfiguration.setSoundVelocityTransducer(soundSpeed); // todo ?
 
-      rawFileConfiguration.setMRUOffset(new Vec3(XmlParse.floatAttribute(header, "MRUOffsetX", 0),
+      rawFileConfiguration.setMRUOffset(new Vec3(
+            XmlParse.floatAttribute(header, "MRUOffsetX", 0),
             XmlParse.floatAttribute(header, "MRUOffsetY", 0),
-            XmlParse.floatAttribute(header, "MRUOffsetZ", 0)));
-
-      rawFileConfiguration.setMRUAlpha(new Vec3(XmlParse.floatAttribute(header, "MRUAlphaX", 0),
+            XmlParse.floatAttribute(header, "MRUOffsetZ", 0)
+      ));
+      rawFileConfiguration.setMRUAlpha(new Vec3(
+            XmlParse.floatAttribute(header, "MRUAlphaX", 0),
             XmlParse.floatAttribute(header, "MRUAlphaY", 0),
-            XmlParse.floatAttribute(header, "MRUAlphaZ", 0)));
-
-      rawFileConfiguration.setGPSOffset(new Vec3(XmlParse.floatAttribute(header, "GPSOffsetX", 0),
+            XmlParse.floatAttribute(header, "MRUAlphaZ", 0)
+      ));
+      rawFileConfiguration.setGPSOffset(new Vec3(
+            XmlParse.floatAttribute(header, "GPSOffsetX", 0),
             XmlParse.floatAttribute(header, "GPSOffsetY", 0),
-            XmlParse.floatAttribute(header, "GPSOffsetZ", 0)));
+            XmlParse.floatAttribute(header, "GPSOffsetZ", 0)
+      ));
 
       addTransducersAndCalibration(rawFileConfiguration, configuration, initialParameter, configurationItems, lsssFileFormatVersion, file);
 
@@ -149,7 +155,7 @@ public final class Xml0DatagramFactory {
                .addAttribute("WaterLevelDraft", Utils.toString(xml0Info.getWaterLevelDraft()));
       }
       environment.addElement("Transducer");
-      return new Xml0Datagram(rawFileConfiguration.getNTDate(), DocumentHelper.createDocument(environment));
+      return new Xml0Datagram(rawFileConfiguration.getInstant(), DocumentHelper.createDocument(environment));
    }
 
    public static Xml0Datagram toXml0Configuration(RawFileConfiguration rawFileConfiguration) {
@@ -167,7 +173,7 @@ public final class Xml0DatagramFactory {
       rawFileConfiguration.getTransducers().stream()
             .map(Xml0DatagramFactory::transducerToOtherXml)
             .forEach(transducers::add);
-      return new Xml0Datagram(rawFileConfiguration.getNTDate(), DocumentHelper.createDocument(configuration));
+      return new Xml0Datagram(rawFileConfiguration.getInstant(), DocumentHelper.createDocument(configuration));
    }
 
    public static @Nullable Xml0Datagram toXml0InitialParameter(RawFileConfiguration rawFileConfiguration) {
@@ -180,7 +186,7 @@ public final class Xml0DatagramFactory {
       if (channels.elements().isEmpty()) {
          return null;
       }
-      return new Xml0Datagram(rawFileConfiguration.getNTDate(), DocumentHelper.createDocument(initialParameter));
+      return new Xml0Datagram(rawFileConfiguration.getInstant(), DocumentHelper.createDocument(initialParameter));
    }
 
    private static void addTransducersAndCalibration(RawFileConfiguration rawFileConfiguration, Element configuration,
@@ -251,9 +257,9 @@ public final class Xml0DatagramFactory {
       configurationItems.removeIf(item -> item instanceof Fil0Datagram || item instanceof Fil1Datagram);
 
       CalibrationType defaultCalibrationType = new CalibrationType();
-      defaultCalibrationType.putEntry(Long.MIN_VALUE, Long.MAX_VALUE, new CalibrationEntry(ChannelCalibration.EMPTY, channelCalibrationById.build(), ImmutableMap.of(), ImmutableMap.of()));
+      defaultCalibrationType.putEntry(Instant.MIN, Instant.MAX, new CalibrationEntry(ChannelCalibration.EMPTY, channelCalibrationById.build(), ImmutableMap.of(), ImmutableMap.of()));
       CalibrationContent calibrationContent = new CalibrationContent(defaultCalibrationType, ImmutableMap.of());
-      rawFileConfiguration.setCalibrationFile(new CalibrationFile(null, 0, null, 0, calibrationContent));
+      rawFileConfiguration.setCalibrationFile(new CalibrationFile(null, null, null, null, calibrationContent));
    }
 
    private static TransducerNameAndSerialNumber getNameAndSerialNumber(Element element, String serialNumberAttribute) {
@@ -329,9 +335,11 @@ public final class Xml0DatagramFactory {
 
    private static void parseOtherTransducer(Element otherTransducer, RawFileTransducer rawFileTransducer, RawFileTransducer.Xml0Info xml0Info) throws XmlParseException {
       xml0Info.setTransducerMounting(XmlParse.stringAttribute(otherTransducer, "TransducerMounting", ""));
-      rawFileTransducer.setPos(new Vec3(XmlParse.floatAttribute(otherTransducer, "TransducerOffsetX", 0),
+      rawFileTransducer.setPos(new Vec3(
+            XmlParse.floatAttribute(otherTransducer, "TransducerOffsetX", 0),
             XmlParse.floatAttribute(otherTransducer, "TransducerOffsetY", 0),
-            XmlParse.floatAttribute(otherTransducer, "TransducerOffsetZ", 0)));
+            XmlParse.floatAttribute(otherTransducer, "TransducerOffsetZ", 0)
+      ));
    }
 
    private static boolean otherTransducersAreEquivalent(Element otherTransducer1, Element otherTransducer2) {
@@ -457,7 +465,7 @@ public final class Xml0DatagramFactory {
 
       Element frequencyParCWElement = element.element("FrequencyParCW");
       if (frequencyParCWElement != null) {
-         builder.kHz = parseFloat(frequencyParCWElement, "Frequency").map(Utils::hzToKHz);
+         builder.kHz = parseFloat(frequencyParCWElement, "Frequency").map(KoronaUtils::hzToKHz);
          builder.gain = parseFloat(frequencyParCWElement, "Gain");
          builder.equivalentBeamAngle = parseFloat(frequencyParCWElement, "EquivalentBeamAngle");
          builder.beamWidthAlongship = parseFloat(frequencyParCWElement, "BeamWidthAlongship");

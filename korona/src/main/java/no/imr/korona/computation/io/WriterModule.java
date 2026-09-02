@@ -7,6 +7,7 @@ import no.imr.korona.computation.SimplePingModuleComputation;
 import no.imr.korona.data.formats.ek60.EK60Writer;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingSource;
+import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
@@ -108,7 +109,12 @@ public final class WriterModule extends SimplePingModule {
             fileName = computationContext.getPingReader().getFile().getFileName().toString();
          }
          ek60Writer = new EK60Writer(dir, fileName, getPingConfiguration(), module.extraSuffix, EK60Writer.Mode.ALL_FILES);
-         ek60Writer.writeModuleConfiguration(getPingConfiguration(), computationContext.getModuleContainer());
+         try {
+            ek60Writer.writeModuleConfiguration(getPingConfiguration(), computationContext.getModuleContainer());
+         } catch (Exception e) {
+            Utils.closeOrSuppress(e, ek60Writer);
+            throw e;
+         }
       }
 
       @Override

@@ -57,15 +57,15 @@ public final class Histogram1D {
       return aboveCount;
    }
 
-   public int valueToIndex(float value) {
+   public int valueToIndex(double value) {
       return (int) Math.floor((value - min) / delta);
    }
 
-   public double indexToValue(float index) {
+   public double indexToValue(int index) {
       return min + index * delta;
    }
 
-   public int valueToCount(float value) {
+   public int valueToCount(double value) {
       int i = valueToIndex(value);
       if (i < 0) {
          return belowCount;
@@ -77,10 +77,6 @@ public final class Histogram1D {
    }
 
    public void addValue(double value) {
-      addValue((float) value);
-   }
-
-   public void addValue(float value) {
       int i = valueToIndex(value);
       if (i < 0) {
          belowCount++;
@@ -98,7 +94,7 @@ public final class Histogram1D {
    }
 
    public long getTotalCount() {
-      long totalCount = belowCount + aboveCount;
+      long totalCount = (long) belowCount + aboveCount;
       for (int count : counts) {
          totalCount += count;
       }

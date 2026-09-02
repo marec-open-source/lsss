@@ -10,11 +10,11 @@ repositories {
 
 @Suppress("ConstPropertyName")
 object Version {
-   const val dependencyCheckGradle: String = "12.2.0"
-   const val jackson: String = "3.0.3"
-   const val proguard: String = "7.8.2"
-   const val spotbugsGradlePlugin: String = "6.4.4"
-   const val tomcat: String = "11.0.13"
+   const val dependencyCheckGradle: String = "12.2.2"
+   const val jackson: String = "3.2.0"
+   const val proguard: String = "7.9.1"
+   const val spotbugsGradlePlugin: String = "6.5.9"
+   const val tomcat: String = "11.0.23"
 }
 
 dependencies {

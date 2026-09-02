@@ -76,7 +76,7 @@ public class KoronaRegionEchogramOverlay extends BaseEchogramOverlay {
       if (regionPaths.isEmpty()) {
          return null;
       }
-      return new DisplayData();
+      return new DisplayData(regionPaths, koronaRegionModule.get());
    }
 
    void repaintRegions() {
@@ -98,7 +98,7 @@ public class KoronaRegionEchogramOverlay extends BaseEchogramOverlay {
 
       Path2D path = new Path2D.Float();
       LineStripBuilder pathBuilder = LineStripBuilders.piecewiseHorizontal(path);
-      Set<? extends List<EchogramPoint>> boundary = MaskOutlineTracer.createBoundary(koronaRegion.getMask(), getInterpretationSettings().getDataFileSet());
+      Set<List<EchogramPoint>> boundary = MaskOutlineTracer.createBoundary(koronaRegion.getMask(), getInterpretationSettings().getDataFileSet());
       for (List<EchogramPoint> boundaryPointList : boundary) {
          for (EchogramPoint echogramPoint : boundaryPointList) {
             PingIndex pingIndex = echogramPoint.pingIndex();
@@ -185,16 +185,16 @@ public class KoronaRegionEchogramOverlay extends BaseEchogramOverlay {
    record RegionPath(Path2D path, Rectangle2D bounds) {
    }
 
-   private final class DisplayData extends OverlayDisplayData {
-      private DisplayData() {
-      }
-
+   private record DisplayData(
+         Map<KoronaRegionLSSS, RegionPath> regionPaths,
+         KoronaRegionModule koronaRegionModule
+   ) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          for (Map.Entry<KoronaRegionLSSS, RegionPath> entry : regionPaths.entrySet()) {
             KoronaRegionLSSS koronaRegion = entry.getKey();
             Color color;
-            if (!koronaRegion.isIgnored() && koronaRegion == koronaRegionModule.get().getActiveKoronaRegion()) {
+            if (!koronaRegion.isIgnored() && koronaRegion == koronaRegionModule.getActiveKoronaRegion()) {
                color = Color.GREEN;
             } else if (koronaRegion.isIgnored()) {
                color = Color.GRAY;
@@ -211,11 +211,11 @@ public class KoronaRegionEchogramOverlay extends BaseEchogramOverlay {
          for (Map.Entry<KoronaRegionLSSS, RegionPath> entry : regionPaths.entrySet()) {
             if (entry.getValue().bounds.intersects(rectangle)
                   && GuiUtils.intersects(entry.getValue().path, rectangle)) {
-               koronaRegionModule.get().setActiveKoronaRegion(entry.getKey());
+               koronaRegionModule.setActiveKoronaRegion(entry.getKey());
                return true;
             }
          }
-         koronaRegionModule.get().setActiveKoronaRegion(null);
+         koronaRegionModule.setActiveKoronaRegion(null);
          return false;
       }
    }

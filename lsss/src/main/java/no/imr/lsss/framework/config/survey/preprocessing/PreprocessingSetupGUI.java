@@ -1,6 +1,7 @@
 package no.imr.lsss.framework.config.survey.preprocessing;
 
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.icons.MiscIcons;
 
@@ -30,10 +31,10 @@ final class PreprocessingSetupGUI {
    }
 
    private ParameterEditor createParameterEditor() {
-      ParameterEditor parameterEditor = new ParameterEditor(preprocessingSetup.getParameters());
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
-      parameterEditor.getGUIConfig().setParameterEnabledDecider(preprocessingConf::isParameterEnabled);
-      return parameterEditor;
+      return new ParameterEditor(preprocessingSetup.getParameters(), new GUIConfig()
+            .setHorizontalFill(true)
+            .setParameterEnabledDecider(preprocessingConf::isParameterEnabled)
+      );
    }
 
    private JComponent createButtons() {

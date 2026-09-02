@@ -48,12 +48,12 @@ public abstract class Texture2D<T> extends Texture {
       gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
    }
 
-   abstract void updateTexture1D(GL2 gl, T data, int nx, int ny);
+   abstract void updateTexture2D(GL2 gl, T data, int nx, int ny);
 
    @Override
    void updateTexture(GL2 gl, int texture) {
       enableTexture(gl, texture);
-      updateTexture1D(gl, data, nx, ny);
+      updateTexture2D(gl, data, nx, ny);
       disableTexture(gl);
    }
 

@@ -414,9 +414,10 @@ public final class LSSS {
    }
 
    private static Set<String> getDeactivatedPlugins(ServiceCollection serviceCollection, Element applicationXml) {
-      return XmlUtils.getFirstWithAttribute(applicationXml.elements(ConfigurationUnit.XML_UNIT), ConfigurationUnit.XML_NAME, PluginConf.NAME.persistentName())
-            .map(pluginElement -> PluginConf.getDeactivatedPlugins(serviceCollection, pluginElement))
-            .orElse(Set.of());
+      Element pluginElement = XmlUtils.getFirstWithAttribute(applicationXml.elements(ConfigurationUnit.XML_UNIT), ConfigurationUnit.XML_NAME, PluginConf.NAME.persistentName());
+      return pluginElement != null
+            ? PluginConf.getDeactivatedPlugins(serviceCollection, pluginElement)
+            : Set.of();
    }
 
    /**

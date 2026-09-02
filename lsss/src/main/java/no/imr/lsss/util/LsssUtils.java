@@ -14,6 +14,7 @@ import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.ping.items.channel.ChannelData;
 import no.imr.korona.region.Region;
 import no.imr.korona.region.RegionManager;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.lsss.LSSS;
 import no.imr.lsss.database.tables.hibernate.Scatter;
 import no.imr.lsss.database.util.DatabaseTime;
@@ -22,7 +23,6 @@ import no.imr.lsss.framework.config.application.SubDir;
 import no.imr.lsss.framework.config.survey.data.DataConf;
 import no.imr.lsss.modules.BaseViewModule;
 import no.imr.lsss.plugins.FeaturePlugin;
-import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.parameter.FileParameter;
 import no.imr.tools.range.FloatRange;
@@ -38,6 +38,7 @@ import java.awt.Window;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -77,7 +78,7 @@ public final class LsssUtils {
    private static void showErrors(LSSS lsss, List<String> errors) {
       if (!errors.isEmpty() && lsss.getInterpretationSettings().isInteractiveMode()) {
          String message = String.join("\n", errors);
-         JOptionPane.showMessageDialog(lsss.getFrame(), message, "Error", JOptionPane.INFORMATION_MESSAGE);
+         JOptionPane.showMessageDialog(lsss.getFrame(), message, "Error", JOptionPane.ERROR_MESSAGE);
       }
    }
 
@@ -113,9 +114,9 @@ public final class LsssUtils {
    }
 
    public static PingRange getPingRange(DataFileSet dataFileSet, Scatter scatter) {
-      long millis = DatabaseTime.toMillis(scatter);
-      PingIndex begin = dataFileSet.getClosestPingIndex(PingMapping.millisToTimeValue(millis), PingMapping.TIME);
-      PingIndex end = dataFileSet.getClosestPingIndex(PingMapping.millisToTimeValue(millis + 10L * scatter.getDuration()), PingMapping.TIME);
+      Instant instant = DatabaseTime.toInstant(scatter);
+      PingIndex begin = dataFileSet.getClosestPingIndex(PingMapping.instantToTimeValue(instant), PingMapping.TIME);
+      PingIndex end = dataFileSet.getClosestPingIndex(PingMapping.instantToTimeValue(instant.plusMillis(10L * scatter.getDuration())), PingMapping.TIME);
       return PingRange.of(begin, end);
    }
 
@@ -137,7 +138,7 @@ public final class LsssUtils {
             configFileSettings.getFile(TransducerRangesFileService.NAME) == null) {
          JTextPane message = GuiUtils.labelLikeHtmlTextPane("""
                Config files are not properly configured for this survey.<br>
-               Go to <a href="preprocessing">Survey configuration - Preprocessing<a> and
+               Go to <a href="preprocessing">Survey configuration - Preprocessing</a> and
                make sure the config file settings points to valid config files.""");
          GuiUtils.addHrefListener(message, href -> {
             switch (href) {
@@ -159,12 +160,12 @@ public final class LsssUtils {
       Configurator configurator = new Configurator(configFileSettings, dataFileSet.getRawFileConfiguration());
       if (configurator.getReferenceChannel() <= 0) {
          JOptionPane.showMessageDialog(lsss.getFrame(), "The reference frequency (" +
-               Utils.hzToKHz(configurator.getReferenceFrequency()) + " kHz) is not available.");
+               KoronaUtils.hzToKHz(configurator.getReferenceFrequency()) + " kHz) is not available.");
          return null;
       }
 
       for (PingIndex pingIndex : dataFileSet.getPingIndices(selectedPingRange)) {
-         ChannelData channelData = dataFileSet.getPing(pingIndex).getNonNullChannelData();
+         ChannelData channelData = dataFileSet.getPing(pingIndex).getFirstAvailableChannelData();
          if (channelData != null) {
             long sampleCount = selectedPingRange.getPingCount() * (long) (selectedDepthRange.getSize() / channelData.getSampleDistance());
             if (sampleCount > 100000) {

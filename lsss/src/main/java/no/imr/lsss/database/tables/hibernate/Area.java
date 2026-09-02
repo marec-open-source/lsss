@@ -113,7 +113,7 @@ public class Area implements BaseNationObject<AreaPK>, Comparable<Area> {
    }
 
    @Override
-   public int compareTo(Area area) {
-      return Collator.getInstance(Locale.ENGLISH).compare(areaName, area.areaName);
+   public int compareTo(Area other) {
+      return Collator.getInstance(Locale.ENGLISH).compare(areaName, other.areaName);
    }
 }

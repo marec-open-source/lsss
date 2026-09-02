@@ -404,6 +404,9 @@ public final class CategoryVisualizer {
             return;
          }
          Graphics2D g2 = (Graphics2D) getGraphics();
+         if (g2 == null) {
+            return;
+         }
 
          // use XOR to erase the previous rectangle (if any)...
          g2.setXORMode(Color.GRAY);
@@ -617,14 +620,21 @@ public final class CategoryVisualizer {
          echogramWindow.clearMarking();
       }
 
+      float xShift = axisShift(xAxisFeature);
+      float yShift = axisShift(yAxisFeature);
+
       Category.CategoryNeighborhood categoryNeighborhood = extractionCategory.getCategoryNeighborhoods().iterator().next();
       Neighborhood neighborhood = categoryNeighborhood.getPixelNeighborhoodData().getNeighborhood();
       for (Neighbor neighbor : neighborhood.getNeighbors()) {
          EchogramWindow.IndexedNeighbor indexedNeighbor = (EchogramWindow.IndexedNeighbor) neighbor;
          Feature xFeature = neighbor.getFeature(xAxisFeature);
          Feature yFeature = neighbor.getFeature(yAxisFeature);
-         if (xFeature != null && yFeature != null && selectedRegion.contains(xFeature.value(), yFeature.value())) {
-            echogramWindow.mark(indexedNeighbor.getI(), indexedNeighbor.getJ(), setMarked);
+         if (xFeature != null && yFeature != null) {
+            float x = xFeature.value() + xShift;
+            float y = yFeature.value() + yShift;
+            if (selectedRegion.contains(x, y)) {
+               echogramWindow.mark(indexedNeighbor.getI(), indexedNeighbor.getJ(), setMarked);
+            }
          }
       }
 
@@ -709,7 +719,6 @@ public final class CategoryVisualizer {
 
       JCheckBox drawConfidenceIntervalsCheckBox = new JCheckBox("Draw confidence intervals", drawConfidenceIntervals);
       drawConfidenceIntervalsCheckBox.setBackground(Color.WHITE);
-      drawConfidenceIntervalsCheckBox.setSelected(drawConfidenceIntervals);
       drawConfidenceIntervalsCheckBox.addActionListener(_ -> {
          drawConfidenceIntervals = drawConfidenceIntervalsCheckBox.isSelected();
          redraw(false);
@@ -890,11 +899,6 @@ public final class CategoryVisualizer {
       if (extractionCategory == null) {
          return;
       }
-      int n = extractionCategory.getCategoryNeighborhoods().size();
-      for (Category category : configurator.getAllCategories()) {
-         n += category.getCategoryNeighborhoods().size() * category.getCategoryDistributions().size() * GaussDistribution.MAX_EM_ITERATIONS;
-      }
-
       ProgressView progressView = new ProgressView("Recomputing thinned scatter", configurator.getAllCategories().size())
             .useSecondaryProgress();
       new WorkerDialog(mainDialog, progressView.getComponent())
@@ -927,7 +931,6 @@ public final class CategoryVisualizer {
 
       new ConfigurableGUIDialog(mainDialog, "Categorization parameters", new ParameterCollection(parameters))
             .setHelpID(KoronaHelp.CATEGORIZATION_LIBRARY)
-            .setCloseOnOk(parameterEditor::commitEdits)
             .setGUI(parameterEditor.getEditorComponent())
             .show();
 
@@ -1447,7 +1450,7 @@ public final class CategoryVisualizer {
       //remove when bug is fixed.
 
       boolean addedReferencePoint = false;
-      int referenceKHz = Utils.hzToKHz(configurator.getReferenceFrequency());
+      int referenceKHz = KoronaUtils.hzToKHz(configurator.getReferenceFrequency());
       for (FeatureExtractor featureExtractor : configurator.getFeatureExtractors()) {
          String featureName = featureExtractor.getFeatureName();
          if (featureExtractor.isAdditional()) {

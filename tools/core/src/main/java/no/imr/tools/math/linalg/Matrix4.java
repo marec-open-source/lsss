@@ -16,14 +16,6 @@ public record Matrix4(float m00, float m01, float m02, float m03,
          0, 0, 1, 0,
          0, 0, 0, 1);
 
-   public static Matrix4 ofColumns(Vec3 a, Vec3 b, Vec3 c) {
-      return new Matrix4(
-            a.x(), b.x(), c.x(), 0,
-            a.y(), b.y(), c.y(), 0,
-            a.z(), b.z(), c.z(), 0,
-            0, 0, 0, 1);
-   }
-
    @Override
    public String toString() {
       return "[ " +
@@ -61,7 +53,7 @@ public record Matrix4(float m00, float m01, float m02, float m03,
     *
     * @param originalVector the original vector
     * @param newVector      the new vector orientation after applying the rotation matrix
-    * @return the created matrix
+    * @return a rotation matrix
     */
    public static Matrix4 createRotation(Vec3 originalVector, Vec3 newVector) {
       Vec3 newAxisUnit = newVector.unit();
@@ -69,11 +61,15 @@ public record Matrix4(float m00, float m01, float m02, float m03,
       float dot = origAxisUnit.dot(newAxisUnit);
       Vec3 cross = origAxisUnit.cross(newAxisUnit);
       // Since cross.length() is always non-negative, the angle will be between 0 and 180 degrees.
-      double angle = Math.toDegrees(Math.atan2(cross.length(), dot));
-      if (angle > 1e-4) {
-         return createRotation(angle, cross.unit());
+      float crossLength = cross.length();
+      double angle = Math.toDegrees(Math.atan2(crossLength, dot));
+      if (angle < 1e-4) {
+         return IDENTITY;
       }
-      return IDENTITY;
+      Vec3 rotationAxis = crossLength == 0
+            ? originalVector.someOrthonormalVector()
+            : cross.div(crossLength);
+      return createRotation(angle, rotationAxis);
    }
 
    /**
@@ -94,7 +90,7 @@ public record Matrix4(float m00, float m01, float m02, float m03,
     * Creates a new scaling matrix.
     *
     * @param scaling the scaling
-    * @return a translation matrix
+    * @return a scaling matrix
     */
    public static Matrix4 createScaling(Vec3 scaling) {
       return new Matrix4(
@@ -104,51 +100,35 @@ public record Matrix4(float m00, float m01, float m02, float m03,
             0, 0, 0, 1);
    }
 
-   /**
-    * Subtracts two matrices.
-    *
-    * @param B a matrix
-    * @return this matrix - B
-    */
-   public Matrix4 minus(Matrix4 B) {
+   public Matrix4 minus(Matrix4 b) {
       return new Matrix4(
-            m00 - B.m00, m01 - B.m01, m02 - B.m02, m03 - B.m03,
-            m10 - B.m10, m11 - B.m11, m12 - B.m12, m13 - B.m13,
-            m20 - B.m20, m21 - B.m21, m22 - B.m22, m23 - B.m23,
-            m30 - B.m30, m31 - B.m31, m32 - B.m32, m33 - B.m33);
+            m00 - b.m00, m01 - b.m01, m02 - b.m02, m03 - b.m03,
+            m10 - b.m10, m11 - b.m11, m12 - b.m12, m13 - b.m13,
+            m20 - b.m20, m21 - b.m21, m22 - b.m22, m23 - b.m23,
+            m30 - b.m30, m31 - b.m31, m32 - b.m32, m33 - b.m33);
    }
 
-   /**
-    * Multiplies two matrices.
-    *
-    * @param B another matrix
-    * @return this matrix * B
-    */
-   public Matrix4 multiply(Matrix4 B) {
+   public Matrix4 multiply(Matrix4 b) {
       return new Matrix4(
-            m00 * B.m00 + m01 * B.m10 + m02 * B.m20 + m03 * B.m30,
-            m00 * B.m01 + m01 * B.m11 + m02 * B.m21 + m03 * B.m31,
-            m00 * B.m02 + m01 * B.m12 + m02 * B.m22 + m03 * B.m32,
-            m00 * B.m03 + m01 * B.m13 + m02 * B.m23 + m03 * B.m33,
+            m00 * b.m00 + m01 * b.m10 + m02 * b.m20 + m03 * b.m30,
+            m00 * b.m01 + m01 * b.m11 + m02 * b.m21 + m03 * b.m31,
+            m00 * b.m02 + m01 * b.m12 + m02 * b.m22 + m03 * b.m32,
+            m00 * b.m03 + m01 * b.m13 + m02 * b.m23 + m03 * b.m33,
 
-            m10 * B.m00 + m11 * B.m10 + m12 * B.m20 + m13 * B.m30,
-            m10 * B.m01 + m11 * B.m11 + m12 * B.m21 + m13 * B.m31,
-            m10 * B.m02 + m11 * B.m12 + m12 * B.m22 + m13 * B.m32,
-            m10 * B.m03 + m11 * B.m13 + m12 * B.m23 + m13 * B.m33,
+            m10 * b.m00 + m11 * b.m10 + m12 * b.m20 + m13 * b.m30,
+            m10 * b.m01 + m11 * b.m11 + m12 * b.m21 + m13 * b.m31,
+            m10 * b.m02 + m11 * b.m12 + m12 * b.m22 + m13 * b.m32,
+            m10 * b.m03 + m11 * b.m13 + m12 * b.m23 + m13 * b.m33,
 
-            m20 * B.m00 + m21 * B.m10 + m22 * B.m20 + m23 * B.m30,
-            m20 * B.m01 + m21 * B.m11 + m22 * B.m21 + m23 * B.m31,
-            m20 * B.m02 + m21 * B.m12 + m22 * B.m22 + m23 * B.m32,
-            m20 * B.m03 + m21 * B.m13 + m22 * B.m23 + m23 * B.m33,
+            m20 * b.m00 + m21 * b.m10 + m22 * b.m20 + m23 * b.m30,
+            m20 * b.m01 + m21 * b.m11 + m22 * b.m21 + m23 * b.m31,
+            m20 * b.m02 + m21 * b.m12 + m22 * b.m22 + m23 * b.m32,
+            m20 * b.m03 + m21 * b.m13 + m22 * b.m23 + m23 * b.m33,
 
-            m30 * B.m00 + m31 * B.m10 + m32 * B.m20 + m33 * B.m30,
-            m30 * B.m01 + m31 * B.m11 + m32 * B.m21 + m33 * B.m31,
-            m30 * B.m02 + m31 * B.m12 + m32 * B.m22 + m33 * B.m32,
-            m30 * B.m03 + m31 * B.m13 + m32 * B.m23 + m33 * B.m33);
-   }
-
-   public Vec3 multiplyVec(Vec2 v) {
-      return new Vec3(m00 * v.x() + m01 * v.y(), m10 * v.x() + m11 * v.y(), m20 * v.x() + m21 * v.y());
+            m30 * b.m00 + m31 * b.m10 + m32 * b.m20 + m33 * b.m30,
+            m30 * b.m01 + m31 * b.m11 + m32 * b.m21 + m33 * b.m31,
+            m30 * b.m02 + m31 * b.m12 + m32 * b.m22 + m33 * b.m32,
+            m30 * b.m03 + m31 * b.m13 + m32 * b.m23 + m33 * b.m33);
    }
 
    /**
@@ -201,22 +181,6 @@ public record Matrix4(float m00, float m01, float m02, float m03,
             m01, m11, m21, m31,
             m02, m12, m22, m32,
             m03, m13, m23, m33);
-   }
-
-   /**
-    * Performs Gram-Schmidt orthonormalization.
-    *
-    * @return the orthonormalization of this matrix
-    */
-   public Matrix4 normalize() {
-      Vec3 u = new Vec3(m00, m10, m20);
-      Vec3 v = new Vec3(m01, m11, m21);
-
-      u = u.unit();
-
-      v = v.minus(u.times(u.dot(v))).unit();
-
-      return ofColumns(u, v, u.cross(v));
    }
 
    public float[] toRowWiseArray() {

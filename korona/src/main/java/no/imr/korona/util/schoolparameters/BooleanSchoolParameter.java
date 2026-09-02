@@ -10,7 +10,7 @@ public final class BooleanSchoolParameter extends SimpleSchoolParameter {
    }
 
    @Override
-   public String getXmlValue() {
+   protected String getXmlValue() {
       return Boolean.toString(value);
    }
 

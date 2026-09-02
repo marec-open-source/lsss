@@ -9,6 +9,7 @@ import org.hibernate.cfg.Configuration;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.JComponent;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -50,7 +51,7 @@ public abstract class DatabasePlugin implements ParameterContainer {
    public abstract void setGUIEnabled(boolean enabled);
 
    /**
-    * Shows a dialog prompting the used for password if necessary.
+    * Shows a dialog prompting the user for a password if necessary.
     */
    public abstract void askForPasswordIfNecessary();
 
@@ -67,6 +68,9 @@ public abstract class DatabasePlugin implements ParameterContainer {
     * @return a Configuration for the database
     */
    public abstract Configuration getConfiguration(ConnectionType connectionType);
+
+   public void prepareToConnect(ConnectionType connectionType) throws IOException {
+   }
 
    public abstract @Nullable Element toXml();
 

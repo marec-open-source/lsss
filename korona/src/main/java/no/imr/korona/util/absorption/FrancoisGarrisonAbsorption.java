@@ -1,6 +1,6 @@
 package no.imr.korona.util.absorption;
 
-public final class FrancoisGarrisonAbsorption extends Absorption {
+public final class FrancoisGarrisonAbsorption implements Absorption {
    private final double a1_f1;
    private final double f1_f1;
    private final double a2_p2_f2;
@@ -20,7 +20,7 @@ public final class FrancoisGarrisonAbsorption extends Absorption {
       double a1 = 8.86 * Math.pow(10.0, 0.78 * pH - 5) / c;
       double a2 = 21.44 * salinity * (1 + 0.025 * temperature) / c;
       double a3;
-      if (temperature > 20) { // match matlab
+      if (temperature > 20) { // Match MATLAB.
          a3 = 3.964e-4 - 1.146e-5 * temperature + 1.45e-7 * temperature * temperature - 6.5e-10 * temperature * temperature * temperature;
       } else {
          a3 = 4.937e-4 - 2.59e-5 * temperature + 9.11e-7 * temperature * temperature - 1.5e-8 * temperature * temperature * temperature;

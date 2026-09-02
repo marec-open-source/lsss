@@ -1,5 +1,7 @@
 package no.imr.korona.util.bottomdetection;
 
+import no.imr.korona.data.datagrams.Bot0Datagram;
+import no.imr.korona.data.formats.missing.MissingBot0Datagram;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.tools.Max;
 import no.imr.tools.Min;
@@ -154,7 +156,9 @@ public final class Algorithms {
             //only give points if signal strength is large enough
             if (bottomCandidate.getDb(j) > signalStrengthThreshold) {
                //points according to distance from transducer
-               bottomCandidate.setPoints(j, 4 * (bottomCandidate.getDepth(j) - minDepth) / (maxDepth - minDepth));
+               if (maxDepth != minDepth) {
+                  bottomCandidate.setPoints(j, 4 * (bottomCandidate.getDepth(j) - minDepth) / (maxDepth - minDepth));
+               }
 
                //points according to signal strength
                bottomCandidate.setPoints(j, 6 - 6 * (float) j / bottomCandidate.numberOfCandidates);
@@ -174,7 +178,7 @@ public final class Algorithms {
       for (CandidateList bottomCandidate : bottomCandidates) {
          for (int j = 0; j < bottomCandidate.numberOfCandidates; j++) {
             if (bottomCandidate.getPoints(j) > maxPoints) {
-               maxPoints = Math.max(bottomCandidate.getPoints(j), maxPoints);
+               maxPoints = bottomCandidate.getPoints(j);
                bottom = bottomCandidate.getDepth(j);
                strength = bottomCandidate.getDb(j);
             }
@@ -287,24 +291,33 @@ public final class Algorithms {
       return bottomMin;
    }
 
-   private BackstepDepths findMinimumDepth(float bottomDepth, List<PowerData> powerDatas, int channelCount, float minDepthValueFraction, float minimumDepthThresholdFactor, float minDepthLimit) {
-      int[] startInt = backstep(distanceToIndexFunc, powerData -> bottomDepth, powerDatas, minDepthValueFraction);
+   public float findCoordinatedBottomFromEchosounder(List<PowerData> powerDatas, Bot0Datagram bot0Datagram, float minimumDepthThresholdFactor, float minimumDepthThresholdDistance,
+                                                     int channelCount) {
+      if (powerDatas.isEmpty() || bot0Datagram instanceof MissingBot0Datagram) {
+         validBottom = false;
+         return 0;
+      }
+      float[] backstepDepths = new float[channelCount];
+      for (PowerData powerData : powerDatas) {
+         backstepDepths[powerData.getChannel() - 1] = (float) bot0Datagram.getChannelDepths()[powerData.getChannel() - 1];
+      }
+      CoordinatedDepths coordinatedDepths = findCoordinatedDepths(powerDatas, backstepDepths, minimumDepthThresholdFactor, minimumDepthThresholdDistance);
+      validBottom = true;
+      return coordinatedDepths.minDepth;
+   }
 
-      //coordinated bottom using the frequencies between the configured min and max frequency
+   private CoordinatedDepths findCoordinatedDepths(List<PowerData> powerDatas, float[] backstepDepths, float minimumDepthThresholdFactor, float minimumDepthThresholdDistance) {
       float maxDepth = 0;
-      for (int i = 0; i < powerDatas.size(); i++) {
-         if (transducerRanges.containsKey(powerDatas.get(i).getChannel())) {
-            maxDepth = Math.max(maxDepth, powerDatas.get(i).getSampleDepth(startInt[i]));
+      for (PowerData powerData : powerDatas) {
+         if (transducerRanges.containsKey(powerData.getChannel())) {
+            maxDepth = Math.max(maxDepth, backstepDepths[powerData.getChannel() - 1]);
          }
       }
-      float cutoff = minimumDepthThresholdFactor * maxDepth;
+      float cutoff = Math.max(minimumDepthThresholdFactor * maxDepth, maxDepth - minimumDepthThresholdDistance);
       float minDepth = maxDepth;
-      float[] depths = new float[channelCount];
-      for (int i = 0; i < powerDatas.size(); i++) {
-         float depth = powerDatas.get(i).getSampleDepth(startInt[i]);
-         depth = Math.max(depth, maxDepth - minDepthLimit);
-         depths[powerDatas.get(i).getChannel() - 1] = depth;
-         if (transducerRanges.containsKey(powerDatas.get(i).getChannel())) {
+      for (PowerData powerData : powerDatas) {
+         float depth = backstepDepths[powerData.getChannel() - 1];
+         if (transducerRanges.containsKey(powerData.getChannel())) {
             if (depth >= cutoff) {
                minDepth = Math.min(minDepth, depth);
             }
@@ -312,27 +325,42 @@ public final class Algorithms {
       }
 
       if (preferredChannel > 0 && transducerRanges.containsKey(preferredChannel)
-            && depths[preferredChannel - 1] >= cutoff) {
-         minDepth = depths[preferredChannel - 1];
+            && backstepDepths[preferredChannel - 1] >= cutoff) {
+         minDepth = backstepDepths[preferredChannel - 1];
+      }
+      return new CoordinatedDepths(maxDepth, minDepth);
+   }
+
+
+   private BackstepDepths findMinimumDepth(float bottomDepth, List<PowerData> powerDatas, int channelCount, float minDepthValueFraction,
+                                           float minimumDepthThresholdFactor, float minimumDepthThresholdDistance) {
+      int[] startInt = backstep(distanceToIndexFunc, _ -> bottomDepth, powerDatas, minDepthValueFraction);
+
+      float[] backstepDepths = new float[channelCount];
+      for (int i = 0; i < powerDatas.size(); i++) {
+         backstepDepths[powerDatas.get(i).getChannel() - 1] = powerDatas.get(i).getSampleDepth(startInt[i]);
       }
 
+      CoordinatedDepths coordinatedDepths = findCoordinatedDepths(powerDatas, backstepDepths, minimumDepthThresholdFactor, minimumDepthThresholdDistance);
+
       //set any undetected depths to minDepth
-      for (int i = 0; i < depths.length; i++) {
-         if (depths[i] == 0) {
-            depths[i] = minDepth;
+      for (int i = 0; i < backstepDepths.length; i++) {
+         if (backstepDepths[i] == 0) {
+            backstepDepths[i] = coordinatedDepths.minDepth;
          }
       }
-      return new BackstepDepths(depths, maxDepth, minDepth);
+      return new BackstepDepths(backstepDepths, coordinatedDepths.maxDepth, coordinatedDepths.minDepth);
    }
 
    private static int[] backstep(DistanceToIndexFunc distanceToIndexFunc, PowerDataToDistance powerDataToDistance, List<PowerData> powerDatas, float minDistanceValueFraction) {
       int[] startInt = new int[powerDatas.size()];
       for (int i = 0; i < powerDatas.size(); i++) {
          PowerData powerData = powerDatas.get(i);
-         if (distanceToIndexFunc.index(powerData, powerDataToDistance.getDistance(powerData)) > powerData.getCount()) {
+         int index = distanceToIndexFunc.index(powerData, powerDataToDistance.getDistance(powerData));
+         if (index > powerData.getCount()) {
             continue;
          }
-         startInt[i] = distanceToIndexFunc.index(powerData, powerDataToDistance.getDistance(powerData));
+         startInt[i] = index;
          if (startInt[i] <= 0) {
             continue;
          }
@@ -360,11 +388,12 @@ public final class Algorithms {
       return startInt;
    }
 
-   public BackstepDepths backstepAndSetMinDepth(float bottomDepth, List<PowerData> powerDatas, int channelCount, float minDepthValueFraction, float minimumDepthThresholdFactor, float minDepthLimit) {
+   public BackstepDepths backstepAndSetMinDepth(float bottomDepth, List<PowerData> powerDatas, int channelCount, float minDepthValueFraction,
+                                                float minimumDepthThresholdFactor, float minimumDepthThresholdDistance) {
       if (!validBottom) {
          return new BackstepDepths(new float[channelCount], 0, 0);
       }
-      return findMinimumDepth(bottomDepth, powerDatas, channelCount, minDepthValueFraction, minimumDepthThresholdFactor, minDepthLimit);
+      return findMinimumDepth(bottomDepth, powerDatas, channelCount, minDepthValueFraction, minimumDepthThresholdFactor, minimumDepthThresholdDistance);
    }
 
    public BackstepRanges backstepRanges(Map<PowerData, Float> powerDataToRange, int channelCount, float minRangeValueFraction) {
@@ -410,8 +439,8 @@ public final class Algorithms {
          }
 
          @Override
-         public int compareTo(CandidateList.Candidate o) {
-            return Float.compare(o.dbValue, dbValue);
+         public int compareTo(CandidateList.Candidate other) {
+            return Float.compare(other.dbValue, dbValue);
          }
       }
 
@@ -538,6 +567,9 @@ public final class Algorithms {
       private int getCurrentIndex() {
          return currentIndex;
       }
+   }
+
+   private record CoordinatedDepths(float maxDepth, float minDepth) {
    }
 
    public record BackstepDepths(float[] channelDepths, float depth, float minimumDepth) {

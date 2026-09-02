@@ -4,6 +4,7 @@ import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.tools.math.linalg.Vec3;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -14,8 +15,8 @@ public final class Phy0Datagram extends DatagramPingItem {
 
    public final List<Platform> platforms;
 
-   public Phy0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Phy0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       platforms = ByteBufferUtils.readCountAndList(byteBuffer, 8, Phy0Datagram::readPlatform);
    }

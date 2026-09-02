@@ -35,8 +35,8 @@ public final class SelectionMapOverlay extends BaseMapOverlay {
    }
 
    @Override
-   public boolean keyTyped(KeyEvent keyEvent) {
-      switch (Character.toLowerCase(keyEvent.getKeyChar())) {
+   public boolean keyPressed(KeyEvent keyEvent) {
+      switch (keyEvent.getKeyCode()) {
          case KeyEvent.VK_ESCAPE -> {
             referencePoint = null;
             setEmptyDisplayData();
@@ -56,7 +56,7 @@ public final class SelectionMapOverlay extends BaseMapOverlay {
 
    @Override
    public void mouseReleased(MouseEvent mouseEvent) {
-      if (getDisplayData() instanceof DisplayData displayData) {
+      if (getUnwrappedDisplayData() instanceof DisplayData displayData) {
          Rectangle2D geoRect = getMapModule().getGeoTransform().pixToGeo(displayData.box);
          if (geoRect.getWidth() == 0) {
             geoRect.add(Math.nextUp(geoRect.getX()), geoRect.getY());
@@ -80,7 +80,7 @@ public final class SelectionMapOverlay extends BaseMapOverlay {
       if (referencePoint == null) {
          return;
       }
-      Rectangle2D.Double box = new Rectangle2D.Double();
+      Rectangle2D.Float box = new Rectangle2D.Float();
       box.setFrameFromDiagonal(referencePoint, mouseEvent.getPoint());
       setDisplayData(new DisplayData(box));
       getMapModule().setSelectionGeoBox(getMapModule().getGeoTransform().pixToGeo(box));
@@ -96,13 +96,7 @@ public final class SelectionMapOverlay extends BaseMapOverlay {
       setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
    }
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final Rectangle2D box;
-
-      private DisplayData(Rectangle2D.Double box) {
-         this.box = box;
-      }
-
+   private record DisplayData(Rectangle2D box) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setStroke(RegionEditOverlay.SELECT_STROKE);

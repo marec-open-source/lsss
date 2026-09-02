@@ -9,11 +9,12 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.DoubleUnaryOperator;
 
 public final class BroadbandFunction {
    private final double[] hz;
    private final double[] values;
-   private final Function1D function;
+   private final DoubleUnaryOperator function;
 
    public BroadbandFunction(double[] hz, double[] values) {
       this.hz = hz;
@@ -59,7 +60,7 @@ public final class BroadbandFunction {
    }
 
    public double getValue(double aHz) {
-      return function.eval(aHz);
+      return function.applyAsDouble(aHz);
    }
 
    @Override

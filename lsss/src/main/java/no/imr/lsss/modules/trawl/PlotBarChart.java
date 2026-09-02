@@ -84,7 +84,14 @@ final class PlotBarChart {
       int rowCount = dataset.getRowCount();
       for (int row = 0; row < rowCount; row++) {
          for (int column = 0; column < columnCount; column++) {
-            double value = dataset.getValue(row, column).doubleValue();
+            Number number = dataset.getValue(row, column);
+            if (number == null) {
+               continue;
+            }
+            double value = number.doubleValue();
+            if (Double.isNaN(value)) {
+               continue;
+            }
             maxValue = Math.max(maxValue, value);
          }
       }

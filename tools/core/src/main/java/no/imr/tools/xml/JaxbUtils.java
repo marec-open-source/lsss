@@ -43,7 +43,11 @@ public final class JaxbUtils {
          XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
          xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);
          XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(new StreamSource(in));
-         return createUnmarshaller(clazz).unmarshal(xmlStreamReader);
+         try {
+            return createUnmarshaller(clazz).unmarshal(xmlStreamReader);
+         } finally {
+            xmlStreamReader.close(); // This method does not close the underlying input source.
+         }
       } catch (JAXBException | RuntimeException | XMLStreamException e) {
          throw new IOException(e);
       }

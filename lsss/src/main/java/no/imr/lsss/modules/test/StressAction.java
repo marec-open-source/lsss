@@ -7,7 +7,7 @@ public record StressAction(String name, Runnable action) implements Comparable<S
    }
 
    @Override
-   public int compareTo(StressAction o) {
-      return name.compareTo(o.name);
+   public int compareTo(StressAction other) {
+      return name.compareTo(other.name);
    }
 }

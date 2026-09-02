@@ -19,8 +19,9 @@ public final class ThresholdCategoryColorConverter extends DiscreteAndContinuous
    @Override
    void getRGBs(int[] rgbs, byte[] categories, float[] values) {
       int unknownRGB = getDiscreteVariable().getUnknownCategory().getColor().getRGB();
-      FloatRange range = getContinuousVariable().getSettings().getEffectiveRange();
-      for (int i = 0; i < values.length; i++) {
+      FloatRange effectiveRange = getContinuousVariable().getSettings().getEffectiveRange();
+
+      for (int i = 0; i < rgbs.length; i++) {
          byte category = categories[i];
          if (category == ValueColor.NO_DATA_BYTE) {
             rgbs[i] = ValueColor.NO_DATA_RGB;
@@ -28,7 +29,7 @@ public final class ThresholdCategoryColorConverter extends DiscreteAndContinuous
          }
 
          float value = values[i];
-         if (!range.contains(value) && !ValueColor.isNoDataFloat(value)) {
+         if (!effectiveRange.contains(value) && !ValueColor.isNoDataFloat(value)) {
             rgbs[i] = unknownRGB;
             continue;
          }
@@ -38,7 +39,7 @@ public final class ThresholdCategoryColorConverter extends DiscreteAndContinuous
    }
 
    @Override
-   public void drawAddedLegend(Graphics2D g, int width, int height) {
+   void drawAddedLegend(Graphics2D g, int width, int height) {
       drawMarks(g, width, height);
       drawText(g, height);
    }

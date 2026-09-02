@@ -5,7 +5,7 @@ import com.google.common.collect.ListMultimap;
 import no.imr.korona.data.datamanager.PingContainer;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.util.geometry.EchogramPoint;
-import no.imr.tools.CyclicList;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
 import org.jspecify.annotations.Nullable;
@@ -84,7 +84,7 @@ public final class MaskOutlineTracer {
    private record TraceAndSignificantDepth(float depth, Trace trace) {
    }
 
-   public static Set<CyclicList<EchogramPoint>> createBoundary(NavigableMap<PingIndex, FloatRangeSet> mask, PingContainer pingContainer) {
+   public static Set<List<EchogramPoint>> createBoundary(NavigableMap<PingIndex, FloatRangeSet> mask, PingContainer pingContainer) {
       if (mask.isEmpty()) {
          return new HashSet<>();
       }
@@ -225,8 +225,8 @@ public final class MaskOutlineTracer {
       }
    }
 
-   private static Set<CyclicList<EchogramPoint>> mergeTraces(List<Trace> traces) {
-      Set<CyclicList<EchogramPoint>> result = new HashSet<>();
+   private static Set<List<EchogramPoint>> mergeTraces(List<Trace> traces) {
+      Set<List<EchogramPoint>> result = new HashSet<>();
       if (traces.isEmpty()) {
          return result;
       }
@@ -240,7 +240,7 @@ public final class MaskOutlineTracer {
             traces.remove(mergeTrace);
             mergeTrace = findMergeTrace(currentTrace, Trace.MergePoint.START, currentTrace.getStartPointType(), traces);
          }
-         result.add(new CyclicList<>(currentTrace.trace));
+         result.add(new ArrayList<>(currentTrace.trace));
          if (traces.isEmpty()) {
             break;
          }
@@ -317,10 +317,11 @@ public final class MaskOutlineTracer {
 
    public static ListMultimap<PingIndex, EchogramPoint> makePingIndexToPointMap(List<EchogramPoint> boundary) {
       ListMultimap<PingIndex, EchogramPoint> pingIndexToPointMap = ArrayListMultimap.create();
-      for (int i = 0; i < boundary.size(); i++) {
+      int n = boundary.size();
+      for (int i = 0; i < n; i++) {
          EchogramPoint thisPoint = boundary.get(i);
-         EchogramPoint pointBefore = boundary.get(i - 1);
-         EchogramPoint pointAfter = boundary.get(i + 1);
+         EchogramPoint pointBefore = boundary.get(MathUtils.mod(i - 1, n));
+         EchogramPoint pointAfter = boundary.get(MathUtils.mod(i + 1, n));
 
          PointType pointType = getPointType(thisPoint, pointBefore, pointAfter);
          switch (pointType) {

@@ -183,7 +183,7 @@ abstract class PrintData {
    private Purpose[] mPurposePrint = new Purpose[MAX_PRINT_SPECIES];
 
    short getPurposePrint(int aAcousticCategory) {
-      for (int i = 0; i <= mPrintCount; i++) {
+      for (int i = 0; i < mPrintCount; i++) {
          if (mPurposePrint[i].getCompId().getAcousticCategory() == aAcousticCategory) {
             return mPurposePrint[i].getPurpose();
          }
@@ -276,8 +276,8 @@ abstract class PrintData {
    static final int MAX_PRINT_SPECIES = 25;
    static final int MAX_DEPTH_CHANNEL = 2000;
 
-   private float[][] mSa = new float[MAX_PRINT_SPECIES][MAX_DEPTH_CHANNEL + 1];
-   private float[][] mSaAccumulate = new float[MAX_PRINT_SPECIES][MAX_DEPTH_CHANNEL + 1];
+   private final float[][] mSa = new float[MAX_PRINT_SPECIES + 1][MAX_DEPTH_CHANNEL + 1];
+   private final float[][] mSaAccumulate = new float[MAX_PRINT_SPECIES + 1][MAX_DEPTH_CHANNEL + 1];
    private int mCountAccumulate = 0;
 
    private float mStopDistanceAccumulate;
@@ -683,9 +683,7 @@ abstract class PrintData {
 
          // Setting key data: nation, platform, survey
          ObservationPK observationPK = new ObservationPK(
-               mObservation.getCompId().getNation(),
-               mObservation.getCompId().getPlatform(),
-               mObservation.getCompId().getSurvey(),
+               mObservation.getCompId(),
                mObservation.getCompId().getObservationDate(),
                mObservation.getCompId().getObservationTime(),
                mObservation.getCompId().getObservationType());

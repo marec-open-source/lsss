@@ -36,12 +36,8 @@ public final class BroadbandChannelInfoAccumulator {
 
    public void accumulate(BroadbandData broadbandData) {
       String channelId = broadbandData.getTransducer().getChannelId();
-      PerChannelAccumulator perChannelAccumulator = channelIdToPerChannelAccumulator.get(channelId);
-      if (perChannelAccumulator == null) {
-         perChannelAccumulator = new PerChannelAccumulator();
-         channelIdToPerChannelAccumulator.put(channelId, perChannelAccumulator);
-      }
-      perChannelAccumulator.accumulate(broadbandData);
+      channelIdToPerChannelAccumulator.computeIfAbsent(channelId, _ -> new PerChannelAccumulator())
+            .accumulate(broadbandData);
    }
 
    public static void addUnits(Map<String, String> units) {
@@ -59,7 +55,7 @@ public final class BroadbandChannelInfoAccumulator {
    }
 
    private static final class PerChannelAccumulator {
-      private final NavigableMap<Long, ExportChannelInfoParameters> map = new TreeMap<>();
+      private final NavigableMap<Instant, ExportChannelInfoParameters> map = new TreeMap<>();
       private final Map<ExportChannelInfoParameters, ExportChannelInfoParameters> canonicalChannelParametersMap = new HashMap<>();
 
       private PerChannelAccumulator() {
@@ -68,10 +64,10 @@ public final class BroadbandChannelInfoAccumulator {
       private List<Map<String, Object>> toChannelInfos() {
          List<Map<String, Object>> channelInfos = new ArrayList<>();
          ExportChannelInfoParameters currentParameters = null;
-         long minTime = 0;
-         long maxTime = 0;
-         for (Map.Entry<Long, ExportChannelInfoParameters> entry : map.entrySet()) {
-            long time = entry.getKey();
+         Instant minTime = Instant.MIN;
+         Instant maxTime = Instant.MIN;
+         for (Map.Entry<Instant, ExportChannelInfoParameters> entry : map.entrySet()) {
+            Instant time = entry.getKey();
             ExportChannelInfoParameters parameters = entry.getValue();
             if (!Objects.equals(currentParameters, parameters)) {
                if (currentParameters != null) {
@@ -90,10 +86,10 @@ public final class BroadbandChannelInfoAccumulator {
          return channelInfos;
       }
 
-      private static Map<String, Object> toParameterMap(long minTime, long maxTime, ExportChannelInfoParameters currentParameters) {
+      private static Map<String, Object> toParameterMap(Instant minTime, Instant maxTime, ExportChannelInfoParameters currentParameters) {
          Map<String, Object> map = new LinkedHashMap<>();
-         map.put("startTime", Instant.ofEpochMilli(minTime).toString());
-         map.put("endTime", Instant.ofEpochMilli(maxTime).toString());
+         map.put("startTime", minTime.toString());
+         map.put("endTime", maxTime.toString());
          map.putAll(JsonUtils.convertToMap(currentParameters));
          return map;
       }
@@ -101,7 +97,7 @@ public final class BroadbandChannelInfoAccumulator {
       private void accumulate(BroadbandData broadbandData) {
          // Broadband data can be accumulated in any order and possibly repeatedly
 
-         map.computeIfAbsent(broadbandData.getTimeInMillis(), _ -> {
+         map.computeIfAbsent(broadbandData.getInstant(), _ -> {
             ExportChannelInfoParameters channelParameters = rawToChannelParameters(broadbandData);
             return canonicalChannelParametersMap.computeIfAbsent(channelParameters, _ -> channelParameters);
          });

@@ -77,18 +77,8 @@ public final class IcesConf extends ConfigurationUnit {
    }
 
    @Override
-   public boolean stopEditing() {
-      return !viewHolder.hasView() || viewHolder.getView().stopEditing();
-   }
-
-   @Override
    public void removeView() {
       viewHolder.removeView();
-   }
-
-   @Override
-   public boolean prepareApply() {
-      return stopEditing();
    }
 
    @Override
@@ -277,8 +267,7 @@ public final class IcesConf extends ConfigurationUnit {
    static Stream<String> findSchemaNames() {
       Stream<String> idRef = Stream.of(new IcesInstrument(), new IcesCalibration(), new IcesDataAcquisition(), new IcesDataProcessing())
             .flatMap(icesGroup -> icesGroup.getParameters().stream())
-            .map(parameter -> parameter instanceof IdRefParameter p ? p : null)
-            .filter(Objects::nonNull)
+            .gather(Utils.allOfType(IdRefParameter.class))
             .map(IdRefParameter::getSchemaName);
       Stream<String> other = Stream.of(
             IcesUtils.SURVEY_SCHEMA,
@@ -288,21 +277,13 @@ public final class IcesConf extends ConfigurationUnit {
       return Stream.concat(idRef, other);
    }
 
-   @Nullable
    Path icesSchemaDir() {
-      Path mainDir = getConfigurationManager().getApplicationConfiguration().getDirectoryConf().mainDir.getFile();
-      if (mainDir == null) {
-         return null;
-      }
+      Path mainDir = getConfigurationManager().getApplicationConfiguration().getDirectoryConf().getMainDir();
       return mainDir.resolve("config").resolve("ICES-acoustic-metadata");
    }
 
    public List<IcesCode> readIcesCodes(String schemaName) {
-      Path dir = icesSchemaDir();
-      if (dir == null) {
-         return List.of();
-      }
-      Path file = dir.resolve(schemaNameToFileName(schemaName));
+      Path file = icesSchemaDir().resolve(schemaNameToFileName(schemaName));
       try {
          Document document = XmlUtils.readDocumentIfExists(file);
          if (document == null) {

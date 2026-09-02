@@ -14,6 +14,7 @@ import no.imr.lsss.modules.BaseViewModule;
 import no.imr.lsss.modules.ModuleInfo;
 import no.imr.lsss.modules.pojodata.PojoData;
 import no.imr.lsss.modules.pojodata.PojoDataContainer;
+import no.imr.tools.Utils;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.listening.ListenerRegistry;
 import no.imr.tools.logging.Log;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 public final class BottomResponseModule extends BaseViewModule implements PojoDataContainer {
    private static final int PING_AVERAGE_COUNT = 5;
@@ -139,10 +141,9 @@ public final class BottomResponseModule extends BaseViewModule implements PojoDa
                samplesAboveMap.put(transducerIndex, samplesAbove);
                int samplesBelow = (int) (depthRange.max() / sampleDistance);
                samplesBelowMap.put(transducerIndex, samplesBelow);
-               List<List<Float>> sampleValues = new ArrayList<>();
-               for (int i = 0; i < samplesAbove + samplesBelow + 1; i++) {
-                  sampleValues.add(new ArrayList<>());
-               }
+               List<List<Float>> sampleValues = IntStream.range(0, samplesAbove + samplesBelow)
+                     .<List<Float>>mapToObj(_ -> new ArrayList<>())
+                     .toList();
                sampleValueMap.put(transducerIndex, sampleValues);
                Graph graph = new Graph(ping.getRawFileConfiguration().getTransducers().get(transducerIndex).getKHz() + " kHz")
                      .setXYInfo(new XYInfo(
@@ -186,12 +187,7 @@ public final class BottomResponseModule extends BaseViewModule implements PojoDa
             if (samples.isEmpty()) {
                continue;
             }
-            float[] vals = new float[samples.size()];
-            int j = 0;
-            for (Float sample : samples) {
-               vals[j] = sample;
-               j++;
-            }
+            float[] vals = Utils.toFloats(samples);
             float dist = (i - samplesAbove) * sampleDistance;
             float median = Median.quickSelect(vals);
             graph.addPoint(dist, median);
@@ -203,7 +199,6 @@ public final class BottomResponseModule extends BaseViewModule implements PojoDa
 
    private JFreeChart createChart(List<Graph> graphs) {
       return new Plotter(graphs)
-            .title("Bottom response")
             .xAxis("Distance below bottom [m]")
             .xRange(depthAxisRange.getValue())
             .yAxis("Sv [dB]")

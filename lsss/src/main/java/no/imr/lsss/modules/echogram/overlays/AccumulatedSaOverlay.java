@@ -103,15 +103,10 @@ public final class AccumulatedSaOverlay extends BaseEchogramOverlay implements P
             .build();
    }
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final Path2D path;
-      private final GuiText text;
-
-      private DisplayData(Path2D path, GuiText text) {
-         this.path = path;
-         this.text = text;
-      }
-
+   private record DisplayData(
+         Path2D path,
+         GuiText text
+   ) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setStroke(GuiUtils.STROKE_1);

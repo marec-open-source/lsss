@@ -41,7 +41,7 @@ final class TrawlVisualizerDialog implements ItemContainer<TrawlVisualizerDialog
             sexFeature
       );
 
-      itemVisualizer = new ItemVisualizer<>(features, this, Preferences.userRoot().node("/no/marec/lsss/TrawlVisualizerDialog"));
+      itemVisualizer = new ItemVisualizer<>(features, this, Preferences.userRoot().node("no/marec/lsss/TrawlVisualizerDialog"));
       WhenShowingListening.connect(itemVisualizer.getComponent(), trawlGui.getFileChangeManager(), GuiListeners.coalescingLater(this::updateAllItems));
       updateAllItems();
       itemVisualizer.show(trawlGui.getComponent(), "Trawl catch individuals");

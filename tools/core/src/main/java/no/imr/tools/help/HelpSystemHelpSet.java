@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 /**
- * A help set with knowledge abouts its parent.
+ * A help set with knowledge about its parent.
  */
 public final class HelpSystemHelpSet {
    public static final HelpSystemHelpSet EMPTY = new HelpSystemHelpSet();

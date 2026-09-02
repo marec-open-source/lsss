@@ -24,6 +24,7 @@ import tools.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -68,7 +69,7 @@ public final class EchogramPlotExporter extends StreamingExporter {
       double[] time = new double[pingCount];
       double[] vesselDistance = new double[pingCount];
       long[] pingNumber = new long[pingCount];
-      long[] timeInMillis = new long[pingCount];
+      Instant[] instants = new Instant[pingCount];
       float[] bottom = new float[pingCount];
       List<Result> results = new ArrayList<>();
       List<PerChannelResult> perChannelResults = new ArrayList<>();
@@ -88,10 +89,10 @@ public final class EchogramPlotExporter extends StreamingExporter {
             return;
          }
          progressListener.listen();
-         time[i] = PingMapping.ntDateToTimeValue(pingIndex.getNTDate());
+         time[i] = PingMapping.instantToTimeValue(pingIndex.getInstant());
          vesselDistance[i] = ExportRounding.vesselDistance().applyAsDouble(pingIndex.getVesselDistance());
          pingNumber[i] = pingIndex.getPingNumber();
-         timeInMillis[i] = pingIndex.getTimeInMillis();
+         instants[i] = pingIndex.getInstant();
          bottom[i] = dataFileSet.getCoordinatedDepth(pingIndex);
          Ping ping = dataFileSet.getPing(pingIndex);
          for (Result result : results) {
@@ -117,7 +118,7 @@ public final class EchogramPlotExporter extends StreamingExporter {
          json.writePOJOProperty("pingNumber", pingNumber);
          for (Result result : results) {
             float[] values = result.values;
-            float[] postprocessedValues = result.pingFunction.postprocess(values, timeInMillis, bottom);
+            float[] postprocessedValues = result.pingFunction.postprocess(values, instants, bottom);
             Object exportValues = toExportValues(result.pingFunction, postprocessedValues);
             json.writePOJOProperty(result.pingFunction.getName().persistentName(), exportValues);
          }
@@ -130,7 +131,7 @@ public final class EchogramPlotExporter extends StreamingExporter {
                channelMap.put("nominalFrequency", transducer.getFrequency());
                for (PerChannelResult result : perChannelResults) {
                   float[] values = result.channelValues.get(channel - 1);
-                  float[] postprocessedValues = result.pingFunction().postprocess(values, timeInMillis, bottom);
+                  float[] postprocessedValues = result.pingFunction.postprocess(values, instants, bottom);
                   Object exportValues = toExportValues(result.pingFunction, postprocessedValues);
                   channelMap.put(result.pingFunction.getName().persistentName(), exportValues);
                }

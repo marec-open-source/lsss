@@ -25,7 +25,7 @@ public final class HistogramDataset extends BaseIntervalXYDataset {
    }
 
    @Override
-   public Comparable<String> getSeriesKey(int series) {
+   public String getSeriesKey(int series) {
       return name;
    }
 

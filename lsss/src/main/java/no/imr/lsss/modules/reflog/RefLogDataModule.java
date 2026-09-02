@@ -19,6 +19,7 @@ import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.swing.TableToolTipBuilder;
 import no.imr.tools.swing.WorkerDialog;
+import no.imr.tools.time.TimeUtils;
 import org.dom4j.Element;
 import org.jspecify.annotations.Nullable;
 
@@ -27,7 +28,6 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,7 +45,7 @@ import java.util.stream.Stream;
  * Module loading ref log data.
  */
 public final class RefLogDataModule extends BaseDataModule {
-   static final DateTimeFormatter DATE_TIME_FORMATTER = Utils.createUTCDateTimeFormatter("yyyy.MM.dd HH:mm:ss");
+   static final DateTimeFormatter DATE_TIME_FORMATTER = TimeUtils.createUTCDateTimeFormatter("yyyy.MM.dd HH:mm:ss");
 
    private List<BooleanParameter> stationParameters = new ArrayList<>();
    private volatile @Nullable Set<String> selectedStationTypes;
@@ -135,6 +135,7 @@ public final class RefLogDataModule extends BaseDataModule {
    private void updateStationParameters() {
       synchronized (stationParametersLock) {
          stationParameters = createUpdatedStationParameters();
+         selectedStationTypes = null;
       }
    }
 
@@ -204,7 +205,7 @@ public final class RefLogDataModule extends BaseDataModule {
          return null;
       }
       TableToolTipBuilder toolTip = new TableToolTipBuilder()
-            .addLine(DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(logLine.timeInMillis())))
+            .addLine(DATE_TIME_FORMATTER.format(logLine.time()))
             .addLine(logLine.stationType())
             .addVerticalSpace();
       for (int i = 0; i < logLine.fields().size(); i++) {
@@ -244,7 +245,7 @@ public final class RefLogDataModule extends BaseDataModule {
 
    public Stream<LogLine> getAllDisplayableLogLines(PingRange pingRange) {
       return getAllDisplayableLogLines()
-            .filter(logLine -> pingRange.containsTimeInMillis(logLine.timeInMillis()));
+            .filter(logLine -> pingRange.containsInstant(logLine.time()));
    }
 
    private BooleanParameter newStationTypeParameter(String stationType) {

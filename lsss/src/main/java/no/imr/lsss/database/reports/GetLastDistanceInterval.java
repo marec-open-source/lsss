@@ -4,7 +4,7 @@ import no.imr.lsss.database.tables.hibernate.Scatter;
 import no.imr.tools.logging.Log;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
-import org.hibernate.StatelessSession;
+import org.hibernate.query.SelectionQuery;
 
 import java.util.logging.Level;
 
@@ -12,8 +12,8 @@ final class GetLastDistanceInterval {
    private GetLastDistanceInterval() {
    }
 
-   static float getLastDistanceInterval(StatelessSession aSession, String query) {
-      try (ScrollableResults<Scatter> scatterResults = aSession.createSelectionQuery(query, Scatter.class)
+   static float getLastDistanceInterval(SelectionQuery<Scatter> query) {
+      try (ScrollableResults<Scatter> scatterResults = query
             .setReadOnly(true)
             .scroll(ScrollMode.FORWARD_ONLY)) {
 

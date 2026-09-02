@@ -10,6 +10,7 @@ import no.imr.tools.range.DefaultRange;
 import no.imr.tools.range.Range;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.function.LongSupplier;
 
 /**
@@ -18,12 +19,12 @@ import java.util.function.LongSupplier;
 public final class PingIndexConverter {
    private final LSSS lsss;
    private final DataManager otherDataManager;
-   private final LongSupplier ntDateOffset;
+   private final LongSupplier timeOffsetAsNanos;
 
-   public PingIndexConverter(LSSS lsss, DataManager otherDataManager, LongSupplier ntDateOffset) {
+   public PingIndexConverter(LSSS lsss, DataManager otherDataManager, LongSupplier timeOffsetAsNanos) {
       this.lsss = lsss;
       this.otherDataManager = otherDataManager;
-      this.ntDateOffset = ntDateOffset;
+      this.timeOffsetAsNanos = timeOffsetAsNanos;
    }
 
    private DataFileSet getLsssDataFileSet() {
@@ -34,27 +35,28 @@ public final class PingIndexConverter {
       return otherDataManager.getDataFileSet();
    }
 
-   public LongSupplier getNTDateOffset() {
-      return ntDateOffset;
+   public LongSupplier getTimeOffsetAsNanos() {
+      return timeOffsetAsNanos;
    }
 
-   public long lsssNTDateToOtherNTDate(long lsssNTDate) {
-      return lsssNTDate - ntDateOffset.getAsLong();
+   public Instant lsssTimeToOtherTime(Instant lsssTime) {
+      return lsssTime.minusNanos(timeOffsetAsNanos.getAsLong());
    }
 
-   public Range<Long> lsssNTDateToOtherNTDate(Range<Long> lsssNTDateRange) {
+   public Range<Instant> lsssTimeToOtherTime(Range<Instant> lsssTimeRange) {
       return new DefaultRange<>(
-            lsssNTDateToOtherNTDate(lsssNTDateRange.begin()),
-            lsssNTDateToOtherNTDate(lsssNTDateRange.end()));
+            lsssTimeToOtherTime(lsssTimeRange.begin()),
+            lsssTimeToOtherTime(lsssTimeRange.end())
+      );
    }
 
-   public long otherNTDateToLsssNTDate(long otherNTDate) {
-      return otherNTDate + ntDateOffset.getAsLong();
+   public Instant otherTimeToLsssTime(Instant otherTime) {
+      return otherTime.plusNanos(timeOffsetAsNanos.getAsLong());
    }
 
    public PingIndex lsssToClosestOther(PingIndex lsssPingIndex) {
-      long otherNTDate = lsssNTDateToOtherNTDate(lsssPingIndex.getNTDate());
-      return getOtherDataFileSet().getClosestPingIndex(PingMapping.ntDateToTimeValue(otherNTDate), PingMapping.TIME);
+      Instant otherTime = lsssTimeToOtherTime(lsssPingIndex.getInstant());
+      return getOtherDataFileSet().getClosestPingIndex(PingMapping.instantToTimeValue(otherTime), PingMapping.TIME);
    }
 
    public PingRange lsssToClosestOther(Range<PingIndex> lsssPingRange) {
@@ -70,13 +72,13 @@ public final class PingIndexConverter {
    }
 
    public @Nullable PingIndex lsssToContainingOther(PingIndex lsssPingIndex) {
-      long otherNTDate = lsssNTDateToOtherNTDate(lsssPingIndex.getNTDate());
-      return getOtherDataFileSet().getContainingPingIndex(PingMapping.ntDateToTimeValue(otherNTDate), PingMapping.TIME);
+      Instant otherTime = lsssTimeToOtherTime(lsssPingIndex.getInstant());
+      return getOtherDataFileSet().getContainingPingIndex(PingMapping.instantToTimeValue(otherTime), PingMapping.TIME);
    }
 
    public PingIndex otherToClosestLsss(PingIndex otherPingIndex) {
-      long lsssNTDate = otherNTDateToLsssNTDate(otherPingIndex.getNTDate());
-      return getLsssDataFileSet().getClosestPingIndex(PingMapping.ntDateToTimeValue(lsssNTDate), PingMapping.TIME);
+      Instant lsssTime = otherTimeToLsssTime(otherPingIndex.getInstant());
+      return getLsssDataFileSet().getClosestPingIndex(PingMapping.instantToTimeValue(lsssTime), PingMapping.TIME);
    }
 
    public PingRange otherToClosestLsss(Range<PingIndex> otherPingRange) {
@@ -92,7 +94,7 @@ public final class PingIndexConverter {
    }
 
    public @Nullable PingIndex otherToContainingLsss(PingIndex otherPingIndex) {
-      long lsssNTDate = otherNTDateToLsssNTDate(otherPingIndex.getNTDate());
-      return getLsssDataFileSet().getContainingPingIndex(PingMapping.ntDateToTimeValue(lsssNTDate), PingMapping.TIME);
+      Instant lsssTime = otherTimeToLsssTime(otherPingIndex.getInstant());
+      return getLsssDataFileSet().getContainingPingIndex(PingMapping.instantToTimeValue(lsssTime), PingMapping.TIME);
    }
 }

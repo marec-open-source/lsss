@@ -7,6 +7,7 @@ import no.imr.lsss.util.ApiMenuBuilder;
 import no.imr.tools.Utils;
 import no.imr.tools.help.ContextSensitiveHelp;
 import no.imr.tools.logging.Log;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.misc.HtmlStringBuilder;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.swing.GuiListeners;
@@ -40,6 +41,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -75,7 +77,7 @@ final class FloatableModuleManager {
    private final MultiSplitPane multiSplitPane;
    private final List<Wrapper> floatableModules = new ArrayList<>();
    private float dividerProportionFromXml;
-   private long minTimeForUpdatingRelativeSizes;
+   private Instant minTimeForUpdatingRelativeSizes = Instant.EPOCH;
    private boolean doingFromXml;
    private final Name name;
 
@@ -245,18 +247,18 @@ final class FloatableModuleManager {
    }
 
    private void updateMinTimeForUpdatingRelativeSizes() {
-      minTimeForUpdatingRelativeSizes = System.currentTimeMillis() + 1000;
+      minTimeForUpdatingRelativeSizes = Instant.now().plusSeconds(1);
    }
 
    private void updateRelativeSizes() {
-      if (minTimeForUpdatingRelativeSizes > System.currentTimeMillis()) {
+      if (Instant.now().isBefore(minTimeForUpdatingRelativeSizes)) {
          return;
       }
 
       double averageSize = (double) multiSplitPane.getAvailableSize() / (multiSplitPane.getSplitPanes().size() + 1);
       floatableModules.stream()
             .filter(wrapper -> wrapper.dockedPanel != null)
-            .forEach(wrapper -> wrapper.relativeSize = Utils.round(wrapper.dockedPanel.getActualSize() / averageSize, 10000));
+            .forEach(wrapper -> wrapper.relativeSize = MathUtils.round(wrapper.dockedPanel.getActualSize() / averageSize, 10_000));
    }
 
    private static final Insets EMPTY_INSETS = new Insets(0, 0, 0, 0);
@@ -274,7 +276,8 @@ final class FloatableModuleManager {
    }
 
    void fromXml(Element displayElement) {
-      XmlUtils.getFirstWithAttribute(displayElement.elements(), XML_NAME, name.persistentName()).ifPresent(element -> {
+      Element element = XmlUtils.getFirstWithAttribute(displayElement.elements(), XML_NAME, name.persistentName());
+      if (element != null) {
          doingFromXml = true;
          updateMinTimeForUpdatingRelativeSizes();
          Map<String, Element> nameToModuleElement = element.elements().stream()
@@ -289,7 +292,7 @@ final class FloatableModuleManager {
          doingFromXml = false;
          relayoutFloatableModules();
          parseDividerText(element.attributeValue(XML_DIVIDER));
-      });
+      }
    }
 
    private String getDividerText() {
@@ -299,7 +302,7 @@ final class FloatableModuleManager {
       float dividerProportion = Math.abs(dividerLocation - availableSize * dividerProportionFromXml) < 2
             ? dividerProportionFromXml
             : dividerLocation / (float) availableSize;
-      return Float.toString(Utils.round(dividerProportion, 10000));
+      return Float.toString(MathUtils.round(dividerProportion, 10_000));
    }
 
    private void parseDividerText(@Nullable String dividerText) {

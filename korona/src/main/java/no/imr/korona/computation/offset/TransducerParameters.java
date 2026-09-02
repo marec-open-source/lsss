@@ -166,7 +166,7 @@ public final class TransducerParameters implements ParameterContainer, Comparabl
    }
 
    @Override
-   public int compareTo(TransducerParameters that) {
-      return Integer.compare(getKHz(), that.getKHz());
+   public int compareTo(TransducerParameters other) {
+      return Integer.compare(getKHz(), other.getKHz());
    }
 }

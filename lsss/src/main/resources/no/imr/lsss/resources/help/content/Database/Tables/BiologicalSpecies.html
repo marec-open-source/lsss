@@ -31,15 +31,11 @@ struct BiologicalSpecies {
    <li><span class="marec-parameter-def" id="Nation">Nation</span> - Unique nation identification code. Refer to the <a href="Nation.html">Nation</a>
       database table.
    </li>
-   <li><span class="marec-parameter-def" id="Category">Category</span> - Unique identifier for acoustic category.</li>
-   <li><span class="marec-parameter-def" id="Composite">Composite</span> - Flag indicating if the acoustic category given by <b>Nation-Category</b>
-      is a composition of several acoustic categories or not. If subcategories are assigned this
-      parameter is set to 1, and with no subcategories it is set to 0.
-   </li>
-   <li><span class="marec-parameter-def" id="Initials">Initials</span> - Short form category name used by the Interpretation window and the printout programs.</li>
-   <li><span class="marec-parameter-def" id="CommonName">CommonName</span> - Complete category name in native language. Note that number of characters is limited.</li>
-   <li><span class="marec-parameter-def" id="EnglishName">EnglishName</span> - Complete category name in English. Note that number of characters is limited.</li>
-   <li><span class="marec-parameter-def" id="LatinName">LatinName</span> - Complete category name in Latin. Note that number of characters is limited.</li>
+   <li><span class="marec-parameter-def" id="BiologicalSpecies">BiologicalSpecies</span> - Unique identifier for biological species.</li>
+   <li><span class="marec-parameter-def" id="Initials">Initials</span> - Short form species name.</li>
+   <li><span class="marec-parameter-def" id="CommonName">CommonName</span> - Complete species name in native language. Note that number of characters is limited.</li>
+   <li><span class="marec-parameter-def" id="EnglishName">EnglishName</span> - Complete species name in English. Note that number of characters is limited.</li>
+   <li><span class="marec-parameter-def" id="LatinName">LatinName</span> - Complete species name in Latin. Note that number of characters is limited.</li>
    <li><span class="marec-parameter-def" id="NODC">NODC</span> - Internationally standardized species code (National Oceanographic Data Center).</li>
    <li><span class="marec-parameter-def" id="ITIS">ITIS</span> - International standard species code (Integrated Taxonomic Information System).</li>
 </ul>
@@ -50,11 +46,15 @@ struct BiologicalSpecies {
 </p>
 
 <h2 id="References">References</h2>
-<ol>
-   <li><i>National oceanographic data center taxonomic code, Volume 2 - Alphabetical
+<ul class="marec-literature">
+   <li>
+      National oceanographic data center taxonomic code, Volume 2 - Alphabetical
       (scientific name order) listing Key to Oceanographic Records Documentation, Number 15, U.S.
       Department of Commerce, National Oceanic and Atmospheric Administration, National
-      Oceanographic Data Center, Washington D.C., 1984.</i></li>
-   <li><i>K.G.Foote - Fish target strengths for use in echo integrator surveys, Journal of the
-      Acoustical Society of America, Volume 82, Number 3, pages 981-987, September 1987.</i></li>
-</ol>
+      Oceanographic Data Center, Washington D.C., 1984.
+   </li>
+   <li>
+      K.G.Foote - Fish target strengths for use in echo integrator surveys, Journal of the
+      Acoustical Society of America, Volume 82, Number 3, pages 981-987, September 1987.
+   </li>
+</ul>

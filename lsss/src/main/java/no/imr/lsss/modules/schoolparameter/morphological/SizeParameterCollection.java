@@ -7,9 +7,9 @@ import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.region.RegionManager;
 import no.imr.korona.region.School;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.lsss.LSSS;
 import no.imr.lsss.modules.schoolparameter.SchoolParameter;
-import no.imr.tools.Utils;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.range.FloatRange;
@@ -52,8 +52,8 @@ public final class SizeParameterCollection implements MorphologicalParameterColl
          float beamWidthAlongship = dataFileSet.getRawFileConfiguration().getTransducers().get(mainChannel - 1).getBeamWidthAlongship();
 
          PingIndex firstPingIndex = pingRange.begin();
-         Ping fistPing = dataFileSet.getPing(firstPingIndex);
-         PowerData firstPowerData = fistPing.getPowerData(mainChannel);
+         Ping firstPing = dataFileSet.getPing(firstPingIndex);
+         PowerData firstPowerData = firstPing.getPowerData(mainChannel);
          if (firstPowerData != null) {
             heightCorrection = firstPowerData.getEffectivePulseDuration() * firstPowerData.getSoundVelocity();
             lengthCorrection += computeLengthCorrection(regionManager.getNonMaskedRegionDepthRanges(school, firstPingIndex).getFloatRanges(), firstPowerData, beamWidthAlongship);
@@ -77,7 +77,7 @@ public final class SizeParameterCollection implements MorphologicalParameterColl
 
    private static float computeLength(School school) {
       PingRange pingRange = school.getPingRange();
-      return (float) Utils.nmiToMeter(pingRange.getVesselDistance());
+      return (float) KoronaUtils.nmiToMeter(pingRange.getVesselDistance());
    }
 
    private static float computeHeight(DataFileSet dataFileSet, RegionManager regionManager, School school) {

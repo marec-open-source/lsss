@@ -25,13 +25,13 @@ public interface FittableModel {
       int nonZeroWeights = 0;
       double residualSqSum = 0;
       for (WeightedObservation weightedObservation : observations) {
-         if (weightedObservation.getWeight() > Double.MIN_VALUE) {
+         if (weightedObservation.getWeight() > 0) {
             nonZeroWeights++;
             Observation observation = weightedObservation.getObservation();
             double residual = evaluate(observation.x()) - observation.y();
             residualSqSum += residual * residual;
          }
       }
-      return nonZeroWeights > 1 ? residualSqSum / (nonZeroWeights - 1) : 0;
+      return nonZeroWeights > 1 ? residualSqSum / (nonZeroWeights - 1) : Double.NaN;
    }
 }

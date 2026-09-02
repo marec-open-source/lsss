@@ -89,6 +89,7 @@ final class NnlsLawsonHanson {
       if (m <= 0 || n <= 0) {
          mode = 2;
          rnorm = Double.NaN;
+         return;
       }
 
       int j;

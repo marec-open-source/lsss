@@ -80,12 +80,22 @@ final class DepthModuleComputation extends SimplePingModuleComputation {
             .filter(powerData -> transducerRanges.containsKey(powerData.getChannel()))
             .toList();
       if (!powerDatas.isEmpty()) {
-         Dep0Datagram depDatagram = new Dep0Datagram(ping.getNTDate());
+         Dep0Datagram depDatagram = new Dep0Datagram(ping.getInstant());
          Bot0Datagram bot0Datagram = ping.getBot0Datagram();
 
          if (!module.forceDetection.getBooleanValue() && !(bot0Datagram instanceof MissingBot0Datagram) && allBot0DepthsZero(bot0Datagram)) {
             // A zero-depth in bot0 datagram is an indication that there is no detectable depth in the ping.
             return;
+         } else if (module.useExistingBottom.getBooleanValue() && !(bot0Datagram instanceof MissingBot0Datagram)) {
+            int channelCount = ping.getRawFileConfiguration().getTransducerCount();
+            float bottomDepth = algorithms.findCoordinatedBottomFromEchosounder(powerDatas, bot0Datagram,
+                  module.minimumDepthThresholdFactor.getFloatValue(), module.minimumDepthThresholdDistance.getFloatValue(), channelCount);
+            float[] depths = new float[channelCount];
+            for (int i = 0; i < channelCount; i++) {
+               depths[i] = (float) bot0Datagram.getChannelDepths()[i];
+            }
+            Algorithms.BackstepDepths backstepResult = new Algorithms.BackstepDepths(depths, bottomDepth, bottomDepth);
+            fillBackstepResult(depDatagram, bot0Datagram, channelCount, backstepResult);
          } else if (module.keepBottomDeeperThanData.getBooleanValue() && someBot0DepthDeeperThanData(bot0Datagram, powerDatas)) {
             // BOT0 depth is deeper than data depth => Keep BOT0 depths.
             float depth = (float) powerDatas.stream()
@@ -106,7 +116,7 @@ final class DepthModuleComputation extends SimplePingModuleComputation {
                case Pelagic -> algorithms.findBottomByPelagic();
             };
             Algorithms.BackstepDepths backstepResult = algorithms.backstepAndSetMinDepth(bottomDepth, nonNullPowerDatas, channelCount,
-                  module.minDepthValueFraction.getFloatValue(), module.minimumDepthThresholdFactor.getFloatValue(), module.minDepthLimit.getFloatValue());
+                  module.minDepthValueFraction.getFloatValue(), module.minimumDepthThresholdFactor.getFloatValue(), module.minimumDepthThresholdDistance.getFloatValue());
             fillBackstepResult(depDatagram, bot0Datagram, channelCount, backstepResult);
          }
 

@@ -1,5 +1,6 @@
 package no.imr.korona.viewer.variables.adcp;
 
+import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.netcdf.NetcdfUtils;
 import no.imr.tools.range.FloatRange;
@@ -50,11 +51,7 @@ final class AdcpFile {
             }
          }
       } catch (Exception e) {
-         try {
-            dataset.close();
-         } catch (IOException suppressed) {
-            e.addSuppressed(suppressed);
-         }
+         Utils.closeOrSuppress(e, dataset);
          throw e;
       }
       dataset.close();

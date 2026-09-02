@@ -13,6 +13,7 @@ import no.imr.tools.parameter.HeaderParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.gui.ConfigurableGUIDialog;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.swing.ComboBoxListModel;
 import no.imr.tools.swing.GuiUtils;
 import org.jspecify.annotations.Nullable;
@@ -217,8 +218,9 @@ public final class ConfigFileSettingsEditor {
          parameters.add(fileParameter);
       }
 
-      ParameterEditor parameterEditor = new ParameterEditor(parameters);
-      parameterEditor.getGUIConfig().setParameterEnabledDecider(parameter -> editable && !notEditableParameters.contains(parameter));
+      ParameterEditor parameterEditor = new ParameterEditor(parameters, new GUIConfig()
+            .setParameterEnabledDecider(parameter -> editable && !notEditableParameters.contains(parameter))
+      );
 
       JPanel panel = new JPanel(new BorderLayout());
       panel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));

@@ -11,13 +11,14 @@ import no.imr.korona.test.data.ConstantSyntheticData;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 final class DataFileSetTest {
    @Test
-   void testGetIdxDatagram() {
+   void getPingIndex() {
       DataFileSet dataFileSet = DataManagerTestUtils.load(new TestSyntheticData().withFirstAndLastPingNumber(1, 1000).toSegmentHandle());
 
       PingIndex firstIdx = dataFileSet.getTotalRange().begin();
@@ -64,7 +65,7 @@ final class DataFileSetTest {
 
    @Test
    void getContainingDataFileIndex() {
-      assertEquals(0, DataFileSet.empty().getContainingDataFileIndex(new DefaultPingIndex(0, 0, 0, null)));
+      assertEquals(0, DataFileSet.empty().getContainingDataFileIndex(new DefaultPingIndex(Instant.EPOCH, 0, 0, null)));
 
       DataFileSet dataFileSet = DataManagerTestUtils.load(
             new TestSyntheticData().withFirstAndLastPingNumber(1, 10).toSegmentHandle(),
@@ -72,7 +73,7 @@ final class DataFileSetTest {
             new TestSyntheticData().withFirstAndLastPingNumber(21, 30).toSegmentHandle()
       );
       assertEquals(3, dataFileSet.getDataFiles().size());
-      assertEquals(-1, dataFileSet.getContainingDataFileIndex(new DefaultPingIndex(0, 0, 0, null)));
+      assertEquals(-1, dataFileSet.getContainingDataFileIndex(new DefaultPingIndex(Instant.EPOCH, 0, 0, null)));
       assertEquals(0, dataFileSet.getContainingDataFileIndex(dataFileSet.getPingIndex(1)));
       assertEquals(0, dataFileSet.getContainingDataFileIndex(dataFileSet.getPingIndex(10)));
       assertEquals(1, dataFileSet.getContainingDataFileIndex(dataFileSet.getPingIndex(11)));
@@ -86,7 +87,7 @@ final class DataFileSetTest {
 
    private static final class DataFileSetTestSyntheticData extends ConstantSyntheticData {
       @Override
-      protected double getVesselDistance(long pingNumber) {
+      public double getVesselDistance(long pingNumber) {
          if (pingNumber <= 100) {
             return 0.01 * pingNumber;
          } else {
@@ -96,7 +97,7 @@ final class DataFileSetTest {
    }
 
    @Test
-   void testDataFileRangeMaps() {
+   void getContainingPingIndex() {
       DataFileSet dataFileSet = DataManagerTestUtils.load(
             new DataFileSetTestSyntheticData().withFirstAndLastPingNumber(1, 100).toSegmentHandle(),
             new DataFileSetTestSyntheticData().withFirstAndLastPingNumber(101, 200).toSegmentHandle()
@@ -118,7 +119,7 @@ final class DataFileSetTest {
       }
 
       @Override
-      protected double getVesselDistance(long pingNumber) {
+      public double getVesselDistance(long pingNumber) {
          double vesselDistance = 0.01 * pingNumber;
          if (subtractWrap) {
             vesselDistance -= WRAP;
@@ -127,7 +128,7 @@ final class DataFileSetTest {
       }
 
       @Override
-      protected @Nullable WrapAround getWrapAround(SyntheticDataFile syntheticDataFile) {
+      public @Nullable WrapAround getWrapAround(SyntheticDataFile syntheticDataFile) {
          if (syntheticDataFile.getFirstPingNumber() < WRAP_PING_NUMBER && WRAP_PING_NUMBER <= syntheticDataFile.getLastPingNumber()) {
             return new WrapAround(syntheticDataFile.createPingIndex(WRAP_PING_NUMBER), WRAP);
          } else {

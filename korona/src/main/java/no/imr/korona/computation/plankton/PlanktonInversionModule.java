@@ -134,11 +134,6 @@ public final class PlanktonInversionModule extends GeneralPingModule {
       protected Configurable possiblyCreateNewSubConfigurable(String persistentName) {
          return addParameter(new FrequencyParameter(new Name(persistentName, persistentName + " kHz"), false));
       }
-
-      @Override
-      public boolean isEnabled() {
-         return !useAllFrequencies.getBooleanValue();
-      }
    };
 
    private final HeaderParameter inversionHeader = new HeaderParameter("Inversion settings");
@@ -490,6 +485,7 @@ public final class PlanktonInversionModule extends GeneralPingModule {
       useNoiseThreshold.addListenerAndNotify(noiseThreshold::setEnabled);
       useMinInversionDepth.addListenerAndNotify(minInversionDepth::setEnabled);
       useMaxInversionDepth.addListenerAndNotify(maxInversionDepth::setEnabled);
+      useAllFrequencies.addListenerAndNotify(useAll -> activeFrequencies.setEnabled(!useAll));
 
       updateScattererSelection();
    }

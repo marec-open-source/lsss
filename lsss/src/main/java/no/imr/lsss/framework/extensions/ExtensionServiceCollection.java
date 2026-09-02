@@ -16,7 +16,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
@@ -70,30 +69,30 @@ public final class ExtensionServiceCollection {
       Path pluginsRootDir = LSSS.getApplicationDataDir().resolve("plugins");
       return pluginDirs(pluginsRootDir).stream()
             .map(FileInfo::file)
-            .map(pluginDir -> {
+            .<URLClassLoader>mapMulti((pluginDir, consumer) -> {
                try {
                   Log.global.info("Loading plugin from " + pluginDir);
                   Path libDir = pluginDir.resolve("lib");
                   List<Path> jarFiles = FileUtils.listFiles(libDir, FilePredicates.endsWith(".jar"));
-                  URL[] urls = jarFiles.stream()
-                        .map(jarFile -> {
-                           try {
-                              return jarFile.toUri().toURL();
-                           } catch (MalformedURLException e) {
-                              Log.global.log(Level.WARNING, "No URL for " + jarFile, e);
-                              return null;
-                           }
-                        })
-                        .filter(Objects::nonNull)
-                        .toArray(URL[]::new);
-                  return new URLClassLoader("Plugin-" + pluginDir.getFileName(), urls, ExtensionFeatureService.class.getClassLoader());
+                  URL[] urls = toUrls(jarFiles);
+                  consumer.accept(new URLClassLoader("Plugin-" + pluginDir.getFileName(), urls, ExtensionFeatureService.class.getClassLoader()));
                } catch (Exception | ServiceConfigurationError e) {
                   Log.global.log(Level.WARNING, "Error loading for plugins from " + pluginDir, e);
-                  return null;
                }
             })
-            .filter(Objects::nonNull)
             .toList();
+   }
+
+   private static URL[] toUrls(List<Path> files) {
+      return files.stream()
+            .<URL>mapMulti((file, consumer) -> {
+               try {
+                  consumer.accept(file.toUri().toURL());
+               } catch (MalformedURLException e) {
+                  Log.global.log(Level.WARNING, "No URL for " + file, e);
+               }
+            })
+            .toArray(URL[]::new);
    }
 
    private static List<FileInfo> pluginDirs(Path pluginsRootDir) {

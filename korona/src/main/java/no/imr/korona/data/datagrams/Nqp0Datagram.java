@@ -1,6 +1,7 @@
 package no.imr.korona.data.datagrams;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * Noise Quantification Parameters.
@@ -16,16 +17,16 @@ public final class Nqp0Datagram extends DatagramPingItem implements PerChannelDa
    /**
     * Constructor.
     *
-    * @param ntDate     date in NT format
+    * @param instant    time
     * @param channel    channel no
     * @param average    average noise
     * @param upperLimit upper limit noise
     * @param quality    quality of data
     */
-   public Nqp0Datagram(long ntDate, short channel,
+   public Nqp0Datagram(Instant instant, short channel,
                        float average, float upperLimit,
                        float quality) {
-      super(ntDate);
+      super(instant);
 
       this.channel = channel;
       this.average = average;
@@ -33,8 +34,8 @@ public final class Nqp0Datagram extends DatagramPingItem implements PerChannelDa
       this.quality = quality;
    }
 
-   public Nqp0Datagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate);
+   public Nqp0Datagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant);
 
       channel = byteBuffer.getShort();
       average = byteBuffer.getFloat();
@@ -88,7 +89,7 @@ public final class Nqp0Datagram extends DatagramPingItem implements PerChannelDa
 
    @Override
    public String toStringExtra() {
-      return "channel; " + channel
+      return "channel: " + channel
             + ", ne: " + average
             + ", nh: " + upperLimit
             + ", quality: " + quality;

@@ -12,6 +12,7 @@ import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.region.Region;
 import no.imr.korona.util.ExportRounding;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.korona.util.SvSum;
 import no.imr.korona.viewer.util.FrequencySelectionPanel;
 import no.imr.lsss.framework.BaseSystemFeaturePlugin;
@@ -22,11 +23,9 @@ import no.imr.lsss.modules.pojodata.PojoData;
 import no.imr.lsss.modules.pojodata.PojoDataContainer;
 import no.imr.lsss.util.FrequencyPlotMarker;
 import no.imr.tools.UnionList;
-import no.imr.tools.Utils;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.listening.ListenerRegistry;
 import no.imr.tools.logging.Log;
-import no.imr.tools.math.Function1D;
 import no.imr.tools.math.WelfordsMethod;
 import no.imr.tools.math.linalg.Vec2;
 import no.imr.tools.parameter.BaseParameter;
@@ -69,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * Displays the frequency response for the currently selected region(s).
@@ -277,7 +277,7 @@ public final class FrequencyResponseModule extends BaseViewModule implements Poj
          // Frequency check box selection mechanism
          int channel = channelIndex + 1;
          if (channel == getInterpretationSettings().getChannel() || frequencySelectionPanel.isChannelSelected(channel) || channel == normalizationChannel) {
-            WelfordsMethod welfordsMethod = svSum.getWelfordsMethod()[channelIndex];
+            WelfordsMethod welfordsMethod = svSum.getWelfordsMethod(channelIndex);
             long n = welfordsMethod.getCount();
             if (n <= 1) {
                svAverage[channelIndex] = 0;
@@ -316,7 +316,6 @@ public final class FrequencyResponseModule extends BaseViewModule implements Poj
             .setDashed()
             .setColor(Color.BLACK);
 
-      float maxY = 0;
       for (int channelIndex = 0; channelIndex < channelCount; channelIndex++) {
          // Frequency check box selection mechanism
          int channel = channelIndex + 1;
@@ -328,9 +327,6 @@ public final class FrequencyResponseModule extends BaseViewModule implements Poj
             graphAverage.addPoint(x, average);
             graphStdErrAbove.addPoint(x, average + stdErr);
             graphStdErrBelow.addPoint(x, average - stdErr);
-
-            float y = plotStdErr.getBooleanValue() ? average + stdErr : average;
-            maxY = Math.max(maxY, y);
          }
       }
 
@@ -363,7 +359,7 @@ public final class FrequencyResponseModule extends BaseViewModule implements Poj
          if (!(channel == getInterpretationSettings().getChannel() || frequencySelectionPanel.isChannelSelected(channel))) {
             continue;
          }
-         int kHz = Utils.hzToKHz(getInterpretationSettings().getDataFileSet().getFrequency(channel));
+         int kHz = KoronaUtils.hzToKHz(getInterpretationSettings().getDataFileSet().getFrequency(channel));
          kHzRangeBuilder.expand(kHz);
          kHzTicks.add(kHz);
       }
@@ -449,7 +445,7 @@ public final class FrequencyResponseModule extends BaseViewModule implements Poj
 
    private Graph createInterpretationGraph(FloatRange kHzRange) {
       InterpretationModule interpretationModule = getModuleManager().getModule(InterpretationModule.class);
-      Function1D function = interpretationModule.frequencyResponseFunction.getFunction();
+      DoubleUnaryOperator function = interpretationModule.frequencyResponseFunction.getFunction();
       int n = 100;
       Graph graph = new Graph("Interpretation function", n)
             .setXYInfo(createXYInfo())
@@ -458,7 +454,7 @@ public final class FrequencyResponseModule extends BaseViewModule implements Poj
          float delta = kHzRange.getSize() / (n - 1);
          for (int i = 0; i < n; i++) {
             float kHz = kHzRange.min() + i * delta;
-            graph.addPoint(kHz, function.eval(kHz * 1000));
+            graph.addPoint(kHz, function.applyAsDouble(kHz * 1000));
          }
       }
       return graph;

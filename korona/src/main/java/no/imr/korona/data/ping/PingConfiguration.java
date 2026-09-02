@@ -5,6 +5,7 @@ import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.tools.Utils;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -28,7 +29,7 @@ public final class PingConfiguration {
    }
 
    public static PingConfiguration newEmpty() {
-      return new PingConfiguration(new RawFileConfiguration(0));
+      return new PingConfiguration(new RawFileConfiguration(Instant.EPOCH));
    }
 
    public RawFileConfiguration getRawFileConfiguration() {

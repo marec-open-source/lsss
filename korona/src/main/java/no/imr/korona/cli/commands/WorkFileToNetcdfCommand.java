@@ -10,7 +10,7 @@ import java.nio.file.Path;
 
 public final class WorkFileToNetcdfCommand extends CliCommand {
    public static final String COMMAND_NAME = "work-file-to-netcdf";
-   public static final String DESCRIPTION = "Converts work files to NetCDF format (beta)";
+   public static final String DESCRIPTION = "Converts work files to netCDF format (beta)";
 
    private final OptionSpec<Path> dataDir = parser.accepts("data-dir", "Directory with data files")
          .withRequiredArg()
@@ -22,7 +22,7 @@ public final class WorkFileToNetcdfCommand extends CliCommand {
          .required()
          .withValuesConvertedBy(new AbsolutePathConverter());
 
-   private final OptionSpec<Path> outputDir = parser.accepts("output-dir", "Directory where to write work files as NetCDF")
+   private final OptionSpec<Path> outputDir = parser.accepts("output-dir", "Directory where to write work files as netCDF")
          .withRequiredArg()
          .required()
          .withValuesConvertedBy(new AbsolutePathConverter());

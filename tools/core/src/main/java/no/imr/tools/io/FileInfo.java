@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 
 public record FileInfo(Path file, BasicFileAttributes attributes) {
 
@@ -16,7 +16,7 @@ public record FileInfo(Path file, BasicFileAttributes attributes) {
    public String toString() {
       return file
             + ", created: " + attributes.creationTime().toInstant()
-            + ", lastModified: " + attributes.lastModifiedTime().toInstant();
+            + ", lastModified: " + lastModified();
    }
 
    public String getFileName() {
@@ -27,7 +27,7 @@ public record FileInfo(Path file, BasicFileAttributes attributes) {
       return attributes.isDirectory();
    }
 
-   public FileTime lastModifiedTime() {
-      return attributes.lastModifiedTime();
+   public Instant lastModified() {
+      return attributes.lastModifiedTime().toInstant();
    }
 }

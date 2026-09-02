@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
  */
 public interface LsssPluginLoader {
    /**
-    * {@return The version of the LSSS API that was used when developing the plugin}
+    * {@return the version of the LSSS API that was used when developing the plugin}
     */
    ApiVersion getCompatibleApiVersion();
 

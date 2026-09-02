@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 
 public final class BroadbandNotchFilterUtils {
    private BroadbandNotchFilterUtils() {
@@ -41,7 +42,7 @@ public final class BroadbandNotchFilterUtils {
          float bandwidth = 1000 * Float.parseFloat(element.attributeValue(BroadbandNotchFiltersFileService.BANDWIDTH_KHZ));
          return new BroadbandNotchFilterConfig(rejectionFrequency, bandwidth);
       } catch (Exception e) {
-         Log.global.warning("Error parsing notch filter: " + XmlUtils.toDefaultString(element));
+         Log.global.log(Level.WARNING, "Error parsing notch filter: " + XmlUtils.toDefaultString(element), e);
          return null;
       }
    }

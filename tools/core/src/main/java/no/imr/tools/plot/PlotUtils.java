@@ -6,7 +6,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.Pannable;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotRenderingInfo;
@@ -22,8 +22,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.text.NumberFormat;
-import java.util.Locale;
 
 public final class PlotUtils {
    private PlotUtils() {
@@ -45,13 +43,17 @@ public final class PlotUtils {
       return axis;
    }
 
-   public static StandardXYToolTipGenerator newStandardXYToolTipGenerator() {
-      NumberFormat numberInstance = NumberFormat.getNumberInstance(Locale.ENGLISH);
-      return new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT, numberInstance, numberInstance);
+   public static XYToolTipGenerator newXYToolTipGenerator() {
+      SmartNumberFormat format = new SmartNumberFormat();
+      return (dataset, series, item) -> {
+         double x = dataset.getXValue(series, item);
+         double y = dataset.getYValue(series, item);
+         return dataset.getSeriesKey(series) + ": (" + format.formatToString(x) + ", " + format.formatToString(y) + ")";
+      };
    }
 
    public static StandardXYItemRenderer newStandardXYItemRenderer(int type) {
-      return new StandardXYItemRenderer(type, newStandardXYToolTipGenerator());
+      return new StandardXYItemRenderer(type, newXYToolTipGenerator());
    }
 
    public static JFreeChart newChart(@Nullable String title, Plot plot, boolean showLegends) {
@@ -124,26 +126,16 @@ public final class PlotUtils {
    }
 
    public static void preserveDomainAxisRange(JFreeChart oldChart, JFreeChart newChart) {
-      XYPlot oldPlot = oldChart.getXYPlot();
-      XYPlot newPlot = newChart.getXYPlot();
-      if (oldPlot == null || newPlot == null) {
-         return;
-      }
-      ValueAxis oldDomainAxis = oldPlot.getDomainAxis();
-      ValueAxis newDomainAxis = newPlot.getDomainAxis();
+      ValueAxis oldDomainAxis = oldChart.getXYPlot().getDomainAxis();
+      ValueAxis newDomainAxis = newChart.getXYPlot().getDomainAxis();
       if (oldDomainAxis != null && newDomainAxis != null) {
          newDomainAxis.setRange(oldDomainAxis.getRange());
       }
    }
 
    public static void preserveRangeAxisRange(JFreeChart oldChart, JFreeChart newChart) {
-      XYPlot oldPlot = oldChart.getXYPlot();
-      XYPlot newPlot = newChart.getXYPlot();
-      if (oldPlot == null || newPlot == null) {
-         return;
-      }
-      ValueAxis oldRangeAxis = oldPlot.getRangeAxis();
-      ValueAxis newRangeAxis = newPlot.getRangeAxis();
+      ValueAxis oldRangeAxis = oldChart.getXYPlot().getRangeAxis();
+      ValueAxis newRangeAxis = newChart.getXYPlot().getRangeAxis();
       if (oldRangeAxis != null && newRangeAxis != null) {
          newRangeAxis.setRange(oldRangeAxis.getRange());
       }

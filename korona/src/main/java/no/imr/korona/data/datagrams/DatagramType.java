@@ -3,6 +3,7 @@ package no.imr.korona.data.datagrams;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * A datagram type, consisting of a code and a {@link DatagramType.Factory datagram factory}.
@@ -84,16 +85,16 @@ public final class DatagramType {
 
    @FunctionalInterface
    public interface Factory {
-      BaseDatagram read(long ntDate, ByteBuffer byteBuffer, DatagramTypeManager datagramTypeManager) throws DatagramFormatException;
+      BaseDatagram read(Instant instant, ByteBuffer byteBuffer, DatagramTypeManager datagramTypeManager) throws DatagramFormatException;
    }
 
    @FunctionalInterface
    public interface SimpleFactory extends Factory {
       @Override
-      default BaseDatagram read(long ntDate, ByteBuffer byteBuffer, DatagramTypeManager datagramTypeManager) throws DatagramFormatException {
-         return read(ntDate, byteBuffer);
+      default BaseDatagram read(Instant instant, ByteBuffer byteBuffer, DatagramTypeManager datagramTypeManager) throws DatagramFormatException {
+         return read(instant, byteBuffer);
       }
 
-      BaseDatagram read(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException;
+      BaseDatagram read(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException;
    }
 }

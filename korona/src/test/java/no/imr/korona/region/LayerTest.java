@@ -44,7 +44,7 @@ final class LayerTest {
    }
 
    @Test
-   void testInitialLayer() {
+   void initialLayer() {
       PingIndex firstIdx = dataManager.getDataFileSet().getTotalRange().begin();
       PingIndex lastIdx = dataManager.getDataFileSet().getTotalRange().end();
 
@@ -61,7 +61,7 @@ final class LayerTest {
    }
 
    @Test
-   void testMerge() {
+   void mergeLayers() {
       EchogramPoint point1 = new EchogramPoint(idx1, 100);
       EchogramPoint point2 = new EchogramPoint(idx2, 200);
       EchogramPoint point3 = new EchogramPoint(idx3, 300);
@@ -82,7 +82,7 @@ final class LayerTest {
    }
 
    @Test
-   void testInsertBoundary() {
+   void addCurveBoundary() {
       EchogramPoint point1 = new EchogramPoint(idx1, 100);
       EchogramPoint point2 = new EchogramPoint(idx2, 200);
       EchogramPoint point3 = new EchogramPoint(idx2, 300);
@@ -109,7 +109,7 @@ final class LayerTest {
    }
 
    @Test
-   void testInsertVerticalBoundaries() {
+   void addVerticalBoundary() {
       EchogramPoint point1 = new EchogramPoint(idx1, 100);
       EchogramPoint point2 = new EchogramPoint(idx1, 200);
       EchogramPoint point3 = new EchogramPoint(idx1, 300);
@@ -128,7 +128,7 @@ final class LayerTest {
    }
 
    @Test
-   void testEditCurve() {
+   void editBoundary() {
       EchogramPoint insertPoint1 = new EchogramPoint(idx1, 100);
       EchogramPoint insertPoint2 = new EchogramPoint(idx2, 200);
 
@@ -150,7 +150,7 @@ final class LayerTest {
    }
 
    @Test
-   void testEditConnector() {
+   void editConnector() {
       EchogramPoint insertPoint1 = new EchogramPoint(idx1, 100);
       EchogramPoint insertPoint2 = new EchogramPoint(idx1, 150);
 

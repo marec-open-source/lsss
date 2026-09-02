@@ -17,7 +17,7 @@ import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import no.imr.korona.data.util.ResampledBooleanArray;
 import no.imr.korona.data.util.ResampledFloatArray;
 import no.imr.korona.data.util.TvgArray;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.range.ArrayRangeMap;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.RangeMap;
@@ -79,8 +79,8 @@ abstract class BaseFilterModuleComputation extends GeneralPingModuleComputation 
     * @param rangeInMeters range in meters
     */
    void setDistances(FloatRange rangeInMeters) {
-      pastDistanceNmi = (float) Utils.meterToNmi(rangeInMeters.min());
-      futureDistanceNmi = (float) Utils.meterToNmi(rangeInMeters.max());
+      pastDistanceNmi = (float) KoronaUtils.meterToNmi(rangeInMeters.min());
+      futureDistanceNmi = (float) KoronaUtils.meterToNmi(rangeInMeters.max());
    }
 
    /**
@@ -185,7 +185,7 @@ abstract class BaseFilterModuleComputation extends GeneralPingModuleComputation 
          filterInput.add(new FilterInput(
                resampledFloatArray.values(),
                mask.values(),
-               (float) Utils.nmiToMeter(rawAndMask.ping.getVesselDistance() - currentRawAndMask.ping.getVesselDistance()),
+               (float) KoronaUtils.nmiToMeter(rawAndMask.ping.getVesselDistance() - currentRawAndMask.ping.getVesselDistance()),
                resampledFloatArray.offset()
          ));
       }
@@ -233,7 +233,7 @@ abstract class BaseFilterModuleComputation extends GeneralPingModuleComputation 
             result.add(filterInput);
          }
       }
-      return result.toArray(new FilterInput[0]);
+      return result.toArray(FilterInput[]::new);
    }
 
    /**
@@ -288,10 +288,10 @@ abstract class BaseFilterModuleComputation extends GeneralPingModuleComputation 
          Ping ping = pingBuffer.getFirst();
 
          int pingsBehind = currentPingIndex;
-         boolean toMany = pingsBehind > module.maxPing.getIntValue();
-         boolean toFew = pingsBehind < module.minPing.getIntValue();
-         boolean toOld = ping.getVesselDistance() < currentPing.getVesselDistance() + pastDistanceNmi;
-         if (toFew || (!toOld && !toMany)) {
+         boolean tooMany = pingsBehind > module.maxPing.getIntValue();
+         boolean tooFew = pingsBehind < module.minPing.getIntValue();
+         boolean tooOld = ping.getVesselDistance() < currentPing.getVesselDistance() + pastDistanceNmi;
+         if (tooFew || (!tooOld && !tooMany)) {
             break;
          }
 
@@ -309,10 +309,10 @@ abstract class BaseFilterModuleComputation extends GeneralPingModuleComputation 
             break;
          }
          int pingsAhead = pingBuffer.size() - currentPingIndex - 1;
-         boolean toMany = pingsAhead > module.maxPing.getIntValue();
-         boolean toFew = pingsAhead < module.minPing.getIntValue();
-         boolean toNew = peekedPing.getVesselDistance() > currentPing.getVesselDistance() + futureDistanceNmi;
-         if (toMany || (toNew && !toFew)) {
+         boolean tooMany = pingsAhead > module.maxPing.getIntValue();
+         boolean tooFew = pingsAhead < module.minPing.getIntValue();
+         boolean tooNew = peekedPing.getVesselDistance() > currentPing.getVesselDistance() + futureDistanceNmi;
+         if (tooMany || (tooNew && !tooFew)) {
             break;
          }
 

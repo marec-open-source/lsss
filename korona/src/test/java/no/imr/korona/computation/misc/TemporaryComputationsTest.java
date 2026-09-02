@@ -41,7 +41,7 @@ final class TemporaryComputationsTest {
       moduleContainer.addModule(new TemporaryComputationsEndModule());
       ConstantSyntheticData syntheticData = new ConstantSyntheticData() {
          @Override
-         protected float getBottomDepth(PingIndex pingIndex, int channel) {
+         public float getBottomDepth(PingIndex pingIndex, int channel) {
             return 71;
          }
       };

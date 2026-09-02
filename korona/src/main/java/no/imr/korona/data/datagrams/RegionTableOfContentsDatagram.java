@@ -4,6 +4,8 @@ import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.korona.data.ping.items.TableOfContentsPingItem;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
+import java.util.List;
 
 /**
  * References to {@link RegionInfoDatagram}s.
@@ -11,36 +13,36 @@ import java.nio.ByteBuffer;
 public final class RegionTableOfContentsDatagram extends DatagramPingItem implements TableOfContentsPingItem {
    public static final DatagramType TYPE = DatagramType.simple("RTC0", RegionTableOfContentsDatagram::new);
 
-   private final long[] ntDates;
+   private final List<Instant> instants;
 
    /**
     * Creates a new RegionTableOfContentsDatagram.
     *
-    * @param ntDate            time for datagram
-    * @param regionInfoNTDates times of pings with RegionInfoDatagram
+    * @param instant           time for datagram
+    * @param regionInfoInstants times of pings with RegionInfoDatagram
     */
-   public RegionTableOfContentsDatagram(long ntDate, long[] regionInfoNTDates) {
-      super(ntDate);
+   public RegionTableOfContentsDatagram(Instant instant, List<Instant> regionInfoInstants) {
+      super(instant);
 
-      ntDates = regionInfoNTDates;
+      instants = regionInfoInstants;
    }
 
    /**
     * Read one RTC0 datagram.
     *
-    * @param ntDate     time for datagram
+    * @param instant    time for datagram
     * @param byteBuffer buffer to get from
     * @throws DatagramFormatException when parsing fails
     */
-   public RegionTableOfContentsDatagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public RegionTableOfContentsDatagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
-      ntDates = ByteBufferUtils.readCountAndLongArray(byteBuffer);
+      instants = ByteBufferUtils.readInstantsAsNTDates(byteBuffer);
    }
 
    @Override
    public void write(ByteBuffer byteBuffer) {
-      ByteBufferUtils.writeCountAndLongArray(byteBuffer, ntDates);
+      ByteBufferUtils.writeInstantsAsNTDates(byteBuffer, instants);
    }
 
    @Override
@@ -49,7 +51,7 @@ public final class RegionTableOfContentsDatagram extends DatagramPingItem implem
    }
 
    @Override
-   public long[] getNTDates() {
-      return ntDates;
+   public List<Instant> getInstants() {
+      return instants;
    }
 }

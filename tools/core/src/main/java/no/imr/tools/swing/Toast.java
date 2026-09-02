@@ -47,8 +47,8 @@ public final class Toast {
       long startFadeInTime = System.currentTimeMillis();
       long startFadeOutTime = startFadeInTime + fadeInDuration + displayDuration;
 
-      Timer fadeInTimer = new Timer(1, null);
-      Timer fadeOutTimer = new Timer(1, null);
+      Timer fadeInTimer = new Timer(10, null);
+      Timer fadeOutTimer = new Timer(10, null);
       fadeOutTimer.setInitialDelay(displayDuration);
 
       fadeInTimer.addActionListener(_ -> {

@@ -7,6 +7,7 @@ import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.WrapAround;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.track.SegmentData;
+import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import org.jspecify.annotations.Nullable;
 import ucar.ma2.InvalidRangeException;
@@ -26,16 +27,12 @@ final class NetcdfSegmentData extends SegmentData {
       try {
          pingIndexes = netcdfFileData.createPingIndexes();
 
-         RawFileConfiguration rawFileConfiguration = netcdfFileData.createRawFileConfiguration(pingIndexes.getFirst().getNTDate());
+         RawFileConfiguration rawFileConfiguration = netcdfFileData.createRawFileConfiguration(pingIndexes.getFirst().getInstant());
          pingConfiguration = new PingConfiguration(rawFileConfiguration);
 
          bot0Datagrams = netcdfFileData.createBot0Datagrams(pingIndexes);
       } catch (Exception e) {
-         try {
-            netcdfFileData.close();
-         } catch (IOException suppressed) {
-            e.addSuppressed(suppressed);
-         }
+         Utils.closeOrSuppress(e, netcdfFileData);
          throw e;
       }
    }

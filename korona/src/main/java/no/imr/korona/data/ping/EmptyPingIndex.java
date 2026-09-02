@@ -3,16 +3,20 @@ package no.imr.korona.data.ping;
 import no.marec.lsss.api.util.GeoPoint;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
+
 /**
  * The empty ping index is used by {@link PingRange#EMPTY_RANGE}.
  */
 public final class EmptyPingIndex extends AbstractPingIndex {
-   EmptyPingIndex() {
+   public static final EmptyPingIndex INSTANCE = new EmptyPingIndex();
+
+   private EmptyPingIndex() {
    }
 
    @Override
-   public long getNTDate() {
-      return -1;
+   public Instant getInstant() {
+      return Instant.EPOCH;
    }
 
    @Override

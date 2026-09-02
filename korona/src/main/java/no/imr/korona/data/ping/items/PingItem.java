@@ -2,7 +2,6 @@ package no.imr.korona.data.ping.items;
 
 import no.imr.korona.data.datagrams.BaseDatagram;
 import no.imr.korona.data.ping.PingConfiguration;
-import no.imr.tools.time.NTDate;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
@@ -14,21 +13,9 @@ import java.util.List;
 public interface PingItem {
    List<BaseDatagram> toDatagrams();
 
-   long getNTDate();
+   Instant getInstant();
 
-   void setNTDate(long ntDate);
-
-   default long getTimeInMillis() {
-      return NTDate.ntDateToTimeInMillis(getNTDate());
-   }
-
-   default void setTimeInMillis(long timeInMillis) {
-      setNTDate(NTDate.timeInMillisToNTDate(timeInMillis));
-   }
-
-   default Instant getInstant() {
-      return Instant.ofEpochMilli(getTimeInMillis());
-   }
+   void setInstant(Instant instant);
 
    /**
     * Test if compatible with another ping configuration.

@@ -6,7 +6,6 @@ import no.imr.tools.parameter.BaseValueParameter;
 import no.imr.tools.parameter.Configurable;
 import no.imr.tools.parameter.MultiParameter;
 import no.imr.tools.parameter.ParameterCollection;
-import no.imr.tools.parameter.ParameterException;
 import no.imr.tools.parameter.VoidParameter;
 import no.imr.tools.parameter.gui.input.MultiParameterGUI;
 import no.imr.tools.parameter.gui.input.ParameterGUI;
@@ -27,7 +26,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * For pasting xml from clipboard into parameters.
+ * For pasting XML from clipboard into parameters.
  */
 final class ParameterClipboard {
    private final List<ParameterWrapper> parameterWrappers;
@@ -63,24 +62,24 @@ final class ParameterClipboard {
       for (Element element : containerElement.elements()) {
          String name = Configurable.getName(element);
          BaseParameter<?> parameter = nameToParameter.get(name);
-         if (parameter == null) {
-            continue;
-         }
          switch (parameter) {
+            case null -> {
+            }
             case BaseValueParameter<?> baseValueParameter -> {
-               try {
-                  parameterWrappers.add(wrap(baseValueParameter, parameterGUIs.get(parameter), element));
-               } catch (ParameterException _) {
-                  // Ignore this parameter.
-               }
+               parameterWrappers.add(wrap(baseValueParameter, parameterGUIs.get(baseValueParameter), element));
             }
             case MultiParameter<?> multiParameter -> {
-               MultiParameterGUI multiParameterGUI = (MultiParameterGUI) parameterGUIs.get(parameter);
+               MultiParameterGUI multiParameterGUI = (MultiParameterGUI) parameterGUIs.get(multiParameter);
                List<ParameterWrapper> subParametersWrappers = findParametersWrappers(element, multiParameter.getParameters(), multiParameterGUI.getParameterGUIs());
-               parameterWrappers.add(wrap(multiParameterGUI, subParametersWrappers.stream().anyMatch(ParameterWrapper::changed)));
                parameterWrappers.addAll(subParametersWrappers);
+               // Add main parameter last, to avoid the last subparameter to override the highlight.
+               ParameterWrapperState worstState = subParametersWrappers.stream()
+                     .map(ParameterWrapper::state)
+                     .reduce(ParameterWrapperState.UNCHANGED, ParameterWrapperState::worstOf);
+               parameterWrappers.add(wrap(multiParameterGUI, worstState));
             }
             case VoidParameter _ -> {
+               // Cannot happen, filtered above.
             }
          }
       }
@@ -100,19 +99,42 @@ final class ParameterClipboard {
       removeHighlight();
    }
 
-   private static ParameterWrapper wrap(MultiParameterGUI parameterGUI, boolean changed) {
-      return new ParameterWrapper(parameterGUI, changed, Runnables.doNothing());
+   private static ParameterWrapper wrap(ParameterGUI<?> parameterGUI, ParameterWrapperState state) {
+      return new ParameterWrapper(parameterGUI, state, Runnables.doNothing());
    }
 
    private static <V> ParameterWrapper wrap(BaseValueParameter<V> parameter, ParameterGUI<?> parameterGUI, Element element) {
-      V newValue = parameter.xmlToValue(element);
-      return new ParameterWrapper(parameterGUI, !newValue.equals(parameter.getValue()), () -> parameter.setValue(newValue));
+      V newValue;
+      try {
+         newValue = parameter.xmlToValue(element);
+         if (!parameter.getConstraint().isValid(newValue)) {
+            return wrap(parameterGUI, ParameterWrapperState.ERROR);
+         }
+      } catch (Exception _) {
+         return wrap(parameterGUI, ParameterWrapperState.ERROR);
+      }
+      ParameterWrapperState state = newValue.equals(parameter.getValue())
+            ? ParameterWrapperState.UNCHANGED
+            : ParameterWrapperState.CHANGED;
+      return new ParameterWrapper(parameterGUI, state, () -> parameter.setValue(newValue));
    }
 
-   private record ParameterWrapper(ParameterGUI<?> parameterGUI, boolean changed, Runnable paste) {
+   private enum ParameterWrapperState {
+      UNCHANGED, CHANGED, ERROR;
+
+      private static ParameterWrapperState worstOf(ParameterWrapperState a, ParameterWrapperState b) {
+         return a.ordinal() > b.ordinal() ? a : b;
+      }
+   }
+
+   private record ParameterWrapper(ParameterGUI<?> parameterGUI, ParameterWrapperState state, Runnable paste) {
 
       private void highlight() {
-         parameterGUI.setHighlight(changed ? ColorUtils.PALEGREEN : Color.LIGHT_GRAY);
+         parameterGUI.setHighlight(switch (state) {
+            case UNCHANGED -> Color.LIGHT_GRAY;
+            case CHANGED -> ColorUtils.PALEGREEN;
+            case ERROR -> ColorUtils.TOMATO;
+         });
       }
 
       private void removeHighlight() {

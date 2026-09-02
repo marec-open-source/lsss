@@ -70,10 +70,12 @@ public final class CombinationModule extends ConcurrentPingModule {
       }),
       DIVIDE("/", (x, y, result) -> {
          for (int i = 0; i < result.length; i++) {
-            result[i] = x.getValueForReferenceIndex(i) / y.getValueForReferenceIndex(i);
-            if (y.getValueForReferenceIndex(i) == 0) {
+            float yValue = y.getValueForReferenceIndex(i);
+            if (yValue == 0) {
                Log.global.warning("CombinationModule : Divide by zero in processing. Result set to 0.");
                result[i] = 0;
+            } else {
+               result[i] = x.getValueForReferenceIndex(i) / yValue;
             }
          }
       }),

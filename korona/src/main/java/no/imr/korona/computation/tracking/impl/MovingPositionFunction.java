@@ -49,7 +49,7 @@ public final class MovingPositionFunction implements PositionFunction {
    @Override
    public Measurement toMeasurement(StateVector stateVector) {
       Vec3 pos = trsInv.transformPoint(stateVector.position());
-      return StationaryPositionFunction.globalPositionToMeasurement(pos, stateVector.ts());
+      return StationaryPositionFunction.globalPositionToMeasurement(pos, stateVector.tsc());
    }
 
    @Override

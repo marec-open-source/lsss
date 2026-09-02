@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
+import java.util.function.DoubleUnaryOperator;
 
 final class FileDrawFunction implements ToFloatFunction<PingIndex> {
    private final NavigableMap<PingIndex, Float> pingIndexToDepth = new TreeMap<>();
@@ -26,7 +27,7 @@ final class FileDrawFunction implements ToFloatFunction<PingIndex> {
 
       BiFunction<Float, Float, Float> mergeFunction = offset >= 0 ? Math::max : Math::min;
       for (FileDrawPoint point : line.points()) {
-         double timeValue = PingMapping.millisToTimeValue(point.time());
+         double timeValue = PingMapping.instantToTimeValue(point.time());
          PingIndex endPingIndex = dataFileSet.getContainingPingIndex(timeValue, PingMapping.TIME);
          if (endPingIndex == null) {
             beginEchogramPoint = null;
@@ -38,10 +39,10 @@ final class FileDrawFunction implements ToFloatFunction<PingIndex> {
          EchogramPoint endEchogramPoint = new EchogramPoint(endPingIndex, endDepth);
          Point2D endImagePoint = echogramModule.echogramPointToImagePoint(endEchogramPoint);
          if (beginImagePoint != null) {
-            Function1D linearFunction = Function1D.linear(beginImagePoint, endImagePoint);
+            DoubleUnaryOperator linearFunction = Function1D.linear(beginImagePoint, endImagePoint);
             dataFileSet.getPingIndices(PingRange.ofUnsorted(beginEchogramPoint.pingIndex(), endEchogramPoint.pingIndex())).forEach(pingIndex -> {
                double x = echogramModule.getPingSettings().pingIndexToX(pingIndex);
-               double y = linearFunction.eval(x);
+               double y = linearFunction.applyAsDouble(x);
                float depth = echogramModule.getZSettings().yToDepth(y, pingIndex);
                pingIndexToDepth.merge(pingIndex, depth + offset, mergeFunction);
             });
@@ -57,6 +58,10 @@ final class FileDrawFunction implements ToFloatFunction<PingIndex> {
       if (floorEntry != null) {
          return floorEntry.getValue();
       }
-      return pingIndexToDepth.firstEntry().getValue();
+      Map.Entry<PingIndex, Float> firstEntry = pingIndexToDepth.firstEntry();
+      if (firstEntry != null) {
+         return firstEntry.getValue();
+      }
+      return Float.NaN;
    }
 }

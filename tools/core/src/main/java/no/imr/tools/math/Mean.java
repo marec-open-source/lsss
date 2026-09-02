@@ -18,6 +18,9 @@ public final class Mean {
    }
 
    public void update(double value, int n) {
+      if (n <= 0) {
+         return;
+      }
       count += n;
       m += n * (value - m) / count;
    }

@@ -27,14 +27,18 @@ public final class XmlParse {
       return attribute;
    }
 
-   public static Attribute attribute(Element element, String... alternativeNames) throws XmlParseException {
-      for (String name : alternativeNames) {
-         Attribute attribute = element.attribute(name);
-         if (attribute != null) {
-            return attribute;
+   public static Attribute attribute(Element element, String name, String... aliases) throws XmlParseException {
+      Attribute attribute = element.attribute(name);
+      if (attribute != null) {
+         return attribute;
+      }
+      for (String alias : aliases) {
+         Attribute aliasAttribute = element.attribute(alias);
+         if (aliasAttribute != null) {
+            return aliasAttribute;
          }
       }
-      throw new XmlParseException(element, alternativeNames[0]);
+      throw new XmlParseException(element, name);
    }
 
    //-------- String
@@ -118,6 +122,11 @@ public final class XmlParse {
 
    public static double doubleAttribute(Element element, String name) throws XmlParseException {
       return parseDouble(attribute(element, name));
+   }
+
+   public static double doubleAttribute(Element element, String name, double defaultValue) throws XmlParseException {
+      Attribute attribute = element.attribute(name);
+      return attribute != null ? parseDouble(attribute) : defaultValue;
    }
 
    public static double doubleElement(Element element, String name) throws XmlParseException {

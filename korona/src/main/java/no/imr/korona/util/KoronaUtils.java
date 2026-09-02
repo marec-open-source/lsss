@@ -10,7 +10,7 @@ import no.imr.tools.io.FileInfo;
 import no.imr.tools.io.FileType;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
-import no.imr.tools.time.NTDate;
+import no.imr.tools.time.TimeUtils;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.jspecify.annotations.Nullable;
@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 /**
  * Miscellaneous functions.
@@ -35,9 +34,27 @@ public final class KoronaUtils {
    private KoronaUtils() {
    }
 
+   /**
+    * Converts Hz to kHz.
+    *
+    * @param hz the frequency in Hz
+    * @return the frequency in kHz
+    */
+   public static int hzToKHz(float hz) {
+      return (int) (hz / 1000.0f);
+   }
+
+   public static double meterToNmi(double meter) {
+      return meter / 1852.0;
+   }
+
+   public static double nmiToMeter(double nmi) {
+      return nmi * 1852.0;
+   }
+
    public static double getKnots(PingIndex first, PingIndex last) {
       double nmi = last.getVesselDistance() - first.getVesselDistance();
-      double hours = (last.getNTDate() - first.getNTDate()) / (3600.0 * NTDate.UNITS_PER_SECOND);
+      double hours = TimeUtils.toSeconds(first.getInstant(), last.getInstant()) / 3600.0;
       return nmi / hours;
    }
 
@@ -54,8 +71,8 @@ public final class KoronaUtils {
    }
 
    public static double getFraction(PingRange pingRange, PingIndex pingIndex) {
-      double delta = pingIndex.getNTDate() - pingRange.begin().getNTDate();
-      double total = pingRange.end().getNTDate() - pingRange.begin().getNTDate();
+      double delta = TimeUtils.toSeconds(pingRange.begin().getInstant(), pingIndex.getInstant());
+      double total = TimeUtils.toSeconds(pingRange.begin().getInstant(), pingRange.end().getInstant());
       return delta / total;
    }
 
@@ -97,11 +114,10 @@ public final class KoronaUtils {
     * @return a sorted list of raw files
     */
    public static List<Path> listRawFiles(Path directory, Comparator<FileInfo> comparator) throws IOException {
-      List<FileInfo> fileInfos = FileUtils.listFilesWithAttributes(directory, KoronaUtils::isRawFile);
-      fileInfos.sort(comparator);
-      return fileInfos.stream()
+      return FileUtils.listFilesWithAttributes(directory, KoronaUtils::isRawFile).stream()
+            .sorted(comparator)
             .map(FileInfo::file)
-            .collect(Collectors.toList());
+            .toList();
    }
 
    public static boolean isRawFile(FileInfo fileInfo) {

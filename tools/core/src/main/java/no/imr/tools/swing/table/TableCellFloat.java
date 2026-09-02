@@ -18,7 +18,6 @@ public final class TableCellFloat {
       public Editor() {
          textField.setHorizontalAlignment(JTextField.RIGHT);
          textField.setBorder(null);
-         textField.addPropertyChangeListener("value", evt -> fireEditingStopped());
          textField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {

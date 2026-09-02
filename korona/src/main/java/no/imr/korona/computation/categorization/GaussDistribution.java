@@ -7,7 +7,8 @@ import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.logging.Log;
 import no.imr.tools.math.ArrayMath;
-import no.imr.tools.math.Sum;
+import no.imr.tools.math.Mean;
+import no.imr.tools.math.WelfordsMethod2D;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.LUDecomposition;
@@ -55,7 +56,7 @@ public final class GaussDistribution {
    private static final class CovarianceMatrix {
       private final List<String> allFeatureNames;
       private final Map<FeaturePair, Number> covariances;
-      private final Map<FeaturePair, Sum> covarianceSums = new HashMap<>();
+      private final Map<FeaturePair, WelfordsMethod2D> covarianceSums = new HashMap<>();
       private final Map<List<String>, RealMatrix> cachedRegressionMatrices = new HashMap<>();
 
       private CovarianceMatrix(List<String> allFeatureNames) {
@@ -68,17 +69,17 @@ public final class GaussDistribution {
          this.covariances = covariances;
       }
 
-      private void addCovariance(FeaturePair key, double value) {
-         Sum sum = covarianceSums.computeIfAbsent(key, _ -> new Sum());
-         sum.add(value);
+      private void addCovariance(FeaturePair key, double featureX, double featureY) {
+         WelfordsMethod2D welfordsMethod2D = covarianceSums.computeIfAbsent(key, _ -> new WelfordsMethod2D());
+         welfordsMethod2D.update(featureX, featureY);
       }
 
       private void computeCovariances() {
          covariances.clear();
-         for (Map.Entry<FeaturePair, Sum> entry : covarianceSums.entrySet()) {
-            Sum sum = entry.getValue();
-            if (sum.getCount() > 1) {
-               double covariance = sum.getSum() / (sum.getCount() - 1);
+         for (Map.Entry<FeaturePair, WelfordsMethod2D> entry : covarianceSums.entrySet()) {
+            WelfordsMethod2D welfordsMethod2D = entry.getValue();
+            if (welfordsMethod2D.getCount() > 1) {
+               double covariance = welfordsMethod2D.covXY();
                covariances.put(entry.getKey(), covariance);
             }
          }
@@ -210,7 +211,7 @@ public final class GaussDistribution {
    }
 
    private static final class Means {
-      private final Map<String, Sum> featureToMeanSums = new HashMap<>();
+      private final Map<String, Mean> featureToMeanSums = new HashMap<>();
       private final Map<String, Number> featureToMeans = new HashMap<>();
 
       private Means() {
@@ -218,16 +219,15 @@ public final class GaussDistribution {
 
       private void updateMeanSums(Neighbor neighbor) {
          for (Feature feature : neighbor.getFeatures()) {
-            Sum sum = featureToMeanSums.computeIfAbsent(feature.name(), _ -> new Sum());
-            sum.add(feature.value());
+            Mean mean = featureToMeanSums.computeIfAbsent(feature.name(), _ -> new Mean());
+            mean.update(feature.value());
          }
       }
 
       private void computeMeans() {
          featureToMeans.clear();
-         for (Map.Entry<String, Sum> entry : featureToMeanSums.entrySet()) {
-            Sum sum = entry.getValue();
-            double mean = sum.getAverage();
+         for (Map.Entry<String, Mean> entry : featureToMeanSums.entrySet()) {
+            double mean = entry.getValue().getMean();
             featureToMeans.put(entry.getKey(), mean);
          }
       }
@@ -615,9 +615,7 @@ public final class GaussDistribution {
          for (Feature featureX : filledNeighbor.getFeatures()) {
             for (Feature featureY : filledNeighbor.getFeatures()) {
                FeaturePair key = new FeaturePair(featureX.name(), featureY.name());
-               double xMean = currentMeans.featureToMeans.get(featureX.name()).doubleValue();
-               double yMean = currentMeans.featureToMeans.get(featureY.name()).doubleValue();
-               nextCovarianceMatrix.addCovariance(key, (featureX.value() - xMean) * (featureY.value() - yMean));
+               nextCovarianceMatrix.addCovariance(key, featureX.value(), featureY.value());
             }
          }
       }

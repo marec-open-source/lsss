@@ -52,4 +52,9 @@ public final class LsssDataConfiguration extends DataConfiguration {
    public float getMinimumDepthThresholdFactor() {
       return lsss.getConfigurationManager().getSurveyMiscConf().minimumDepthThresholdFactor.getFloatValue();
    }
+
+   @Override
+   public float getMinimumDepthThresholdDistance() {
+      return lsss.getConfigurationManager().getSurveyMiscConf().minimumDepthThresholdDistance.getFloatValue();
+   }
 }

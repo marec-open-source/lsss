@@ -5,6 +5,7 @@ import no.imr.korona.computation.feature.CategoryVisualizer;
 import no.imr.korona.computation.feature.EchogramWindow;
 import no.imr.korona.config.ConfigFileSettings;
 import no.imr.korona.data.datagrams.Cac0Datagram;
+import no.imr.korona.data.datagrams.Dep0Datagram;
 import no.imr.korona.data.datagrams.Pic0Datagram;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.Ping;
@@ -20,6 +21,7 @@ import no.imr.korona.region.LayerBoundary;
 import no.imr.korona.region.LayerManager;
 import no.imr.korona.region.Region;
 import no.imr.korona.region.VerticalBoundary;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.korona.viewer.coloring.CategoryColorConverter;
 import no.imr.korona.viewer.coloring.ColorConverter;
 import no.imr.korona.viewer.coloring.ColorConverterContainer;
@@ -38,7 +40,6 @@ import no.imr.lsss.util.SchoolVisualizerDialog;
 import no.imr.lsss.viewer.ActionsSearchDialog;
 import no.imr.lsss.viewer.Shortcuts;
 import no.imr.tools.NoCanDoException;
-import no.imr.tools.Utils;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.misc.ToFloatFunction;
 import no.imr.tools.parameter.FloatParameter;
@@ -193,11 +194,18 @@ public final class Actions {
    public final LsssAction setUpperBoundaryFromThreshold = new TaskLsssAction("setUpperBoundaryFromThreshold", "Set upper boundary from threshold",
          _ -> setUpperBoundaryFromThreshold());
 
-   public final LsssAction setLowerBoundaryFromThreshold = new TaskLsssAction("setLowerBoundaryFromRange", "Set lower boundary from threshold",
+   public final LsssAction setLowerBoundaryFromThreshold = new TaskLsssAction("setLowerBoundaryFromThreshold", "Set lower boundary from threshold",
          _ -> setLowerBoundaryFromThreshold());
 
-   public final LsssAction setLowerBoundaryFromCoordinatedBottom = new TaskLsssAction("setLowerBoundaryFromCoordinatedBottom", "Set lower boundary from coordinated bottom",
+   public final LsssAction setLowerBoundaryFromCoordinatedBottom = new TaskLsssAction(
+         "setLowerBoundaryFromCoordinatedBottom",
+         "Set lower boundary from coordinated bottom",
          _ -> setLowerBoundaryFromCoordinatedBottom());
+
+   public final LsssAction setLowerBoundaryFromCoordinatedBottomInPreprocessedData = new TaskLsssAction(
+         "setLowerBoundaryFromCoordinatedBottomInPreprocessedData",
+         "Set lower boundary from coordinated bottom in preprocessed data",
+         _ -> setLowerBoundaryFromCoordinatedBottomInPreprocessedData());
 
    public final LsssAction setLowerBoundaryFromCurrentFrequencyBottom = new TaskLsssAction("setLowerBoundaryFromCurrentFrequencyBottom",
          "Set lower boundary from bottom on current frequency",
@@ -211,7 +219,7 @@ public final class Actions {
    public final LsssAction deleteAssignmentsOnOtherFrequencies = new TaskLsssAction("deleteAssignmentsOnOtherFrequencies", "Delete assignments on other frequencies",
          _ -> {
             if (lsss.getInterpretationSettings().isInteractiveMode()) {
-               String message = "Delete assignments of acoustic categories for selected regions on all frequencies other than " + Utils.hzToKHz(lsss.getInterpretationSettings().getFrequency()) + " kHz?";
+               String message = "Delete assignments of acoustic categories for selected regions on all frequencies other than " + KoronaUtils.hzToKHz(lsss.getInterpretationSettings().getFrequency()) + " kHz?";
                int answer = JOptionPane.showConfirmDialog(lsss.getFrame(), message, "Delete interpretation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
                if (answer != JOptionPane.OK_OPTION) {
                   return;
@@ -328,8 +336,11 @@ public final class Actions {
       lsssPackage.addAction(excludeLowSpeed);
       lsssPackage.addAction(mergeLayersWithSameInterpretation);
       lsssPackage.addAction(setUpperBoundaryFromRange);
+      lsssPackage.addAction(setUpperBoundaryFromThreshold);
       lsssPackage.addAction(setLowerBoundaryFromThreshold);
       lsssPackage.addAction(setLowerBoundaryFromCoordinatedBottom);
+      lsssPackage.addAction(setLowerBoundaryFromCoordinatedBottomInPreprocessedData);
+      lsssPackage.addAction(setLowerBoundaryFromCurrentFrequencyBottom);
       lsssPackage.addAction(deleteBottomDataCurrentFrequency);
       lsssPackage.addAction(deleteAssignmentsOnOtherFrequencies);
       lsssPackage.addAction(deleteAssignmentsOnAllFrequencies);
@@ -343,21 +354,21 @@ public final class Actions {
 
       lsssPackage.setKeyStrokeMap(new ConcurrentHashMap<>());
 
-      Map<KeyStroke, List<ActionExecutor>> anywhereKeyStrokeMap = lsssPackage.getKeyStrokeMap().computeIfAbsent(LsssPackage.KEY_STROKE_CONTEXT_ANYWHERE, _ -> new ConcurrentHashMap<>());
-      anywhereKeyStrokeMap.put(Shortcuts.TOOLTIP, List.of(showTooltip));
+      Map<KeyStroke, ActionExecutor> anywhereKeyStrokeMap = lsssPackage.getKeyStrokeMap().computeIfAbsent(LsssPackage.KEY_STROKE_CONTEXT_ANYWHERE, _ -> new ConcurrentHashMap<>());
+      anywhereKeyStrokeMap.put(Shortcuts.TOOLTIP, showTooltip);
 
-      Map<KeyStroke, List<ActionExecutor>> mainWindowKeyStrokeMap = lsssPackage.getKeyStrokeMap().computeIfAbsent(LsssPackage.KEY_STROKE_CONTEXT_MAIN_WINDOW, _ -> new ConcurrentHashMap<>());
-      mainWindowKeyStrokeMap.put(Shortcuts.NEW, List.of(newSurvey));
-      mainWindowKeyStrokeMap.put(Shortcuts.OPEN, List.of(openSurvey));
-      mainWindowKeyStrokeMap.put(Shortcuts.EDIT, List.of(editSurvey));
-      mainWindowKeyStrokeMap.put(Shortcuts.SAVE, List.of(saveSurvey));
-      mainWindowKeyStrokeMap.put(Shortcuts.HELP, List.of(help));
-      mainWindowKeyStrokeMap.put(Shortcuts.ACTION_DIALOG, List.of(actionsDialog));
-      mainWindowKeyStrokeMap.put(Shortcuts.STORED_MASKING, List.of(showStoredMasking));
-      mainWindowKeyStrokeMap.put(Shortcuts.CATEGORIZATION, List.of(showCategorization));
-      mainWindowKeyStrokeMap.put(Shortcuts.PLANKTON, List.of(showPlankton));
-      mainWindowKeyStrokeMap.put(Shortcuts.CONDITIONAL_MASKING, List.of(showConditionalMasking));
-      mainWindowKeyStrokeMap.put(Shortcuts.ONLY_ECHOGRAM, List.of(showOnlyEchogram));
+      Map<KeyStroke, ActionExecutor> mainWindowKeyStrokeMap = lsssPackage.getKeyStrokeMap().computeIfAbsent(LsssPackage.KEY_STROKE_CONTEXT_MAIN_WINDOW, _ -> new ConcurrentHashMap<>());
+      mainWindowKeyStrokeMap.put(Shortcuts.NEW, newSurvey);
+      mainWindowKeyStrokeMap.put(Shortcuts.OPEN, openSurvey);
+      mainWindowKeyStrokeMap.put(Shortcuts.EDIT, editSurvey);
+      mainWindowKeyStrokeMap.put(Shortcuts.SAVE, saveSurvey);
+      mainWindowKeyStrokeMap.put(Shortcuts.HELP, help);
+      mainWindowKeyStrokeMap.put(Shortcuts.ACTION_DIALOG, actionsDialog);
+      mainWindowKeyStrokeMap.put(Shortcuts.STORED_MASKING, showStoredMasking);
+      mainWindowKeyStrokeMap.put(Shortcuts.CATEGORIZATION, showCategorization);
+      mainWindowKeyStrokeMap.put(Shortcuts.PLANKTON, showPlankton);
+      mainWindowKeyStrokeMap.put(Shortcuts.CONDITIONAL_MASKING, showConditionalMasking);
+      mainWindowKeyStrokeMap.put(Shortcuts.ONLY_ECHOGRAM, showOnlyEchogram);
 
       Listener surveyListener = () -> {
          boolean open = lsss.getSurveyManager().isOpen();
@@ -551,7 +562,7 @@ public final class Actions {
    private void excludeLowSpeed() {
       new SimpleInputDialog<>("Exclude pings with low speed", "Minimum speed", "3", Float::parseFloat)
             .setUnit(Unit.KNOTS)
-            .setBelowText("The excluded distances are expanded until the speed is stabile.")
+            .setBelowText("The excluded distances are expanded until the speed is stable.")
             .show(lsss.getFrame())
             .ifPresent(minKnots -> {
                RangeSet<PingIndex> exclusion = ExclusionDetector.fromLowSpeed(
@@ -559,7 +570,7 @@ public final class Actions {
                      lsss.getInterpretationSettings().getPingRange(),
                      minKnots
                );
-               lsss.getRegionManager().getExclusionManager().exclude(exclusion);
+               exclusion.forEach(lsss.getRegionManager().getExclusionManager()::excludeRange);
             });
    }
 
@@ -706,15 +717,31 @@ public final class Actions {
    }
 
    private void setLowerBoundaryFromCoordinatedBottom() {
+      float bottomBoundaryOffset = lsss.getConfigurationManager().getSurveyMiscConf().bottomBoundaryOffset.getFloatValue();
       DataFileSet dataFileSet = lsss.getDataManager().getDataFileSet();
-      setLowerBoundary(setLowerBoundaryFromCoordinatedBottom.getLabel(), dataFileSet::getCoordinatedDepth);
+      setLowerBoundary(setLowerBoundaryFromCoordinatedBottom.getLabel(), pingIndex -> {
+         return dataFileSet.getCoordinatedDepth(pingIndex) - bottomBoundaryOffset;
+      });
+   }
+
+   private void setLowerBoundaryFromCoordinatedBottomInPreprocessedData() {
+      float bottomBoundaryOffset = lsss.getConfigurationManager().getSurveyMiscConf().bottomBoundaryOffset.getFloatValue();
+      DataFileSet dataFileSet = lsss.getDataManager().getDataFileSet();
+      setLowerBoundary(setLowerBoundaryFromCoordinatedBottomInPreprocessedData.getLabel(), pingIndex -> {
+         Ping ping = dataFileSet.getPing(pingIndex);
+         Dep0Datagram dep0Datagram = ping.getPingItem(Dep0Datagram.class);
+         return dep0Datagram != null
+               ? dep0Datagram.getMinimumDepth()
+               : dataFileSet.getCoordinatedDepth(pingIndex) - bottomBoundaryOffset;
+      });
    }
 
    private void setLowerBoundaryFromCurrentFrequencyBottom() {
+      float bottomBoundaryOffset = lsss.getConfigurationManager().getSurveyMiscConf().bottomBoundaryOffset.getFloatValue();
       DataFileSet dataFileSet = lsss.getDataManager().getDataFileSet();
       int channelIndex = lsss.getInterpretationSettings().getChannel() - 1;
       setLowerBoundary(setLowerBoundaryFromCurrentFrequencyBottom.getLabel(), pingIndex -> {
-         return (float) dataFileSet.getBot0Datagram(pingIndex).getChannelDepths()[channelIndex];
+         return (float) dataFileSet.getBot0Datagram(pingIndex).getChannelDepths()[channelIndex] - bottomBoundaryOffset;
       });
    }
 
@@ -727,7 +754,6 @@ public final class Actions {
             .start(asyncHandle -> {
                DataFileSet dataFileSet = lsss.getDataManager().getDataFileSet();
                LayerManager layerManager = lsss.getRegionManager().getLayerManager();
-               float bottomBoundaryOffset = lsss.getConfigurationManager().getSurveyMiscConf().bottomBoundaryOffset.getFloatValue();
                PingRange pingRange = lsss.getInterpretationSettings().getPingRange();
                for (CurveBoundary boundary : getLowerBoundaries(pingRange)) {
                   PingRange intersectionPingRange = boundary.getPingRange().intersection(pingRange);
@@ -740,7 +766,7 @@ public final class Actions {
                         return;
                      }
                      float depth = depthFunction.applyAsFloat(pingIndex);
-                     depths.put(pingIndex, depth - bottomBoundaryOffset);
+                     depths.put(pingIndex, depth);
 
                      progressListener.listen();
                   }
@@ -756,7 +782,7 @@ public final class Actions {
       int pingCount = lsss.getInterpretationSettings().getPingRange().getPingCount();
       ProgressView progressView = new ProgressView(deleteBottomDataCurrentFrequency.getLabel(), pingCount)
             .mainProgressAsPercentage();
-      Listener progressListener = progressView.getMainProgressHandler().asCountingListener(pingCount + 1);
+      Listener progressListener = progressView.getMainProgressHandler().asCountingListener(pingCount);
       new WorkerDialog(lsss.getFrame(), progressView.getComponent())
             .start(asyncHandle -> {
                DataFileSet dataFileSet = lsss.getDataManager().getDataFileSet();

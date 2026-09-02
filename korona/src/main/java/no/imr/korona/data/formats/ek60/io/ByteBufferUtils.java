@@ -2,20 +2,26 @@ package no.imr.korona.data.formats.ek60.io;
 
 import no.imr.korona.data.datagrams.DatagramFormatException;
 import no.imr.tools.Utils;
+import no.imr.tools.io.FileUtils;
 import no.imr.tools.math.linalg.Vec3;
 import no.imr.tools.misc.JsonUtils;
 import no.imr.tools.range.FloatRange;
+import no.imr.tools.time.NTDate;
 import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.util.ByteBufferBackedInputStream;
 import tools.jackson.databind.util.ByteBufferBackedOutputStream;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -29,11 +35,15 @@ public final class ByteBufferUtils {
    private ByteBufferUtils() {
    }
 
+   public static ByteBuffer toByteBuffer(Path file) throws IOException {
+      return FileUtils.toByteBuffer(file, ByteOrder.LITTLE_ENDIAN);
+   }
+
    public static ByteBuffer getThreadLocalByteBuffer(int size) {
       SoftReference<ByteBuffer> reference = THREAD_LOCAL_BYTE_BUFFER.get();
       ByteBuffer byteBuffer = reference != null ? reference.get() : null;
       if (byteBuffer == null || byteBuffer.capacity() < size) {
-         byteBuffer = allocate(size + (size >> 1)); // Allocate a little bit extra
+         byteBuffer = allocate((int) Math.min(Integer.MAX_VALUE, (long) size + (size >> 1))); // Allocate a little bit extra
          THREAD_LOCAL_BYTE_BUFFER.set(new SoftReference<>(byteBuffer));
       }
       byteBuffer.position(0);
@@ -378,5 +388,21 @@ public final class ByteBufferUtils {
    public static void writeFloatRange(ByteBuffer byteBuffer, FloatRange range) {
       byteBuffer.putFloat(range.min());
       byteBuffer.putFloat(range.max());
+   }
+
+   //-------- Instants
+
+   public static List<Instant> readInstantsAsNTDates(ByteBuffer byteBuffer) throws DatagramFormatException {
+      long[] ntDates = readCountAndLongArray(byteBuffer);
+      return Arrays.stream(ntDates)
+            .mapToObj(NTDate::ntDateToInstant)
+            .toList();
+   }
+
+   public static void writeInstantsAsNTDates(ByteBuffer byteBuffer, List<Instant> instants) {
+      long[] ntDates = instants.stream()
+            .mapToLong(NTDate::instantToNTDate)
+            .toArray();
+      writeCountAndLongArray(byteBuffer, ntDates);
    }
 }

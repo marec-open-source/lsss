@@ -6,7 +6,6 @@ import no.imr.korona.data.datagrams.DatagramTypeManager;
 import no.imr.korona.data.datagrams.Idx0Datagram;
 import no.imr.korona.data.formats.ek60.io.EndOfInputHandler;
 import no.imr.korona.data.formats.ek60.io.FileDatagramReader;
-import no.imr.korona.data.formats.ek60.io.FileDatagramWriter;
 import no.imr.korona.data.formats.ek60.io.RandomAccessDatagramReader;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingConfiguration;
@@ -94,19 +93,6 @@ public final class EK60Utils {
             .filter(ek60SegmentHandle -> !Files.exists(ek60SegmentHandle.getEK60FileSet().getIdx()));
    }
 
-   static void write(IdxFile idxFile) throws IOException {
-      Path tmpFile = FileUtils.addSuffix(idxFile.file(), ".tmp");
-      try (FileDatagramWriter datagramWriter = new FileDatagramWriter(tmpFile)) {
-         datagramWriter.writeDatagrams(idxFile.rawFileConfiguration().toDatagrams());
-         for (PingItem pingItem : idxFile.otherPingItems()) {
-            datagramWriter.writeDatagrams(pingItem.toDatagrams());
-         }
-         datagramWriter.writeDatagrams(idxFile.idx0Datagrams());
-      }
-      Files.deleteIfExists(idxFile.file());
-      FileUtils.move(tmpFile, idxFile.file());
-   }
-
    public static SegmentInfo createSegmentInfo(Path idxFile, DatagramTypeManager datagramTypeManager) throws IOException {
       if (!IdxFile.useIdxFiles) {
          return createMissingIdxSegmentInfo(idxFile);
@@ -184,7 +170,7 @@ public final class EK60Utils {
 
       // Increase ping number by 1 and time by 1 ms to avoid exclusion from ping range.
       end.setPingNumber(lastIdx.getPingNumber() + 1);
-      end.setTimeInMillis(lastIdx.getTimeInMillis() + 1);
+      end.setInstant(lastIdx.getInstant().plusMillis(1));
       // Expand vessel distance as well? Not guaranteed to be increasing.
 
       return PingRange.of(firstIdx, end);
@@ -197,7 +183,7 @@ public final class EK60Utils {
       GeoPoint firstGeoPos = firstIdx.getGeographicalPosition();
       GeoPoint lastGeoPos = lastIdx.getGeographicalPosition();
       if (firstGeoPos != null && lastGeoPos != null) {
-         minVesselDistance = Utils.meterToNmi(Earth.getApproximateDistance(firstGeoPos, lastGeoPos));
+         minVesselDistance = KoronaUtils.meterToNmi(Earth.getApproximateDistance(firstGeoPos, lastGeoPos));
          minVesselDistance /= 2; // to be on the safe side
       }
 
@@ -207,7 +193,11 @@ public final class EK60Utils {
    private static Idx0Datagram readLastIdx0Datagram(RandomAccessDatagramReader datagramReader, Path idxFile) throws IOException {
       // Try several times in case the input ends with a partially written Idx0Datagram
       for (int i = 0; i < Idx0Datagram.SIZE_ON_FILE; i++) {
-         datagramReader.setPosition(datagramReader.getSize() - Idx0Datagram.SIZE_ON_FILE - i);
+         long position = datagramReader.getSize() - Idx0Datagram.SIZE_ON_FILE - i;
+         if (position < 0) {
+            break;
+         }
+         datagramReader.setPosition(position);
          BaseDatagram datagram = datagramReader.nextDatagram();
          if (datagram instanceof Idx0Datagram idx0Datagram) {
             // todo: Add notice if i != 0

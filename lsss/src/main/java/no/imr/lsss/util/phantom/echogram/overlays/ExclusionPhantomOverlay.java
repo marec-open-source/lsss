@@ -61,17 +61,11 @@ public class ExclusionPhantomOverlay extends BasePhantomOverlay {
       return x;
    }
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final int height;
-      private final RangeSet<Integer> exclusionRangesX;
-      private final RangeSet<Integer> exclusionSinglePingX;
-
-      private DisplayData(int height, RangeSet<Integer> exclusionRangesX, RangeSet<Integer> exclusionSinglePingX) {
-         this.height = height;
-         this.exclusionRangesX = exclusionRangesX;
-         this.exclusionSinglePingX = exclusionSinglePingX;
-      }
-
+   private record DisplayData(
+         int height,
+         RangeSet<Integer> exclusionRangesX,
+         RangeSet<Integer> exclusionSinglePingX
+   ) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setColor(EXCLUSION_COLOR);

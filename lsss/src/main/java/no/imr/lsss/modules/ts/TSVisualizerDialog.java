@@ -4,7 +4,7 @@ import no.imr.tools.Utils;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.swing.GuiListeners;
 import no.imr.tools.swing.WhenShowingListening;
-import no.imr.tools.time.NTDate;
+import no.imr.tools.time.TimeUtils;
 import no.imr.tools.visualizer.ItemContainer;
 import no.imr.tools.visualizer.ItemFeature;
 import no.imr.tools.visualizer.ItemVisualizer;
@@ -28,7 +28,7 @@ final class TSVisualizerDialog implements ItemContainer<TSData> {
             new ItemFeature.Number<>("Alongship angle", Unit.DEGREES, TSData::alongshipAngle, decimalFormat),
             new ItemFeature.Number<>("Athwartship angle", Unit.DEGREES, TSData::athwartshipAngle, decimalFormat),
             new ItemFeature.Number<>("Range", Unit.METER, TSData::range, decimalFormat),
-            ItemFeature.Time.fromMillis("Time", Unit.UTC, tsData -> NTDate.ntDateToTimeInMillis(tsData.ntDate()), Utils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss")),
+            ItemFeature.Time.fromInstant("Time", Unit.UTC, TSData::instant, TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss")),
             new ItemFeature.Number<>("TSC", Unit.DB, TSData::tsc, decimalFormat),
             new ItemFeature.Number<>("TSU", Unit.DB, TSData::tsu, decimalFormat)
       );

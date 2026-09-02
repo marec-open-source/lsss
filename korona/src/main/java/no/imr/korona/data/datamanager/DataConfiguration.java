@@ -68,6 +68,10 @@ public abstract class DataConfiguration {
 
    public abstract float getMinimumDepthThresholdFactor();
 
+   public float getMinimumDepthThresholdDistance() {
+      return 10;
+   }
+
    List<Integer> getChannelsForBottom(RawFileConfiguration rawFileConfiguration) {
       float minFrequency = getMinFrequencyForBottom();
       float maxFrequency = getMaxFrequencyForBottom();

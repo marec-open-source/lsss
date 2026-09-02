@@ -45,7 +45,7 @@ public final class PingData {
       return channelDatas;
    }
 
-   public @Nullable ChannelData getNonNullChannelData() {
+   public @Nullable ChannelData getFirstAvailableChannelData() {
       for (ChannelData channelData : channelDatas) {
          if (channelData != null) {
             return channelData;

@@ -7,6 +7,7 @@ import no.imr.korona.data.datagrams.subdatagrams.DatagramSubTypeId;
 import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,15 +18,15 @@ public final class GraphicalInfoSubDatagram extends BaseSubDatagram {
    private final List<GraphicalObject> graphicalObjects;
    private final List<String> texts;
 
-   public GraphicalInfoSubDatagram(long ntDate) {
-      super(ntDate);
+   public GraphicalInfoSubDatagram(Instant instant) {
+      super(instant);
 
       texts = new ArrayList<>();
       graphicalObjects = new ArrayList<>();
    }
 
-   private GraphicalInfoSubDatagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   private GraphicalInfoSubDatagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       texts = GraphicalObject.readTexts(byteBuffer);
       graphicalObjects = ByteBufferUtils.readCountAndList(byteBuffer, 4, GraphicalInfoSubDatagram::readGraphicalObject);

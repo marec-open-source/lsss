@@ -31,20 +31,20 @@ abstract sealed class SaSpecies {
          limitUpper = Integer.parseInt(parts[8].trim());
       }
 
-      double getTS(double L) {
-         return x * Math.log10(L) - y;
+      double getTS(double length) {
+         return x * Math.log10(length) - y;
       }
 
-      double getSigma(double L) {
-         return 4.0 * Math.PI * Math.pow(10.0, getTS(L) / 10.0);
+      double getSigma(double length) {
+         return 4.0 * Math.PI * Math.pow(10.0, getTS(length) / 10.0);
       }
 
       double getSweepWidth() {
          return wsl;
       }
 
-      double getSweepWithCorrected(double L) {
-         return wsl * a * Math.pow(L, b);
+      double getSweepWithCorrected(double length) {
+         return wsl * a * Math.pow(length, b);
       }
    }
 

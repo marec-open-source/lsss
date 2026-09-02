@@ -24,8 +24,8 @@ public final class DataFileLabel implements Comparable<DataFileLabel> {
    }
 
    @Override
-   public int compareTo(DataFileLabel o) {
-      return title.compareTo(o.title);
+   public int compareTo(DataFileLabel other) {
+      return title.compareToIgnoreCase(other.title);
    }
 
    public String toHtml() {

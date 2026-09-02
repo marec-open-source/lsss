@@ -50,7 +50,7 @@ public final class KoronaRegion {
    private static NavigableMap<PingIndex, FloatRangeSet> createMaskFromIntervals(List<RegionInfoDatagram.MaskInterval> maskIntervals, PingContainer pingContainer) {
       NavigableMap<PingIndex, FloatRangeSet> mask = new TreeMap<>();
       for (RegionInfoDatagram.MaskInterval maskInterval : maskIntervals) {
-         PingIndex pingIndex = pingContainer.getClosestPingIndex(PingMapping.ntDateToTimeValue(maskInterval.ntDate()), PingMapping.TIME);
+         PingIndex pingIndex = pingContainer.getClosestPingIndex(PingMapping.instantToTimeValue(maskInterval.instant()), PingMapping.TIME);
          FloatRange depthRange = FloatRange.of(maskInterval.minDepth(), maskInterval.maxDepth());
          mask.merge(pingIndex, FloatRangeSet.of(depthRange), FloatRangeSet::add);
       }
@@ -61,7 +61,7 @@ public final class KoronaRegion {
       NavigableMap<PingIndex, FloatRangeSet> mask = new TreeMap<>();
       List<EchogramPoint> trace = new ArrayList<>();
       for (RegionInfoDatagram.PerimeterPoint perimeterPoint : perimeterPoints) {
-         PingIndex pingIndex = pingContainer.getClosestPingIndex(PingMapping.ntDateToTimeValue(perimeterPoint.ntDate()), PingMapping.TIME);
+         PingIndex pingIndex = pingContainer.getClosestPingIndex(PingMapping.instantToTimeValue(perimeterPoint.instant()), PingMapping.TIME);
          trace.add(new EchogramPoint(pingIndex, perimeterPoint.depth()));
       }
       if (trace.isEmpty()) {

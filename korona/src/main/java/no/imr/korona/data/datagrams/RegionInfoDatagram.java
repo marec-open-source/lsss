@@ -2,9 +2,11 @@ package no.imr.korona.data.datagrams;
 
 import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.tools.math.GeometryUtils;
+import no.imr.tools.time.NTDate;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -24,9 +26,9 @@ public final class RegionInfoDatagram extends DatagramPingItem {
    private final List<PerimeterPoint> perimeterPoints;
    private final List<MaskInterval> maskIntervals;
 
-   public RegionInfoDatagram(long ntDate, boolean accepted, int channel, float threshold, int[] borderIds,
+   public RegionInfoDatagram(Instant instant, boolean accepted, int channel, float threshold, int[] borderIds,
                              List<PerimeterPoint> perimeterPoints, List<MaskInterval> maskIntervals) {
-      super(ntDate);
+      super(instant);
 
       this.accepted = accepted;
       this.channel = channel;
@@ -36,8 +38,8 @@ public final class RegionInfoDatagram extends DatagramPingItem {
       this.maskIntervals = maskIntervals;
    }
 
-   public RegionInfoDatagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public RegionInfoDatagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       accepted = byteBuffer.getInt() != 0;
       channel = byteBuffer.getInt();
@@ -71,7 +73,7 @@ public final class RegionInfoDatagram extends DatagramPingItem {
       histogram.step = byteBuffer.getFloat();
 
       int maxIndex = byteBuffer.getInt();
-      if (maxIndex < 0 || maxIndex + 1 > byteBuffer.remaining() / 4) {
+      if (maxIndex < 0 || maxIndex >= byteBuffer.remaining() / 4) {
          throw new DatagramFormatException("maxIndex: " + maxIndex);
       }
       histogram.counts = new int[maxIndex + 1];
@@ -242,26 +244,26 @@ public final class RegionInfoDatagram extends DatagramPingItem {
       }
    }
 
-   public record PerimeterPoint(long ntDate, float depth) {
+   public record PerimeterPoint(Instant instant, float depth) {
       private PerimeterPoint(ByteBuffer byteBuffer) {
-         this(byteBuffer.getLong(), byteBuffer.getFloat());
+         this(NTDate.ntDateToInstant(byteBuffer.getLong()), byteBuffer.getFloat());
       }
 
       private void write(ByteBuffer byteBuffer) {
-         byteBuffer.putLong(ntDate());
+         byteBuffer.putLong(NTDate.instantToNTDate(instant()));
          byteBuffer.putFloat(depth());
       }
    }
 
-   public record MaskInterval(long ntDate, float minDepth, float maxDepth) {
+   public record MaskInterval(Instant instant, float minDepth, float maxDepth) {
       private MaskInterval(ByteBuffer byteBuffer) {
-         this(byteBuffer.getLong(),
+         this(NTDate.ntDateToInstant(byteBuffer.getLong()),
                byteBuffer.getFloat(),
                byteBuffer.getFloat());
       }
 
       private void write(ByteBuffer byteBuffer) {
-         byteBuffer.putLong(ntDate());
+         byteBuffer.putLong(NTDate.instantToNTDate(instant()));
          byteBuffer.putFloat(minDepth());
          byteBuffer.putFloat(maxDepth());
       }

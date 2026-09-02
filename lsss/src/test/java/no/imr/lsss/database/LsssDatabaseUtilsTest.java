@@ -17,7 +17,7 @@ final class LsssDatabaseUtilsTest {
    @Test
    void testDatabaseClasses() {
       LSSS lsss = LsssTestUtils.start(List.of(), List.of());
-      Set<Class<? extends BaseDatabaseObject>> databaseClasses = new HashSet<>(LsssDatabaseUtils.getDatabaseClasses(lsss));
+      Set<Class<? extends BaseDatabaseObject>> databaseClasses = new HashSet<>(LsssDatabaseUtils.getAllDatabaseClasses(lsss));
       LsssDatabaseUtils.getSystemClasses(lsss).forEach(c -> assertTrue(databaseClasses.remove(c), c.getName()));
       LsssDatabaseUtils.getNationClasses(lsss).forEach(c -> assertTrue(databaseClasses.remove(c), c.getName()));
       LsssDatabaseUtils.getPlatformClasses(lsss).forEach(c -> assertTrue(databaseClasses.remove(c), c.getName()));

@@ -6,6 +6,7 @@ import no.imr.tools.ShouldNotHappenException;
 import no.imr.tools.time.NTDate;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * Base class for datagrams.
@@ -24,15 +25,23 @@ public abstract class BaseDatagram {
    public static final int ENVELOPE_AND_HEADER_SIZE = 4 + 4 + 8 + 4;
    public static final int MAX_DATAGRAM_SIZE = 10 * 1024 * 1024;
 
-   private long ntDate;
+   private Instant instant;
 
-   protected BaseDatagram(long ntDate) {
-      this.ntDate = ntDate;
+   protected BaseDatagram(Instant instant) {
+      this.instant = instant;
+   }
+
+   public Instant getInstant() {
+      return instant;
+   }
+
+   public void setInstant(Instant instant) {
+      this.instant = instant;
    }
 
    public void writeIncludingHeader(ByteBuffer byteBuffer) {
       byteBuffer.putInt(getDatagramType().getIntCode());
-      byteBuffer.putLong(ntDate);
+      byteBuffer.putLong(getNTDate());
       write(byteBuffer);
    }
 
@@ -47,16 +56,12 @@ public abstract class BaseDatagram {
    public abstract DatagramType getDatagramType();
 
    public long getNTDate() {
-      return ntDate;
-   }
-
-   public void setNTDate(long ntDate) {
-      this.ntDate = ntDate;
+      return NTDate.instantToNTDate(instant);
    }
 
    @Override
    public String toString() {
-      return getDatagramType() + " " + NTDate.ntDateToInstant(ntDate) + " " + toStringExtra();
+      return getDatagramType() + " " + instant + " " + toStringExtra();
    }
 
    public String toStringExtra() {
@@ -74,7 +79,7 @@ public abstract class BaseDatagram {
    public BaseDatagram makeCopy() {
       if (getDatagramType().getFactory() instanceof DatagramType.SimpleFactory simpleFactory) {
          try {
-            return simpleFactory.read(ntDate, toByteBufferExcludingHeader());
+            return simpleFactory.read(instant, toByteBufferExcludingHeader());
          } catch (DatagramFormatException e) {
             throw new ShouldNotHappenException(e);
          }

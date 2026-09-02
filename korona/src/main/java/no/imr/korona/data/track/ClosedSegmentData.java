@@ -2,7 +2,7 @@ package no.imr.korona.data.track;
 
 import no.imr.korona.data.datagrams.Bot0Datagram;
 import no.imr.korona.data.formats.missing.MissingBot0Datagram;
-import no.imr.korona.data.ping.DefaultPingIndex;
+import no.imr.korona.data.ping.EmptyPingIndex;
 import no.imr.korona.data.ping.PingConfiguration;
 import no.imr.korona.data.ping.PingData;
 import no.imr.korona.data.ping.PingIndex;
@@ -20,7 +20,7 @@ final class ClosedSegmentData extends SegmentData {
 
    @Override
    public List<? extends PingIndex> getPingIndices() {
-      return List.of(new DefaultPingIndex());
+      return List.of(EmptyPingIndex.INSTANCE);
    }
 
    @Override
@@ -30,7 +30,7 @@ final class ClosedSegmentData extends SegmentData {
 
    @Override
    public List<Bot0Datagram> getBot0Datagrams() {
-      return List.of(new MissingBot0Datagram(getRawFileConfiguration(), new DefaultPingIndex()));
+      return List.of(new MissingBot0Datagram(getRawFileConfiguration(), EmptyPingIndex.INSTANCE));
    }
 
    @Override

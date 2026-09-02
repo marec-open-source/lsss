@@ -27,6 +27,9 @@ public final class PeakFinding {
             .filter(value -> value != 0)
             .toArray();
       float scaleThreshold = calculateRobustAutoThreshold(nonZeroMaxPeakScales, 0.1f);
+      if (scaleThreshold == 0) {
+         return List.of();
+      }
 
       List<Peak> peaks = new ArrayList<>();
 

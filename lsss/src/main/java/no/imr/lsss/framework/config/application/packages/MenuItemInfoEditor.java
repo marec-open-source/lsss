@@ -16,7 +16,7 @@ final class MenuItemInfoEditor implements ParameterContainer {
          "",
          "Filters list of actions");
 
-   private final ActionParameter action = new ActionParameter();
+   private final ActionParameter action;
 
    private final StringParameter text = new StringParameter(new Name("Text"),
          "",
@@ -33,6 +33,8 @@ final class MenuItemInfoEditor implements ParameterContainer {
       this.userDefinedPackage = userDefinedPackage;
       this.menuItemInfo = menuItemInfo;
       this.isMenu = isMenu;
+
+      action = new ActionParameter(userDefinedPackage, menuItemInfo);
 
       text.setValue(menuItemInfo.text);
       mnemonic.setValue(menuItemInfo.mnemonic != null ? menuItemInfo.mnemonic.toString() : "");
@@ -55,13 +57,10 @@ final class MenuItemInfoEditor implements ParameterContainer {
    }
 
    void init(ParameterEditor parameterEditor) {
-      action.init(parameterEditor, filter, userDefinedPackage, menuItemInfo);
+      action.init(parameterEditor, filter);
    }
 
    boolean isOK(ParameterEditor parameterEditor) {
-      if (!parameterEditor.commitEdits()) {
-         return false;
-      }
       if (isMenu) {
          if (text.getValue().isEmpty()) {
             JOptionPane.showMessageDialog(parameterEditor.getEditorComponent(), "Please enter a menu text", "Error", JOptionPane.ERROR_MESSAGE);

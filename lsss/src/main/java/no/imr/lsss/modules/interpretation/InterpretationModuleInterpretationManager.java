@@ -25,7 +25,7 @@ final class InterpretationModuleInterpretationManager extends InterpretationMana
    @Override
    public float frequencyResponseFunction(int channel) {
       double f = interpretationModule.getLSSS().getInterpretationSettings().getDataFileSet().getRawFileConfiguration().getTransducers().get(channel - 1).getFrequency();
-      return (float) interpretationModule.frequencyResponseFunction.getFunction().eval(f);
+      return (float) interpretationModule.frequencyResponseFunction.getFunction().applyAsDouble(f);
    }
 
    @Override

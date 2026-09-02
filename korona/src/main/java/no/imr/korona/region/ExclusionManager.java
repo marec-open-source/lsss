@@ -5,6 +5,7 @@ import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.tools.listening.ArgChangeManager;
 import no.imr.tools.range.CopyOnWriteRangeSet;
+import no.imr.tools.range.Range;
 import no.imr.tools.range.RangeSet;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -60,28 +61,24 @@ public final class ExclusionManager {
       return exclusions.contains(pingIndex);
    }
 
-   public boolean isPartiallyExcluded(PingRange pingRange) {
-      return exclusions.containsAny(pingRange);
-   }
-
-   public void excludeRange(PingRange pingRange) {
+   public void excludeRange(Range<PingIndex> pingRange) {
       regionManager.writeablePingRanges(pingRange).stream()
-            .forEach(exclusions::add);
-      notifyListeners(pingRange);
-      manualExclusionChangeManager.notifyListeners(pingRange);
-   }
-
-   public void exclude(RangeSet<PingIndex> pingRangeSet) {
-      pingRangeSet.stream()
             .map(PingRange::of)
-            .forEach(this::excludeRange);
+            .forEach(range -> {
+               exclusions.add(range);
+               notifyListeners(range);
+               manualExclusionChangeManager.notifyListeners(range);
+            });
    }
 
-   public void includeRange(PingRange pingRange) {
+   public void includeRange(Range<PingIndex> pingRange) {
       regionManager.writeablePingRanges(pingRange).stream()
-            .forEach(exclusions::remove);
-      notifyListeners(pingRange);
-      manualInclusionChangeManager.notifyListeners(pingRange);
+            .map(PingRange::of)
+            .forEach(range -> {
+               exclusions.remove(range);
+               notifyListeners(range);
+               manualInclusionChangeManager.notifyListeners(range);
+            });
    }
 
    Element toXml(PingRange pingRange) {

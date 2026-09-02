@@ -8,6 +8,7 @@ import no.imr.lsss.modules.map.MapModule;
 import no.imr.lsss.modules.map.overlays.BaseMapOverlay;
 import no.imr.tools.geo.GeoTransform;
 import no.imr.tools.listening.ListenerRegistry;
+import no.imr.tools.range.Range;
 import no.imr.tools.swing.GuiUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -15,6 +16,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -42,8 +44,7 @@ public final class CTDMapOverlay extends BaseMapOverlay {
       if (pingRange.isEmpty()) {
          return null;
       }
-      long beginTimeInMillis = pingRange.begin().getTimeInMillis();
-      long endTimeInMillis = pingRange.end().getTimeInMillis();
+      Range<Instant> timeRange = pingRange.toTimeRange();
 
       GeoTransform geoTransform = getMapModule().getGeoTransform();
       Point2D.Float pixPos = new Point2D.Float();
@@ -54,8 +55,7 @@ public final class CTDMapOverlay extends BaseMapOverlay {
 
       // Insert data into marker vector
       for (CTDData ctdData : ctdDataModule.get().getCTDDatas()) {
-         long timeInMillis = ctdData.timeInMillis();
-         if (timeInMillis >= beginTimeInMillis && timeInMillis < endTimeInMillis) {
+         if (timeRange.contains(ctdData.time())) {
             geoTransform.geoToPix(ctdData.geographicalPosition(), pixPos);
             float x = pixPos.x - w2;
             float y = pixPos.y - w2;
@@ -70,18 +70,12 @@ public final class CTDMapOverlay extends BaseMapOverlay {
       if (path.getCurrentPoint() == null) {
          return null;
       }
-      return new DisplayData(path);
+      return transformed(new DisplayData(path));
    }
 
-   private final class DisplayData extends TransformedDisplayData {
-      private final Path2D path;
-
-      private DisplayData(Path2D path) {
-         this.path = path;
-      }
-
+   private record DisplayData(Path2D path) implements OverlayDisplayData {
       @Override
-      public void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          g2d.setColor(Color.GRAY);
          g2d.setStroke(GuiUtils.STROKE_2);
          g2d.draw(path);

@@ -21,6 +21,7 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.StringParameter;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.swing.AddRemoveListPanel;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.ListListModel;
@@ -152,8 +153,8 @@ final class AcousticCategoryEditor {
       biologicalSpeciesPanel.setSelectedLabel("Associated to this category");
 
       AddRemoveListPanel<AcousticCategory> acCatPanel = new AddRemoveListPanel<>(allNonCompositeAcousticCategories, selectedNonCompositeAcousticCategories, "Member assignment (composite category)",
-            new AcousticCategoryConf.AcousticCategoryJList(lsss.getConfigurationManager().getLanguageUtils()),
-            new AcousticCategoryConf.AcousticCategoryJList(lsss.getConfigurationManager().getLanguageUtils()));
+            AcousticCategoryConf.newAcousticCategoryJList(lsss.getConfigurationManager().getLanguageUtils()),
+            AcousticCategoryConf.newAcousticCategoryJList(lsss.getConfigurationManager().getLanguageUtils()));
       acCatPanel.setAllLabel("All non-composite acoustic categories");
       acCatPanel.setSelectedLabel("Associated to this category");
 
@@ -370,8 +371,9 @@ final class AcousticCategoryEditor {
             englishInitials,
             commonName,
             englishName
-      ));
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
+      ), new GUIConfig()
+            .setHorizontalFill(true)
+      );
 
       JPanel panel = new JPanel(new BorderLayout());
       panel.add(parameterEditor.getEditorComponent());
@@ -384,14 +386,11 @@ final class AcousticCategoryEditor {
    }
 
    private static JList<BiologicalSpecies> newBiologicalSpeciesJList() {
-      return new ModifiedKeySearchJList<>() {
-         @Override
-         public String valueToString(BiologicalSpecies value) {
-            String s = value.toString();
-            int i = Utils.indexOfFirstLetter(s);
-            return i >= 0 ? s.substring(i) : s;
-         }
-      };
+      return new ModifiedKeySearchJList<>(value -> {
+         String s = value.toString();
+         int i = Utils.indexOfFirstLetter(s);
+         return i >= 0 ? s.substring(i) : s;
+      });
    }
 
    //Overrides add button method in AddRemoveListPanel to guarantee only one

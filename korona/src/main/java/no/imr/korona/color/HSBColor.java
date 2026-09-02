@@ -11,10 +11,6 @@ public record HSBColor(float hue, float saturation, float brightness) {
       return Color.HSBtoRGB(hue, saturation, brightness);
    }
 
-   public Color getColor() {
-      return Color.getHSBColor(hue, saturation, brightness);
-   }
-
    public int interpolateToRGB(HSBColor other, float otherWeight) {
       float weight = 1 - otherWeight;
 

@@ -17,6 +17,7 @@ import no.imr.tools.listening.ListenerRegistry;
 import no.imr.tools.misc.ToFloatFunction;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +31,7 @@ import java.util.Set;
  */
 public final class RegionIntegrationModule extends BaseDataModule {
    private RegionIntegrationData internalData = new RegionIntegrationData();
-   private RegionIntegrationData publishedData = internalData; // Separate published data to avoid flickering when zooming/resizing by e.g. texts in VerticalLineOverlay
+   private volatile RegionIntegrationData publishedData = internalData; // Separate published data to avoid flickering when zooming/resizing by e.g. texts in VerticalLineOverlay
    private final Listener refreshListener = newCoalescingExecListener(this::refresh);
    private final ChangeManager regionIntegrationChangeManager = new ChangeManager();
 
@@ -256,42 +257,11 @@ public final class RegionIntegrationModule extends BaseDataModule {
     * @return s<sub>A</sub>
     */
    public float getSa(Region region, PingRange pingRange, IntegrationArea integrationArea) {
-      if (pingRange.isEmpty()) {
+      CurveRange curveRange = getCurveRange(region, pingRange);
+      if (curveRange == null) {
          return 0;
       }
-      RegionCache regionCache = publishedData.regionMap.get(region);
-      if (regionCache == null) {
-         return 0;
-      }
-      List<IntegrationCurvePoint> curve = regionCache.getCurve();
-      if (curve.isEmpty()) {
-         return 0;
-      }
-
-      int i = 0;
-      IntegrationCurvePoint firstCurvePoint = null;
-      for (; i < curve.size() - 1; i++) {
-         if (curve.get(i + 1).pingIndex().getPingNumber() > pingRange.begin().getPingNumber()) {
-            firstCurvePoint = curve.get(i);
-            break;
-         }
-      }
-      if (firstCurvePoint == null) {
-         return 0;
-      }
-
-      IntegrationCurvePoint lastCurvePoint = null;
-      for (; i < curve.size() - 1; i++) {
-         if (curve.get(i + 1).pingIndex().getPingNumber() >= pingRange.end().getPingNumber()) {
-            lastCurvePoint = curve.get(i + 1);
-            break;
-         }
-      }
-      if (lastCurvePoint == null) {
-         lastCurvePoint = curve.getLast();
-      }
-
-      return getSa(lastCurvePoint, firstCurvePoint, integrationArea);
+      return getSa(curveRange.last(), curveRange.first(), integrationArea);
    }
 
    /**
@@ -303,28 +273,36 @@ public final class RegionIntegrationModule extends BaseDataModule {
     * @return s<sub>L</sub>
     */
    public float getSL(Region region, PingRange pingRange, IntegrationArea integrationArea) {
-      if (pingRange.isEmpty()) {
+      CurveRange curveRange = getCurveRange(region, pingRange);
+      if (curveRange == null) {
          return 0;
+      }
+      return getSL(curveRange.last(), curveRange.first(), integrationArea);
+   }
+
+   private @Nullable CurveRange getCurveRange(Region region, PingRange pingRange) {
+      if (pingRange.isEmpty()) {
+         return null;
       }
       RegionCache regionCache = publishedData.regionMap.get(region);
       if (regionCache == null) {
-         return 0;
+         return null;
       }
       List<IntegrationCurvePoint> curve = regionCache.getCurve();
       if (curve.isEmpty()) {
-         return 0;
+         return null;
       }
 
       int i = 0;
       IntegrationCurvePoint firstCurvePoint = null;
       for (; i < curve.size() - 1; i++) {
-         if (curve.get(i + 1).pingIndex().getPingNumber() >= pingRange.begin().getPingNumber()) {
+         if (curve.get(i + 1).pingIndex().getPingNumber() > pingRange.begin().getPingNumber()) {
             firstCurvePoint = curve.get(i);
             break;
          }
       }
       if (firstCurvePoint == null) {
-         return 0;
+         return null;
       }
 
       IntegrationCurvePoint lastCurvePoint = null;
@@ -338,7 +316,10 @@ public final class RegionIntegrationModule extends BaseDataModule {
          lastCurvePoint = curve.getLast();
       }
 
-      return getSL(lastCurvePoint, firstCurvePoint, integrationArea);
+      return new CurveRange(firstCurvePoint, lastCurvePoint);
+   }
+
+   private record CurveRange(IntegrationCurvePoint first, IntegrationCurvePoint last) {
    }
 
    private static float getSa(RegionCache regionCache, IntegrationArea integrationArea) {

@@ -21,7 +21,6 @@ import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
@@ -105,8 +104,11 @@ public final class ItemVisualizer<T> {
       toolBar.add(List.of(hideSelectedButton, keepSelectedButton, showHiddenButton));
 
       List<ItemFeature.Category<T>> categoryFeatures = features.stream()
-            .map(f -> f instanceof ItemFeature.Category<T> category ? category : null)
-            .filter(Objects::nonNull)
+            .<ItemFeature.Category<T>>mapMulti((f, consumer) -> {
+               if (f instanceof ItemFeature.Category<T> category) {
+                  consumer.accept(category);
+               }
+            })
             .toList();
       if (!categoryFeatures.isEmpty()) {
          JButton selectButton = new JButton("Select by...");

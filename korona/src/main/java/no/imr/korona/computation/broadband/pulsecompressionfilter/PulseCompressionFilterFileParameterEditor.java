@@ -1,7 +1,6 @@
 package no.imr.korona.computation.broadband.pulsecompressionfilter;
 
 import no.imr.korona.config.ConfigFileParameterEditor;
-import no.imr.korona.config.ConfigFileService;
 import no.imr.korona.config.ConfigFileSettings;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.swing.GuiUtils;
@@ -12,8 +11,8 @@ import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public final class PulseCompressionFilterFileParameterEditor extends ConfigFileParameterEditor {
-   PulseCompressionFilterFileParameterEditor(ConfigFileService configFileService, ConfigFileSettings configFileSettings) {
+public final class PulseCompressionFilterFileParameterEditor extends ConfigFileParameterEditor<PulseCompressionFiltersFileService> {
+   PulseCompressionFilterFileParameterEditor(PulseCompressionFiltersFileService configFileService, ConfigFileSettings configFileSettings) {
       super(configFileService, configFileSettings);
    }
 
@@ -37,7 +36,6 @@ public final class PulseCompressionFilterFileParameterEditor extends ConfigFileP
       }
 
       Path installationLocation = getConfigFileService().getInstallationLocation();
-      assert installationLocation != null;
       try {
          FileUtils.copy(installationLocation, file);
       } catch (IOException e) {

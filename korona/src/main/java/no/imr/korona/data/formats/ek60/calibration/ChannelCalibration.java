@@ -41,7 +41,7 @@ public final class ChannelCalibration {
    public final Optional<Float> profosTauEff;
    public final Optional<Float> profosTau;
    public final Optional<Float> profosFrequency;
-   public final Optional<Integer> profosBeamWithMode;
+   public final Optional<Integer> profosBeamWidthMode;
 
    ChannelCalibration(Element element) {
       id = Optional.ofNullable(element.attributeValue(CalibrationXml.ID));
@@ -72,7 +72,7 @@ public final class ChannelCalibration {
       profosTauEff = parseFloat(element.attributeValue(CalibrationXml.PROFOS_TAU_EFF));
       profosTau = parseFloat(element.attributeValue(CalibrationXml.PROFOS_TAU));
       profosFrequency = parseFloat(element.attributeValue(CalibrationXml.PROFOS_FREQUENCY));
-      profosBeamWithMode = parseInt(element.attributeValue(CalibrationXml.PROFOS_BEAM_WIDTH_MODE));
+      profosBeamWidthMode = parseInt(element.attributeValue(CalibrationXml.PROFOS_BEAM_WIDTH_MODE));
    }
 
    ChannelCalibration(ChannelCalibrationBuilder builder) {
@@ -103,7 +103,7 @@ public final class ChannelCalibration {
       profosTauEff = builder.profosTauEff;
       profosTau = builder.profosTau;
       profosFrequency = builder.profosFrequency;
-      profosBeamWithMode = builder.profosBeamWithMode;
+      profosBeamWidthMode = builder.profosBeamWidthMode;
    }
 
    private static ImmutableMap<Float, Float> parsePulseDurationMap(@Nullable String string) {
@@ -229,7 +229,7 @@ public final class ChannelCalibration {
             && profosTauEff.equals(that.profosTauEff)
             && profosTau.equals(that.profosTau)
             && profosFrequency.equals(that.profosFrequency)
-            && profosBeamWithMode.equals(that.profosBeamWithMode);
+            && profosBeamWidthMode.equals(that.profosBeamWidthMode);
    }
 
    @Override
@@ -258,7 +258,7 @@ public final class ChannelCalibration {
       result = 31 * result + profosTauEff.hashCode();
       result = 31 * result + profosTau.hashCode();
       result = 31 * result + profosFrequency.hashCode();
-      result = 31 * result + profosBeamWithMode.hashCode();
+      result = 31 * result + profosBeamWidthMode.hashCode();
       return result;
    }
 }

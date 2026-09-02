@@ -15,7 +15,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * {@link SegmentHandle} for synthetic data.
+ * {@link SegmentHandle} for netCDF data.
  */
 final class NetcdfSegmentHandle extends SegmentHandle {
    private final Path file;

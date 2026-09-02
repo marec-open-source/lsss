@@ -19,12 +19,9 @@ import java.util.List;
  * Plugin for connecting to a JavaDB/Derby database.
  */
 public final class JavaDBDatabasePlugin extends AbstractDatabasePlugin {
-   private static final String DEFAULT_NAME = "lsss_DB";
-   private static final Path DEFAULT_DIRECTORY = LSSS.getApplicationDataDir().resolve("database");
-
    public final StringParameter databaseName = new StringParameter(
          new Name("DatabaseName", "Database name"),
-         DEFAULT_NAME,
+         "lsss_DB",
          "Name of the database") {
       @Override
       public List<String> getSuggestedValues() {
@@ -45,7 +42,7 @@ public final class JavaDBDatabasePlugin extends AbstractDatabasePlugin {
 
    public final FileParameter directory = new FileParameter(
          new Name("Directory"),
-         DEFAULT_DIRECTORY, FileParameter.Mode.DIRECTORY,
+         LSSS.getApplicationDataDir().resolve("database"), FileParameter.Mode.DIRECTORY,
          "Location of the database files");
 
    private final StringParameter userName = new StringParameter(
@@ -66,20 +63,17 @@ public final class JavaDBDatabasePlugin extends AbstractDatabasePlugin {
       );
    }
 
-   public void resetInvalidSettings() {
-      if (databaseName.getValue().isBlank()) {
-         databaseName.setValue(DEFAULT_NAME);
-      }
-      if (directory.getFile() == null) {
-         directory.setFile(DEFAULT_DIRECTORY);
-      }
-   }
-
    @Override
    public String getDescription() {
       return """
             This database does not require a database server.<br>
             The database tables are stored in files.
+            <br><br>
+            <p style='color:red;'><b>
+            WARNING: The JavaDB database type is deprecated.
+            Support for JavaDB will be dropped in a future version of LSSS.
+            As an alternative, please use the HSQLDB database type.
+            </b></p>
             """;
    }
 
@@ -92,12 +86,17 @@ public final class JavaDBDatabasePlugin extends AbstractDatabasePlugin {
    @Override
    public boolean canConnect() {
       return isConfigurationValid()
-            && JavaDBUtils.isJavaDBDirectory(getDir().resolve(databaseName.getValue()));
+            && JavaDBUtils.isJavaDBDatabase(getDir(), databaseName.getValue());
    }
 
    @Override
    public Configuration getConfiguration(ConnectionType connectionType) {
       return JavaDBUtils.createConfiguration(getDir(), databaseName.getValue(), connectionType, userName.getValue(), password.getValue());
+   }
+
+   @Override
+   public void prepareToConnect(ConnectionType connectionType) throws IOException {
+      JavaDBUtils.prepareToConnect(connectionType, getDir(), databaseName.getValue());
    }
 
    @Override

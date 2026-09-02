@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,17 +32,17 @@ final class FileDatagramReaderTest {
 
       try (BaseDatagramWriter datagramWriter = new ByteBufferDatagramWriter(byteBuffer)) {
 
-         UnknownDatagram invalidRaw = new UnknownDatagram(0, UnknownDatagram.type(Raw0Datagram.TYPE.getIntCode()), ByteBuffer.allocate(1000));
+         UnknownDatagram invalidRaw = new UnknownDatagram(Instant.ofEpochSecond(0), UnknownDatagram.type(Raw0Datagram.TYPE.getIntCode()), ByteBuffer.allocate(1000));
          datagramWriter.writeDatagram(invalidRaw);
          posIdxWithPingNumber1 = byteBuffer.position();
-         datagramWriter.writeDatagram(new Idx0Datagram(1, 1, 1, null, 1));
+         datagramWriter.writeDatagram(new Idx0Datagram(Instant.ofEpochSecond(1), 1, 1, null, 1));
 
          size = byteBuffer.position();
 
          // Write two small valid datagrams within the invalid raw
          byteBuffer.position(500);
-         datagramWriter.writeDatagram(new Idx0Datagram(2, 2, 2, null, 2));
-         datagramWriter.writeDatagram(new Idx0Datagram(3, 3, 3, null, 3));
+         datagramWriter.writeDatagram(new Idx0Datagram(Instant.ofEpochSecond(2), 2, 2, null, 2));
+         datagramWriter.writeDatagram(new Idx0Datagram(Instant.ofEpochSecond(3), 3, 3, null, 3));
       }
 
       byteBuffer.position(0);

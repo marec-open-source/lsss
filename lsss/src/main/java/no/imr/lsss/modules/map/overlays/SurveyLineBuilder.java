@@ -4,7 +4,7 @@ import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.lsss.modules.map.MapModule;
 import no.imr.tools.geo.GeoTransform;
-import no.imr.tools.time.NTDate;
+import no.imr.tools.time.TimeUtils;
 import no.marec.lsss.api.util.GeoPoint;
 import no.marec.lsss.api.util.LineStripBuilder;
 import org.jspecify.annotations.Nullable;
@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  * Builds a data structure for a survey line in pixel coordinates.
  */
 public final class SurveyLineBuilder {
-   private static final int DISCONTINUITY_THRESHOLD = 30 * NTDate.UNITS_PER_SECOND;
+   private static final int DISCONTINUITY_SECONDS = 30;
 
    private final List<List<SurveyLinePoint>> lineStrips;
 
@@ -68,7 +68,7 @@ public final class SurveyLineBuilder {
                   ||
                   (beginOutCode & endOutCode) != 0 // Line is completely outside visible rectangle.
                   ||
-                  endPingIndex.getNTDate() - previousEndPingIndex.getNTDate() > DISCONTINUITY_THRESHOLD // Too long jump in time.
+                  TimeUtils.toSeconds(previousEndPingIndex.getInstant(), endPingIndex.getInstant()) > DISCONTINUITY_SECONDS // Too long jump in time.
             ) {
                // Move (no line) to next position.
                currentLineStrip = null;

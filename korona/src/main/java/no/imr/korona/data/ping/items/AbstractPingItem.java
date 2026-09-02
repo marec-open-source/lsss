@@ -1,19 +1,21 @@
 package no.imr.korona.data.ping.items;
 
+import java.time.Instant;
+
 public abstract class AbstractPingItem implements PingItem {
-   private long ntDate;
+   private Instant instant;
 
-   protected AbstractPingItem(long ntDate) {
-      this.ntDate = ntDate;
+   protected AbstractPingItem(Instant instant) {
+      this.instant = instant;
    }
 
    @Override
-   public long getNTDate() {
-      return ntDate;
+   public Instant getInstant() {
+      return instant;
    }
 
    @Override
-   public void setNTDate(long ntDate) {
-      this.ntDate = ntDate;
+   public void setInstant(Instant instant) {
+      this.instant = instant;
    }
 }

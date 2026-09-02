@@ -2,9 +2,9 @@ package no.imr.tools.time;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
@@ -17,19 +17,14 @@ public final class DateTimeMillis {
    private final int date;
    private final int time;
 
-   /**
-    * Creates a new DateTime, using UTC.
-    *
-    * @param millis the time in milliseconds
-    */
-   public DateTimeMillis(long millis) {
-      ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneOffset.UTC);
+   public DateTimeMillis(Instant instant) {
+      LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
       date = localDateToInt(dateTime.toLocalDate());
       time = localTimeToInt(dateTime.toLocalTime());
    }
 
-   public static long toMillis(int date, int time) {
-      return ZonedDateTime.of(toLocalDate(date).get(), toLocalTime(time), ZoneOffset.UTC).toInstant().toEpochMilli();
+   public static Instant toInstant(int date, int time) {
+      return toLocalDate(date).orElseThrow().atTime(toLocalTime(time)).toInstant(ZoneOffset.UTC);
    }
 
    /**
@@ -54,12 +49,9 @@ public final class DateTimeMillis {
 
    public static LocalTime toLocalTime(int time) {
       int hour = time / 100_00_000;
-      time -= hour * 100_00_000;
-      int minute = time / 100_000;
-      time -= minute * 100_000;
-      int second = time / 1000;
-      time -= second * 1000;
-      int millisecond = time;
+      int minute = (time / 100_000) % 100;
+      int second = (time / 1000) % 100;
+      int millisecond = time % 1000;
       return LocalTime.of(hour, minute, second, millisecond * 1_000_000);
    }
 
@@ -70,14 +62,10 @@ public final class DateTimeMillis {
             localTime.getNano() / 1_000_000;
    }
 
-   public static int localTimeToInt(Optional<LocalTime> localTime) {
-      return localTime.isPresent() ? localTimeToInt(localTime.get()) : 0;
-   }
-
-   public static Optional<LocalTime> centisTimeToLocalTime(String stringValue) {
+   public static LocalTime centisTimeToLocalTime(String stringValue) {
       String s = stringValue.replaceAll("\\D+", "");
       if (s.isEmpty()) {
-         return Optional.empty();
+         return LocalTime.MIDNIGHT;
       }
       int time = Integer.parseInt(s);
       int digits = s.length();
@@ -89,19 +77,15 @@ public final class DateTimeMillis {
          digits += 2;
       }
 
-      return Optional.of(toLocalTime(time * 10));
+      return toLocalTime(time * 10);
    }
 
-   public static int centisTimeToInt(String stringValue) {
-      return localTimeToInt(centisTimeToLocalTime(stringValue)) / 10;
+   public static int localTimeToCentisInt(LocalTime localTime) {
+      return localTimeToInt(localTime) / 10;
    }
 
-   public static String centisTimeToString(int time) {
-      return localTimeToCentisString(toLocalTime(time * 10));
-   }
-
-   public static String localTimeToCentisString(Optional<LocalTime> localTime) {
-      return localTime.isPresent() ? localTimeToCentisString(localTime.get()) : "";
+   public static LocalTime centisIntToLocalTime(int time) {
+      return toLocalTime(time * 10);
    }
 
    public static String localTimeToCentisString(LocalTime localTime) {
@@ -136,10 +120,8 @@ public final class DateTimeMillis {
          return Optional.empty();
       }
       int year = date / 100_00;
-      date -= year * 100_00;
-      int month = date / 100;
-      date -= month * 100;
-      int day = date;
+      int month = (date / 100) % 100;
+      int day = date % 100;
       return Optional.of(LocalDate.of(year, month, day));
    }
 
@@ -159,13 +141,5 @@ public final class DateTimeMillis {
 
    public static String localDateToString(LocalDate localDate) {
       return DateTimeFormatter.ISO_LOCAL_DATE.format(localDate);
-   }
-
-   public static int stringDateToInt(String date) {
-      return localDateToInt(toLocalDate(date));
-   }
-
-   public static String intDateToString(int date) {
-      return localDateToString(toLocalDate(date));
    }
 }

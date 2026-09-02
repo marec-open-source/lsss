@@ -4,23 +4,23 @@ import no.imr.korona.data.datagrams.DatagramFormatException;
 import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.korona.data.ping.items.PingConversion;
 import no.imr.tools.ShouldNotHappenException;
-import no.imr.tools.time.NTDate;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 public abstract class SubDatagram {
-   private long ntDate;
+   private Instant instant;
 
-   protected SubDatagram(long ntDate) {
-      this.ntDate = ntDate;
+   protected SubDatagram(Instant instant) {
+      this.instant = instant;
    }
 
-   public long getNTDate() {
-      return ntDate;
+   public Instant getInstant() {
+      return instant;
    }
 
-   public void setNTDate(long ntDate) {
-      this.ntDate = ntDate;
+   public void setInstant(Instant instant) {
+      this.instant = instant;
    }
 
    public abstract void write(ByteBuffer byteBuffer);
@@ -39,7 +39,7 @@ public abstract class SubDatagram {
 
    public SubDatagram makeCopy() {
       try {
-         return getDatagramSubType().createSubDatagram(getNTDate(), toByteBuffer());
+         return getDatagramSubType().createSubDatagram(instant, toByteBuffer());
       } catch (DatagramFormatException e) {
          throw new ShouldNotHappenException(e);
       }
@@ -47,7 +47,7 @@ public abstract class SubDatagram {
 
    @Override
    public String toString() {
-      return getDatagramSubType().label() + " " + NTDate.ntDateToInstant(getNTDate()) + " " + toStringExtra();
+      return getDatagramSubType().label() + " " + instant + " " + toStringExtra();
    }
 
    public String toStringExtra() {

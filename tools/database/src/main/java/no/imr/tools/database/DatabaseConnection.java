@@ -1,5 +1,6 @@
 package no.imr.tools.database;
 
+import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.concurrent.Exec;
 import no.imr.tools.concurrent.SerialExecutor;
@@ -49,7 +50,7 @@ public final class DatabaseConnection {
    }
 
    public boolean isBusy() {
-      return busyCounter.intValue() > 0 || getWaitingCount() > 0;
+      return busyCounter.get() > 0 || getWaitingCount() > 0;
    }
 
    public boolean isConnected() {
@@ -69,7 +70,12 @@ public final class DatabaseConnection {
       ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
             .applySettings(configuration.getProperties())
             .build();
-      sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+      try {
+         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+      } catch (Exception e) {
+         Utils.closeOrSuppress(e, serviceRegistry);
+         throw e;
+      }
    }
 
    public void disconnect() {
@@ -127,7 +133,7 @@ public final class DatabaseConnection {
       executeValuedQuery(databaseQuery);
    }
 
-   public <T> T executeValuedQuery(ValuedDatabaseQuery<T> databaseQuery) {
+   public <T extends @Nullable Object> T executeValuedQuery(ValuedDatabaseQuery<T> databaseQuery) {
       busyCounter.incrementAndGet();
       busyChangeManager.notifyListeners();
       try (Session session = getSessionFactory().openSession()) {
@@ -137,7 +143,11 @@ public final class DatabaseConnection {
             transaction.commit();
             return value;
          } catch (Exception e) {
-            transaction.rollback();
+            try {
+               transaction.rollback();
+            } catch (Exception suppressed) {
+               e.addSuppressed(suppressed);
+            }
             throw e;
          }
       } finally {
@@ -150,7 +160,7 @@ public final class DatabaseConnection {
       executeStatelessValuedQuery(databaseQuery);
    }
 
-   public <T> T executeStatelessValuedQuery(StatelessValuedDatabaseQuery<T> databaseQuery) {
+   public <T extends @Nullable Object> T executeStatelessValuedQuery(StatelessValuedDatabaseQuery<T> databaseQuery) {
       busyCounter.incrementAndGet();
       busyChangeManager.notifyListeners();
       try (StatelessSession session = getSessionFactory().openStatelessSession()) {
@@ -160,7 +170,11 @@ public final class DatabaseConnection {
             transaction.commit();
             return value;
          } catch (Exception e) {
-            transaction.rollback();
+            try {
+               transaction.rollback();
+            } catch (Exception suppressed) {
+               e.addSuppressed(suppressed);
+            }
             throw e;
          }
       } finally {

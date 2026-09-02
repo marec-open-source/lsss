@@ -1,6 +1,7 @@
 package no.imr.tools.parameter.gui.input;
 
 import no.imr.tools.parameter.ButtonParameter;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GridBag;
 
 import javax.swing.JButton;
@@ -18,7 +19,9 @@ public final class ButtonParameterGUI extends ParameterGUI<ButtonParameter> {
 
       button = new JButton(parameter.getDisplayName());
       button.addActionListener(_ -> {
-         getParameter().notifyListeners();
+         if (CurrentInputComponent.commitEdit()) {
+            getParameter().notifyListeners();
+         }
       });
    }
 

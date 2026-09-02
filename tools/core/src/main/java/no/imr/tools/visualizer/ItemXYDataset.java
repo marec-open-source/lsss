@@ -28,7 +28,7 @@ final class ItemXYDataset<T> extends BaseXYDataset {
    }
 
    @Override
-   public Comparable<?> getSeriesKey(int series) {
+   public String getSeriesKey(int series) {
       return name;
    }
 

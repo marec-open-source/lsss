@@ -14,6 +14,7 @@ final class VersionTest {
       testDifferent("1.2", "1.3");
       testDifferent("1.2", "1.2.1");
       testDifferent("1.2.9", "1.2.10");
+      testDifferent("1.2.9", "2.0.0");
       testDifferent("1.2-alpha1", "1.2-alpha2");
       testDifferent("1.2-alpha2", "1.2-beta1");
       testDifferent("1.2-beta2", "1.2-rc1");

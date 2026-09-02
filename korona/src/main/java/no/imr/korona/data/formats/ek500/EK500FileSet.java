@@ -1,14 +1,13 @@
 package no.imr.korona.data.formats.ek500;
 
 import no.imr.korona.data.DataException;
-import no.imr.tools.Utils;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -18,7 +17,7 @@ final class EK500FileSet {
    // Example file name: N058-S010-S2007106-F018000-T01-D20070427-T053434-Ping
    // Groups:                                               1                    2       3      4             5
    static final Pattern PATTERN = Pattern.compile("^(N\\d+-S\\d+-S\\d+)-F(\\d+)-T(\\d+)-(D\\d+-T\\d+)-(\\w+)$");
-   static final DateTimeFormatter DATE_TIME_FORMATTER = Utils.createUTCDateTimeFormatter("'D'yyyyMMdd'-T'HHmmss");
+   static final DateTimeFormatter DATE_TIME_FORMATTER = TimeUtils.createUTCDateTimeFormatter("'D'yyyyMMdd'-T'HHmmss");
    static final int MAX_DIFF_MILLIS = 2_000;
    static final int MAIN_FREQUENCY = 38_000;
 
@@ -35,16 +34,13 @@ final class EK500FileSet {
             .sorted()
             .toList();
       frequencyFileSets = this.files.stream() // this.files is already sorted.
-            .map(file -> {
+            .<FrequencyFileSet>mapMulti((file, consumer) -> {
                String name = file.getFileName().toString();
                if (name.endsWith(EK500DataFormatPlugin.INFO_SUFFIX)) {
                   String baseName = name.substring(0, name.length() - EK500DataFormatPlugin.INFO_SUFFIX.length());
-                  return new FrequencyFileSet(file.getParent(), baseName);
-               } else {
-                  return null;
+                  consumer.accept(new FrequencyFileSet(file.getParent(), baseName));
                }
             })
-            .filter(Objects::nonNull)
             .toList();
    }
 

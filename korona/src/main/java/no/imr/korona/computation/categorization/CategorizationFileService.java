@@ -18,7 +18,6 @@ import no.imr.tools.parameter.FileParameter;
 import no.imr.tools.parameter.Name;
 import org.jspecify.annotations.Nullable;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import java.awt.Component;
 import java.awt.Dialog;
@@ -115,22 +114,21 @@ public final class CategorizationFileService extends ConfigFileService {
    public FileParameter createFileParameter(ConfigFileSettings configFileSettings) {
       return new ConfigFileParameter(this, configFileSettings) {
          @Override
-         public void applyFileChooser(JFileChooser fileChooser) {
-            Path file = fileChooser.getSelectedFile().toPath();
-            if (Files.isDirectory(file)) {
-               Path configurationXml = file.resolve(Configurator.CATEGORIZATION_FILE);
+         public void applyFileChooserResult(Path selectedFile) {
+            if (Files.isDirectory(selectedFile)) {
+               Path configurationXml = selectedFile.resolve(Configurator.CATEGORIZATION_FILE);
                if (Files.exists(configurationXml)) {
-                  file = configurationXml;
+                  selectedFile = configurationXml;
                }
             }
-            setFile(file);
+            setFile(selectedFile);
          }
       };
    }
 
    @Override
-   protected ConfigFileParameterEditor createFileParameterEditor(ConfigFileSettings configFileSettings) {
-      return new ConfigFileParameterEditor(this, configFileSettings) {
+   protected FileParameter.Editor createFileParameterEditor(ConfigFileSettings configFileSettings) {
+      return new ConfigFileParameterEditor<>(this, configFileSettings) {
          @Override
          public boolean edit(@Nullable Component referenceComponent, boolean editable) {
             Configurator configurator = new Configurator(getConfigFileSettings(), null);

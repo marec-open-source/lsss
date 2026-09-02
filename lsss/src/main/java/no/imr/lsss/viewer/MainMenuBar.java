@@ -295,6 +295,7 @@ final class MainMenuBar {
          add(menu, lsss.getActions().setUpperBoundaryFromThreshold, KeyEvent.VK_P);
          add(menu, lsss.getActions().setLowerBoundaryFromThreshold, KeyEvent.VK_O);
          add(menu, lsss.getActions().setLowerBoundaryFromCoordinatedBottom, KeyEvent.VK_B);
+         add(menu, lsss.getActions().setLowerBoundaryFromCoordinatedBottomInPreprocessedData, KeyEvent.VK_T);
          add(menu, lsss.getActions().setLowerBoundaryFromCurrentFrequencyBottom, KeyEvent.VK_Y);
          menu.addSeparator();
          add(menu, lsss.getActions().deleteBottomDataCurrentFrequency, KeyEvent.VK_D);
@@ -570,7 +571,7 @@ final class MainMenuBar {
       }
 
       private void save() {
-         Element root = DocumentHelper.createElement("windowsSelections");
+         Element root = DocumentHelper.createElement("windowSelections");
          for (String name : sortedNames()) {
             root.addElement("windowSelection")
                   .addAttribute("name", name)

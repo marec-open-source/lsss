@@ -2,15 +2,15 @@
 
 <h2 id="Data">Data files</h2>
 <p>
-   The <strong>DeepVisionDataDir</strong> is the root directory of where the Deep Vision files are stored. The system will scan for Deep Vision files in the root
+   The <strong>DeepVisionDataDir</strong> is the root directory where the Deep Vision files are stored. The system will scan for Deep Vision files in the root
    directory and one level down. All files in those directories that meet the following criteria will be selected:
 </p>
 <ul>
-   <li>The file type is xml.</li>
-   <li>The root element of the xml-document is called deepvision.</li>
+   <li>The file type is XML.</li>
+   <li>The root element of the XML document is called deepvision.</li>
 </ul>
 <p>
-   The xml-file could be called <em>deepvision.xml</em> (or something.xml).
+   The XML file could be called <em>deepvision.xml</em> (or something.xml).
    With the root element called deepvision, the first lines could look like:
 </p>
 <pre><code>
@@ -37,7 +37,7 @@
       </ul>
    </li>
    <li><strong>Distance behind ship:</strong>
-      The fixed distance behind the ship of the Deep Vision vessel. Only used when the distance mapping is set to <em>Identity</em>.
+      The fixed distance of the Deep Vision vessel behind the ship. Only used when the distance mapping is set to <em>Identity</em>.
    </li>
 </ul>
 
@@ -66,19 +66,19 @@
    Zip file:  {Directory of Deep Vision file} / {Left or Right} / {folder}.zip
 </pre>
 
-<h3 id="AdditionalData">Additional user defined data files</h3>
+<h3 id="AdditionalData">Additional user-defined data files</h3>
 <p>
-   For each Deep Vision file, users can add an xml-file with additional information that can be displayed in LSSS. Currently, the user can define filled circles that can be shown
+   For each Deep Vision file, users can add an XML file with additional information that can be displayed in LSSS. Currently, the user can define filled circles that can be shown
    below the Deep Vision path. These circles can, for example, be used to indicate species type and amount.
    The additional files must meet the following criteria:
 </p>
 <ul>
-   <li>The file must be placed in the same directory as the corresponding Deep Vision file.</li>
-   <li>The file type is xml.</li>
-   <li>The root element is called lsss-deepvision</li>
+   <li>The file is placed in the same directory as the corresponding Deep Vision file.</li>
+   <li>The file type is XML.</li>
+   <li>The root element name is lsss-deepvision.</li>
 </ul>
 <p>
-   This additional xml-file could, for example, be called <em>lsss-deepvision.xml</em>,
+   This additional XML file could, for example, be called <em>lsss-deepvision.xml</em>,
    and has a format that is illustrated in the example below:
 </p>
 <pre><code>
@@ -90,7 +90,7 @@
 &lt;/lsss-deepvision>
 </code></pre>
 <p>
-   The <code>time</code>-attribute is used to associate to the corresponding frame in the Deep Vision file.
+   The <code>time</code> attribute is used to associate with the corresponding frame in the Deep Vision file.
    The color has the form '#rrggbb' with hexadecimal color components.
    The size is the diameter of the circle in units of pixels.
 </p>

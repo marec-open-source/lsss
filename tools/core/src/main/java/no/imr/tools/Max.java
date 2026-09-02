@@ -37,14 +37,11 @@ public final class Max {
    }
 
    public static byte of(byte[] values, int beginIndex, int endIndex) {
-      byte result = Byte.MIN_VALUE;
+      int result = Byte.MIN_VALUE;
       for (int i = beginIndex; i < endIndex; i++) {
-         byte value = values[i];
-         if (value > result) {
-            result = value;
-         }
+         result = Math.max(result, values[i]);
       }
-      return result;
+      return (byte) result;
    }
 
    public static int of(int... values) {
@@ -54,10 +51,7 @@ public final class Max {
    public static int of(int[] values, int beginIndex, int endIndex) {
       int result = Integer.MIN_VALUE;
       for (int i = beginIndex; i < endIndex; i++) {
-         int value = values[i];
-         if (value > result) {
-            result = value;
-         }
+         result = Math.max(result, values[i]);
       }
       return result;
    }
@@ -69,10 +63,7 @@ public final class Max {
    public static float of(float[] values, int beginIndex, int endIndex) {
       float result = Float.NEGATIVE_INFINITY;
       for (int i = beginIndex; i < endIndex; i++) {
-         float value = values[i];
-         if (value > result) {
-            result = value;
-         }
+         result = Math.max(result, values[i]);
       }
       return result;
    }

@@ -5,7 +5,6 @@ import org.jspecify.annotations.Nullable;
 
 import javax.swing.KeyStroke;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,7 +17,7 @@ public final class LsssPackage {
    private final String id;
    private final @Nullable UserDefinedPackage userDefinedPackage;
    private final Map<String, LsssAction> actionMap;
-   private Map<String, Map<KeyStroke, List<ActionExecutor>>> keyStrokeMap = Map.of();
+   private Map<String, Map<KeyStroke, ActionExecutor>> keyStrokeMap = Map.of();
 
    public LsssPackage(String id, @Nullable UserDefinedPackage userDefinedPackage) {
       this.id = id;
@@ -62,11 +61,11 @@ public final class LsssPackage {
       actionMap.remove(action.getId());
    }
 
-   public Map<String, Map<KeyStroke, List<ActionExecutor>>> getKeyStrokeMap() {
+   public Map<String, Map<KeyStroke, ActionExecutor>> getKeyStrokeMap() {
       return keyStrokeMap;
    }
 
-   public void setKeyStrokeMap(Map<String, Map<KeyStroke, List<ActionExecutor>>> keyStrokeMap) {
+   public void setKeyStrokeMap(Map<String, Map<KeyStroke, ActionExecutor>> keyStrokeMap) {
       this.keyStrokeMap = keyStrokeMap;
    }
 }

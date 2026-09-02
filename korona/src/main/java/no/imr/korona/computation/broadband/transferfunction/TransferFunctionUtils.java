@@ -1,9 +1,10 @@
 package no.imr.korona.computation.broadband.transferfunction;
 
 import no.imr.korona.computation.broadband.notchfilter.BroadbandNotchFilterConfig;
-import no.imr.tools.math.Function1D;
 import no.imr.tools.math.MathUtils;
 import no.imr.tools.range.FloatRange;
+
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * Helper class to generate transfer functions / filters.
@@ -118,11 +119,11 @@ public final class TransferFunctionUtils {
    }
 
    private static double find3DbDropBandwidth(TransferFunction transferFunction, double rejectionFrequency, FloatRange frequencyRange) {
-      Function1D function = frequency -> transferFunction.evaluateGainFunctionInDb(frequency) + 3;
-      double a = function.eval(frequencyRange.min()) <= 0
+      DoubleUnaryOperator function = frequency -> transferFunction.evaluateGainFunctionInDb(frequency) + 3;
+      double a = function.applyAsDouble(frequencyRange.min()) <= 0
             ? frequencyRange.min()
             : MathUtils.findRoot(frequencyRange.min(), rejectionFrequency, function, 1e-3, 1e-3);
-      double b = function.eval(frequencyRange.max()) <= 0
+      double b = function.applyAsDouble(frequencyRange.max()) <= 0
             ? frequencyRange.max()
             : MathUtils.findRoot(rejectionFrequency, frequencyRange.max(), function, 1e-3, 1e-3);
       return b - a;

@@ -3,6 +3,7 @@ package no.imr.lsss.viewer;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.lsss.framework.InterpretationSettings;
 import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.swing.ComboBoxListModel;
 import no.imr.tools.swing.GuiListeners;
 import no.imr.tools.swing.GuiUtils;
@@ -51,7 +52,7 @@ final class RangeChooser {
    }
 
    private void shiftSelectedIndex(int shift) {
-      int selectedIndex = Utils.mod(comboBox.getSelectedIndex() + shift, comboBox.getItemCount());
+      int selectedIndex = MathUtils.mod(comboBox.getSelectedIndex() + shift, comboBox.getItemCount());
       comboBox.setSelectedIndex(selectedIndex);
    }
 

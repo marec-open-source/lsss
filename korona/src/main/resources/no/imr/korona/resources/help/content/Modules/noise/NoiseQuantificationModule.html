@@ -90,8 +90,8 @@
 
 <h3 id="FallbackNoise">Fallback noise</h3>
 <p>
-   Throughout processing, the file noise.xml in the processing destination directory updated.
-   This file is divided in 1 hour intervals, and each interval contains the noise parameters with the highest quality and the lowest value.
+   Throughout processing, the file noise.xml in the processing destination directory is updated.
+   This file is divided into 1-hour intervals, and each interval contains the noise parameters with the highest quality and the lowest value.
 </p>
 <p>
    If not enough noise data samples are found, then the noise parameters from the closest available interval in noise.xml are used.
@@ -133,13 +133,13 @@
    <li><span class="marec-parameter-def" id="MinimumQuality">Minimum quality:</span>
       Minimum quality of histogram data. The quality for each ping is set based on where the data for the histogram is
       picked, and then the mean quality for all data used is calculated:<br>
-      Quality = 100. Data some frequency-dependent range after first and before second bottom echo are used. Expected to be similar to passive data.<br>
-      Quality = 100. Data large frequency-dependent range(1) below transducer. Expected to be similar to passive data.<br>
-      Quality = 90. Data a frequency-dependent range(2) (range(2) < range(1)) below transducer, no detected bottom detected, and data collected down to at least 500 m below the transducer. Expected to be close to passive data.<br>
-      Quality = 75. Data some frequency-dependent range(2) (range(2) < range(1) after first and before second bottom echo are used.<br>
-      Quality = 75. Data some frequency-dependent range(2) (range(2) < range(1) below transducer. Expected to be similar to passive data.<br>
+      Quality = 100. Data in some frequency-dependent range after first and before second bottom echo are used. Expected to be similar to passive data.<br>
+      Quality = 100. Data in a large frequency-dependent range(1) below transducer. Expected to be similar to passive data.<br>
+      Quality = 90. Data in a frequency-dependent range(2) (range(2) < range(1)) below transducer, no bottom detected, and data collected down to at least 500 m below the transducer. Expected to be close to passive data.<br>
+      Quality = 75. Data in some frequency-dependent range(2) (range(2) < range(1)) after first and before second bottom echo are used.<br>
+      Quality = 75. Data in some frequency-dependent range(2) (range(2) < range(1)) below transducer. Expected to be similar to passive data.<br>
       Quality = 50. Data below a (frequency-dependent) range from the transducer, but above the first bottom echo are used.<br>
-      Quality = 25. ata some frequency-dependent range(3) (range(3) < range(2) < range(1) below transducer.
+      Quality = 25. Data in some frequency-dependent range(3) (range(3) &lt; range(2) &lt; range(1)) below transducer.<br>
       Quality = 0. All data are used.
       <br>Allowed values: 0 &le; <a class="marec-parameter-ref" href="#MinimumQuality">Minimum quality</a> &le; 100
    </li>

@@ -21,6 +21,7 @@ import no.imr.korona.region.Region;
 import no.imr.korona.region.School;
 import no.imr.korona.region.SchoolParameters;
 import no.imr.korona.region.storing.StoringIntervalConfig;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.lsss.LSSS;
 import no.imr.lsss.database.tables.QualityEnum;
 import no.imr.lsss.database.tables.hibernate.Scatter;
@@ -31,15 +32,16 @@ import no.imr.lsss.modules.schoolparameter.SchoolParameterModule;
 import no.imr.tools.Utils;
 import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.math.ComplexArray;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.ParameterContainer;
 import no.imr.tools.range.FloatRange;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.awt.Point;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -216,7 +218,7 @@ final class ToolTipGenerator implements ParameterContainer {
 
       StringBuilder toolTip = new StringBuilder("<html><table cellpadding=0 cellspacing=0>");
 
-      addRowCol2(toolTip, new Date(pingIndex.getTimeInMillis()).toString());
+      addRowCol2(toolTip, TimeUtils.JAVA_UTIL_DATE_FORMATTER.format(pingIndex.getInstant()));
 
       if (showHighResTime.getBooleanValue()) {
          String time = pingIndex.getInstant().toString();
@@ -235,13 +237,13 @@ final class ToolTipGenerator implements ParameterContainer {
       if (selectionRectangle != null) {
          addRowCol2(toolTip, "Selection rectangle:");
          PingRange pingRange = selectionRectangle.pingRange();
-         double vesselDistanceMeter = Utils.nmiToMeter(pingRange.getVesselDistance());
+         double vesselDistanceMeter = KoronaUtils.nmiToMeter(pingRange.getVesselDistance());
          addRowItem(toolTip, "Horizontal [m]", "(" + pingRange.getPingCount() + " pings, "
                + pingRange.getDurationString() + ")   "
                + Utils.format("%.2f", vesselDistanceMeter));
          float dz = selectionRectangle.zRange().getSize();
          addRowItem(toolTip, "Vertical [m]", Utils.format("%.2f", dz));
-         addRowItem(toolTip, "Diagonal [m]", Utils.format("%.2f", Utils.hypot(vesselDistanceMeter, dz)));
+         addRowItem(toolTip, "Diagonal [m]", Utils.format("%.2f", MathUtils.hypot(vesselDistanceMeter, dz)));
 
          toolTip.append(verticalSpace);
       }
@@ -269,7 +271,7 @@ final class ToolTipGenerator implements ParameterContainer {
       if (showVesselDistance.getBooleanValue()) {
          double vesselDistance = lsss.getInterpretationSettings().getDataFileSet().getVesselDistanceUncorrectedForWrapAround(pingIndex);
          addRow(toolTip, "Distance [nmi]", Utils.format("%.3f", vesselDistance));
-         addRow(toolTip, "Distance [km]", Utils.format("%.3f", Utils.nmiToMeter(vesselDistance) / 1000));
+         addRow(toolTip, "Distance [km]", Utils.format("%.3f", KoronaUtils.nmiToMeter(vesselDistance) / 1000));
       }
 
       if (showVesselSpeed.getBooleanValue()) {
@@ -310,8 +312,8 @@ final class ToolTipGenerator implements ParameterContainer {
          String textIm = null;
          if (sampleIndex >= 0 && channelData instanceof BroadbandData broadbandData) {
             ComplexArray averagePulseCompressedSignal = broadbandData.getAveragePulseCompressedSignal();
-            textRe = Double.toString(Utils.roundToNumberOfDigits(averagePulseCompressedSignal.re(sampleIndex), 6));
-            textIm = Double.toString(Utils.roundToNumberOfDigits(averagePulseCompressedSignal.im(sampleIndex), 6));
+            textRe = Double.toString(MathUtils.roundToNumberOfDigits(averagePulseCompressedSignal.re(sampleIndex), 6));
+            textIm = Double.toString(MathUtils.roundToNumberOfDigits(averagePulseCompressedSignal.im(sampleIndex), 6));
          }
          addRow(toolTip, "Average real [W]", textRe);
          addRow(toolTip, "Average imag [V a]", textIm);

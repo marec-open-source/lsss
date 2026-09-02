@@ -10,6 +10,7 @@ import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.korona.data.formats.ek60.io.EndOfInputHandler;
 import no.imr.korona.data.formats.ek60.io.FileDatagramReader;
 import no.imr.korona.data.ping.PingConfiguration;
+import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.io.FileUtils;
 
@@ -25,7 +26,7 @@ import java.util.function.Predicate;
 /**
  * The EK60 raw file.
  */
-final class RawFile {
+final class RawFile implements AutoCloseable {
    private final Path file;
    private final DatagramTypeManager datagramTypeManager;
    private final FileChannel fileChannel;
@@ -35,9 +36,14 @@ final class RawFile {
       this.file = file;
       this.datagramTypeManager = datagramTypeManager;
       FileDatagramReader fileDatagramReader = new FileDatagramReader(file, datagramTypeManager);
-      fileDatagramReader.setEndOfInputHandler(endOfInputHandler);
-      fileChannel = fileDatagramReader.getFileChannel();
-      pingConfiguration = PingConfigurationReader.read(fileDatagramReader);
+      try {
+         fileDatagramReader.setEndOfInputHandler(endOfInputHandler);
+         fileChannel = fileDatagramReader.getFileChannel();
+         pingConfiguration = PingConfigurationReader.read(fileDatagramReader);
+      } catch (Exception e) {
+         Utils.closeOrSuppress(e, fileDatagramReader);
+         throw e;
+      }
    }
 
    Path getFile() {
@@ -48,7 +54,8 @@ final class RawFile {
       return pingConfiguration;
    }
 
-   void close() throws IOException {
+   @Override
+   public void close() throws IOException {
       fileChannel.close();
    }
 
@@ -60,11 +67,11 @@ final class RawFile {
       if (startOffset < 0) {
          throw new DataException("Start offset: " + startOffset + " in " + file);
       }
-      int size = (int) (endOffset - startOffset);
-      if (size < 0) {
+      long size = endOffset - startOffset;
+      if (size < 0 || size > Integer.MAX_VALUE) {
          throw new DataException("Ping size: " + size + " at offset " + startOffset + " in " + file);
       }
-      ByteBuffer byteBuffer = ByteBufferUtils.getThreadLocalByteBuffer(size);
+      ByteBuffer byteBuffer = ByteBufferUtils.getThreadLocalByteBuffer((int) size);
       try {
          FileUtils.read(fileChannel, byteBuffer, startOffset);
       } catch (ClosedChannelException _) {

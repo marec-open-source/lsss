@@ -227,8 +227,8 @@ public class AcousticCategory implements BasePlatformObject<AcousticCategoryPK>,
    }
 
    @Override
-   public int compareTo(AcousticCategory acousticCategory) {
-      return Utils.compare(comparisonStrings(), acousticCategory.comparisonStrings(), String.CASE_INSENSITIVE_ORDER);
+   public int compareTo(AcousticCategory other) {
+      return Utils.compare(comparisonStrings(), other.comparisonStrings(), String.CASE_INSENSITIVE_ORDER);
    }
 
    public int compareToEnglish(AcousticCategory acousticCategory) {

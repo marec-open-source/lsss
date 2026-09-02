@@ -5,6 +5,7 @@ import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.io.FilePredicates;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
+import no.imr.tools.time.TimeUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.logging.Level;
 
 final class FileDrawDataLoader {
    private static final Predicate<Path> FILE_FILTER = FilePredicates.endsWithIgnoringCase(".txt");
+   private static final DateTimeFormatter DATE_TIME_FORMATTER = TimeUtils.createUTCDateTimeFormatter("yyyyMMddHHmmssSSS");
 
    private FileDrawDataLoader() {
    }
@@ -31,7 +33,7 @@ final class FileDrawDataLoader {
                return List.of();
             }
             try (BufferedReader reader = Files.newBufferedReader(file, Utils.ISO_8859_1)) {
-               lines.add(readLine(reader));
+               lines.add(readFileDrawLine(reader));
             } catch (Exception e) {
                Log.global.log(Level.WARNING, "Error loading file " + file, e);
             }
@@ -42,8 +44,7 @@ final class FileDrawDataLoader {
       return List.copyOf(lines);
    }
 
-   static FileDrawLine readLine(BufferedReader reader) throws IOException {
-      DateTimeFormatter dateTimeFormatter = Utils.createUTCDateTimeFormatter("yyyyMMddHHmmssSSS");
+   static FileDrawLine readFileDrawLine(BufferedReader reader) throws IOException {
       List<FileDrawPoint> points = new ArrayList<>();
       while (true) {
          String line = reader.readLine();
@@ -65,15 +66,19 @@ final class FileDrawDataLoader {
          }
 
          String[] tokens = line.split("\\s+");
-         String dateTime = tokens[0] + tokens[1];
-         if (dateTime.length() < 17) {
-            dateTime += "0".repeat(17 - dateTime.length());
-         } else if (dateTime.length() > 17) {
-            dateTime = dateTime.substring(0, 17);
+         try {
+            String dateTime = tokens[0] + tokens[1];
+            if (dateTime.length() < 17) {
+               dateTime += "0".repeat(17 - dateTime.length());
+            } else if (dateTime.length() > 17) {
+               dateTime = dateTime.substring(0, 17);
+            }
+            Instant time = DATE_TIME_FORMATTER.parse(dateTime, Instant::from);
+            float depth = Float.parseFloat(tokens[2]);
+            points.add(new FileDrawPoint(time, depth));
+         } catch (Exception e) {
+            throw new IOException("Invalid line " + line, e);
          }
-         long time = dateTimeFormatter.parse(dateTime, Instant::from).toEpochMilli();
-         float depth = Float.parseFloat(tokens[2]);
-         points.add(new FileDrawPoint(time, depth));
       }
       return new FileDrawLine(List.copyOf(points));
    }

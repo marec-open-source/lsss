@@ -46,14 +46,14 @@ public abstract class BaseVolumeDisplayer extends JoglDisplayNode {
 
    public static float[] computeCornerParams(Vec3[] coords, Vec3 pos, Vec3 norm) {
       return new float[]{
-            LinalgUtils.distanceToPlane(coords[0], pos, norm),
-            LinalgUtils.distanceToPlane(coords[1], pos, norm),
-            LinalgUtils.distanceToPlane(coords[2], pos, norm),
-            LinalgUtils.distanceToPlane(coords[3], pos, norm),
-            LinalgUtils.distanceToPlane(coords[4], pos, norm),
-            LinalgUtils.distanceToPlane(coords[5], pos, norm),
-            LinalgUtils.distanceToPlane(coords[6], pos, norm),
-            LinalgUtils.distanceToPlane(coords[7], pos, norm),
+            LinalgUtils.signedDistanceToPlane(coords[0], pos, norm),
+            LinalgUtils.signedDistanceToPlane(coords[1], pos, norm),
+            LinalgUtils.signedDistanceToPlane(coords[2], pos, norm),
+            LinalgUtils.signedDistanceToPlane(coords[3], pos, norm),
+            LinalgUtils.signedDistanceToPlane(coords[4], pos, norm),
+            LinalgUtils.signedDistanceToPlane(coords[5], pos, norm),
+            LinalgUtils.signedDistanceToPlane(coords[6], pos, norm),
+            LinalgUtils.signedDistanceToPlane(coords[7], pos, norm),
       };
    }
 
@@ -89,7 +89,13 @@ public abstract class BaseVolumeDisplayer extends JoglDisplayNode {
    public void init(GL2 gl, List<JoglDisposable> disposables) {
       String version = gl.glGetString(GL_VERSION);
       String[] split = version.split("\\.");
-      if (Integer.parseInt(split[0]) < 2 && !disabled) {
+      int majorVersion;
+      try {
+         majorVersion = Integer.parseInt(split[0]);
+      } catch (NumberFormatException _) {
+         majorVersion = -1;
+      }
+      if (majorVersion < 2 && !disabled) {
          Log.global.warning("Volume visualization requires at least OpenGL 2.0. Your version is " + version);
          disabled = true;
          return;

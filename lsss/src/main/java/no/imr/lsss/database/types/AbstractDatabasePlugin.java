@@ -60,6 +60,10 @@ public abstract class AbstractDatabasePlugin extends DatabasePlugin {
       password.subscribe(_ -> passwordInitialized = true);
    }
 
+   public LSSS getLSSS() {
+      return lsss;
+   }
+
    public abstract String getDescription();
 
    @Override
@@ -83,18 +87,19 @@ public abstract class AbstractDatabasePlugin extends DatabasePlugin {
    private ParameterEditor getParameterEditor() {
       ParameterEditor parameterEditor = this.parameterEditor;
       if (parameterEditor == null) {
-         parameterEditor = new ParameterEditor(getParameters());
-         parameterEditor.getGUIConfig().setHorizontalFill(true);
-         parameterEditor.getGUIConfig().setTextAlignment(GUIConfig.Alignment.LEFT);
-         parameterEditor.getGUIConfig().setParameterEnabledDecider(parameter -> {
-            if (askingForPassword && (parameter == password || parameter == savePassword)) {
-               return true;
-            }
-            if (lsss.getConfigurationManager().canEdit(UserProfile.ADMINISTRATOR_MODE) && parameter == savePassword) {
-               return true;
-            }
-            return enabled;
-         });
+         parameterEditor = new ParameterEditor(getParameters(), new GUIConfig()
+               .setHorizontalFill(true)
+               .setTextAlignment(GUIConfig.Alignment.LEFT)
+               .setParameterEnabledDecider(parameter -> {
+                  if (askingForPassword && (parameter == password || parameter == savePassword)) {
+                     return true;
+                  }
+                  if (lsss.getConfigurationManager().canEdit(UserProfile.ADMINISTRATOR_MODE) && parameter == savePassword) {
+                     return true;
+                  }
+                  return enabled;
+               })
+         );
          this.parameterEditor = parameterEditor;
       }
       return parameterEditor;

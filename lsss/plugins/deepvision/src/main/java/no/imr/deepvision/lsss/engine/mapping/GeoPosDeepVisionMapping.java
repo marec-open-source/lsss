@@ -15,12 +15,12 @@ final class GeoPosDeepVisionMapping extends DeepVisionMapping {
       ClosestPingIndexFinder closestPingIndexFinder = (deepVisionTime, deepVisionGeoPos, prevLsssIndex) -> {
          if (deepVisionGeoPos == null) {
             // fallback if geographical position is invalid: LSSS-time is equal to Deep Vision time
-            return lsssDataFileSet.getContainingPingIndex(PingMapping.millisToTimeValue(deepVisionTime), PingMapping.TIME);
+            return lsssDataFileSet.getContainingPingIndex(PingMapping.instantToTimeValue(deepVisionTime), PingMapping.TIME);
          }
          if (prevLsssIndex.equals(lsssDataFileSet.getTotalRange().begin())) {
-            prevLsssIndex = lsssDataFileSet.getClosestPingIndex(PingMapping.millisToTimeValue(deepVisionTime) - SEARCH_CUTOFF, PingMapping.TIME);
+            prevLsssIndex = lsssDataFileSet.getClosestPingIndex(PingMapping.instantToTimeValue(deepVisionTime) - SEARCH_CUTOFF, PingMapping.TIME);
          }
-         PingRange pingRange = PingRange.ofUnsorted(prevLsssIndex, lsssDataFileSet.getClosestPingIndex(PingMapping.millisToTimeValue(deepVisionTime), PingMapping.TIME));
+         PingRange pingRange = PingRange.ofUnsorted(prevLsssIndex, lsssDataFileSet.getClosestPingIndex(PingMapping.instantToTimeValue(deepVisionTime), PingMapping.TIME));
          return DataUtils.geoPosToClosestPingIndex(deepVisionGeoPos, lsssDataFileSet.getPingIndices(pingRange));
       };
       for (DeepVisionFileInfo deepVisionFileInfo : deepVisionFileInfos) {

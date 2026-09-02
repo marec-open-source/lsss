@@ -17,6 +17,11 @@ final class ComplexArgumentPolynomialTest {
    private static final ComplexArgumentPolynomial CUBIC = new ComplexArgumentPolynomial(new double[]{0, 0, 0, 1});
 
    @Test
+   void constructor() {
+      assertThrows(IllegalArgumentException.class, () -> new ComplexArgumentPolynomial(new double[]{}));
+   }
+
+   @Test
    void eval() {
       assertEquals(Complex.ONE, CONSTANT_ONE_POLY.eval(COMPLEX_ARG));
       assertEquals(Complex.ONE, CONSTANT_ONE_POLY.eval(REAL_ARG));

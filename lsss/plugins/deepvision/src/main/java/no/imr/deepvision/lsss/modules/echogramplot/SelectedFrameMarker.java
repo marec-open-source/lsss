@@ -10,6 +10,8 @@ import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.Layer;
 
+import java.time.Instant;
+
 public final class SelectedFrameMarker {
    private final DeepVisionEngine deepVisionEngine;
    private ValueMarker selectedFrameMarker = new ValueMarker(Double.NaN);
@@ -26,10 +28,10 @@ public final class SelectedFrameMarker {
       if (selectedFrame == null) {
          value = Double.NaN;
       } else {
-         long deepVisionTime = DeepVisionDataUtils.timeInMillis(selectedFrame.frame());
-         long lsssTime = deepVisionEngine.getDeepVisionMappingManager().getDeepVisionMapping().deepVisionTimeToLsssTime(deepVisionTime, selectedFrame.deepVisionFileInfo());
+         Instant deepVisionTime = DeepVisionDataUtils.time(selectedFrame.frame());
+         Instant lsssTime = deepVisionEngine.getDeepVisionMappingManager().getDeepVisionMapping().deepVisionTimeToLsssTime(deepVisionTime, selectedFrame.deepVisionFileInfo());
          InterpretationSettings interpretationSettings = deepVisionEngine.getLSSS().getInterpretationSettings();
-         float x = interpretationSettings.getPingSettings().millisToX(lsssTime);
+         float x = interpretationSettings.getPingSettings().instantToX(lsssTime);
          value = interpretationSettings.getPingSettings().xToValue(x, interpretationSettings.getPingMapping());
       }
       selectedFrameMarker.setValue(value);

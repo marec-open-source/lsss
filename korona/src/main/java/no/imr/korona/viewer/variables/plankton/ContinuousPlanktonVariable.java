@@ -14,7 +14,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /**
- * Continuous variables available from categorization.
+ * Continuous variables available from plankton inversion.
  */
 abstract class ContinuousPlanktonVariable extends ContinuousVariable {
    private @Nullable Pic0Datagram pic0Datagram;

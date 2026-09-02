@@ -4,11 +4,12 @@ import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.korona.data.ping.items.PingConversion;
 import no.imr.korona.data.ping.items.channel.BroadbandData;
 import no.imr.korona.data.ping.items.channel.PowerData;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.time.Instant;
 
 /**
  * Channel data with power, and possibly angles.
@@ -51,12 +52,12 @@ public final class Raw0Datagram extends BaseDatagram implements PerChannelDatagr
    public float @Nullable [][] real;
    public float @Nullable [][] imag;
 
-   public Raw0Datagram(long ntDate) {
-      super(ntDate);
+   public Raw0Datagram(Instant instant) {
+      super(instant);
    }
 
-   public Raw0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Raw0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       readConfig(byteBuffer);
       readData(byteBuffer);
@@ -196,7 +197,9 @@ public final class Raw0Datagram extends BaseDatagram implements PerChannelDatagr
    @Override
    public String toStringExtra() {
       return "channel: " + channel
-            + ", frequency: " + Utils.hzToKHz(frequency) + " kHz";
+            + ", frequency: " + KoronaUtils.hzToKHz(frequency) + " kHz"
+            + ", sampleCount: " + count
+            + ", sampleDistance: " + sampleInterval * soundVelocity / 2;
    }
 
    @Override

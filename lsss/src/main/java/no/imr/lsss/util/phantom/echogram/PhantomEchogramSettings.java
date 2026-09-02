@@ -10,8 +10,8 @@ import no.imr.korona.data.util.DataUtils;
 import no.imr.lsss.LSSS;
 import no.imr.lsss.util.PingIndexConverter;
 import no.imr.lsss.util.phantom.PhantomDataAdministrator;
-import no.imr.tools.Utils;
 import no.imr.tools.listening.ChangeManager;
+import no.imr.tools.math.MathUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.LongSupplier;
@@ -32,10 +32,10 @@ public final class PhantomEchogramSettings {
    private int channel = 1;
    private final ChangeManager channelChangeManager = new ChangeManager();
 
-   public PhantomEchogramSettings(LSSS lsss, PhantomDataAdministrator phantomDataAdministrator, LongSupplier ntDateOffset) {
+   public PhantomEchogramSettings(LSSS lsss, PhantomDataAdministrator phantomDataAdministrator, LongSupplier timeOffsetAsNanos) {
       this.lsss = lsss;
       this.phantomDataAdministrator = phantomDataAdministrator;
-      phantomPingIndexConverter = new PingIndexConverter(lsss, phantomDataAdministrator.getPhantomDataManager(), ntDateOffset);
+      phantomPingIndexConverter = new PingIndexConverter(lsss, phantomDataAdministrator.getPhantomDataManager(), timeOffsetAsNanos);
 
       echogramPingSettings = new PhantomEchogramPingSettings(this, lsss);
       echogramZSettings = new PhantomEchogramZSettings(this);
@@ -76,9 +76,6 @@ public final class PhantomEchogramSettings {
    }
 
    private void update() {
-      pingSampler.cancelPingRequest();
-      pingSampler.waitForPingRequest();
-
       pingSampler.requestPings(lsss.getConfigurationManager().getAppMiscConf().pingLoading.getValue());
    }
 
@@ -117,7 +114,7 @@ public final class PhantomEchogramSettings {
    public void shiftChannel(int shift) {
       int transducerCount = getPhantomDataFileSet().getTransducerCount();
       if (transducerCount > 0) {
-         setChannel(Utils.mod(channel - 1 + shift, transducerCount) + 1);
+         setChannel(MathUtils.mod(channel - 1 + shift, transducerCount) + 1);
       }
    }
 

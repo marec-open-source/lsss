@@ -5,7 +5,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 /**
- * A mouse listener setting a {@link Component} focusable when mouse is inside component.
+ * A mouse listener setting a {@link Component} focusable and requesting focus
+ * when the mouse is inside the component.
  */
 public final class FocusableComponentMouseListener extends MouseAdapter {
    private final Component component;

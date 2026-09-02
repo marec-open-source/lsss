@@ -111,8 +111,6 @@ public abstract class BasePhantomEchogramModule extends BaseOverlaidModule<BaseP
       return phantomEchogramSettings.getEchogramZSettings();
    }
 
-   public abstract void setSelectedPhantomNTDate(long phantomNTDate);
-
    public ChangeManager getEchogramAreaChangeManager() {
       return echogramAreaChangeManager;
    }

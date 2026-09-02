@@ -9,17 +9,30 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class Matrix3Test {
    @Test
-   void testRotation() {
+   void createRotationFromAngleAndAxis() {
       Vec3 axis = new Vec3(1, 0, 0);
       float angle = 54;
-      Matrix3 a = Matrix3.createRotation(angle, axis);
-      Matrix3 b = Matrix3.createRotation(-angle, axis);
+      Matrix3 a = verifyRotationMatrix(Matrix3.createRotation(angle, axis));
+      Matrix3 b = verifyRotationMatrix(Matrix3.createRotation(-angle, axis));
       Matrix3 c = a.multiply(b);
       JUnitUtils.assertEquals(Matrix3.IDENTITY, c);
    }
 
    @Test
-   void testScaling() {
+   void createRotationFromTwoDirections() {
+      verifyRotationMatrix(Matrix3.createRotation(new Vec3(1, 0, 0), new Vec3(1, 0, 1e-9f)));
+      verifyRotationMatrix(Matrix3.createRotation(new Vec3(1, 0, 0), new Vec3(0, 1, 0)));
+      verifyRotationMatrix(Matrix3.createRotation(new Vec3(1, 1, 1), new Vec3(-1, -1, -1)));
+   }
+
+   private static Matrix3 verifyRotationMatrix(Matrix3 r) {
+      JUnitUtils.assertEquals(Matrix3.IDENTITY, r.multiply(r.transpose()), 1e-6f);
+      assertEquals(1, r.determinant(), 1e-6f);
+      return r;
+   }
+
+   @Test
+   void createScaling() {
       Matrix3 a = Matrix3.createScaling(new Vec3(1, 2, 4));
       Matrix3 b = Matrix3.createScaling(new Vec3(1, 0.5f, 0.25f));
       Matrix3 c = a.multiply(b);
@@ -27,7 +40,7 @@ final class Matrix3Test {
    }
 
    @Test
-   void testMultiplyVec() {
+   void multiplyVec() {
       Matrix3 m = new Matrix3(
             1, 2, 3,
             5, 0, 0,
@@ -38,14 +51,14 @@ final class Matrix3Test {
    }
 
    @Test
-   void testMinus() {
+   void minus() {
       Matrix3 a = new Matrix3(1, 2, 3, 4, 5, 6, 7, 8, 9);
       JUnitUtils.assertEquals(new Matrix3(0, 0, 0, 0, 0, 0, 0, 0, 0), a.minus(a));
       JUnitUtils.assertEquals(a, a.minus(new Matrix3(0, 0, 0, 0, 0, 0, 0, 0, 0)));
    }
 
    @Test
-   void testNormalize() {
+   void normalize() {
       Matrix3 a = new Matrix3(
             1, 2, 3,
             5, 0, 0,
@@ -57,7 +70,7 @@ final class Matrix3Test {
    }
 
    @Test
-   void testInverse() {
+   void inverse() {
       Matrix3 a = new Matrix3(1, 2, 3, 0, 6, 7, 0, 0, 12);
       JUnitUtils.assertEquals(Matrix3.IDENTITY, a.multiply(a.inverse()));
       a = new Matrix3(2, 9, 1, 11, 7, 2, 3, 16, 1);
@@ -65,7 +78,7 @@ final class Matrix3Test {
    }
 
    @Test
-   void testMultiplyGetComponent() {
+   void multiplyGetComponent() {
       Matrix3 a = new Matrix3(1, 2, 3, 4, 5, 6, 7, 8, 9);
       Vec3 b = new Vec3(17, 18, 19);
       assertEquals(a.multiply(b).x(), a.multiplyGetX(b));
@@ -74,12 +87,22 @@ final class Matrix3Test {
    }
 
    @Test
-   void testStoreRowWise() {
+   void storeRowWise() {
       Matrix3 a = new Matrix3(1, 2, 3, 4, 5, 6, 7, 8, 9);
       ByteBuffer byteBuffer = ByteBuffer.allocate(4 * 9);
       a.writeRowWise(byteBuffer);
       byteBuffer.flip();
       Matrix3 b = Matrix3.readRowWise(byteBuffer);
       assertEquals(a, b);
+   }
+
+   @Test
+   void determinant() {
+      assertEquals(1, Matrix3.IDENTITY.determinant());
+      Matrix3 a = new Matrix3(
+            1, 6, 4,
+            7, 5, 2,
+            3, 8, 9);
+      assertEquals(-149, a.determinant());
    }
 }

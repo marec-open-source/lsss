@@ -9,7 +9,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
-import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Set;
@@ -32,17 +31,7 @@ final class ItemTable<T> extends ItemView<T> {
 
       table.getTableHeader().setDefaultRenderer(new MultiLineHeaderRenderer());
 
-      DefaultTableCellRenderer tableCellRenderer = new DefaultTableCellRenderer() {
-         @Override
-         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            int modelColumn = table.convertColumnIndexToModel(column);
-            int modelRow = table.convertRowIndexToModel(row);
-            String string = features.get(modelColumn).itemToString.apply(model.getItems().get(modelRow));
-            return super.getTableCellRendererComponent(table, string, isSelected, hasFocus, row, column);
-         }
-      };
-      tableCellRenderer.setHorizontalAlignment(DefaultTableCellRenderer.RIGHT);
-      table.setDefaultRenderer(Double.class, tableCellRenderer);
+      table.setDefaultRenderer(String.class, TableUtils.defaultTableCellRenderer(DefaultTableCellRenderer.RIGHT));
 
       table.getSelectionModel().addListSelectionListener(e -> {
          if (updating || e.getValueIsAdjusting()) {

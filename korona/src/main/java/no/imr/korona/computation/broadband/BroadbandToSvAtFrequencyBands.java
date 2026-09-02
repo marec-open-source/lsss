@@ -6,8 +6,8 @@ import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.util.TvgArray;
 import no.imr.korona.util.KoronaUtils;
 import no.imr.korona.util.absorption.Absorption;
-import no.imr.tools.Utils;
 import no.imr.tools.math.ComplexArray;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.range.FloatRange;
 
 import java.util.List;
@@ -60,7 +60,7 @@ public final class BroadbandToSvAtFrequencyBands {
             float sampleRange = broadbandData.getTvgRange(originalIndex);
             svSum += constantFactor * avgPc.abs2(originalIndex) * tvg.get(originalIndex) * KoronaUtils.fromDB(twoTimesAbsorptionCorrection * sampleRange);
          }
-         sv[i] = Utils.avoidInfinity((float) (svSum / downSamplingFactor));
+         sv[i] = MathUtils.avoidInfinity((float) (svSum / downSamplingFactor));
       }
    }
 

@@ -1,5 +1,6 @@
 package no.imr.tools.io;
 
+import no.imr.tools.Utils;
 import no.imr.tools.concurrent.Exec;
 import no.imr.tools.logging.Log;
 import org.jspecify.annotations.Nullable;
@@ -27,11 +28,16 @@ public final class DirectoryWatcher {
    public DirectoryWatcher(Path dir, Consumer<Set<Path>> listener) throws IOException {
       this.listener = listener;
       watchService = dir.getFileSystem().newWatchService();
-      watchKey = dir.register(watchService,
-            StandardWatchEventKinds.ENTRY_CREATE,
-            StandardWatchEventKinds.ENTRY_DELETE,
-            StandardWatchEventKinds.ENTRY_MODIFY);
-      future = Exec.scheduleWithFixedDelay(this::check, 1000, TimeUnit.MILLISECONDS);
+      try {
+         watchKey = dir.register(watchService,
+               StandardWatchEventKinds.ENTRY_CREATE,
+               StandardWatchEventKinds.ENTRY_DELETE,
+               StandardWatchEventKinds.ENTRY_MODIFY);
+         future = Exec.scheduleWithFixedDelay(this::check, 1000, TimeUnit.MILLISECONDS);
+      } catch (Exception e) {
+         Utils.closeOrSuppress(e, watchService);
+         throw e;
+      }
    }
 
    public static @Nullable DirectoryWatcher forDir(Path dir, Consumer<Set<Path>> listener) {
@@ -44,8 +50,14 @@ public final class DirectoryWatcher {
    }
 
    public static @Nullable DirectoryWatcher forFile(Path file, Runnable listener) {
-      return forDir(file.getParent(), files -> {
-         if (files.contains(file)) {
+      Path absoluteFile = file.toAbsolutePath();
+      Path dir = absoluteFile.getParent();
+      if (dir == null) {
+         Log.global.warning("Cannot watch parentless file " + absoluteFile);
+         return null;
+      }
+      return forDir(dir, files -> {
+         if (files.contains(absoluteFile)) {
             listener.run();
          }
       });

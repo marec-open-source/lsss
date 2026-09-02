@@ -75,6 +75,7 @@ final class ArrayMathTest {
       assertThrows(IllegalArgumentException.class, () -> ArrayMath.resample(oneToTen, -0.01, 1, 0));
       assertThrows(IllegalArgumentException.class, () -> ArrayMath.resample(oneToTen, 9, 10.01, 0));
       assertThrows(IllegalArgumentException.class, () -> ArrayMath.resample(oneToTen, 3, 2, 0));
+      assertThrows(IllegalArgumentException.class, () -> ArrayMath.resample(new float[]{}, 3));
 
       assertArrayEquals(new float[]{}, ArrayMath.resample(oneToTen, 0.5, 1.5, 0));
       assertArrayEquals(new float[]{1.5f}, ArrayMath.resample(oneToTen, 0.5, 1.5, 1));
@@ -86,6 +87,8 @@ final class ArrayMathTest {
       assertArrayEquals(oneToTen, ArrayMath.resample(oneToTen, 0, 10, 10));
       assertArrayEquals(new float[]{1.5f, 3.5f, 5.5f, 7.5f, 9.5f}, ArrayMath.resample(oneToTen, 0, 10, 5));
       assertArrayEquals(new float[]{5.5f}, ArrayMath.resample(oneToTen, 0, 10, 1));
+      assertArrayEquals(new float[]{1, 1}, ArrayMath.resample(oneToTen, 0.5, 0.5, 2));
+      assertArrayEquals(new float[]{10}, ArrayMath.resample(oneToTen, 10, 10, 1));
 
       JUnitUtils.runWithRandom(random -> {
          float[] values = JUnitUtils.createRandomFloatArray(random, random.nextInt(1, 100));
@@ -101,12 +104,14 @@ final class ArrayMathTest {
    void meanByte() {
       byte[] values = {1, 2, 3, 4, 5, 6, 7};
       assertEquals(3, ArrayMath.mean(values, 1, 4));
+      assertEquals(Float.NaN, ArrayMath.mean(values, 1, 1));
    }
 
    @Test
    void meanInt() {
       int[] values = {1, 2, 3, 4, 5, 6, 7};
-      assertEquals(4, ArrayMath.mean(values));
+      assertEquals(3, ArrayMath.mean(values, 1, 4));
+      assertEquals(Float.NaN, ArrayMath.mean(values, 1, 1));
    }
 
    @Test
@@ -114,6 +119,7 @@ final class ArrayMathTest {
       float[] values = {1, 2, 3, 4, 5, 6, 7};
       assertEquals(4, ArrayMath.mean(values));
       assertEquals(3, ArrayMath.mean(values, 1, 4));
+      assertEquals(Float.NaN, ArrayMath.mean(values, 1, 1));
    }
 
    @Test

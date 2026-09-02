@@ -7,11 +7,33 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 final class GaussDistributionTest {
-   private record FeatureInfo(String name, float mean, float stdDev) {
+   @Test
+   void test() {
+      JUnitUtils.runWithRandom(random -> {
+         List<FeatureInfo> featureInfos = List.of(
+               new FeatureInfo("A", 10, 1),
+               new FeatureInfo("B", 60, 50),
+               new FeatureInfo("C", -5, 4)
+         );
+         Neighborhood neighborhood = randomNeighborhood(featureInfos, 10000, random);
+         GaussDistribution gaussDistribution = new GaussDistribution(neighborhood);
+
+         for (int i = 0; i < featureInfos.size(); i++) {
+            FeatureInfo x = featureInfos.get(i);
+            assertEquals(x.mean, gaussDistribution.getMean(x.name), 0.1 * x.stdDev);
+            assertEquals(x.stdDev, Math.sqrt(gaussDistribution.getCovariance(x.name, x.name)), 0.1 * x.stdDev);
+
+            for (int j = i + 1; j < featureInfos.size(); j++) {
+               FeatureInfo y = featureInfos.get(j);
+               assertEquals(0, Math.sqrt(Math.abs(gaussDistribution.getCovariance(x.name, y.name))), 0.1 * x.stdDev * y.stdDev);
+            }
+         }
+      });
    }
 
    @Test
@@ -42,7 +64,7 @@ final class GaussDistributionTest {
       float det = gaussDistribution.getCovarianceMatrixDeterminant();
       assertTrue(det >= 0);
 
-      //add a neighbourhood with 4 features
+      // Add a neighborhood with 4 features.
       featureInfos.clear();
       featureInfos.add(new FeatureInfo("A", 50, 5));
       featureInfos.add(new FeatureInfo("B", 70, 50000));
@@ -53,14 +75,9 @@ final class GaussDistributionTest {
 
       gaussDistribution = new GaussDistribution(List.of(neighborhood1, neighborhood2));
       float det2 = gaussDistribution.getCovarianceMatrixDeterminant();
-      /*
-      if (det2 < 0) {
-         System.out.println("seed = " + seed);
-      }
-      */
-      assertTrue(det2 >= 0);
+      JUnitUtils.assertLessThanOrEqual(0, det2);
 
-      //change the order the neighborhoods are added
+      // Change the order the neighborhoods are added.
       GaussDistribution gaussDistributionReversed = new GaussDistribution(List.of(neighborhood2, neighborhood1));
 
       float det3 = gaussDistributionReversed.getCovarianceMatrixDeterminant();
@@ -77,7 +94,7 @@ final class GaussDistributionTest {
       // but the result of the covariance computation should remain the same.
       List<Neighbor> renamedFeatureNeighbor = new ArrayList<>();
       for (Neighbor neighbor : neighborhood3.getNeighbors()) {
-         //rename feature "E"
+         // Rename feature "E".
          List<Feature> renamedFeatures = new ArrayList<>();
          for (Feature feature : neighbor.getFeatures()) {
             if (feature.name().equals("E")) {
@@ -126,18 +143,28 @@ final class GaussDistributionTest {
    }
 
    private static Neighborhood createRandomNeighborhood(List<FeatureInfo> featureInfos, Random random) {
-      List<Neighbor> neighbors = new ArrayList<>();
       // Minimum featureInfos.size to avoid possible rank deficient matrix.
       int neighborHoodSize = random.nextInt(featureInfos.size(), 10000);
-      for (int i = 0; i < neighborHoodSize; i++) {
-         List<Feature> features = new ArrayList<>();
-         for (FeatureInfo featureInfo : featureInfos) {
-            features.add(new Feature(featureInfo.name, random.nextGaussian(featureInfo.mean, featureInfo.stdDev)));
-         }
-         Neighbor neighbor = new Neighbor(features);
-         neighbors.add(neighbor);
-      }
+      return randomNeighborhood(featureInfos, neighborHoodSize, random);
+   }
 
+   private static Neighborhood randomNeighborhood(List<FeatureInfo> featureInfos, int neighborHoodSize, Random random) {
+      List<Neighbor> neighbors = IntStream.range(0, neighborHoodSize)
+            .mapToObj(_ -> randomNeighbor(featureInfos, random))
+            .toList();
       return new Neighborhood(neighbors);
+   }
+
+   private static Neighbor randomNeighbor(List<FeatureInfo> featureInfos, Random random) {
+      List<Feature> features = featureInfos.stream()
+            .map(featureInfo -> featureInfo.randomFeature(random))
+            .toList();
+      return new Neighbor(features);
+   }
+
+   private record FeatureInfo(String name, float mean, float stdDev) {
+      private Feature randomFeature(Random random) {
+         return new Feature(name, random.nextGaussian(mean, stdDev));
+      }
    }
 }

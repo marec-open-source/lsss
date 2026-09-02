@@ -1,5 +1,7 @@
 package no.imr.lsss.modules.trawl;
 
+import no.imr.lsss.resources.LsssResource;
+import no.imr.tools.Utils;
 import no.imr.tools.swing.GeometryListener;
 
 import javax.swing.JFrame;
@@ -39,7 +41,8 @@ final class TrawlGuiMain {
       frame.setTitle(title);
    }
 
-   static void main() {
+   static void main(String[] args) {
+      Utils.init(args, LsssResource.LSSS_64);
       SwingUtilities.invokeLater(TrawlGuiMain::new);
    }
 }

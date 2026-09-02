@@ -4,15 +4,15 @@ import no.imr.deepvision.lsss.engine.data.DeepVisionFileInfo;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingMapping;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
 
 import java.util.List;
 
 final class IdentityDeepVisionMapping extends DeepVisionMapping {
    IdentityDeepVisionMapping(List<DeepVisionFileInfo> deepVisionFileInfos, DataFileSet lsssDataFileSet, float distanceBehindShip) {
-      double distanceNmi = Utils.meterToNmi(distanceBehindShip);
+      double distanceNmi = KoronaUtils.meterToNmi(distanceBehindShip);
       ClosestPingIndexFinder closestPingIndexFinder = (deepVisionTime, _, _) -> {
-         PingIndex closestPingIndex = lsssDataFileSet.getContainingPingIndex(PingMapping.millisToTimeValue(deepVisionTime), PingMapping.TIME);
+         PingIndex closestPingIndex = lsssDataFileSet.getContainingPingIndex(PingMapping.instantToTimeValue(deepVisionTime), PingMapping.TIME);
          if (closestPingIndex == null) {
             return null;
          }

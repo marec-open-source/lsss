@@ -23,7 +23,7 @@
       top: 50px;
       bottom: 0;
       border-right: solid 1px lightgrey;
-      background-color: white;
+      background-color: var(--mat-sys-surface);
       z-index: 5;
       transition: 0.3s;
    }

@@ -9,6 +9,40 @@ Contact information
 
 ________________________________________________________________
 
+Version 3.3.0 - September 2026
+
+LSSS:
+• Database:
+  - JavaDB (aka Apache Derby) has been retired. As a consequence,
+    LSSS has deprecated JavaDB and will remove support for it in a later
+    release. The HSQLDB database is recommended as an alternative.
+• Survey configuration / Preprocessing:
+  - Added option when copying a config file settings file to also copy
+    the referenced module configuration file.
+• Echogram:
+  - Added parameter for setting size of comment markers.
+• Echogram plot:
+  - Added functions for comparing single targets relative to main frequency.
+
+KORONA:
+• Depth detection module:
+  - New parameter for calculating coordinated bottom from existing
+    bottom depths.
+• Fill missing data module:
+  - Preserve the data type (FW / CW) when adding missing data.
+  - Use motion data for the target ping when adding missing data.
+
+PROFOS:
+• The PROFOS plugin to LSSS and KORONA is now freely available.
+• Improvements on HiDPI displays:
+  - Fix mouse offset error.
+  - Improve text rendering.
+
+PROMUS:
+• Added option to only store to the database using processed data.
+
+________________________________________________________________
+
 Version 3.2.0 - January 2026
 
 LSSS:
@@ -41,7 +75,7 @@ KORONA:
 • School detection module:
   - Added boundary smoothing as optional postprocessing.
   - Added filling of gaps as optional postprocessing.
-• Netcdf writer module (beta):
+• NetCDF writer module (beta):
   - The "Main frequency" parameter can now be a prioritized list.
 
 ________________________________________________________________
@@ -71,8 +105,8 @@ LSSS:
 
 KORONA:
 • New modules:
-  - Categorization NetCDF reader and writer modules (beta).
-  - Data quality module - Quality indicators as NetCDF (beta).
+  - Categorization netCDF reader and writer modules (beta).
+  - Data quality module - Quality indicators as netCDF (beta).
 • Depth dependent resampling module:
   - New parameter for maximum frequency.
 • Depth detection module:
@@ -80,7 +114,7 @@ KORONA:
 • Korona relay:
   - Avoid processing the last file only if it is recently modified.
 • Korona cli:
-  - Added command for converting work files to NetCDF (beta).
+  - Added command for converting work files to netCDF (beta).
 
 ________________________________________________________________
 
@@ -352,7 +386,7 @@ KORONA:
 
 PROFOS:
 • Implemented calibration of data files with RAW2 datagrams.
-• Bugfix: 'timeOffset' in NetCDF data was used incorrectly.
+• Bugfix: 'timeOffset' in netCDF data was used incorrectly.
 
 ________________________________________________________________
 
@@ -1140,7 +1174,7 @@ Known issues:
 
 Future plans:
 • Module for plankton inversion to compute size distribution of plankton inside regions
-• Closer integration with the pre-processing system:
+• Closer integration with the preprocessing system:
   - Starting and controlling the preprocessing from within the LSSS program
   - Taking advantage of the categorization in the interpretation module
 • Transparent conversion between the LSSS raw data format and other formats

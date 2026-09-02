@@ -12,6 +12,7 @@ import org.dom4j.Element;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -321,9 +322,8 @@ public final class Layer extends Region {
    }
 
    List<@Nullable VerticalBoundary> findLeftAndRightBoundary(Curve curve, EchogramPoint point) {
-      List<@Nullable VerticalBoundary> verticals = new ArrayList<>();
-      verticals.add(0, null);
-      verticals.add(1, null);
+      VerticalBoundary leftBoundary = null;
+      VerticalBoundary rightBoundary = null;
       //float epsilon = 1e-2f; //1cm
       float bestVerticalDistAtEndPoint = Float.MAX_VALUE;
       float bestVerticalDistAtStartPoint = Float.MAX_VALUE;
@@ -340,12 +340,12 @@ public final class Layer extends Region {
             if (dist >= 0 && dist < leftDist && isLeftSideVerticalBoundary(verticalBoundary)) {
                if (intersectsDepthRange) {
                   leftDist = dist;
-                  verticals.set(0, verticalBoundary);
+                  leftBoundary = verticalBoundary;
                   bestVerticalDistAtStartPoint = 0;
                } else if (bestVerticalDistAtStartPoint > 0) { // no 'best' boundary found
                   float verticalDist = verticalBoundary.getDepthRange().distanceTo(curve.getDepth(pingIndex));
                   if (verticalDist < bestVerticalDistAtStartPoint) {
-                     verticals.set(0, verticalBoundary);
+                     leftBoundary = verticalBoundary;
                      bestVerticalDistAtStartPoint = verticalDist;
                   }
                }
@@ -353,12 +353,12 @@ public final class Layer extends Region {
             if (dist < 0 && -dist < rightDist && isRightSideVerticalBoundary(verticalBoundary)) {
                if (intersectsDepthRange) {
                   rightDist = -dist;
-                  verticals.set(1, verticalBoundary);
+                  rightBoundary = verticalBoundary;
                   bestVerticalDistAtEndPoint = 0;
                } else if (bestVerticalDistAtEndPoint > 0) { // last index, and no vertical boundary found
                   float verticalDist = verticalBoundary.getDepthRange().distanceTo(curve.getLastDepth());
                   if (verticalDist < bestVerticalDistAtEndPoint) {
-                     verticals.set(1, verticalBoundary);
+                     rightBoundary = verticalBoundary;
                      bestVerticalDistAtEndPoint = verticalDist;
                   }
                }
@@ -366,7 +366,7 @@ public final class Layer extends Region {
             //}
          }
       }
-      return verticals;
+      return Arrays.asList(leftBoundary, rightBoundary);
    }
 
    <T extends LayerBoundary> LayerAndBoundaryPair<T> split(LayerBoundary firstExistingBoundary, LayerBoundary secondExistingBoundary,

@@ -2,36 +2,44 @@ package no.imr.tools.parameter.gui.input;
 
 import no.imr.tools.parameter.ParameterException;
 import no.imr.tools.parameter.ValueParameter;
+import no.imr.tools.swing.CurrentInputComponent;
+import org.jspecify.annotations.Nullable;
 
-import javax.swing.JFormattedTextField;
-import javax.swing.text.DefaultFormatter;
+import javax.swing.JDialog;
+import javax.swing.JTextField;
 import java.awt.Dimension;
-import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.util.Objects;
+import java.awt.event.FocusListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 /**
  * A text field for editing a parameter.
  */
-final class ParameterTextField extends ParameterComponent {
+final class ParameterTextField implements ParameterComponent {
    private final ValueParameter<?> parameter;
-   private final JFormattedTextField textField = new Workaround4238932FormattedTextField("");
-   private boolean dialogShowing;
+   private final JTextField textField;
+   private @Nullable JDialog errorDialog;
 
    ParameterTextField(ValueParameter<?> parameter, GUIConfig guiConfig) {
+      this(parameter, guiConfig, new Workaround4238932TextField());
+   }
+
+   ParameterTextField(ValueParameter<?> parameter, GUIConfig guiConfig, JTextField textField) {
       this.parameter = parameter;
+      this.textField = textField;
 
       updateComponent();
-
-      ((DefaultFormatter) textField.getFormatter()).setOverwriteMode(false);
 
       textField.setColumns(guiConfig.getTextInputColumns());
       textField.setHorizontalAlignment(guiConfig.getTextAlignment().apply(parameter).getTextFieldHorizontalAlignment());
       textField.addActionListener(_ -> updateParameter());
-      textField.addFocusListener(new FocusAdapter() {
+      textField.addFocusListener(new FocusListener() {
          @Override
          public void focusGained(FocusEvent e) {
             textField.getCaret().setVisible(guiConfig.isParameterEnabled(parameter));
+            CurrentInputComponent.set(textField, ParameterTextField.this::updateParameter);
          }
 
          @Override
@@ -40,23 +48,42 @@ final class ParameterTextField extends ParameterComponent {
             updateParameter();
          }
       });
+      textField.addHierarchyListener(e -> {
+         if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 && !textField.isShowing()) {
+            closeErrorDialog();
+         }
+      });
+      textField.addKeyListener(new KeyAdapter() {
+         @Override
+         public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+               if (!parameter.getStringValue().equals(textField.getText())) {
+                  updateComponent();
+                  e.consume();
+               }
+            }
+         }
+      });
    }
 
    @Override
-   JFormattedTextField getComponent() {
+   public JTextField getComponent() {
       return textField;
    }
 
    @Override
-   void updateComponent() {
+   public void updateComponent() {
       String stringValue = parameter.getStringValue();
-      if (!Objects.equals(textField.getText(), stringValue)) {
-         textField.setValue(stringValue);
+      if (!stringValue.equals(textField.getText())) {
+         textField.setText(stringValue);
       }
    }
 
    private boolean updateParameter() {
-      if (dialogShowing) {
+      if (errorDialog != null) {
+         return false;
+      }
+      if (!textField.isShowing()) {
          return false;
       }
 
@@ -65,32 +92,33 @@ final class ParameterTextField extends ParameterComponent {
          return true;
       }
 
-      dialogShowing = true;
       try {
          parameter.setStringValue(newValue);
          updateComponent();
          return true;
       } catch (ParameterException e) {
-         ParameterGuiUtils.showErrorDialog(e, textField);
+         errorDialog = ParameterGuiUtils.createErrorDialog(e, textField);
+         errorDialog.setVisible(true);
          updateComponent();
          textField.requestFocusInWindow();
          return false;
       } finally {
-         dialogShowing = false;
+         closeErrorDialog();
       }
    }
 
-   @Override
-   boolean commitEdit() {
-      return updateParameter();
+   private void closeErrorDialog() {
+      if (errorDialog != null) {
+         errorDialog.dispose();
+         errorDialog = null;
+      }
    }
 
    /**
     * Workaround for <a href="https://bugs.openjdk.org/browse/JDK-4238932">JDK-4238932</a>.
     */
-   private static final class Workaround4238932FormattedTextField extends JFormattedTextField {
-      private Workaround4238932FormattedTextField(String value) {
-         super(value);
+   private static final class Workaround4238932TextField extends JTextField {
+      private Workaround4238932TextField() {
       }
 
       @Override

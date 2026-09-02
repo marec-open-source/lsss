@@ -44,20 +44,21 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 /**
  * Visualizes the EchogramWindow.
  */
-public final class EchogramVisualizer {
-   private abstract static class RectangleSelectionMouseListener extends MouseAdapter {
+final class EchogramVisualizer {
+   private static final class RectangleSelectionMouseListener extends MouseAdapter {
+      private final BiConsumer<Rectangle2D, MouseEvent> rectangleHandler;
       private @Nullable Point2D point;
       private @Nullable Rectangle2D rectangle;
 
-      private RectangleSelectionMouseListener() {
+      private RectangleSelectionMouseListener(BiConsumer<Rectangle2D, MouseEvent> rectangleHandler) {
+         this.rectangleHandler = rectangleHandler;
       }
-
-      protected abstract void selectedRectangle(Rectangle2D rectangle, MouseEvent e);
 
       @Override
       public void mousePressed(MouseEvent e) {
@@ -67,7 +68,7 @@ public final class EchogramVisualizer {
       @Override
       public void mouseReleased(MouseEvent e) {
          if (rectangle != null) {
-            selectedRectangle(rectangle, e);
+            rectangleHandler.accept(rectangle, e);
          }
          point = null;
          rectangle = null;
@@ -93,22 +94,16 @@ public final class EchogramVisualizer {
    }
 
    private final class ChannelPanel {
-      private final class MarkMouseListener extends RectangleSelectionMouseListener {
-         private MarkMouseListener() {
+      private void markSelectedRectangle(Rectangle2D rectangle, MouseEvent e) {
+         Rectangle2D r = echogramPanelToEchogramWindow(rectangle);
+         boolean setMarked = true;
+         if ((e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0) {
+            setMarked = false;
+         } else if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == 0) {
+            echogramWindow.clearMarking();
          }
-
-         @Override
-         protected void selectedRectangle(Rectangle2D rectangle, MouseEvent e) {
-            Rectangle2D r = echogramPanelToEchogramWindow(rectangle);
-            boolean setMarked = true;
-            if ((e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0) {
-               setMarked = false;
-            } else if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == 0) {
-               echogramWindow.clearMarking();
-            }
-            echogramWindow.mark(r, setMarked);
-            changeOccurred();
-         }
+         echogramWindow.mark(r, setMarked);
+         changeOccurred();
       }
 
       private Rectangle2D echogramPanelToEchogramWindow(Rectangle2D rectangle) {
@@ -146,7 +141,7 @@ public final class EchogramVisualizer {
             changeOccurred();
          });
 
-         MarkMouseListener mouseInputListener = new MarkMouseListener();
+         RectangleSelectionMouseListener mouseInputListener = new RectangleSelectionMouseListener(this::markSelectedRectangle);
          echogramColorPanel.getEchogramPanel().getComponent().addMouseListener(mouseInputListener);
          echogramColorPanel.getEchogramPanel().getComponent().addMouseMotionListener(mouseInputListener);
       }
@@ -212,7 +207,7 @@ public final class EchogramVisualizer {
 
       private void addAllPings() {
          int nPings = echogramWindow.getWidth();
-         int nPixels = getPixelCount();
+         int nPixels = echogramColorPanel.getEchogramPanel().getWidth();
          float x = (float) nPings / (nPixels - 1);
          for (int i = 0; i < nPixels; i++) {
             int iPing = Math.min(nPings - 1, (int) Math.floor(i * x));
@@ -238,10 +233,6 @@ public final class EchogramVisualizer {
          g.dispose();
       }
 
-      private int getPixelCount() {
-         return echogramColorPanel.getEchogramPanel().getWidth();
-      }
-
       private ContinuousVariable getVariable() {
          ColorConverterContainer converterContainer = echogramColorPanel.getSvColorPanel().getConverterContainer();
          return switch (echogramWindow.getConfigurator().getCategoryType()) {
@@ -261,7 +252,7 @@ public final class EchogramVisualizer {
 
    private final ChangeManager changeManager = new ChangeManager();
 
-   public EchogramVisualizer(EchogramWindow echogramWindow, ConfigFileSettings configFileSettings) {
+   EchogramVisualizer(EchogramWindow echogramWindow, ConfigFileSettings configFileSettings) {
       this.echogramWindow = echogramWindow;
       this.configFileSettings = configFileSettings;
       RawFileConfiguration rawFileConfiguration = echogramWindow.getConfigurator().getRawFileConfiguration();
@@ -356,7 +347,7 @@ public final class EchogramVisualizer {
     *
     * @return the ChangeManager
     */
-   public ChangeManager getChangeManager() {
+   ChangeManager getChangeManager() {
       return changeManager;
    }
 
@@ -365,7 +356,7 @@ public final class EchogramVisualizer {
     *
     * @return the component which contain the rendering of this EchogramWindow
     */
-   public JComponent redraw() {
+   JComponent redraw() {
       doRedraw();
       return panel;
    }
@@ -402,10 +393,8 @@ public final class EchogramVisualizer {
       for (int i = 0; i < channelPanels.length; i++) {
          DepthRangeChooser depthRangeChooser = new DepthRangeChooser();
          depthRangeChooser.setDepthRangeMode(DepthRangeMode.MANUAL);
-         float minDepth = echogramWindow.getDepth(0);
-         depthRangeChooser.setMinFixedDepth(minDepth);
-         float maxDepth = echogramWindow.getDepth(echogramWindow.getHeight());
-         depthRangeChooser.setMaxFixedDepth(maxDepth);
+         depthRangeChooser.setMinFixedDepth(echogramWindow.getMinDepth());
+         depthRangeChooser.setMaxFixedDepth(echogramWindow.getMaxDepth());
 
          ColorConverterContainer converterContainer = new ColorConverterContainer();
 

@@ -59,7 +59,7 @@
    <tr><td>GET</td><td>/lsss/application/config/unit</td><td></td><td></td><td>Array of configuration units</td><td>Lists all accessible application configuration units</td></tr>
    <tr><td>GET</td><td>/lsss/application/config/unit/{id}/xml</td><td></td><td></td><td>XML</td><td>Returns the configuration of the specified unit as XML</td></tr>
    <tr><td>POST</td><td>/lsss/application/config/unit/{id}/xml</td><td></td><td>XML</td><td></td><td>Sets the configuration of the specified unit as XML</td></tr>
-   <tr><td>GET</td><td>/lsss/application/config/unit/{id}/parameter</td><td></td><td></td><td>Arrays of parameters</td><td>Lists all accessible parameters</td></tr>
+   <tr><td>GET</td><td>/lsss/application/config/unit/{id}/parameter</td><td></td><td></td><td>Array of parameters</td><td>Lists all accessible parameters</td></tr>
    <tr><td>GET</td><td>/lsss/application/config/unit/{id}/parameter/{parameter-path}</td><td></td><td></td><td>{"value": <em>value</em>}</td><td>Returns the value of a single parameter</td></tr>
    <tr><td>POST</td><td>/lsss/application/config/unit/{id}/parameter/{parameter-path}</td><td></td><td>{"value": <em>value</em>}</td><td></td><td>Sets the value of a single parameter</td></tr>
    <tr><td>POST</td><td>/lsss/application/exit</td><td></td><td></td><td></td><td>Shuts down LSSS. This request will not get a response</td></tr>
@@ -134,7 +134,7 @@
          <ul class="marec-query-params">
             <li>pingCount: integer. Number of pings</li>
          </ul>
-      </td><td></td><td>Array of data for pings</td><td>Returns an arrays of the data in the specified pings</td></tr>
+      </td><td></td><td>Array of data for pings</td><td>Returns an array of the data in the specified pings</td></tr>
    <tr><td>GET</td><td>/lsss/data/wait</td><td></td><td></td><td>{"value": true}</td><td>Waits until all requested pings are loaded</td></tr>
    </tbody>
 </table>
@@ -453,13 +453,13 @@
          </ul>
       </td>
       <td></td><td>Array of packages</td><td>Lists all packages</td></tr>
-   <tr><td>GET</td><td>/lsss/package/{id}</td><td></td><td></td><td>Zip file</td><td>Returns the specified user defined package as a zip file</td></tr>
+   <tr><td>GET</td><td>/lsss/package/{id}</td><td></td><td></td><td>Zip file</td><td>Returns the specified user-defined package as a zip file</td></tr>
    <tr><td>POST</td><td>/lsss/package/{id}</td><td></td><td>Zip file</td><td></td><td>Saves the package</td></tr>
-   <tr><td>DELETE</td><td>/lsss/package/{id}</td><td></td><td></td><td></td><td>Deletes the specified user defined package</td></tr>
+   <tr><td>DELETE</td><td>/lsss/package/{id}</td><td></td><td></td><td></td><td>Deletes the specified user-defined package</td></tr>
    <tr><td>GET</td><td>/lsss/package/{id}/action</td><td></td><td></td><td>Array of actions</td><td>Lists the actions in the specified package</td></tr>
-   <tr><td>GET</td><td>/lsss/package/{id}/action/{id}</td><td></td><td></td><td>Zip file</td><td>Returns the specified user defined action as a zip file</td></tr>
+   <tr><td>GET</td><td>/lsss/package/{id}/action/{id}</td><td></td><td></td><td>Zip file</td><td>Returns the specified user-defined action as a zip file</td></tr>
    <tr><td>POST</td><td>/lsss/package/{id}/action/{id}</td><td></td><td>Zip file</td><td></td><td>Saves the action</td></tr>
-   <tr><td>DELETE</td><td>/lsss/package/{id}/action/{id}</td><td></td><td></td><td></td><td>Deletes the specified user defined action</td></tr>
+   <tr><td>DELETE</td><td>/lsss/package/{id}/action/{id}</td><td></td><td></td><td></td><td>Deletes the specified user-defined action</td></tr>
    <tr><td>POST</td><td>/lsss/package/{id}/action/{id}/run</td><td></td>
       <td>
          If the action requires input parameters:<br>
@@ -612,7 +612,7 @@
    </li>
 </ul>
 <p>
-   Notes when settings the scrutiny:
+   Notes when setting the scrutiny:
 </p>
 <ul>
    <li>The "initials" properties are not used, and can be omitted</li>
@@ -694,8 +694,8 @@
       <td>Streams info about API calls. Example page: <a href="example/api-calls.html">/lsss/doc/example/api-calls.html</a></td>
    </tr>
    <tr><td>GET</td><td>/lsss/system/graphics</td><td></td><td></td><td>Graphics info</td><td>Returns info about the graphics system</td></tr>
-   <tr><td>GET</td><td>/lsss/system/properties</td><td></td><td></td><td>Map of properties</td><td>Lists java system properties</td></tr>
-   <tr><td>GET</td><td>/lsss/system/thread-dump</td><td></td><td></td><td>Thread dump in text format</td><td>Lists stack traces for all java threads</td></tr>
+   <tr><td>GET</td><td>/lsss/system/properties</td><td></td><td></td><td>Map of properties</td><td>Lists Java system properties</td></tr>
+   <tr><td>GET</td><td>/lsss/system/thread-dump</td><td></td><td></td><td>Thread dump in text format</td><td>Lists stack traces for all Java threads</td></tr>
    </tbody>
 </table>
 

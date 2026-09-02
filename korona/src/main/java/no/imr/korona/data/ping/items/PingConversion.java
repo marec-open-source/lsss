@@ -7,7 +7,6 @@ import no.imr.korona.data.ping.PingConfiguration;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
-import no.imr.tools.time.NTDate;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.Element;
 import org.jspecify.annotations.Nullable;
@@ -83,7 +82,7 @@ public final class PingConversion {
                .filter(BaseDatagram::isSampleDatagram)
                .findFirst()
                .orElse(datagrams.isEmpty() ? null : datagrams.getFirst());
-         String dateString = datagram != null ? NTDate.ntDateToInstant(datagram.getNTDate()).toString() : "<no date>";
+         String dateString = datagram != null ? datagram.getInstant().toString() : "<no date>";
          dateAndFileString = dateString + ", " + file;
       }
       return dateAndFileString;

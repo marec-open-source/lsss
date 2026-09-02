@@ -27,6 +27,7 @@ import no.imr.tools.io.LastModifiedAndSize;
 import no.imr.tools.logging.Log;
 import no.imr.tools.parameter.FileParameter;
 import no.imr.tools.swing.GuiUtils;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.SwingUtilities;
@@ -34,9 +35,11 @@ import javax.swing.Timer;
 import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -102,7 +105,7 @@ public final class DataFileTableModel extends AbstractTableModel {
             case STATUS_COLUMN -> this;
             case FILE_NAME_COLUMN -> this;
             case PINGS_COLUMN -> getPingRangeStream().mapToLong(PingRange::getPingCount).sum();
-            case DURATION_COLUMN -> Utils.getDurationString(getPingRangeStream().mapToLong(PingRange::getMilliseconds).sum());
+            case DURATION_COLUMN -> TimeUtils.getDurationString(getPingRangeStream().map(PingRange::getDuration).reduce(Duration.ZERO, Duration::plus));
             case DISTANCE_COLUMN -> Utils.format("%.1f", getPingRangeStream().mapToDouble(PingRange::getVesselDistance).sum());
             case SA_COLUMN -> {
                double sa = fileRows.stream()
@@ -125,7 +128,7 @@ public final class DataFileTableModel extends AbstractTableModel {
 
    public final class FileRow extends BaseRow {
       private final SegmentHandle rawSegmentHandle;
-      private final long rawLastModified;
+      private final Instant rawLastModified;
       private final long rawTotalFileSize;
       private @Nullable ImmutableMap<Integer, String> rawDataTypeNames;
       private @Nullable DataFile rawDataFile;
@@ -136,7 +139,7 @@ public final class DataFileTableModel extends AbstractTableModel {
       private float sa = -1;
 
       private @Nullable SegmentHandle koronaSegmentHandle;
-      private long koronaLastModified;
+      private @Nullable Instant koronaLastModified;
       private long koronaTotalFileSize;
       private @Nullable ImmutableMap<Integer, String> koronaDataTypeNames;
       private @Nullable DataFile koronaDataFile;
@@ -163,7 +166,7 @@ public final class DataFileTableModel extends AbstractTableModel {
          return dataType == DataType.RAW ? rawSegmentHandle : koronaSegmentHandle;
       }
 
-      long getLastModified(DataType dataType) {
+      @Nullable Instant getLastModified(DataType dataType) {
          return dataType == DataType.RAW ? rawLastModified : koronaLastModified;
       }
 
@@ -207,10 +210,10 @@ public final class DataFileTableModel extends AbstractTableModel {
          return segmentInfo;
       }
 
-      public Instant getInstant() {
+      public @Nullable Instant getInstant() {
          return segmentInfo != null && !segmentInfo.pingRange().isEmpty()
                ? segmentInfo.pingRange().begin().getInstant()
-               : Instant.MAX;
+               : null;
       }
 
       @Nullable
@@ -366,6 +369,7 @@ public final class DataFileTableModel extends AbstractTableModel {
    private List<TimeRow> timeRows = List.of();
    private List<FileRow> fileRows = List.of();
    private int maxVesselDistanceStringLength;
+   private final Map<DataType, @Nullable FileRow> mostRecentlyModifiedRow = new EnumMap<>(DataType.class);
    private @Nullable DataFile firstRawDataFile;
    private boolean firingTableDataChanged;
 
@@ -399,12 +403,13 @@ public final class DataFileTableModel extends AbstractTableModel {
       return dataConf.sortByTime.getBooleanValue() ? fileRowByTimeComparator() : fileRowByNameComparator();
    }
 
-   private Comparator<FileRow> fileRowByNameComparator() {
+   private static Comparator<FileRow> fileRowByNameComparator() {
       return Comparator.comparing(FileRow::getRawSegmentHandle);
    }
 
-   private Comparator<FileRow> fileRowByTimeComparator() {
-      return Comparator.comparing(FileRow::getInstant).thenComparing(fileRowByNameComparator());
+   public static Comparator<FileRow> fileRowByTimeComparator() {
+      return Comparator.comparing(FileRow::getInstant, Comparator.nullsLast(Comparator.naturalOrder()))
+            .thenComparing(fileRowByNameComparator());
    }
 
    void setAllExpanded(boolean expanded) {
@@ -433,8 +438,17 @@ public final class DataFileTableModel extends AbstractTableModel {
       SegmentHandlesAndAttributes segmentHandlesAndAttributes = createSegmentHandles(dataConf.getRawDir());
       rawDirListingStatus = segmentHandlesAndAttributes.status();
       fileRows = segmentHandlesAndAttributes.segmentHandles().stream()
-            .map(segmentHandle -> new FileRow(segmentHandle, segmentHandle.getLastModifiedAndSize(segmentHandlesAndAttributes.attributes(), dataFileInfoAsyncHandle)))
+            .<FileRow>mapMulti((segmentHandle, consumer) -> {
+               LastModifiedAndSize lastModifiedAndSize = segmentHandle.getLastModifiedAndSize(segmentHandlesAndAttributes.attributes(), dataFileInfoAsyncHandle);
+               if (lastModifiedAndSize != null) {
+                  consumer.accept(new FileRow(segmentHandle, lastModifiedAndSize));
+               }
+            })
             .toList();
+
+      mostRecentlyModifiedRow.put(DataType.RAW, fileRows.stream()
+            .max(Comparator.comparing(fileRow -> fileRow.rawLastModified, Comparator.nullsFirst(Comparator.naturalOrder())))
+            .orElse(null));
 
       TimeRow unknownTimeRow = newTimeRow.apply(TimeGroup.MAX);
       unknownTimeRow.fileRows = fileRows;
@@ -531,7 +545,7 @@ public final class DataFileTableModel extends AbstractTableModel {
 
       fileRowsByName.forEach(fileRow -> {
          fileRow.koronaSegmentHandle = null;
-         fileRow.koronaLastModified = 0;
+         fileRow.koronaLastModified = null;
          fileRow.koronaTotalFileSize = 0;
          fileRow.koronaDataTypeNames = null;
       });
@@ -547,12 +561,15 @@ public final class DataFileTableModel extends AbstractTableModel {
             }
             if (koronaBaseName.startsWith(rawBaseName)) {
                LastModifiedAndSize lastModifiedAndSize = koronaSegmentHandle.getLastModifiedAndSize(segmentHandlesAndAttributes.attributes(), dataFileInfoAsyncHandle);
+               if (lastModifiedAndSize == null) {
+                  continue;
+               }
                if (fileRow.koronaSegmentHandle != null) {
                   if (fileRow.koronaConflictingFiles.isEmpty()) {
                      fileRow.koronaConflictingFiles = ImmutableList.of(fileRow.koronaSegmentHandle.getDisplayName());
                   }
                   fileRow.koronaConflictingFiles = ImmutableUtils.add(fileRow.koronaConflictingFiles, koronaSegmentHandle.getDisplayName());
-                  if (lastModifiedAndSize.lastModified() < fileRow.koronaLastModified) {
+                  if (fileRow.koronaLastModified != null && lastModifiedAndSize.lastModified().isBefore(fileRow.koronaLastModified)) {
                      continue;
                   }
                }
@@ -563,6 +580,10 @@ public final class DataFileTableModel extends AbstractTableModel {
             }
          }
       }
+
+      mostRecentlyModifiedRow.put(DataType.PROCESSED, fileRows.stream()
+            .max(Comparator.comparing(fileRow -> fileRow.koronaLastModified, Comparator.nullsFirst(Comparator.naturalOrder())))
+            .orElse(null));
 
       updateAllRows();
    }
@@ -598,6 +619,10 @@ public final class DataFileTableModel extends AbstractTableModel {
    void updateSa() {
       fileRows.forEach(FileRow::updateSa);
       updateAllRows();
+   }
+
+   @Nullable FileRow getMostRecentlyModifiedRow(DataType dataType) {
+      return mostRecentlyModifiedRow.get(dataType);
    }
 
    int getFileRowIndex(DataType dataType, String baseName) {

@@ -6,6 +6,7 @@ import org.dom4j.Document;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * Module configuration.
@@ -15,14 +16,14 @@ public final class Cds0Datagram extends DatagramPingItem {
 
    private final Document document;
 
-   public Cds0Datagram(long ntDate, Document document) {
-      super(ntDate);
+   public Cds0Datagram(Instant instant, Document document) {
+      super(instant);
 
       this.document = document;
    }
 
-   public Cds0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Cds0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       int length = ByteBufferUtils.readCount(byteBuffer, 1);
       byte[] bytes = new byte[length];

@@ -170,7 +170,7 @@ struct Scatter {
       s<sub>A</sub> value (above) divided by the total s<sub>A</sub> in the entire column.
    </li>
    <li><span class="marec-parameter-def" id="UpperInterpretationDepth">UpperInterpretationDepth</span> - [m] Upper depth where the acoustic data are scrutinized and stored.
-      <b>UpperInterpretationDepth</b> >= <b>UpperDepth</b>. For pelagic channels (i.e. that are referenced
+      <b>UpperInterpretationDepth</b> &ge; <b>UpperDepth</b>. For pelagic channels (i.e. that are referenced
       to the sea surface; <b>ScatterType</b> = "Echogram Pelagic or "School Pelagic"), <b>UpperInterpretationDepth</b>
       is positive. For bottom channels (i.e. that are referenced to the <i>detected</i> bottom (i.e. coordinated bottom); <b>ScatterType</b>=
       "Echogram Bottom" or "School Bottom"), <b>UpperInterpretationDepth</b> is negative. Bottom channels are
@@ -178,7 +178,7 @@ struct Scatter {
       See also <b>UpperDepth</b>.
    </li>
    <li><span class="marec-parameter-def" id="LowerInterpretationDepth">LowerInterpretationDepth</span> - [m] Lower depth where the acoustic data are scrutinized and stored.
-      <b>LowerInterpretationDepth</b> <= <b>LowerDepth</b>. For <b>ScatterType</b> = "Echogram Bottom"
+      <b>LowerInterpretationDepth</b> &le; <b>LowerDepth</b>. For <b>ScatterType</b> = "Echogram Bottom"
       (and "School Bottom"), <b>LowerInterpretationDepth</b> is typically restricted by the lower integration line,
       which is -0.5, i.e. 0.5 m above <i>detected</i> bottom (i.e. coordinated bottom).
    </li>

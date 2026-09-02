@@ -22,7 +22,6 @@ import no.imr.tools.range.FloatRangeSet;
 
 import java.util.List;
 import java.util.NavigableMap;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 public final class RegionResource {
@@ -54,11 +53,12 @@ public final class RegionResource {
    @Produces(MediaType.APPLICATION_JSON)
    public Stream<ApiPingMask> getMask() {
       return lsss.getInterpretationSettings().getDataFileSet().getPingIndexStream(region.getPingRange())
-            .map(pingIndex -> {
+            .mapMulti((pingIndex, consumer) -> {
                List<FloatRange> depthRanges = lsss.getRegionManager().getNonMaskedRegionDepthRanges(region, pingIndex).getFloatRanges();
-               return depthRanges.isEmpty() ? null : new ApiPingMask(pingIndex, depthRanges);
-            })
-            .filter(Objects::nonNull);
+               if (!depthRanges.isEmpty()) {
+                  consumer.accept(new ApiPingMask(pingIndex, depthRanges));
+               }
+            });
    }
 
    @POST

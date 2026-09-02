@@ -1,11 +1,10 @@
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
 import {ConfigService} from './config.service';
 import {ErrorResponseComponent} from './error-response.component';
 import {ProgressSpinnerComponent} from './progress-spinner.component';
 
 @Component({
-   changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-app',
    templateUrl: './app.component.html',
    styleUrl: './app.component.scss',

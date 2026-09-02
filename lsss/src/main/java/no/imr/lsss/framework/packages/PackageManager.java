@@ -56,8 +56,6 @@ public final class PackageManager {
             .filter(Objects::nonNull)
             .map(map -> map.get(keyStroke))
             .filter(Objects::nonNull)
-            .flatMap(Collection::stream)
-            .filter(ActionExecutor::isEnabled)
-            .forEach(task -> task.run(argument));
+            .forEach(task -> task.runIfEnabled(argument));
    }
 }

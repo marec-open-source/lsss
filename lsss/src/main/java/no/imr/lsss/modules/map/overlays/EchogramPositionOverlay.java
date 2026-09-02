@@ -47,17 +47,11 @@ public final class EchogramPositionOverlay extends BaseMapOverlay {
       return new DisplayData(new Ellipse2D.Float(pixPos.x - SIZE / 2, pixPos.y - SIZE / 2, SIZE, SIZE));
    }
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final Ellipse2D.Float circe;
-
-      private DisplayData(Ellipse2D.Float circe) {
-         this.circe = circe;
-      }
-
+   private record DisplayData(Ellipse2D.Float circle) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setColor(Color.RED);
-         g2d.fill(circe);
+         g2d.fill(circle);
       }
    }
 }

@@ -31,19 +31,23 @@ public abstract class BaseMapOverlay extends BaseModuleOverlay {
       return mapModule;
    }
 
-   protected abstract class TransformedDisplayData extends OverlayDisplayData {
-      private final GeoZoom geoZoom = mapModule.getGeoZoom();
+   protected OverlayDisplayData.Wrapper transformed(OverlayDisplayData overlayDisplayData) {
+      return new TransformedDisplayData(overlayDisplayData);
+   }
 
-      protected TransformedDisplayData() {
+   private final class TransformedDisplayData implements OverlayDisplayData.Wrapper {
+      private final GeoZoom geoZoom = mapModule.getGeoZoom();
+      private final OverlayDisplayData overlayDisplayData;
+
+      private TransformedDisplayData(OverlayDisplayData overlayDisplayData) {
+         this.overlayDisplayData = overlayDisplayData;
       }
 
       @Override
-      public final void draw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          transform(g2d);
-         transformedDraw(g2d);
+         overlayDisplayData.draw(g2d);
       }
-
-      protected abstract void transformedDraw(Graphics2D g2d);
 
       private void transform(Graphics2D g2d) {
          if (mapModule.getGeoZoom() == geoZoom) {
@@ -52,6 +56,21 @@ public abstract class BaseMapOverlay extends BaseModuleOverlay {
          Rectangle2D pixRect = mapModule.getGeoTransform().geoToPix(geoZoom.getGeoRect());
          g2d.translate(pixRect.getX(), pixRect.getY());
          g2d.scale(pixRect.getWidth() / geoZoom.width, pixRect.getHeight() / geoZoom.height);
+      }
+
+      @Override
+      public void drawText(Graphics2D g2d) {
+         overlayDisplayData.drawText(g2d);
+      }
+
+      @Override
+      public boolean intersects(Rectangle2D rectangle) {
+         return overlayDisplayData.intersects(rectangle);
+      }
+
+      @Override
+      public OverlayDisplayData getOverlayDisplayData() {
+         return overlayDisplayData;
       }
    }
 }

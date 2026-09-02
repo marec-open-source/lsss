@@ -5,6 +5,7 @@ import org.dom4j.Document;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * General purpose XML datagram.
@@ -14,14 +15,14 @@ public final class Xml0Datagram extends DatagramPingItem {
 
    private final Document document;
 
-   public Xml0Datagram(long ntDate, Document document) {
-      super(ntDate);
+   public Xml0Datagram(Instant instant, Document document) {
+      super(instant);
 
       this.document = document;
    }
 
-   public Xml0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Xml0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       int originalLimit = byteBuffer.limit();
       int newLimit = originalLimit;

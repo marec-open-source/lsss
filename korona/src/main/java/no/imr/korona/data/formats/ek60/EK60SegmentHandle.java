@@ -8,6 +8,7 @@ import no.imr.korona.data.track.SegmentData;
 import no.imr.korona.data.track.SegmentHandle;
 import no.imr.korona.data.track.SegmentInfo;
 import no.imr.korona.data.util.NoticeHandler;
+import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.io.FileUtils;
 
@@ -56,13 +57,18 @@ public final class EK60SegmentHandle extends SegmentHandle {
    @Override
    public SegmentData createSegmentData(NoticeHandler noticeHandler, AsyncHandle asyncHandle) throws IOException {
       RawFile rawFile = new RawFile(ek60FileSet.getRaw(), EndOfInputHandler.noWait(), datagramTypeManager);
-      IdxFile idxFile = IdxFile.load(ek60FileSet.getIdx(), datagramTypeManager, noticeHandler);
-      BotFile botFile = BotFile.load(ek60FileSet.getBot(), idxFile, datagramTypeManager, noticeHandler);
-      return new EK60SegmentData(
-            rawFile,
-            idxFile.idx0Datagrams(), idxFile.otherPingItems(), idxFile.wrapAround(),
-            botFile.bot0Datagrams()
-      );
+      try {
+         IdxFile idxFile = IdxFile.load(ek60FileSet.getIdx(), datagramTypeManager, noticeHandler);
+         BotFile botFile = BotFile.load(ek60FileSet.getBot(), idxFile, datagramTypeManager, noticeHandler);
+         return new EK60SegmentData(
+               rawFile,
+               idxFile.idx0Datagrams(), idxFile.otherPingItems(), idxFile.wrapAround(),
+               botFile.bot0Datagrams()
+         );
+      } catch (Exception e) {
+         Utils.closeOrSuppress(e, rawFile);
+         throw e;
+      }
    }
 
    @Override

@@ -1,13 +1,11 @@
 package no.imr.lsss.modules.echogram.overlays;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.region.Region;
 import no.imr.lsss.database.tables.hibernate.AcousticCategory;
-import no.imr.lsss.database.util.DatabaseTime;
 import no.imr.lsss.framework.BaseSystemFeaturePlugin;
 import no.imr.lsss.modules.ModuleInfo;
 import no.imr.lsss.modules.OverlayDisplayData;
@@ -31,6 +29,7 @@ import no.imr.tools.swing.ColorUtils;
 import no.imr.tools.swing.GuiListeners;
 import no.imr.tools.swing.GuiText;
 import no.imr.tools.swing.GuiUtils;
+import no.imr.tools.time.TimeUtils;
 import no.marec.lsss.api.util.parameters.ValueConstraints;
 import org.jspecify.annotations.Nullable;
 
@@ -42,9 +41,9 @@ import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.geom.Path2D;
 import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -312,8 +311,8 @@ public final class VerticalLineOverlay extends BaseEchogramOverlay {
             colorSa = Color.BLACK;
             colorSl = Color.BLACK;
          } else {
-            colorSa = ColorUtils.MOCASSIN;
-            colorSl = ColorUtils.MOCASSIN;
+            colorSa = ColorUtils.MOCCASIN;
+            colorSl = ColorUtils.MOCCASIN;
          }
 
          PingIndex fromPingIndex = visibleRange.begin();
@@ -394,10 +393,10 @@ public final class VerticalLineOverlay extends BaseEchogramOverlay {
             ImmutableSet<String> labels = region.getLabels();
             if (!labels.isEmpty()) {
                if (textOverlapReducer.canAddText(x, y)) {
-                  texts.add(new GuiText(Joiner.on(", ").join(labels), colorSa, x, y,
+                  texts.add(new GuiText(String.join(", ", labels), colorSa, x, y,
                         GuiText.HorizontalAlignment.RIGHT, GuiText.VerticalAlignment.TOP, null));
                }
-               //y += saTextFontHeight;
+               // No need to increase y since this is the last block.
             }
          }
       }
@@ -427,45 +426,29 @@ public final class VerticalLineOverlay extends BaseEchogramOverlay {
 
    private void addTimeTexts(List<PingIndex> lineIndices, List<GuiText> texts, float y, Rectangle bounds) {
       boolean useSecond = getInterpretationSettings().getPingRange().getSeconds() / (lineIndices.size() + 1) < 60;
+      ChronoUnit roundingUnit = useSecond ? ChronoUnit.SECONDS : ChronoUnit.MINUTES;
 
-      DateTimeFormatter dateFormat = Utils.createUTCDateTimeFormatter("yyyy.MM.dd");
-      DateTimeFormatter timeFormat = Utils.createUTCDateTimeFormatter(useSecond ? "HH:mm:ss" : "HH:mm");
+      DateTimeFormatter dateFormat = TimeUtils.createUTCDateTimeFormatter("yyyy.MM.dd");
+      DateTimeFormatter timeFormat = TimeUtils.createUTCDateTimeFormatter(useSecond ? "HH:mm:ss" : "HH:mm");
 
       float dateY = y - distanceTextFontHeight;
 
-      DatabaseTime previousDatabaseTime = null;
+      LocalDate previousLocalDate = null;
 
       for (PingIndex pingIndex : lineIndices) {
          float x = getPingSettings().pingIndexToX(pingIndex);
 
-         long timeInMillis = pingIndex.getTimeInMillis();
-         if (useSecond) {
-            // Round to the nearest second.
-            long millis = timeInMillis % 1000;
-            timeInMillis -= millis;
-            if (millis >= 500) {
-               timeInMillis += 1000;
-            }
-         } else {
-            // Round to the nearest minute.
-            ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneOffset.UTC);
-            int millis = 1000 * dateTime.getSecond() + dateTime.getNano() / 1_000_000;
-            timeInMillis -= millis;
-            if (millis >= 30_000) {
-               timeInMillis += 60_000;
-            }
-         }
-         Instant date = Instant.ofEpochMilli(timeInMillis);
-         String timeString = timeFormat.format(date);
+         Instant instant = TimeUtils.roundedTo(pingIndex.getInstant(), roundingUnit);
+         String timeString = timeFormat.format(instant);
 
-         DatabaseTime nextDatabaseTime = new DatabaseTime(timeInMillis);
-         if (previousDatabaseTime == null || previousDatabaseTime.getDate() != nextDatabaseTime.getDate()) {
-            texts.add(new GuiText(dateFormat.format(date), Color.BLACK, x, dateY,
+         LocalDate localDate = LocalDate.ofInstant(instant, dateFormat.getZone());
+         if (previousLocalDate == null || !previousLocalDate.equals(localDate)) {
+            texts.add(new GuiText(dateFormat.format(instant), Color.BLACK, x, dateY,
                   GuiText.HorizontalAlignment.CENTER, GuiText.VerticalAlignment.BOTTOM, bounds));
 
             timeString += " UTC";
          }
-         previousDatabaseTime = nextDatabaseTime;
+         previousLocalDate = localDate;
 
          texts.add(new GuiText(timeString, Color.BLACK, x, y,
                GuiText.HorizontalAlignment.CENTER, GuiText.VerticalAlignment.BOTTOM, bounds));
@@ -482,7 +465,7 @@ public final class VerticalLineOverlay extends BaseEchogramOverlay {
       }
    }
 
-   private final class DisplayData extends OverlayDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private final Path2D.Float longPath = new Path2D.Float();
       private final Path2D.Float normalPath = new Path2D.Float();
       private final Path2D.Float nearPath = new Path2D.Float();

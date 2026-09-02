@@ -82,6 +82,9 @@ public final class ArrayMath {
    }
 
    public static int maxIndex(float[] values) {
+      if (values.length == 0) {
+         throw new IllegalArgumentException();
+      }
       float maxValue = values[0];
       int maxValueIndex = 0;
       for (int i = 1; i < values.length; i++) {
@@ -103,7 +106,8 @@ public final class ArrayMath {
       }
    }
 
-   public static double[] fourierResample(double[] values, int newLength) {
+   private static double[] fourierResampleInternal(double[] values, int newLength) {
+      // Assumes values is a copy that can be modified.
       int initialLength = values.length;
       if (initialLength == 0) {
          return values;
@@ -117,8 +121,12 @@ public final class ArrayMath {
       return values;
    }
 
+   public static double[] fourierResample(double[] values, int newLength) {
+      return fourierResampleInternal(values.clone(), newLength);
+   }
+
    public static float[] fourierResample(float[] values, int newLength) {
-      return Utils.toFloats(fourierResample(Utils.toDoubles(values), newLength));
+      return Utils.toFloats(fourierResampleInternal(Utils.toDoubles(values), newLength));
    }
 
    public static float[] resample(float[] values, int newLength) {
@@ -126,11 +134,15 @@ public final class ArrayMath {
    }
 
    public static float[] resample(float[] values, double beginIndex, double endIndex, int newLength) {
-      if (beginIndex < 0 || endIndex > values.length || beginIndex > endIndex) {
+      if (values.length == 0 || beginIndex < 0 || endIndex > values.length || beginIndex > endIndex) {
          throw new IllegalArgumentException(values.length + ", " + beginIndex + ", " + endIndex);
       }
       float[] newValues = new float[newLength];
       double delta = (endIndex - beginIndex) / newLength;
+      if (delta == 0) {
+         Arrays.fill(newValues, values[Math.min((int) beginIndex, values.length - 1)]);
+         return newValues;
+      }
       for (int newIndex = 0; newIndex < newLength; newIndex++) {
          double iBeginAsDouble = beginIndex + newIndex * delta;
          double iEndAsDouble = beginIndex + (newIndex + 1) * delta;
@@ -192,16 +204,20 @@ public final class ArrayMath {
    }
 
    public static double sum(double[] values) {
+      return sum(values, 0, values.length);
+   }
+
+   public static double sum(double[] values, int iBegin, int iEnd) {
       double sum = 0;
-      for (double value : values) {
-         sum += value;
+      for (int i = iBegin; i < iEnd; i++) {
+         sum += values[i];
       }
       return sum;
    }
 
    public static float sqSum(float[] values) {
       double sum = 0;
-      for (float value : values) {
+      for (double value : values) {
          sum += value * value;
       }
       return (float) sum;
@@ -237,8 +253,8 @@ public final class ArrayMath {
       return (float) sum(values, iBegin, iEnd) / (iEnd - iBegin);
    }
 
-   public static float mean(int[] values) {
-      return (float) sum(values) / values.length;
+   public static float mean(int[] values, int iBegin, int iEnd) {
+      return (float) sum(values, iBegin, iEnd) / (iEnd - iBegin);
    }
 
    public static float mean(float[] values) {
@@ -246,6 +262,9 @@ public final class ArrayMath {
    }
 
    public static float mean(float[] values, int iBegin, int iEnd) {
+      if (iBegin == iEnd) {
+         return Float.NaN;
+      }
       int count = 0;
       double m = 0;
       for (int i = iBegin; i < iEnd; i++) {
@@ -274,7 +293,7 @@ public final class ArrayMath {
 
    public static void round(float[] values, float roundingFactor) {
       for (int i = 0; i < values.length; i++) {
-         values[i] = Utils.round(values[i], roundingFactor);
+         values[i] = MathUtils.round(values[i], roundingFactor);
       }
    }
 

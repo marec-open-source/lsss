@@ -131,7 +131,7 @@ final class KoronaExperimentationView extends BaseViewModule.BaseView {
       try {
          moduleContainer = preprocessingSetup.createModuleContainer();
       } catch (IOException e) {
-         lsss.showError(mainPanel, "Error processing loading module setup", e);
+         lsss.showError(mainPanel, "Error loading module setup", e);
          return;
       }
 

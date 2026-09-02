@@ -120,7 +120,7 @@ public final class TrackCategorizationModule extends SimplePingModule {
             categoryDatas = pixel.getAcceptableCategoryDatas();
          }
 
-         Cat0Datagram cat0Datagram = new Cat0Datagram(ping.getNTDate(), categoryDatas.size(), tnf0Datagram.getId());
+         Cat0Datagram cat0Datagram = new Cat0Datagram(ping.getInstant(), categoryDatas.size(), tnf0Datagram.getId());
          categoryDatas.sort(null);
          int priority = 0;
          for (CategoryData categoryData : categoryDatas) {

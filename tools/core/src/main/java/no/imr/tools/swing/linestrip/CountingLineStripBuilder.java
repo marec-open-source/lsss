@@ -3,7 +3,7 @@ package no.imr.tools.swing.linestrip;
 import no.marec.lsss.api.util.LineStripBuilder;
 
 /**
- * Coalesces subsequent line segments with equal slope.
+ * Counts the number of points added.
  */
 public final class CountingLineStripBuilder implements LineStripBuilder {
    private final LineStripBuilder lineStripBuilder;

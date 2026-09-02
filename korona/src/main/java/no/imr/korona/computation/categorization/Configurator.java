@@ -35,6 +35,7 @@ import org.jspecify.annotations.Nullable;
 import java.awt.Color;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -265,12 +266,12 @@ public final class Configurator implements ParameterContainer {
    /**
     * Creates a categorization configuration datagram.
     *
-    * @param ntDate               time
+    * @param instant              time
     * @param includeAllCategories if true, also disabled categories are included
     * @return the Cac0Datagram corresponding to the settings in this Configurator
     */
-   public Cac0Datagram createCac0Datagram(long ntDate, boolean includeAllCategories) {
-      Cac0Datagram cac0Datagram = new Cac0Datagram(ntDate);
+   public Cac0Datagram createCac0Datagram(Instant instant, boolean includeAllCategories) {
+      Cac0Datagram cac0Datagram = new Cac0Datagram(instant);
       for (Category category : getCategories()) {
          if (category.isActive() || includeAllCategories) {
             cac0Datagram.addCategory(category);
@@ -281,7 +282,7 @@ public final class Configurator implements ParameterContainer {
 
    private Cac0Datagram possiblyCreateNewCac0Datagram(BaseModule module, PingConfiguration pingConfiguration, @Nullable Cac0Datagram cac0Datagram) throws ModuleConfigurationException {
       if (cac0Datagram == null || !containsAllCategories(cac0Datagram.getCategories())) {
-         return createCac0Datagram(pingConfiguration.getRawFileConfiguration().getNTDate(), false);
+         return createCac0Datagram(pingConfiguration.getRawFileConfiguration().getInstant(), false);
       }
 
       Cac0Datagram copy = null;

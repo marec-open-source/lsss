@@ -1,7 +1,5 @@
 package no.imr.korona.computation.convolution;
 
-import java.util.function.IntPredicate;
-
 public final class VerticalConvolution {
    private final ConvolutionKernel kernel;
 
@@ -54,10 +52,6 @@ public final class VerticalConvolution {
    }
 
    public void doConvolution(float sampleDistance, float[] input, float[] output, boolean[] mask) {
-      doConvolution(sampleDistance, input, output, i -> mask[i]);
-   }
-
-   public void doConvolution(float sampleDistance, float[] input, float[] output, IntPredicate mask) {
       if (weightsSampleDistance != sampleDistance) {
          makeWeights(sampleDistance);
       }
@@ -73,18 +67,18 @@ public final class VerticalConvolution {
       }
 
       for (int i = 0; i < m; i++) {
-         if (mask.test(i)) {
+         if (mask[i]) {
             float[] w = weightsSurface[i];
             double sum = 0;
             double sumWeights = 0;
-            for (int j = 0; j < w.length; j++) {
-               int k = j;
-               if (mask.test(k)) {
+            for (int j = 0, k = 0; j < w.length; j++, k++) {
+               if (mask[k]) {
                   float weight = w[j];
                   sumWeights += weight;
                   sum += weight * input[k];
                }
             }
+            // sumWeights includes w[i] and is therefore > 0.
             output[i] = (float) (sum / sumWeights);
          } else {
             output[i] = input[i];
@@ -94,17 +88,17 @@ public final class VerticalConvolution {
       {
          float[] w = weightsMiddle;
          for (int i = m; i < length - n; i++) {
-            if (mask.test(i)) {
+            if (mask[i]) {
                double sum = 0;
                double sumWeights = 0;
-               for (int j = 0; j < w.length; j++) {
-                  int k = i - m + j;
-                  if (mask.test(k)) {
+               for (int j = 0, k = i - m; j < w.length; j++, k++) {
+                  if (mask[k]) {
                      float weight = w[j];
                      sumWeights += weight;
                      sum += weight * input[k];
                   }
                }
+               // sumWeights includes w[i] and is therefore > 0.
                output[i] = (float) (sum / sumWeights);
             } else {
                output[i] = input[i];
@@ -113,18 +107,18 @@ public final class VerticalConvolution {
       }
 
       for (int i = length - n; i < length; i++) {
-         if (mask.test(i)) {
+         if (mask[i]) {
             float[] w = weightsBottom[i - (length - n)];
             double sum = 0;
             double sumWeights = 0;
-            for (int j = 0; j < w.length; j++) {
-               int k = i - m + j;
-               if (mask.test(k)) {
+            for (int j = 0, k = i - m; j < w.length; j++, k++) {
+               if (mask[k]) {
                   float weight = w[j];
                   sumWeights += weight;
                   sum += weight * input[k];
                }
             }
+            // sumWeights includes w[i] and is therefore > 0.
             output[i] = (float) (sum / sumWeights);
          } else {
             output[i] = input[i];

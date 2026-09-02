@@ -1,8 +1,7 @@
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {ConfigService} from './config.service';
 
 @Component({
-   changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-footer',
    templateUrl: './footer.component.html',
    styleUrl: './footer.component.scss',

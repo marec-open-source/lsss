@@ -45,10 +45,6 @@ import java.util.List;
 import java.util.Map;
 
 public final class SvDistributionModule extends BaseViewModule implements PojoDataContainer {
-   // These values define the histogram.
-   // Cell i has range ( MIN_LOG_SV + (i - 1) * DELTA_LOG_SV, MIN_LOG_SV + (i - 1) * DELTA_LOG_SV ]
-   // except for the leftmost cell, i = 0, that has range (-inf, MIN_LOG_SV]
-   // dB values higher than MAX_LOG_SV are ignored.
 
    static final float MIN_LOG_SV = -220;
    private static final float MAX_LOG_SV = -5;

@@ -12,6 +12,7 @@ import no.imr.tools.Utils;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.swing.GuiListeners;
 import no.imr.tools.swing.WhenShowingListening;
+import no.imr.tools.time.TimeUtils;
 import no.imr.tools.visualizer.ItemContainer;
 import no.imr.tools.visualizer.ItemFeature;
 import no.imr.tools.visualizer.ItemVisualizer;
@@ -52,7 +53,7 @@ public final class SchoolVisualizerDialog implements ItemContainer<School> {
             .map(parameter -> createSchoolParameterFeature(parameter, perChannelParameters))
             .forEach(features::add);
 
-      features.add(ItemFeature.Time.fromMillis("Time", Unit.UTC, school -> school.getPingRange().begin().getTimeInMillis(), Utils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss")));
+      features.add(ItemFeature.Time.fromInstant("Time", Unit.UTC, school -> school.getPingRange().begin().getInstant(), TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss")));
 
       lsss.getConfigurationManager().getSurveyConfiguration().getAcousticCategoryConf().getSelectedCategories().stream()
             .map(this::createAssignmentFeature)

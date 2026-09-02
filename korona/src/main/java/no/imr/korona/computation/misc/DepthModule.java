@@ -33,11 +33,6 @@ public final class DepthModule extends SimplePingModule {
          Algorithm.EK500, Algorithm.values(),
          "The algorithm to be used in the bottom calculation");
 
-   public final FloatParameter minDepthLimit = new FloatParameter(
-         new Name("MinDepthLimit", "Min depth limit"),
-         10, Unit.METER, ValueConstraints.gte(0f),
-         "The maximal distance above bottom accepted as the minimal bottom distance");
-
    public final FloatParameter minDepthValueFraction = new FloatParameter(
          new Name("MinDepthValueFraction", "Min depth value fraction = \"Backstep\""),
          0.001f, Unit.DIMENSIONLESS, ValueConstraints.gt(0f),
@@ -47,11 +42,6 @@ public final class DepthModule extends SimplePingModule {
          new Name("SignalStrengthThreshold", "Signal strength threshold"),
          -31, Unit.DB,
          "The detected bottom must have signal strength larger than this value");
-
-   public final FloatParameter minimumDepthThresholdFactor = new FloatParameter(
-         new Name("MinimumDepthThresholdFactor", "Minimum depth threshold factor"),
-         0.99f, Unit.DIMENSIONLESS, ValueConstraints.gte(0f),
-         "Shallowest acceptable depth relative to max depth");
 
    public final FloatParameter maxRangeFactor = new FloatParameter(
          new Name("MaxRangeFactor", "Max range factor"),
@@ -63,6 +53,11 @@ public final class DepthModule extends SimplePingModule {
          true,
          "Always try to detect bottom even if echosounder has zero bottom at all frequencies");
 
+   public final BooleanParameter useExistingBottom = new BooleanParameter(
+         new Name("UseExistingBottom", "Use existing bottom detections, if available"),
+         false,
+         "Use existing bottom if available");
+
    public final BooleanParameter keepBottomDeeperThanData = new BooleanParameter(
          new Name("KeepBottomDeeperThanData", "Keep bottom deeper than data"),
          false,
@@ -71,12 +66,12 @@ public final class DepthModule extends SimplePingModule {
    public final FloatParameter minBottomDepth = new FloatParameter(
          new Name("MinBottomDepth", "Minimum bottom depth"),
          0, Unit.METER, ValueConstraints.gte(0f),
-         "The detected bottom must be minimum this value");
+         "The detected bottom must be at least this value");
 
    public final FloatParameter maxBottomDepth = new FloatParameter(
          new Name("MaxBottomDepth", "Maximum bottom depth"),
          9999, Unit.METER, ValueConstraints.gte(0f),
-         "The detected bottom must be maximum this value");
+         "The detected bottom must be at most this value");
 
    private final HeaderParameter coordinatedBottomHeader = new HeaderParameter(
          "To be used in subsequent KORONA modules to find coordinated bottom");
@@ -101,6 +96,16 @@ public final class DepthModule extends SimplePingModule {
          List.of(), Unit.KHZ,
          "Comma-separated list of frequencies to not use");
 
+   public final FloatParameter minimumDepthThresholdFactor = new FloatParameter(
+         new Name("MinimumDepthThresholdFactor", "Minimum depth threshold factor"),
+         0.99f, Unit.DIMENSIONLESS, ValueConstraints.gte(0f),
+         "Shallowest acceptable depth relative to max depth");
+
+   public final FloatParameter minimumDepthThresholdDistance = new FloatParameter(
+         new Name("MinimumDepthThresholdDistance", "Minimum depth threshold distance"),
+         10, Unit.METER, ValueConstraints.gte(0f),
+         "The maximum acceptable distance above the max depth");
+
    public final FloatParameter coordinatedBottomOffset = new FloatParameter(
          new Name("CoordinatedBottomOffset", "Coordinated bottom offset"),
          0, Unit.METER,
@@ -116,12 +121,11 @@ public final class DepthModule extends SimplePingModule {
             comment,
             //---
             algorithm,
-            minDepthLimit,
             minDepthValueFraction,
             signalStrengthThreshold,
-            minimumDepthThresholdFactor,
             maxRangeFactor,
             forceDetection,
+            useExistingBottom,
             keepBottomDeeperThanData,
             minBottomDepth,
             maxBottomDepth,
@@ -131,6 +135,8 @@ public final class DepthModule extends SimplePingModule {
             minKHz,
             maxKHz,
             doNotUseKHz,
+            minimumDepthThresholdFactor,
+            minimumDepthThresholdDistance,
             coordinatedBottomOffset
       );
    }

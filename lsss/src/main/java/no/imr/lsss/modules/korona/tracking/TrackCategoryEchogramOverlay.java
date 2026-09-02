@@ -71,7 +71,7 @@ public final class TrackCategoryEchogramOverlay extends BaseEchogramOverlay {
             .map(this::toTrack)
             .filter(Objects::nonNull)
             .toList();
-      return new DisplayData(tracks);
+      return transformed(new DisplayData(tracks));
    }
 
    private TrackCategoryEchogramOverlay.@Nullable ColoredTrack toTrack(TrackInfo trackInfo) {
@@ -105,15 +105,9 @@ public final class TrackCategoryEchogramOverlay extends BaseEchogramOverlay {
    private record ColoredTrack(Paint paint, Path2D.Float path) {
    }
 
-   private final class DisplayData extends TransformedDisplayData {
-      private final List<ColoredTrack> tracks;
-
-      private DisplayData(List<ColoredTrack> tracks) {
-         this.tracks = tracks;
-      }
-
+   private record DisplayData(List<ColoredTrack> tracks) implements OverlayDisplayData {
       @Override
-      public void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          for (ColoredTrack track : tracks) {
             g2d.setPaint(track.paint);
             g2d.fill(track.path);

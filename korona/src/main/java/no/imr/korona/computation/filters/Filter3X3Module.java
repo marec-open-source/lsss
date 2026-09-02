@@ -5,9 +5,9 @@ import no.imr.korona.computation.BaseMatrixModuleComputation;
 import no.imr.korona.computation.ComputationContext;
 import no.imr.korona.data.ping.PingSource;
 import no.imr.tools.UnionList;
-import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.math.ArrayMath;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.FloatParameter;
 import no.imr.tools.parameter.Name;
@@ -136,7 +136,7 @@ public final class Filter3X3Module extends BaseMatrixModule {
 
          float returnValue = (float) res;
          if (Float.isInfinite(returnValue)) {
-            returnValue = Utils.avoidInfinity(returnValue);
+            returnValue = MathUtils.avoidInfinity(returnValue);
             Log.global.warning("Filter3x3Module: Clamped infinite value.");
          }
          return returnValue;

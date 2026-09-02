@@ -130,6 +130,9 @@ public final class Graph {
 
    public void smooth() {
       int n = points.size();
+      if (n < 2) {
+         return;
+      }
       List<Vec2> newPoints = new ArrayList<>(n);
       newPoints.add(points.getFirst());
       for (int i = 1; i < n - 1; i++) {

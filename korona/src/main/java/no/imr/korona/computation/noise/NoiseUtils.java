@@ -8,6 +8,7 @@ import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.math.Median;
 import no.imr.tools.time.DateTimeMillis;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -21,7 +22,6 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public final class NoiseUtils {
    public static final String MEDIAN_NOISE_SUBFOLDER = "medianNoiseHistory";
@@ -49,23 +49,23 @@ public final class NoiseUtils {
    }
 
    private static Instant parseTimeDate(String fileName) throws ParseException {
-      String[] filenameParts = fileName.split("[_.]");
+      String[] fileNameParts = fileName.split("[_.]");
       String dateString = "NaN";
       String timeString = "NaN";
-      for (String filenamePart : filenameParts) {
-         if (filenamePart.startsWith("D") && filenamePart.length() > 1) {
-            dateString = filenamePart.substring(1);
-         } else if (filenamePart.startsWith("T") && filenamePart.length() > 1) {
-            timeString = filenamePart.substring(1);
+      for (String fileNamePart : fileNameParts) {
+         if (fileNamePart.startsWith("D") && fileNamePart.length() > 1) {
+            dateString = fileNamePart.substring(1);
+         } else if (fileNamePart.startsWith("T") && fileNamePart.length() > 1) {
+            timeString = fileNamePart.substring(1);
          }
       }
       if (dateString.equals("NaN")) {
-         throw new ParseException("Could not find date from filename " + fileName, 0);
+         throw new ParseException("Could not find date from file name " + fileName, 0);
       }
       if (timeString.equals("NaN")) {
-         throw new ParseException("Could not find time from filename " + fileName, 0);
+         throw new ParseException("Could not find time from file name " + fileName, 0);
       }
-      DateTimeFormatter dateTimeFormatter = Utils.createUTCDateTimeFormatter("yyyyMMddHHmmss");
+      DateTimeFormatter dateTimeFormatter = TimeUtils.createUTCDateTimeFormatter("yyyyMMddHHmmss");
 
       return dateTimeFormatter.parse(dateString + timeString, Instant::from);
    }
@@ -76,12 +76,12 @@ public final class NoiseUtils {
       return files;
    }
 
-   public static @Nullable Path findClosestNoiseFileBefore(long timeInMillis, List<Path> fileList) {
-      NavigableMap<Long, Path> timeToFileMap = new TreeMap<>();
+   public static @Nullable Path findClosestNoiseFileBefore(Instant time, List<Path> fileList) {
+      NavigableMap<Instant, Path> timeToFileMap = new TreeMap<>();
       for (Path file : fileList) {
          try {
             Instant instant = parseTimeDate(file.getFileName().toString());
-            timeToFileMap.put(instant.toEpochMilli(), file);
+            timeToFileMap.put(instant, file);
          } catch (ParseException e) {
             Log.global.warning("Could not parse time/date of " + file + ": " + e);
          }
@@ -89,12 +89,12 @@ public final class NoiseUtils {
       if (timeToFileMap.isEmpty()) {
          return null;
       }
-      long closestTimeBefore = timeToFileMap.firstKey();
-      for (Long time : timeToFileMap.keySet()) {
-         if (time > timeInMillis) {
+      Instant closestTimeBefore = timeToFileMap.firstKey();
+      for (Instant instant : timeToFileMap.keySet()) {
+         if (instant.isAfter(time)) {
             return timeToFileMap.get(closestTimeBefore);
          }
-         closestTimeBefore = time;
+         closestTimeBefore = instant;
       }
       return timeToFileMap.get(closestTimeBefore);
    }
@@ -158,7 +158,7 @@ public final class NoiseUtils {
    }
 
    static Path getDayNoiseFile(Path noiseDir, RawFileConfiguration rawFileConfiguration, String filePrefix) {
-      DateTimeMillis dateTime = new DateTimeMillis(rawFileConfiguration.getTimeInMillis());
+      DateTimeMillis dateTime = new DateTimeMillis(rawFileConfiguration.getInstant());
       int date = dateTime.getDate();
       return noiseDir.resolve(filePrefix).resolve(filePrefix + "_D" + date + ".xml");
    }
@@ -176,7 +176,7 @@ public final class NoiseUtils {
    }
 
    static Path getPerFileNoiseFile(Path noiseDir, RawFileConfiguration rawFileConfiguration) {
-      DateTimeMillis dateTime = new DateTimeMillis(rawFileConfiguration.getTimeInMillis());
+      DateTimeMillis dateTime = new DateTimeMillis(rawFileConfiguration.getInstant());
       int date = dateTime.getDate();
       String time = Utils.format("%06d", dateTime.getTime() / 1000);
       return getNoiseFile(noiseDir.resolve(FILE_NOISE_FILE_PREFIX), FILE_NOISE_FILE_PREFIX + "_D" + date + "_T" + time);
@@ -190,13 +190,13 @@ public final class NoiseUtils {
       List<Path> files = FileUtils.listFiles(dir, predicate);
       return files.stream()
             .map(PerChannelNoiseFile::new)
-            .collect(Collectors.toList());
+            .toList();
    }
 
    static Predicate<Path> dayFilePredicate(RawFileConfiguration rawFileConfiguration) {
       // A predicate for accepting all file-noise files corresponding to a given day.
       int dateStart = (FILE_NOISE_FILE_PREFIX + "_D").length();
-      DateTimeMillis dateTime = new DateTimeMillis(rawFileConfiguration.getTimeInMillis());
+      DateTimeMillis dateTime = new DateTimeMillis(rawFileConfiguration.getInstant());
       String dateString = Integer.toString(dateTime.getDate());
       return file -> {
          String name = file.getFileName().toString();

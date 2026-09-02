@@ -25,15 +25,15 @@ final class PingIndexCorrectionFilterTest {
    private static void check(PingIndexCorrectionOptions pingIndexCorrectionOptions) throws IOException {
       ConstantSyntheticData syntheticData = new ConstantSyntheticData() {
          @Override
-         protected void addOtherDatagrams(PingIndex pingIndex, PingData pingData) {
+         public void addOtherDatagrams(PingIndex pingIndex, PingData pingData) {
             switch ((int) pingIndex.getPingNumber()) {
                case 1 -> {
-                  pingData.add(new NmeaPingItem(pingIndex.getNTDate(), "$GPVTG,090,T,094,M,1.01,N,20.7,K,D"));
-                  pingData.add(new NmeaPingItem(pingIndex.getNTDate(), "$GPGGA,042822,6100.2300,N,00207.0613,E,2,06,01.9,30.7,M,46.1,M,07.0,0685"));
+                  pingData.add(new NmeaPingItem(pingIndex.getInstant(), "$GPVTG,090,T,094,M,1.01,N,20.7,K,D"));
+                  pingData.add(new NmeaPingItem(pingIndex.getInstant(), "$GPGGA,042822,6100.2300,N,00207.0613,E,2,06,01.9,30.7,M,46.1,M,07.0,0685"));
                }
                case 2 -> {
-                  pingData.add(new NmeaPingItem(pingIndex.getNTDate(), "$GPVTG,090,T,094,M,2.01,N,20.7,K,D"));
-                  pingData.add(new NmeaPingItem(pingIndex.getNTDate(), "$GPGGA,042822,6100.2311,N,00207.0617,E,2,06,01.9,30.7,M,46.1,M,07.0,0685"));
+                  pingData.add(new NmeaPingItem(pingIndex.getInstant(), "$GPVTG,090,T,094,M,2.01,N,20.7,K,D"));
+                  pingData.add(new NmeaPingItem(pingIndex.getInstant(), "$GPGGA,042822,6100.2311,N,00207.0617,E,2,06,01.9,30.7,M,46.1,M,07.0,0685"));
                }
                default -> {
                   fail(pingIndex.toString());

@@ -76,8 +76,8 @@ public class FileParameter extends OptionalParameter<Path> {
       Path file = getFile();
       if (file != null) {
          FileUtils.createDirectories(file);
+         notifyListeners();
       }
-      notifyListeners();
    }
 
    public void setReferenceDirectoryManager(ReferenceDirectoryManager referenceDirectoryManager) {
@@ -173,8 +173,8 @@ public class FileParameter extends OptionalParameter<Path> {
       return fileChooser;
    }
 
-   public void applyFileChooser(JFileChooser fileChooser) {
-      setFile(fileChooser.getSelectedFile().toPath());
+   public void applyFileChooserResult(Path selectedFile) {
+      setFile(selectedFile);
    }
 
    public @Nullable Consumer<JPopupMenu> getPopupMenuExtender() {
@@ -256,20 +256,31 @@ public class FileParameter extends OptionalParameter<Path> {
          fileChooser.setSelectedFile(currentFile.toFile());
          fileChooser.setDialogTitle(copy ? "Copy" : "Move");
          int returnVal = fileChooser.showSaveDialog(referenceComponent);
-         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            Path selectedFile = fileChooser.getSelectedFile().toPath();
-            if (!currentFile.equals(selectedFile)) {
-               try {
-                  if (copy) {
-                     FileUtils.copy(currentFile, selectedFile);
-                  } else {
-                     FileUtils.move(currentFile, selectedFile);
-                  }
-                  fileParameter.setFile(selectedFile);
-               } catch (IOException e) {
-                  GuiUtils.showErrorDialog(referenceComponent, "Error " + (copy ? "copying" : "moving") + " " + currentFile + "\nto " + selectedFile, e);
-               }
+         if (returnVal != JFileChooser.APPROVE_OPTION) {
+            return;
+         }
+         Path selectedFile = fileChooser.getSelectedFile().toPath();
+         if (currentFile.equals(selectedFile)) {
+            return;
+         }
+         if (Files.exists(selectedFile)) {
+            int overwriteAnswer = GuiUtils.showOptionDialog(referenceComponent, "Overwrite",
+                  "Overwrite existing file?\n"
+                        + selectedFile,
+                  new String[]{"Overwrite", "Cancel"});
+            if (overwriteAnswer != 0) {
+               return;
             }
+         }
+         try {
+            if (copy) {
+               FileUtils.copy(currentFile, selectedFile);
+            } else {
+               FileUtils.move(currentFile, selectedFile);
+            }
+            fileParameter.setFile(selectedFile);
+         } catch (IOException e) {
+            GuiUtils.showErrorDialog(referenceComponent, "Error " + (copy ? "copying" : "moving") + " " + currentFile + "\nto " + selectedFile, e);
          }
       }
    }

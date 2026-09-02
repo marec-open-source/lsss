@@ -9,7 +9,7 @@ public final class ToolsPreferences {
    }
 
    public static Preferences node(String name) {
-      return Preferences.userRoot().node("/no/marec/tools").node(name);
+      return Preferences.userRoot().node("no/marec/tools").node(name);
    }
 
    public static Preferences node(String name, ApplicationInfo applicationInfo) {

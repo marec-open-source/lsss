@@ -2,16 +2,17 @@ package no.imr.lsss.database.reports;
 
 import no.imr.lsss.LSSS;
 import no.imr.tools.Utils;
+import no.imr.tools.time.TimeUtils;
 
 import java.io.PrintWriter;
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 public final class ReportUtils {
-   public static final DateTimeFormatter DATE_TIME = Utils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss");
-   public static final DateTimeFormatter DATE = Utils.createUTCDateTimeFormatter("yyyy.MM.dd");
-   public static final DateTimeFormatter TIME = Utils.createUTCDateTimeFormatter("H:mm");
-   public static final DateTimeFormatter TIME_LONG = Utils.createUTCDateTimeFormatter("HH:mm:ss");
+   public static final DateTimeFormatter DATE_TIME = TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd HH:mm:ss");
+   public static final DateTimeFormatter DATE = TimeUtils.createUTCDateTimeFormatter("yyyy.MM.dd");
+   public static final DateTimeFormatter TIME = TimeUtils.createUTCDateTimeFormatter("H:mm");
+   public static final DateTimeFormatter TIME_LONG = TimeUtils.createUTCDateTimeFormatter("HH:mm:ss");
 
    private ReportUtils() {
    }
@@ -20,7 +21,7 @@ public final class ReportUtils {
       printWriter.println("% Lines starting with % are comments");
       printWriter.println("% The format of and definitions in this file may change in future versions of LSSS,"
             + " last changed in LSSS version " + formatSinceLsssVersion);
-      printWriter.println("% Export time: " + new Date() + ", LSSS version " + LSSS.VERSION);
+      printWriter.println("% Export time: " + TimeUtils.JAVA_UTIL_DATE_FORMATTER.format(Instant.now()) + ", LSSS version " + LSSS.VERSION);
       printWriter.println("%");
    }
 

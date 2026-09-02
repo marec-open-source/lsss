@@ -47,21 +47,23 @@ public final class ContextSensitiveHelp {
                component.setCursor(helpCursor);
             });
 
-      MouseEvent mouseEvent = new MouseEventGetter().getNextMouseEvent();
-      if (mouseEvent != null) {
-         if (mouseEvent.getSource() instanceof Component component) {
-            Component deepestComponent = SwingUtilities.getDeepestComponentAt(component, mouseEvent.getX(), mouseEvent.getY());
-            HelpID helpID = getHelpID(deepestComponent, mouseEvent);
-            if (helpID != null) {
-               helpID.show();
+      try {
+         MouseEvent mouseEvent = new MouseEventGetter().getNextMouseEvent();
+         if (mouseEvent != null) {
+            if (mouseEvent.getSource() instanceof Component component) {
+               Component deepestComponent = SwingUtilities.getDeepestComponentAt(component, mouseEvent.getX(), mouseEvent.getY());
+               HelpID helpID = getHelpID(deepestComponent, mouseEvent);
+               if (helpID != null) {
+                  helpID.show();
+               }
             }
          }
+      } finally {
+         originalCursors.forEach(Component::setCursor);
       }
-
-      originalCursors.forEach(Component::setCursor);
    }
 
-   private static @Nullable HelpID getHelpID(Component deepestComponent, MouseEvent mouseEvent) {
+   private static @Nullable HelpID getHelpID(@Nullable Component deepestComponent, MouseEvent mouseEvent) {
       for (Component component = deepestComponent; component != null; component = component.getParent()) {
          if (component instanceof JComponent jComponent) {
 

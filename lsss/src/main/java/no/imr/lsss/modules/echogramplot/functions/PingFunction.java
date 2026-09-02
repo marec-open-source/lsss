@@ -14,6 +14,8 @@ import no.marec.lsss.api.modules.EchogramPlotFunction;
 import no.marec.lsss.api.util.observing.ObservableProperty;
 import org.jfree.chart.plot.XYPlot;
 
+import java.time.Instant;
+
 public abstract class PingFunction implements EchogramPlotFunction {
    private final Name name;
    private final Unit unit;
@@ -69,7 +71,7 @@ public abstract class PingFunction implements EchogramPlotFunction {
 
    public abstract double compute(DataFileSet dataFileSet, Ping ping, int channel);
 
-   public float[] postprocess(float[] y, long[] timeInMillis, float[] bottom) {
+   public float[] postprocess(float[] y, Instant[] instants, float[] bottom) {
       return y;
    }
 

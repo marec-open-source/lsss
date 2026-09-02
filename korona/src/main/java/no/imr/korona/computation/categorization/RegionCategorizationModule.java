@@ -39,6 +39,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -114,7 +115,7 @@ public final class RegionCategorizationModule extends BaseBufferedPingModule {
    public final BooleanParameter enableUncategorizedCategory = new BooleanParameter(
          new Name("EnableUncategorizedCategory", "Enable the uncategorized category"),
          false,
-         "If enabled, the schools where it cannot be determined if they are single or multi species are set to this category. Otherwise no region category is given.");
+         "If enabled, the schools where it cannot be determined if they are single- or multi-species are set to this category. Otherwise no region category is given.");
 
    public final BooleanParameter enableUnknownCategory = new BooleanParameter(
          new Name("EnableUnknownCategory", "Enable the unknown category"),
@@ -184,7 +185,7 @@ public final class RegionCategorizationModule extends BaseBufferedPingModule {
       private final Map<GridCellKey, GridCellValue> gridCells = new HashMap<>();
       private int counter = 0;
 
-      private final List<Long> graphicalInfoNTDates = new ArrayList<>();
+      private final List<Instant> graphicalInfoInstants = new ArrayList<>();
 
       private final RegionBorderBufferList regionBorderBufferList = new RegionBorderBufferList();
 
@@ -237,7 +238,7 @@ public final class RegionCategorizationModule extends BaseBufferedPingModule {
          if (referenceDatagram == null) {
             return;
          }
-         if (Utils.hzToKHz(referenceDatagram.getFrequency()) != Utils.hzToKHz(configurator.getReferenceFrequency())) {
+         if (KoronaUtils.hzToKHz(referenceDatagram.getFrequency()) != KoronaUtils.hzToKHz(configurator.getReferenceFrequency())) {
             return;
          }
 
@@ -254,7 +255,7 @@ public final class RegionCategorizationModule extends BaseBufferedPingModule {
 
                ResampledFloatArray resampledFloatArray = ResampledFloatArray.create(powerData.getSv(), powerData, referenceDatagram);
 
-               int kHz = Utils.hzToKHz(powerData.getFrequency());
+               int kHz = KoronaUtils.hzToKHz(powerData.getFrequency());
                FeatureExtractor.FrequencyFeatureExtractor ffe = frequencyFeatureExtractorMap.get(kHz);
                // No need for the data if frequency extractor is null unless this is the reference channel
                if (ffe == null && channel != configurator.getReferenceChannel()) {
@@ -558,7 +559,7 @@ public final class RegionCategorizationModule extends BaseBufferedPingModule {
 
          PerPingAPriori perPingAPriori = null;
          for (RegionInfoDatagram regionInfoDatagram : ping.getPingItems(RegionInfoDatagram.class).toList()) {
-            GraphicalInfoSubDatagram graphicalInfoSubDatagram = new GraphicalInfoSubDatagram(ping.getNTDate());
+            GraphicalInfoSubDatagram graphicalInfoSubDatagram = new GraphicalInfoSubDatagram(ping.getInstant());
             PowerData referenceDatagram = ping.getPowerData(configurator.getReferenceChannel());
             if (perPingAPriori == null) {
                perPingAPriori = new PerPingAPriori(configurator, ping);
@@ -567,12 +568,12 @@ public final class RegionCategorizationModule extends BaseBufferedPingModule {
 
             if (!graphicalInfoSubDatagram.getGraphicalObjects().isEmpty()) {
                ping.add(graphicalInfoSubDatagram);
-               graphicalInfoNTDates.add(ping.getNTDate());
+               graphicalInfoInstants.add(ping.getInstant());
             }
             if (result != null) {
                //school is single species, and has been categorized as one.
                List<CategoryData> categoryDatas = result.getAcceptableCategoryDatas();
-               Cas0Datagram cas0 = new Cas0Datagram(ping.getNTDate(), categoryDatas.size(),
+               Cas0Datagram cas0 = new Cas0Datagram(ping.getInstant(), categoryDatas.size(),
                      regionInfoDatagram.getRegionId());
                categoryDatas.sort(null);
                int priority = 0;
@@ -585,7 +586,7 @@ public final class RegionCategorizationModule extends BaseBufferedPingModule {
          }
          counter++;
          if (ping.getPingItem(RegionTableOfContentsDatagram.class) != null) {
-            ping.add(new GraphicalInfoTocSubDatagram(ping.getNTDate(), Utils.toLongs(graphicalInfoNTDates)));
+            ping.add(new GraphicalInfoTocSubDatagram(ping.getInstant(), graphicalInfoInstants));
          }
       }
 
@@ -729,7 +730,7 @@ public final class RegionCategorizationModule extends BaseBufferedPingModule {
          private void mergeWith(GridCellValue otherGridCellValue) {
             for (Map.Entry<Integer, CellAveragedSv> entry : otherGridCellValue.gridAverages.entrySet()) {
                if (gridAverages.containsKey(entry.getKey())) {
-                  gridAverages.get(entry.getKey()).mergeWith(entry.getValue());
+                  gridAverages.get(entry.getKey()).update(entry.getValue());
                } else {
                   gridAverages.put(entry.getKey(), entry.getValue());
                }

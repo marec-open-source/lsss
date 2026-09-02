@@ -19,11 +19,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 class ColumnOrderOrderingStrategy implements ColumnOrderingStrategy {
-   private final Map<String, Class<? extends BaseDatabaseObject>> nameToClass;
+   private final Map<String, Class<? extends BaseDatabaseObject>> tableNameToClass;
 
    ColumnOrderOrderingStrategy(List<Class<? extends BaseDatabaseObject>> databaseClasses) {
-      nameToClass = databaseClasses.stream()
-            .collect(Collectors.toMap(Class::getSimpleName, Function.identity()));
+      tableNameToClass = databaseClasses.stream()
+            .collect(Collectors.toMap(DatabaseUtils::getTableName, Function.identity()));
    }
 
    @Override
@@ -37,14 +37,26 @@ class ColumnOrderOrderingStrategy implements ColumnOrderingStrategy {
    }
 
    private List<Column> sortedColumns(Table table, Collection<Column> columns) {
-      Class<? extends BaseDatabaseObject> clazz = nameToClass.get(table.getName());
+      Class<? extends BaseDatabaseObject> clazz = tableNameToClass.get(table.getName());
+      if (clazz == null) {
+         throw new IllegalStateException("Unrecognized table: " + table.getName());
+      }
       ColumnOrder columnOrderAnnotation = clazz.getAnnotation(ColumnOrder.class);
+      if (columnOrderAnnotation == null) {
+         throw new IllegalStateException("Missing @ColumnOrder: " + clazz.getName());
+      }
       String[] columnOrder = columnOrderAnnotation.value();
       Map<String, Integer> columnNameToIndex = IntStream.range(0, columnOrder.length)
             .boxed()
             .collect(Collectors.toMap(i -> columnOrder[i], Function.identity()));
       return columns.stream()
-            .sorted(Comparator.comparingInt(column -> columnNameToIndex.get(column.getName())))
+            .sorted(Comparator.comparingInt(column -> {
+               Integer index = columnNameToIndex.get(column.getName());
+               if (index == null) {
+                  throw new IllegalStateException("Column '" + column.getName() + "' missing in @ColumnOrder on " + clazz.getName());
+               }
+               return index;
+            }))
             .toList();
    }
 

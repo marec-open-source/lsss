@@ -6,7 +6,7 @@ import no.imr.korona.viewer.variables.VariableGroup;
 
 import java.util.List;
 
-public final class PlanktonVariableFactory extends VariableFactory {
+public final class PlanktonVariableFactory implements VariableFactory {
    public static final VariableGroup PLANKTON_VARIABLE_GROUP = new VariableGroup("Plankton");
 
    public PlanktonVariableFactory() {

@@ -4,6 +4,7 @@ import no.imr.tools.listening.ChangeManager;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.parameter.gui.input.ParameterGUI;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.PopupMenuAdapter;
@@ -29,15 +30,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * An editor for editing the parameters in a ParameterCollection.
  */
 public final class ParameterEditor {
-   private final GUIConfig guiConfig = new GUIConfig();
-   private final ScrollablePanel panel = new ScrollablePanel(new BorderLayout());
-   private @Nullable ParameterEditorData parameterEditorData;
-   private final ChangeManager parameterChangeManager = new ChangeManager();
    private final List<? extends BaseParameter<?>> parameters;
+   private final GUIConfig guiConfig;
+   private final ScrollablePanel panel = new ScrollablePanel(new BorderLayout());
+   private ParameterEditorData parameterEditorData;
+   private final ChangeManager parameterChangeManager = new ChangeManager();
+
+   public ParameterEditor(List<? extends BaseParameter<?>> parameters, GUIConfig guiConfig) {
+      this.parameters = parameters;
+      this.guiConfig = guiConfig;
+      addPopupMenuMouseListener(panel);
+      parameterEditorData = createParameterEditorData();
+   }
 
    public ParameterEditor(List<? extends BaseParameter<?>> parameters) {
-      this.parameters = parameters;
-      addPopupMenuMouseListener(panel);
+      this(parameters, new GUIConfig());
    }
 
    public void addPopupMenuMouseListener(JComponent component) {
@@ -49,21 +56,11 @@ public final class ParameterEditor {
    }
 
    public ParameterEditorData getParameterEditorData() {
-      if (parameterEditorData == null) {
-         update();
-      }
       return parameterEditorData;
    }
 
    public ScrollablePanel getEditorComponent() {
-      if (parameterEditorData == null) {
-         update();
-      }
       return panel;
-   }
-
-   public GUIConfig getGUIConfig() {
-      return guiConfig;
    }
 
    public JComponent getInputComponent(BaseParameter<?> parameter) {
@@ -71,6 +68,10 @@ public final class ParameterEditor {
    }
 
    private void update() {
+      parameterEditorData = createParameterEditorData();
+   }
+
+   private ParameterEditorData createParameterEditorData() {
       guiConfig.setDoRelayout(this::update);
 
       AtomicBoolean horizontalFillHasBeenActivated = new AtomicBoolean();
@@ -84,14 +85,14 @@ public final class ParameterEditor {
       GridBagConstraints constraints = gridBag.getConstraints();
       constraints.insets = new Insets(1, 3, 1, 3);
 
-      parameterEditorData = new ParameterEditorData(gridBag.getPanel(), guiConfig, parameters);
+      ParameterEditorData editorData = new ParameterEditorData(gridBag.getPanel(), guiConfig, parameters);
 
       for (BaseParameter<?> parameter : parameters) {
          constraints.gridwidth = 1;
          constraints.anchor = GridBagConstraints.WEST;
          gridBag.deactivateFill();
 
-         ParameterGUI<?> parameterGUI = parameterEditorData.getParameterGUIs().get(parameter);
+         ParameterGUI<?> parameterGUI = editorData.getParameterGUIs().get(parameter);
          parameterGUI.installGUI(gridBag);
       }
 
@@ -99,27 +100,24 @@ public final class ParameterEditor {
          gridBag.addVerticalFiller();
       }
 
-      parameterEditorData.getParameterChangeManager().addListener(parameterChangeManager);
+      editorData.getParameterChangeManager().addListener(parameterChangeManager);
 
       panel.setLayout(horizontalFillHasBeenActivated.get() ? new BorderLayout() : new FlowLayout(FlowLayout.LEFT, 0, 0));
       panel.removeAll();
       panel.add(gridBag.getPanel());
       GuiUtils.validateAndRepaintTopmostParent(panel);
+
+      return editorData;
    }
 
    public boolean someParameterHasVerticalFill() {
       return parameters.stream().anyMatch(parameter -> parameter.getProperty(BaseParameter.KEY_VERTICAL_FILL));
    }
 
-   /**
-    * Make sure all input field edits are propagated to the corresponding parameters.
-    */
-   public boolean commitEdits() {
-      return getParameterEditorData().commitEdits();
-   }
-
-   public JPopupMenu makePopupMenu() {
-      commitEdits();
+   public @Nullable JPopupMenu makePopupMenu() {
+      if (!CurrentInputComponent.commitEdit()) {
+         return null;
+      }
       ParameterClipboard parameterClipboard = ParameterClipboard.make(parameters, getParameterEditorData().getParameterGUIs());
 
       JPopupMenu menu = new JPopupMenu();
@@ -132,8 +130,9 @@ public final class ParameterEditor {
       paste.setToolTipText("""
             <html>
             Paste parameters from clipboard
-            <br>Parameters with different value are marked <span style='background-color: #98FB98'>green</span>
-            <br>Parameters with same value are marked <span style='background-color: #C0C0C0'>gray</span>
+            <br>Parameters with same value are marked <span style='background-color: #c0c0c0'>gray</span>
+            <br>Parameters with different value are marked <span style='background-color: #98fb98'>green</span>
+            <br>Parameters with invalid value are marked <span style='background-color: #ff6347'>red</span>
             """);
       if (parameterClipboard == null) {
          paste.setEnabled(false);

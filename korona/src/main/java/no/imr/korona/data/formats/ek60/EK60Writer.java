@@ -10,6 +10,7 @@ import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingConfiguration;
 import no.imr.korona.data.ping.items.PingItem;
 import no.imr.korona.util.KoronaUtils;
+import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.xml.XmlUtils;
@@ -38,30 +39,37 @@ public final class EK60Writer implements Closeable {
       Path rawFile = directory.resolve(rawFileName + extraSuffix);
       Log.global.info("Opening " + rawFile);
       rawWriter = new FileDatagramWriter(rawFile);
-
-      for (PingItem pingItem : pingConfiguration.getConfigurationItems()) {
-         for (BaseDatagram datagram : pingItem.toDatagrams()) {
-            rawWriter.writeDatagram(datagram);
+      FileDatagramWriter idxWriter = null;
+      FileDatagramWriter botWriter = null;
+      try {
+         for (PingItem pingItem : pingConfiguration.getConfigurationItems()) {
+            for (BaseDatagram datagram : pingItem.toDatagrams()) {
+               rawWriter.writeDatagram(datagram);
+            }
          }
-      }
-      rawWriter.writeDatagram(new Xml0Datagram(pingConfiguration.getRawFileConfiguration().getNTDate(), XmlUtils.toDocument(KoronaUtils.createProcessingInfoXml())));
+         rawWriter.writeDatagram(new Xml0Datagram(pingConfiguration.getRawFileConfiguration().getInstant(), XmlUtils.toDocument(KoronaUtils.createProcessingInfoXml())));
 
-      if (mode == Mode.ALL_FILES) {
-         String baseName = FileUtils.baseName(rawFileName);
-         idxWriter = new FileDatagramWriter(directory.resolve(baseName + EK60DataFormatPlugin.IDX_SUFFIX + extraSuffix));
-         botWriter = new FileDatagramWriter(directory.resolve(baseName + EK60DataFormatPlugin.BOT_SUFFIX + extraSuffix));
+         if (mode == Mode.ALL_FILES) {
+            String baseName = FileUtils.baseName(rawFileName);
+            idxWriter = new FileDatagramWriter(directory.resolve(baseName + EK60DataFormatPlugin.IDX_SUFFIX + extraSuffix));
+            botWriter = new FileDatagramWriter(directory.resolve(baseName + EK60DataFormatPlugin.BOT_SUFFIX + extraSuffix));
 
-         List<BaseDatagram> datagrams = pingConfiguration.getRawFileConfiguration().toDatagrams();
-         idxWriter.writeDatagrams(datagrams);
-         botWriter.writeDatagrams(datagrams);
-      } else {
-         idxWriter = null;
-         botWriter = null;
+            List<BaseDatagram> datagrams = pingConfiguration.getRawFileConfiguration().toDatagrams();
+            idxWriter.writeDatagrams(datagrams);
+            botWriter.writeDatagrams(datagrams);
+         }
+         this.idxWriter = idxWriter;
+         this.botWriter = botWriter;
+      } catch (IOException e) {
+         Utils.closeOrSuppress(e, rawWriter);
+         Utils.closeOrSuppress(e, idxWriter);
+         Utils.closeOrSuppress(e, botWriter);
+         throw e;
       }
    }
 
    public void writeModuleConfiguration(PingConfiguration pingConfiguration, ModuleContainer moduleContainer) throws IOException {
-      rawWriter.writeDatagram(new Cds0Datagram(pingConfiguration.getRawFileConfiguration().getNTDate(), XmlUtils.toDocument(moduleContainer.toXml())));
+      rawWriter.writeDatagram(new Cds0Datagram(pingConfiguration.getRawFileConfiguration().getInstant(), XmlUtils.toDocument(moduleContainer.toXml())));
    }
 
    public void write(Ping ping) throws IOException {

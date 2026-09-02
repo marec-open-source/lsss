@@ -3,10 +3,10 @@ package no.imr.korona.computation.expression;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.util.ResampledFloatArray;
-import no.imr.tools.Utils;
 import no.imr.tools.compile.CompileException;
 import no.imr.tools.compile.CompilerClassLoader;
 import no.imr.tools.logging.Log;
+import no.imr.tools.math.MathUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -29,7 +29,6 @@ final class ExpressionApplier {
    private final CompiledExpression compiledExpression;
    private final int resultChannel;
    private final int[] channels;
-   private final ResampledFloatArray[] resampledArrays;
    private final NavigableSet<String> unavailableVariables = new TreeSet<>();
 
    ExpressionApplier(String expression, int[] kHzs, int resultChannel) throws CompileException {
@@ -42,7 +41,6 @@ final class ExpressionApplier {
             .sorted()
             .toArray();
       compiledExpression = compileExpression(expression, variables, channels);
-      resampledArrays = new ResampledFloatArray[resultChannel];
    }
 
    @Override
@@ -70,7 +68,12 @@ final class ExpressionApplier {
          if (!uniqueNames.add(name)) {
             continue;
          }
-         int channel = Integer.parseInt(name.substring(1));
+         int channel;
+         try {
+            channel = Integer.parseInt(name.substring(1));
+         } catch (NumberFormatException _) {
+            continue;
+         }
          if (channel == 0) {
             continue;
          }
@@ -87,7 +90,12 @@ final class ExpressionApplier {
          if (!uniqueNames.add(name)) {
             continue;
          }
-         int kHz = Integer.parseInt(name.substring(1));
+         int kHz;
+         try {
+            kHz = Integer.parseInt(name.substring(1));
+         } catch (NumberFormatException _) {
+            continue;
+         }
          Integer channel = kHzToChannel.get(kHz);
          if (channel == null) {
             unavailableVariables.add(name);
@@ -144,9 +152,10 @@ final class ExpressionApplier {
 
    @Nullable PowerData apply(Ping ping) {
       PowerData resultRaw;
+      ResampledFloatArray[] resampledArrays = new ResampledFloatArray[resultChannel];
 
       if (channels.length == 0) {
-         PowerData sourceRaw = ping.getNonNullPowerData();
+         PowerData sourceRaw = ping.getFirstAvailablePowerData();
          if (sourceRaw == null) {
             return null;
          }
@@ -186,7 +195,7 @@ final class ExpressionApplier {
 
       compiledExpression.run(resultRaw.getSv(), resampledArrays);
 
-      if (Utils.avoidInfinities(resultRaw.getSv())) {
+      if (MathUtils.avoidInfinities(resultRaw.getSv())) {
          Log.global.warning("ExpressionApplier : Result contains infinite values. Values will be clamped to min/max float value.");
       }
 

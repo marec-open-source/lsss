@@ -5,6 +5,7 @@ import no.imr.korona.data.datagrams.PerChannelDatagram;
 import no.imr.korona.data.ping.items.PingItem;
 import no.imr.korona.data.ping.items.channel.ChannelData;
 
+import java.time.Instant;
 import java.util.List;
 
 public final class DiscardedChannelData implements PingItem, PerChannelDatagram {
@@ -15,13 +16,13 @@ public final class DiscardedChannelData implements PingItem, PerChannelDatagram 
    }
 
    @Override
-   public long getNTDate() {
-      return channelData.getNTDate();
+   public Instant getInstant() {
+      return channelData.getInstant();
    }
 
    @Override
-   public void setNTDate(long ntDate) {
-      channelData.setNTDate(ntDate);
+   public void setInstant(Instant instant) {
+      channelData.setInstant(instant);
    }
 
    @Override

@@ -25,9 +25,7 @@ public final class StoreUtils {
 
    static ObservationPK createObservationPK(BaseSurveyPK baseSurveyPK, DatabaseTime databaseTime, ObservationTypeEnum observationTypeEnum) {
       return new ObservationPK(
-            baseSurveyPK.getNation(),
-            baseSurveyPK.getPlatform(),
-            baseSurveyPK.getSurvey(),
+            baseSurveyPK,
             databaseTime.getDate(),
             databaseTime.getTime(),
             observationTypeEnum.getValue());
@@ -35,9 +33,7 @@ public final class StoreUtils {
 
    static ObservationPK createObservationPK(ScatterObject scatterObject) {
       return new ObservationPK(
-            scatterObject.getCompId().getNation(),
-            scatterObject.getCompId().getPlatform(),
-            scatterObject.getCompId().getSurvey(),
+            scatterObject.getCompId(),
             scatterObject.getObservationDate(),
             scatterObject.getObservationTime(),
             scatterObject.getObservationType());
@@ -45,9 +41,7 @@ public final class StoreUtils {
 
    static ObservationPK createObservationPK(Scatter scatter) {
       return new ObservationPK(
-            scatter.getCompId().getNation(),
-            scatter.getCompId().getPlatform(),
-            scatter.getCompId().getSurvey(),
+            scatter.getCompId(),
             scatter.getCompId().getObservationDate(),
             scatter.getCompId().getObservationTime(),
             scatter.getObservationType());
@@ -69,7 +63,7 @@ public final class StoreUtils {
    }
 
    static Observation createObservation(ScatterObject scatterObject, DataFileSet dataFileSet) {
-      PingIndex pingIndex = dataFileSet.getClosestPingIndex(PingMapping.millisToTimeValue(DatabaseTime.toMillis(scatterObject)), PingMapping.TIME);
+      PingIndex pingIndex = dataFileSet.getClosestPingIndex(PingMapping.instantToTimeValue(DatabaseTime.toInstant(scatterObject)), PingMapping.TIME);
 
       ObservationPK observationPK = createObservationPK(scatterObject);
       return createObservation(observationPK, dataFileSet, pingIndex);

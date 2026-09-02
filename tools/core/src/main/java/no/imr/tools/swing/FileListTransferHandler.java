@@ -11,6 +11,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -49,16 +50,15 @@ public final class FileListTransferHandler extends TransferHandler {
          if (t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
             String transferData = (String) t.getTransferData(DataFlavor.stringFlavor);
             List<Path> files = transferData.lines()
-                  .map(s -> {
-                     s = s.trim();
-                     String prefix = "file:";
-                     if (s.startsWith(prefix)) {
-                        s = s.substring(prefix.length());
-                     }
-                     return s;
-                  })
+                  .map(String::strip)
                   .filter(Predicate.not(String::isEmpty))
-                  .map(Path::of)
+                  .map(s -> {
+                     if (s.startsWith("file://")) {
+                        return Path.of(URI.create(s));
+                     } else {
+                        return Path.of(s);
+                     }
+                  })
                   .toList();
             handleFiles(files);
             return true;

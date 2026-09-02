@@ -8,9 +8,11 @@ import no.imr.korona.data.ping.items.PingItem;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import no.imr.korona.data.util.TvgArray;
 import no.imr.korona.data.util.TvgCache;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.range.FloatRange;
 import org.jspecify.annotations.Nullable;
+
+import java.time.Instant;
 
 /**
  * Common for all types of channel data.
@@ -19,7 +21,7 @@ public abstract class ChannelData implements PingItem, PerChannelDatagram, no.ma
    private static final PingConfiguration EMPTY_PING_CONFIGURATION = PingConfiguration.newEmpty();
    private static final RawFileTransducer EMPTY_RAW_FILE_TRANSDUCER = new RawFileTransducer();
 
-   private long ntDate;
+   private Instant instant;
    private short channel; // Channel number
    // private short mode; // Power = 1, Angles = 2, BBT complex = 8
    private float transducerDepth; // [m]
@@ -45,12 +47,12 @@ public abstract class ChannelData implements PingItem, PerChannelDatagram, no.ma
    private RawFileTransducer transducer = EMPTY_RAW_FILE_TRANSDUCER;
    private @Nullable String readOnlyBecauseOfDataType;
 
-   protected ChannelData(long ntDate) {
-      this.ntDate = ntDate;
+   protected ChannelData(Instant instant) {
+      this.instant = instant;
    }
 
    protected ChannelData(ChannelData channelData) {
-      ntDate = channelData.ntDate;
+      instant = channelData.instant;
       channel = channelData.channel;
       // mode = channelData.mode;
       transducerDepth = channelData.transducerDepth;
@@ -79,7 +81,7 @@ public abstract class ChannelData implements PingItem, PerChannelDatagram, no.ma
    }
 
    protected ChannelData(Raw0Datagram raw0Datagram) {
-      this(raw0Datagram.getNTDate());
+      this(raw0Datagram.getInstant());
 
       channel = raw0Datagram.channel;
       // mode = raw0Datagram.mode;
@@ -128,7 +130,7 @@ public abstract class ChannelData implements PingItem, PerChannelDatagram, no.ma
 
    @Override
    public String toString() {
-      return getInstant() + " [channel " + channel + ", " + Utils.hzToKHz(frequency) + " kHz]";
+      return getInstant() + " [channel " + channel + ", " + KoronaUtils.hzToKHz(frequency) + " kHz]";
    }
 
    public abstract String getDataTypeName();
@@ -137,14 +139,14 @@ public abstract class ChannelData implements PingItem, PerChannelDatagram, no.ma
    public abstract ChannelData makeCopy();
 
    @Override
-   public long getNTDate() {
-      return ntDate;
+   public Instant getInstant() {
+      return instant;
    }
 
    @Override
-   public void setNTDate(long ntDate) {
+   public void setInstant(Instant instant) {
       throwExceptionIfReadOnly();
-      this.ntDate = ntDate;
+      this.instant = instant;
    }
 
    public void throwExceptionIfReadOnly() {
@@ -176,7 +178,7 @@ public abstract class ChannelData implements PingItem, PerChannelDatagram, no.ma
    /**
     * Get transducer depth.
     *
-    * @return depth depth
+    * @return transducer depth
     */
    public float getTransducerDepth() {
       return transducerDepth;
@@ -185,7 +187,7 @@ public abstract class ChannelData implements PingItem, PerChannelDatagram, no.ma
    /**
     * Set transducer depth.
     *
-    * @param transducerDepth a new depth
+    * @param transducerDepth a new transducer depth
     */
    public void setTransducerDepth(float transducerDepth) {
       throwExceptionIfReadOnly();

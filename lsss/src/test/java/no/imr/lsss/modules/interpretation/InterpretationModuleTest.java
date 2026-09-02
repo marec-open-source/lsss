@@ -22,7 +22,7 @@ import no.imr.lsss.database.tables.hibernate.ScatterObject;
 import no.imr.lsss.database.tables.hibernate.SchoolData;
 import no.imr.lsss.database.tables.hibernate.SchoolDetect;
 import no.imr.lsss.database.tables.hibernate.SchoolMorphology;
-import no.imr.lsss.database.types.JavaDBInMemoryDatabasePlugin;
+import no.imr.lsss.database.types.TestDatabasePlugin;
 import no.imr.lsss.modules.integration.RegionIntegrationModule;
 import no.imr.lsss.test.LsssTestUtils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
@@ -49,7 +49,7 @@ final class InterpretationModuleTest {
    @BeforeEach
    void beforeEach() {
       lsss = LsssTestUtils.start(List.of(RegionIntegrationModule.class), List.of(InterpretationModule.class));
-      JavaDBInMemoryDatabasePlugin.install(lsss);
+      TestDatabasePlugin.install(lsss);
       DatabaseTestUtils.resetCompleteTestSurvey(lsss);
       interpretationModule = lsss.getModuleManager().getModule(InterpretationModule.class);
       interpretationModule.frequencies.setValue(List.of(38));
@@ -233,7 +233,7 @@ final class InterpretationModuleTest {
       for (ScatterObject o : getScatterObjects()) {
          if (o.getObservationType() == ObservationTypeEnum.SCATTER_OBJECT_SCHOOL.getValue()) {
             assertEquals(2 * 4000, o.getDuration());
-            assertEquals(19700101, o.getObservationDate());
+            assertEquals(1970_01_01, o.getObservationDate());
             assertEquals(0, o.getObservationTime());
          }
       }
@@ -259,7 +259,7 @@ final class InterpretationModuleTest {
       for (ScatterObject o : getScatterObjects()) {
          if (o.getObservationType() == ObservationTypeEnum.SCATTER_OBJECT_SCHOOL.getValue()) {
             assertEquals(3 * 4000, o.getDuration());
-            assertEquals(19700101, o.getObservationDate());
+            assertEquals(1970_01_01, o.getObservationDate());
             assertEquals(0, o.getObservationTime());
          }
       }
@@ -283,8 +283,8 @@ final class InterpretationModuleTest {
       for (ScatterObject o : getScatterObjects()) {
          if (o.getObservationType() == ObservationTypeEnum.SCATTER_OBJECT_SCHOOL.getValue()) {
             assertEquals(4000, o.getDuration());
-            assertEquals(19700101, o.getObservationDate());
-            assertEquals(12000, o.getObservationTime());
+            assertEquals(1970_01_01, o.getObservationDate());
+            assertEquals(1_20_00, o.getObservationTime());
          }
       }
 
@@ -498,24 +498,24 @@ final class InterpretationModuleTest {
       }
 
       @Override
-      protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+      public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
          float[] sv = new float[200];
          Arrays.fill(sv, SV_VALUE);
          powerData.setSv(sv);
       }
 
       @Override
-      protected double getVesselDistance(long pingNumber) {
+      public double getVesselDistance(long pingNumber) {
          return pingNumber / pingsPerNmi;
       }
 
       @Override
-      protected float getBottomDepth(PingIndex pingIndex, int channel) {
+      public float getBottomDepth(PingIndex pingIndex, int channel) {
          return 100;
       }
 
       @Override
-      protected float getSampleInterval(PingIndex pingIndex, int channel) {
+      public float getSampleInterval(PingIndex pingIndex, int channel) {
          float sampleDistance = 1;
          return 2 * sampleDistance / getSoundVelocity(pingIndex, channel);
       }

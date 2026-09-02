@@ -1,6 +1,5 @@
 package no.imr.korona.computation;
 
-import no.imr.korona.computation.filters.FillMissingDataModule;
 import no.imr.korona.data.datagrams.BaseDepDatagram;
 import no.imr.korona.data.ping.DefaultPing;
 import no.imr.korona.data.ping.Ping;
@@ -317,7 +316,7 @@ public abstract class BaseMatrixModuleComputation extends GeneralPingModuleCompu
          boolean raw0Added = false;
          allPingQueue.addLast(ping);   // add ping to queue
 
-         if (ping.getNonNullPowerData() != null) {
+         if (ping.getFirstAvailablePowerData() != null) {
             raw0PingQueue.addLast(ping);   // add ping to raw0 queue
             raw0Added = true;
          }
@@ -326,7 +325,7 @@ public abstract class BaseMatrixModuleComputation extends GeneralPingModuleCompu
          }
 
          Ping testPing = allPingQueue.getFirst();
-         while (testPing.getNonNullPowerData() == null) { // move all non-Raw0 in front of allPingQueue to outbuffer
+         while (testPing.getFirstAvailablePowerData() == null) { // move all non-Raw0 in front of allPingQueue to outbuffer
             outputQueue.add(testPing);
             allPingQueue.removeFirst();
             testPing = allPingQueue.getFirst();
@@ -358,7 +357,7 @@ public abstract class BaseMatrixModuleComputation extends GeneralPingModuleCompu
 
          //We need to process the remaining powerDatas in the queue. While
          //emptying the queue, we copy the current datagram to the end of the queue.
-         if (currentPing.getNonNullPowerData() != null) {
+         if (currentPing.getFirstAvailablePowerData() != null) {
             while (raw0PingQueue.size() <= center) { // necessary if the queue was not filled in the first place (small file)
                Ping extraPingForBuffer = new DefaultPing(currentPing.getPingConfiguration(), currentPing.getPingIndex(), currentPing.getBot0Datagram());
 
@@ -368,7 +367,7 @@ public abstract class BaseMatrixModuleComputation extends GeneralPingModuleCompu
                   if (currentDatagram != null) {
                      //Copy current ping to fill buffer when no further pings are
                      //available.
-                     PowerData datagramDeepCopy = createCopyForExtraPing(currentDatagram);
+                     PowerData datagramDeepCopy = currentDatagram.makeCopy();
                      extraPingForBuffer.add(datagramDeepCopy);
                   }
                }
@@ -388,10 +387,6 @@ public abstract class BaseMatrixModuleComputation extends GeneralPingModuleCompu
          outputQueue.add(outPing);
       }
       raw0PingQueue.clear(); //Need to clear this since we added an extra datagram at the end.
-   }
-
-   private static PowerData createCopyForExtraPing(PowerData powerData) {
-      return FillMissingDataModule.copy(powerData, powerData.getNTDate());
    }
 
    private void doVertical() {

@@ -7,7 +7,7 @@ plugins {
    marec.`java-plugin`
 }
 
-val toolsHelpInternal by configurations.registering
+val toolsHelpInternal = configurations.register("toolsHelpInternal")
 
 dependencies {
    api(Libraries.jspecify)
@@ -23,12 +23,12 @@ tasks.withType<Javadoc>().configureEach {
 }
 
 fun requiredProperty(key: String): String {
-   return properties[key]?.toString() ?: throw IllegalArgumentException("Missing property '$key'")
+   return providers.gradleProperty(key).orNull ?: throw IllegalArgumentException("Missing property '$key'")
 }
 
 tasks.register<NodeContextTask>("lsssPluginHelpBuild") {
    group = "marec"
-   description = "Builds help pages for an LSSS plugin - to be called from a separate gradle project"
+   description = "Builds help pages for an LSSS plugin - to be called from a separate Gradle project"
    dependsOn(toolsHelpInternal)
    val helpDir = file(requiredProperty("lsssPluginHelpBuild.helpDir"))
    val version = requiredProperty("lsssPluginHelpBuild.version")

@@ -14,6 +14,7 @@ import no.imr.lsss.database.util.SurveySelectionDialog;
 import no.imr.lsss.framework.config.survey.data.DataConfLSSS;
 import no.imr.lsss.resources.LsssHelp;
 import no.imr.lsss.viewer.Shortcuts;
+import no.imr.tools.LateInit;
 import no.imr.tools.database.ConnectionType;
 import no.imr.tools.database.queries.QueryBuilder;
 import no.imr.tools.io.FileUtils;
@@ -30,6 +31,7 @@ import no.imr.tools.parameter.ValueConverters;
 import no.imr.tools.parameter.gui.ParameterEditor;
 import no.imr.tools.parameter.gui.ParameterEditorData;
 import no.imr.tools.parameter.gui.input.GUIConfig;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.ProgressView;
@@ -83,7 +85,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 public final class ReportGenerator {
@@ -101,10 +102,10 @@ public final class ReportGenerator {
    public static final String SCRATCH_FILE_PREFIX = "scratch_";
    private static final String REPORT_SETTINGS_FILE_NAME = SCRATCH_FILE_PREFIX + "ReportSettings";
 
-   private final LSSS mLSSS;
+   private final LSSS lsss;
    private final JDialog dialog;
-   private static final int MIN_START_DATE = 11000101;
-   private static final int MAX_STOP_DATE = 33001231;
+   private static final int MIN_START_DATE = 1100_01_01;
+   private static final int MAX_STOP_DATE = 3300_12_31;
    private static final float DEFAULT_STOP_DISTANCE = 987654;
    private static final int DEFAULT_NO_FREQUENCIES = 6;
    private int mNoFrequencies = DEFAULT_NO_FREQUENCIES; //Default
@@ -162,13 +163,13 @@ public final class ReportGenerator {
    private final OptionalIntParameter mMaxPrintBottomCh = new OptionalIntParameter(
          new Name("maxPrintBottomCh", "Max print bottom channels"),
          Optional.empty(), Unit.COUNT, ValueConstraints.gte(0));
-   private final @Nullable Path mCurrentSurveyReportsDirectory;
-   private final ReportEngine mReportEngine;
+   private final @Nullable Path currentSurveyReportsDirectory;
+   private final ReportEngine reportEngine;
 
-   public ReportGenerator(LSSS aLSSS) {
-      mLSSS = aLSSS;
-      mCurrentSurveyReportsDirectory = aLSSS.getConfigurationManager().getDataConf().getDir(DataConfLSSS.REPORTS_DIR).getFile();
-      mReportEngine = new ReportEngine(aLSSS);
+   public ReportGenerator(LSSS lsss) {
+      this.lsss = lsss;
+      currentSurveyReportsDirectory = lsss.getConfigurationManager().getDataConf().getDir(DataConfLSSS.REPORTS_DIR).getFile();
+      reportEngine = new ReportEngine(lsss);
 
       for (int i = 0; i < wReport.length; i++) {
          String name = (i == 0) ? "Compact" : Integer.toString(i);
@@ -177,20 +178,20 @@ public final class ReportGenerator {
 
       loadSettings();
 
-      dialog = new JDialog(mLSSS.getFrame(), "Report generator", Dialog.ModalityType.DOCUMENT_MODAL);
+      dialog = new JDialog(lsss.getFrame(), "Report generator", Dialog.ModalityType.DOCUMENT_MODAL);
       int mVerticalSpacing = 10;
       JPanel mainPanel = new JPanel();
       mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-      ParameterEditorData parameterEditorData = new ParameterEditorData(mainPanel, new GUIConfig(),
-            List.of(
-                  mStartDate, mStopDate,
-                  mStartTime, mStopTime,
-                  mStartDistance, mStopDistance,
-                  mMaxSpecies,
-                  mMaxPrintPelagicCh,
-                  mMaxPrintBottomCh,
-                  mAccumulateDistance));
+      ParameterEditorData parameterEditorData = new ParameterEditorData(mainPanel, new GUIConfig(), List.of(
+            mStartDate, mStopDate,
+            mStartTime, mStopTime,
+            mStartDistance, mStopDistance,
+            mMaxSpecies,
+            mMaxPrintPelagicCh,
+            mMaxPrintBottomCh,
+            mAccumulateDistance
+      ));
 
       // Name of database and report directory
       GridBag infoGridBag = new GridBag();
@@ -199,8 +200,8 @@ public final class ReportGenerator {
       infoGridBag.getConstraints().insets = new Insets(0, 5, 2, 0);
       infoGridBag.add(new JLabel("Database connection: "));
       JLabel connectionLabel;
-      DatabasePlugin databasePlugin = mLSSS.getDatabaseManager().getConnectionManager().getDatabasePlugin();
-      if (databasePlugin != null && mLSSS.getDatabaseManager().getDatabaseConnection().isConnected()) {
+      DatabasePlugin databasePlugin = lsss.getDatabaseManager().getConnectionManager().getDatabasePlugin();
+      if (databasePlugin != null && lsss.getDatabaseManager().getDatabaseConnection().isConnected()) {
          Configuration configuration = databasePlugin.getConfiguration(ConnectionType.CONNECT);
          connectionLabel = new JLabel(databasePlugin.getName().displayName() + ": " + configuration.getProperty(Environment.JAKARTA_JDBC_URL));
       } else {
@@ -226,10 +227,10 @@ public final class ReportGenerator {
          infoGridBag.addWithLineBreak(noDataMessage);
       }
 
-      Survey currentSurvey = mLSSS.getConfigurationManager().getSurveyConf().getSurvey();
+      Survey currentSurvey = lsss.getConfigurationManager().getSurveyConf().getSurvey();
 
       FileParameter currentSurveyReportsDir = new FileParameter(new Name("ReportsDirectory", "Reports directory"),
-            mLSSS.getConfigurationManager().getDataConf().getDir(DataConfLSSS.REPORTS_DIR).getFile(),
+            lsss.getConfigurationManager().getDataConf().getDir(DataConfLSSS.REPORTS_DIR).getFile(),
             FileParameter.Mode.DIRECTORY);
       JPanel currentSurveyPanel = new JPanel(new BorderLayout());
       currentSurveyPanel.setBorder(BorderFactory.createEmptyBorder(mVerticalSpacing, 5, 0, 5));
@@ -244,7 +245,7 @@ public final class ReportGenerator {
       Set<Survey> selectedSurveys = new HashSet<>();
 
       FileParameter selectSurveysReportsDir = new FileParameter(new Name("ReportsDirectory", "Reports directory"),
-            mLSSS.getConfigurationManager().getApplicationConfiguration().getDirectoryConf().getMainDir().resolve("DatabaseReports"),
+            lsss.getConfigurationManager().getApplicationConfiguration().getDirectoryConf().getMainDir().resolve("DatabaseReports"),
             FileParameter.Mode.DIRECTORY);
       JPanel selectSurveysTopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
       JLabel surveysSelectedLabel = new JLabel("0 surveys selected");
@@ -427,7 +428,7 @@ public final class ReportGenerator {
       reportFormatPanel.add(schoolReportCheck);
       echosounderPanel.add(reportFormatPanel);
 
-      // Distance extension in (most of) the filenames
+      // Distance extension in (most of) the file names
       JPanel distancePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       distancePanel.add(distanceFileExtensionCheck);
       echosounderPanel.add(distancePanel);
@@ -457,7 +458,7 @@ public final class ReportGenerator {
 
       echosounderPanel.add(reportPanel);
 
-      for (DatabaseReportManager reportManager : mReportEngine.getPluginReportManagers()) {
+      for (DatabaseReportManager reportManager : reportEngine.getPluginReportManagers()) {
          mainPanel.add(headerPanel(reportManager.getIcon().on(new JLabel(reportManager.getTitle()))));
          mainPanel.add(reportManager.getViewHolder().getComponent());
       }
@@ -466,7 +467,7 @@ public final class ReportGenerator {
       LsssHelp.REPORT_GENERATOR.enableHelpKeyOnButton(helpButton);
 
       generateReportsButton.addActionListener(_ -> {
-         if (!parameterEditorData.commitEdits()) {
+         if (!CurrentInputComponent.commitEdit()) {
             return;
          }
          if (currentSurvey == null) {
@@ -475,7 +476,7 @@ public final class ReportGenerator {
 
          Path directory = currentSurveySelected.get() ? currentSurveyReportsDir.getFile() : selectSurveysReportsDir.getFile();
          if (directory == null) {
-            mLSSS.showError(dialog, "No output directory configured");
+            lsss.showError(dialog, "No output directory configured");
             return;
          }
 
@@ -494,28 +495,28 @@ public final class ReportGenerator {
             }
          }
 
-         for (DatabaseReportManager reportManager : mReportEngine.getPluginReportManagers()) {
+         for (DatabaseReportManager reportManager : reportEngine.getPluginReportManagers()) {
             activeReportGroups += reportManager.getActiveReportGroupCount();
          }
 
-         mReportEngine.setStartDate(mStartDate.getValue().orElse(MIN_START_DATE));
-         mReportEngine.setStopDate(mStopDate.getValue().orElse(MAX_STOP_DATE));
-         mReportEngine.setStartTime(guiTimeToDatabaseTime(mStartTime.getValue().orElse(0)));
-         mReportEngine.setStopTime(guiTimeToDatabaseTime(mStopTime.getValue().orElse(24_00_00)));
-         mReportEngine.setMaxSpecialReportSpecies(mMaxSpecies.getValue().orElse(Integer.MAX_VALUE));
-         mReportEngine.setPrintScrutinizedSpCheck(printScrutinizedSpCheck.isSelected());
-         mReportEngine.setAccumulateDistance(mAccumulateDistance.getFloatValue());
-         mReportEngine.setMaxPrintPelagicCh(mMaxPrintPelagicCh.getValue().orElse(ReportEngine.DEFAULT_MAX_PRINT_PELAGIC));
-         mReportEngine.setMaxPrintBottomCh(mMaxPrintBottomCh.getValue().orElse(ReportEngine.DEFAULT_MAX_PRINT_BOTTOM));
-         mReportEngine.setReports(type -> wReport[type].isSelected());
-         mReportEngine.setExtinctionCheck(extinctionCheck.isSelected());
-         mReportEngine.setSchoolReport(schoolReportCheck.isSelected());
-         mReportEngine.setDistanceFileExtension(distanceFileExtensionCheck.isSelected());
-         mReportEngine.setMode(wAccumulateCheck.isSelected() ? ReportMode.ACCUMULATE : ReportMode.NATIVE);
-         mReportEngine.setExpectedFrequencyCount(mNoFrequencies);
+         reportEngine.setStartDate(mStartDate.getValue().orElse(MIN_START_DATE));
+         reportEngine.setStopDate(mStopDate.getValue().orElse(MAX_STOP_DATE));
+         reportEngine.setStartTime(guiTimeToDatabaseTime(mStartTime.getValue().orElse(0)));
+         reportEngine.setStopTime(guiTimeToDatabaseTime(mStopTime.getValue().orElse(24_00_00)));
+         reportEngine.setMaxSpecialReportSpecies(mMaxSpecies.getValue().orElse(Integer.MAX_VALUE));
+         reportEngine.setPrintScrutinizedSpCheck(printScrutinizedSpCheck.isSelected());
+         reportEngine.setAccumulateDistance(mAccumulateDistance.getFloatValue());
+         reportEngine.setMaxPrintPelagicCh(mMaxPrintPelagicCh.getValue().orElse(ReportEngine.DEFAULT_MAX_PRINT_PELAGIC));
+         reportEngine.setMaxPrintBottomCh(mMaxPrintBottomCh.getValue().orElse(ReportEngine.DEFAULT_MAX_PRINT_BOTTOM));
+         reportEngine.setReports(type -> wReport[type].isSelected());
+         reportEngine.setExtinctionCheck(extinctionCheck.isSelected());
+         reportEngine.setSchoolReport(schoolReportCheck.isSelected());
+         reportEngine.setDistanceFileExtension(distanceFileExtensionCheck.isSelected());
+         reportEngine.setMode(wAccumulateCheck.isSelected() ? ReportMode.ACCUMULATE : ReportMode.NATIVE);
+         reportEngine.setExpectedFrequencyCount(mNoFrequencies);
 
-         if (mReportEngine.getStartDate() > mReportEngine.getStopDate() ||
-               mReportEngine.getStartDate() == mReportEngine.getStopDate() && mReportEngine.getStartTime() >= mReportEngine.getStopTime()) {
+         if (reportEngine.getStartDate() > reportEngine.getStopDate() ||
+               reportEngine.getStartDate() == reportEngine.getStopDate() && reportEngine.getStartTime() >= reportEngine.getStopTime()) {
             JOptionPane.showMessageDialog(dialog, "No data for selected interval");
             return;
          }
@@ -530,7 +531,7 @@ public final class ReportGenerator {
             workerComponent = progressView.getComponent();
          } else {
             JPanel panel = new JPanel(new BorderLayout());
-            reportSurveyLabel = new JLabel("qwe");
+            reportSurveyLabel = new JLabel(" ");
             reportSurveyLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
             panel.add(reportSurveyLabel, BorderLayout.NORTH);
             panel.add(progressView.getComponent());
@@ -553,9 +554,9 @@ public final class ReportGenerator {
                      progressView.setMainProgress(0, "");
                      Path dir = currentSurveySelected.get()
                            ? directory
-                           : directory.resolve(REPORTS_SUB_DIR_PREFIX + mLSSS.getConfigurationManager().getApplicationConfiguration().getDirectoryConf().getSelectedSurveyDirStructure().getSurveyDirName(survey));
+                           : directory.resolve(REPORTS_SUB_DIR_PREFIX + lsss.getConfigurationManager().getApplicationConfiguration().getDirectoryConf().getSelectedSurveyDirStructure().getSurveyDirName(survey));
                      FileUtils.createDirectories(dir);
-                     ReportEngine.Feedback feedback = mReportEngine.printReports(survey, dir, progressView, aAsyncHandle);
+                     ReportEngine.Feedback feedback = reportEngine.printReports(survey, dir, progressView, aAsyncHandle);
                      if (aAsyncHandle.isCancelled()) {
                         return;
                      }
@@ -586,14 +587,14 @@ public final class ReportGenerator {
             doneGridBag.add(Box.createVerticalStrut(10));
             HtmlStringBuilder builder = new HtmlStringBuilder().text("Acoustic categories mapped to ICES category \"" + GetIces.UNKNOWN_ACOUSTIC_CATEGORY + "\":");
             missingIcesCategories.values().stream()
-                  .sorted(mReportEngine.getLanguageUtils().acousticCategoryComparator())
-                  .forEach(a -> builder.html("<br>").text(a.getCompId().getAcousticCategory() + ": " + mReportEngine.getLanguageUtils().getAcCatName(a)));
+                  .sorted(reportEngine.getLanguageUtils().acousticCategoryComparator())
+                  .forEach(a -> builder.html("<br>").text(a.getCompId().getAcousticCategory() + ": " + reportEngine.getLanguageUtils().getAcCatName(a)));
             JLabel label = new JLabel(builder.build());
             label.setForeground(Color.RED);
             doneGridBag.add(label);
          }
 
-         AtomicReference<JDialog> doneDialogRef = new AtomicReference<>();
+         LateInit<JDialog> doneDialogRef = new LateInit<>();
 
          if (!missingIcesValues.isEmpty()) {
             warning = true;
@@ -610,7 +611,7 @@ public final class ReportGenerator {
             JTextPane component = GuiUtils.labelLikeHtmlTextPane("Go to configuration of <a href='ices'>ICES acoustic metadata</a>.", _ -> {
                doneDialogRef.get().dispose();
                dialog.dispose();
-               mLSSS.getConfigurationManager().getSurveyMiscConf().getIcesConf().showInConfigurationDialog();
+               lsss.getConfigurationManager().getSurveyMiscConf().getIcesConf().showInConfigurationDialog();
             });
             doneGridBag.add(component);
          }
@@ -623,7 +624,7 @@ public final class ReportGenerator {
       });
 
       deleteReportsButton.addActionListener(_ -> {
-         if (!parameterEditorData.commitEdits()) {
+         if (!CurrentInputComponent.commitEdit()) {
             return;
          }
          Path directory = currentSurveySelected.get() ? currentSurveyReportsDir.getFile() : selectSurveysReportsDir.getFile();
@@ -646,7 +647,7 @@ public final class ReportGenerator {
       JButton cancelButton = new JButton("Exit");
       GuiUtils.setAccelerator(cancelButton, Shortcuts.ESCAPE);
       cancelButton.addActionListener(_ -> {
-         if (!parameterEditorData.commitEdits()) {
+         if (!CurrentInputComponent.commitEdit()) {
             return;
          }
          dialog.dispose();
@@ -668,7 +669,7 @@ public final class ReportGenerator {
       dialog.getContentPane().add(dialogPanel);
       dialog.pack();
       GuiUtils.expandSizeWith(dialog, dialogScrollPane.getVerticalScrollBar().getPreferredSize().width, 0);
-      dialog.setLocationRelativeTo(mLSSS.getFrame());
+      dialog.setLocationRelativeTo(lsss.getFrame());
       GuiUtils.clampToScreen(dialog);
       dialog.setVisible(true);
    }
@@ -693,7 +694,7 @@ public final class ReportGenerator {
    }
 
    private List<Survey> fetchSurveysFromDatabase() {
-      return mLSSS.getDatabaseManager().getDatabaseConnection().executeValuedQuery(session -> {
+      return lsss.getDatabaseManager().getDatabaseConnection().executeValuedQuery(session -> {
          List<Survey> result = LsssQuery.fetch(Survey.class).executeAndGetValue(session);
          for (Survey survey : result) {
             // Get associated objects while session is open.
@@ -711,7 +712,7 @@ public final class ReportGenerator {
    }
 
    private void setStartFromDistance(Survey aSurvey, int aStartDate, int aStopDate, float aStartDistance) {
-      mLSSS.getDatabaseManager().getDatabaseConnection().executeStatelessQuery(session -> {
+      lsss.getDatabaseManager().getDatabaseConnection().executeStatelessQuery(session -> {
          String aQuery = " from Observation a " +
                " where a.compId.nation   = " + aSurvey.getCompId().getNation() +
                " and   a.compId.platform = " + aSurvey.getCompId().getPlatform() +
@@ -735,7 +736,7 @@ public final class ReportGenerator {
    }
 
    private void setStopFromDistance(Survey aSurvey, int aStartDate, int aStopDate, float aStopDistance) {
-      mLSSS.getDatabaseManager().getDatabaseConnection().executeStatelessQuery(session -> {
+      lsss.getDatabaseManager().getDatabaseConnection().executeStatelessQuery(session -> {
          String aQuery = " from Observation a " +
                " where a.compId.nation   = " + aSurvey.getCompId().getNation() +
                " and   a.compId.platform = " + aSurvey.getCompId().getPlatform() +
@@ -759,7 +760,7 @@ public final class ReportGenerator {
    }
 
    private boolean scatterExist() {
-      return mLSSS.getDatabaseManager().getDatabaseConnection().executeStatelessValuedQuery(
+      return lsss.getDatabaseManager().getDatabaseConnection().executeStatelessValuedQuery(
             QueryBuilder.count(Scatter.class).build()) > 0;
    }
 
@@ -774,16 +775,16 @@ public final class ReportGenerator {
             }
          }
       }
-      for (DatabaseReportManager reportManager : mReportEngine.getPluginReportManagers()) {
+      for (DatabaseReportManager reportManager : reportEngine.getPluginReportManagers()) {
          reportManager.deleteReports(aDirectory);
       }
    }
 
    private void saveSettings() {
-      if (mCurrentSurveyReportsDirectory == null) {
+      if (currentSurveyReportsDirectory == null) {
          return;
       }
-      try (PrintWriter out = FileUtils.newPrintWriter(mCurrentSurveyReportsDirectory.resolve(REPORT_SETTINGS_FILE_NAME), mReportEngine.getCharset())) {
+      try (PrintWriter out = FileUtils.newPrintWriter(currentSurveyReportsDirectory.resolve(REPORT_SETTINGS_FILE_NAME), reportEngine.getCharset())) {
          out.println("StartDate: " + mStartDate.getStringValue());
          out.println("StartTime: " + ValueConverters.OPTIONAL_INTEGER.stringify(mStartTime.getValue().map(ReportGenerator::guiTimeToDatabaseTime)));
          out.println("StartDistance: " + mStartDistance.getStringValue());
@@ -804,14 +805,14 @@ public final class ReportGenerator {
    }
 
    private void loadSettings() {
-      if (mCurrentSurveyReportsDirectory == null) {
+      if (currentSurveyReportsDirectory == null) {
          return;
       }
-      Path reportSettingsFile = mCurrentSurveyReportsDirectory.resolve(REPORT_SETTINGS_FILE_NAME);
+      Path reportSettingsFile = currentSurveyReportsDirectory.resolve(REPORT_SETTINGS_FILE_NAME);
       if (!Files.exists(reportSettingsFile)) {
          return;
       }
-      try (BufferedReader in = Files.newBufferedReader(reportSettingsFile, mReportEngine.getCharset())) {
+      try (BufferedReader in = Files.newBufferedReader(reportSettingsFile, reportEngine.getCharset())) {
          while (true) {
             String line = in.readLine();
             if (line == null) {

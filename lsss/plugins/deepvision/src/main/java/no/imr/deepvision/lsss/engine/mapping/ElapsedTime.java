@@ -2,17 +2,21 @@ package no.imr.deepvision.lsss.engine.mapping;
 
 import org.jspecify.annotations.Nullable;
 
-final class ElapsedTime {
-   private long elapsedTime;
-   private final long startTime;
-   private final long interval;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
-   ElapsedTime(long startTime, long interval) {
+final class ElapsedTime {
+   private final Instant startTime;
+   private long elapsedTimeNanos;
+   private final long intervalNanos;
+
+   ElapsedTime(Instant startTime, Duration interval) {
       this.startTime = startTime;
-      this.interval = interval;
+      intervalNanos = interval.toNanos();
    }
 
-   static ElapsedTime checkElapsedTime(@Nullable ElapsedTime elapsedTime, long time, int interval) {
+   static ElapsedTime checkElapsedTime(@Nullable ElapsedTime elapsedTime, Instant time, Duration interval) {
       if (elapsedTime == null) {
          return new ElapsedTime(time, interval);
       }
@@ -20,11 +24,11 @@ final class ElapsedTime {
       return elapsedTime;
    }
 
-   private void set(long time) {
-      elapsedTime = time - startTime;
+   private void set(Instant time) {
+      elapsedTimeNanos = startTime.until(time, ChronoUnit.NANOS);
    }
 
    boolean inInterval() {
-      return !(elapsedTime == 0 || elapsedTime > interval);
+      return !(elapsedTimeNanos == 0 || elapsedTimeNanos > intervalNanos);
    }
 }

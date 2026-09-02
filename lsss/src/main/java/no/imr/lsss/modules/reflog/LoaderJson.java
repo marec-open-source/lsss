@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 final class LoaderJson {
@@ -44,17 +45,18 @@ final class LoaderJson {
       List<LogLineField> fields = fieldNamesCache.computeIfAbsent(fieldsBuilder, List::copyOf);
 
       ActivityType activityType = toActivityType(refLogFile.activityTypeCode);
-      String localStationNumber = refLogFile.localstationNumber != null ? refLogFile.localstationNumber : "";
+      String localStationNumber = Objects.requireNonNullElse(refLogFile.localstationNumber, "");
+      String name = Objects.requireNonNullElse(refLogFile.name, "");
 
       List<LogLine> logLines = new ArrayList<>();
       if (refLogFile.startTime != null) {
-         logLines.add(new LogLine(refLogFile.startTime.toEpochMilli(), activityType, true,
-               refLogFile.name + " - start", localStationNumber,
+         logLines.add(new LogLine(refLogFile.startTime, activityType, true,
+               name + " - start", localStationNumber,
                fields, fieldValues));
       }
       if (refLogFile.endTime != null) {
-         logLines.add(new LogLine(refLogFile.endTime.toEpochMilli(), activityType, false,
-               refLogFile.name + " - stop", localStationNumber,
+         logLines.add(new LogLine(refLogFile.endTime, activityType, false,
+               name + " - stop", localStationNumber,
                fields, fieldValues));
       }
       return logLines;
@@ -71,13 +73,10 @@ final class LoaderJson {
    }
 
    private static ActivityType toActivityType(@Nullable Integer activityTypeCode) {
-      if (activityTypeCode == null) {
-         return ActivityType.OTHER;
-      }
       return switch (activityTypeCode) {
          case 1500 -> ActivityType.PELAGIC_TRAWL;
          case 1600 -> ActivityType.BOTTOM_TRAWL;
-         default -> ActivityType.OTHER;
+         case null, default -> ActivityType.OTHER;
       };
    }
 }

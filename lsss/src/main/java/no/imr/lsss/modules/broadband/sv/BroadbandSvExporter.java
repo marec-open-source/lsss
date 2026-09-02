@@ -19,10 +19,10 @@ import no.imr.lsss.modules.broadband.pojo.sv.BroadbandSvExportPerChannel;
 import no.imr.lsss.modules.broadband.pojo.sv.BroadbandSvExportPerPing;
 import no.imr.lsss.modules.broadband.pojo.sv.BroadbandSvExportPerRegion;
 import no.imr.tools.ProgressHandler;
-import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.math.ArrayMath;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.math.OnlineAverageAndVariance;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
@@ -201,7 +201,7 @@ public final class BroadbandSvExporter extends StreamingExporter {
             perChannel.sv = average.sv;
             ArrayMath.map(perChannel.sv, PowerData::svToLogSv);
             ArrayMath.round(perChannel.sv, 100);
-            perChannel.depth = Utils.round(average.representativeDepth, 1000);
+            perChannel.depth = MathUtils.round(average.representativeDepth, 1000);
          }
       }
 

@@ -32,7 +32,6 @@ import no.imr.tools.listening.ListenerRegistry;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -48,8 +47,8 @@ import java.util.stream.Stream;
 
 public final class SchoolParameterModule extends BaseDataModule {
    private final Map<String, SchoolParameter> schoolParameters;
-   private final List<MorphologicalParameterCollection> morphologicalParameterCollections = new ArrayList<>();
-   private final List<PerChannelParameterCollection> perChannelParameterCollections = new ArrayList<>();
+   private final List<MorphologicalParameterCollection> morphologicalParameterCollections;
+   private final List<PerChannelParameterCollection> perChannelParameterCollections;
 
    private final Set<School> queue = ConcurrentHashMap.newKeySet();
    private final CoalescingExecutor coalescingExecutor;
@@ -61,19 +60,23 @@ public final class SchoolParameterModule extends BaseDataModule {
 
       coalescingExecutor = new CoalescingExecutor(new ObservingExecutor(Exec.CACHED_THREAD_POOL, getInterpretationSettings().getExecutorObservation()));
 
-      morphologicalParameterCollections.add(new AreaParameterCollection());
-      morphologicalParameterCollections.add(new CircumferenceParameterCollection());
-      morphologicalParameterCollections.add(new DepthParameterCollection());
-      morphologicalParameterCollections.add(new SizeParameterCollection(getLSSS()));
+      morphologicalParameterCollections = List.of(
+            new AreaParameterCollection(),
+            new CircumferenceParameterCollection(),
+            new DepthParameterCollection(),
+            new SizeParameterCollection(getLSSS())
+      );
 
-      perChannelParameterCollections.add(new HistogramParameterCollection());
-      perChannelParameterCollections.add(new MomentsParameterCollection());
-      perChannelParameterCollections.add(new SaParameterCollection());
+      perChannelParameterCollections = List.of(
+            new HistogramParameterCollection(),
+            new MomentsParameterCollection(),
+            new SaParameterCollection()
+      );
 
       schoolParameters = Stream.of(morphologicalParameterCollections, perChannelParameterCollections)
             .flatMap(Collection::stream)
             .flatMap(schoolParameterCollection -> schoolParameterCollection.getParameters().stream())
-            .collect(Collectors.toMap(SchoolParameter::getPersistentName, Function.identity()));
+            .collect(Collectors.toUnmodifiableMap(SchoolParameter::getPersistentName, Function.identity()));
    }
 
    @Override
@@ -141,8 +144,8 @@ public final class SchoolParameterModule extends BaseDataModule {
          queue.stream()
                .min(Comparator.comparing(school -> school.getPingRange().begin()))
                .ifPresent(school -> {
-                  compute(school);
                   queue.remove(school);
+                  compute(school);
                   computeNext();
                });
       });

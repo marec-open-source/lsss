@@ -3,6 +3,7 @@ package no.imr.korona.viewer;
 import no.imr.korona.computation.BaseModuleComputation;
 import no.imr.korona.computation.ModuleContainerComputation;
 import no.imr.korona.data.ping.PingBuffering;
+import no.imr.tools.misc.HtmlStringBuilder;
 import no.imr.tools.swing.ColorUtils;
 import no.imr.tools.swing.WhenShowingTimer;
 import org.jspecify.annotations.Nullable;
@@ -63,15 +64,15 @@ public final class BufferingStatus {
 
       @Override
       public String getToolTipText() {
-         StringBuilder sb = new StringBuilder("<html>");
+         HtmlStringBuilder sb = new HtmlStringBuilder();
          boolean hasBuffering = false;
          ModuleContainerComputation containerComputation = computationSupplier.get();
          if (containerComputation != null) {
             for (BaseModuleComputation computation : containerComputation.getModuleComputations()) {
                if (computation.getPingBuffering().getBufferedCount() > 0) {
                   hasBuffering = true;
-                  sb.append(computation.getModule().getDisplayName()).append(": ")
-                        .append(computation.getPingBuffering().getBufferedCount()).append("<br>");
+                  sb.text(computation.getModule().getDisplayName()).html(": ")
+                        .text(computation.getPingBuffering().getBufferedCount()).html("<br>");
                }
             }
          }

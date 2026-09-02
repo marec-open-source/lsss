@@ -4,14 +4,15 @@ import no.imr.korona.data.datagrams.BaseDatagram;
 import no.imr.korona.data.ping.items.AbstractPingItem;
 import no.imr.korona.data.ping.items.PingItem;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public final class TemporaryComputationsConfigurationItem extends AbstractPingItem {
    final List<PingItem> configurationItems;
 
-   TemporaryComputationsConfigurationItem(long ntDate, List<PingItem> configurationItems) {
-      super(ntDate);
+   TemporaryComputationsConfigurationItem(Instant instant, List<PingItem> configurationItems) {
+      super(instant);
 
       this.configurationItems = configurationItems;
    }
@@ -30,6 +31,6 @@ public final class TemporaryComputationsConfigurationItem extends AbstractPingIt
       List<PingItem> copiedConfigurationItems = configurationItems.stream()
             .map(PingItem::makeCopy)
             .collect(Collectors.toList());
-      return new TemporaryComputationsConfigurationItem(getNTDate(), copiedConfigurationItems);
+      return new TemporaryComputationsConfigurationItem(getInstant(), copiedConfigurationItems);
    }
 }

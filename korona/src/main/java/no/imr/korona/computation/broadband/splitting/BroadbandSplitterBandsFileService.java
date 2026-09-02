@@ -1,8 +1,8 @@
 package no.imr.korona.computation.broadband.splitting;
 
-import no.imr.korona.config.ConfigFileParameterEditor;
 import no.imr.korona.config.ConfigFileSettings;
 import no.imr.korona.config.KoronaConfigFileService;
+import no.imr.tools.parameter.FileParameter;
 import no.imr.tools.parameter.Name;
 
 import java.nio.file.Path;
@@ -31,7 +31,7 @@ public final class BroadbandSplitterBandsFileService extends KoronaConfigFileSer
    }
 
    @Override
-   protected ConfigFileParameterEditor createFileParameterEditor(ConfigFileSettings configFileSettings) {
+   protected FileParameter.Editor createFileParameterEditor(ConfigFileSettings configFileSettings) {
       return new BroadbandSplitterFileParameterEditor(this, configFileSettings);
    }
 

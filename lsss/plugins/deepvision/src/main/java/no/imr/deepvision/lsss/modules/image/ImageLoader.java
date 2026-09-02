@@ -44,7 +44,9 @@ final class ImageLoader {
                "",
                frameInfo.deepVisionFileInfo().getFileContainer(frameInfo, direction).toString(),
                "",
-               e.getClass().getName() + ":", e.getMessage()));
+               e.getClass().getName() + ":",
+               e.getMessage()
+         ));
       }
    }
 

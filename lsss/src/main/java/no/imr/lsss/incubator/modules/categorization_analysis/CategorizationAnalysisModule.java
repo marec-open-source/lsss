@@ -55,6 +55,7 @@ import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.ProgressView;
 import no.imr.tools.swing.ViewHolder;
 import no.imr.tools.swing.WorkerDialog;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -71,6 +72,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -119,7 +121,7 @@ public final class CategorizationAnalysisModule extends BaseViewModule {
                      GuiUtils.invokeNowOrWait(getConfigurationManager()::ok);
                      selectAllSchools();
                      getInterpretationSettings().waitUntilFinished();
-                     Utils.sleep(500);
+                     Utils.sleep(Duration.ofMillis(500));
                      analyze(asyncHandle);
                   }
                });
@@ -293,7 +295,7 @@ public final class CategorizationAnalysisModule extends BaseViewModule {
    }
 
    private void export(PingRange pingRange, @Nullable CategorySum[] categorySums, ChannelInterpretation channelInterpretation) throws IOException {
-      DateTimeFormatter dateFormat = Utils.createUTCDateTimeFormatter("yyyy-MM-dd_HHmm");
+      DateTimeFormatter dateFormat = TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd_HHmm");
       String subfolder = dateFormat.format(pingRange.begin().getInstant())
             + "___" + dateFormat.format(pingRange.end().getInstant());
       Path outputDirectory = getOutputDirectory();
@@ -308,8 +310,8 @@ public final class CategorizationAnalysisModule extends BaseViewModule {
       AnalysisResult analysisResult = new AnalysisResult();
       analysisResult.name = subfolder;
       analysisResult.dir = subfolder;
-      analysisResult.beginTime = pingRange.begin().getTimeInMillis();
-      analysisResult.endTime = pingRange.end().getTimeInMillis();
+      analysisResult.beginTime = pingRange.begin().getInstant().toEpochMilli();
+      analysisResult.endTime = pingRange.end().getInstant().toEpochMilli();
       for (CategorySum categorySum : new LinkedHashSet<>(Arrays.asList(categorySums))) {
          if (categorySum == null) {
             continue;
@@ -365,7 +367,7 @@ public final class CategorizationAnalysisModule extends BaseViewModule {
    private void saveEchogram(Path file) throws IOException {
       PelagicEchogramModule echogramModule = getModuleManager().getModule(PelagicEchogramModule.class);
       getInterpretationSettings().waitUntilFinished();
-      Utils.sleep(500);
+      Utils.sleep(Duration.ofMillis(500));
       BufferedImage image = GuiUtils.getNowOrWait(() -> GuiUtils.toImage(echogramModule.getViewHolder().getView().getApiComponent()));
       ImageIO.write(image, "png", file.toFile());
    }

@@ -5,12 +5,12 @@ import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.util.DataUtils;
 import no.imr.korona.util.ExportRounding;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.lsss.LSSS;
-import no.imr.tools.Utils;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.ExportTransform;
-import no.imr.tools.time.NTDate;
+import no.imr.tools.time.TimeUtils;
 import no.marec.lsss.api.util.GeoPoint;
 
 public final class SimplePingFunction extends PingFunction {
@@ -57,7 +57,7 @@ public final class SimplePingFunction extends PingFunction {
       return new SimplePingFunction(new Name("timeBetweenPings", "Time between pings"), Unit.SECONDS, ExportTransform.round(100),
             (dataFileSet, ping, _) -> {
                PingIndex nextPingIndex = dataFileSet.getPingIndex(ping.getPingNumber() + 1);
-               return (nextPingIndex.getNTDate() - ping.getNTDate()) / (double) NTDate.UNITS_PER_SECOND;
+               return TimeUtils.toSeconds(ping.getInstant(), nextPingIndex.getInstant());
             });
    }
 
@@ -65,7 +65,7 @@ public final class SimplePingFunction extends PingFunction {
       return new SimplePingFunction(new Name("distanceBetweenPings", "Distance between pings"), Unit.METER, ExportTransform.round(1000),
             (dataFileSet, ping, _) -> {
                PingIndex nextPingIndex = dataFileSet.getPingIndex(ping.getPingNumber() + 1);
-               return Utils.nmiToMeter(nextPingIndex.getVesselDistance() - ping.getVesselDistance());
+               return KoronaUtils.nmiToMeter(nextPingIndex.getVesselDistance() - ping.getVesselDistance());
             });
    }
 

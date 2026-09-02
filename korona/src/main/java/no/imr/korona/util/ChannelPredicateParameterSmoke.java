@@ -12,7 +12,7 @@ public final class ChannelPredicateParameterSmoke extends SmokeTestRunnable {
    public void run() {
       ChannelPredicateParameter parameter = new ChannelPredicateParameter(new Name("Test"), true);
       parameter.setStringValue("f < 50 || c >= n");
-      CompiledChannelPredicate predicate = parameter.getValue().second();
+      CompiledChannelPredicate predicate = parameter.getValue().predicate();
       assert predicate.test(38, 1, 10);
       assert !predicate.test(70, 1, 10);
       assert predicate.test(70, 10, 10);

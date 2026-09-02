@@ -26,6 +26,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -184,10 +185,10 @@ final class EK60PingReaderRawOnly extends EK60PingReader {
             if (datagram == null) {
                // End of input: Create last ping.
                endOffset = rawReader.getSize();
-               return createPing(raw.getNTDate(), Long.MAX_VALUE);
-            } else if (datagram.isSampleDatagram() && datagram.getNTDate() != raw.getNTDate()) {
+               return createPing(raw.getInstant(), null);
+            } else if (datagram.isSampleDatagram() && !datagram.getInstant().equals(raw.getInstant())) {
                // Found raw with different time => create ping.
-               Ping ping = createPing(raw.getNTDate(), datagram.getNTDate());
+               Ping ping = createPing(raw.getInstant(), datagram.getInstant());
                raw = datagram;
                bufferedDatagrams.add(new PositionAndDatagram(position, datagram));
                endOffset = bufferedDatagrams.getFirst().position;
@@ -221,10 +222,10 @@ final class EK60PingReaderRawOnly extends EK60PingReader {
             if (datagram == null) {
                // End of input: Create last ping.
                endOffset = rawReader.getSize();
-               return createPing(pin0.getNTDate(), Long.MAX_VALUE);
+               return createPing(pin0.getInstant(), null);
             } else if (datagram instanceof Pin0Datagram pin0Datagram) {
                // Start of next ping.
-               Ping ping = createPing(pin0.getNTDate(), Long.MAX_VALUE);
+               Ping ping = createPing(pin0.getInstant(), null);
                pin0 = pin0Datagram;
                bufferedDatagrams.add(new PositionAndDatagram(position, datagram));
                endOffset = bufferedDatagrams.getFirst().position;
@@ -237,17 +238,17 @@ final class EK60PingReaderRawOnly extends EK60PingReader {
       }
    }
 
-   private @Nullable Ping createPing(long pingNTDate, long endNTDate) {
+   private @Nullable Ping createPing(Instant pingTime, @Nullable Instant endTime) {
       if (bufferedDatagrams.isEmpty()) {
          return null;
       }
 
       List<PositionAndDatagram> datagramsInThisPing;
-      if (endNTDate < Long.MAX_VALUE) {
+      if (endTime != null) {
          int endIndex = bufferedDatagrams.size();
          while (endIndex > 0) {
             BaseDatagram datagram = bufferedDatagrams.get(endIndex - 1).datagram;
-            if ((datagram.isSampleDatagram() || datagram.getNTDate() < endNTDate) &&
+            if ((datagram.isSampleDatagram() || datagram.getInstant().isBefore(endTime)) &&
                   !(datagram instanceof Nme0Datagram)) {
                break;
             }
@@ -259,7 +260,7 @@ final class EK60PingReaderRawOnly extends EK60PingReader {
          datagramsInThisPing = bufferedDatagrams;
       }
 
-      Idx0Datagram idx0Datagram = new Idx0Datagram(pingNTDate, pingNumber++, 0, null, datagramsInThisPing.getFirst().position);
+      Idx0Datagram idx0Datagram = new Idx0Datagram(pingTime, pingNumber++, 0, null, datagramsInThisPing.getFirst().position);
       Bot0Datagram bot0Datagram = new MissingBot0Datagram(pingConfiguration.getRawFileConfiguration(), idx0Datagram);
       Ping ping = new DefaultPing(pingConfiguration, idx0Datagram, bot0Datagram);
       if (!readingEmptyPing) {

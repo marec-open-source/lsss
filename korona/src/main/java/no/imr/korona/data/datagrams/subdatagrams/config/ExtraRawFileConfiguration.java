@@ -9,6 +9,7 @@ import org.dom4j.Element;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * For extra configuration not in XML0/Configuration, XML0/Environment.
@@ -21,14 +22,14 @@ public final class ExtraRawFileConfiguration extends BaseSubDatagram {
 
    private final Element element;
 
-   public ExtraRawFileConfiguration(long ntDate, Element element) {
-      super(ntDate);
+   public ExtraRawFileConfiguration(Instant instant, Element element) {
+      super(instant);
 
       this.element = element;
    }
 
-   private ExtraRawFileConfiguration(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   private ExtraRawFileConfiguration(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       try {
          element = XmlUtils.readDocument(byteBuffer).getRootElement();

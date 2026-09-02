@@ -113,7 +113,7 @@ public final class ContinuousVariableSettings {
       return Math.round(value / delta) * delta;
    }
 
-   private final class MyPerPingSettings extends PerPingSettings {
+   private final class MyPerPingSettings implements PerPingSettings {
       private MyPerPingSettings() {
       }
 

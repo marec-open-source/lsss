@@ -6,12 +6,13 @@ import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.tools.time.NTDate;
 
+import java.time.Instant;
 import java.util.List;
 
-public record TrackId(long rawFileConfigurationNTDate, int id) implements Comparable<TrackId> {
+public record TrackId(Instant rawFileConfigurationInstant, int id) implements Comparable<TrackId> {
 
    private TrackId(RawFileConfiguration rawFileConfiguration, int id) {
-      this(rawFileConfiguration.getNTDate(), id);
+      this(rawFileConfiguration.getInstant(), id);
    }
 
    TrackId(DataFile dataFile, int id) {
@@ -25,31 +26,31 @@ public record TrackId(long rawFileConfigurationNTDate, int id) implements Compar
    static TrackId fromIdString(RawFileConfiguration rawFileConfiguration, String completeId) {
       List<String> parts = Splitter.on(':').splitToList(completeId);
       if (parts.size() == 2) {
-         return new TrackId(Long.parseLong(parts.get(0)), Integer.parseInt(parts.get(1)));
+         return new TrackId(NTDate.ntDateStringToInstant(parts.get(0)), Integer.parseInt(parts.get(1)));
       } else {
          return new TrackId(rawFileConfiguration, Integer.parseInt(completeId));
       }
    }
 
    String toIdString(RawFileConfiguration rawFileConfiguration) {
-      if (rawFileConfigurationNTDate == rawFileConfiguration.getNTDate()) {
+      if (rawFileConfigurationInstant.equals(rawFileConfiguration.getInstant())) {
          return Integer.toString(id);
       } else {
-         return rawFileConfigurationNTDate + ":" + id;
+         return NTDate.instantToNTDateString(rawFileConfigurationInstant) + ":" + id;
       }
    }
 
    @Override
    public String toString() {
-      return "{" + NTDate.ntDateToInstant(rawFileConfigurationNTDate) + ", " + id + '}';
+      return "{" + rawFileConfigurationInstant + ", " + id + '}';
    }
 
    @Override
-   public int compareTo(TrackId that) {
-      int c = Long.compare(rawFileConfigurationNTDate, that.rawFileConfigurationNTDate);
+   public int compareTo(TrackId other) {
+      int c = rawFileConfigurationInstant.compareTo(other.rawFileConfigurationInstant);
       if (c != 0) {
          return c;
       }
-      return Integer.compare(id, that.id);
+      return Integer.compare(id, other.id);
    }
 }

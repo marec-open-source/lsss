@@ -14,6 +14,7 @@ import no.imr.tools.adm.AdmService;
 import no.imr.tools.help.ContextSensitiveHelp;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.swing.GeometryListener;
+import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiListeners;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.SplitPaneContainer;
@@ -110,10 +111,10 @@ public final class MainDisplay {
 
       JPanel topPanel = new JPanel(new BorderLayout());
       topPanel.add(toolBar.getToolBar());
-      JPanel infoPanel = AdmService.INSTANCE.mainDisplayInfoPanel(LSSS.APPLICATION_INFO);
-      if (infoPanel != null) {
-         topPanel.add(infoPanel, BorderLayout.SOUTH);
-      }
+      GridBag infoPanel = new GridBag()
+            .configureVerticalBox();
+      AdmService.INSTANCE.addToInfoPanel(infoPanel::addWithLineBreak, LSSS.APPLICATION_INFO);
+      topPanel.add(infoPanel.getPanel(), BorderLayout.SOUTH);
       JPanel mainPanel = new JPanel(new BorderLayout());
       mainPanel.add(topPanel, BorderLayout.NORTH);
 

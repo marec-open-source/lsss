@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -71,33 +73,36 @@ public final class PingFile {
          noticeHandler.addNotice("Wrong number of time records in " + frequencyFileSet.getTimeFile().getFileName());
       }
 
-      long timeShiftNTDate = frequencyFileSet.getTimeShift().getTimeShiftNTDate(infoRecord);
-      long timeFileCorrection = 0;
+      Duration timeShift = frequencyFileSet.getTimeShift().getTimeShift(infoRecord);
+      Duration timeFileCorrection = Duration.ZERO;
       int n = Math.min(indexRecords.size(), timeRecords.size());
       for (int i = 0; i < n; i++) {
          IndexRecord indexRecord = indexRecords.get(i);
          TimeRecord timeRecord = timeRecords.get(i);
-         long pingFileTime = indexRecord.getNTDate();
-         long timeFileTime = timeRecord.getNTDate(indexRecord);
+         Instant pingFileTime = indexRecord.getInstant();
+         Instant timeFileTime = timeRecord.getInstant(indexRecord);
 
-         if (Math.abs((timeFileTime + timeFileCorrection - pingFileTime) - timeShiftNTDate) > EK500Settings.MAX_TIME_RECORD_JUMP_NT_DATE) {
-            timeFileCorrection = timeShiftNTDate - (timeFileTime - pingFileTime);
+         Instant correctedTime = timeFileTime.plus(timeFileCorrection);
+         Duration correctedTimeDiff = pingFileTime.until(correctedTime);
+         if (Math.abs(correctedTimeDiff.minus(timeShift).toSeconds()) > EK500Settings.MAX_TIME_RECORD_JUMP_SECONDS) {
+            Duration timeDiff = pingFileTime.until(timeFileTime);
+            timeFileCorrection = timeShift.minus(timeDiff);
             noticeHandler.addNotice("Found jump in time file " + frequencyFileSet.getTimeFile().getFileName());
          }
-         indexRecord.setNTDate(timeFileTime + timeFileCorrection);
+         indexRecord.setInstant(timeFileTime.plus(timeFileCorrection));
       }
 
       ensureNonDecreasingTime();
    }
 
    private void ensureNonDecreasingTime() {
-      long t = 0;
+      Instant t = Instant.MIN;
       for (IndexRecord indexRecord : indexRecords) {
-         long ntDate = indexRecord.getNTDate();
-         if (ntDate < t) {
-            indexRecord.setNTDate(t);
+         Instant instant = indexRecord.getInstant();
+         if (instant.isBefore(t)) {
+            indexRecord.setInstant(t);
          } else {
-            t = ntDate;
+            t = instant;
          }
       }
    }
@@ -112,7 +117,7 @@ public final class PingFile {
       }
       IndexRecord indexRecord = ek500PingIndex.getIndexRecords()[channel - 1];
       if (indexRecord != null) {
-         return EK500DatagramFactory.createPowerData(ek500TransducerSettings, rawFileConfiguration, ek500PingIndex.getNTDate(), channel, indexRecord, fileChannel, byteBuffer);
+         return EK500DatagramFactory.createPowerData(ek500TransducerSettings, rawFileConfiguration, ek500PingIndex.getInstant(), channel, indexRecord, fileChannel, byteBuffer);
       } else {
          return null;
       }

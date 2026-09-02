@@ -207,7 +207,7 @@ public final class NoiseVisualizationModule extends PlayboxModule {
          Ellipse2D.Double dot = new Ellipse2D.Double(-3, -3, 6, 6);
          Ellipse2D.Double empty = new Ellipse2D.Double(0, 0, 0, 0);
          Supplier<XYItemRenderer> markerRenderer = () -> {
-            return new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES_AND_LINES, PlotUtils.newStandardXYToolTipGenerator()) {
+            return new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES_AND_LINES, PlotUtils.newXYToolTipGenerator()) {
                @Override
                public Shape getItemShape(int row, int column) {
                   return column == 0 ? empty : dot;
@@ -303,7 +303,7 @@ public final class NoiseVisualizationModule extends PlayboxModule {
       }
 
       private void addTimeSeriesUpdates(List<TimeSeriesUpdate> updates, Ping ping) {
-         Millisecond millisecond = new Millisecond(new Date(ping.getTimeInMillis()));
+         Millisecond millisecond = new Millisecond(Date.from(ping.getInstant()));
          for (PingItem pingItem : ping.getPingItems()) {
             switch (pingItem) {
                case Nqp0Datagram nqp -> {

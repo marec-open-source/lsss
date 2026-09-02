@@ -2,7 +2,6 @@ package no.imr.korona.computation.plankton;
 
 import no.imr.korona.computation.plankton.editor.PlanktonGUI;
 import no.imr.korona.config.ConfigFileParameterEditor;
-import no.imr.korona.config.ConfigFileService;
 import no.imr.korona.config.ConfigFileSettings;
 import org.jspecify.annotations.Nullable;
 
@@ -11,8 +10,8 @@ import java.awt.Component;
 /**
  * File parameter editor for a {@link PlanktonFile}.
  */
-final class PlanktonFileParameterEditor extends ConfigFileParameterEditor {
-   PlanktonFileParameterEditor(ConfigFileService configFileService, ConfigFileSettings configFileSettings) {
+final class PlanktonFileParameterEditor extends ConfigFileParameterEditor<PlanktonFileService> {
+   PlanktonFileParameterEditor(PlanktonFileService configFileService, ConfigFileSettings configFileSettings) {
       super(configFileService, configFileSettings);
    }
 

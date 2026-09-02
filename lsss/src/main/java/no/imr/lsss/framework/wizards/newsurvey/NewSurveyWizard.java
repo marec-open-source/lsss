@@ -6,11 +6,17 @@ import no.imr.lsss.framework.config.UserProfile;
 import no.imr.lsss.framework.config.survey.preprocessing.PreprocessingConf;
 import no.imr.tools.Max;
 import no.imr.tools.listening.Listener;
+import no.imr.tools.swing.WhenShowingListening;
 import no.imr.tools.swing.wizardry.Wizard;
 import no.imr.tools.swing.wizardry.WizardStep;
 import no.marec.lsss.api.util.observing.Subscription;
 import org.dom4j.Element;
 
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.FlowLayout;
+import java.awt.event.ItemEvent;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +38,21 @@ public final class NewSurveyWizard {
       lsss.getConfigurationManager().getSurveyConfiguration().getPreprocessingConf().getAllUnitsRecursively(PreprocessingConf.class).forEach(preprocessingConf -> {
          configFileSettingsWizardSteps.add(new ConfigFileSettingsWizardStep(surveyDirectoryWizardStep, preprocessingConf));
       });
-      surveyDirectoryWizardStep.surveyDirectory.subscribe(value -> {
-         value.ifPresent(dir -> {
-            lsss.getConfigurationManager().getSurveyConfiguration().applyRecursively(unit -> unit.setFromSurvey(dir));
-         });
-      });
 
       wizard = new Wizard(lsss.getFrame(), "New survey", createWizardSteps());
+
+      WhenShowingListening.connect(wizard.getDialog(),
+            List.of(
+                  surveyDirectoryWizardStep.surveyDirectory,
+                  lsss.getConfigurationManager().getApplicationConfiguration().getDirectoryConf().surveyDirStructure
+            ),
+            () -> {
+               Path dir = surveyDirectoryWizardStep.surveyDirectory.getFile();
+               if (dir != null) {
+                  lsss.getConfigurationManager().getSurveyConfiguration().applyRecursively(unit -> unit.setFromSurvey(dir));
+               }
+            }
+      );
    }
 
    public Wizard getWizard() {
@@ -54,14 +68,31 @@ public final class NewSurveyWizard {
             lsss.getConfigurationManager().getSurveyConf().mSurvey.subscribe(listener)
       );
 
+      String surveyDirStructure = lsss.getConfigurationManager().getApplicationConfiguration().getDirectoryConf().surveyDirStructure.getValue();
+
       UserProfile userProfile = lsss.getConfigurationManager().getUserProfile();
       UserProfile minimumUserProfile = lsss.getConfigurationManager().getSurveyConf().getPlatform() == null
             ? UserProfile.ADMINISTRATOR_MODE : UserProfile.SURVEY_SETUP;
       lsss.getConfigurationManager().setUserProfile(Max.of(userProfile, minimumUserProfile));
 
+      JComboBox<UserProfile> userProfileComboBox = new JComboBox<>(UserProfile.values());
+      userProfileComboBox.setSelectedItem(lsss.getConfigurationManager().getUserProfile());
+      userProfileComboBox.addItemListener(e -> {
+         if (e.getStateChange() == ItemEvent.SELECTED) {
+            lsss.getConfigurationManager().setUserProfile((UserProfile) e.getItem());
+         }
+      });
+      WhenShowingListening.connect(userProfileComboBox, lsss.getConfigurationManager().userProfile(), wizard::refreshCurrentComponent);
+      JPanel bottomLeftPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+      bottomLeftPanel.add(new JLabel("Access level: "));
+      bottomLeftPanel.add(userProfileComboBox);
+
+      wizard.setBottomLeft(bottomLeftPanel);
+
       wizard.show(1200, 600);
 
       lsss.getConfigurationManager().setUserProfile(userProfile);
+      lsss.getConfigurationManager().getApplicationConfiguration().getDirectoryConf().surveyDirStructure.setValue(surveyDirStructure);
 
       subscriptions.forEach(Subscription::unsubscribe);
 

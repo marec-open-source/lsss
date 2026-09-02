@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,8 +31,8 @@ public final class Pid0Datagram extends DatagramPingItem {
    private float sampleDistance;
    private float firstDepth;
 
-   public Pid0Datagram(PowerData referenceDatagram, long ntDate) {
-      super(ntDate);
+   public Pid0Datagram(PowerData referenceDatagram, Instant instant) {
+      super(instant);
       count = referenceDatagram.getCount();
       sampleDistance = referenceDatagram.getSampleDistance();
       float offset = referenceDatagram.getOffset()
@@ -40,8 +41,8 @@ public final class Pid0Datagram extends DatagramPingItem {
       firstDepth = offset * sampleDistance;
    }
 
-   public Pid0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Pid0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       count = byteBuffer.getInt();
       sampleDistance = byteBuffer.getFloat();

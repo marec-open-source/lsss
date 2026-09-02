@@ -2,6 +2,7 @@ package no.imr.korona.cli.commands;
 
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import joptsimple.util.PathConverter;
 import no.imr.korona.cli.AbsolutePathConverter;
 import no.imr.korona.cli.CliCommand;
 import no.imr.korona.cli.CliCommandJob;
@@ -19,7 +20,7 @@ public final class CalibrationGenerateCommand extends CliCommand {
 
    private final OptionSpec<Path> output = parser.accepts("output", "Output file as an absolute path or relative to dir. If not specified, then stdout is used")
          .withRequiredArg()
-         .withValuesConvertedBy(new AbsolutePathConverter());
+         .withValuesConvertedBy(new PathConverter());
 
    public CalibrationGenerateCommand() {
       super(DESCRIPTION);

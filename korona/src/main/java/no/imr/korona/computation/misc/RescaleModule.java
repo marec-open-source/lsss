@@ -24,7 +24,8 @@ public final class RescaleModule extends SimplePingModule {
    static final String RESCALE_LAST = "last";
    static final String RESCALE_NONE = "none";
    private static final List<String> RESCALE_OPTIONS = List.of(
-         RESCALE_ALL, RESCALE_HALF, RESCALE_LAST, RESCALE_NONE);
+         RESCALE_ALL, RESCALE_HALF, RESCALE_LAST, RESCALE_NONE
+   );
 
    public final ObjectParameter<String> rescaleChannels = new ObjectParameter<>(
          new Name("RescaleChannels", "Rescale channels"),
@@ -43,7 +44,7 @@ public final class RescaleModule extends SimplePingModule {
 
    public final FloatParameter minMaxFraction = new FloatParameter(
          new Name("MinMaxFraction", "Min max fraction"),
-         0.05f, Unit.DIMENSIONLESS, ValueConstraints.gteLte(0f, 1f),
+         0.05f, Unit.DIMENSIONLESS, ValueConstraints.gteLt(0f, 0.5f),
          "Discard this fraction of lower and upper values when deciding the rescaling");
 
    public final IntParameter initializationDatagramCount = new IntParameter(

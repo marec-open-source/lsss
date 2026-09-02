@@ -1,6 +1,6 @@
 package no.imr.tools.swing.linestrip;
 
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 import no.marec.lsss.api.util.LineStripBuilder;
 
 import java.awt.geom.Point2D;
@@ -57,7 +57,7 @@ public final class ShiftedBufferedLineStripBuilder implements LineStripBuilder {
 
       double dx = last.x - first.x;
       double dy = last.y - first.y;
-      double d = Utils.hypot(dx, dy);
+      double d = MathUtils.hypot(dx, dy);
       if (d == 0) {
          return;
       }

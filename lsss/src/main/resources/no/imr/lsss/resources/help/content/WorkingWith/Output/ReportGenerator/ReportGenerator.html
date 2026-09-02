@@ -27,7 +27,7 @@
    <li><i>Start-stop</i> is the start and stop distance of the print-file. Note that <i>Start</i> is at or after the
       requested start-distance of the reporting, and that the distance is independent of frequency. In other words, if the
       requested start-distance is 1000 nmi, and there is stored data from 1000 nmi at 38 kHz and from 1200 nmi at 70 kHz,
-      both the name of the 38 kHz file and the 70 kHz file be named "....._L1000.0-....". The similar is true for the stop
+      both the name of the 38 kHz file and the 70 kHz file will be named "....._L1000.0-....". The similar is true for the stop
       distance.
    </li>
    <li><i>_Postfix</i> gives the name of the acoustic category (="acoustic species") in short form (5 letters) if the
@@ -70,20 +70,20 @@
       is sorted by increasing time and increasing frequency.
    </li>
    <li><a href="#PrintFormat21">Print format 21</a>: Report format intended for estimating the backscatter at frequency "f" relative to "38 kHz"
-      (i.e. the "relative frequency response). Print format 21 has fixed columns.
+      (i.e. the "relative frequency response"). Print format 21 has fixed columns.
       The file contains the relative frequency response for the first species selected.
    </li>
    <li><a href="#PrintFormat22">Print format 22</a>: Report format intended for estimating the backscatter at frequency "f" relative to "38 kHz"
-      (i.e. the "relative frequency response). Print format 22 is comma separated unlike print format 21 that has fixed columns.
+      (i.e. the "relative frequency response"). Print format 22 is comma separated unlike print format 21 that has fixed columns.
       The file contains the relative frequency response for the first species selected.
    </li>
    <li><a href="#PrintFormat23">Print format 23</a>: Report format intended for estimating the backscatter at frequency "f" relative to "38 kHz"
-      (i.e. the "relative frequency response). Print format 23 is comma separated like print format 22, but channel 0 that
+      (i.e. the "relative frequency response"). Print format 23 is comma separated like print format 22, but channel 0 that
       contains the sum of all of the water column, is omitted.
       The file contains the relative frequency response for the first species selected.
    </li>
    <li><a href="#PrintFormat24">Print format 24</a>: Report format intended for estimating the backscatter at frequency "f" relative to other frequencies
-      (i.e. the "relative frequency response). Print format 24 has the same print format as 22 and 23, but the data are not
+      (i.e. the "relative frequency response"). Print format 24 has the same print format as 22 and 23, but the data are not
       normalized to 38 kHz. This allows for normalization to other frequencies when 38 kHz data does not exist.
       Channel 0 (i.e. the sum channel) is omitted. The file contains data for the first species selected.
    </li>
@@ -111,7 +111,7 @@
 
 <h2 id="ReducedResolution">Printing at reduced resolution</h2>
 <p>
-   Some reports can be printed at reduced resolution if requested, and some cannot. Reports 1 - 19 can be printed at reduced resolution while 20 - 40 cannot
+   Some reports can be printed at reduced resolution if requested, and some cannot. Reports 1 - 19 can be printed at reduced resolution while 20 - 40 cannot.
 </p>
 
 
@@ -761,7 +761,7 @@ threshold:		threshold in LSSS.
                              3. The SA value 263.4 for channel 9 is written like this:
                                 <sa ch = '9'>263.4</sa>.
      ******************************************************************
-     "acocat_list": child of "echosounder_dataset", valid for acsoutic categories.
+     "acocat_list": child of "echosounder_dataset", valid for acoustic categories.
      ******************************************************************
      "acocat": child of "acocat_list", variables valid for one acoustic category.
 

@@ -24,7 +24,7 @@ final class EkRepeatedlyChangeOneParameterMain {
          GetParameterResponse getParameterResponse = ekConnectionManager.sendRequest(new GetParameterRequest(parameter));
          String value = getParameterResponse.value();
          System.out.println(i + ": " + parameter.getName() + " = " + value);
-         Utils.sleep(100);
+         Utils.sleep(Duration.ofMillis(100));
       }
 
       ekConnectionManager.close();

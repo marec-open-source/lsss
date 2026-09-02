@@ -1,5 +1,5 @@
 package no.imr.lsss.modules.broadband.ts;
 
-enum TargetExtentMode {
+public enum TargetExtentMode {
    AUTOMATIC, MANUAL, REGION
 }

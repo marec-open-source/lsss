@@ -8,6 +8,7 @@ import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import no.imr.korona.data.util.TvgArray;
 import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.xml.XmlParse;
 import no.imr.tools.xml.XmlParseException;
@@ -16,6 +17,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,8 +65,8 @@ public final class PowerData extends ChannelData implements SvChannelData {
    public static final float MISSING_EFFECTIVE_PULSE_DURATION = -1;
    private static final String XML0_PARAMETER_EFFECTIVE_PULSE_DURATION = "EffectivePulseDuration";
 
-   private float @Nullable [] nullableSv; // Linear Sv (non-logarithmic)
-   private float @Nullable [] nullableLogSv; // Logarithmic Sv (dB) = 10 * log10(s_v / IMR_CONSTANT)
+   private volatile float @Nullable [] nullableSv; // Linear Sv (non-logarithmic)
+   private volatile float @Nullable [] nullableLogSv; // Logarithmic Sv (dB) = 10 * log10(s_v / IMR_CONSTANT)
 
    private @Nullable AngleData angleData;
 
@@ -72,8 +74,8 @@ public final class PowerData extends ChannelData implements SvChannelData {
    private float constant;
    private float svToTsConstant;
 
-   public PowerData(long ntDate) {
-      super(ntDate);
+   public PowerData(Instant instant) {
+      super(instant);
    }
 
    public PowerData(ChannelData channelData) {
@@ -127,7 +129,7 @@ public final class PowerData extends ChannelData implements SvChannelData {
             Log.global.log(Log.SILENT_WARNING, "Error with XML0/Parameter/Channel for " + channelId + " " + pingConversion.getDateAndFileString() + ": " + e);
          }
       }
-      return -1;
+      return MISSING_EFFECTIVE_PULSE_DURATION;
    }
 
    @Override
@@ -136,7 +138,7 @@ public final class PowerData extends ChannelData implements SvChannelData {
    }
 
    private Raw0Datagram toRaw0Datagram() {
-      Raw0Datagram raw0Datagram = new Raw0Datagram(getNTDate());
+      Raw0Datagram raw0Datagram = new Raw0Datagram(getInstant());
       setRaw0DatagramParameters(raw0Datagram);
       raw0Datagram.power = computeShortPower();
       if (angleData != null) {
@@ -170,12 +172,7 @@ public final class PowerData extends ChannelData implements SvChannelData {
       rootElement.addElement("Channel")
             .addAttribute("ChannelID", getTransducer().getChannelId())
             .addAttribute(XML0_PARAMETER_EFFECTIVE_PULSE_DURATION, Utils.toString(effectivePulseDuration));
-      return new Xml0Datagram(getNTDate(), DocumentHelper.createDocument(rootElement));
-   }
-
-   @Override
-   public PowerData makeCopy() {
-      return makeCopyWithAllData();
+      return new Xml0Datagram(getInstant(), DocumentHelper.createDocument(rootElement));
    }
 
    public PowerData makeCopyWithNoData() {
@@ -190,7 +187,8 @@ public final class PowerData extends ChannelData implements SvChannelData {
       return copy;
    }
 
-   public PowerData makeCopyWithAllData() {
+   @Override
+   public PowerData makeCopy() {
       PowerData copy = makeCopyWithNoData();
       copy.setSv(getSv().clone());
       if (angleData != null) {
@@ -312,7 +310,7 @@ public final class PowerData extends ChannelData implements SvChannelData {
       float[] sv = new float[shortPower.length];
       TvgArray tvg = getTVGArray();
       for (int i = 0; i < sv.length; i++) {
-         sv[i] = Utils.avoidInfinity(shortPowerToNpi(shortPower[i]) * tvg.get(i));
+         sv[i] = MathUtils.avoidInfinity(shortPowerToNpi(shortPower[i]) * tvg.get(i));
       }
       return sv;
    }
@@ -336,7 +334,7 @@ public final class PowerData extends ChannelData implements SvChannelData {
       float[] sv = getSv();
       float[] npi = new float[getCount()];
       for (int i = 0; i < npi.length; i++) {
-         npi[i] = Utils.avoidInfinity(sv[i] / tvg.get(i));
+         npi[i] = MathUtils.avoidInfinity(sv[i] / tvg.get(i));
       }
       return npi;
    }
@@ -540,17 +538,17 @@ public final class PowerData extends ChannelData implements SvChannelData {
     * @return the linear Sv value
     */
    public static float logSvToSv(float logSvValue) {
-      return Utils.avoidInfinity((float) (IMR_CONSTANT * Math.pow(10, logSvValue / 10)));
+      return MathUtils.avoidInfinity((float) (IMR_CONSTANT * Math.pow(10, logSvValue / 10)));
    }
 
    /**
     * Converts linear Sv value to logarithmic Sv value.
     *
-    * @param svValue the logarithmic Sv value
-    * @return the linear Sv value
+    * @param svValue the linear Sv value
+    * @return the logarithmic Sv value
     */
    public static float svToLogSv(float svValue) {
-      return Utils.avoidInfinity((float) (10 * Math.log10(svValue / IMR_CONSTANT)));
+      return MathUtils.avoidInfinity((float) (10 * Math.log10(svValue / IMR_CONSTANT)));
    }
 
    public void setElectricAngles(float[] electricalAngles) {

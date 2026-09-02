@@ -54,13 +54,13 @@ public final class BackgroundMapOverlay extends BaseMapOverlay implements PojoDa
 
    @Override
    protected OverlayDisplayData recomputeDisplayData() {
-      return new DisplayData();
+      return transformed(new DisplayData(displayImage));
    }
 
    @Override
    public PojoData getPojoData() {
       return PojoData.newBuilder(getPersistentName())
-            .with("url", toGetMapUrl(new DisplayData()))
+            .with("url", toGetMapUrl(displayImage, getMapModule().getGeoRect()))
             .build();
    }
 
@@ -72,31 +72,27 @@ public final class BackgroundMapOverlay extends BaseMapOverlay implements PojoDa
    }
 
    private void updateMap() {
-      DisplayData displayData = new DisplayData();
-      BufferedImage downloadedImage = downloadMap(displayData);
+      BufferedImage image = displayImage;
+      OverlayDisplayData displayData = transformed(new DisplayData(image));
+      String url = toGetMapUrl(image, getMapModule().getGeoRect());
+      BufferedImage downloadedImage = url.isEmpty()
+            ? createEmptyImage(image.getWidth(), image.getHeight())
+            : Wms.downloadMap(url, image.getWidth(), image.getHeight());
       SwingUtilities.invokeLater(() -> {
-         Graphics2D g2d = displayData.image.createGraphics();
+         Graphics2D g2d = image.createGraphics();
          g2d.drawImage(downloadedImage, null, 0, 0);
          g2d.dispose();
          setDisplayData(displayData);
       });
    }
 
-   private String toGetMapUrl(DisplayData displayData) {
+   private String toGetMapUrl(BufferedImage image, Rectangle2D geoRect) {
       String baseUrl = getConfigurationManager().getAppMiscConf().mapURL.getValue();
       String layers = getConfigurationManager().getAppMiscConf().mapLayers.getValue();
       if (baseUrl.isEmpty() || layers.isEmpty()) {
          return "";
       }
-      return Wms.toGetMapUrl(baseUrl, layers, displayData.image.getWidth(), displayData.image.getHeight(), displayData.geoRect);
-   }
-
-   private BufferedImage downloadMap(DisplayData displayData) {
-      String url = toGetMapUrl(displayData);
-      if (url.isEmpty()) {
-         return createEmptyImage(displayData.image.getWidth(), displayData.image.getHeight());
-      }
-      return Wms.downloadMap(url, displayData.image.getWidth(), displayData.image.getHeight());
+      return Wms.toGetMapUrl(baseUrl, layers, image.getWidth(), image.getHeight(), geoRect);
    }
 
    private static BufferedImage createEmptyImage(int width, int height) {
@@ -108,15 +104,9 @@ public final class BackgroundMapOverlay extends BaseMapOverlay implements PojoDa
       return image;
    }
 
-   private final class DisplayData extends TransformedDisplayData {
-      private final Rectangle2D geoRect = getMapModule().getGeoRect();
-      private final BufferedImage image = displayImage;
-
-      private DisplayData() {
-      }
-
+   private record DisplayData(BufferedImage image) implements OverlayDisplayData {
       @Override
-      public void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          g2d.drawImage(image, null, 0, 0);
       }
    }

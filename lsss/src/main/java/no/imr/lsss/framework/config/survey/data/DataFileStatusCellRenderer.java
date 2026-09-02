@@ -6,6 +6,7 @@ import no.imr.korona.data.track.SegmentInfo;
 import no.imr.lsss.resources.LsssIcons;
 import no.imr.tools.misc.HtmlStringBuilder;
 import no.imr.tools.swing.svg.SvgIcon;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.JLabel;
@@ -13,12 +14,13 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 final class DataFileStatusCellRenderer implements TableCellRenderer {
-   static final long MODIFICATION_THRESHOLD = 60000;
+   static final long MODIFICATION_THRESHOLD_MILLIS = 60_000;
 
    private final DataFileTable dataFileTable;
    private @Nullable SvgIcon icon;
@@ -44,7 +46,7 @@ final class DataFileStatusCellRenderer implements TableCellRenderer {
    @Override
    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
       switch (value) {
-         case DataFileTableModel.FileRow fileRow -> renderFileRow(fileRow, row);
+         case DataFileTableModel.FileRow fileRow -> renderFileRow(fileRow);
          case DataFileTableModel.TimeRow timeRow -> renderTimeRow(timeRow);
          default -> {
             label.setText(null);
@@ -62,7 +64,7 @@ final class DataFileStatusCellRenderer implements TableCellRenderer {
       frequencyIcon = null;
    }
 
-   private void renderFileRow(DataFileTableModel.FileRow fileRow, int row) {
+   private void renderFileRow(DataFileTableModel.FileRow fileRow) {
       SvgIcon newIcon = null;
       HtmlStringBuilder tooltip = dataFileTable.needToolTip() ? new HtmlStringBuilder() : null;
       if (tooltip != null) {
@@ -98,13 +100,13 @@ final class DataFileStatusCellRenderer implements TableCellRenderer {
 
       List<String> notices = new ArrayList<>();
 
-      if (row == dataFileTable.getRowCount() - 1) {
-         notices.add("Last file in directory");
+      if (fileRow == dataFileTable.getDataFileTableModel().getMostRecentlyModifiedRow(DataType.RAW)) {
+         notices.add("The most recently modified file in the directory");
       }
 
-      long lastModified = fileRow.getLastModified(DataType.RAW);
-      if (lastModified + MODIFICATION_THRESHOLD > System.currentTimeMillis()) {
-         notices.add("Recently modified: " + new Date(lastModified));
+      Instant lastModified = fileRow.getLastModified(DataType.RAW);
+      if (lastModified != null && lastModified.until(Instant.now(), ChronoUnit.MILLIS) < MODIFICATION_THRESHOLD_MILLIS) {
+         notices.add("Recently modified: " + TimeUtils.JAVA_UTIL_DATE_FORMATTER.format(lastModified));
       }
 
       DataFile rawDataFile = fileRow.getDataFile(DataType.RAW);

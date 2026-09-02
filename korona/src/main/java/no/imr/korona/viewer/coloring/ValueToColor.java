@@ -29,12 +29,12 @@ final class ValueToColor {
    }
 
    int getRGB(float value, FloatRange clipRange) {
-      if (!clipRange.contains(value)) {
-         return belowRGB;
-      }
-
       if (ValueColor.isNoDataFloat(value)) {
          return ValueColor.NO_DATA_RGB;
+      }
+
+      if (!clipRange.contains(value)) {
+         return belowRGB;
       }
 
       int i = (int) Math.floor((value - min) / delta);

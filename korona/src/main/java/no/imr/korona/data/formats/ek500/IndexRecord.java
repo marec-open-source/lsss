@@ -2,10 +2,9 @@ package no.imr.korona.data.formats.ek500;
 
 import no.imr.korona.data.DataException;
 import no.imr.tools.Utils;
-import no.imr.tools.time.DateTimeMillis;
-import no.imr.tools.time.NTDate;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * EK500 index record.
@@ -52,7 +51,7 @@ public final class IndexRecord {
    int echotraceCount;      /* Number of echo traces in current ping */
    int echotraceOffset;     /* Offset of trace data [byte] */
 
-   private long ntDate;
+   private Instant instant;
 
    IndexRecord(ByteBuffer byteBuffer) throws DataException {
       date = byteBuffer.getInt();
@@ -86,7 +85,11 @@ public final class IndexRecord {
          throw new DataException("Bottom range: " + bottomLower + ", " + bottomUpper);
       }
 
-      ntDate = EK500Utils.dateTimeToNTDate(date, time);
+      try {
+         instant = EK500Utils.dateTimeToInstant(date, time);
+      } catch (Exception e) {
+         throw new DataException("Cannot parse date and time " + date + " " + time, e);
+      }
    }
 
    @Override
@@ -98,19 +101,14 @@ public final class IndexRecord {
             + ", PelagicOffset: " + pelagicOffset;
    }
 
-   public int getTime() {
-      return time;
+   void setInstant(Instant instant) {
+      this.instant = instant;
+      date = EK500Utils.instantToDate(instant);
+      time = EK500Utils.instantToTime(instant);
    }
 
-   void setNTDate(long ntDate) {
-      this.ntDate = ntDate;
-      DateTimeMillis dateTimeMillis = new DateTimeMillis(NTDate.ntDateToTimeInMillis(ntDate));
-      date = dateTimeMillis.getDate();
-      time = dateTimeMillis.getTime();
-   }
-
-   public long getNTDate() {
-      return ntDate;
+   public Instant getInstant() {
+      return instant;
    }
 
    public float getPelagicEchogramMinDepth() {
@@ -139,12 +137,5 @@ public final class IndexRecord {
 
    public boolean pelagicAndBottomOverlap() {
       return getBottomEchogramMinDepth() <= getPelagicEchogramMaxDepth();
-   }
-
-   public float calculateSpeedInKnots(IndexRecord reference) {
-      float nauticalMiles = distance - reference.distance;
-      float seconds = (float) (ntDate - reference.ntDate) / (float) NTDate.UNITS_PER_SECOND;
-      float hours = seconds / 3600;
-      return nauticalMiles / hours;
    }
 }

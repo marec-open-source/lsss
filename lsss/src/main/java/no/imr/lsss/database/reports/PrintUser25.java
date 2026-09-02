@@ -13,10 +13,11 @@ import no.imr.lsss.database.tables.hibernate.ScatterPK;
 import no.imr.lsss.database.tables.hibernate.Survey;
 import no.imr.lsss.database.util.DatabaseTime;
 import no.imr.tools.Utils;
+import no.imr.tools.time.DateTimeMillis;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -268,8 +269,8 @@ sealed class PrintUser25 extends BaseMultiFrequencyXmlReport permits PrintUser26
       xmlStreamWriter.writeEndElement();
       writeEmptyElementWithAttribute("Country", "IDREF", "ISO_3166_" + nationCode);
       writeEmptyElementWithAttribute("Platform", "IDREF", "SHIPC_" + platformCode);
-      writeSimpleElement("StartDate", getDateString(aPrintData.getSurvey().getStartDate()));
-      writeSimpleElement("EndDate", getDateString(aPrintData.getSurvey().getStopDate()));
+      writeSimpleElement("StartDate", DateTimeMillis.toLocalDate(aPrintData.getSurvey().getStartDate()).map(LocalDate::toString).orElse(""));
+      writeSimpleElement("EndDate", DateTimeMillis.toLocalDate(aPrintData.getSurvey().getStopDate()).map(LocalDate::toString).orElse(""));
       writeEmptyElementWithAttribute("Organisation", "IDREF", "EDMO_" + icesOrganisation);
 
       // Local survey identifier?
@@ -302,13 +303,6 @@ sealed class PrintUser25 extends BaseMultiFrequencyXmlReport permits PrintUser26
 
    String getCategory(AcousticCategory acousticCategory) {
       return GetIces.acousticCategory(acousticCategory);
-   }
-
-   private static String getDateString(int date) {
-      int year = date / 10000;
-      int month = (date - year * 10000) / 100;
-      int day = date - year * 10000 - month * 100;
-      return Utils.format("%4d-%02d-%02d", year, month, day);
    }
 
    private static void writeVocabularyCode(XMLStreamWriter xmlStreamWriter, String aElementName, String aCodeTypeFileName, String aID, String aValue) throws XMLStreamException {
@@ -361,7 +355,7 @@ sealed class PrintUser25 extends BaseMultiFrequencyXmlReport permits PrintUser26
          }
          xmlStreamWriter.writeStartElement("Log");
          writeSimpleElement("Distance", observation.getDistance());
-         writeSimpleElement("Time", ReportUtils.DATE_TIME.format(Instant.ofEpochMilli(DatabaseTime.toMillis(date, time))));
+         writeSimpleElement("Time", ReportUtils.DATE_TIME.format(DatabaseTime.toInstant(date, time)));
          writeSimpleElement("Latitude", observation.getLatitude());
          writeSimpleElement("Longitude", observation.getLongitude());
 

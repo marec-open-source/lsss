@@ -14,6 +14,7 @@ public final class PostgreSQLDatabasePlugin extends AbstractServerDatabasePlugin
 
    public PostgreSQLDatabasePlugin(LSSS lsss) {
       super(new Name("PostgrSQL"), lsss);
+      // "PostgrSQL" is a typo, but it is stored in config files, so we leave it as is for now.
 
       host.setValue("localhost:5432");
    }

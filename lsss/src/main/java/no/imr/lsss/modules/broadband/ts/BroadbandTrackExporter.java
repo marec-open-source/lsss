@@ -29,6 +29,7 @@ import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.math.ArrayMath;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.math.linalg.Vec3;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
@@ -225,8 +226,8 @@ public final class BroadbandTrackExporter extends StreamingExporter {
          perTrack.time.add(ping.getInstant().toString());
 
          GeoPoint geoPos = ping.getPingIndex().getGeographicalPosition();
-         perTrack.longitude.add(geoPos != null ? Utils.round(geoPos.getLongitude(), 1e8) : Double.NaN);
-         perTrack.latitude.add(geoPos != null ? Utils.round(geoPos.getLatitude(), 1e8) : Double.NaN);
+         perTrack.longitude.add(geoPos != null ? MathUtils.round(geoPos.getLongitude(), 1e8) : Double.NaN);
+         perTrack.latitude.add(geoPos != null ? MathUtils.round(geoPos.getLatitude(), 1e8) : Double.NaN);
          perTrack.heading.add((float) DataUtils.getHeadingFromNmea(ping).orElse(Double.NaN));
 
          PowerData detectionRaw = ping.getPowerData(trackBorder.channel());
@@ -234,9 +235,9 @@ public final class BroadbandTrackExporter extends StreamingExporter {
          perTrack.pitch.add(detectionRaw != null ? detectionRaw.getPitch() : Float.NaN);
          perTrack.roll.add(detectionRaw != null ? detectionRaw.getRoll() : Float.NaN);
 
-         perTrack.minDepth.add(Utils.round(trackBorder.depthRange().min(), 1000));
-         perTrack.maxDepth.add(Utils.round(trackBorder.depthRange().max(), 1000));
-         perTrack.peakDepth.add(Utils.round(trackBorder.peakDepth(), 1000));
+         perTrack.minDepth.add(MathUtils.round(trackBorder.depthRange().min(), 1000));
+         perTrack.maxDepth.add(MathUtils.round(trackBorder.depthRange().max(), 1000));
+         perTrack.peakDepth.add(MathUtils.round(trackBorder.peakDepth(), 1000));
 
          for (int i = 0; i < channels.size(); i++) {
             BroadbandTrackExportPerChannel perChannel = perTrack.channels.get(i);
@@ -266,20 +267,20 @@ public final class BroadbandTrackExporter extends StreamingExporter {
             perChannel.maxFrequency.add(tsData.frequencyRange().max());
             perChannel.numFrequencies.add(trackBorder.useAngles() ? tsData.values().length : 0);
             float peakRange = broadbandData.depthToRange(tsData.depth());
-            perChannel.peakRange.add(Utils.round(peakRange, 1000));
-            perChannel.fftDistanceBefore.add(Utils.round(peakRange - broadbandData.depthToRange(tsData.depthRange().min()), 1000));
-            perChannel.fftDistanceAfter.add(Utils.round(broadbandData.depthToRange(tsData.depthRange().max()) - peakRange, 1000));
+            perChannel.peakRange.add(MathUtils.round(peakRange, 1000));
+            perChannel.fftDistanceBefore.add(MathUtils.round(peakRange - broadbandData.depthToRange(tsData.depthRange().min()), 1000));
+            perChannel.fftDistanceAfter.add(MathUtils.round(broadbandData.depthToRange(tsData.depthRange().max()) - peakRange, 1000));
             int peakIndex = broadbandData.depthToSampleIndex(tsData.depth());
             float nominalFrequency = broadbandData.getTransducer().getFrequency();
             float alongshipAngle = broadbandData.getMechanicalAlongAngle(peakIndex, nominalFrequency);
             float athwartshipAngle = broadbandData.getMechanicalAthwartAngle(peakIndex, nominalFrequency);
-            perChannel.alongshipAngle.add(trackBorder.useAngles() ? Utils.round(alongshipAngle, 100) : Float.NaN);
-            perChannel.athwartshipAngle.add(trackBorder.useAngles() ? Utils.round(athwartshipAngle, 100) : Float.NaN);
+            perChannel.alongshipAngle.add(trackBorder.useAngles() ? MathUtils.round(alongshipAngle, 100) : Float.NaN);
+            perChannel.athwartshipAngle.add(trackBorder.useAngles() ? MathUtils.round(athwartshipAngle, 100) : Float.NaN);
             Vec3 pos = StationaryPositionFunction.measurementToGlobalPosition(new Measurement(peakRange,
                   (float) Math.toRadians(alongshipAngle), (float) Math.toRadians(athwartshipAngle), 0));
-            perChannel.x.add(trackBorder.useAngles() ? Utils.round(pos.x(), 1000) : Float.NaN);
-            perChannel.y.add(trackBorder.useAngles() ? Utils.round(pos.y(), 1000) : Float.NaN);
-            perChannel.z.add(trackBorder.useAngles() ? Utils.round(pos.z(), 1000) : Float.NaN);
+            perChannel.x.add(trackBorder.useAngles() ? MathUtils.round(pos.x(), 1000) : Float.NaN);
+            perChannel.y.add(trackBorder.useAngles() ? MathUtils.round(pos.y(), 1000) : Float.NaN);
+            perChannel.z.add(trackBorder.useAngles() ? MathUtils.round(pos.z(), 1000) : Float.NaN);
             float[] tsc = tsData.values();
             ArrayMath.round(tsc, 100);
             perChannel.tsc.add(trackBorder.useAngles() ? tsc : Utils.EMPTY_FLOAT_ARRAY);

@@ -8,8 +8,9 @@ import no.imr.korona.data.ping.PingSource;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
-import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
+import no.imr.tools.math.MathUtils;
+import no.imr.tools.math.Quantile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,7 +76,7 @@ final class RescaleModuleComputation extends SimplePingModuleComputation {
       for (int i = 0; i < logSv.length; i++) {
          logSv[i] = s * logSv[i] + t;
       }
-      if (Utils.avoidInfinities(logSv)) {
+      if (MathUtils.avoidInfinities(logSv)) {
          Log.global.warning("RescaleModule: Clamped infinities in result.");
       }
    }
@@ -86,15 +87,6 @@ final class RescaleModuleComputation extends SimplePingModuleComputation {
          sampleCount += array.length;
       }
 
-      float[] samples = new float[sampleCount];
-      int sampleIndex = 0;
-      for (float[] array : buffer) {
-         System.arraycopy(array, 0, samples, sampleIndex, array.length);
-         sampleIndex += array.length;
-      }
-
-      Arrays.sort(samples);
-
       float minVal;
       float maxVal;
       if (sampleCount == 0) {
@@ -102,9 +94,15 @@ final class RescaleModuleComputation extends SimplePingModuleComputation {
          minVal = 0;
          maxVal = 0;
       } else {
-         int i = (int) (sampleCount * module.minMaxFraction.getFloatValue());
-         minVal = samples[i];
-         maxVal = samples[Math.min(sampleCount - 1, sampleCount - i)];
+         float[] samples = new float[sampleCount];
+         int sampleIndex = 0;
+         for (float[] array : buffer) {
+            System.arraycopy(array, 0, samples, sampleIndex, array.length);
+            sampleIndex += array.length;
+         }
+         float q = module.minMaxFraction.getFloatValue();
+         minVal = Quantile.quickSelect(samples, q);
+         maxVal = Quantile.quickSelect(samples, 1 - q);
       }
 
       if (Math.abs(maxVal - minVal) <= Float.MIN_VALUE) {

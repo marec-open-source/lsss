@@ -82,5 +82,10 @@ public final class ProcessorConfig implements ParameterContainer {
       public FileParameter.Editor getEditor() {
          return cfsManager.createCfsEditor();
       }
+
+      @Override
+      public Copier getCopier() {
+         return cfsManager.createCfsCopier();
+      }
    }
 }

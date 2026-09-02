@@ -7,6 +7,7 @@ import no.imr.korona.data.formats.ek60.calibration.CalibrationFile;
 import no.imr.korona.data.formats.ek60.calibration.CalibrationGenerator;
 import no.imr.korona.data.track.SegmentHandle;
 import no.imr.tools.concurrent.AsyncHandle;
+import no.imr.tools.logging.Log;
 import no.imr.tools.web.WebUtils;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.Element;
@@ -46,7 +47,9 @@ final class CalibrationGenerateCommandJob extends CliCommandJob {
       if (output == null) {
          out.println(XmlUtils.toPrettyString(element));
       } else {
-         XmlUtils.writeDocument(element, dir.resolve(output));
+         Path file = dir.resolve(output).normalize();
+         Log.global.info("Writing calibration to " + file);
+         XmlUtils.writeDocument(element, file);
       }
    }
 }

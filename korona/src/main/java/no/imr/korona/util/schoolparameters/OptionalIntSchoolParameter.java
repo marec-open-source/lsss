@@ -12,7 +12,7 @@ public abstract class OptionalIntSchoolParameter extends IntSchoolParameter {
    public abstract void setNotAvailable();
 
    @Override
-   public String getExportValue() {
+   protected String getExportValue() {
       return isAvailable() ? super.getExportValue() : NOT_AVAILABLE;
    }
 

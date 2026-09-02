@@ -36,6 +36,7 @@ public final class DatabaseConnectionEditor {
    private final JButton disconnectButton = new JButton("Disconnect");
    private final JButton initializeButton = new JButton("Create and initialize");
    private final JButton createEmptyButton = new JButton("Create empty DB");
+   private boolean isUpdating;
 
    public DatabaseConnectionEditor(LSSS lsss) {
       this.lsss = lsss;
@@ -49,6 +50,9 @@ public final class DatabaseConnectionEditor {
       databaseTypeComboBox = new JComboBox<>(databaseItems.toArray());
       databaseTypeComboBox.setSelectedItem(databaseConnectionManager.getDatabasePlugin());
       databaseTypeComboBox.addItemListener(e -> {
+         if (isUpdating) {
+            return;
+         }
          DatabasePlugin databasePlugin = e.getItem() instanceof DatabasePlugin p ? p : null;
          databaseConnectionManager.setDatabasePlugin(databasePlugin);
       });
@@ -70,31 +74,36 @@ public final class DatabaseConnectionEditor {
    }
 
    private void update() {
-      boolean canEdit = canEdit();
-      updateEnabledState();
+      isUpdating = true;
+      try {
+         boolean canEdit = canEdit();
+         updateEnabledState();
 
-      if (databaseConnectionManager.getDatabaseConnection().isConnected()) {
-         MiscIcons.CHECK.on(connectedLabel).setText("Connected");
-         connectedLabel.setBackground(ColorUtils.LIGHTGREEN);
-      } else {
-         MiscIcons.DELETE.on(connectedLabel).setText("Disconnected");
-         connectedLabel.setBackground(ColorUtils.SALMON);
-      }
+         if (databaseConnectionManager.getDatabaseConnection().isConnected()) {
+            MiscIcons.CHECK.on(connectedLabel).setText("Connected");
+            connectedLabel.setBackground(ColorUtils.LIGHTGREEN);
+         } else {
+            MiscIcons.DELETE.on(connectedLabel).setText("Disconnected");
+            connectedLabel.setBackground(ColorUtils.SALMON);
+         }
 
-      pluginConfigurationPanel.removeAll();
-      DatabasePlugin databasePlugin = databaseConnectionManager.getDatabasePlugin();
-      if (databasePlugin != null) {
-         databaseTypeComboBox.setSelectedItem(databasePlugin);
-         databasePlugin.setGUIEnabled(canEdit && !databaseConnectionManager.getDatabaseConnection().isConnected());
-         JPanel panel = new JPanel(new BorderLayout());
-         panel.add(databasePlugin.getConfigurationGUI());
-         WhenShowingListening.connect(panel, databasePlugin.getParameters(), this::updateEnabledState);
-         pluginConfigurationPanel.add(panel);
-      } else {
-         databaseTypeComboBox.setSelectedIndex(0);
+         pluginConfigurationPanel.removeAll();
+         DatabasePlugin databasePlugin = databaseConnectionManager.getDatabasePlugin();
+         if (databasePlugin != null) {
+            databaseTypeComboBox.setSelectedItem(databasePlugin);
+            databasePlugin.setGUIEnabled(canEdit && !databaseConnectionManager.getDatabaseConnection().isConnected());
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.add(databasePlugin.getConfigurationGUI());
+            WhenShowingListening.connect(panel, databasePlugin.getParameters(), this::updateEnabledState);
+            pluginConfigurationPanel.add(panel);
+         } else {
+            databaseTypeComboBox.setSelectedIndex(0);
+         }
+         pluginConfigurationPanel.setBorder(BorderFactory.createEmptyBorder());
+         GuiUtils.validateAndRepaintTopmostParent(pluginConfigurationPanel);
+      } finally {
+         isUpdating = false;
       }
-      pluginConfigurationPanel.setBorder(BorderFactory.createEmptyBorder());
-      GuiUtils.validateAndRepaintTopmostParent(pluginConfigurationPanel);
    }
 
    private boolean canEdit() {

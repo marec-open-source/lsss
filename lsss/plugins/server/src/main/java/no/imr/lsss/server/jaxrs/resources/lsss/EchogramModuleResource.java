@@ -32,6 +32,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.function.DoubleUnaryOperator;
 
 public final class EchogramModuleResource extends ModuleResource<EchogramModule> {
    private final LSSS lsss;
@@ -90,10 +91,10 @@ public final class EchogramModuleResource extends ModuleResource<EchogramModule>
          xValues[i] = pingSettings.pingIndexToX(pingIndex);
          zValues[i] = apiEchogramPoint.z;
       }
-      Function1D xToZ = Function1D.interpolate(xValues, zValues);
+      DoubleUnaryOperator xToZ = Function1D.interpolate(xValues, zValues);
       ToFloatFunction<PingIndex> pingIndexToDepth = pingIndex -> {
          float x = pingSettings.pingIndexToX(pingIndex);
-         return module.getZSettings().zToDepth(xToZ.eval(x), pingIndex);
+         return module.getZSettings().zToDepth(xToZ.applyAsDouble(x), pingIndex);
       };
       PingIndex pingIndex = toPingIndex(apiEchogramPoints.get(apiEchogramPoints.size() / 2));
       lsss.getRegionManager().addHorizontalLayerBoundary(pingIndex, pingIndexToDepth);

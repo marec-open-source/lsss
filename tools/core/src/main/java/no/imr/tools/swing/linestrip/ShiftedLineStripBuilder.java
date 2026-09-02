@@ -1,6 +1,6 @@
 package no.imr.tools.swing.linestrip;
 
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 import no.marec.lsss.api.util.LineStripBuilder;
 import org.jspecify.annotations.Nullable;
 
@@ -58,7 +58,7 @@ public final class ShiftedLineStripBuilder implements LineStripBuilder {
    private void addShiftedPoint(Point2D.Double first, Point2D.Double point, Point2D.Double last) {
       double dx = last.x - first.x;
       double dy = last.y - first.y;
-      double d = Utils.hypot(dx, dy);
+      double d = MathUtils.hypot(dx, dy);
       if (d == 0) {
          return;
       }

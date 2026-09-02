@@ -4,13 +4,13 @@ import no.imr.korona.data.datagrams.BaseDatagram;
 import no.imr.korona.data.datagrams.Bot0Datagram;
 import no.imr.korona.data.datagrams.DatagramTypeManager;
 import no.imr.korona.data.formats.ek60.io.ByteBufferDatagramReader;
+import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.korona.data.formats.ek60.io.RandomAccessDatagramReader;
 import no.imr.korona.data.formats.missing.MissingBot0Datagram;
 import no.imr.korona.data.util.NoticeHandler;
 import no.imr.tools.io.FileUtils;
 
 import java.io.IOException;
-import java.nio.ByteOrder;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ record BotFile(
    static BotFile load(Path file, IdxFile idxFile, DatagramTypeManager datagramTypeManager, NoticeHandler noticeHandler) throws IOException {
       List<Bot0Datagram> bot0Datagrams = new ArrayList<>(idxFile.idx0Datagrams().size());
 
-      try (RandomAccessDatagramReader datagramReader = new ByteBufferDatagramReader(FileUtils.toByteBuffer(file, ByteOrder.LITTLE_ENDIAN), datagramTypeManager)) {
+      try (RandomAccessDatagramReader datagramReader = new ByteBufferDatagramReader(ByteBufferUtils.toByteBuffer(file), datagramTypeManager)) {
          int unexpectedDatagramCount = 0;
          while (bot0Datagrams.size() < idxFile.idx0Datagrams().size()) {
             BaseDatagram datagram = datagramReader.nextDatagram();

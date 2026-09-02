@@ -48,6 +48,7 @@ public final class PingCollapsingModule extends GeneralPingModule {
          newPingIndex.setPingNumber(pingNumber++);
          DefaultPing result = new DefaultPing(ping.getPingConfiguration(), newPingIndex, ping.getBot0Datagram());
          result.addAll(ping.getPingItems());
+         ChannelData heaveChannelData = result.getFirstAvailableChannelData();
 
          while (true) {
             nextPing = inputPing();
@@ -55,8 +56,16 @@ public final class PingCollapsingModule extends GeneralPingModule {
                break;
             }
             for (PingItem pingItem : nextPing.getPingItems()) {
-               if (pingItem instanceof ChannelData) {
-                  pingItem.setNTDate(result.getNTDate());
+               if (pingItem instanceof ChannelData channelData) {
+                  channelData.setInstant(result.getInstant());
+                  if (heaveChannelData != null) {
+                     channelData.setHeave(heaveChannelData.getHeave());
+                     channelData.setRoll(heaveChannelData.getRoll());
+                     channelData.setPitch(heaveChannelData.getPitch());
+                     channelData.setHeading(heaveChannelData.getHeading());
+                  } else {
+                     heaveChannelData = channelData;
+                  }
                }
                result.add(pingItem);
             }

@@ -7,7 +7,7 @@ public final class FileInfoComparator {
    }
 
    public static Comparator<FileInfo> lastModified() {
-      return Comparator.comparing(FileInfo::lastModifiedTime)
+      return Comparator.comparing(FileInfo::lastModified)
             .thenComparing(FileInfo::file);
    }
 

@@ -7,7 +7,7 @@ plugins {
 
 val marecHelp = extensions.create<HelpBuildExtension>("marecHelp")
 
-val toolsHelpInternal by configurations.registering
+val toolsHelpInternal = configurations.register("toolsHelpInternal")
 
 dependencies {
    toolsHelpInternal(project(":tools:help:internal"))

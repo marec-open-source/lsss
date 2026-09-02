@@ -40,7 +40,6 @@ public final class PeakTSDetector implements TSDetector {
       return getTsDetections(channelData, Math.min(beginIndex, maxIndex), Math.min(endIndex, maxIndex));
    }
 
-   @SuppressWarnings("RedundantIfStatement")
    private boolean isAccepted(ChannelData channelData, TSDetection tsDetection) {
       if (!TSDetectorUtils.checkEchoLimits(tsDetection, channelData, minEchoLength, maxEchoLength)) {
          return false;

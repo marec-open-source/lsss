@@ -21,9 +21,9 @@ public final class ScaleMaskComputation {
    private final boolean isPartOfSmoothing;
    private final PingRange editPingRange;
 
-   public ScaleMaskComputation(PingContainer pingContainer, EchogramPingSettings pingSettings, EchogramZSettings zSettings,
+   public ScaleMaskComputation(EchogramPingSettings pingSettings, EchogramZSettings zSettings,
                                NavigableMap<PingIndex, FloatRangeSet> originalMask, boolean isPartOfSmoothing) {
-      this.pingContainer = pingContainer;
+      pingContainer = pingSettings.getPingContainer();
       this.pingSettings = pingSettings;
       this.zSettings = zSettings;
       this.originalMask = originalMask;

@@ -76,12 +76,12 @@ public final class InMemoryPreferencesFactory implements PreferencesFactory {
 
       @Override
       protected String[] keysSpi() {
-         return map.keySet().toArray(new String[0]);
+         return map.keySet().toArray(String[]::new);
       }
 
       @Override
       protected String[] childrenNamesSpi() {
-         return nodes.keySet().toArray(new String[0]);
+         return nodes.keySet().toArray(String[]::new);
       }
 
       @Override

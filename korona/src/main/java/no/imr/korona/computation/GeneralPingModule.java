@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 
+/// Base class for modules that have full control over pulling input pings and generating output pings.
 public abstract non-sealed class GeneralPingModule extends BaseModule {
    protected GeneralPingModule() {
    }

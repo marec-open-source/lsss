@@ -7,6 +7,7 @@ import no.imr.tools.Utils;
 import no.imr.tools.math.linalg.Vec3;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,12 +32,12 @@ public final class Con0Datagram extends BaseDatagram {
    public String spare = ""; // future use (48)
    public List<Transducer> transducers = new ArrayList<>(); // Transducer settings
 
-   public Con0Datagram(long ntDate) {
-      super(ntDate);
+   public Con0Datagram(Instant instant) {
+      super(instant);
    }
 
-   public Con0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Con0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       surveyName = ByteBufferUtils.readCString(byteBuffer, 128);
       transectName = ByteBufferUtils.readCString(byteBuffer, 128);
@@ -110,6 +111,12 @@ public final class Con0Datagram extends BaseDatagram {
       public float directivityDrop; // [-]
       public String transceiverVersion = ""; // Transceiver version /16
       public final byte[] spare4 = new byte[28]; // Future use /28)
+
+      // Note:
+      //
+      // float gain: The single Gain parameter was used actively in raw data files generated with software version 1.3.
+      // This was before PulseLengthTable, GainTable, and SaCorrectionTable were introduced in software version 1.4
+      // to enable gain and Sa correction parameters for each pulse length.
 
       public Transducer() {
       }

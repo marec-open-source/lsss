@@ -75,8 +75,12 @@ public final class MagnifierModule extends BaseViewModule {
    private void onMouseMove(AWTEvent event) {
       Component component = (Component) event.getSource();
       MouseEvent mouseEvent = (MouseEvent) event;
-      Component topmostParent = mouseEvent.getID() != MouseEvent.MOUSE_EXITED ? GuiUtils.getTopmostParent(component) : null;
-      Point point = topmostParent != null ? SwingUtilities.convertPoint(component, mouseEvent.getPoint(), topmostParent) : null;
+      Component topmostParent = mouseEvent.getID() != MouseEvent.MOUSE_EXITED
+            ? GuiUtils.getTopmostParent(component)
+            : null;
+      Point point = topmostParent != null
+            ? SwingUtilities.convertPoint(component, mouseEvent.getPoint(), topmostParent)
+            : null;
       viewHolder.ifViewDelayed(mouseMotionListener, view -> view.setCurrent(topmostParent, point));
    }
 

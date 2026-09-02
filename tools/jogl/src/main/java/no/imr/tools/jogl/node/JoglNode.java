@@ -11,6 +11,7 @@ import java.util.List;
 public abstract sealed class JoglNode permits JoglDisplayNode, JoglGroupNode {
    private @Nullable JoglGroupNode parent;
    private @Nullable List<JoglDisposable> disposables; // Null means not initialized
+   private JoglModule.GlDrawInfo glDrawInfo = new JoglModule.GlDrawInfo();
    private boolean visible = true;
 
    protected JoglNode() {
@@ -30,6 +31,10 @@ public abstract sealed class JoglNode permits JoglDisplayNode, JoglGroupNode {
 
    boolean isDrawable() {
       return visible && disposables != null;
+   }
+
+   public float getUiScaleFactor() {
+      return glDrawInfo.getUiScaleFactor();
    }
 
    public void detach() {
@@ -67,11 +72,12 @@ public abstract sealed class JoglNode permits JoglDisplayNode, JoglGroupNode {
       return parent != null ? parent.eyeToModel(pos) : pos;
    }
 
-   void initTraversal(GL2 gl) {
+   void initTraversal(GL2 gl, JoglModule.GlDrawInfo glDrawInfo) {
       if (disposables == null) {
          List<JoglDisposable> newDisposables = new ArrayList<>();
          init(gl, newDisposables);
          disposables = List.copyOf(newDisposables);
+         this.glDrawInfo = glDrawInfo;
       }
    }
 

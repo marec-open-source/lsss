@@ -5,7 +5,7 @@ import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.viewer.coloring.PingToColor;
 
 /**
- * Settings used bu {@link EchogramImage}.
+ * Settings used by {@link EchogramImage}.
  */
 public interface EchogramImageSettings {
    PingToColor getPingToColor();

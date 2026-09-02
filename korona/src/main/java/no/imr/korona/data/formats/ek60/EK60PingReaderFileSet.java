@@ -113,7 +113,7 @@ final class EK60PingReaderFileSet extends EK60PingReader {
       Idx0Datagram nextIdx = idxCorrectionFilter.nextDatagram();
 
       Bot0Datagram bot0Datagram = readBot0Datagram(currentIdx, asyncHandle);
-      bot0Datagram.setNTDate(currentIdx.getNTDate());
+      bot0Datagram.setInstant(currentIdx.getInstant());
 
       List<BaseDatagram> datagrams = new ArrayList<>();
       endOffset = nextIdx != null ? nextIdx.getFileOffset() : rawReader.getSize();
@@ -127,7 +127,7 @@ final class EK60PingReaderFileSet extends EK60PingReader {
             if (datagram == null) {
                break;
             }
-            datagram.setNTDate(currentIdx.getNTDate());
+            datagram.setInstant(currentIdx.getInstant());
             if (datagram instanceof MruDatagram mruDatagram) {
                latestMru = mruDatagram;
             }

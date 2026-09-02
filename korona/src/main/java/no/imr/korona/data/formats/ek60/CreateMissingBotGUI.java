@@ -20,6 +20,7 @@ import javax.swing.JComponent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public final class CreateMissingBotGUI {
                XyzData xyzData = xyzDataCache.getUnchecked(segmentHandle);
                XyzData nextXyzData = i + 1 < allSegmentHandles.size()
                      ? xyzDataCache.getUnchecked(allSegmentHandles.get(i + 1))
-                     : new XyzData(new RawFileConfiguration(0), List.of(), Map.of());
+                     : new XyzData(new RawFileConfiguration(Instant.EPOCH), List.of(), Map.of());
 
                // The xyz lines for the last pings in a raw file can be in the xyz file for the next raw file.
                Map<String, List<XyzLine>> channelIdToXyzLines = new HashMap<>();
@@ -100,7 +101,7 @@ public final class CreateMissingBotGUI {
          return new XyzData(segmentData.getRawFileConfiguration(), segmentData.getBot0Datagrams(), channelIdToXyzLines);
       } catch (IOException e) {
          Log.global.log(Level.WARNING, "Error using xyz-files for " + segmentHandle.getMainFile(), e);
-         return new XyzData(new RawFileConfiguration(0), List.of(), Map.of());
+         return new XyzData(new RawFileConfiguration(Instant.EPOCH), List.of(), Map.of());
       }
    }
 

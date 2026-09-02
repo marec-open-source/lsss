@@ -4,7 +4,6 @@ import no.imr.korona.computation.ComputationContext;
 import no.imr.korona.computation.GeneralPingModule;
 import no.imr.korona.computation.GeneralPingModuleComputation;
 import no.imr.korona.data.ping.PingSource;
-import no.imr.tools.Utils;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.HeaderParameter;
 import no.imr.tools.parameter.Name;
@@ -13,6 +12,7 @@ import no.imr.tools.parameter.OptionalParameter;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.ValueConverter;
 import no.imr.tools.parameter.ValueConverters;
+import no.imr.tools.time.TimeUtils;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -27,7 +27,7 @@ import java.util.Optional;
 public final class TimeIntervalModule extends GeneralPingModule {
    private static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
    private static final Unit UNIT = new Unit(DATE_FORMAT);
-   private static final DateTimeFormatter DATE_TIME_FORMATTER = Utils.createUTCDateTimeFormatter(DATE_FORMAT);
+   private static final DateTimeFormatter DATE_TIME_FORMATTER = TimeUtils.createUTCDateTimeFormatter(DATE_FORMAT);
 
    private final HeaderParameter timeHeader = new HeaderParameter("Time limits");
 
@@ -88,13 +88,6 @@ public final class TimeIntervalModule extends GeneralPingModule {
       @Override
       public String getAllowedValuesDescription() {
          return DATE_FORMAT;
-      }
-
-      long toMillisOrDefault(long defaultValue) {
-         if (getValue().isPresent()) {
-            return getValue().get().toEpochMilli();
-         }
-         return defaultValue;
       }
    }
 }

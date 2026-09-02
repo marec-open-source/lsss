@@ -13,16 +13,16 @@ public final class FilteringTargetCandidateExtractor implements TargetCandidateE
    private final TargetCandidateExtractor targetCandidateExtractor;
    private final FloatRange tsRange;
    private final float maxDepth;
-   private final float maxAlongshipAngle;
-   private final float maxAthwartshipAngle;
+   private final float maxAlongshipAngleRad;
+   private final float maxAthwartshipAngleRad;
 
    public FilteringTargetCandidateExtractor(TargetCandidateExtractor targetCandidateExtractor,
                                             FloatRange tsRange, float maxDepth, float maxAlongshipAngle, float maxAthwartshipAngle) {
       this.targetCandidateExtractor = targetCandidateExtractor;
       this.tsRange = tsRange;
       this.maxDepth = maxDepth;
-      this.maxAlongshipAngle = (float) Math.toRadians(maxAlongshipAngle);
-      this.maxAthwartshipAngle = (float) Math.toRadians(maxAthwartshipAngle);
+      maxAlongshipAngleRad = (float) Math.toRadians(maxAlongshipAngle);
+      maxAthwartshipAngleRad = (float) Math.toRadians(maxAthwartshipAngle);
    }
 
    @Override
@@ -34,13 +34,13 @@ public final class FilteringTargetCandidateExtractor implements TargetCandidateE
          if (measurement.range() > maxDepth) {
             continue;
          }
-         if (!tsRange.contains(measurement.ts())) {
+         if (!tsRange.contains(measurement.tsc())) {
             continue;
          }
-         if (Math.abs(measurement.alongshipAngle()) > maxAlongshipAngle) {
+         if (Math.abs(measurement.alongshipAngleRad()) > maxAlongshipAngleRad) {
             continue;
          }
-         if (Math.abs(measurement.athwartshipAngle()) > maxAthwartshipAngle) {
+         if (Math.abs(measurement.athwartshipAngleRad()) > maxAthwartshipAngleRad) {
             continue;
          }
          filteredCandidates.add(candidate);

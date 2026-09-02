@@ -3,32 +3,27 @@ package no.imr.korona.data.ping;
 import no.imr.korona.data.datamanager.PingContainer;
 import no.imr.tools.Max;
 import no.imr.tools.Min;
-import no.imr.tools.Utils;
 import no.imr.tools.range.DefaultRange;
 import no.imr.tools.range.Range;
-import no.imr.tools.time.NTDate;
+import no.imr.tools.time.TimeUtils;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.NavigableMap;
 
 /**
  * Represents a half open interval of consecutive pings.
  * A ping range includes the lower limit, but excludes the upper limit.
- * This class is immutable.
  */
 public final class PingRange extends Range<PingIndex> implements no.marec.lsss.api.data.PingRange {
    /**
     * An instance of the empty PingRange.
     */
-   public static final PingRange EMPTY_RANGE = empty();
+   public static final PingRange EMPTY_RANGE = new PingRange(EmptyPingIndex.INSTANCE, EmptyPingIndex.INSTANCE);
 
    private PingRange(PingIndex begin, PingIndex end) {
       super(begin, end);
-   }
-
-   private static PingRange empty() {
-      EmptyPingIndex pingIndex = new EmptyPingIndex();
-      return new PingRange(pingIndex, pingIndex);
    }
 
    public static PingRange of(PingIndex a, PingIndex b) {
@@ -79,24 +74,20 @@ public final class PingRange extends Range<PingIndex> implements no.marec.lsss.a
       return end().getVesselDistance() - begin().getVesselDistance();
    }
 
-   public Range<Long> toNTDateRange() {
-      return new DefaultRange<>(begin().getNTDate(), end().getNTDate());
-   }
-
-   public Range<Long> toMillisRange() {
-      return new DefaultRange<>(begin().getTimeInMillis(), end().getTimeInMillis());
+   public Range<Instant> toTimeRange() {
+      return new DefaultRange<>(begin().getInstant(), end().getInstant());
    }
 
    public double getSeconds() {
-      return (double) (end().getNTDate() - begin().getNTDate()) / (double) NTDate.UNITS_PER_SECOND;
+      return TimeUtils.toSeconds(begin().getInstant(), end().getInstant());
    }
 
-   public long getMilliseconds() {
-      return end().getTimeInMillis() - begin().getTimeInMillis();
+   public Duration getDuration() {
+      return begin().getInstant().until(end().getInstant());
    }
 
    public String getDurationString() {
-      return Utils.getDurationString(getMilliseconds());
+      return TimeUtils.getDurationString(getDuration());
    }
 
    public boolean contains(double value, PingMapping pingMapping) {
@@ -111,12 +102,8 @@ public final class PingRange extends Range<PingIndex> implements no.marec.lsss.a
       return pingNumber >= begin().getPingNumber() && pingNumber < end().getPingNumber();
    }
 
-   public boolean containsNTDate(long ntDate) {
-      return ntDate >= begin().getNTDate() && ntDate < end().getNTDate();
-   }
-
-   public boolean containsTimeInMillis(long timeInMillis) {
-      return timeInMillis >= begin().getTimeInMillis() && timeInMillis < end().getTimeInMillis();
+   public boolean containsInstant(Instant instant) {
+      return instant.compareTo(begin().getInstant()) >= 0 && instant.compareTo(end().getInstant()) < 0;
    }
 
    public boolean intersectsVesselDistanceRange(double beginVesselDistance, double endVesselDistance) {

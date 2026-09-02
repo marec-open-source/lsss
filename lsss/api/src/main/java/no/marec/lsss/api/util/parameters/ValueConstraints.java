@@ -1,5 +1,6 @@
 package no.marec.lsss.api.util.parameters;
 
+import no.marec.lsss.api.internal.InternalLsssUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public final class ValueConstraints {
    }
 
    public static <T> ValueConstraint<T> none() {
-      return value -> null;
+      return _ -> null;
    }
 
    public static ValueConstraint<String> maxLength(int maxLength) {
@@ -21,7 +22,7 @@ public final class ValueConstraints {
          throw new IllegalArgumentException("Max length = " + maxLength);
       }
       return of(value -> value.length() > maxLength ? "Length " + value.length() + " > " + maxLength : null,
-            stringifier -> "Maximum " + maxLength + " characters");
+            _ -> "Maximum " + maxLength + " characters");
    }
 
    public static <T extends Comparable<? super T>> ValueConstraint<T> gt(T min) {
@@ -128,7 +129,7 @@ public final class ValueConstraints {
                      sb.append(", ");
                   }
                }
-               sb.append(allowedStringValue);
+               sb.append(InternalLsssUtils.escapeHtml(allowedStringValue));
             }
             sb.append(" }</code>");
             return sb.toString();

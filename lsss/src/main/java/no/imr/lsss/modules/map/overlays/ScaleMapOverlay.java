@@ -1,24 +1,21 @@
 package no.imr.lsss.modules.map.overlays;
 
+import no.imr.korona.util.KoronaUtils;
 import no.imr.lsss.framework.BaseSystemFeaturePlugin;
 import no.imr.lsss.modules.ModuleInfo;
 import no.imr.lsss.modules.OverlayDisplayData;
 import no.imr.lsss.modules.map.MapModule;
-import no.imr.tools.Utils;
 import no.imr.tools.geo.Earth;
 import no.imr.tools.listening.ListenerRegistry;
 import no.imr.tools.math.NiceNumber;
 import no.imr.tools.swing.GuiText;
 import no.imr.tools.swing.GuiUtils;
-import org.jspecify.annotations.Nullable;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
 
 public final class ScaleMapOverlay extends BaseMapOverlay {
-   private @Nullable Font font;
    private boolean useNmi = true;
 
    public ScaleMapOverlay(ModuleInfo<BaseSystemFeaturePlugin> moduleInfo, MapModule mapModule) {
@@ -36,7 +33,7 @@ public final class ScaleMapOverlay extends BaseMapOverlay {
       double radius = Earth.getRadius(latitude) * Math.cos(Math.toRadians(latitude));
       double distance = radius * Math.toRadians(getMapModule().getLongitudeExtent());
       if (useNmi) {
-         distance = Utils.meterToNmi(distance);
+         distance = KoronaUtils.meterToNmi(distance);
       }
       double distancePerPixel = distance / getWidth();
 
@@ -79,15 +76,10 @@ public final class ScaleMapOverlay extends BaseMapOverlay {
       }
    }
 
-   private final class DisplayData extends OverlayDisplayData {
-      private final Path2D.Float path;
-      private final GuiText text;
-
-      private DisplayData(Path2D.Float path, GuiText text) {
-         this.path = path;
-         this.text = text;
-      }
-
+   private record DisplayData(
+         Path2D.Float path,
+         GuiText text
+   ) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setColor(Color.BLACK);
@@ -97,13 +89,7 @@ public final class ScaleMapOverlay extends BaseMapOverlay {
 
       @Override
       public void drawText(Graphics2D g2d) {
-         if (font == null) {
-            font = g2d.getFont().deriveFont(Font.PLAIN);
-         }
-         Font previousFont = g2d.getFont();
-         g2d.setFont(font);
          text.draw(g2d);
-         g2d.setFont(previousFont);
       }
    }
 }

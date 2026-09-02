@@ -25,7 +25,7 @@ final class MakeCad0SubModule extends SimpleSubModule {
       if (pixels.length == 0) {
          return;
       }
-      Cad0Datagram cad0 = new Cad0Datagram(extendedPing.getPing().getNTDate(),
+      Cad0Datagram cad0 = new Cad0Datagram(extendedPing.getPing().getInstant(),
             categoryCount, categorizationPing.getPixels().length,
             categorizationPing.getSampleDistance(), categorizationPing.getFirstDepth());
 

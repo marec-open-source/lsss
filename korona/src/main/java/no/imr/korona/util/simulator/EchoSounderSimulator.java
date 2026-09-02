@@ -29,8 +29,8 @@ import no.imr.tools.parameter.OptionalIntParameter;
 import no.imr.tools.parameter.ParameterCollection;
 import no.imr.tools.parameter.ParameterContainer;
 import no.imr.tools.parameter.Unit;
-import no.imr.tools.time.NTDate;
 import no.imr.tools.time.RealtimeSyncer;
+import no.imr.tools.time.TimeUtils;
 import no.marec.lsss.api.util.parameters.ValueConstraints;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -39,6 +39,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -96,7 +97,7 @@ public final class EchoSounderSimulator implements ParameterContainer {
 
    private final DataFormatManager dataFormatManager = new DataFormatManager();
 
-   private final DateTimeFormatter dateFormat = Utils.createUTCDateTimeFormatter("yyyy-MM-dd_HHmmss");
+   private final DateTimeFormatter dateFormat = TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd_HHmmss");
 
    private final ChangeManager changeManager = new ChangeManager();
    private final Executor executor = Executors.newSingleThreadExecutor(Exec.newThreadFactory("EchoSounderSimulator"));
@@ -105,7 +106,7 @@ public final class EchoSounderSimulator implements ParameterContainer {
    private int pingCounter;
    private @Nullable Path currentOutputFile;
    private int fileCounter;
-   private long lastTime = System.currentTimeMillis();
+   private Instant lastTime = Instant.now();
    private boolean forceNewFile;
    private @Nullable PingReader pingReader;
 
@@ -217,8 +218,8 @@ public final class EchoSounderSimulator implements ParameterContainer {
       return runningChangeManager;
    }
 
-   private String getFileName(long ntDate) {
-      return FILE_NAME_PREFIX + dateFormat.format(Instant.ofEpochMilli(NTDate.ntDateToTimeInMillis(ntDate))) + EK60DataFormatPlugin.RAW_SUFFIX;
+   private String getFileName(Instant instant) {
+      return FILE_NAME_PREFIX + dateFormat.format(instant) + EK60DataFormatPlugin.RAW_SUFFIX;
    }
 
    private void tryDeleteOldFiles() {
@@ -292,10 +293,10 @@ public final class EchoSounderSimulator implements ParameterContainer {
 
          pingConfiguration = pingSource.getPingConfiguration();
          if (echoSounderSimulator.writeCurrentTime.getBooleanValue()) {
-            long ntDate = getCurrentNTDate();
-            setNTDate(ntDate, pingConfiguration.getConfigurationItems());
+            Instant instant = getCurrentTime();
+            setInstant(instant, pingConfiguration.getConfigurationItems());
          }
-         reopen(getCurrentNTDate());
+         reopen(getCurrentTime());
       }
 
       @Override
@@ -311,18 +312,18 @@ public final class EchoSounderSimulator implements ParameterContainer {
             return;
          }
 
-         realtimeSyncer.sync(ping.getTimeInMillis(), echoSounderSimulator.realtimeFactor.getFloatValue(), false);
+         realtimeSyncer.sync(echoSounderSimulator.asyncHandle, ping.getInstant(), echoSounderSimulator.realtimeFactor.getFloatValue(), false);
 
-         long ntDate = getCurrentNTDate();
+         Instant instant = getCurrentTime();
 
          if (echoSounderSimulator.forceNewFile || echoSounderSimulator.pingCounter >= echoSounderSimulator.pingsPerFile.getValue().orElse(Integer.MAX_VALUE)) {
-            reopen(ntDate);
+            reopen(instant);
          }
 
          if (echoSounderSimulator.writeCurrentTime.getBooleanValue()) {
-            ((Idx0Datagram) ping.getPingIndex()).setNTDate(ntDate);
-            ping.getBot0Datagram().setNTDate(ntDate);
-            setNTDate(ntDate, ping.getPingItems());
+            ((Idx0Datagram) ping.getPingIndex()).setInstant(instant);
+            ping.getBot0Datagram().setInstant(instant);
+            setInstant(instant, ping.getPingItems());
          }
          ping.getPingIndex().setPingNumber(echoSounderSimulator.pingNumber);
 
@@ -334,10 +335,10 @@ public final class EchoSounderSimulator implements ParameterContainer {
          echoSounderSimulator.changeManager.notifyListeners();
       }
 
-      private void reopen(long ntDate) throws IOException {
+      private void reopen(Instant instant) throws IOException {
          echoSounderSimulator.pingCounter = 0;
          echoSounderSimulator.forceNewFile = false;
-         String fileName = echoSounderSimulator.getFileName(ntDate);
+         String fileName = echoSounderSimulator.getFileName(instant);
          Path outputDir = echoSounderSimulator.output.getFile();
          if (outputDir == null) {
             return;
@@ -354,27 +355,27 @@ public final class EchoSounderSimulator implements ParameterContainer {
          }
 
          if (echoSounderSimulator.writeCurrentTime.getBooleanValue()) {
-            setNTDate(ntDate, pingConfiguration.getConfigurationItems());
+            setInstant(instant, pingConfiguration.getConfigurationItems());
          }
          boolean onlyRaw = echoSounderSimulator.writeOnlyRaw.getBooleanValue();
          EK60Writer.Mode writerMode = onlyRaw ? EK60Writer.Mode.ONLY_RAW : EK60Writer.Mode.ALL_FILES;
          ek60Writer = new EK60Writer(outputDir, fileName, pingConfiguration, "", writerMode);
       }
 
-      private long getCurrentNTDate() {
+      private Instant getCurrentTime() {
          while (true) { // Make sure next ping has a different time in millis.
-            long time = System.currentTimeMillis();
-            if (time != echoSounderSimulator.lastTime) {
+            Instant time = Instant.now();
+            if (time.toEpochMilli() != echoSounderSimulator.lastTime.toEpochMilli()) {
                echoSounderSimulator.lastTime = time;
-               return NTDate.timeInMillisToNTDate(time);
+               return time;
             }
-            Utils.sleep(1);
+            Utils.sleep(Duration.ofMillis(1));
          }
       }
 
-      private static void setNTDate(long ntDate, List<PingItem> pingItems) {
+      private static void setInstant(Instant instant, List<PingItem> pingItems) {
          for (PingItem pingItem : pingItems) {
-            pingItem.setNTDate(ntDate);
+            pingItem.setInstant(instant);
          }
       }
    }

@@ -1,11 +1,14 @@
 package no.imr.tools.math;
 
+import java.util.Objects;
+
 public final class ArrayKernel {
-   private final float[] values;
+   private final float[] weights;
    private final int center;
 
-   public ArrayKernel(float[] values, int center) {
-      this.values = values;
+   private ArrayKernel(float[] weights, int center) {
+      Objects.checkIndex(center, weights.length);
+      this.weights = weights;
       this.center = center;
    }
 
@@ -16,13 +19,14 @@ public final class ArrayKernel {
    }
 
    public void smooth(float[] input, float[] result) {
+      ArrayMath.requireSameLength(input, result);
       for (int i = 0; i < input.length; i++) {
          int begin = Math.max(-i, -center);
-         int end = Math.min(input.length - i, values.length - center);
+         int end = Math.min(input.length - i, weights.length - center);
          double valueSum = 0;
          double weightSum = 0;
          for (int j = begin; j < end; j++) {
-            float weight = values[center + j];
+            float weight = weights[center + j];
             weightSum += weight;
             valueSum += weight * input[i + j];
          }

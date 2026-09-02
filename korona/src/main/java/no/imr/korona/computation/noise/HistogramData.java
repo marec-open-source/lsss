@@ -2,7 +2,7 @@ package no.imr.korona.computation.noise;
 
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.util.TvgArray;
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 
 /**
  * Sample data from a PowerData to be added to a histogram.
@@ -46,7 +46,7 @@ public final class HistogramData {
       ranges = new float[n];
 
       for (int i = 0; i < n; i++) {
-         data[i] = Utils.avoidInfinity(sv[i] / tvg.get(i));
+         data[i] = MathUtils.avoidInfinity(sv[i] / tvg.get(i));
          ranges[i] = powerData.getSampleRange(i);
       }
    }

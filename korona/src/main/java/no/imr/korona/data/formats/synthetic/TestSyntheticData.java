@@ -8,7 +8,7 @@ public class TestSyntheticData extends SyntheticData {
    }
 
    @Override
-   protected float getBottomDepth(PingIndex pingIndex, int channel) {
+   public float getBottomDepth(PingIndex pingIndex, int channel) {
       float factor = (float) (1 - 0.25 * Math.sin(2 * Math.PI * pingIndex.getVesselDistance()));
       return 100 * factor;
    }
@@ -22,7 +22,7 @@ public class TestSyntheticData extends SyntheticData {
    }
 
    @Override
-   protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+   public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
       float[] logSv = new float[getCount(pingIndex)];
 
       float fx = (float) (1 - 0.1 * Math.sin(2 * Math.PI * pingIndex.getVesselDistance() / 5));

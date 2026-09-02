@@ -322,7 +322,7 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
       }
 
       configurationOfUnknownOverlays.forEach(element -> {
-         overlayElements.add((Element) element.clone());
+         overlayElements.add(element.createCopy());
       });
 
       overlayElements.sort(Comparator.comparing(element -> element.attributeValue(XML_NAME)));
@@ -349,7 +349,7 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
             String name = overlayElement.attributeValue(XML_NAME);
             O overlay = nameToOverlay.get(name);
             if (overlay == null) {
-               Element copy = (Element) overlayElement.clone();
+               Element copy = overlayElement.createCopy();
                XmlUtils.removeBlankMixedContentText(copy);
                unknowns.add(copy);
                continue;
@@ -864,7 +864,7 @@ public abstract class BaseOverlaidModule<O extends BaseModuleOverlay> extends Ba
          }
 
          @Override
-         public void paintComponent(Graphics g) {
+         protected void paintComponent(Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
 
             module.draw(g2d);

@@ -12,7 +12,7 @@ public final class FrequencyResponseFunctionParameterSmoke extends SmokeTestRunn
    public void run() {
       FrequencyResponseFunctionParameter p = new FrequencyResponseFunctionParameter(new Name("Test"));
       p.setStringValue("F + 123");
-      checkEquals(10_123.0, p.getFunction().eval(10_000));
+      checkEquals(10_123.0, p.getFunction().applyAsDouble(10_000));
       Log.global.info(OK + "FrequencyResponseFunctionParameter: " + p.getStringValue());
    }
 }

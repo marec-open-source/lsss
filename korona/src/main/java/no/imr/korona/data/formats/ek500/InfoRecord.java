@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 
 /**
  * EK500 info record.
@@ -104,21 +105,21 @@ public final class InfoRecord {
       return byteOrder;
    }
 
-   public void setStartNTDate(long ntDate) {
-      startDate = EK500Utils.ntDateToDate(ntDate);
-      startTime = EK500Utils.ntDateToTime(ntDate);
+   public void setStartInstant(Instant instant) {
+      startDate = EK500Utils.instantToDate(instant);
+      startTime = EK500Utils.instantToTime(instant);
    }
 
-   public void setStopNTDate(long ntDate) {
-      stopDate = EK500Utils.ntDateToDate(ntDate);
-      stopTime = EK500Utils.ntDateToTime(ntDate);
+   public void setStopInstant(Instant instant) {
+      stopDate = EK500Utils.instantToDate(instant);
+      stopTime = EK500Utils.instantToTime(instant);
    }
 
-   public long getStartNTDate() {
-      return EK500Utils.dateTimeToNTDate(startDate, startTime);
+   public Instant getStartInstant() {
+      return EK500Utils.dateTimeToInstant(startDate, startTime);
    }
 
-   public long getStopNTDate() {
-      return EK500Utils.dateTimeToNTDate(stopDate, stopTime);
+   public Instant getStopInstant() {
+      return EK500Utils.dateTimeToInstant(stopDate, stopTime);
    }
 }

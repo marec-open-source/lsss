@@ -17,6 +17,7 @@ import no.imr.tools.range.RangeMap;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ import java.util.stream.IntStream;
 
 public final class CalibrationGenerator {
    private final CalibrationContent existingContent;
-   private final RangeMap<Long, CalibrationEntry> calibrationEntries = new ArrayRangeMap<>();
+   private final RangeMap<Instant, CalibrationEntry> calibrationEntries = new ArrayRangeMap<>();
 
    private CalibrationGenerator(CalibrationContent calibrationContent) {
       existingContent = calibrationContent;
@@ -52,11 +53,11 @@ public final class CalibrationGenerator {
 
    private void add(SegmentData segmentData, AsyncHandle asyncHandle) {
       List<? extends PingIndex> pingIndices = segmentData.getPingIndices();
-      long begin = pingIndices.getFirst().getInstant().truncatedTo(ChronoUnit.SECONDS).toEpochMilli();     // Round down
-      long end = pingIndices.getLast().getInstant().truncatedTo(ChronoUnit.SECONDS).toEpochMilli() + 1000; // Round up
-      Range<Long> millisRange = new DefaultRange<>(begin, end);
+      Instant begin = pingIndices.getFirst().getInstant().truncatedTo(ChronoUnit.SECONDS); // Round down
+      Instant end = pingIndices.getLast().getInstant().truncatedTo(ChronoUnit.SECONDS).plusSeconds(1); // Round up
+      Range<Instant> millisRange = new DefaultRange<>(begin, end);
       long overlapMillis = calibrationEntries.stream(millisRange)
-            .mapToLong(entry -> entry.range().end() - entry.range().begin())
+            .mapToLong(entry -> entry.range().begin().until(entry.range().end(), ChronoUnit.MILLIS))
             .sum();
       if (overlapMillis > 2000) {
          return;
@@ -135,12 +136,12 @@ public final class CalibrationGenerator {
 
    private CalibrationContent toCalibrationContent() {
       CalibrationType defaultCalibrationType = new CalibrationType();
-      RangeMap.Entry<Long, CalibrationEntry> previousEntry = null;
-      for (RangeMap.Entry<Long, CalibrationEntry> entry : calibrationEntries) {
-         boolean combineWithPrevious = previousEntry != null           // There is a previous entry
-               && entry.range().begin() - previousEntry.range().end() < 5000   // The gap in time is small
-               && previousEntry.value().equals(entry.value());             // The values are equal
-         long begin = combineWithPrevious
+      RangeMap.Entry<Instant, CalibrationEntry> previousEntry = null;
+      for (RangeMap.Entry<Instant, CalibrationEntry> entry : calibrationEntries) {
+         boolean combineWithPrevious = previousEntry != null                                        // There is a previous entry.
+               && previousEntry.range().end().until(entry.range().begin(), ChronoUnit.SECONDS) < 5  // The gap in time is small.
+               && previousEntry.value().equals(entry.value());                                      // The values are equal.
+         Instant begin = combineWithPrevious
                ? previousEntry.range().end()
                : entry.range().begin();
          defaultCalibrationType.putEntry(begin, entry.range().end(), entry.value());

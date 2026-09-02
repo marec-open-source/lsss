@@ -91,7 +91,7 @@ final class CategorizationNetcdfReaderModuleComputation extends ConcurrentPingMo
                      AnnotationConfig.AnnotationCategory::koronaCategory
                ));
 
-         Cac0Datagram cac0Datagram = new Cac0Datagram(pingConfiguration.getRawFileConfiguration().getNTDate());
+         Cac0Datagram cac0Datagram = new Cac0Datagram(pingConfiguration.getRawFileConfiguration().getInstant());
          for (int i = 0; i < dataset.categories.length; i++) {
             int category = dataset.categories[i];
             AnnotationConfig.KoronaCategory koronaCategory = annotationIdToKoronaCategory.get(category);
@@ -164,7 +164,7 @@ final class CategorizationNetcdfReaderModuleComputation extends ConcurrentPingMo
             }
             annotationData[categoryIndex] = (float[]) annotationArray.get1DJavaArray(DataType.FLOAT);
          }
-         Cad0Datagram cad0Datagram = new Cad0Datagram(ping.getNTDate(), categories.length, ranges.length,
+         Cad0Datagram cad0Datagram = new Cad0Datagram(ping.getInstant(), categories.length, ranges.length,
                (float) (ranges[1] - ranges[0]), (float) (referenceChannelData.getHeaveCorrectedTransducerDepth() + ranges[0]));
          CategoryAndValue[] categoryAndValues = new CategoryAndValue[categories.length];
          for (int categoryIndex = 0; categoryIndex < categories.length; categoryIndex++) {

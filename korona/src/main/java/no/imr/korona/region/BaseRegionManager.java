@@ -71,7 +71,7 @@ abstract sealed class BaseRegionManager<T extends Region> permits LayerManager, 
       }
    }
 
-   private boolean replaceSelectedRegionsWithoutNotify(Set<T> regions) {
+   boolean replaceSelectedRegionsWithoutNotify(Set<T> regions) {
       if (selectedRegions.equals(regions)) {
          return false;
       }

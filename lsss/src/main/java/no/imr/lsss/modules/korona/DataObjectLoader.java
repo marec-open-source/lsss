@@ -13,7 +13,6 @@ import no.imr.tools.concurrent.ExecutorObservation;
 import no.imr.tools.range.ArrayRangeMap;
 import no.imr.tools.range.RangeMap;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -34,7 +33,7 @@ public final class DataObjectLoader<T> {
    private final Consumer<? super T> listener;
    private final Class<? extends TableOfContentsPingItem> tableOfContentsClass;
    private final BiFunction<DataFileSet, Ping, Stream<T>> dataObjectExtractor;
-   private PingRange priorityPingRange = PingRange.EMPTY_RANGE;
+   private volatile PingRange priorityPingRange = PingRange.EMPTY_RANGE;
 
    public DataObjectLoader(ExecutorObservation executorObservation, DataFileSet dataFileSet, DataFilesCache<T> dataFilesCache,
                            Consumer<? super T> listener, Class<? extends TableOfContentsPingItem> tableOfContentsClass,
@@ -112,8 +111,8 @@ public final class DataObjectLoader<T> {
 
    private Set<PingIndex> getPingIndicesToLoad(DataFile dataFile, Ping lastPing) {
       return lastPing.getPingItems(tableOfContentsClass)
-            .flatMapToLong(tableOfContentsPingItem -> Arrays.stream(tableOfContentsPingItem.getNTDates()))
-            .mapToObj(ntDate -> dataFile.getClosestPingIndex(PingMapping.ntDateToTimeValue(ntDate), PingMapping.TIME))
+            .flatMap(tableOfContentsPingItem -> tableOfContentsPingItem.getInstants().stream())
+            .map(instant -> dataFile.getClosestPingIndex(PingMapping.instantToTimeValue(instant), PingMapping.TIME))
             .collect(Collectors.toSet());
    }
 

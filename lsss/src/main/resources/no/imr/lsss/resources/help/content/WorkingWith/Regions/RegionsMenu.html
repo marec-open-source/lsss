@@ -35,6 +35,8 @@
    Add labels to regions. Select regions based on labels.
 </p>
 
+<hr> <!-------------------------------------------------------->
+
 <h2 id="ResetInterpretation">Reset interpretation...</h2>
 <p>
    Reset interpretation, i.e. discard all allocated categories and set layer-lines to default. In surface-mode (i.e.
@@ -46,13 +48,15 @@
 <h2 id="ExcludePingsWithLowSpeed">Exclude pings with low speed...</h2>
 <p>
    Automatically <a href="Exclusion.html">exclude</a> pings with low speed.
-   The excluded distances are expanded until the speed is stabile.
+   The excluded distances are expanded until the speed is stable.
 </p>
 
 <h2 id="MergeNeighbouringLayersWithSameInterpretation">Merge neighbouring layers with same interpretation</h2>
 <p>
    Merge visible layers with the same interpretation and the same set of labels.
 </p>
+
+<hr> <!-------------------------------------------------------->
 
 <h2 id="SetUpperBoundaryFromRange">Set upper boundary from range</h2>
 <p>
@@ -77,11 +81,28 @@
    and the configured <a href="../../Configuration/Survey/SurveyMiscConf.html">offset from bottom</a>.
 </p>
 
+<h2 id="SetLowerBoundaryFromCoordinatedBottomInPreprocessedData">Set lower boundary from coordinated bottom in preprocessed data</h2>
+<p>
+   Set the lower integration line in the visible part of the echogram by using the coordinated bottom
+   in the
+   <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Datagrams/Dep0Datagram.html">DEP0</a>
+   datagrams detected by the KORONA module
+   <a href="../../../../../../../../../../../../korona/src/main/resources/no/imr/korona/resources/help/content/Modules/DepthModule.html">Bottom detection module</a>.
+   Note: This function does not use <a href="../../Configuration/Survey/SurveyMiscConf.html">offset from bottom</a>.
+</p>
+<p>
+   For pings that do not contain a DEP0 datagram, the function
+   <a href="#SetLowerBoundaryFromCoordinatedBottom">Set lower boundary from coordinated bottom</a>
+   is used instead.
+</p>
+
 <h2 id="SetLowerBoundaryFromCurrentFrequencyBottom">Set lower boundary from bottom on current frequency</h2>
 <p>
    Set the lower integration line in the visible part of the echogram by using the detected bottom in the current frequency
    and the configured <a href="../../Configuration/Survey/SurveyMiscConf.html">offset from bottom</a>.
 </p>
+
+<hr> <!-------------------------------------------------------->
 
 <h2 id="DeleteBottomDataCurrentFrequency">Delete data above lower integration line and below bottom on current frequency</h2>
 <p>
@@ -89,6 +110,8 @@
    and below the detected bottom on the current frequency.
    The deletion is applied to the current frequency in the visible ping range.
 </p>
+
+<hr> <!-------------------------------------------------------->
 
 <h2 id="DeleteAssignmentsOnOtherFrequencies">Delete assignments on other frequencies</h2>
 <p>
@@ -99,6 +122,8 @@
 <p>
    Delete assignments for selected regions on all frequencies.
 </p>
+
+<hr> <!-------------------------------------------------------->
 
 <h2 id="SchoolVisualizerDialog">School visualizer dialog...</h2>
 <p>

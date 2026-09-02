@@ -2,6 +2,7 @@ package no.imr.korona.computation.towfish;
 
 import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
+import no.imr.tools.time.TimeUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.util.logging.Level;
 final class MessorFileReader implements TowfishMetaData.MetadataFileReader {
    private static final String COLUMN_SPLITTER = "\\t"; //Strings in MESSOR metadata file are "\\t" (tab) delimited
 
-   private final DateTimeFormatter dateTimeFormatter = Utils.createUTCDateTimeFormatter("ddMMyyyyHHmmss");
+   private final DateTimeFormatter dateTimeFormatter = TimeUtils.createUTCDateTimeFormatter("ddMMyyyyHHmmss");
    private int iVesselLog;
    private int iDepth;
 
@@ -26,7 +27,7 @@ final class MessorFileReader implements TowfishMetaData.MetadataFileReader {
    }
 
    @Override
-   public void updateMetaDataFileMap(Collection<Path> metaDataFiles, NavigableMap<Long, Path> metaDataFileMap) {
+   public void updateMetaDataFileMap(Collection<Path> metaDataFiles, NavigableMap<Instant, Path> metaDataFileMap) {
       //read first time and date in each file
       for (Path metaDataFile : metaDataFiles) {
          try (BufferedReader reader = Files.newBufferedReader(metaDataFile, Utils.ISO_8859_1)) {
@@ -44,7 +45,7 @@ final class MessorFileReader implements TowfishMetaData.MetadataFileReader {
             while (s != null) {
                try {
                   Instant instant = parseDate(s);
-                  metaDataFileMap.put(instant.toEpochMilli(), metaDataFile);
+                  metaDataFileMap.put(instant, metaDataFile);
                   break;
                } catch (DateTimeParseException _) {
                   Log.global.warning("Cannot parse date in string " + s + " in file " + metaDataFile);
@@ -77,9 +78,11 @@ final class MessorFileReader implements TowfishMetaData.MetadataFileReader {
    }
 
    @Override
-   public void parseFiles(Collection<Path> metaDataFiles, Map<Long, Float> depthMap, TowfishMetaData.Function<Long, Float> vesselLogData, TowfishMetaData.Function<Long, Float> cableLengthData) {
-      Map<Long, Float> vesselLogMap = vesselLogData.getMap();
-      Map<Long, Float> cableLengthMap = cableLengthData.getMap();
+   public void parseFiles(Collection<Path> metaDataFiles, Map<Instant, Float> depthMap,
+                          TowfishMetaData.Function<Instant, Float> vesselLogData,
+                          TowfishMetaData.Function<Instant, Float> cableLengthData) {
+      Map<Instant, Float> vesselLogMap = vesselLogData.getMap();
+      Map<Instant, Float> cableLengthMap = cableLengthData.getMap();
       for (Path metaDataFile : metaDataFiles) {
          try (BufferedReader reader = Files.newBufferedReader(metaDataFile, Utils.ISO_8859_1)) {
             //start on second line
@@ -100,11 +103,10 @@ final class MessorFileReader implements TowfishMetaData.MetadataFileReader {
                   s = reader.readLine();
                   continue;
                }
-               long millis = instant.toEpochMilli();
 
                //vesselLogMap.put(millis, parseVesselLog(split[8]));
                try {
-                  vesselLogMap.put(millis, parseVesselLog(split[iVesselLog]));
+                  vesselLogMap.put(instant, parseVesselLog(split[iVesselLog]));
                } catch (NumberFormatException _) {
                   Log.global.warning("Supposed to be vessel log: " + split[iVesselLog] + " in file " + metaDataFile);
                   s = reader.readLine();
@@ -112,10 +114,10 @@ final class MessorFileReader implements TowfishMetaData.MetadataFileReader {
                }
 
                //todo: no cable length in this file type??
-               cableLengthMap.put(millis, 0f);
+               cableLengthMap.put(instant, 0f);
 
                //depthMap.put(millis, parseTowfishDepth(split[26]));
-               depthMap.put(millis, parseTowfishDepth(split[iDepth]));
+               depthMap.put(instant, parseTowfishDepth(split[iDepth]));
 
                s = reader.readLine();
             }

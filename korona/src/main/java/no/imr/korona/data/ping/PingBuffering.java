@@ -1,18 +1,20 @@
 package no.imr.korona.data.ping;
 
-import no.imr.tools.time.NTDate;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
+
+import java.time.Instant;
 
 /**
  * For observing buffering of pings.
  */
 public final class PingBuffering {
-   private long ntDateIn;
-   private long ntDateOut;
+   private @Nullable Instant timeIn;
+   private @Nullable Instant timeOut;
    private int countIn;
    private int countOut;
    private int maxBufferedCount;
-   private long maxBufferedNTDate;
+   private double maxBufferedSeconds;
 
    public PingBuffering() {
    }
@@ -20,28 +22,20 @@ public final class PingBuffering {
    public void in(@Nullable Ping ping) {
       if (ping != null) {
          countIn++;
-         ntDateIn = ping.getNTDate();
-         if (ntDateOut == 0) {
-            ntDateOut = ntDateIn;
+         timeIn = ping.getInstant();
+         if (timeOut == null) {
+            timeOut = timeIn;
          }
          maxBufferedCount = Math.max(maxBufferedCount, countIn - countOut);
-         maxBufferedNTDate = Math.max(maxBufferedNTDate, ntDateIn - ntDateOut);
+         maxBufferedSeconds = Math.max(maxBufferedSeconds, TimeUtils.toSeconds(timeOut, timeIn));
       }
    }
 
    public void out(@Nullable Ping ping) {
       if (ping != null) {
          countOut++;
-         ntDateOut = ping.getNTDate();
+         timeOut = ping.getInstant();
       }
-   }
-
-   public long getNTDateIn() {
-      return ntDateIn;
-   }
-
-   public long getNTDateOut() {
-      return ntDateOut;
    }
 
    public int getCountIn() {
@@ -60,11 +54,11 @@ public final class PingBuffering {
       return maxBufferedCount;
    }
 
-   public float getBufferedSeconds() {
-      return (float) (ntDateIn - ntDateOut) / (float) NTDate.UNITS_PER_SECOND;
+   public double getBufferedSeconds() {
+      return timeIn != null && timeOut != null ? TimeUtils.toSeconds(timeOut, timeIn) : 0;
    }
 
-   public float getMaxBufferedSeconds() {
-      return (float) maxBufferedNTDate / (float) NTDate.UNITS_PER_SECOND;
+   public double getMaxBufferedSeconds() {
+      return maxBufferedSeconds;
    }
 }

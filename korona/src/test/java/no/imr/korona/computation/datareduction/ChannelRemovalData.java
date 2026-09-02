@@ -10,7 +10,7 @@ final class ChannelRemovalData extends ConstantSyntheticData {
    }
 
    @Override
-   protected short getTransmitMode(PingIndex pingIndex, int channel) {
+   public short getTransmitMode(PingIndex pingIndex, int channel) {
       return channel <= 4 ? TransmitMode.ACTIVE : TransmitMode.PASSIVE;
    }
 }

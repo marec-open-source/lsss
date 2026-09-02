@@ -50,6 +50,19 @@ final class ComplexArrayTest {
       assertEquals(ComplexArray.of(new double[]{2, -2, 3, -3, 0, 0}), arr.copyOfRange(1, 3, 3));
       assertEquals(ComplexArray.of(new double[]{4, -4, 5, -5, 0, 0}), arr.copyOfRange(3, 5, 3));
       assertEquals(ComplexArray.of(new double[]{4, -4}), arr.copyOfRange(3, 5, 1));
+
+      assertThrows(IndexOutOfBoundsException.class, () -> arr.copyOfRange(-1, 3, 3));  // negative beginIndex
+      assertThrows(IndexOutOfBoundsException.class, () -> arr.copyOfRange(3, 2, 3));   // beginIndex > endIndex
+      assertThrows(IndexOutOfBoundsException.class, () -> arr.copyOfRange(0, 6, 3));   // endIndex > length
+      assertThrows(NegativeArraySizeException.class, () -> arr.copyOfRange(0, 3, -1));  // negative newLength
+   }
+
+   @Test
+   void add() {
+      ComplexArray a = ComplexArray.of(new double[]{1, 2, -3, 4});
+      ComplexArray b = ComplexArray.of(new double[]{4, -1, 1, 2});
+      a.add(b);
+      assertArrayEquals(new double[]{5, 1, -2, 6}, a.values());
    }
 
    @Test

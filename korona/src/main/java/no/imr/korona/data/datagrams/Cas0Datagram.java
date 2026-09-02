@@ -7,6 +7,7 @@ import no.imr.korona.viewer.variables.categorization.CategoryVariable;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * Result of school categorization.
@@ -22,12 +23,12 @@ public class Cas0Datagram extends DatagramPingItem {
    /**
     * Constructor.
     *
-    * @param ntDate        date in NT format
+    * @param instant       time
     * @param categoryCount number of categories to include
     * @param regionId      the region id this datagram is created for
     */
-   public Cas0Datagram(long ntDate, int categoryCount, int regionId) {
-      super(ntDate);
+   public Cas0Datagram(Instant instant, int categoryCount, int regionId) {
+      super(instant);
 
       this.regionId = regionId;
       categories = new byte[categoryCount];
@@ -35,8 +36,8 @@ public class Cas0Datagram extends DatagramPingItem {
       probabilities = new byte[categoryCount];
    }
 
-   public Cas0Datagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate);
+   public Cas0Datagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant);
 
       int categoryCount = 0xff & byteBuffer.get();
       regionId = byteBuffer.getInt();

@@ -64,9 +64,6 @@ final class UserDefinedPackageEditor implements ParameterContainer {
    }
 
    boolean isOK(ParameterEditor parameterEditor) {
-      if (!parameterEditor.commitEdits()) {
-         return false;
-      }
       if (id.getValue().isEmpty()) {
          JOptionPane.showMessageDialog(parameterEditor.getEditorComponent(), "ID cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
          parameterEditor.getInputComponent(id).requestFocusInWindow();

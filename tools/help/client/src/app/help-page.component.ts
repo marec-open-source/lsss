@@ -1,6 +1,21 @@
 import {DecimalPipe} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
-import {AfterViewInit, ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, OnDestroy, signal, Signal, viewChild, WritableSignal} from '@angular/core';
+import {
+   afterNextRender,
+   afterRenderEffect,
+   Component,
+   computed,
+   effect,
+   ElementRef,
+   HostListener,
+   inject,
+   OnDestroy,
+   signal,
+   Signal,
+   untracked,
+   viewChild,
+   WritableSignal
+} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -8,6 +23,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatTree, MatTreeModule} from '@angular/material/tree';
 import {RouterOutlet} from '@angular/router';
 import {Subscription} from 'rxjs';
+import {HelpSet} from './api/HelpSet';
 import {TocItem} from './api/TocItem';
 import {ConfigService} from './config.service';
 import {ErrorResponseComponent} from './error-response.component';
@@ -21,7 +37,6 @@ import {ProgressSpinnerComponent} from './progress-spinner.component';
 import {SearchService} from './search.service';
 
 @Component({
-   changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-help-page',
    templateUrl: './help-page.component.html',
    styleUrl: './help-page.component.scss',
@@ -31,16 +46,18 @@ import {SearchService} from './search.service';
       ErrorResponseComponent, FooterComponent, MenuComponent, ProgressSpinnerComponent,
    ],
 })
-export class HelpPageComponent implements AfterViewInit, OnDestroy {
+export class HelpPageComponent implements OnDestroy {
    protected readonly configService: ConfigService = inject(ConfigService);
    protected readonly searchService: SearchService = inject(SearchService);
 
-   private readonly tree: Signal<MatTree<TocItem>> = viewChild.required("tree");
+   private readonly tree: Signal<MatTree<TocItem>> = viewChild.required('tree');
    protected readonly childrenAccessor: (tocItem: TocItem) => TocItem[] = tocItem => tocItem.items ?? [];
    protected readonly toc: TocItem[];
 
    protected readonly searchText: WritableSignal<string> = signal('');
-   protected readonly searchResults: WritableSignal<SearchResult[]> = signal([]);
+   protected readonly searchResults: Signal<SearchResult[]> = computed(() => {
+      return this.searchService.searchFunction()(this.searchText());
+   });
 
    private readonly helpContentEl: Signal<ElementRef<HTMLElement>> = viewChild.required('helpContent');
 
@@ -50,8 +67,8 @@ export class HelpPageComponent implements AfterViewInit, OnDestroy {
 
    protected readonly loading: WritableSignal<boolean> = signal(false);
    protected readonly errorResponse: WritableSignal<HttpErrorResponse | undefined> = signal(undefined);
+   private currentlyLoadedPage: {helpSet?: HelpSet, pageId?: string} = {};
 
-   private navigationSubscription?: Subscription;
    private httpSubscription?: Subscription;
 
    private touchStart?: { time: number, x: number, y: number };
@@ -60,74 +77,70 @@ export class HelpPageComponent implements AfterViewInit, OnDestroy {
       this.configService.routePrefix = '/page';
       this.toc = this.configService.config.helpSets.flatMap(helpSet => helpSet.toc);
       effect(() => {
-         this.search(this.searchText());
+         if (!this.searchText()) {
+            const selectedTocItem = untracked(this.selectedTocItem);
+            if (selectedTocItem) {
+               this.scrollToc(selectedTocItem);
+            }
+         }
       });
-   }
-
-   ngAfterViewInit(): void {
-      this.toc.forEach(tocItem => this.tree().expand(tocItem));
-      setTimeout(() => this.startNavigationSubscription());
+      afterRenderEffect(() => {
+         const navItem = this.configService.navigation();
+         if (navItem) {
+            untracked(() => this.navigateTo(navItem));
+         }
+      });
+      afterNextRender(() => {
+         this.toc.forEach(tocItem => this.tree().expand(tocItem));
+      });
    }
 
    ngOnDestroy(): void {
-      this.navigationSubscription?.unsubscribe();
       this.httpSubscription?.unsubscribe();
-   }
-
-   private startNavigationSubscription(): void {
-      this.navigationSubscription = this.configService.navigation.subscribe(navItem => {
-         if (navItem) {
-            this.navigateTo(navItem);
-         }
-      });
    }
 
    private navigateTo(navItem: NavItem): void {
       const skipScrollToc = this.skipScrollToc;
       this.skipScrollToc = false;
-      this.loading.set(true);
       const tocItem = this.configService.navItemToTocItem(navItem);
       this.selectedTocItem.set(tocItem);
       if (!skipScrollToc) {
          this.scrollToc(tocItem);
       }
-      const helpContent = this.helpContentEl().nativeElement;
-      helpContent.innerHTML = '';
-      const url = this.configService.navItemToUrl(navItem);
-      this.httpSubscription?.unsubscribe();
-      this.httpSubscription = this.configService.httpGetText(url).subscribe({
-         next: data => {
-            Utils.addHelpPages(this.configService, helpContent, navItem.helpSet, [new HelpPage(navItem.pageId, data)]);
-            helpContent.querySelectorAll('pre').forEach(pre => {
-               pre.onscroll = () => this.onScroll();
-            });
-            Utils.scrollToNavItem(this.configService, navItem);
-            if (!skipScrollToc) {
-               this.scrollToc(tocItem); // Again, since scrollToNavItem might stop smooth toc scrolling
+      if (this.currentlyLoadedPage.helpSet === navItem.helpSet && this.currentlyLoadedPage.pageId === navItem.pageId) {
+         Utils.scrollToNavItem(this.configService, navItem);
+      } else {
+         this.currentlyLoadedPage = {};
+         this.loading.set(true);
+         const helpContent = this.helpContentEl().nativeElement;
+         helpContent.innerHTML = '';
+         const url = this.configService.navItemToUrl(navItem);
+         this.httpSubscription?.unsubscribe();
+         this.httpSubscription = this.configService.httpGetText(url).subscribe({
+            next: data => {
+               Utils.addHelpPages(this.configService, helpContent, navItem.helpSet, [new HelpPage(navItem.pageId, data)]);
+               helpContent.querySelectorAll('pre').forEach(pre => {
+                  pre.onscroll = () => this.onScroll();
+               });
+               Utils.scrollToNavItem(this.configService, navItem);
+               if (!skipScrollToc) {
+                  this.scrollToc(tocItem); // Again, since scrollToNavItem might stop smooth toc scrolling.
+               }
+               this.currentlyLoadedPage = {helpSet: navItem.helpSet, pageId: navItem.pageId};
+               this.loading.set(false);
+               this.errorResponse.set(undefined);
+            },
+            error: error => {
+               this.loading.set(false);
+               this.errorResponse.set(error);
+               console.error(error);
             }
-            this.loading.set(false);
-            this.errorResponse.set(undefined);
-         },
-         error: error => {
-            this.loading.set(false);
-            this.errorResponse.set(error);
-            console.log(error);
-         }
-      });
+         });
+      }
    }
 
    hasChild(_: number, tocItem: TocItem): boolean {
       return !!tocItem.items;
-   }
-
-   private search(text: string): void {
-      this.searchService.search(text).subscribe(searchResults => {
-         this.searchResults.set(searchResults);
-         const selectedTocItem = this.selectedTocItem();
-         if (!text && selectedTocItem) {
-            this.scrollToc(selectedTocItem);
-         }
-      });
    }
 
    onSearchFocus(): void {
@@ -185,7 +198,7 @@ export class HelpPageComponent implements AfterViewInit, OnDestroy {
 
    @HostListener('touchstart', ['$event'])
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   onTouchStart(event: any): void { // Some browsers do not support TouchEvent
+   onTouchStart(event: any): void { // Some browsers do not support TouchEvent.
       if (this.touchStart || event.changedTouches.length > 1) {
          this.touchStart = undefined;
          return;
@@ -196,7 +209,7 @@ export class HelpPageComponent implements AfterViewInit, OnDestroy {
 
    @HostListener('touchend', ['$event'])
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   onTouchEnd(event: any): void { // Some browsers do not support TouchEvent
+   onTouchEnd(event: any): void { // Some browsers do not support TouchEvent.
       const touch = event.changedTouches[0];
       const touchStart = this.touchStart;
       if (!touchStart) {

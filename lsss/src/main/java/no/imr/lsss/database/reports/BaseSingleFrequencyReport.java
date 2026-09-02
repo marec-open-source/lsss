@@ -20,8 +20,8 @@ abstract class BaseSingleFrequencyReport extends BaseReport {
    abstract void print(PrintData.Pelagic aPrintData, int aPrintFrequency, short aPrintTransceiver, ReportMode aMode, PrintData.Bottom aPrintDataBottom);
 
    Path makeFile(Path aDir, int aFrequency, short aTransceiver, float aStartDistance, float aEndDistance, String aSpeciesName) {
-      aSpeciesName = aSpeciesName.replaceAll("/", "_");
-      aSpeciesName = aSpeciesName.replaceAll("\\\\", "_");
+      aSpeciesName = aSpeciesName.replace('/', '_');
+      aSpeciesName = aSpeciesName.replace('\\', '_');
       DecimalFormatSymbols dfs = Utils.createDecimalFormatSymbols();
       DecimalFormat df = new DecimalFormat("#0.0", dfs);
       return aDir.resolve(getFilePrefix() +
@@ -33,10 +33,8 @@ abstract class BaseSingleFrequencyReport extends BaseReport {
    }
 
    Path makeFile(Path aDir, int aFrequency, short aTransceiver, String aSpeciesName) {
-      aSpeciesName = aSpeciesName.replaceAll("/", "_");
-      aSpeciesName = aSpeciesName.replaceAll("\\\\", "_");
-      DecimalFormatSymbols dfs = Utils.createDecimalFormatSymbols();
-      DecimalFormat df = new DecimalFormat("#0.0", dfs);
+      aSpeciesName = aSpeciesName.replace('/', '_');
+      aSpeciesName = aSpeciesName.replace('\\', '_');
       return aDir.resolve(getFilePrefix() +
             "_F" + String.format("%06d", aFrequency) +
             "_T" + String.format("%1d", aTransceiver) +

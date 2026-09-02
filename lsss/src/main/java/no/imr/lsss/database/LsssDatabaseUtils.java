@@ -13,8 +13,12 @@ import no.imr.lsss.database.tables.hibernate.SurveyInfoPK;
 import no.imr.lsss.database.tables.hibernate.SurveyPK;
 import no.imr.lsss.plugins.FeaturePlugin;
 import no.imr.tools.UnionList;
+import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.database.DatabaseConnection;
+import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
+import no.imr.tools.database.queries.FetchQuery;
+import no.imr.tools.database.queries.QueryBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +33,7 @@ public final class LsssDatabaseUtils {
    private LsssDatabaseUtils() {
    }
 
-   public static List<Class<? extends BaseDatabaseObject>> getDatabaseClasses(LSSS lsss) {
+   public static List<Class<? extends BaseDatabaseObject>> getAllDatabaseClasses(LSSS lsss) {
       return getSomeClasses(lsss, _ -> true);
    }
 
@@ -65,6 +69,39 @@ public final class LsssDatabaseUtils {
             .toList();
    }
 
+
+   public static <T extends BaseDatabaseObject> void copyClass(DatabaseConnection source,
+                                                               Class<T> clazz,
+                                                               DatabaseConnection destination,
+                                                               AsyncHandle asyncHandle) {
+      FetchQuery<T> fetchQuery = LsssQuery.fetch(clazz);
+      DatabaseUtils.copyByInsert(source, fetchQuery, destination, asyncHandle);
+   }
+
+   public static <T extends BaseDatabaseObject> void copyClassForNation(DatabaseConnection source,
+                                                                        Class<T> clazz, short nationPK,
+                                                                        DatabaseConnection destination,
+                                                                        AsyncHandle asyncHandle) {
+      FetchQuery<T> fetchQuery = LsssQuery.fetch(clazz, DatabaseData.NATION, nationPK);
+      DatabaseUtils.copyByInsert(source, fetchQuery, destination, asyncHandle);
+   }
+
+   public static <T extends BaseDatabaseObject> void copyClassForPlatform(DatabaseConnection source,
+                                                                          Class<T> clazz, PlatformPK platformPK,
+                                                                          DatabaseConnection destination,
+                                                                          AsyncHandle asyncHandle) {
+      FetchQuery<T> fetchQuery = LsssQuery.forPlatform(QueryBuilder.fetch(clazz), platformPK).build();
+      DatabaseUtils.copyByInsert(source, fetchQuery, destination, asyncHandle);
+   }
+
+   public static <T extends BaseDatabaseObject> void copyClassForSurvey(DatabaseConnection source,
+                                                                        Class<T> clazz, Survey survey,
+                                                                        DatabaseConnection destination,
+                                                                        AsyncHandle asyncHandle) {
+      FetchQuery<T> fetchQuery = LsssQuery.fetch(clazz, survey);
+      DatabaseUtils.copyByInsert(source, fetchQuery, destination, asyncHandle);
+   }
+
    public static void deleteSurvey(LSSS lsss, DatabaseConnection databaseConnection, Survey survey) {
       List<Class<? extends BaseDatabaseObject>> classes = getSurveyClasses(lsss);
       for (int i = classes.size() - 1; i >= 0; i--) { // Reverse order when deleting
@@ -87,7 +124,7 @@ public final class LsssDatabaseUtils {
 
    public static Set<PlatformPK> toPlatformPKs(Collection<Survey> surveys) {
       return surveys.stream()
-            .map(s -> new PlatformPK(s.getCompId().getNation(), s.getCompId().getPlatform()))
+            .map(PlatformPK::new)
             .collect(Collectors.toSet());
    }
 

@@ -2,6 +2,8 @@ package no.imr.korona.computation.dataquality;
 
 import no.imr.korona.data.ping.Ping;
 
+import java.time.Instant;
+
 abstract class DataQualityIndicator {
    private final NcVariableInfo variableInfo;
 
@@ -15,5 +17,5 @@ abstract class DataQualityIndicator {
 
    abstract void processPing(Ping ping);
 
-   abstract float[] computeResult(long[] timeInMillis, float[] bottomDepths);
+   abstract float[] computeResult(Instant[] instants, float[] bottomDepths);
 }

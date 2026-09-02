@@ -3,8 +3,12 @@ package no.imr.tools.web;
 import no.imr.tools.io.FileUtils;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
+import java.net.Authenticator;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 
 public final class WebUtils {
    public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -21,23 +25,32 @@ public final class WebUtils {
    }
 
    public static byte[] post(URI uri, byte[] content, String contentType) throws IOException {
-      HttpURLConnection urlConnection = (HttpURLConnection) uri.toURL().openConnection();
-      urlConnection.setRequestMethod("POST");
-      urlConnection.setRequestProperty("Content-Type", contentType);
-      urlConnection.setDoOutput(true);
-      urlConnection.getOutputStream().write(content);
-      urlConnection.setConnectTimeout(15_000);
-      urlConnection.setReadTimeout(15_000);
-      byte[] responseBytes = urlConnection.getInputStream().readAllBytes();
-      int responseCode = urlConnection.getResponseCode();
-      if (!isResponseCodeOk(responseCode)) {
-         throw new IOException("Response code " + responseCode + " posting to " + uri);
+      HttpRequest request = HttpRequest.newBuilder()
+            .uri(uri)
+            .timeout(Duration.ofSeconds(15))
+            .header("Content-Type", contentType)
+            .POST(HttpRequest.BodyPublishers.ofByteArray(content))
+            .build();
+      HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(15));
+      Authenticator authenticator = Authenticator.getDefault();
+      if (authenticator != null) {
+         httpClientBuilder.authenticator(authenticator);
       }
-      return responseBytes;
+      try (HttpClient httpClient = httpClientBuilder.build()) {
+         HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
+         if (!isStatusCodeOk(response.statusCode())) {
+            throw new IOException("Status code " + response.statusCode() + " posting to " + uri);
+         }
+         return response.body();
+      } catch (InterruptedException e) {
+         Thread.currentThread().interrupt();
+         throw new IOException("Interrupted posting to " + uri, e);
+      }
    }
 
-   private static boolean isResponseCodeOk(int responseCode) {
-      return responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_NO_CONTENT;
+   private static boolean isStatusCodeOk(int statusCode) {
+      return statusCode >= 200 && statusCode < 300;
    }
 
    public static String getMediaType(String file) {
@@ -45,7 +58,7 @@ public final class WebUtils {
          case ".css" -> "text/css";
          case ".html" -> "text/html";
          case ".ico" -> "image/x-icon";
-         case ".js" -> "application/javascript";
+         case ".js" -> "text/javascript";
          case ".json" -> APPLICATION_JSON;
          case ".png" -> "image/png";
          case ".svg" -> "image/svg+xml";

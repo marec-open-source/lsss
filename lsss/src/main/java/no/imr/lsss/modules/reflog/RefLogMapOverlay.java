@@ -31,7 +31,6 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class RefLogMapOverlay extends BaseMapOverlay {
@@ -93,23 +92,23 @@ public final class RefLogMapOverlay extends BaseMapOverlay {
       ExtendedSurveyLine extendedSurveyLine = getInterpretationSettings().getMapSettings().getExtendedSurveyLine();
       PingRange pingRange = extendedSurveyLine.getTotalPingRange();
       List<Marker> markers = refLogDataModule.get().getAllDisplayableLogLines(pingRange)
-            .map(logLine -> {
-               PingIndex pingIndex = extendedSurveyLine.getClosestPingIndex(PingMapping.millisToTimeValue(logLine.timeInMillis()), PingMapping.TIME);
+            .<Marker>mapMulti((logLine, consumer) -> {
+               if (logLine.activityType() == ActivityType.CTD) {
+                  // Do not plot CTD, this information comes from CTD stations.
+                  return;
+               }
+               PingIndex pingIndex = extendedSurveyLine.getClosestPingIndex(PingMapping.instantToTimeValue(logLine.time()), PingMapping.TIME);
                GeoPoint geoPosition = pingIndex.getGeographicalPosition();
                if (geoPosition == null) {
-                  return null;
+                  return;
                }
                if (!geoRect.contains(geoPosition)) {
-                  return null;
+                  return;
                }
                geoTransform.geoToPix(geoPosition, pixPos);
                float x = pixPos.x;
                float y = pixPos.y;
 
-               if (logLine.activityType() == ActivityType.CTD) {
-                  // Do not plot CTD, this information comes from ctd stations
-                  return null;
-               }
                Shape shape = switch (logLine.activityType()) {
                   case BOTTOM_TRAWL -> square(x, y);
                   case PELAGIC_TRAWL -> triangle(x, y);
@@ -122,14 +121,13 @@ public final class RefLogMapOverlay extends BaseMapOverlay {
                      textPlacement = Math.abs(tangent.getX()) > Math.abs(tangent.getY()) ? TextPlacement.BELOW : TextPlacement.RIGHT;
                   }
                }
-               return new Marker(logLine, shape, x, y, textPlacement);
+               consumer.accept(new Marker(logLine, shape, x, y, textPlacement));
             })
-            .filter(Objects::nonNull)
             .toList();
       if (markers.isEmpty()) {
          return null;
       }
-      return new DisplayData(markers);
+      return transformed(new DisplayData(markers));
    }
 
    private static Shape square(float x, float y) {
@@ -177,7 +175,7 @@ public final class RefLogMapOverlay extends BaseMapOverlay {
    private record Marker(LogLine logLine, Shape shape, float x, float y, @Nullable TextPlacement textPlacement) {
    }
 
-   private final class DisplayData extends TransformedDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private final List<Marker> markers;
 
       private DisplayData(List<Marker> markers) {
@@ -185,7 +183,7 @@ public final class RefLogMapOverlay extends BaseMapOverlay {
       }
 
       @Override
-      public void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          g2d.setStroke(GuiUtils.STROKE_2);
          g2d.setColor(Color.DARK_GRAY);
 

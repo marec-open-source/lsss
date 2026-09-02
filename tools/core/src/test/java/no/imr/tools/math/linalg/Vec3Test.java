@@ -53,4 +53,22 @@ final class Vec3Test {
    void abs() {
       assertEquals(new Vec3(1, 2, 3), new Vec3(-1, -2, -3).abs());
    }
+
+   @Test
+   void someOrthonormalVector() {
+      assertEquals(0, Vec3.ZERO.someOrthonormalVector().length());
+      someOrthonormalVector(new Vec3(2, 0, 0));
+      someOrthonormalVector(new Vec3(2, 2, 0));
+      someOrthonormalVector(new Vec3(2, 0, 2));
+      someOrthonormalVector(new Vec3(0, 2, 0));
+      someOrthonormalVector(new Vec3(0, 2, 2));
+      someOrthonormalVector(new Vec3(0, 0, 2));
+      someOrthonormalVector(new Vec3(3, 2, 1));
+   }
+
+   private static void someOrthonormalVector(Vec3 v) {
+      Vec3 w = v.someOrthonormalVector();
+      assertEquals(0, w.dot(v));
+      assertEquals(1, w.length(), 1e-7f);
+   }
 }

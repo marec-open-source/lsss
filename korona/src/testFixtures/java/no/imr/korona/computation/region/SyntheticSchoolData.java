@@ -3,10 +3,10 @@ package no.imr.korona.computation.region;
 import no.imr.korona.data.formats.synthetic.SyntheticData;
 import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.items.channel.PowerData;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.annotations.ReflectionEntryPoint;
-import no.imr.tools.time.NTDate;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public final class SyntheticSchoolData extends SyntheticData {
    private static final float[] FREQUENCIES = {38_000, 200_000};
-   private static final long NT_DATE_START = NTDate.timeInMillisToNTDate(0);
+   private static final Instant START_INSTANT = Instant.EPOCH;
    static final float SV_INSIDE = PowerData.logSvToSv(-40);
 
    static final float METER_PER_PING = 2;
@@ -44,22 +44,22 @@ public final class SyntheticSchoolData extends SyntheticData {
    }
 
    @Override
-   protected int getTransducerCount() {
+   public int getTransducerCount() {
       return FREQUENCIES.length;
    }
 
    @Override
-   protected float getFrequency(int channel) {
+   public float getFrequency(int channel) {
       return FREQUENCIES[channel - 1];
    }
 
    @Override
-   protected void addParameters(Map<String, String> parameters) {
+   public void addParameters(Map<String, String> parameters) {
       parameters.put("case", theCase);
    }
 
    @Override
-   protected void setParameter(String name, String value) {
+   public void setParameter(String name, String value) {
       if (name.equals("case")) {
          theCase = value;
       } else {
@@ -68,30 +68,30 @@ public final class SyntheticSchoolData extends SyntheticData {
    }
 
    @Override
-   protected long getNTDate(long pingNumber) {
+   public Instant getInstant(long pingNumber) {
       // One ping per second.
-      return NT_DATE_START + pingNumber * NTDate.UNITS_PER_SECOND;
+      return START_INSTANT.plusSeconds(pingNumber);
    }
 
    @Override
-   protected double getVesselDistance(long pingNumber) {
+   public double getVesselDistance(long pingNumber) {
       // 10 meter per ping.
-      return pingNumber * Utils.meterToNmi(METER_PER_PING);
+      return pingNumber * KoronaUtils.meterToNmi(METER_PER_PING);
    }
 
    @Override
-   protected float getSampleInterval(PingIndex pingIndex, int channel) {
+   public float getSampleInterval(PingIndex pingIndex, int channel) {
       // sampleDistance = sampleInterval * soundVelocity / 2
       return SAMPLE_DISTANCE * 2 / getSoundVelocity(pingIndex, channel);
    }
 
    @Override
-   protected float getBottomDepth(PingIndex pingIndex, int channel) {
+   public float getBottomDepth(PingIndex pingIndex, int channel) {
       return 0;
    }
 
    @Override
-   protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+   public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
       float[] sv = switch (theCase) {
          case CASE_RECTANGULAR_SCHOOL -> rectangularSchool(powerData, pingIndex, false);
          case CASE_RECTANGULAR_SCHOOL_WITH_HOLE -> rectangularSchool(powerData, pingIndex, true);

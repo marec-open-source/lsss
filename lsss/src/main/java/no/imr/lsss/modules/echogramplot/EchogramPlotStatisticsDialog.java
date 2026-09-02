@@ -1,5 +1,6 @@
 package no.imr.lsss.modules.echogramplot;
 
+import no.imr.tools.math.Quantile;
 import no.imr.tools.math.WelfordsMethod;
 import no.imr.tools.plot.ExportTransform;
 import no.imr.tools.plot.XYInfo;
@@ -87,9 +88,9 @@ final class EchogramPlotStatisticsDialog {
             (float) transform.applyAsDouble(welfordsMethod.getMean()),
             (float) transform.applyAsDouble(welfordsMethod.getStdDev()),
             (float) transform.applyAsDouble(values[0]),
-            (float) transform.applyAsDouble(values[(int) (n * 0.1)]),
+            (float) transform.applyAsDouble(values[Quantile.quantileIndex(0.1, n)]),
             (float) transform.applyAsDouble(values[n / 2]),
-            (float) transform.applyAsDouble(values[(int) (n * 0.9)]),
+            (float) transform.applyAsDouble(values[Quantile.quantileIndex(0.9, n)]),
             (float) transform.applyAsDouble(values[n - 1])
       );
    }

@@ -72,8 +72,6 @@ final class G1 {
    private static double dsign(double a, double b) {
       if (b >= 0) {
          return Math.abs(a);
-      } else if (b == 0) {
-         return 0;
       } else {
          return -Math.abs(a);
       }

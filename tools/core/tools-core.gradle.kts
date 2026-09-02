@@ -40,7 +40,7 @@ dependencies {
 tasks.filterSrcMainJava {
    filesMatching("**/Utils.java") {
       val tokens = mapOf(
-         "BUILD_TIME" to marecBuild.properties.buildTime.toInstant().toEpochMilli().toString(),
+         "BUILD_EPOCH_SECOND" to marecBuild.properties.buildTime.toEpochSecond().toString(),
          "GIT_COMMIT" to marecBuild.properties.gitCommit,
          "END_BLOCK_COMMENT" to "*/",
          "LINE_COMMENT" to "//",

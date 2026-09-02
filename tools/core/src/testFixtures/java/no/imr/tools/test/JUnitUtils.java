@@ -102,7 +102,11 @@ public final class JUnitUtils {
    }
 
    public static void assertLessThan(double small, double large) {
-      Assertions.assertTrue(small < large, small + " < " + large);
+      Assertions.assertTrue(small < large, () -> small + " < " + large);
+   }
+
+   public static void assertLessThanOrEqual(double small, double large) {
+      Assertions.assertTrue(small <= large, () -> small + " <= " + large);
    }
 
    public static void assertEquals(Element expected, Element actual) {

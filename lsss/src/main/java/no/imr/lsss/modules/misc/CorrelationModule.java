@@ -35,8 +35,10 @@ import org.jfree.chart.JFreeChart;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public final class CorrelationModule extends BaseViewModule implements PojoDataContainer {
@@ -61,7 +63,7 @@ public final class CorrelationModule extends BaseViewModule implements PojoDataC
 
    private float[][] sums = new float[0][N];
    private int[][] counts = new int[0][N];
-   private final Set<PingIndex> pingIndexes = new HashSet<>();
+   private final Map<Region, Set<PingIndex>> pingIndexes = new HashMap<>();
 
    public CorrelationModule(ModuleInfo<?> moduleInfo) {
       super(moduleInfo);
@@ -126,20 +128,20 @@ public final class CorrelationModule extends BaseViewModule implements PojoDataC
 
    private void processPings(List<Ping> pings) {
       PingRange pingRange = getInterpretationSettings().getPingRange();
+      int dBSpan = (int) Math.ceil(Math.max(dbSpan.getFloatValue(), MIN_DB_SPAN));
 
       for (Region region : getRegionManager().getSelectedRegions()) {
          PingRange visibleRegionPingRange = region.getPingRange().intersection(pingRange);
          if (visibleRegionPingRange.isEmpty()) {
             continue;
          }
-         int dBSpan = (int) Math.ceil(Math.max(dbSpan.getFloatValue(), MIN_DB_SPAN));
 
          for (Ping ping : pings) {
             PingIndex pingIndex = ping.getPingIndex();
             if (!visibleRegionPingRange.contains(pingIndex)) {
                continue;
             }
-            if (!pingIndexes.add(pingIndex)) {
+            if (!pingIndexes.computeIfAbsent(region, _ -> new HashSet<>()).add(pingIndex)) {
                continue;
             }
 

@@ -11,6 +11,7 @@ import no.imr.korona.data.ping.items.channel.PowerData;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,18 +60,18 @@ final class PingThinningModuleTest {
       check(moduleContainer, syntheticDataFile, List.of());
    }
 
-   private static void check(ModuleContainer moduleContainer, SyntheticDataFile syntheticDataFile, List<Integer> expectedNTDates) throws IOException {
+   private static void check(ModuleContainer moduleContainer, SyntheticDataFile syntheticDataFile, List<Integer> expectedEpochSeconds) throws IOException {
       try (ModuleContainerComputation computation = moduleContainer.createComputation(syntheticDataFile.toPingReader())) {
-         List<Integer> actualNTDates = new ArrayList<>();
+         List<Integer> actualEpochSeconds = new ArrayList<>();
          while (true) {
             Ping ping = computation.nextPing();
             if (ping == null) {
                break;
             }
-            actualNTDates.add((int) ping.getNTDate());
-            assertEquals(actualNTDates.size(), ping.getPingNumber());
+            actualEpochSeconds.add((int) ping.getInstant().getEpochSecond());
+            assertEquals(actualEpochSeconds.size(), ping.getPingNumber());
          }
-         assertEquals(expectedNTDates, actualNTDates);
+         assertEquals(expectedEpochSeconds, actualEpochSeconds);
       }
    }
 
@@ -79,12 +80,12 @@ final class PingThinningModuleTest {
       }
 
       @Override
-      protected long getNTDate(long pingNumber) {
-         return pingNumber;
+      public Instant getInstant(long pingNumber) {
+         return Instant.ofEpochSecond(pingNumber);
       }
 
       @Override
-      protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+      public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
          float[] logSv = new float[1];
          powerData.setLogSv(logSv);
       }

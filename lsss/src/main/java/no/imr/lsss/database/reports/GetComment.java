@@ -4,10 +4,12 @@ import no.imr.lsss.database.tables.hibernate.ObservationComment;
 import no.imr.lsss.database.tables.hibernate.StandardComment;
 import no.imr.lsss.database.tables.hibernate.StandardCommentPK;
 import no.imr.tools.io.FileUtils;
+import no.imr.tools.io.Print;
 import no.imr.tools.logging.Log;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.StatelessSession;
+import org.hibernate.query.SelectionQuery;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -25,44 +27,47 @@ final class GetComment {
    }
 
    static void generateCommentFile(
-         StatelessSession aSession,
-         String aQuery,
-         Path aCommentFile,
+         StatelessSession session,
+         SelectionQuery<ObservationComment> query,
+         Path commentFile,
          Charset aCharset) {
 
       Map<StandardCommentPK, StandardComment> pkToStandardComment = new HashMap<>();
 
-      try (ScrollableResults<ObservationComment> observationCommentResults = aSession.createSelectionQuery(aQuery, ObservationComment.class)
+      try (ScrollableResults<ObservationComment> observationCommentResults = query
             .setReadOnly(true)
             .scroll(ScrollMode.FORWARD_ONLY);
-           PrintWriter f = FileUtils.newPrintWriter(aCommentFile, aCharset)) {
+           PrintWriter f = FileUtils.newPrintWriter(commentFile, aCharset)) {
 
          while (observationCommentResults.next()) {
             ObservationComment observationComment = observationCommentResults.get();
 
-            f.printf("%d ", observationComment.getCompId().getNation());
-            f.printf("%d ", observationComment.getCompId().getPlatform());
-            f.printf("%d ", observationComment.getCompId().getSurvey());
-            f.printf("%d ", observationComment.getCompId().getObservationDate());
-            f.printf("%d ", observationComment.getCompId().getObservationTime());
-            f.printf("%d ", observationComment.getCompId().getObservationType());
-            f.printf("%d ", observationComment.getMantissa());
-            f.printf("%d ", observationComment.getExp());
-            if (observationComment.getText().isEmpty()) {
+            String text;
+            if (observationComment.getStandardComment() != StandardComment.FREE_TEXT_STANDARD_COMMENT) {
                StandardCommentPK standardCommentPK = new StandardCommentPK(
                      observationComment.getCompId().getNation(),
                      observationComment.getCompId().getPlatform(),
                      observationComment.getStandardComment()
                );
                StandardComment standardComment = pkToStandardComment.computeIfAbsent(standardCommentPK, _ -> {
-                  aSession.fetch(observationComment.getReferencedStandardComment());
+                  session.fetch(observationComment.getReferencedStandardComment());
                   return observationComment.getReferencedStandardComment();
                });
-               f.printf("%s ", standardComment.getText());
+               text = standardComment.getText();
             } else {
-               f.printf("%s ", observationComment.getText().replace('\n', ' '));   //Line feed generates problems
+               text = observationComment.getText();
             }
-            f.printf("%n");
+
+            f.print(observationComment.getCompId().getNation());
+            Print.spaceAndValue(f, observationComment.getCompId().getPlatform());
+            Print.spaceAndValue(f, observationComment.getCompId().getSurvey());
+            Print.spaceAndValue(f, observationComment.getCompId().getObservationDate());
+            Print.spaceAndValue(f, observationComment.getCompId().getObservationTime());
+            Print.spaceAndValue(f, observationComment.getCompId().getObservationType());
+            Print.spaceAndValue(f, observationComment.getMantissa());
+            Print.spaceAndValue(f, observationComment.getExp());
+            Print.spaceAndValue(f, text.replace('\n', ' ')); //Line feed generates problems
+            f.println();
          }
       } catch (Exception e) {
          Log.global.log(Level.WARNING, "Error", e);
@@ -70,62 +75,54 @@ final class GetComment {
    }
 
    // Get next comment from file. Comments are repeated for frequencies
-   static boolean nextComment(BufferedReader f, ObservationComment aObservationComment) {
-      String line;
-      int startIndex;
-      int stopIndex;
-      int mantissa;
-      int exponent;
-
+   static boolean nextComment(BufferedReader f, ObservationComment observationComment) {
       try {
-         if ((line = f.readLine()) != null) {
-            startIndex = 0;
-            stopIndex = line.indexOf(' ', startIndex);
-            aObservationComment.getCompId().setNation(Short.parseShort(line.substring(startIndex, stopIndex)));
-
-            startIndex = stopIndex + 1;
-            stopIndex = line.indexOf(' ', startIndex);
-            aObservationComment.getCompId().setPlatform(Short.parseShort(line.substring(startIndex, stopIndex)));
-
-            startIndex = stopIndex + 1;
-            stopIndex = line.indexOf(' ', startIndex);
-            aObservationComment.getCompId().setSurvey(Integer.parseInt(line.substring(startIndex, stopIndex)));
-
-            startIndex = stopIndex + 1;
-            stopIndex = line.indexOf(' ', startIndex);
-            aObservationComment.getCompId().setObservationDate(Integer.parseInt(line.substring(startIndex, stopIndex)));
-
-            startIndex = stopIndex + 1;
-            stopIndex = line.indexOf(' ', startIndex);
-            aObservationComment.getCompId().setObservationTime(Integer.parseInt(line.substring(startIndex, stopIndex)));
-
-            startIndex = stopIndex + 1;
-            stopIndex = line.indexOf(' ', startIndex);
-            aObservationComment.getCompId().setObservationType(Short.parseShort(line.substring(startIndex, stopIndex)));
-
-            startIndex = stopIndex + 1;
-            stopIndex = line.indexOf(' ', startIndex);
-            mantissa = Integer.parseInt(line.substring(startIndex, stopIndex));
-            aObservationComment.setMantissa(mantissa);
-
-            startIndex = stopIndex + 1;
-            stopIndex = line.indexOf(' ', startIndex);
-            exponent = Integer.parseInt(line.substring(startIndex, stopIndex));
-            aObservationComment.setExp(exponent);
-
-            startIndex = stopIndex + 1;
-            stopIndex = line.length() - 1;
-            aObservationComment.setText(line.substring(startIndex, stopIndex));
-
-            return true; // One line read
-         } else {
+         String line = f.readLine();
+         if (line == null) {
             f.close();
-            return false; // Nothing read
+            return false;
          }
+
+         int startIndex = 0;
+         int stopIndex = line.indexOf(' ', startIndex);
+         observationComment.getCompId().setNation((short) Integer.parseInt(line, startIndex, stopIndex, 10));
+
+         startIndex = stopIndex + 1;
+         stopIndex = line.indexOf(' ', startIndex);
+         observationComment.getCompId().setPlatform((short) Integer.parseInt(line, startIndex, stopIndex, 10));
+
+         startIndex = stopIndex + 1;
+         stopIndex = line.indexOf(' ', startIndex);
+         observationComment.getCompId().setSurvey(Integer.parseInt(line, startIndex, stopIndex, 10));
+
+         startIndex = stopIndex + 1;
+         stopIndex = line.indexOf(' ', startIndex);
+         observationComment.getCompId().setObservationDate(Integer.parseInt(line, startIndex, stopIndex, 10));
+
+         startIndex = stopIndex + 1;
+         stopIndex = line.indexOf(' ', startIndex);
+         observationComment.getCompId().setObservationTime(Integer.parseInt(line, startIndex, stopIndex, 10));
+
+         startIndex = stopIndex + 1;
+         stopIndex = line.indexOf(' ', startIndex);
+         observationComment.getCompId().setObservationType((short) Integer.parseInt(line, startIndex, stopIndex, 10));
+
+         startIndex = stopIndex + 1;
+         stopIndex = line.indexOf(' ', startIndex);
+         observationComment.setMantissa(Integer.parseInt(line, startIndex, stopIndex, 10));
+
+         startIndex = stopIndex + 1;
+         stopIndex = line.indexOf(' ', startIndex);
+         observationComment.setExp(Integer.parseInt(line, startIndex, stopIndex, 10));
+
+         startIndex = stopIndex + 1;
+         stopIndex = line.length();
+         observationComment.setText(line.substring(startIndex, stopIndex));
+
+         return true; // One line read
       } catch (Exception e) {
          Log.global.log(Level.WARNING, "Error", e);
+         return false;
       }
-
-      return false;  // Nothing read
    } // nextComment())
 }

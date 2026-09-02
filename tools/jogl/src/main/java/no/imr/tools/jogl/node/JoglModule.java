@@ -20,13 +20,16 @@ public abstract sealed class JoglModule implements GLEventListener permits JoglO
    private final @Nullable GLContext glContext;
    private final ViewHolder<View> viewHolder = new ViewHolder<>(() -> new View(this));
    private final JoglRootNode rootNode = new JoglRootNode(this);
-   private int width;
-   private int height;
+   private int glWidth;
+   private int glHeight;
+   private int java2dWidth;
+   private int java2dHeight;
    private float clearRed = 1;
    private float clearGreen = 1;
    private float clearBlue = 1;
    private boolean needProjection;
    private boolean needInit;
+   private final GlDrawInfo glDrawInfo = new GlDrawInfo();
    private final Queue<JoglNode> needDispose = new ConcurrentLinkedQueue<>();
 
    JoglModule(@Nullable GLContext glContext) {
@@ -97,7 +100,7 @@ public abstract sealed class JoglModule implements GLEventListener permits JoglO
       }
       if (needInit) {
          needInit = false;
-         rootNode.initTraversal(gl);
+         rootNode.initTraversal(gl, glDrawInfo);
       }
 
       rootNode.drawOpaque(gl);
@@ -106,8 +109,11 @@ public abstract sealed class JoglModule implements GLEventListener permits JoglO
 
    @Override
    public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-      this.width = width;
-      this.height = height;
+      glWidth = width;
+      glHeight = height;
+      java2dWidth = ((GLJPanel) drawable).getWidth();
+      java2dHeight = ((GLJPanel) drawable).getHeight();
+      glDrawInfo.uiScaleFactor = (float) glWidth / java2dWidth;
       needProjection = true;
    }
 
@@ -132,12 +138,20 @@ public abstract sealed class JoglModule implements GLEventListener permits JoglO
       viewHolder.ifView(View::repaint);
    }
 
-   public int getWidth() {
-      return width;
+   public int getGlWidth() {
+      return glWidth;
    }
 
-   public int getHeight() {
-      return height;
+   public int getGlHeight() {
+      return glHeight;
+   }
+
+   public int getJava2dWidth() {
+      return java2dWidth;
+   }
+
+   public int getJava2dHeight() {
+      return java2dHeight;
    }
 
    /**
@@ -147,6 +161,17 @@ public abstract sealed class JoglModule implements GLEventListener permits JoglO
     * @return the view ray
     */
    public abstract Ray pixPosToViewRay(Point2D pixPos);
+
+   static final class GlDrawInfo {
+      private float uiScaleFactor = 1;
+
+      GlDrawInfo() {
+      }
+
+      float getUiScaleFactor() {
+         return uiScaleFactor;
+      }
+   }
 
    private static final class View implements ViewHolder.View {
       private final GLJPanel panel = new GLJPanel(null, null);

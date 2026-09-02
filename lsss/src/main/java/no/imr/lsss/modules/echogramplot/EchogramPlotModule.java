@@ -27,6 +27,7 @@ import no.imr.lsss.modules.echogramplot.functions.RelativeFrequencyResponseFunct
 import no.imr.lsss.modules.echogramplot.functions.RollTransmitToReceive;
 import no.imr.lsss.modules.echogramplot.functions.SaFunction;
 import no.imr.lsss.modules.echogramplot.functions.SimplePingFunction;
+import no.imr.lsss.modules.echogramplot.functions.TsRelativeMainFrequencyFunction;
 import no.imr.lsss.modules.pojodata.PojoData;
 import no.imr.lsss.modules.pojodata.PojoDataContainer;
 import no.imr.lsss.modules.pojodata.PojoDataUtils;
@@ -67,6 +68,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -104,7 +106,7 @@ public final class EchogramPlotModule extends BaseViewModule implements PojoData
          new Name("NMEA"),
          List.of(), Unit.NONE, NmeaFunction.NmeaParameter.CONSTRAINT, ValueConverters.STRING) {
       @Override
-      public ValueParameter<Optional<String>> createNewParameter(int index, String persistentName) {
+      public ValueParameter<Optional<String>> newOptionalParameter(int index, String persistentName) {
          NmeaFunction.NmeaParameter parameter = new NmeaFunction.NmeaParameter(getInterpretationSettings(), persistentName);
          parameter.setProperty(KEY_COMBINE_INPUT_AND_DESCRIPTION, true);
          return parameter;
@@ -116,7 +118,7 @@ public final class EchogramPlotModule extends BaseViewModule implements PojoData
          new Name("ADCP"),
          List.of(), Unit.NONE, ValueConverters.STRING) {
       @Override
-      public ValueParameter<Optional<String>> createNewParameter(int index, String persistentName) {
+      public ValueParameter<Optional<String>> newOptionalParameter(int index, String persistentName) {
          AdcpFunction.AdcpParameter parameter = new AdcpFunction.AdcpParameter(persistentName);
          parameter.setProperty(KEY_COMBINE_INPUT_AND_DESCRIPTION, true);
          return parameter;
@@ -146,6 +148,14 @@ public final class EchogramPlotModule extends BaseViewModule implements PojoData
 
       addFunction(SimplePingFunction.bottomDepth());
       addFunction(SimplePingFunction.bottomDepthRelativeMainFrequency(getLSSS()));
+      addFunction(TsRelativeMainFrequencyFunction.alongshipAngle(getLSSS()));
+      addFunction(TsRelativeMainFrequencyFunction.athwartshipAngle(getLSSS()));
+      addFunction(TsRelativeMainFrequencyFunction.depth(getLSSS()));
+      addFunction(TsRelativeMainFrequencyFunction.alongshipCoordinate(getLSSS()));
+      addFunction(TsRelativeMainFrequencyFunction.athwartshipCoordinate(getLSSS()));
+      addFunction(TsRelativeMainFrequencyFunction.verticalCoordinate(getLSSS()));
+      addFunction(TsRelativeMainFrequencyFunction.tsc(getLSSS()));
+      addFunction(TsRelativeMainFrequencyFunction.tsu(getLSSS()));
       addFunction(new RelativeFrequencyResponseFunction(getLSSS()));
       addFunction(new SaFunction(getLSSS()));
       addFunction(SimplePingFunction.timeBetweenPings());
@@ -193,8 +203,6 @@ public final class EchogramPlotModule extends BaseViewModule implements PojoData
       addFunction(ComplexChannelDataParameterFunction.transducerImpedancePhase(3));
 
       addFunction(new RollTransmitToReceive());
-      //addFunction(IntegratedRoll2.roll());
-      //addFunction(IntegratedRoll2.heave());
 
       addFunction(InterpretationFunction.bubbleCorrection(getLSSS()));
       addFunction(InterpretationFunction.lowerLayerBoundary(getLSSS()));
@@ -335,10 +343,10 @@ public final class EchogramPlotModule extends BaseViewModule implements PojoData
    }
 
    private void updateSelectedPingFunctions() {
-      List<PingFunction> selectedPingFunctions = allPingFunctions.stream()
+      List<PingFunction> pingFunctions = allPingFunctions.stream()
             .filter(f -> f.selected.getBooleanValue())
             .toList();
-      setSelectedPingFunctions(selectedPingFunctions);
+      setSelectedPingFunctions(pingFunctions);
    }
 
    JFreeChart getChart() {
@@ -404,17 +412,17 @@ public final class EchogramPlotModule extends BaseViewModule implements PojoData
 
       PingMapping pingMapping = getInterpretationSettings().getPingMapping();
       double[] x = new double[pings.size() + 1];
-      long[] timeInMillis = new long[pings.size() + 1];
+      Instant[] instants = new Instant[pings.size() + 1];
       float[] bottom = new float[pings.size() + 1];
       for (int i = 0; i < pings.size(); i++) {
          Ping ping = pings.get(i);
          x[i] = pingMapping.valueOf(ping);
-         timeInMillis[i] = ping.getTimeInMillis();
+         instants[i] = ping.getInstant();
          bottom[i] = dataFileSet.getCoordinatedDepth(ping.getPingIndex());
       }
       PingIndex endPingIndex = pingRange.end();
       x[x.length - 1] = pingMapping.valueOf(endPingIndex);
-      timeInMillis[timeInMillis.length - 1] = endPingIndex.getTimeInMillis();
+      instants[instants.length - 1] = endPingIndex.getInstant();
       bottom[bottom.length - 1] = dataFileSet.getCoordinatedDepth(endPingIndex);
       Ping endPing = dataFileSet.getTotalRange().end().equals(endPingIndex) ? null : dataFileSet.getPing(endPingIndex);
 
@@ -428,9 +436,9 @@ public final class EchogramPlotModule extends BaseViewModule implements PojoData
                pingFunction.getParameterExport());
          if (plotAllChannels.getBooleanValue() && pingFunction.isChannelDependent()) {
             List<RawFileTransducer> transducers = dataFileSet.getRawFileConfiguration().getTransducers();
-            int transducerCount = dataFileSet.getRawFileConfiguration().getTransducerCount();
+            int transducerCount = transducers.size();
             for (int channel = 1; channel <= transducerCount; channel++) {
-               float[] y = evaluatePingFunction(pingFunction, dataFileSet, pings, channel, endPing, timeInMillis, bottom);
+               float[] y = evaluatePingFunction(pingFunction, dataFileSet, pings, channel, endPing, instants, bottom);
                if (smootherKernel != null) {
                   y = smootherKernel.smooth(y);
                }
@@ -439,7 +447,7 @@ public final class EchogramPlotModule extends BaseViewModule implements PojoData
                dataSets.add(new EchogramPlotDataset(nameAndUnit, x, y, xyInfo));
             }
          } else {
-            float[] y = evaluatePingFunction(pingFunction, dataFileSet, pings, currentChannel, endPing, timeInMillis, bottom);
+            float[] y = evaluatePingFunction(pingFunction, dataFileSet, pings, currentChannel, endPing, instants, bottom);
             if (smootherKernel != null) {
                y = smootherKernel.smooth(y);
             }
@@ -455,14 +463,14 @@ public final class EchogramPlotModule extends BaseViewModule implements PojoData
    }
 
    private static float[] evaluatePingFunction(PingFunction pingFunction, DataFileSet dataFileSet, List<Ping> pings, int channel,
-                                               @Nullable Ping endPing, long[] timeInMillis, float[] bottom) {
+                                               @Nullable Ping endPing, Instant[] instants, float[] bottom) {
       float[] y = new float[pings.size() + 1];
       for (int i = 0; i < pings.size(); i++) {
          Ping ping = pings.get(i);
          y[i] = (float) pingFunction.compute(dataFileSet, ping, channel);
       }
       y[y.length - 1] = endPing != null ? (float) pingFunction.compute(dataFileSet, endPing, channel) : y[y.length - 2];
-      return pingFunction.postprocess(y, timeInMillis, bottom);
+      return pingFunction.postprocess(y, instants, bottom);
    }
 
    private void plot(List<EchogramPlotDataset> dataSets) {

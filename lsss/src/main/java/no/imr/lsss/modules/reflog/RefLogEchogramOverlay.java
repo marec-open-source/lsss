@@ -89,7 +89,7 @@ public final class RefLogEchogramOverlay extends BaseEchogramOverlay {
    }
 
    private void updateStroke() {
-      stroke = new BasicStroke(lineThickness.getIntValue(), BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, new float[]{1, 0}, 0);
+      stroke = new BasicStroke(lineThickness.getIntValue(), BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10);
       repaint();
    }
 
@@ -108,7 +108,7 @@ public final class RefLogEchogramOverlay extends BaseEchogramOverlay {
       PingRange pingRange = getInterpretationSettings().getPingRange();
       List<Marker> markers = refLogDataModule.get().getAllDisplayableLogLines(pingRange)
             .map(logLine -> {
-               PingIndex pingIndex = getInterpretationSettings().getDataFileSet().getClosestPingIndex(PingMapping.millisToTimeValue(logLine.timeInMillis()), PingMapping.TIME);
+               PingIndex pingIndex = getInterpretationSettings().getDataFileSet().getClosestPingIndex(PingMapping.instantToTimeValue(logLine.time()), PingMapping.TIME);
                return new Marker(logLine, getPingSettings().pingIndexToXIndex(pingIndex));
             })
             .toList();
@@ -137,7 +137,7 @@ public final class RefLogEchogramOverlay extends BaseEchogramOverlay {
    private record Marker(LogLine logLine, int x) {
    }
 
-   private final class DisplayData extends OverlayDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private final List<Marker> markers;
 
       private DisplayData(List<Marker> markers) {

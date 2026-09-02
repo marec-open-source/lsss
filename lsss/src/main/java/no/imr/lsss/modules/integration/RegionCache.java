@@ -23,9 +23,7 @@ final class RegionCache {
    }
 
    void putNullIfAbsent(PingIndex pingIndex) {
-      if (!pingMap.containsKey(pingIndex)) {
-         pingMap.put(pingIndex, null);
-      }
+      pingMap.putIfAbsent(pingIndex, null);
    }
 
    NavigableMap<PingIndex, @Nullable PingCache> getPingMap() {

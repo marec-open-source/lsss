@@ -62,6 +62,9 @@ final class ClassInfo {
    private static Map<String, SetterInfo> findSetters(Class<?> clazz) {
       Map<String, SetterInfo> setters = new HashMap<>();
       for (Method method : clazz.getDeclaredMethods()) {
+         if (method.isBridge() || method.isSynthetic()) {
+            continue;
+         }
          String name = method.getName();
          if (!name.startsWith("set")) {
             continue;

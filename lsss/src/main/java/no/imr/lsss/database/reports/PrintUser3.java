@@ -46,7 +46,7 @@ final class PrintUser3 extends BaseMultipleSpeciesPerFileReport {
       DecimalFormat df3 = new DecimalFormat("#0.000", dfs);
       DecimalFormat df5 = new DecimalFormat("#0.00000", dfs);
 
-      Instant time = Instant.ofEpochMilli(DatabaseTime.toMillis(aPrintData.getScatter(aMode)));
+      Instant time = DatabaseTime.toInstant(aPrintData.getScatter(aMode));
 
       Scatter scat = aPrintData.getScatter(aMode);
       float[][] dataPrint = aPrintData.getSa(aMode);

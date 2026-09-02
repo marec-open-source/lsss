@@ -51,9 +51,9 @@ public final class AlphaFunction {
       FloatRange svRange = colorConverterContainer.getSV().getSettings().getRange();
       float svMin = svRange.min();  //-74
       float svMax = svRange.max();  //-40
-      int indexUpper = Math.max(0, Math.min(valueToIndex(svMax - 7), alphas.length));
-      int indexUpper2 = Math.max(0, Math.min(valueToIndex(svMax), alphas.length));
-      int indexUpperCut = Math.max(0, Math.min(valueToIndex(svMax + 5), alphas.length));
+      int indexUpper = Math.clamp(valueToIndex(svMax - 7), 0, alphas.length);
+      int indexUpper2 = Math.clamp(valueToIndex(svMax), 0, alphas.length);
+      int indexUpperCut = Math.clamp(valueToIndex(svMax + 5), 0, alphas.length);
 
       for (int i = indexUpper; i < alphas.length; i++) {
          alphas[i] = maxAlpha;
@@ -66,7 +66,7 @@ public final class AlphaFunction {
          alphas[i] = maxAlpha - 0.95f * maxAlpha * diff / (indexUpper2 - indexUpperCut);
       }
       //int indexLower = valueToIndex(-70);
-      int indexLower = Math.max(0, Math.min(valueToIndex(svMin + 12), alphas.length));
+      int indexLower = Math.clamp(valueToIndex(svMin + 12), 0, alphas.length);
       float diffSquare = (indexUpper - indexLower) * (indexUpper - indexLower);
       for (int i = indexLower; i < indexUpper; i++) {
          float diff = indexLower - i;
@@ -76,37 +76,6 @@ public final class AlphaFunction {
          alphas[i] = 0.05f * maxAlpha;
       }
       alphaFunctionChanged();
-   }
-
-   public void reset2() {
-      //Set alpha values to a reasonable curve. RK
-      float maxAlpha = getMaxAlpha();
-      int indexUpper = valueToIndex(-42);
-      int indexUpper2 = valueToIndex(-35);
-      int indexUpperCut = valueToIndex(-30);
-      for (int i = indexUpper; i < alphas.length; i++) {
-         alphas[i] = maxAlpha;
-      }
-      for (int i = indexUpperCut; i < alphas.length; i++) {
-         alphas[i] = 0.05f * maxAlpha;
-      }
-      for (int i = indexUpper2; i < indexUpperCut; i++) {
-         float diff = indexUpper2 - i;
-         alphas[i] = maxAlpha - 0.95f * maxAlpha * diff / (indexUpper2 - indexUpperCut);
-      }
-      int indexLower = valueToIndex(-70);
-      float diffSquare = (indexUpper - indexLower) * (indexUpper - indexLower);
-      for (int i = indexLower; i < indexUpper; i++) {
-         float diff = indexLower - i;
-         alphas[i] = 0.95f * maxAlpha * diff * diff / diffSquare + 0.05f * maxAlpha;
-      }
-      for (int i = 0; i < indexLower; i++) {
-         alphas[i] = 0.05f * maxAlpha;
-      }
-      alphaFunctionChanged();
-
-      //int minDb = getConfigurationManager().getSurveyMiscConf().preferredLowerThreshold.getIntValue();
-      //float x = colorConverterContainer.getSV().getSettings().getRange().getMin();
    }
 
    public ChangeManager getChangeManager() {
@@ -134,7 +103,7 @@ public final class AlphaFunction {
    public void shift(float value0, float value1) {
       int i0 = valueToIndex(value0);
       int i1 = valueToIndex(value1);
-      int n = i1 - i0;
+      int n = Math.clamp(i1 - i0, -alphas.length, alphas.length);
       if (n >= 0) {
          System.arraycopy(alphas, 0, alphas, n, alphas.length - n);
          Arrays.fill(alphas, 0, n, 0);
@@ -175,7 +144,7 @@ public final class AlphaFunction {
    public void fromXml(Element element) {
       String s = element.getText().trim();
       String[] tokens = s.split("\\s+");
-      int n = Math.max(tokens.length, alphas.length);
+      int n = Math.min(tokens.length, alphas.length);
       for (int i = 0; i < n; i++) {
          alphas[i] = Float.parseFloat(tokens[i]);
       }

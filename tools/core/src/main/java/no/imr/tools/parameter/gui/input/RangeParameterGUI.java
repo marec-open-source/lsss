@@ -6,6 +6,7 @@ import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.ValueParameter;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.swing.GridBag;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.Box;
 import javax.swing.JComponent;
@@ -75,12 +76,7 @@ public final class RangeParameterGUI extends ParameterGUI<RangeParameter> {
    }
 
    @Override
-   public JComponent getInputComponent() {
-      return ParameterGuiUtils.noInputComponent();
-   }
-
-   @Override
-   public boolean commitEdit() {
-      return minTextField.commitEdit() && maxTextField.commitEdit();
+   public @Nullable JComponent getInputComponent() {
+      return null;
    }
 }

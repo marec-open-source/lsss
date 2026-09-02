@@ -1,16 +1,18 @@
 @let error = this.error();
 @if (error) {
    <div class="marec-error-message">
-      <h1>
-         Http error
-      </h1>
-      <p>
-         Status:<br>
-         {{ error.status }} {{ error.statusText }}
-      </p>
+      <h1>Http error</h1>
       <p>
          Message:<br>
+         {{ error.message }}
+      </p>
+      <p>
+         Error:<br>
          {{ error.error }}
+      </p>
+      <p>
+         Status code:<br>
+         {{ error.status }}
       </p>
       <p>
          URL:<br>

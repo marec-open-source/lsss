@@ -55,7 +55,7 @@ public final class EventsResource {
 
       this.sse = sse;
       sseBroadcaster = sse.newBroadcaster();
-      sseBroadcaster.onClose(eventSink -> checkForClosedSinks());
+      sseBroadcaster.onClose(_ -> checkForClosedSinks());
       sseBroadcaster.onError(this::onEventSinkError);
    }
 

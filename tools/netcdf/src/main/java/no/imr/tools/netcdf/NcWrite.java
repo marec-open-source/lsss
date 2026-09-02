@@ -1,81 +1,67 @@
 package no.imr.tools.netcdf;
 
+import ucar.ma2.Array;
+import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
-import ucar.ma2.DataType;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.ArrayLong;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.Group;
 import ucar.nc2.Variable;
-import ucar.nc2.constants.CDM;
-import ucar.nc2.constants.CF;
-import ucar.nc2.write.Nc4ChunkingDefault;
-import ucar.nc2.write.NetcdfFileFormat;
 import ucar.nc2.write.NetcdfFormatWriter;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
 
 public final class NcWrite {
    private NcWrite() {
    }
 
-   public static NetcdfFormatWriter.Builder newBuilder(Path file) {
-      return NetcdfFormatWriter.builder()
-            .setNewFile(true)
-            .setFormat(NetcdfFileFormat.NETCDF4)
-            .setLocation(file.toString())
-            .setChunker(new Nc4ChunkingDefault(5, true));
-   }
+   // --- Scalars
 
-   public static void addFloatVariable(Group.Builder builder, String name,
-                                       List<Dimension> dimensions, List<String> coordinates) {
-      Variable.Builder<?> variableBuilder = addVariable(builder, name, DataType.FLOAT, dimensions)
-            .addAttribute(new Attribute(CDM.FILL_VALUE, Float.NaN));
-      if (!coordinates.isEmpty()) {
-         variableBuilder
-               .addAttribute(new Attribute(CF.COORDINATES, String.join(" ", coordinates)));
-      }
-   }
-
-   public static void addDoubleVariable(Group.Builder builder, String name,
-                                        List<Dimension> dimensions, List<String> coordinates) {
-      Variable.Builder<?> variableBuilder = addVariable(builder, name, DataType.DOUBLE, dimensions)
-            .addAttribute(new Attribute(CDM.FILL_VALUE, Double.NaN));
-      if (!coordinates.isEmpty()) {
-         variableBuilder
-               .addAttribute(new Attribute(CF.COORDINATES, String.join(" ", coordinates)));
-      }
-   }
-
-   public static Variable.Builder<?> addVariable(Group.Builder builder, String name, DataType dataType, List<Dimension> dims) {
-      Variable.Builder<?> variableBuilder = Variable.builder()
-            .setName(name)
-            .setDataType(dataType)
-            .setDimensions(dims);
-      builder.addVariable(variableBuilder);
-      return variableBuilder;
-   }
-
-   public static Dimension addDimension(Group.Builder builder, String name, int length) {
-      Dimension dimension = new Dimension(name, length);
-      builder.addDimension(dimension);
-      return dimension;
-   }
-
-   public static Dimension addUnlimitedDimension(Group.Builder builder, String name) {
-      Dimension dimension = Dimension.builder()
-            .setName(name)
-            .setIsUnlimited(true)
-            .build();
-      builder.addDimension(dimension);
-      return dimension;
-   }
-
-   public static void writeScalarFloat(NetcdfFormatWriter writer, Variable variable, float value) throws InvalidRangeException, IOException {
+   public static void floatD0(NetcdfFormatWriter writer, Variable variable, float value) throws InvalidRangeException, IOException {
       ArrayFloat.D0 array = new ArrayFloat.D0();
       array.set(value);
       writer.write(variable, array);
+   }
+
+   // --- 1D arrays
+
+   public static void uintD1(NetcdfFormatWriter writer, Variable variable, int i, int value) throws InvalidRangeException, IOException {
+      ArrayInt.D1 array = new ArrayInt.D1(1, false);
+      array.set(0, value);
+      writer.write(variable, new int[]{i}, array);
+   }
+
+   public static void longD1(NetcdfFormatWriter writer, Variable variable, int i, long value) throws InvalidRangeException, IOException {
+      ArrayLong.D1 array = new ArrayLong.D1(1, false);
+      array.set(0, value);
+      writer.write(variable, new int[]{i}, array);
+   }
+
+   public static void floatD1(NetcdfFormatWriter writer, Variable variable, int i, float value) throws InvalidRangeException, IOException {
+      ArrayFloat.D1 array = new ArrayFloat.D1(1);
+      array.set(0, value);
+      writer.write(variable, new int[]{i}, array);
+   }
+
+   public static void doubleD1(NetcdfFormatWriter writer, Variable variable, int i, double value) throws InvalidRangeException, IOException {
+      ArrayDouble.D1 array = new ArrayDouble.D1(1);
+      array.set(0, value);
+      writer.write(variable, new int[]{i}, array);
+   }
+
+   // --- 2D arrays
+
+   public static void floatD2(NetcdfFormatWriter writer, Variable variable, int i0, int i1, float[] values) throws InvalidRangeException, IOException {
+      writer.write(variable, new int[]{i0, i1}, Array.makeFromJavaArray(new float[][]{values}));
+   }
+
+   // --- 3D arrays
+
+   public static void shortD3(NetcdfFormatWriter writer, Variable variable, int i0, int i1, int i2, short[] values) throws InvalidRangeException, IOException {
+      writer.write(variable, new int[]{i0, i1, i2}, Array.makeFromJavaArray(new short[][][]{{values}}));
+   }
+
+   public static void floatD3(NetcdfFormatWriter writer, Variable variable, int i0, int i1, int i2, float[] values) throws InvalidRangeException, IOException {
+      writer.write(variable, new int[]{i0, i1, i2}, Array.makeFromJavaArray(new float[][][]{{values}}));
    }
 }

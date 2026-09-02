@@ -16,6 +16,7 @@ public final class GeographicalBoxSchoolParameter extends RectangleSchoolParamet
             name + ".lon.min",
             name + ".lat.min",
             name + ".lon.max",
-            name + ".lat.max");
+            name + ".lat.max"
+      );
    }
 }

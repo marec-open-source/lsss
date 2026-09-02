@@ -21,9 +21,9 @@ import no.imr.lsss.modules.OverlayDisplayData;
 import no.imr.lsss.modules.echogram.EchogramModule;
 import no.imr.lsss.modules.echogram.EchogramModuleUtils;
 import no.imr.lsss.resources.LsssCursors;
-import no.imr.tools.Pair;
 import no.imr.tools.Utils;
 import no.imr.tools.listening.ListenerRegistry;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.misc.SelectionAction;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.swing.GuiListeners;
@@ -138,18 +138,17 @@ public final class RegionEditOverlay extends BaseEchogramOverlay {
       }
       Rectangle2D rectangle = BaseOverlaidModule.createRectangle(point);
 
-      Pair<School, SchoolBoundaryIntersectionInfo> closestSchool = findClosestVisibleWritableSchool(echogramPoint);
+      SchoolBoundaryIntersectionInfo closestSchool = findClosestVisibleWritableSchool(echogramPoint);
       if (closestSchool != null) {
-         School school = closestSchool.first();
+         School school = closestSchool.school();
 
          EchogramPoint centerPoint = school.getCenterPoint();
          if (centerPoint != null && rectangle.contains(getEchogramModule().echogramPointToImagePoint(centerPoint))) {
             return new SchoolInteriorInteraction(school);
          }
 
-         SchoolBoundaryIntersectionInfo intersectionInfo = closestSchool.second();
-         EchogramPoint startPoint = intersectionInfo.getStartPoint();
-         EchogramPoint endPoint = intersectionInfo.getEndPoint();
+         EchogramPoint startPoint = closestSchool.getStartPoint();
+         EchogramPoint endPoint = closestSchool.getEndPoint();
          Line2D.Double line = new Line2D.Double(getEchogramModule().echogramPointToImagePoint(startPoint), getEchogramModule().echogramPointToImagePoint(endPoint));
          if (rectangle.intersectsLine(line)) {
             BoxBoundaryMoveEditor.BoxEditMode boxEditMode = school.isBoxMode(getZSettings().getDepthTransform())
@@ -200,11 +199,11 @@ public final class RegionEditOverlay extends BaseEchogramOverlay {
       return curveBoundary == null || getRegionManager().isReadOnly(curveBoundary.getPingRange()) ? null : curveBoundary;
    }
 
-   private @Nullable Pair<School, SchoolBoundaryIntersectionInfo> findClosestVisibleWritableSchool(EchogramPoint echogramPoint) {
-      Pair<School, SchoolBoundaryIntersectionInfo> schoolAndBorder = getRegionManager().getSchoolManager().findClosestVisibleWritableSchool(
+   private @Nullable SchoolBoundaryIntersectionInfo findClosestVisibleWritableSchool(EchogramPoint echogramPoint) {
+      SchoolBoundaryIntersectionInfo intersectionInfo = getRegionManager().getSchoolManager().findClosestVisibleWritableSchool(
             echogramPoint, getPingSettings(), getZSettings(), previousClosestSchool);
-      previousClosestSchool = schoolAndBorder != null ? schoolAndBorder.first() : null;
-      return schoolAndBorder;
+      previousClosestSchool = intersectionInfo != null ? intersectionInfo.school() : null;
+      return intersectionInfo;
    }
 
    @Override
@@ -225,9 +224,9 @@ public final class RegionEditOverlay extends BaseEchogramOverlay {
    }
 
    @Override
-   public boolean keyTyped(KeyEvent keyEvent) {
-      switch (keyEvent.getKeyChar()) {
-         case ' ' -> {
+   public boolean keyPressed(KeyEvent keyEvent) {
+      switch (keyEvent.getKeyCode()) {
+         case KeyEvent.VK_SPACE -> {
             if (dragEdit != null) {
                dragEdit.shiftDragMode();
             } else {
@@ -243,16 +242,6 @@ public final class RegionEditOverlay extends BaseEchogramOverlay {
             getEchogramModule().setActiveOverlayLocked(false);
             getEchogramModule().updateActiveOverlay();
          }
-         default -> {
-            return false;
-         }
-      }
-      return true;
-   }
-
-   @Override
-   public boolean keyPressed(KeyEvent keyEvent) {
-      switch (keyEvent.getKeyCode()) {
          case KeyEvent.VK_1, KeyEvent.VK_NUMPAD1 -> {
             if (getEchogramModule().isAnyMouseButtonPressed()) {
                break;
@@ -663,9 +652,9 @@ public final class RegionEditOverlay extends BaseEchogramOverlay {
                yield new Select(echogramPoint);
             }
             case DRAW -> {
-               Pair<School, SchoolBoundaryIntersectionInfo> closestSchool = findClosestVisibleWritableSchool(echogramPoint);
-               School school = closestSchool != null ? closestSchool.first() : null;
-               double distToSchool = closestSchool != null ? closestSchool.second().distanceSquared() : Double.POSITIVE_INFINITY;
+               SchoolBoundaryIntersectionInfo closestSchool = findClosestVisibleWritableSchool(echogramPoint);
+               School school = closestSchool != null ? closestSchool.school() : null;
+               double distToSchool = closestSchool != null ? closestSchool.distanceSquared() : Double.POSITIVE_INFINITY;
 
                CurveBoundary curveBoundary = findClosestWritableCurveBoundary(echogramPoint);
                double distToCurveBoundary;
@@ -673,7 +662,7 @@ public final class RegionEditOverlay extends BaseEchogramOverlay {
                   PingIndex pingIndex = echogramPoint.pingIndex();
                   float y1 = getZSettings().depthToY(curveBoundary.getCurve().getClampedDepth(pingIndex), pingIndex);
                   float y2 = getZSettings().depthToY(echogramPoint.depth(), pingIndex);
-                  distToCurveBoundary = Utils.sq(y1 - y2);
+                  distToCurveBoundary = MathUtils.sq(y1 - y2);
                } else {
                   distToCurveBoundary = Double.POSITIVE_INFINITY;
                }
@@ -891,13 +880,7 @@ public final class RegionEditOverlay extends BaseEchogramOverlay {
 
    // ----------------------------
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final Rectangle2D selectionBox;
-
-      private DisplayData(Rectangle2D selectionBox) {
-         this.selectionBox = selectionBox;
-      }
-
+   private record DisplayData(Rectangle2D selectionBox) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setStroke(SELECT_STROKE);

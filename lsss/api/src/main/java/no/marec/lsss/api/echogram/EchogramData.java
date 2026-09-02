@@ -43,7 +43,7 @@ public interface EchogramData {
    List<? extends Ping> currentlyLoadedPings();
 
    /**
-    * {@return the an observable for newly loaded pings}
+    * {@return an observable for newly loaded pings}
     * <p>
     * When the observers are notified these newly loaded pings have been included in
     * {@link #currentlyLoadedPings()}.

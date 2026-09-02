@@ -442,8 +442,8 @@ public final class BroadbandSvModule extends BaseViewModule implements PojoDataC
       WelfordsMethod welfordsMethod = new WelfordsMethod();
       regionCaches.stream()
             .flatMap(regionCache -> regionCache.getPingMap().values().stream())
-            .mapToDouble(pingCache -> pingCache.getChannelCache(channel).narrowbandSv())
-            .filter(sv -> !Double.isNaN(sv))
+            .map(pingCache -> pingCache.getChannelCache(channel).narrowbandSv())
+            .filter(Objects::nonNull)
             .forEach(welfordsMethod::update);
 
       long n = welfordsMethod.getCount();

@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Parameter names.
  * <p>
- * See also <a href="http://www.gebruikershandleiding.com/Simrad-ER60/preview-handleiding-16819.html?page=0180">http://www.gebruikershandleiding.com/Simrad-ER60/preview-handleiding-16819.html?page=0180</a>
+ * See also <a href="https://www.gebruikershandleiding.com/Simrad-ER60/preview-handleiding-16819.html?page=0180">https://www.gebruikershandleiding.com/Simrad-ER60/preview-handleiding-16819.html?page=0180</a>
  */
 public final class ParameterServer {
    public static final String TYPE_3 = "3"; // int ?
@@ -25,13 +25,15 @@ public final class ParameterServer {
             OwnShip.EnvironmentData.class,
             RemoteCommandDispatcher.class,
             SounderStorageManager.class,
-            TransceiverMgr.class);
+            TransceiverMgr.class
+      );
    }
 
    public static List<? extends Class<? extends PerChannelParameter>> getAllPerChannelParameterEnums() {
       return List.of(
             ProcessingMgr.ChannelProcessingCommon.PerChannel.class,
-            TransceiverMgr.PerChannel.class);
+            TransceiverMgr.PerChannel.class
+      );
    }
 
    public interface Parameter {

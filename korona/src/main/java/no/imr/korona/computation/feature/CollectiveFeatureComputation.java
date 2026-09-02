@@ -280,7 +280,6 @@ public final class CollectiveFeatureComputation {
       ParameterEditor parameterEditor = new ParameterEditor(parameters);
 
       new ConfigurableGUIDialog(referenceComponent, "Gridding configuration", new ParameterCollection(parameters))
-            .setCloseOnOk(parameterEditor::commitEdits)
             .setGUI(parameterEditor.getEditorComponent())
             .show();
    }

@@ -6,13 +6,13 @@ import com.google.common.cache.LoadingCache;
 import no.imr.korona.computation.broadband.notchfilter.BroadbandNotchFilterConfig;
 import no.imr.tools.range.FloatRange;
 
+import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public final class NotchFilterCache {
    private static final LoadingCache<NotchFilterConfig, TransferFunction> CACHE = CacheBuilder.newBuilder()
          .maximumSize(100)
-         .expireAfterAccess(5, TimeUnit.MINUTES)
+         .expireAfterAccess(Duration.ofMinutes(5))
          .build(CacheLoader.from(TransferFunctionUtils::generateNotchFilterFromConfig));
 
    private NotchFilterCache() {

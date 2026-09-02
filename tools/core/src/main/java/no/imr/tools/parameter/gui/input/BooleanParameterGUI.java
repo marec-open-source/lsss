@@ -1,6 +1,7 @@
 package no.imr.tools.parameter.gui.input;
 
 import no.imr.tools.parameter.BooleanParameter;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GridBag;
 
 import javax.swing.JCheckBox;
@@ -15,10 +16,18 @@ public final class BooleanParameterGUI extends ParameterGUI<BooleanParameter> {
    BooleanParameterGUI(BooleanParameter parameter, GUIConfig guiConfig) {
       super(parameter, guiConfig);
 
-      checkBox.addItemListener(_ -> updateParameter());
+      checkBox.addItemListener(_ -> {
+         if (CurrentInputComponent.commitEdit()) {
+            updateParameter();
+         } else {
+            updateInput();
+         }
+      });
       addMouseClickListener(() -> {
-         checkBox.requestFocusInWindow();
-         checkBox.doClick();
+         if (CurrentInputComponent.commitEdit()) {
+            checkBox.requestFocusInWindow();
+            checkBox.doClick();
+         }
       });
    }
 

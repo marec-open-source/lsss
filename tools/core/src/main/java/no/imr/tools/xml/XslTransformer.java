@@ -25,7 +25,7 @@ public final class XslTransformer {
    public Element transform(Element element) throws TransformerException {
       Document document = element.getDocument();
       if (document == null || document.getRootElement() != element) {
-         document = XmlUtils.toDocument((Element) element.clone());
+         document = XmlUtils.toDocument(element.createCopy());
       }
       //Note: new DocumentSource(element) => new DocumentSource(element.getDocument())
 

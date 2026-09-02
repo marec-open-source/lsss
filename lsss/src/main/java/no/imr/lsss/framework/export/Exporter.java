@@ -16,6 +16,7 @@ import no.imr.tools.ProgressHandler;
 import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.io.FileUtils;
+import no.imr.tools.io.Print;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.parameter.Configurable;
@@ -25,13 +26,14 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.range.ArrayRangeSet;
 import no.imr.tools.range.FloatRangeSet;
 import no.imr.tools.range.RangeSet;
+import no.imr.tools.time.TimeUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -110,8 +112,8 @@ public abstract class Exporter extends Configurable {
    }
 
    protected static String getFileNameInfix(PingRange pingRange) {
-      DatabaseTime beginDatabaseTime = new DatabaseTime(pingRange.begin().getTimeInMillis());
-      DatabaseTime endDatabaseTime = new DatabaseTime(pingRange.end().getTimeInMillis());
+      DatabaseTime beginDatabaseTime = new DatabaseTime(pingRange.begin().getInstant());
+      DatabaseTime endDatabaseTime = new DatabaseTime(pingRange.end().getInstant());
       return "_T" + beginDatabaseTime.getDate() + "_" + Utils.format("%08d", beginDatabaseTime.getTime())
             + "-" + endDatabaseTime.getDate() + "_" + Utils.format("%08d", endDatabaseTime.getTime());
    }
@@ -137,7 +139,7 @@ public abstract class Exporter extends Configurable {
       out.println("# Lines starting with # are comments");
       out.println("# The format of and definitions in this file may change in future versions of LSSS,"
             + " last changed in LSSS version " + formatSinceLsssVersion);
-      out.println("# Export time: " + new Date() + ", LSSS version " + LSSS.VERSION);
+      out.println("# Export time: " + TimeUtils.JAVA_UTIL_DATE_FORMATTER.format(Instant.now()) + ", LSSS version " + LSSS.VERSION);
       out.println("#");
    }
 
@@ -151,7 +153,7 @@ public abstract class Exporter extends Configurable {
    }
 
    protected static void writeValues(PrintWriter out, List<String> values) {
-      Utils.write(out, values, SEPARATOR);
+      Print.line(out, values, SEPARATOR);
    }
 
    protected FloatRangeSet getDepthRanges(Collection<? extends Region> regions, Ping ping, int channel) {

@@ -14,6 +14,7 @@ import javax.swing.Timer;
 import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.PointerInfo;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -70,16 +71,23 @@ final class RandomInputGenerator {
       timer.start();
    }
 
+   private void stop() {
+      timer.stop();
+      mouseButtons.keySet().forEach(robot::mouseRelease);
+      keys.keySet().forEach(robot::keyRelease);
+   }
+
    private void tick() {
       if (counter >= 100) {
          Log.global.info("Input generation stopped (counter = " + counter + ")");
-         timer.stop();
+         stop();
          return;
       }
 
-      if (!previousMouseLocation.equals(MouseInfo.getPointerInfo().getLocation())) {
+      PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+      if (pointerInfo != null && !previousMouseLocation.equals(pointerInfo.getLocation())) {
          Log.global.info("Input generation stopped (mouse moved)");
-         timer.stop();
+         stop();
          return;
       }
 

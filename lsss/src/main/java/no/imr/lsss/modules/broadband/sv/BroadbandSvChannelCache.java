@@ -4,8 +4,11 @@ import no.imr.korona.computation.broadband.BroadbandSvByFrequency;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.items.channel.BroadbandData;
 import no.imr.korona.data.ping.items.channel.PowerData;
+import no.imr.korona.data.util.TvgArray;
 import no.imr.tools.math.ArrayMath;
+import no.imr.tools.math.WelfordsMethod;
 import no.imr.tools.range.FloatRange;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,24 +17,28 @@ record BroadbandSvChannelCache(
       List<BroadbandSvData> svData,
       FloatRange frequencyRange,
       List<FloatRange> tooSmallDepthRanges,
-      float narrowbandSv
+      @Nullable WelfordsMethod narrowbandSv
 ) {
    static BroadbandSvChannelCache from(Ping ping, int channel, List<FloatRange> depthRanges, BroadbandSvModule broadbandSvModule) {
       BroadbandData broadbandData = ping.getBroadbandData(channel);
       if (broadbandData == null) {
          PowerData powerData = ping.getPowerData(channel);
          if (powerData != null) {
+            WelfordsMethod narrowbandSv = new WelfordsMethod();
             float frequency = powerData.getTransducer().getFrequency();
-            float narrowbandSv = (float) depthRanges.stream()
-                  .mapToDouble(depthRange -> {
-                     return broadbandSvModule.useTVG.getBooleanValue()
-                           ? powerData.getVerticalIntegralSv(depthRange, FloatRange.ALL) / depthRange.getSize()
-                           : powerData.getVerticalIntegralNoise(depthRange, FloatRange.ALL) / depthRange.getSize();
-                  })
-                  .sum();
+            float[] sv = powerData.getSv();
+            boolean useTVG = broadbandSvModule.useTVG.getBooleanValue();
+            TvgArray tvgArray = powerData.getTVGArray();
+            for (FloatRange depthRange : depthRanges) {
+               int iBegin = powerData.depthToClampedSampleIndex(depthRange.min());
+               int iEnd = powerData.depthToClampedSampleIndex(depthRange.max());
+               for (int i = iBegin; i < iEnd; i++) {
+                  narrowbandSv.update(useTVG ? sv[i] : sv[i] / tvgArray.get(i));
+               }
+            }
             return new BroadbandSvChannelCache(List.of(), FloatRange.of(frequency, frequency), List.of(), narrowbandSv);
          } else {
-            return new BroadbandSvChannelCache(List.of(), FloatRange.EMPTY_RANGE, List.of(), Float.NaN);
+            return new BroadbandSvChannelCache(List.of(), FloatRange.EMPTY_RANGE, List.of(), null);
          }
       }
 
@@ -61,6 +68,6 @@ record BroadbandSvChannelCache(
                return new BroadbandSvData(depthRange, values);
             })
             .toList();
-      return new BroadbandSvChannelCache(svData, frequencyRange, List.copyOf(tooSmallDepthRanges), Float.NaN);
+      return new BroadbandSvChannelCache(svData, frequencyRange, List.copyOf(tooSmallDepthRanges), null);
    }
 }

@@ -23,7 +23,7 @@ final class NewSurveyUtils {
    /**
     * {@return base of a config file name for this platform}
     * <p>
-    * Convention: <code>filename_countryName_platformName[platformNumber]</code>
+    * Convention: <code>fileName_countryName_platformName[platformNumber]</code>
     *
     * @param originalFile a config file name
     * @param survey       a survey
@@ -90,7 +90,7 @@ final class NewSurveyUtils {
       for (Map.Entry<Integer, String> entry : dateMap.entrySet()) {
          Integer date = entry.getKey();
          String fileName = entry.getValue();
-         rangeMap.put(new DefaultRange<>(date, 99999999), fileName);
+         rangeMap.put(new DefaultRange<>(date, 9999_99_99), fileName);
       }
 
       return rangeMap;

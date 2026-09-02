@@ -43,7 +43,7 @@ public final class TemporaryComputationsBeginModule extends SimplePingModule {
                }
             }
          }
-         newConfigurationItems.add(new TemporaryComputationsConfigurationItem(pingConfiguration.getRawFileConfiguration().getNTDate(), tmpConfigurationItems));
+         newConfigurationItems.add(new TemporaryComputationsConfigurationItem(pingConfiguration.getRawFileConfiguration().getInstant(), tmpConfigurationItems));
          PingConfiguration newPingConfiguration = new PingConfiguration(newConfigurationItems);
          setNewPingConfiguration(newPingConfiguration);
       }
@@ -65,7 +65,7 @@ public final class TemporaryComputationsBeginModule extends SimplePingModule {
                }
             }
          }
-         newPing.add(new TemporaryComputationsPingItem(ping.getNTDate(), ping.getBot0Datagram().makeCopy(), tmpPingItems));
+         newPing.add(new TemporaryComputationsPingItem(ping.getInstant(), ping.getBot0Datagram().makeCopy(), tmpPingItems));
       }
    }
 }

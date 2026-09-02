@@ -20,7 +20,7 @@ public final class ChannelInterpretation implements no.marec.lsss.api.regions.Ch
    private static final String XML_ID = "ID";
    private static final String XML_FRACTION = "fraction";
 
-   // Using sorted map to preserve ordering when saving to xml.
+   // Using sorted map to preserve ordering when saving to XML.
    private ImmutableMap<Integer, Float> assignments = ImmutableMap.of();
    private boolean initialized;
 

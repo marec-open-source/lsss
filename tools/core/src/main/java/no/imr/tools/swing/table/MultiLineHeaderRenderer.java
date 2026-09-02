@@ -43,11 +43,7 @@ public final class MultiLineHeaderRenderer extends JList<String> implements Tabl
          sortIcon = null;
       }
       if (sortIcon != null) {
-         if (lines.length > 0) {
-            lines[0] = lines[0] + " " + sortIcon;
-         } else {
-            lines = new String[]{sortIcon};
-         }
+         lines[0] = lines[0] + " " + sortIcon;
       }
       setListData(lines);
       return this;

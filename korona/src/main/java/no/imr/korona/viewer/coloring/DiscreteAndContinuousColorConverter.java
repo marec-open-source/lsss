@@ -31,21 +31,22 @@ public abstract class DiscreteAndContinuousColorConverter extends DiscreteColorC
    @Override
    public void convertToColor(Ping ping, int channel, int[] rgbs, FloatRange depthRange) {
       DiscreteVariableResult discreteVariableResult = getDiscreteVariable().evaluate(ping);
-      byte[] byteData = discreteVariableResult.byteData();
+      if (discreteVariableResult == null) {
+         Arrays.fill(rgbs, ValueColor.NO_DATA_RGB);
+         return;
+      }
 
       ContinuousVariableResult continuousVariableResult = continuousVariable.evaluate(channel, ping);
-      float[] floatData = continuousVariableResult.floatData();
-
-      if (byteData.length == 0 || floatData.length == 0) {
+      if (continuousVariableResult == null) {
          Arrays.fill(rgbs, ValueColor.NO_DATA_RGB);
          return;
       }
 
       byte[] categories = new byte[rgbs.length];
-      Resampler.sampleByteData(byteData, discreteVariableResult.depthRange(), categories, depthRange, ResampleMode.NEAREST);
+      Resampler.sampleByteData(discreteVariableResult.byteData, discreteVariableResult.depthRange, categories, depthRange, ResampleMode.NEAREST);
 
       float[] values = new float[rgbs.length];
-      Resampler.sampleFloatData(floatData, continuousVariableResult.depthRange(), values, depthRange, ResampleMode.AVERAGE);
+      Resampler.sampleFloatData(continuousVariableResult.floatData, continuousVariableResult.depthRange, values, depthRange, ResampleMode.AVERAGE);
 
       getRGBs(rgbs, categories, values);
    }

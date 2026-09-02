@@ -1,14 +1,15 @@
 package no.imr.korona.data.datagrams;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 public final class Cat0Datagram extends Cas0Datagram {
-   public Cat0Datagram(long ntDate, int categoryCount, int regionId) {
-      super(ntDate, categoryCount, regionId);
+   public Cat0Datagram(Instant instant, int categoryCount, int regionId) {
+      super(instant, categoryCount, regionId);
    }
 
-   public Cat0Datagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate, byteBuffer);
+   public Cat0Datagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant, byteBuffer);
    }
 
    @Override

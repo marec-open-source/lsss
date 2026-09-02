@@ -6,21 +6,18 @@ import no.imr.tools.range.FloatRange;
 import java.util.Collections;
 import java.util.NavigableSet;
 
-public abstract class PerPingSettings {
-   protected PerPingSettings() {
-   }
+public interface PerPingSettings {
+   FloatRange getClipRange(PingIndex pingIndex);
 
-   public abstract FloatRange getClipRange(PingIndex pingIndex);
-
-   public NavigableSet<Float> getLowerThresholds() {
+   default NavigableSet<Float> getLowerThresholds() {
       return Collections.emptyNavigableSet();
    }
 
-   public NavigableSet<Float> getUpperThresholds() {
+   default NavigableSet<Float> getUpperThresholds() {
       return Collections.emptyNavigableSet();
    }
 
-   public boolean varyingClipAbove() {
+   default boolean varyingClipAbove() {
       return false;
    }
 }

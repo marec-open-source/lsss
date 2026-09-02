@@ -8,6 +8,7 @@ import no.imr.korona.viewer.variables.ContinuousVariableSettings;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.range.FloatRange;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Alongship angle.
@@ -19,10 +20,10 @@ public final class AlongshipAngleVariable extends ContinuousRawVariable {
    }
 
    @Override
-   public ContinuousVariableResult evaluate(int channel, Ping ping) {
+   public @Nullable ContinuousVariableResult evaluate(int channel, Ping ping) {
       PowerData powerData = ping.getPowerData(channel);
       if (powerData == null || powerData.getAngleData() == null) {
-         return ContinuousVariableResult.EMPTY;
+         return null;
       }
 
       float[] floatData = new float[powerData.getCount()];
@@ -30,6 +31,6 @@ public final class AlongshipAngleVariable extends ContinuousRawVariable {
          floatData[i] = powerData.getMechanicalAlongAngle(i);
       }
 
-      return new ContinuousVariableResult(floatData, powerData.getDepthRange());
+      return ContinuousVariableResult.of(floatData, powerData.getDepthRange());
    }
 }

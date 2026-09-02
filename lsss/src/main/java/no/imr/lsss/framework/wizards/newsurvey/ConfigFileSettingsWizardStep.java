@@ -115,10 +115,11 @@ final class ConfigFileSettingsWizardStep extends WizardStep {
          parameters.addAll(configFileWrapper.getParameters());
       }
 
-      ParameterEditor parameterEditor = new ParameterEditor(parameters);
-      parameterEditor.getGUIConfig().setCombineInputAndDescription(BooleanParameter.class::isInstance);
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
-      parameterEditor.getGUIConfig().setInputFieldAlignment(GUIConfig.Alignment.LEFT);
+      ParameterEditor parameterEditor = new ParameterEditor(parameters, new GUIConfig()
+            .setCombineInputAndDescription(BooleanParameter.class::isInstance)
+            .setHorizontalFill(true)
+            .setInputFieldAlignment(GUIConfig.Alignment.LEFT)
+      );
 
       ParameterEditor copyAlternativeParameterEditor = new ParameterEditor(List.of(copyAlternative));
       copyAlternativeParameterEditor.getEditorComponent().setBorder(GuiUtils.DEFAULT_MARGIN);

@@ -18,19 +18,20 @@ import no.imr.tools.range.ArrayRangeSet;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.Range;
 import no.imr.tools.range.RangeSet;
+import no.imr.tools.time.NTDate;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -86,14 +87,13 @@ public final class TrackEditing {
    private Stream<TrackBorder> internalGetTrackBorders(Ping ping, IntPredicate channelPredicate) {
       Stream<TrackBorder> originalStream = ping.getPingItems(TBR0Datagram.class)
             .filter(tbr0Datagram -> channelPredicate.test(tbr0Datagram.getChannel()))
-            .map(tbr0Datagram -> {
+            .mapMulti((tbr0Datagram, consumer) -> {
                TrackId trackId = new TrackId(ping, tbr0Datagram.getId());
                if (replacedTracks.contains(trackId)) {
-                  return null;
+                  return;
                }
-               return new TrackBorder(trackId, tbr0Datagram.getChannel(), tbr0Datagram.getDepthRange(), tbr0Datagram.getPeakDepth(), true);
-            })
-            .filter(Objects::nonNull);
+               consumer.accept(new TrackBorder(trackId, tbr0Datagram.getChannel(), tbr0Datagram.getDepthRange(), tbr0Datagram.getPeakDepth(), true));
+            });
       int index = toIndex(ping.getPingNumber());
       if (index < 0 || index >= edits.size()) {
          return originalStream;
@@ -332,7 +332,7 @@ public final class TrackEditing {
       return IntStream.range(0, Integer.MAX_VALUE)
             .mapToObj(sampleIndex -> new TrackId(dataFile, trackIdGenerator.nextId(pingNumber, sampleIndex)))
             .filter(Predicate.not(newTracks::containsKey))
-            .findAny()
+            .findFirst()
             .orElseThrow(() -> new ShouldNotHappenException("Could not find available track id"));
    }
 
@@ -451,7 +451,7 @@ public final class TrackEditing {
       @Override
       public void toXml(DataFile dataFile, Element element) {
          int[] discardedIds = replacedTracks.stream()
-               .filter(trackId -> trackId.rawFileConfigurationNTDate() == dataFile.getRawFileConfiguration().getNTDate())
+               .filter(trackId -> trackId.rawFileConfigurationInstant().equals(dataFile.getRawFileConfiguration().getInstant()))
                .mapToInt(TrackId::id)
                .toArray();
          if (discardedIds.length == 0) {
@@ -482,7 +482,7 @@ public final class TrackEditing {
                         .addAttribute(XML_CHANNEL, Integer.toString(trackBorder.channel()));
                });
                Element pingElement = trackElement.addElement(XML_PING)
-                     .addAttribute(XML_NT_DATE, Long.toString(pingIndex.getNTDate()))
+                     .addAttribute(XML_NT_DATE, NTDate.instantToNTDateString(pingIndex.getInstant()))
                      .addAttribute(XML_MIN_DEPTH, Float.toString(trackBorder.depthRange().min()))
                      .addAttribute(XML_MAX_DEPTH, Float.toString(trackBorder.depthRange().max()))
                      .addAttribute(XML_PEAK_DEPTH, Float.toString(trackBorder.peakDepth()));
@@ -522,13 +522,13 @@ public final class TrackEditing {
                int channel = Integer.parseInt(trackElement.attributeValue(XML_CHANNEL));
                PingRangeBuilder pingRangeBuilder = new PingRangeBuilder();
                for (Element pingElement : trackElement.elements()) {
-                  long ntDate = Long.parseLong(pingElement.attributeValue(XML_NT_DATE));
+                  Instant instant = NTDate.ntDateStringToInstant(pingElement.attributeValue(XML_NT_DATE));
                   float minDepth = Float.parseFloat(pingElement.attributeValue(XML_MIN_DEPTH));
                   float maxDepth = Float.parseFloat(pingElement.attributeValue(XML_MAX_DEPTH));
                   float peakDepth = Float.parseFloat(pingElement.attributeValue(XML_PEAK_DEPTH));
                   boolean useAngles = !Boolean.parseBoolean(pingElement.attributeValue(XML_IGNORE_ANGLES));
                   TrackBorder trackBorder = new TrackBorder(trackId, channel, FloatRange.of(minDepth, maxDepth), peakDepth, useAngles);
-                  PingIndex pingIndex = dataFileSet.getContainingPingIndex(PingMapping.ntDateToTimeValue(ntDate), PingMapping.TIME);
+                  PingIndex pingIndex = dataFileSet.getContainingPingIndex(PingMapping.instantToTimeValue(instant), PingMapping.TIME);
                   if (pingIndex == null) {
                      continue;
                   }

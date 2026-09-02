@@ -13,7 +13,7 @@ import org.apache.commons.numbers.complex.Complex;
  * <p>
  * Coefficients does not match coefficients in referenced paper, since
  * the necessary complex coefficients are not listed there.
- * Instead, coefficients were calculated using matlab routines obtained from Demer and Conti.
+ * Instead, coefficients were calculated using MATLAB routines obtained from Demer and Conti.
  */
 public final class SDWBAModelNew extends BackscatterModel {
    private double soundSpeed = 1500;
@@ -22,7 +22,7 @@ public final class SDWBAModelNew extends BackscatterModel {
 
    private SDWBAParameterSetName parameterSetName = SDWBAParameterSetName.N0_30b;
    private SDWBAParameterSet parameterSet = getParameterSet(parameterSetName);
-   private static final double L0 = 38.35E-3;
+   private static final double L0 = 38.35e-3;
 
    public SDWBAModelNew() {
       referenceVolume = calculateReferenceVolume();
@@ -65,11 +65,11 @@ public final class SDWBAModelNew extends BackscatterModel {
 
    /**
     * {@return the volume of a reference length krill fattened by 40%}
-    * Numbers taken from Krill31_6mmData from Demer & Conti MatLab files.
+    * Numbers taken from Krill31_6mmData from Demer & Conti MATLAB files.
     */
    private static double calculateReferenceVolume() {
       double f = 1.4; //Fatten by 40%, Demer & Conti (2003)
-      double s = 0.0338494915254237 / L0; //Scale from 33.85 to 38.35 mm as specified in paper and MatLab source.
+      double s = 0.0338494915254237 / L0; //Scale from 33.85 to 38.35 mm as specified in paper and MATLAB source.
 
       double totalVolume = 0;
       totalVolume += getSingleCylinderVolume(0, 0.000189517601043, 0.0338494915254237 - 0.0325311082138201, f, s);
@@ -171,9 +171,9 @@ public final class SDWBAModelNew extends BackscatterModel {
                0.263137379,
                -0.01010378,
                356.0359126,
-               -6.17E-05,
+               -6.17e-05,
                0.049877645,
-               38.35E-3);
+               38.35e-3);
 
       /* Demer/Renfree parameters containing a small error according to Demer:
             case N0_5 -> new SDWBAParameterSet(
@@ -186,7 +186,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                   -0.161176819,
                   0.100344831,
                   0.067088528,
-                  38.35E-3);
+                  38.35e-3);
       */
 
          case N0_5b -> new SDWBAParameterSet(
@@ -199,7 +199,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.166491078,
                0.101602435,
                0.067339425,
-               38.35E-3);
+               38.35e-3);
 
       /* Demer/Renfree parameters containing a small error according to Demer:
             case N0_10 -> new SDWBAParameterSet(
@@ -212,7 +212,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                   -0.179713421,
                   0.097003827,
                   0.072032588,
-                  38.35E-3);
+                  38.35e-3);
       */
 
          case N0_10b -> new SDWBAParameterSet(
@@ -225,7 +225,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.192229867,
                0.096223447,
                0.074576911,
-               38.35E-3);
+               38.35e-3);
 
       /* Demer/Renfree parameters containing a small error according to Demer:
             case N0_15 -> new SDWBAParameterSet(
@@ -238,7 +238,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                   -0.184748687,
                   0.089858185,
                   0.074084928,
-                  38.35E-3);
+                  38.35e-3);
       */
 
          case N0_15b -> new SDWBAParameterSet(
@@ -251,31 +251,31 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.18441771,
                0.091759901,
                0.073456923,
-               38.35E-3);
+               38.35e-3);
 
          case N0_20b -> new SDWBAParameterSet(
                2.074915633,
                1.209412237,
-               7.7001E-05,
+               7.7001e-05,
                0.135167394,
                0.229947537,
                0.047461914,
                -0.18425409,
                0.086317355,
                0.075851748,
-               38.35E-3);
+               38.35e-3);
 
          case N0_25b -> new SDWBAParameterSet(
                2.093164495,
                1.18961076,
-               1.39266E-05,
+               1.39266e-05,
                0.122930052,
                0.23102019,
                0.046425319,
                -0.186029885,
                0.077554371,
                0.077931973,
-               38.35E-3);
+               38.35e-3);
 
       /* Demer/Renfree parameters containing a small error according to Demer:
             case N0_30 -> new SDWBAParameterSet(
@@ -288,7 +288,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                   -0.241882154,
                   0.066093162,
                   0.084491429,
-                  38.35E-3);
+                  38.35e-3);
       */
 
          case N0_30b -> new SDWBAParameterSet(
@@ -301,7 +301,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.242800873,
                0.071582199,
                0.087637432,
-               38.35E-3);
+               38.35e-3);
 
          case N0_35b -> new SDWBAParameterSet(
                2.133040068,
@@ -313,7 +313,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.437615771,
                0.041254001,
                0.093860448,
-               38.35E-3);
+               38.35e-3);
 
          case N3_1 -> new SDWBAParameterSet(
                1.964086167,
@@ -325,7 +325,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -17.46305668,
                0.213155516,
                0.03045911,
-               38.35E-3);
+               38.35e-3);
 
          case N4_2 -> new SDWBAParameterSet(
                1.961053496,
@@ -337,7 +337,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.118395763,
                0.171441001,
                0.045867398,
-               38.35E-3);
+               38.35e-3);
 
          case N4_5 -> new SDWBAParameterSet(
                1.989439143,
@@ -349,7 +349,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.132879715,
                0.134779964,
                0.061060431,
-               38.35E-3);
+               38.35e-3);
 
          case N4_10 -> new SDWBAParameterSet(
                2.030902169,
@@ -361,7 +361,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.179010692,
                0.108763923,
                0.072876416,
-               38.35E-3);
+               38.35e-3);
 
          case N4_15 -> new SDWBAParameterSet(
                2.057120063,
@@ -373,7 +373,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.184198003,
                0.097040193,
                0.07505848,
-               38.35E-3);
+               38.35e-3);
 
          case N4_30 -> new SDWBAParameterSet(
                2.114736627,
@@ -385,7 +385,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.249068738,
                0.066651598,
                0.085763198,
-               38.35E-3);
+               38.35e-3);
 
          case N5_5b -> new SDWBAParameterSet(
                1.995292753,
@@ -397,7 +397,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.133952453,
                0.14296827,
                0.059853831,
-               38.35E-3);
+               38.35e-3);
 
          case N5_10b -> new SDWBAParameterSet(
                2.03345935,
@@ -409,7 +409,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.177798547,
                0.115537592,
                0.071336095,
-               38.35E-3);
+               38.35e-3);
 
          case N5_15b -> new SDWBAParameterSet(
                2.058275871,
@@ -421,31 +421,31 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.180218328,
                0.100372692,
                0.07401963,
-               38.35E-3);
+               38.35e-3);
 
          case N5_20b -> new SDWBAParameterSet(
                2.077561829,
                1.213133413,
-               6.69736E-05,
+               6.69736e-05,
                0.118600925,
                0.229794661,
                0.040579171,
                -0.167093682,
                0.092813199,
                0.074969462,
-               38.35E-3);
+               38.35e-3);
 
          case N5_25b -> new SDWBAParameterSet(
                2.095804541,
                1.191392,
-               -1.04457E-05,
+               -1.04457e-05,
                0.114580285,
                0.230800537,
                0.041534531,
                -0.193854833,
                0.079085645,
                0.079070852,
-               38.35E-3);
+               38.35e-3);
 
          case N5_30b -> new SDWBAParameterSet(
                2.115422623,
@@ -457,7 +457,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.236118961,
                0.068462523,
                0.084107024,
-               38.35E-3);
+               38.35e-3);
 
          case N5_35b -> new SDWBAParameterSet(
                2.137467011,
@@ -469,7 +469,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                0.55986346,
                -0.032101957,
                0.093348862,
-               38.35E-3);
+               38.35e-3);
 
          case N9_1 -> new SDWBAParameterSet(
                2.225748936,
@@ -479,22 +479,22 @@ public final class SDWBAModelNew extends BackscatterModel {
                0.261566035,
                0.006200816,
                -2295.825851,
-               1.61E-05,
+               1.61e-05,
                0.072869431,
-               38.35E-3);
+               38.35e-3);
 
       /* Demer/Renfree parameters containing a small error according to Demer:
             case N11_4 -> new SDWBAParameterSet(
                   2.111960812,
                   1.184717307,
-                  -4.36E-05,
+                  -4.36e-05,
                   0.092193935,
                   0.259607087,
                   0.018015188,
                   -0.240500864,
                   0.117678117,
                   0.078381608,
-                  38.35E-3);
+                  38.35e-3);
       */
 
          case N11_4b -> new SDWBAParameterSet(
@@ -507,7 +507,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.2301776589,
                0.1266269840,
                0.0759528734,
-               38.35E-3);
+               38.35e-3);
 
       /* Demer/Renfree parameters containing a small error according to Demer:
             case N11_10 -> new SDWBAParameterSet(
@@ -520,7 +520,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                   -0.178445587,
                   0.119621996,
                   0.072507263,
-                  38.35E-3);
+                  38.35e-3);
       */
 
          case N11_10b -> new SDWBAParameterSet(
@@ -533,20 +533,20 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.1855452137,
                0.1207872718,
                0.0717778429,
-               38.35E-3);
+               38.35e-3);
 
       /* Demer/Renfree parameters containing a small error according to Demer:
             case N11_15 -> new SDWBAParameterSet(
                   2.073535088,
                   1.215497873,
-                  8.22E-05,
+                  8.22e-05,
                   0.13706674,
                   0.231272026,
                   0.042273884,
                   -0.178439923,
                   0.108825046,
                   0.074755613,
-                  38.35E-3);
+                  38.35e-3);
       */
 
          case N11_15b -> new SDWBAParameterSet(
@@ -559,7 +559,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.1858652464,
                0.1118896500,
                0.0749676684,
-               38.35E-3);
+               38.35e-3);
 
          // Demer/Renfree parameters containing a small error according to Demer:
          case N11_20b -> new SDWBAParameterSet(
@@ -572,7 +572,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.1812920957,
                0.0987788645,
                0.0770174635,
-               38.35E-3);
+               38.35e-3);
 
          case N11_25b -> new SDWBAParameterSet(
                2.1039527998,
@@ -584,7 +584,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.2032497130,
                0.0861776906,
                0.0812501016,
-               38.35E-3);
+               38.35e-3);
 
       /* Demer/Renfree parameters containing a small error according to Demer:
             case N11_30 -> new SDWBAParameterSet(
@@ -597,7 +597,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                   -0.280208876,
                   0.063836268,
                   0.089324621,
-                  38.35E-3);
+                  38.35e-3);
       */
 
          case N11_30b -> new SDWBAParameterSet(
@@ -610,7 +610,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.2911912024,
                0.0587926415,
                0.0888150056,
-               38.35E-3);
+               38.35e-3);
 
          case N11_35b -> new SDWBAParameterSet(
                2.1449969649,
@@ -622,7 +622,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                0.7178417687,
                -0.0242820419,
                0.0932141170,
-               38.35E-3);
+               38.35e-3);
 
       /* Demer/Renfree parameters containing a small error according to Demer:
             case N15_5 ->
@@ -636,7 +636,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                   -0.337277351,
                   0.122338622,
                   0.093383763,
-                  38.35E-3);
+                  38.35e-3);
       */
 
          case N15_5b -> new SDWBAParameterSet(
@@ -649,46 +649,46 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.329791775,
                0.121391079,
                0.093673174,
-               38.35E-3);
+               38.35e-3);
 
       /* Demer/Renfree parameters containing a small error according to Demer:
             case N15_10 -> new SDWBAParameterSet(
                   2.097576228,
                   1.185794049,
-                  3.60E-05,
+                  3.60e-05,
                   0.118988319,
                   0.239990992,
                   0.036151865,
                   -0.170417529,
                   0.120181768,
                   0.07080834,
-                  38.35E-3);
+                  38.35e-3);
       */
 
          case N15_10b -> new SDWBAParameterSet(
                2.097509002,
                1.186711187,
-               3.63031E-05,
+               3.63031e-05,
                0.122267793,
                0.240718947,
                0.037461746,
                -0.173555994,
                0.121614802,
                0.070887954,
-               38.35E-3);
+               38.35e-3);
 
       /* Demer/Renfree parameters containing a small error according to Demer:
             case N15_15 -> new SDWBAParameterSet(
                   2.089537228,
                   1.193686301,
-                  5.46E-05,
+                  5.46e-05,
                   0.135834271,
                   0.2329429,
                   0.042107144,
                   -0.172315954,
                   0.114984597,
                   0.073925533,
-                  38.35E-3);
+                  38.35e-3);
       */
 
          case N15_15b -> new SDWBAParameterSet(
@@ -701,19 +701,19 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.1643391952,
                0.1163581730,
                0.0736849037,
-               38.35E-3);
+               38.35e-3);
 
          case N15_20b -> new SDWBAParameterSet(
                2.097178893,
                1.187175502,
-               -2.2546E-07,
+               -2.2546e-07,
                0.125569602,
                0.232253059,
                0.042357986,
                -0.173305133,
                0.10143215,
                0.077983127,
-               38.35E-3);
+               38.35e-3);
 
          case N15_25b -> new SDWBAParameterSet(
                2.112511461,
@@ -725,7 +725,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.201681961,
                0.08951565,
                0.083568555,
-               38.35E-3);
+               38.35e-3);
 
       /* Demer/Renfree parameters containing a small error according to Demer:
             case N15_30 ->
@@ -739,7 +739,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                   -0.311138002,
                   0.059931105,
                   0.091821472,
-                  38.35E-3);
+                  38.35e-3);
       */
 
          case N15_30b -> new SDWBAParameterSet(
@@ -752,7 +752,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.3016185709,
                0.0626409363,
                0.0924685544,
-               38.35E-3);
+               38.35e-3);
 
          case N15_35b -> new SDWBAParameterSet(
                2.149379065,
@@ -764,7 +764,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                0.53271776,
                -0.037482035,
                0.095722793,
-               38.35E-3);
+               38.35e-3);
 
          case N30_5 -> new SDWBAParameterSet(
                2.264009528,
@@ -776,7 +776,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.033000952,
                0.164472487,
                0.014784951,
-               38.35E-3);
+               38.35e-3);
 
          case N30_10 -> new SDWBAParameterSet(
                2.226301932,
@@ -788,7 +788,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.053607379,
                0.162127562,
                0.026312067,
-               38.35E-3);
+               38.35e-3);
 
          case N30_15 -> new SDWBAParameterSet(
                2.176976415,
@@ -800,7 +800,7 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.079311261,
                0.14140029,
                0.047441441,
-               38.35E-3);
+               38.35e-3);
 
          case N30_30 -> new SDWBAParameterSet(
                2.17128986,
@@ -812,21 +812,21 @@ public final class SDWBAModelNew extends BackscatterModel {
                -0.426743731,
                0.047673044,
                0.098268911,
-               38.35E-3);
+               38.35e-3);
 
       /*
             case N91 -> new SDWBAParameterSet(
                   new Complex(7.52315404877615, 10.3006864545960),
                   new Complex(0.106210952421554, 0.0285066239370059),
                   new Complex(0.778361587641021, -0.0207533674614561),
-                  -1.28990802E-11,
-                  5.66626275E-09,
-                  -7.75476884E-07,
-                  2.08030645E-05,
-                  2.59344869E-03,
-                  -1.26389993E-01,
-                  -7.58057613E+01,
-                  38.35E-3,
+                  -1.28990802e-11,
+                  5.66626275e-09,
+                  -7.75476884e-07,
+                  2.08030645e-05,
+                  2.59344869e-03,
+                  -1.26389993e-01,
+                  -7.58057613e+01,
+                  38.35e-3,
                   1.00);
        */
       };

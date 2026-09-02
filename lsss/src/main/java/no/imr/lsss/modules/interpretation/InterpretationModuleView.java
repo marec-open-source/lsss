@@ -27,9 +27,11 @@ import no.imr.tools.parameter.InstantParameter;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.range.DefaultRange;
 import no.imr.tools.range.Range;
 import no.imr.tools.swing.ColorUtils;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.DeepInputListener;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
@@ -42,6 +44,7 @@ import no.imr.tools.swing.table.TableCellFloat;
 import no.imr.tools.swing.table.TableCellSlider;
 import no.imr.tools.swing.table.TableCellString;
 import no.imr.tools.swing.table.TableUtils;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.AbstractButton;
@@ -415,11 +418,12 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
    }
 
    private void deleteByTime() {
-      Range<Long> storedTimeRange = lsss.getInterpretationSummary().getScatterSet().getTimeRange();
-      InstantParameter min = new InstantParameter(new Name("From"), Instant.ofEpochMilli(storedTimeRange.begin()));
-      InstantParameter max = new InstantParameter(new Name("To"), Instant.ofEpochMilli(storedTimeRange.end()));
-      ParameterEditor parameterEditor = new ParameterEditor(List.of(min, max));
-      parameterEditor.getGUIConfig().setTextInputColumns(15);
+      Range<Instant> storedTimeRange = lsss.getInterpretationSummary().getScatterSet().getTimeRange();
+      InstantParameter min = new InstantParameter(new Name("From"), storedTimeRange.begin());
+      InstantParameter max = new InstantParameter(new Name("To"), storedTimeRange.end());
+      ParameterEditor parameterEditor = new ParameterEditor(List.of(min, max), new GUIConfig()
+            .setTextInputColumns(15)
+      );
 
       GridBag gridBag = new GridBag()
             .configureVerticalBox();
@@ -428,10 +432,10 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
       gridBag.add(parameterEditor.getEditorComponent());
 
       int answer = JOptionPane.showConfirmDialog(mainPanel, gridBag.getPanel(), "Delete time range from database", JOptionPane.OK_CANCEL_OPTION);
-      if (answer == JOptionPane.OK_OPTION && parameterEditor.commitEdits()) {
-         long minTime = min.getTimeInMillis(Long.MIN_VALUE);
-         long maxTime = max.getTimeInMillis(Long.MAX_VALUE);
-         if (minTime < maxTime) {
+      if (answer == JOptionPane.OK_OPTION && CurrentInputComponent.commitEdit()) {
+         Instant minTime = min.getValue().orElse(Instant.MIN);
+         Instant maxTime = max.getValue().orElse(Instant.MAX);
+         if (minTime.isBefore(maxTime)) {
             lsss.getInterpretationSummary().delete(new DefaultRange<>(minTime, maxTime));
          }
       }
@@ -806,8 +810,8 @@ public final class InterpretationModuleView extends BaseViewModule.BaseView {
             "<html>s<sub>A</sub>",
             "<html>s<sub>A</sub> corr."};
 
-      private final DateTimeFormatter dateFormat = Utils.createUTCDateTimeFormatter("yyyy.MM.dd");
-      private final DateTimeFormatter timeFormat = Utils.createUTCDateTimeFormatter("HH:mm:ss");
+      private final DateTimeFormatter dateFormat = TimeUtils.createUTCDateTimeFormatter("yyyy.MM.dd");
+      private final DateTimeFormatter timeFormat = TimeUtils.createUTCDateTimeFormatter("HH:mm:ss");
 
       private final LSSS lsss;
       private final InterpretationModule interpretationModule;

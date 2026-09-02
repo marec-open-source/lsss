@@ -10,7 +10,7 @@ import no.imr.lsss.database.tables.hibernate.AcousticCategory;
 import no.imr.lsss.database.util.LanguageUtils;
 import no.imr.lsss.framework.export.pojo.ExportScrutiny;
 import no.imr.tools.NoCanDoException;
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +48,7 @@ public final class ExportUtils {
             Float assignment = assignments.get(id);
             if (assignment != null) {
                String initials = languageUtils.getAcCatInitials(acousticCategoryMap.get(id));
-               categories.add(new ExportScrutiny.Category(id, initials, Utils.round(assignment, 10000)));
+               categories.add(new ExportScrutiny.Category(id, initials, MathUtils.round(assignment, 10_000)));
             }
          }
          RawFileTransducer transducer = lsss.getDataManager().getDataFileSet().getRawFileConfiguration().getTransducers().get(channel - 1);

@@ -4,6 +4,7 @@ import org.apache.commons.numbers.complex.Complex;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * An array of complex numbers stored as [re_0, im_0, re_1, im_1, ...].
@@ -111,7 +112,8 @@ public final class ComplexArray {
    }
 
    public ComplexArray copyOfRange(int beginIndex, int endIndex, int newLength) {
-      int valueCount = 2 * Math.min(Math.min(endIndex, length) - beginIndex, newLength);
+      Objects.checkFromToIndex(beginIndex, endIndex, length);
+      int valueCount = 2 * Math.min(endIndex - beginIndex, newLength);
       double[] copiedValues = new double[2 * newLength];
       System.arraycopy(values, 2 * beginIndex, copiedValues, 0, valueCount);
       return of(copiedValues);
@@ -213,11 +215,7 @@ public final class ComplexArray {
    }
 
    public void add(ComplexArray other) {
-      double[] otherValues = other.values;
-      ArrayMath.requireSameLength(values, otherValues);
-      for (int i = 0; i < values.length; i++) {
-         values[i] += otherValues[i];
-      }
+      ArrayMath.add(values, other.values);
    }
 
    public void multiply(double factor) {

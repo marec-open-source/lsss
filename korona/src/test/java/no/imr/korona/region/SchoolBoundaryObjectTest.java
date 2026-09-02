@@ -134,14 +134,14 @@ final class SchoolBoundaryObjectTest {
 
    private static final class TestSyntheticData extends SyntheticData {
       @Override
-      protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+      public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
          float[] sv = new float[2000];
          Arrays.fill(sv, PowerData.logSvToSv(-56));
          powerData.setSv(sv);
       }
 
       @Override
-      protected float getBottomDepth(PingIndex pingIndex, int channel) {
+      public float getBottomDepth(PingIndex pingIndex, int channel) {
          return 500;
       }
    }

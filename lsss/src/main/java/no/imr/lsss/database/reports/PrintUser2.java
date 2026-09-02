@@ -45,7 +45,7 @@ final class PrintUser2 extends BaseMultipleSpeciesPerFileReport {
       float[][] dataPrint = aPrintData.getSa(aMode);
 
       // Date
-      Instant time = Instant.ofEpochMilli(DatabaseTime.toMillis(scatter.getCompId()));
+      Instant time = DatabaseTime.toInstant(scatter.getCompId());
       Print.leftPaddedValue(aPrintWriter, 8, ReportUtils.DATE.format(time));
       Print.spaceAndLeftPaddedValue(aPrintWriter, 5, ReportUtils.TIME.format(time));
 

@@ -20,7 +20,8 @@ final class OrthogonalRectangularHullTest {
       check(new Vec3(5, 0, 0), new Vec3(10, 0, 0), 0,
             OrthogonalRectangularHull.create(List.of(
                   new Vec3(0, 0, 0),
-                  new Vec3(10, 0, 0))),
+                  new Vec3(10, 0, 0)
+            )),
             0);
 
       check(new Vec3(5, 1, 1), new Vec3(10, 2, 2), 0,
@@ -28,19 +29,22 @@ final class OrthogonalRectangularHullTest {
                   new Vec3(0, 0, 0),
                   new Vec3(10, 0, 0),
                   new Vec3(0, 2, 2),
-                  new Vec3(10, 2, 2))),
+                  new Vec3(10, 2, 2)
+            )),
             0);
 
       check(new Vec3(0, 5, 0), new Vec3(10, 0, 0), Math.PI / 2,
             OrthogonalRectangularHull.create(List.of(
                   new Vec3(0, 0, 0),
-                  new Vec3(0, 10, 0))),
+                  new Vec3(0, 10, 0)
+            )),
             0);
 
       check(new Vec3(5, 5, 0), new Vec3((float) (10 * Math.sqrt(2)), 0, 0), Math.PI / 4,
             OrthogonalRectangularHull.create(List.of(
                   new Vec3(0, 0, 0),
-                  new Vec3(10, 10, 0))),
+                  new Vec3(10, 10, 0)
+            )),
             1e-5f);
    }
 
@@ -60,8 +64,8 @@ final class OrthogonalRectangularHullTest {
             new Vec3(1, 1, 0),
             new Vec3(-1, -1, 0),
             new Vec3(0.5f, -0.5f, 0),
-            new Vec3(-0.5f, 0.5f, 0));
-
+            new Vec3(-0.5f, 0.5f, 0)
+      );
       Vec2 truePrincipalVector = new Vec2(1 / (float) Math.sqrt(2), 1 / (float) Math.sqrt(2));
 
       OrthogonalRectangularHull orh1 = OrthogonalRectangularHull.create(points1);

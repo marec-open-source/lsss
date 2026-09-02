@@ -20,12 +20,12 @@ public record EchogramPoint(PingIndex pingIndex, float depth) implements Compara
     * Compare this point to another first by depth (shallow to deep)
     * secondly by PingIndex.
     *
-    * @param echogramPoint another echogram point
+    * @param other another echogram point
     * @return the comparison result
     */
    @Override
-   public int compareTo(EchogramPoint echogramPoint) {
-      int depthCompare = Float.compare(depth, echogramPoint.depth);
-      return depthCompare != 0 ? depthCompare : pingIndex.compareTo(echogramPoint.pingIndex);
+   public int compareTo(EchogramPoint other) {
+      int depthCompare = Float.compare(depth, other.depth);
+      return depthCompare != 0 ? depthCompare : pingIndex.compareTo(other.pingIndex);
    }
 }

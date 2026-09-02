@@ -11,7 +11,7 @@ final class ArgChangeManagerTest {
    @Test
    void addRemove() {
       AtomicInteger n = new AtomicInteger();
-      Consumer<String> argListener = argument -> n.incrementAndGet();
+      Consumer<String> argListener = _ -> n.incrementAndGet();
       Listener listener = n::incrementAndGet;
       ChangeManager changeManager = new ChangeManager();
       changeManager.addListener(n::incrementAndGet);

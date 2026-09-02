@@ -4,8 +4,8 @@ import no.imr.tools.time.DateTimeMillis;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 
 /**
@@ -13,7 +13,10 @@ import java.util.Optional;
  */
 public class DateParameter extends OptionalParameter<LocalDate> {
    private static final Unit UNIT = new Unit("YYYY-MM-DD");
-   private static final ValueConverter<Optional<LocalDate>> CONVERTER = ValueConverters.of(DateTimeMillis::toLocalDate, DateTimeMillis::localDateToString);
+   private static final ValueConverter<Optional<LocalDate>> CONVERTER = ValueConverters.of(
+         DateTimeMillis::toLocalDate,
+         DateTimeMillis::localDateToString
+   );
 
    public DateParameter(Name name) {
       super(name, Optional.empty(), UNIT, "", CONVERTER);
@@ -36,8 +39,8 @@ public class DateParameter extends OptionalParameter<LocalDate> {
       return DateTimeMillis.localDateToInt(getValue());
    }
 
-   public static void setFromMillis(long timeInMillis, DateParameter dateParameter, TimeParameter timeParameter) {
-      ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timeInMillis), ZoneOffset.UTC);
+   public static void setFromInstant(Instant instant, DateParameter dateParameter, TimeParameter timeParameter) {
+      LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
       dateParameter.setValue(dateTime.toLocalDate());
       timeParameter.setValue(dateTime.toLocalTime());
    }

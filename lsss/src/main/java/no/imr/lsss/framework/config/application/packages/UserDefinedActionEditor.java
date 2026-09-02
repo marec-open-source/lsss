@@ -130,22 +130,18 @@ final class UserDefinedActionEditor implements ParameterContainer {
    }
 
    List<UserDefinedInputParameter> getInputParameters() {
-      inputTableGUI.stopEditing();
       return inputTableGUI.getModel().getRows().stream()
             .map(InputEditor::toInputParameter)
             .toList();
    }
 
    boolean isOK(ParameterEditor parameterEditor) {
-      if (!parameterEditor.commitEdits()) {
-         return false;
-      }
       if (id.getValue().isEmpty()) {
          JOptionPane.showMessageDialog(parameterEditor.getEditorComponent(), "ID cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
          parameterEditor.getInputComponent(id).requestFocusInWindow();
          return false;
       }
-      return inputTableGUI.stopEditing();
+      return true;
    }
 
    void apply() {
@@ -175,16 +171,16 @@ final class UserDefinedActionEditor implements ParameterContainer {
       userDefinedAction.saveActionInfo();
    }
 
-   public static final class InputEditor implements ParameterContainer {
-      public final StringParameter name = new StringParameter(
+   private static final class InputEditor implements ParameterContainer {
+      private final StringParameter name = new StringParameter(
             new Name("ParameterName", "Parameter name"));
 
-      public final ObjectParameter<String> type = new ObjectParameter<>(new Name("Type"),
+      private final ObjectParameter<String> type = new ObjectParameter<>(new Name("Type"),
             UserDefinedUtils.INPUT_FLOAT, UserDefinedUtils.INPUT_TYPES);
 
-      public final StringParameter unit = new StringParameter(new Name("Unit"));
+      private final StringParameter unit = new StringParameter(new Name("Unit"));
 
-      public final StringParameter description = new StringParameter(new Name("Description"));
+      private final StringParameter description = new StringParameter(new Name("Description"));
 
       private InputEditor() {
       }

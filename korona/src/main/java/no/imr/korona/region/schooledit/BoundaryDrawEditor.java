@@ -12,7 +12,6 @@ import no.imr.korona.region.SchoolBoundaryIntersectionInfo;
 import no.imr.korona.region.SchoolBoundaryObject;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import no.imr.korona.util.echogram.EchogramZSettings;
-import no.imr.tools.CyclicList;
 import no.imr.tools.concurrent.CoalescingExecutor;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
@@ -52,7 +51,7 @@ public final class BoundaryDrawEditor extends SchoolEditor {
       boundaryCenter = computeCenter(schoolBoundary, pingContainer);
       uneditedSchoolBoundaries = school.getBoundaryObjects().stream()
             .filter(schoolBoundaryObject -> schoolBoundaryObject != schoolBoundary)
-            .<List<EchogramPoint>>map(SchoolBoundaryObject::getBoundary)
+            .map(SchoolBoundaryObject::getBoundary)
             .toList();
       currentEditInfo = startEditInfo;
       edit(startEditInfo.closestPoint(), point);
@@ -94,46 +93,38 @@ public final class BoundaryDrawEditor extends SchoolEditor {
 
    private List<EchogramPoint> getBetweenPoints(boolean defaultDir) {
       List<EchogramPoint> betweenPoints = new ArrayList<>();
-      if (startEditInfo.startIndex() <= currentEditInfo.startIndex()) {
-         if (defaultDir) {
-            betweenPoints.add(editPoints.getFirst());
-            betweenPoints.addAll(schoolBoundary.getBoundary().subList(startEditInfo.startIndex(), currentEditInfo.endIndex()));
-            betweenPoints.add(connectionPoints.getLast());
-         } else { // complementary selection
-            betweenPoints.add(connectionPoints.getLast());
-            if (currentEditInfo.endIndex() == startEditInfo.endIndex()) {
-               betweenPoints.addAll(schoolBoundary.getBoundary().subList(currentEditInfo.endIndex(), startEditInfo.endIndex() - 1));
-               betweenPoints.add(schoolBoundary.getBoundary().get(startEditInfo.endIndex() - 1));
-            } else {
-               betweenPoints.addAll(schoolBoundary.getBoundary().subList(currentEditInfo.endIndex(), startEditInfo.endIndex()));
-            }
-            betweenPoints.add(editPoints.getFirst());
-         }
-      } else { // startEditInfo.getStartIndex() > currentEditInfo.getStartIndex()
-         if (defaultDir) {
-            betweenPoints.add(editPoints.getFirst());
-            if (startEditInfo.startIndex() == currentEditInfo.endIndex()) {
-               betweenPoints.addAll(schoolBoundary.getBoundary().subList(startEditInfo.startIndex(), currentEditInfo.endIndex() - 1));
-               betweenPoints.add(schoolBoundary.getBoundary().get(currentEditInfo.endIndex() - 1));
-            } else {
-               betweenPoints.addAll(schoolBoundary.getBoundary().subList(startEditInfo.startIndex(), currentEditInfo.endIndex()));
-            }
-            betweenPoints.add(connectionPoints.getLast());
+      if (defaultDir) {
+         betweenPoints.add(editPoints.getFirst());
+         int a = (startEditInfo.startIndex() + 1) % schoolBoundary.getBoundary().size();
+         int b = (currentEditInfo.startIndex() + 1) % schoolBoundary.getBoundary().size();
+         if (a <= b) {
+            betweenPoints.addAll(schoolBoundary.getBoundary().subList(a, b));
          } else {
-            betweenPoints.add(connectionPoints.getLast());
-            betweenPoints.addAll(schoolBoundary.getBoundary().subList(currentEditInfo.startIndex(), startEditInfo.endIndex()));
-            betweenPoints.add(editPoints.getFirst());
+            betweenPoints.addAll(schoolBoundary.getBoundary().subList(a, schoolBoundary.getBoundary().size()));
+            betweenPoints.addAll(schoolBoundary.getBoundary().subList(0, b));
          }
+         betweenPoints.add(connectionPoints.getLast());
+      } else {
+         betweenPoints.add(connectionPoints.getLast());
+         int a = (currentEditInfo.startIndex() + 1) % schoolBoundary.getBoundary().size();
+         int b = (startEditInfo.startIndex() + 1) % schoolBoundary.getBoundary().size();
+         if (a < b) {
+            betweenPoints.addAll(schoolBoundary.getBoundary().subList(a, b));
+         } else {
+            betweenPoints.addAll(schoolBoundary.getBoundary().subList(a, schoolBoundary.getBoundary().size()));
+            betweenPoints.addAll(schoolBoundary.getBoundary().subList(0, b));
+         }
+         betweenPoints.add(editPoints.getFirst());
       }
       return betweenPoints;
    }
 
-   public CyclicList<EchogramPoint> getDrawnBoundary() {
+   public List<EchogramPoint> getDrawnBoundary() {
       return getDrawnBoundary(currentDrawnBoundaryType ^ keepComplementaryPoints);
    }
 
-   private CyclicList<EchogramPoint> getDrawnBoundary(boolean defaultDir) {
-      CyclicList<EchogramPoint> result = new CyclicList<>();
+   private List<EchogramPoint> getDrawnBoundary(boolean defaultDir) {
+      List<EchogramPoint> result = new ArrayList<>();
       if (defaultDir) {
          List<EchogramPoint> reverseBetweenPoints = getBetweenPoints(true);
          Collections.reverse(reverseBetweenPoints);
@@ -166,11 +157,11 @@ public final class BoundaryDrawEditor extends SchoolEditor {
          line = line.subList(1, line.size());
       }
       editPoints.addAll(line);
-      currentEditInfo = schoolBoundary.getClosestIntersection(toPoint, pingSettings, zSettings);
+      currentEditInfo = schoolBoundary.getClosestIntersection(getSchool(), toPoint, pingSettings, zSettings);
       EchogramPoint closestConnectionPoint = currentEditInfo.closestPoint();
       connectionPoints = EchogramUtils.computeLine(zSettings.getDepthTransform(), toPoint, closestConnectionPoint, pingContainer);
 
-      CyclicList<EchogramPoint> drawnBoundary = getDrawnBoundary();
+      List<EchogramPoint> drawnBoundary = getDrawnBoundary();
       windingChecker.execute(createManagedCoalescingRunnable(() -> {
          checkWinding(drawnBoundary);
       }));

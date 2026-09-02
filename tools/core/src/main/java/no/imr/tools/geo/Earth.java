@@ -1,6 +1,7 @@
 package no.imr.tools.geo;
 
 import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 import no.marec.lsss.api.util.GeoPoint;
 
 import java.awt.geom.Point2D;
@@ -23,7 +24,7 @@ public final class Earth {
 
    /**
     * Calculate earth radius at a given latitude.
-    * See <a href="http://en.wikipedia.org/wiki/Earth_radius#Radius_at_a_given_geodetic_latitude">http://en.wikipedia.org/wiki/Earth_radius#Radius_at_a_given_geodetic_latitude</a>
+    * See <a href="https://en.wikipedia.org/wiki/Earth_radius#Radius_at_a_given_geodetic_latitude">https://en.wikipedia.org/wiki/Earth_radius#Radius_at_a_given_geodetic_latitude</a>
     *
     * @param latitudeDegrees latitude in degrees
     * @return the earth radius
@@ -35,7 +36,7 @@ public final class Earth {
    }
 
    /**
-    * Calculates the approximate distance in meters between to geographical points.
+    * Calculates the approximate distance in meters between two geographical points.
     *
     * @param first  a geographical point
     * @param second another geographical point
@@ -43,7 +44,7 @@ public final class Earth {
     */
    public static double getApproximateDistance(GeoPoint first, GeoPoint second) {
       Point2D offset = getApproximateOffset(first, second);
-      return Utils.hypot(offset.getX(), offset.getY());
+      return MathUtils.hypot(offset.getX(), offset.getY());
    }
 
    /**

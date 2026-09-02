@@ -17,15 +17,10 @@ final class PrintUser5 extends BaseOneSpeciesPerFileReport {
    void printHeader(PrintWriter aPrintWriter, PrintData.Pelagic aPrintData, int printType, ReportMode aMode) {
    }
 
-   /***********************************************************************************************
+   /**
     * HISTORY:     The program is requested by O. R. Godoe (IMR) to be used by the
     *              SAS statistics package.
-    *
-    * @param aPrintWriter             print file
-    * @param aPrintData               pelagic data
-    * @param aPrintDataBottom         bottom data
-    * @param aAcousticCategoryIndex   index in species-array
-    *
+    * <pre>
     * DATA: 1) Survey(10d) Nation(10d) Ship(10d) Date(10d ) Time(10d )
     *          Startlog(10.3f ) Stoplog(10.3f )
     *          Min_bottomdepth(10.3f ) Max_bottomdepth(10.3f ) Frequency(10d )
@@ -36,6 +31,12 @@ final class PrintUser5 extends BaseOneSpeciesPerFileReport {
     *       3) Bottom_channel_thickness(10.3f )
     *          Number_bottom_channels_with_values(10d ) Sum_channel(10.3f )
     *          5*Bottom_channels(10.3f ) (NEWLINE)
+    * </pre>
+    *
+    * @param aPrintWriter             print file
+    * @param aPrintData               pelagic data
+    * @param aPrintDataBottom         bottom data
+    * @param aAcousticCategoryIndex   index in species-array
     */
    @Override
    void print(

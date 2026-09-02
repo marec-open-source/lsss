@@ -7,9 +7,8 @@ import no.imr.tools.io.Print;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 
 /**
  * Print PGNAPES format - file-type 2.
@@ -46,7 +45,7 @@ final class PrintUser8 extends BaseOneSpeciesPerFileReport {
       String country = GetPgnapes.nation(aPrintData.getNation());
       String callsign = GetPgnapes.callsign(aPrintData.getPlatform());
       String species = GetPgnapes.species(aPrintData.getAcousticCategory(aAcousticCategoryIndex));
-      ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(DatabaseTime.toMillis(aPrintData.getScatter(aMode))), ZoneOffset.UTC);
+      LocalDateTime time = LocalDateTime.ofInstant(DatabaseTime.toInstant(aPrintData.getScatter(aMode)), ZoneOffset.UTC);
       DecimalFormatSymbols dfs = Utils.createDecimalFormatSymbols();
       DecimalFormat df1 = new DecimalFormat("#0.0", dfs);
       DecimalFormat df2 = new DecimalFormat("#0.00", dfs);

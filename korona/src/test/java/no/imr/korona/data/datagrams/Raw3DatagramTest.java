@@ -5,6 +5,7 @@ import no.imr.korona.data.ping.items.channel.PowerData;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,7 +13,7 @@ final class Raw3DatagramTest {
    @Test
    void paddingToMultipleOfFour() throws DatagramFormatException {
       // Issue #1500.
-      Raw3Datagram raw3Datagram = new Raw3Datagram(0);
+      Raw3Datagram raw3Datagram = new Raw3Datagram(Instant.EPOCH);
       raw3Datagram.dataType = PowerData.DATA_TYPE_POWER; // Power only => 2 bytes per sample.
       raw3Datagram.power = new short[]{1, 2, 3};         // Odd number of samples => datagram size not multiple of 4.
       raw3Datagram.count = raw3Datagram.power.length;
@@ -28,7 +29,7 @@ final class Raw3DatagramTest {
       assertEquals(0, byteBuffer.position() % 4);
 
       byteBuffer.flip();
-      Raw3Datagram readRaw3Datagram = new Raw3Datagram(0, byteBuffer);
+      Raw3Datagram readRaw3Datagram = new Raw3Datagram(Instant.EPOCH, byteBuffer);
       assertArrayEquals(raw3Datagram.power, readRaw3Datagram.power);
       assertEquals(0, byteBuffer.remaining());
    }

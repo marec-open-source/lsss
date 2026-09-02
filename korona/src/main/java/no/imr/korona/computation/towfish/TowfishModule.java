@@ -22,6 +22,9 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -85,15 +88,15 @@ public final class TowfishModule extends SimplePingModule {
 
       private @Nullable PingIndex lastUsedTowfishPingIndex;
 
-      private final long towFishEchosounderAddition;
-      private final NavigableMap<Long, SegmentHandle> towfishSegmentHandles = new TreeMap<>();
-      private long towfishHandleTime;
+      private final Duration towFishEchosounderAddition;
+      private final NavigableMap<Instant, SegmentHandle> towfishSegmentHandles = new TreeMap<>();
+      private Instant towfishHandleTime = Instant.EPOCH;
 
       private TowfishModuleComputation(TowfishModule module, ComputationContext computationContext, PingSource pingSource) throws IOException, IgnoreModuleComputationException {
          super(module, computationContext, pingSource);
 
          this.module = module;
-         towFishEchosounderAddition = (long) (module.towfishEchosounderTimeAddition.getFloatValue() * 1000);
+         towFishEchosounderAddition = Duration.ofMillis((long) (module.towfishEchosounderTimeAddition.getFloatValue() * 1000));
 
          Path towfishDir = module.getRequiredConfigFile(TowfishFileService.NAME);
          if (!Files.exists(towfishDir)) {
@@ -120,7 +123,7 @@ public final class TowfishModule extends SimplePingModule {
 
          updateTowfishHandleMap(towfishDir);
 
-         setTowfishSegment(getCorrespondingTowfishSegmentHandle(getPingConfiguration().getRawFileConfiguration().getTimeInMillis()));
+         setTowfishSegment(getCorrespondingTowfishSegmentHandle(getPingConfiguration().getRawFileConfiguration().getInstant()));
       }
 
       private void updateTowfishHandleMap(Path towfishDir) throws IOException {
@@ -128,7 +131,7 @@ public final class TowfishModule extends SimplePingModule {
          List<SegmentHandle> segmentHandles = getComputationContext().getModuleContainer().getKorona().getDataFormatManager().createSegmentHandlesInDirectoryRecursively(towfishDir, getAsyncHandle());
          for (SegmentHandle segmentHandle : segmentHandles) {
             try (PingReader pingReader = segmentHandle.createPingReader()) {
-               towfishSegmentHandles.put(pingReader.getPingConfiguration().getRawFileConfiguration().getTimeInMillis(), segmentHandle);
+               towfishSegmentHandles.put(pingReader.getPingConfiguration().getRawFileConfiguration().getInstant(), segmentHandle);
             }
          }
       }
@@ -137,24 +140,24 @@ public final class TowfishModule extends SimplePingModule {
          if (towfishPingReader == null) {
             return;
          }
-         long configurationTime = towfishPingReader.getPingConfiguration().getRawFileConfiguration().getTimeInMillis() + towFishEchosounderAddition;
+         Instant configurationTime = towfishPingReader.getPingConfiguration().getRawFileConfiguration().getInstant().plus(towFishEchosounderAddition);
          // Start time: configurationTime
          // End time: configurationTime plus 3 hours
-         towfishMetaData.parseRelevantMetaDataFiles(configurationTime, configurationTime + 3 * 3600 * 1000, module.distBehindFunction.getValue());
+         towfishMetaData.parseRelevantMetaDataFiles(configurationTime, configurationTime.plus(3, ChronoUnit.HOURS), module.distBehindFunction.getValue());
          beforeLastTowfishPing = towfishPingReader.nextPing(getAsyncHandle());
          lastTowfishPing = towfishPingReader.nextPing(getAsyncHandle());
       }
 
-      private Map.@Nullable Entry<Long, SegmentHandle> getCorrespondingTowfishSegmentHandle(long timeInMillis) {
-         long towFishTimeMillis = timeInMillis - towFishEchosounderAddition;
-         Map.Entry<Long, SegmentHandle> handleEntry = towfishSegmentHandles.floorEntry(towFishTimeMillis);
+      private Map.@Nullable Entry<Instant, SegmentHandle> getCorrespondingTowfishSegmentHandle(Instant time) {
+         Instant towFishTime = time.minus(towFishEchosounderAddition);
+         Map.Entry<Instant, SegmentHandle> handleEntry = towfishSegmentHandles.floorEntry(towFishTime);
          if (handleEntry == null) {
             return towfishSegmentHandles.firstEntry();
          }
          return handleEntry;
       }
 
-      private Map.@Nullable Entry<Long, SegmentHandle> getNextSegmentHandle(long towfishHandleTime) {
+      private Map.@Nullable Entry<Instant, SegmentHandle> getNextSegmentHandle(Instant towfishHandleTime) {
          return towfishSegmentHandles.higherEntry(towfishHandleTime);
       }
 
@@ -178,25 +181,25 @@ public final class TowfishModule extends SimplePingModule {
             return null;
          }
 
-         long vesselTimeMillis = vesselPing.getTimeInMillis();
-         long correctedVesselTimeMillis = vesselTimeMillis - towFishEchosounderAddition;
-         long correspondingTowfishTime = towfishMetaData.getCorrespondingTowfishTime(correctedVesselTimeMillis);
+         Instant vesselTime = vesselPing.getInstant();
+         Instant correctedVesselTime = vesselTime.minus(towFishEchosounderAddition);
+         Instant correspondingTowfishTime = towfishMetaData.getCorrespondingTowfishTime(correctedVesselTime);
 
-         while (lastTowfishPing != null && correspondingTowfishTime > lastTowfishPing.getTimeInMillis()) {
+         while (lastTowfishPing != null && correspondingTowfishTime.isAfter(lastTowfishPing.getInstant())) {
             Ping towfishPing = towfishPingReader.nextPing(getAsyncHandle()); //read towfish ping corresponding to position of vessel ping
             beforeLastTowfishPing = lastTowfishPing;
             lastTowfishPing = towfishPing;
          }
          // If both last and before-last still have a higher time-stamp than correspondingTowfishTime, return null.
-         if (beforeLastTowfishPing != null && beforeLastTowfishPing.getTimeInMillis() > correspondingTowfishTime) {
+         if (beforeLastTowfishPing != null && beforeLastTowfishPing.getInstant().isAfter(correspondingTowfishTime)) {
             return null;
          }
 
          // Use the towfish ping with best time match.
-         Ping towfishPing = lastTowfishPing != null && beforeLastTowfishPing != null && Math.abs(correspondingTowfishTime - lastTowfishPing.getTimeInMillis()) < Math.abs(correspondingTowfishTime - beforeLastTowfishPing.getTimeInMillis())
+         Ping towfishPing = lastTowfishPing != null && beforeLastTowfishPing != null && Math.abs(correspondingTowfishTime.until(lastTowfishPing.getInstant(), ChronoUnit.MILLIS)) < Math.abs(correspondingTowfishTime.until(beforeLastTowfishPing.getInstant(), ChronoUnit.MILLIS))
                ? lastTowfishPing : beforeLastTowfishPing;
          if (towfishPing != null) {
-            float towfishDepth = towfishMetaData.getDepth(towfishPing.getTimeInMillis());
+            float towfishDepth = towfishMetaData.getDepth(towfishPing.getInstant());
             PingIndex pingIndex = towfishPing.getPingIndex();
             if (!pingIndex.equals(lastUsedTowfishPingIndex)) {
                addToTransducerDepth(towfishPing, towfishDepth);
@@ -210,7 +213,7 @@ public final class TowfishModule extends SimplePingModule {
          return towfishPing;
       }
 
-      private void setTowfishSegment(Map.@Nullable Entry<Long, SegmentHandle> towfishSegmentHandle) throws IOException {
+      private void setTowfishSegment(Map.@Nullable Entry<Instant, SegmentHandle> towfishSegmentHandle) throws IOException {
          if (towfishSegmentHandle != null) {
             towfishHandleTime = towfishSegmentHandle.getKey();
             if (towfishPingReader != null) {

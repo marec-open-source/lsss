@@ -182,10 +182,10 @@ public final class KoronaModulePlugin extends ModulePlugin {
                   "Masks out values on all channels if some channels are too weak or too strong");
 
       moduleInfoCollector.group("I/O")
-            .add(ModuleInfo.State.BETA, CategorizationNetcdfReaderModule.class, new Name("CategorizationNetcdfReaderModule", "Categorization NetCDF reader (beta)"),
+            .add(ModuleInfo.State.BETA, CategorizationNetcdfReaderModule.class, new Name("CategorizationNetcdfReaderModule", "Categorization netCDF reader (beta)"),
                   Set.of(ModuleCategory.NO_MODIFICATION),
                   "Reads categorization data from a .nc file")
-            .add(ModuleInfo.State.BETA, CategorizationNetcdfWriterModule.class, new Name("CategorizationNetcdfWriterModule", "Categorization NetCDF writer (beta)"),
+            .add(ModuleInfo.State.BETA, CategorizationNetcdfWriterModule.class, new Name("CategorizationNetcdfWriterModule", "Categorization netCDF writer (beta)"),
                   Set.of(ModuleCategory.NO_MODIFICATION),
                   "Writes categorization data to a .nc file")
             .add(ModuleInfo.State.BETA, NetcdfWriterModule.class, new Name("NetcdfWriterModule", "NetCDF writer (beta)"),

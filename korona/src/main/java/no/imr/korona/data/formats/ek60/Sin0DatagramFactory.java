@@ -14,7 +14,7 @@ final class Sin0DatagramFactory {
    }
 
    static RawFileConfiguration createRawFileConfiguration(Sin0Datagram sin0Datagram, Ver0Datagram ver0Datagram, Phy0Datagram phy0Datagram) {
-      RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(sin0Datagram.getNTDate());
+      RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(sin0Datagram.getInstant());
       rawFileConfiguration.setSurveyName("SIN0 Survey ???");
       rawFileConfiguration.setTransectName("SIN0 Transect ???");
       rawFileConfiguration.setSounderName(ver0Datagram.productName);

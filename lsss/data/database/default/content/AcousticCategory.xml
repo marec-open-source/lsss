@@ -67,6 +67,7 @@
    <i nation="0" platform="0" acousticCategory="76" composite="0" initials="ME/PL" englishInitials="Me/Pl" commonName="Mesopelagisk fisk, Plankton" englishName="Mesopelagic, Plankton"/>
    <i nation="0" platform="0" acousticCategory="77" composite="0" initials="KRILL" englishInitials="KRILL" commonName="Krill (euphausiids)" englishName="Krill (euphausiids)"/>
    <i nation="0" platform="0" acousticCategory="100" composite="0" initials="TOTAL" englishInitials="TOTAL" commonName="Total" englishName="Total"/>
+   <i nation="0" platform="0" acousticCategory="120" composite="0" initials="CLU" englishInitials="CLU" commonName="Clupeidae" englishName="Clupeidae"/>
    <i nation="0" platform="0" acousticCategory="701" composite="0" initials="MESO1" englishInitials="MESO1" commonName="Mesopelagisk fisk 1" englishName="Mesopelagic fish 1"/>
    <i nation="0" platform="0" acousticCategory="702" composite="0" initials="MESO2" englishInitials="MESO2" commonName="Mesopelagisk fisk 2" englishName="Mesopelagic fish 2"/>
    <i nation="0" platform="0" acousticCategory="703" composite="0" initials="MESO3" englishInitials="MESO3" commonName="Mesopelagisk fisk 3" englishName="Mesopelagic fish 3"/>
@@ -116,6 +117,7 @@
    <i nation="0" platform="0" acousticCategory="5843" composite="0" initials="HAI" englishInitials="SHARK" commonName="Hai" englishName="Shark"/>
    <i nation="0" platform="0" acousticCategory="5844" composite="0" initials="OREO" englishInitials="OREO" commonName="Oreo dories" englishName="Oreo dories"/>
    <i nation="0" platform="0" acousticCategory="5845" composite="0" initials="ULYSI" englishInitials="JHAKE" commonName="Ung lysing" englishName="Young hake"/>
+   <i nation="0" platform="0" acousticCategory="6000" composite="0" initials="TARE1" englishInitials="TARE1" commonName="Tare" englishName="Kelp"/>
    <i nation="0" platform="0" acousticCategory="6001" composite="0" initials="BLUEF" englishInitials="BLUEF" commonName="Bluefish" englishName="Bluefish"/>
    <i nation="0" platform="0" acousticCategory="6002" composite="0" initials="MHMAC" englishInitials="MHMAC" commonName="Middelhav taggmakrell" englishName="Mediterranean horse mackerel"/>
    <i nation="0" platform="0" acousticCategory="6003" composite="0" initials="RMULL" englishInitials="RMULL" commonName="Red mullet" englishName="Red mullet"/>
@@ -126,4 +128,7 @@
    <i nation="0" platform="0" acousticCategory="6008" composite="0" initials="AMFI" englishInitials="AMPHI" commonName="Amfipoder" englishName="Amphipods"/>
    <i nation="0" platform="0" acousticCategory="6009" composite="0" initials="MTOB" englishInitials="PSAND" commonName="Muligens tobis" englishName="Possible sandeel"/>
    <i nation="0" platform="0" acousticCategory="6010" composite="0" initials="0TOB" englishInitials="0SAND" commonName="0 gruppe tobis" englishName="0 group sandeel"/>
+   <i nation="0" platform="0" acousticCategory="6011" composite="0" initials="TARE2" englishInitials="TARE2" commonName="Tare" englishName="Kelp"/>
+   <i nation="0" platform="0" acousticCategory="6012" composite="0" initials="TARE3" englishInitials="TARE3" commonName="Tare" englishName="Kelp"/>
+   <i nation="0" platform="0" acousticCategory="6013" composite="0" initials="SCADS" englishInitials="SCADS" commonName="Hestmakrell" englishName="Arabian and Indian scads"/>
 </AcousticCategory>

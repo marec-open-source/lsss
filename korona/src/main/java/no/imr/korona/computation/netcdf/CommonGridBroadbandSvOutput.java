@@ -1,11 +1,12 @@
 package no.imr.korona.computation.netcdf;
 
 import no.imr.korona.computation.broadband.BroadbandSvByFrequency;
-import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.items.channel.BroadbandData;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.tools.math.ArrayMath;
+import no.imr.tools.netcdf.NcBuild;
 import no.imr.tools.netcdf.NcWrite;
+import no.imr.tools.netcdf.NetcdfUtils;
 import no.imr.tools.range.FloatRange;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
@@ -17,7 +18,7 @@ import ucar.nc2.write.NetcdfFormatWriter;
 import java.io.IOException;
 import java.util.List;
 
-final class CommonGridBroadbandSvOutput extends CommonGridOutput {
+final class CommonGridBroadbandSvOutput implements CommonGridOutput {
    private final float fftWindowSizeInPulseLengths;
    private final FloatRange totalFrequencyRange;
    private final float deltaFrequency;
@@ -31,47 +32,30 @@ final class CommonGridBroadbandSvOutput extends CommonGridOutput {
    }
 
    @Override
-   void addVariables(Group.Builder builder, Dimension frequencyDim, Dimension pingTimeDim, Dimension rangeDim) {
-      Dimension broadbandFrequencyDim = NcWrite.addDimension(builder, Nc.BROADBAND_FREQUENCY, broadbandFrequencyLength);
+   public PingByPingBuilder createBuilder(NcConfig ncConfig, RangeConfig rangeConfig, Group.Builder groupBuilder, Dimension frequencyDim, Dimension pingTimeDim, Dimension rangeDim) {
+      Dimension broadbandFrequencyDim = NcBuild.addDimension(groupBuilder, Nc.BROADBAND_FREQUENCY, broadbandFrequencyLength);
+      groupBuilder.addVariable(NcBuild.floatVariable(Nc.BROADBAND_FREQUENCY, List.of(broadbandFrequencyDim)));
+      groupBuilder.addVariable(NcBuild.floatVariable(Nc.BROADBAND_SV, List.of(pingTimeDim, rangeDim, broadbandFrequencyDim)));
 
-      NcWrite.addFloatVariable(builder, Nc.BROADBAND_FREQUENCY, List.of(broadbandFrequencyDim), List.of());
-      NcWrite.addFloatVariable(builder, Nc.BROADBAND_SV, List.of(pingTimeDim, rangeDim, broadbandFrequencyDim), List.of());
+      return (writer, group) -> {
+         writeUpFront(writer, group);
+         return createPingByPingWriter(writer, group, ncConfig, rangeConfig);
+      };
    }
 
-   @Override
-   CommonGridOutputWriter createWriter(NcGridWriter ncGridWriter) throws InvalidRangeException, IOException {
-      return new CommonGridBroadbandSvWriter(ncGridWriter, this);
-   }
-
-   private static final class CommonGridBroadbandSvWriter extends CommonGridOutputWriter {
-      private final NcGridWriter ncGridWriter;
-      private final CommonGridBroadbandSvOutput broadbandSvOutput;
-      private final NetcdfFormatWriter writer;
-
-      private final Variable broadbandSvVar;
-
-      private CommonGridBroadbandSvWriter(NcGridWriter ncGridWriter, CommonGridBroadbandSvOutput broadbandSvOutput) throws InvalidRangeException, IOException {
-         this.ncGridWriter = ncGridWriter;
-         this.broadbandSvOutput = broadbandSvOutput;
-         writer = ncGridWriter.getWriter();
-
-         Variable broadbandFrequencyVar = ncGridWriter.findVariable(Nc.BROADBAND_FREQUENCY);
-         broadbandSvVar = ncGridWriter.findVariable(Nc.BROADBAND_SV);
-
-         float[] broadbandFrequencies = new float[broadbandSvOutput.broadbandFrequencyLength];
-         for (int i = 0; i < broadbandFrequencies.length; i++) {
-            broadbandFrequencies[i] = broadbandSvOutput.totalFrequencyRange.min() + i * broadbandSvOutput.deltaFrequency;
-         }
-         writer.write(broadbandFrequencyVar, new int[]{0}, Array.makeFromJavaArray(broadbandFrequencies));
+   private void writeUpFront(NetcdfFormatWriter writer, Group group) throws IOException, InvalidRangeException {
+      float[] broadbandFrequencies = new float[broadbandFrequencyLength];
+      for (int i = 0; i < broadbandFrequencies.length; i++) {
+         broadbandFrequencies[i] = totalFrequencyRange.min() + i * deltaFrequency;
       }
+      writer.write(NetcdfUtils.findVariable(group, Nc.BROADBAND_FREQUENCY), Array.makeFromJavaArray(broadbandFrequencies));
+   }
 
-      @Override
-      void write(Ping ping, int pingTimeIndex) throws InvalidRangeException, IOException {
-         int rangeLength = ncGridWriter.getRangeLength();
-         float deltaRange = ncGridWriter.getDeltaRange();
-         int channelCount = ncGridWriter.getChannelIndexToNetcdfFrequencyIndex().length;
+   private PingByPingWriter createPingByPingWriter(NetcdfFormatWriter writer, Group group, NcConfig ncConfig, RangeConfig rangeConfig) throws IOException {
+      Variable broadbandSvVar = NetcdfUtils.findVariable(group, Nc.BROADBAND_SV);
 
-         for (int channelIndex = 0; channelIndex < channelCount; channelIndex++) {
+      return (ping, pingTimeIndex) -> {
+         for (int channelIndex = 0; channelIndex < ncConfig.channelCount; channelIndex++) {
             BroadbandData broadbandData = ping.getBroadbandData(channelIndex + 1);
             if (broadbandData == null) {
                continue;
@@ -80,10 +64,10 @@ final class CommonGridBroadbandSvOutput extends CommonGridOutput {
 
             FloatRange frequencyRange = broadbandData.getFrequencyRange();
             float pulseLength = broadbandData.getSoundVelocity() * broadbandData.getPulseDuration();
-            float fftWindowRadius = broadbandSvOutput.fftWindowSizeInPulseLengths * pulseLength / 2;
+            float fftWindowRadius = fftWindowSizeInPulseLengths * pulseLength / 2;
 
-            for (int iRange = 0; iRange < rangeLength; iRange++) {
-               float centerRange = (iRange + 0.5f) * deltaRange;
+            for (int iRange = 0; iRange < rangeConfig.length(); iRange++) {
+               float centerRange = rangeConfig.centerRange(iRange);
                float minRange = centerRange - fftWindowRadius;
                int iBegin = broadbandData.rangeToSampleIndex(minRange);
                if (iBegin < 0) {
@@ -95,14 +79,13 @@ final class CommonGridBroadbandSvOutput extends CommonGridOutput {
                   break;
                }
                float[] sv = broadbandSvByFrequency.calculate(iBegin, iEnd, frequencyRange);
-               OffsetValues resampledSv = OffsetValues.resample(sv, frequencyRange, broadbandSvOutput.totalFrequencyRange, broadbandSvOutput.broadbandFrequencyLength);
+               OffsetValues resampledSv = OffsetValues.resample(sv, frequencyRange, totalFrequencyRange, broadbandFrequencyLength);
                if (resampledSv != null) {
                   ArrayMath.divide(resampledSv.values(), PowerData.IMR_CONSTANT);
-                  writer.write(broadbandSvVar, new int[]{pingTimeIndex, iRange, resampledSv.offset()},
-                        Array.makeFromJavaArray(new float[][][]{{resampledSv.values()}}));
+                  NcWrite.floatD3(writer, broadbandSvVar, pingTimeIndex, iRange, resampledSv.offset(), resampledSv.values());
                }
             }
          }
-      }
+      };
    }
 }

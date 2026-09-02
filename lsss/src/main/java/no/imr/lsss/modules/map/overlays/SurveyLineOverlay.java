@@ -64,7 +64,7 @@ public final class SurveyLineOverlay extends BaseMapOverlay {
    }
 
    private @Nullable PingIndex getClosestPingIndex(MouseEvent mouseEvent) {
-      if (!(getDisplayData() instanceof DisplayData displayData)) {
+      if (!(getUnwrappedDisplayData() instanceof DisplayData displayData)) {
          return null;
       }
       return displayData.surveyLineBuilder.getClosestPingIndex(mouseEvent.getPoint());
@@ -120,10 +120,10 @@ public final class SurveyLineOverlay extends BaseMapOverlay {
       if (surveyLineBuilder.isEmpty() && extendedSurveyLineBuilder.isEmpty()) {
          return null;
       }
-      return new DisplayData(getLSSS(), surveyLineBuilder, extendedSurveyLineBuilder);
+      return transformed(new DisplayData(getLSSS(), surveyLineBuilder, extendedSurveyLineBuilder));
    }
 
-   private final class DisplayData extends TransformedDisplayData {
+   private static final class DisplayData implements OverlayDisplayData {
       private final SurveyLineBuilder surveyLineBuilder;
       private final Path2D pingRangePath = new Path2D.Float();
       private final Path2D pingRangeExcludedPath = new Path2D.Float();
@@ -171,7 +171,7 @@ public final class SurveyLineOverlay extends BaseMapOverlay {
       }
 
       @Override
-      public void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          g2d.setColor(STORED_COLOR);
          g2d.setStroke(thinStrokes ? GuiUtils.STROKE_1 : GuiUtils.STROKE_2);
          g2d.draw(storedPath);

@@ -4,38 +4,33 @@ import no.imr.tools.database.ConnectionType;
 import no.imr.tools.database.JavaDBUtils;
 import no.imr.tools.parameter.Name;
 import org.hibernate.cfg.Configuration;
-import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 public final class JavaDBFileDatabasePlugin extends NoGuiDatabasePlugin {
-   private @Nullable Path dir;
-   private @Nullable String databaseName;
+   private final Path dir;
+   private final String databaseName;
 
-   public JavaDBFileDatabasePlugin(Name name) {
+   public JavaDBFileDatabasePlugin(Name name, Path dir, String databaseName) {
       super(name);
-   }
 
-   public void setDir(Path dir) {
       this.dir = dir;
-   }
-
-   public void setDatabaseName(String databaseName) {
       this.databaseName = databaseName;
    }
 
    @Override
    public Configuration getConfiguration(ConnectionType connectionType) {
-      if (dir == null || databaseName == null) {
-         throw new IllegalStateException();
-      }
       return JavaDBUtils.createConfiguration(dir, databaseName, connectionType);
    }
 
    @Override
+   public void prepareToConnect(ConnectionType connectionType) throws IOException {
+      JavaDBUtils.prepareToConnect(connectionType, dir, databaseName);
+   }
+
+   @Override
    public void shutDown() {
-      if (dir != null && databaseName != null) {
-         JavaDBUtils.shutDown(dir, databaseName);
-      }
+      JavaDBUtils.shutDown(dir, databaseName);
    }
 }

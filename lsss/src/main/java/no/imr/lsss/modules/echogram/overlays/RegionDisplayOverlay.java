@@ -280,7 +280,7 @@ public final class RegionDisplayOverlay extends BaseEchogramOverlay {
       }
    }
 
-   private final class DisplayData extends OverlayDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private final Path2D.Float selectedBoundaryPath = new Path2D.Float();
       private final Path2D.Float unselectedBoundaryPath = new Path2D.Float();
       private final Path2D.Float connectorPath = new Path2D.Float();

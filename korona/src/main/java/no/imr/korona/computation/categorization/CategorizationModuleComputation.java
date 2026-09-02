@@ -10,6 +10,7 @@ import no.imr.korona.computation.offset.TransducerRangesFileService;
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingConfiguration;
 import no.imr.korona.data.ping.PingSource;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
 import no.imr.tools.xml.XmlUtils;
@@ -46,7 +47,7 @@ public final class CategorizationModuleComputation extends GeneralPingModuleComp
       }
       Category blindZoneCategory = configurator.getSpecialCategory(Configurator.BLIND_ZONE_CATEGORY_NAME);
       if (blindZoneCategory.isActive()) {
-         int kHz = Utils.hzToKHz(configurator.getReferenceFrequency());
+         int kHz = KoronaUtils.hzToKHz(configurator.getReferenceFrequency());
          Optional<Float> blindZone = transducerParameterManager.getBlindZone(kHz);
          if (blindZone.isEmpty()) {
             throw new ModuleConfigurationException(module, "No range configured for " + kHz + " kHz in file " + transducerRangesFile);

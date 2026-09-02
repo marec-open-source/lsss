@@ -10,8 +10,8 @@ import no.imr.korona.data.ping.PingSource;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.ShouldNotHappenException;
-import no.imr.tools.Utils;
 import no.imr.tools.compile.CompileException;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ final class ExpressionModuleComputation extends ConcurrentPingModuleComputation 
       int[] kHz = new int[oldRawFileConfiguration.getTransducerCount()];
       for (int channel = 1; channel <= kHz.length; channel++) {
          RawFileTransducer transducer = oldRawFileConfiguration.getTransducers().get(channel - 1);
-         kHz[channel - 1] = Utils.hzToKHz(transducer.getFrequency());
+         kHz[channel - 1] = KoronaUtils.hzToKHz(transducer.getFrequency());
       }
 
       resultChannel = oldRawFileConfiguration.getTransducerCount() + 1;

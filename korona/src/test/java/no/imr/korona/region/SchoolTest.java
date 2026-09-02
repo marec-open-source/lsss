@@ -10,7 +10,6 @@ import no.imr.korona.data.util.geometry.depth.IdentityDepthTransform;
 import no.imr.korona.data.util.mask.MaskOutlineTracer;
 import no.imr.korona.data.util.mask.MaskUtils;
 import no.imr.korona.test.data.ConstantSyntheticData;
-import no.imr.tools.CyclicList;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
 import no.imr.tools.test.JUnitUtils;
@@ -150,9 +149,9 @@ final class SchoolTest {
          mask = MaskUtils.fillHoles(mask, dataFileSet);
          // Now `mask` is a single connected mask without holes.
 
-         Set<CyclicList<EchogramPoint>> boundaries = MaskOutlineTracer.createBoundary(mask, dataFileSet);
+         Set<List<EchogramPoint>> boundaries = MaskOutlineTracer.createBoundary(mask, dataFileSet);
          assertEquals(1, boundaries.size());
-         CyclicList<EchogramPoint> boundary = boundaries.iterator().next();
+         List<EchogramPoint> boundary = boundaries.iterator().next();
          NavigableMap<PingIndex, FloatRangeSet> maskForBoundary = MaskOutlineTracer.createMaskForSingleBoundary(boundary);
 
          assertEquals(mask, maskForBoundary);

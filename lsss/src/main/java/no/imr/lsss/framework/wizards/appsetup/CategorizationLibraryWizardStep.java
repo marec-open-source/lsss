@@ -49,9 +49,10 @@ final class CategorizationLibraryWizardStep extends WizardStep {
             .findFirst()
             .orElseThrow();
       FileParameter fileParameter = configFileWrapper.file;
-      ParameterEditor parameterEditor = new ParameterEditor(List.of(fileParameter));
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
-      parameterEditor.getGUIConfig().setInputFieldAlignment(GUIConfig.Alignment.LEFT);
+      ParameterEditor parameterEditor = new ParameterEditor(List.of(fileParameter), new GUIConfig()
+            .setHorizontalFill(true)
+            .setInputFieldAlignment(GUIConfig.Alignment.LEFT)
+      );
       gridBag.add(parameterEditor.getEditorComponent());
 
       gridBag.add(Box.createVerticalStrut(30));

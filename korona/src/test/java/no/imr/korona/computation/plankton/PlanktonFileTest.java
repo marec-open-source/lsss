@@ -1,11 +1,11 @@
 package no.imr.korona.computation.plankton;
 
 import no.imr.tools.range.RangeMap;
-import no.imr.tools.time.DateTimeMillis;
 import no.imr.tools.xml.XmlUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,10 +24,10 @@ final class PlanktonFileTest {
             """;
       PlanktonFile planktonFile = new PlanktonFile(XmlUtils.readDocument(s));
 
-      assertEquals(0, planktonFile.getDepthMap("test", toMillis(20060101, 123458)).size());
-      assertEquals(0, planktonFile.getDepthMap("test", toMillis(20060101, 131400)).size());
+      assertEquals(0, planktonFile.getDepthMap("test", Instant.parse("2006-01-01T12:34:58Z")).size());
+      assertEquals(0, planktonFile.getDepthMap("test", Instant.parse("2006-01-01T13:14:00Z")).size());
 
-      RangeMap<Float, PlanktonRectangle> planktonRectangleMap = planktonFile.getDepthMap("test", toMillis(20060101, 125959));
+      RangeMap<Float, PlanktonRectangle> planktonRectangleMap = planktonFile.getDepthMap("test", Instant.parse("2006-01-01T12:59:59Z"));
       assertEquals(1, planktonRectangleMap.size());
       assertNull(planktonRectangleMap.get(0.99f));
       PlanktonRectangle planktonRectangle = planktonRectangleMap.get(1f);
@@ -40,7 +40,7 @@ final class PlanktonFileTest {
    @Test
    void testB() throws IOException {
       String s = """
-            <plankton>
+            <plankton sizeFactor='10'>
                <model name='test' use='true'>
                   <sizes>1 0 9</sizes>
                </model>
@@ -61,17 +61,13 @@ final class PlanktonFileTest {
             """;
       PlanktonFile planktonFile = new PlanktonFile(XmlUtils.readDocument(s));
 
-      assertArrayEquals(new double[]{1, 9}, Objects.requireNonNull(planktonFile.getDepthMap("test", toMillis(20060101, 123458)).get(1f)).getSizeHistogram().getDividers());
-      assertArrayEquals(new double[]{3, 9}, Objects.requireNonNull(planktonFile.getDepthMap("test", toMillis(20060101, 123459)).get(1f)).getSizeHistogram().getDividers());
-      assertArrayEquals(new double[]{1, 9}, Objects.requireNonNull(planktonFile.getDepthMap("test", toMillis(20060101, 131400)).get(1f)).getSizeHistogram().getDividers());
+      assertArrayEquals(new double[]{10, 90}, Objects.requireNonNull(planktonFile.getDepthMap("test", Instant.parse("2006-01-01T12:34:58Z")).get(1f)).getSizeHistogram().getDividers());
+      assertArrayEquals(new double[]{30, 90}, Objects.requireNonNull(planktonFile.getDepthMap("test", Instant.parse("2006-01-01T12:34:59Z")).get(1f)).getSizeHistogram().getDividers());
+      assertArrayEquals(new double[]{10, 90}, Objects.requireNonNull(planktonFile.getDepthMap("test", Instant.parse("2006-01-01T13:14:00Z")).get(1f)).getSizeHistogram().getDividers());
 
-      assertArrayEquals(new double[]{1, 9}, Objects.requireNonNull(planktonFile.getDepthMap("test", toMillis(20060101, 123459)).get(0f)).getSizeHistogram().getDividers());
-      assertArrayEquals(new double[]{3, 9}, Objects.requireNonNull(planktonFile.getDepthMap("test", toMillis(20060101, 123459)).get(1f)).getSizeHistogram().getDividers());
-      assertArrayEquals(new double[]{4, 9}, Objects.requireNonNull(planktonFile.getDepthMap("test", toMillis(20060101, 123459)).get(10f)).getSizeHistogram().getDividers());
-      assertArrayEquals(new double[]{1, 9}, Objects.requireNonNull(planktonFile.getDepthMap("test", toMillis(20060101, 123459)).get(100f)).getSizeHistogram().getDividers());
-   }
-
-   private static long toMillis(int date, int time) {
-      return DateTimeMillis.toMillis(date, time * 1000);
+      assertArrayEquals(new double[]{10, 90}, Objects.requireNonNull(planktonFile.getDepthMap("test", Instant.parse("2006-01-01T12:34:59Z")).get(0f)).getSizeHistogram().getDividers());
+      assertArrayEquals(new double[]{30, 90}, Objects.requireNonNull(planktonFile.getDepthMap("test", Instant.parse("2006-01-01T12:34:59Z")).get(1f)).getSizeHistogram().getDividers());
+      assertArrayEquals(new double[]{40, 90}, Objects.requireNonNull(planktonFile.getDepthMap("test", Instant.parse("2006-01-01T12:34:59Z")).get(10f)).getSizeHistogram().getDividers());
+      assertArrayEquals(new double[]{10, 90}, Objects.requireNonNull(planktonFile.getDepthMap("test", Instant.parse("2006-01-01T12:34:59Z")).get(100f)).getSizeHistogram().getDividers());
    }
 }

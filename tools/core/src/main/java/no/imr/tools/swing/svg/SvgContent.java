@@ -18,8 +18,8 @@ import java.net.URL;
 
 public final class SvgContent {
    private final GraphicsNode node;
-   public final double width;
-   public final double height;
+   private final double width;
+   private final double height;
 
    public SvgContent(URL url) {
       Document document;
@@ -35,6 +35,14 @@ public final class SvgContent {
       Dimension2D size = bridgeContext.getDocumentSize();
       width = size.getWidth();
       height = size.getHeight();
+   }
+
+   public double getWidth() {
+      return width;
+   }
+
+   public double getHeight() {
+      return height;
    }
 
    public BufferedImage toImage(double imageWidth, double imageHeight) {

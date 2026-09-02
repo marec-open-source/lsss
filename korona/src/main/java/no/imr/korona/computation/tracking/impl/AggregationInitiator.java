@@ -62,15 +62,20 @@ public final class AggregationInitiator implements Initiator {
       double range = 0;
       double along = 0;
       double athwart = 0;
-      double ts = 0;
+      double tsc = 0;
       for (TargetCandidate targetCandidate : targetCandidates) {
          Measurement m = targetCandidate.getMeasurement();
          range += m.range();
-         along += m.alongshipAngle();
-         athwart += m.athwartshipAngle();
-         ts += m.ts();
+         along += m.alongshipAngleRad();
+         athwart += m.athwartshipAngleRad();
+         tsc += m.tsc();
       }
       int n = targetCandidates.size();
-      return new Measurement((float) range / n, (float) along / n, (float) athwart / n, (float) ts / n);
+      return new Measurement(
+            (float) range / n,
+            (float) along / n,
+            (float) athwart / n,
+            (float) tsc / n
+      );
    }
 }

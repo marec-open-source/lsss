@@ -1,6 +1,5 @@
 package no.imr.korona.data.ping;
 
-import no.imr.tools.time.NTDate;
 import no.marec.lsss.api.util.GeoPoint;
 import org.jspecify.annotations.Nullable;
 
@@ -40,29 +39,8 @@ public interface PingIndex extends PingMappingArgument, Comparable<PingIndex>, n
     */
    void setVesselDistance(double vesselDistance);
 
-   /**
-    * Returns the time of this ping in NT format.
-    *
-    * @return date in NT format
-    */
-   default long getNTDate() {
-      return NTDate.timeInMillisToNTDate(getTimeInMillis());
-   }
-
-   /**
-    * Returns the time of this ping in milliseconds since epoch.
-    *
-    * @return the time of this ping in milliseconds since epoch
-    */
    @Override
-   default long getTimeInMillis() {
-      return NTDate.ntDateToTimeInMillis(getNTDate());
-   }
-
-   @Override
-   default Instant getInstant() {
-      return Instant.ofEpochMilli(getTimeInMillis());
-   }
+   Instant getInstant();
 
    /**
     * Returns the latitude and longitude of this ping index.

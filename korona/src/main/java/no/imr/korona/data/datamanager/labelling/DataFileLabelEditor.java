@@ -80,9 +80,6 @@ public final class DataFileLabelEditor {
       SwingUtilities.invokeLater(focusedComponent::requestFocusInWindow);
       boolean ok = new ConfigurableGUIDialog(referenceComponent, dialogTitle, new ParameterCollection(parameters))
             .setCloseOnOk(() -> {
-               if (!parameterEditor.commitEdits()) {
-                  return false;
-               }
                if (title.getValue().isEmpty()) {
                   JComponent titleInput = parameterEditor.getInputComponent(title);
                   JOptionPane.showMessageDialog(titleInput, "Title cannot be empty.");

@@ -24,8 +24,8 @@ final class DisplayRunner {
    private final PingSource pingSource;
    private final Executor executor = new SerialExecutor(Exec.CACHED_THREAD_POOL);
    private AsyncHandle asyncHandle = new AsyncHandle();
-   private boolean running;
-   private boolean endOfInput;
+   private volatile boolean running;
+   private volatile boolean endOfInput;
 
    DisplayRunner(KoronaPlaybox koronaPlaybox, PingSource pingSource) {
       this.koronaPlaybox = koronaPlaybox;
@@ -78,9 +78,11 @@ final class DisplayRunner {
             endOfInput = true;
             break;
          }
-         realtimeSyncer.sync(ping.getTimeInMillis(), koronaPlaybox.getRealtimeFactor(), koronaPlaybox.isFullSpeed());
+         realtimeSyncer.sync(asyncHandle, ping.getInstant(), koronaPlaybox.getRealtimeFactor(), koronaPlaybox.isFullSpeed());
          SwingUtilities.invokeLater(() -> {
-            koronaPlaybox.displayRunnerTime(ping.getInstant());
+            if (!asyncHandle.isCancelled()) {
+               koronaPlaybox.displayRunnerTime(ping.getInstant());
+            }
          });
       }
       Log.global.info("Processing for " + stopwatch.seconds() + " seconds");

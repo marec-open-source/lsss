@@ -19,6 +19,8 @@ final class ExpressionApplierTest {
             "F200 + C1+ C4 - F200 * F18",
             "(((F34) * (-(5)) + 7) )",
             "sqrt(F18)",
+            "C" + Integer.MAX_VALUE,
+            "F" + Integer.MAX_VALUE,
       };
       for (String s : validExpressions) {
          try {
@@ -38,6 +40,8 @@ final class ExpressionApplierTest {
             "C0",
             "x + y",
             "0.5*(F38 + F120",
+            "C" + (Integer.MAX_VALUE + 1L),
+            "F" + (Integer.MAX_VALUE + 1L),
       };
       for (String s : invalidExpressions) {
          assertThrows(CompileException.class, () -> new ExpressionApplier(s, kHz, 1), s);

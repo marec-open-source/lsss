@@ -105,7 +105,7 @@ public final class DepthMarkerEngine extends ConcurrentObject implements Paramet
       changeManager.notifyListeners(Optional.of(displayData));
    }
 
-   private final class DisplayData extends OverlayDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private final DepthMarkerData depthMarkerData;
 
       private DisplayData(DepthMarkerData depthMarkerData) {

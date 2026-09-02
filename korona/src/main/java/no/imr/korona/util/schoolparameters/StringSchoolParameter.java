@@ -18,7 +18,7 @@ public class StringSchoolParameter extends SimpleSchoolParameter {
    }
 
    @Override
-   public String getXmlValue() {
+   protected String getXmlValue() {
       return value;
    }
 

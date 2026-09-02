@@ -18,7 +18,9 @@ import no.imr.tools.plot.ExportTransform;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.function.ToDoubleFunction;
 
 public final class NoiseXmlFunction extends PingFunction {
@@ -26,8 +28,8 @@ public final class NoiseXmlFunction extends PingFunction {
    private @Nullable InterpretationSettings interpretationSettings;
    private @Nullable Path noiseXml;
    private @Nullable NoiseFile noiseFile;
-   private long lastModified;
-   private long nextCheckTime;
+   private @Nullable Instant lastModified;
+   private Instant nextCheckTime = Instant.now();
 
    private NoiseXmlFunction(Name name, Unit unit, ExportTransform exportTransform, ToDoubleFunction<NoiseFile.NoiseData> function) {
       super(name, unit, exportTransform, true);
@@ -47,35 +49,35 @@ public final class NoiseXmlFunction extends PingFunction {
       if (dataFileSet.isEmpty()) {
          noiseXml = null;
          noiseFile = null;
-         lastModified = 0;
+         lastModified = null;
       } else {
          RawFileConfiguration rawFileConfiguration = dataFileSet.getRawFileConfiguration();
          noiseXml = rawFileConfiguration.getDataFile().resolveSibling(NoiseQuantificationModule.NOISE_XML);
          noiseFile = new NoiseFile(rawFileConfiguration, noiseXml, Integer.MAX_VALUE);
-         lastModified = FileUtils.lastModifiedOr0(noiseXml);
+         lastModified = FileUtils.lastModifiedOrNull(noiseXml);
       }
       getChangeManager().notifyListeners();
    }
 
    private void checkForUpdate() {
-      nextCheckTime = System.currentTimeMillis() + 2000;
+      nextCheckTime = Instant.now().plusSeconds(2);
       if (noiseXml == null) {
          return;
       }
-      if (lastModified != FileUtils.lastModifiedOr0(noiseXml)) {
+      if (!Objects.equals(lastModified, FileUtils.lastModifiedOrNull(noiseXml))) {
          readNoiseXml();
       }
    }
 
    @Override
    public double compute(DataFileSet dataFileSet, Ping ping, int channel) {
-      if (System.currentTimeMillis() > nextCheckTime) {
+      if (Instant.now().isAfter(nextCheckTime)) {
          checkForUpdate();
       }
       if (noiseFile == null) {
          return Double.NaN;
       }
-      NavigableMap<Integer, NoiseFile.NoiseData> noiseMapForTime = noiseFile.timeToNoiseMap(ping.getTimeInMillis());
+      NavigableMap<Integer, NoiseFile.NoiseData> noiseMapForTime = noiseFile.timeToNoiseMap(ping.getInstant());
       RawFileTransducer transducer = ping.getRawFileConfiguration().getTransducers().get(channel - 1);
       int kHz = transducer.getKHz();
       NoiseFile.NoiseData noiseData = noiseMapForTime.get(kHz);

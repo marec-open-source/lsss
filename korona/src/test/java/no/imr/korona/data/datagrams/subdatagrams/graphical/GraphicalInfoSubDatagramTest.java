@@ -4,10 +4,12 @@ import no.imr.korona.data.datagrams.DatagramFormatException;
 import no.imr.korona.data.datagrams.DatagramType;
 import no.imr.korona.data.datagrams.DatagramTypeManager;
 import no.imr.korona.data.datagrams.LsssDatagram;
+import no.imr.tools.time.NTDate;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 final class GraphicalInfoSubDatagramTest {
    @Test
    void testSerialization() throws DatagramFormatException {
-      GraphicalInfoSubDatagram graphicalInfoSubDatagram = new GraphicalInfoSubDatagram(0);
+      GraphicalInfoSubDatagram graphicalInfoSubDatagram = new GraphicalInfoSubDatagram(Instant.EPOCH);
       List<EchogramOffsetPoint> points = List.of(
             new EchogramOffsetPoint(10, 20),
             new EchogramOffsetPoint(0, 20),
@@ -36,7 +38,7 @@ final class GraphicalInfoSubDatagramTest {
       DatagramType datagramType = datagramTypeManager.getDatagramType(intCode);
       assertEquals(LsssDatagram.TYPE, datagramType);
       long ntDate = byteBuffer.getLong();
-      LsssDatagram lsssDatagramFromByteBuffer = new LsssDatagram(ntDate, byteBuffer, datagramTypeManager);
+      LsssDatagram lsssDatagramFromByteBuffer = new LsssDatagram(NTDate.ntDateToInstant(ntDate), byteBuffer, datagramTypeManager);
       assertEquals(0, byteBuffer.remaining());
 
       testEquals(graphicalInfoSubDatagram, (GraphicalInfoSubDatagram) lsssDatagramFromByteBuffer.getSubDatagram());

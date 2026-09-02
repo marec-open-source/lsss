@@ -71,16 +71,17 @@ final class TrackEditingTest {
 
    private static final class TestSyntheticData extends ConstantSyntheticData {
       @Override
-      protected void addOtherDatagrams(PingIndex pingIndex, PingData pingData) {
+      public void addOtherDatagrams(PingIndex pingIndex, PingData pingData) {
          long pingNumber = pingIndex.getPingNumber();
          if (pingNumber >= 15 && pingNumber <= 19) {
-            pingData.add(new TBR0Datagram(pingIndex.getNTDate(), 0, 1, FloatRange.of(5, 10), 7));
+            pingData.add(new TBR0Datagram(pingIndex.getInstant(), 0, 1, FloatRange.of(5, 10), 7));
          }
          if (pingNumber == 20) {
-            pingData.add(new TNF0Datagram(pingIndex.getNTDate(), 0, 1, true, 5, 1));
+            pingData.add(new TNF0Datagram(pingIndex.getInstant(), 0, 1, true, 5, 1));
          }
          if (pingNumber == 100) {
-            pingData.add(new TTC0Datagram(pingIndex.getNTDate(), new int[]{0}, new long[]{getNTDate(20)}));
+            pingData.add(new TTC0Datagram(pingIndex.getInstant(), new int[]{0},
+                  List.of(getInstant(20))));
          }
       }
    }

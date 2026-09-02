@@ -1,7 +1,6 @@
 package no.imr.korona.data.util;
 
 import no.imr.korona.data.ping.items.channel.PowerData;
-import no.imr.tools.Utils;
 
 public record ResampledBooleanArray(
       int offset,
@@ -39,7 +38,7 @@ public record ResampledBooleanArray(
       int resampledCount = (int) Math.ceil((powerDataToBeResampled.getMaxDepth() - powerDataToResampleTo.getSampleDepth(-offset)) / referenceSampleDistance);
       if (resampledCount <= 0 || values.length == 0) {
          //cannot resample
-         return new ResampledBooleanArray(0, Utils.EMPTY_BOOLEAN_ARRAY);
+         return new ResampledBooleanArray(0, new boolean[0]);
       }
       boolean[] resampledValues = new boolean[resampledCount];
 

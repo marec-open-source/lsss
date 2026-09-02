@@ -71,19 +71,19 @@ export function adaptContent(configService: ConfigService, element: HTMLElement,
       if (!href) {
          return;
       }
-      if (href.match('^https?:')) {
+      if (/^https?:/.test(href)) {
          return;
       }
-      if (href.match('^installed:')) {
+      if (href.startsWith('installed://')) {
          a.setAttribute('href', `api/file/${href.substring(12)}`);
          return;
       }
-      if (href.match('^help:')) {
+      if (href.startsWith('help://')) {
          const navItem = configService.helpRefToNavItem(href.substring(7));
          if (navItem) {
             a.setAttribute('href', configService.navItemToLink(navItem));
          } else {
-            console.log(`Invalid link from ${helpSet.id}/${pageId} to ${href}`);
+            console.error(`Invalid link from ${helpSet.id}/${pageId} to ${href}`);
          }
          return;
       }
@@ -92,7 +92,7 @@ export function adaptContent(configService: ConfigService, element: HTMLElement,
       if (navItem) {
          a.setAttribute('href', configService.navItemToLink(navItem));
       } else {
-         console.log(`Invalid link from ${helpSet.id}/${pageId} to ${href}`);
+         console.error(`Invalid link from ${helpSet.id}/${pageId} to ${href}`);
       }
    });
 }

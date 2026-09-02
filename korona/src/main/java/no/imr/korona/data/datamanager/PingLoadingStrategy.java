@@ -19,7 +19,7 @@ import java.util.Random;
 public enum PingLoadingStrategy {
    LEFT_TO_RIGHT {
       @Override
-      public void addNeededPings(@Nullable Ping[] availablePings, @Nullable PingIndex[] requiredPings, List<PingIndex> neededPings) {
+      void addNeededPings(@Nullable Ping[] availablePings, @Nullable PingIndex[] requiredPings, List<PingIndex> neededPings) {
          for (int i = 0; i < requiredPings.length; i++) {
             if (availablePings[i] == null) {
                PingIndex requiredPing = requiredPings[i];
@@ -33,7 +33,7 @@ public enum PingLoadingStrategy {
 
    RANDOM {
       @Override
-      public void addNeededPings(@Nullable Ping[] availablePings, @Nullable PingIndex[] requiredPings, List<PingIndex> neededPings) {
+      void addNeededPings(@Nullable Ping[] availablePings, @Nullable PingIndex[] requiredPings, List<PingIndex> neededPings) {
          LEFT_TO_RIGHT.addNeededPings(availablePings, requiredPings, neededPings);
          Collections.shuffle(neededPings);
       }
@@ -41,7 +41,7 @@ public enum PingLoadingStrategy {
 
    LONGEST_GAP_LEFT_TO_RIGHT {
       @Override
-      public void addNeededPings(@Nullable Ping[] availablePings, @Nullable PingIndex[] requiredPings, List<PingIndex> neededPings) {
+      void addNeededPings(@Nullable Ping[] availablePings, @Nullable PingIndex[] requiredPings, List<PingIndex> neededPings) {
          addNeededPingsByGap(availablePings, requiredPings, neededPings,
                Comparator.<Gap>comparingInt(gap -> -gap.size)
                      .thenComparingInt(gap -> gap.min));
@@ -50,7 +50,7 @@ public enum PingLoadingStrategy {
 
    LONGEST_GAP_RANDOM() {
       @Override
-      public void addNeededPings(@Nullable Ping[] availablePings, @Nullable PingIndex[] requiredPings, List<PingIndex> neededPings) {
+      void addNeededPings(@Nullable Ping[] availablePings, @Nullable PingIndex[] requiredPings, List<PingIndex> neededPings) {
          Random random = new Random();
          Map<Gap, Integer> randomValues = new HashMap<>();
          addNeededPingsByGap(availablePings, requiredPings, neededPings,
@@ -147,7 +147,7 @@ public enum PingLoadingStrategy {
       private Gap(int min, int max) {
          this.min = min;
          this.max = max;
-         size = max - min;
+         size = max - min + 1;
       }
    }
 }

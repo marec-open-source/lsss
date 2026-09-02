@@ -59,12 +59,12 @@ public final class NetcdfWriterModule extends SimplePingModule {
          "Output data in addition to the basic information");
 
    public final OptionalFloatParameter deltaRange = new OptionalFloatParameter(
-         new Name("DeltaRange", "Delta range"),
+         new Name("DeltaRange", "Delta range (range resolution)"),
          Optional.empty(), Unit.METER, ValueConstraints.gt(0f),
          "Leave blank to determine automatically");
 
    public final OptionalFloatParameter maxRange = new OptionalFloatParameter(
-         new Name("MaxRange", "Max range"),
+         new Name("MaxRange", "Max range from transducer"),
          Optional.empty(), Unit.METER, ValueConstraints.gt(0f),
          "Leave blank to determine automatically");
 
@@ -79,7 +79,7 @@ public final class NetcdfWriterModule extends SimplePingModule {
          "Resolution of the broadband frequency array");
 
    public final BooleanParameter writeAngles = new BooleanParameter(
-         new Name("WriteAngels", "Write angles"),
+         new Name("WriteAngles", "Write angles"),
          true,
          "If selected, then the output data will include arrays for alongship and athwartship angles");
 
@@ -187,7 +187,7 @@ public final class NetcdfWriterModule extends SimplePingModule {
    }
 
    public enum WriterType implements ObjectParameterValue {
-      GRIDDED("Gridded", "Output for all channels are placed i a common grid"),
+      GRIDDED("Gridded", "Output for all channels are placed in a common grid"),
       CHANNEL_GROUPS("Channel groups", "Output for each channel in its own grid in a separate group");
 
       private final String label;

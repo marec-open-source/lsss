@@ -133,6 +133,7 @@ public final class Plotter {
             .toList();
       for (int i : toBeRemoved) {
          plot.setDataset(i, null);
+         plot.setRenderer(i, null);
       }
 
       plot.getDomainAxis().setAutoRange(domainAxisAutoRange);

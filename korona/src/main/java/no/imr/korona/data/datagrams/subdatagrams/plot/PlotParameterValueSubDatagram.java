@@ -9,6 +9,7 @@ import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.tools.parameter.Name;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,14 +19,14 @@ public final class PlotParameterValueSubDatagram extends BaseSubDatagram {
 
    private final PlotParameterValues plotParameterValues;
 
-   PlotParameterValueSubDatagram(long ntDate) {
-      super(ntDate);
+   PlotParameterValueSubDatagram(Instant instant) {
+      super(instant);
 
       plotParameterValues = new PlotParameterValues();
    }
 
-   private PlotParameterValueSubDatagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   private PlotParameterValueSubDatagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       plotParameterValues = ByteBufferUtils.readJson(byteBuffer, PlotParameterValues.class);
    }

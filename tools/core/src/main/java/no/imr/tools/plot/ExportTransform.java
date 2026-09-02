@@ -1,6 +1,6 @@
 package no.imr.tools.plot;
 
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 
 import java.util.function.DoubleUnaryOperator;
 
@@ -12,6 +12,6 @@ public interface ExportTransform extends DoubleUnaryOperator {
    }
 
    static ExportTransform round(double roundingFactor) {
-      return value -> Utils.round(value, roundingFactor);
+      return value -> MathUtils.round(value, roundingFactor);
    }
 }

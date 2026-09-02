@@ -51,7 +51,8 @@ public final class Wms {
 
    public static String toGetMapUrl(String baseUrl, String layers, int width, int height, Rectangle2D geoRect) {
       return baseUrl
-            + "VERSION=" + VERSION
+            + "SERVICE=WMS"
+            + "&VERSION=" + VERSION
             + "&REQUEST=GetMap"
             + "&SRS=EPSG:4326"
             + "&WIDTH=" + width
@@ -59,7 +60,7 @@ public final class Wms {
             + "&BBOX=" + geoRect.getMinX() + "," + geoRect.getMinY() + "," + geoRect.getMaxX() + "," + geoRect.getMaxY()
             + "&EXCEPTIONS=INIMAGE"
             + "&FORMAT=image/png"
-            + "&LAYERS=" + UrlEscapers.urlPathSegmentEscaper().escape(layers);
+            + "&LAYERS=" + UrlEscapers.urlFormParameterEscaper().escape(layers);
    }
 
    public static BufferedImage createErrorImage(int width, int height, String... lines) {

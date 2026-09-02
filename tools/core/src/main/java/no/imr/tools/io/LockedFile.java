@@ -12,6 +12,7 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -23,8 +24,8 @@ public final class LockedFile implements AutoCloseable {
          .weakValues()
          .build(CacheLoader.from(LockedFile::new));
 
-   private final Semaphore semaphore = new Semaphore(1);
    private final Path file;
+   private final Semaphore semaphore = new Semaphore(1);
    private @Nullable FileLock lock;
 
    private LockedFile(Path file) {
@@ -35,30 +36,35 @@ public final class LockedFile implements AutoCloseable {
       return LOCKED_FILES.getUnchecked(file);
    }
 
-   private void acquireSemaphore() {
-      while (true) {
-         try {
-            semaphore.acquire();
-            break;
-         } catch (InterruptedException _) {
-            // Try again.
+   public void lock() throws IOException {
+      semaphore.acquireUninterruptibly();
+      FileChannel channel = FileUtils.openWritableChannel(file);
+      lock = getLockOrCloseChannel(channel);
+   }
+
+   public void lockCreatingDirectories() throws IOException {
+      semaphore.acquireUninterruptibly();
+      FileChannel channel = openWritableChannelCreatingDirectories(file);
+      lock = getLockOrCloseChannel(channel);
+   }
+
+   @Override
+   public void close() throws IOException {
+      try {
+         if (lock != null) {
+            lock.acquiredBy().close();
+         }
+         // Lock file cannot be deleted safely.
+         // See https://unix.stackexchange.com/questions/368159/why-flock-doesnt-clean-the-lock-file/368167#368167
+      } finally {
+         lock = null;
+         if (semaphore.availablePermits() == 0) {
+            semaphore.release();
          }
       }
    }
 
-   public void lock() throws IOException {
-      acquireSemaphore();
-      FileChannel channel = FileUtils.openWritableChannel(file);
-      lock = getLock(channel);
-   }
-
-   public void lockCreatingDirectories() throws IOException {
-      acquireSemaphore();
-      FileChannel channel = openChannelCreatingDirectories();
-      lock = getLock(channel);
-   }
-
-   private FileChannel openChannelCreatingDirectories() throws IOException {
+   private static FileChannel openWritableChannelCreatingDirectories(Path file) throws IOException {
       try {
          return FileUtils.openWritableChannel(file);
       } catch (IOException e) {
@@ -71,28 +77,15 @@ public final class LockedFile implements AutoCloseable {
       }
    }
 
-   @Override
-   public void close() throws IOException {
-      try {
-         if (lock != null) {
-            lock.channel().close();
-            lock = null;
-         }
-         // Lock file cannot be deleted safely.
-         // See https://unix.stackexchange.com/questions/368159/why-flock-doesnt-clean-the-lock-file/368167#368167
-      } finally {
-         if (semaphore.availablePermits() == 0) {
-            semaphore.release();
-         }
-      }
-   }
-
-   private static FileLock getLock(FileChannel channel) throws IOException {
+   private static FileLock getLockOrCloseChannel(FileChannel channel) throws IOException {
       while (true) {
          try {
             return channel.lock();
          } catch (OverlappingFileLockException _) {
-            Utils.sleep(1000);
+            Utils.sleep(Duration.ofSeconds(1));
+         } catch (Exception e) {
+            Utils.closeOrSuppress(e, channel);
+            throw e;
          }
       }
    }

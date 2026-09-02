@@ -1,17 +1,15 @@
 package no.imr.tools.math.fit;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * Class for performing an iterative fit.
- * Requires a FitFunction and a List of FitDataPoints.
  */
-public final class IterativeFit {
-   private final FitFunction fitFunction;
-   private final Set<? extends FitDataPoint> fitDataPoints;
+public final class IterativeFit<P> {
+   private final FitFunction<P> fitFunction;
+   private final Collection<P> fitDataPoints;
 
    private static final double SCALE_FACTOR = 0.9;
-   private double scaleFactor;
 
    /**
     * Create a new IterativeFit.
@@ -19,7 +17,7 @@ public final class IterativeFit {
     * @param fitFunction   the function to be fitted
     * @param fitDataPoints the set of data points to fit the function to
     */
-   public IterativeFit(FitFunction fitFunction, Set<? extends FitDataPoint> fitDataPoints) {
+   public IterativeFit(FitFunction<P> fitFunction, Collection<P> fitDataPoints) {
       this.fitFunction = fitFunction;
       this.fitDataPoints = fitDataPoints;
    }
@@ -31,8 +29,6 @@ public final class IterativeFit {
     */
    public double doFit() {
       double rms = 0;
-      scaleFactor = SCALE_FACTOR;
-
       double scale = 1.0;
 
       while (scale > 0.01) {
@@ -52,7 +48,7 @@ public final class IterativeFit {
       double currentRMS = getRMS();
 
       for (FitParameter par : fitFunction.getParameters()) {
-         par.setStepSize(par.getStepSize() * scaleFactor);
+         par.setStepSize(par.getStepSize() * SCALE_FACTOR);
 
          par.stepUp();
          double stepUpRMS = getRMS();
@@ -63,13 +59,12 @@ public final class IterativeFit {
 
          par.stepUp();
 
-         if (stepDownRMS < currentRMS) {
-            par.setNextValue(par.getValue() - par.getStepSize());
-            continue;
-         }
-
-         if (stepUpRMS < currentRMS) {
-            par.setNextValue(par.getValue() + par.getStepSize());
+         if (Math.min(stepUpRMS, stepDownRMS) < currentRMS) {
+            if (stepDownRMS <= stepUpRMS) {
+               par.setNextValue(par.getValue() - par.getStepSize());
+            } else {
+               par.setNextValue(par.getValue() + par.getStepSize());
+            }
             continue;
          }
 
@@ -96,10 +91,8 @@ public final class IterativeFit {
     */
    private double getRMS() {
       double sumOfSquares = 0;
-      for (FitDataPoint dataPoint : fitDataPoints) {
-         double error = fitFunction.evaluate(dataPoint.getArguments()) -
-               dataPoint.getValue();
-
+      for (P dataPoint : fitDataPoints) {
+         double error = fitFunction.fittedValue(dataPoint) - fitFunction.actualValue(dataPoint);
          sumOfSquares += error * error;
       }
       return Math.sqrt(sumOfSquares / fitDataPoints.size());

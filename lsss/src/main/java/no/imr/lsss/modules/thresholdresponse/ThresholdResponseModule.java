@@ -19,6 +19,7 @@ import no.imr.lsss.modules.pojodata.PojoDataContainer;
 import no.imr.tools.Utils;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.listening.ListenerRegistry;
+import no.imr.tools.math.ArrayMath;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.Graph;
 import no.imr.tools.plot.ParameterExport;
@@ -290,19 +291,16 @@ public final class ThresholdResponseModule extends BaseViewModule implements Poj
 
    float getSa(Region region, FloatRange logSvRange) {
       RegionCache regionCache = regionMap.get(region);
+      if (regionCache == null) {
+         return 0;
+      }
       float[] horizontallyIntegratedSv = regionCache.getHorizontallyIntegratedSv(getInterpretationSettings().getChannel() - 1);
       int i0 = Histogram.logSvToIndex(logSvRange.min());
-      int i1 = Histogram.logSvToIndex(logSvRange.max());
-      double sa = 0;
-      for (int i = i0; i < i1; i++) {
-         sa += horizontallyIntegratedSv[i];
-      }
-      if (logSvRange.max() > Histogram.MAX_LOG_SV) {
-         sa += horizontallyIntegratedSv[Histogram.CELL_COUNT - 1];
-      }
+      int i1 = logSvRange.max() > Histogram.MAX_LOG_SV ? Histogram.CELL_COUNT : Histogram.logSvToIndex(logSvRange.max());
+      double sa = ArrayMath.sum(horizontallyIntegratedSv, i0, i1);
       PingMapping pingMapping = getConfigurationManager().getGridConf().horizontalGridUnit.getValue();
       double distance = pingMapping.distance(region.getPingRange());
-      return (float) (sa / distance);
+      return distance != 0 ? (float) (sa / distance) : 0;
    }
 
    @Override

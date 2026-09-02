@@ -67,8 +67,8 @@ final class ModuleList {
       if (index == -1) {
          return;
       }
-      modules.remove(module);
-      modules.add(index + shift, module);
+      modules.remove(index);
+      modules.add(Math.clamp(index + shift, 0, modules.size()), module);
    }
 
    Element toXml() {

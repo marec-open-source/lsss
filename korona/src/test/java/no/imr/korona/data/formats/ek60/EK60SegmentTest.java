@@ -15,12 +15,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Path;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 final class EK60SegmentTest {
    @Test
    void segmentInfo() throws IOException {
+      Instant instant;
       ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[10000])
             .order(ByteOrder.LITTLE_ENDIAN);
       try (ByteBufferDatagramWriter datagramWriter = new ByteBufferDatagramWriter(byteBuffer)) {
@@ -28,10 +30,10 @@ final class EK60SegmentTest {
          for (BaseDatagram datagram : syntheticDataFile.getRawFileConfiguration().toDatagrams()) {
             datagramWriter.writeDatagram(datagram);
          }
-         long ntDate = syntheticDataFile.getRawFileConfiguration().getNTDate();
-         datagramWriter.writeDatagram(new Idx0Datagram(ntDate + 1, 1, 0, null, 1));
-         datagramWriter.writeDatagram(new Idx0Datagram(ntDate + 2, 2, 0, null, 2));
-         datagramWriter.writeDatagram(new Idx0Datagram(ntDate + 3, 3, 0, null, 3));
+         instant = syntheticDataFile.getRawFileConfiguration().getInstant();
+         datagramWriter.writeDatagram(new Idx0Datagram(instant.plusNanos(100), 1, 0, null, 1));
+         datagramWriter.writeDatagram(new Idx0Datagram(instant.plusNanos(200), 2, 0, null, 2));
+         datagramWriter.writeDatagram(new Idx0Datagram(instant.plusNanos(300), 3, 0, null, 3));
       }
 
       Path idxFile = UniqueTmpDir.newSubDir("EK60SegmentTest").resolve("test.idx");
@@ -42,6 +44,7 @@ final class EK60SegmentTest {
       try (ByteBufferDatagramReader datagramReader = new ByteBufferDatagramReader(byteBuffer, datagramTypeManager)) {
          SegmentInfo segmentInfo = EK60Utils.createSegmentInfo(datagramReader, idxFile, datagramTypeManager);
          assertEquals(4, segmentInfo.pingRange().end().getPingNumber());
+         assertEquals(instant.plusNanos(300).plusMillis(1), segmentInfo.pingRange().end().getInstant());
       }
 
       for (int i = 1; i < Idx0Datagram.SIZE_ON_FILE; i++) {
@@ -50,6 +53,7 @@ final class EK60SegmentTest {
          try (ByteBufferDatagramReader datagramReader = new ByteBufferDatagramReader(byteBuffer, datagramTypeManager)) {
             SegmentInfo segmentInfo = EK60Utils.createSegmentInfo(datagramReader, idxFile, datagramTypeManager);
             assertEquals(3, segmentInfo.pingRange().end().getPingNumber());
+            assertEquals(instant.plusNanos(200).plusMillis(1), segmentInfo.pingRange().end().getInstant());
          }
       }
    }

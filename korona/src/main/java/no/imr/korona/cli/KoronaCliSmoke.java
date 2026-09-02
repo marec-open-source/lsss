@@ -6,6 +6,7 @@ import no.imr.tools.smoke.SmokeTestRunnable;
 import no.imr.tools.smoke.ToolsSmoke;
 
 import java.util.List;
+import java.util.Objects;
 
 final class KoronaCliSmoke extends SmokeTestRunnable {
    private KoronaCliSmoke() {
@@ -15,7 +16,8 @@ final class KoronaCliSmoke extends SmokeTestRunnable {
    public void run() {
       List<CliCommandInfo> infos = CliCommandFactory.infos();
       for (CliCommandInfo info : infos) {
-         CliCommandFactory.create(info.name());
+         CliCommand command = CliCommandFactory.create(info.name());
+         Objects.requireNonNull(command, info.name());
       }
       Log.global.info(OK + "KoronaCli: "
             + infos.size() + " commands: " + infos.stream().map(CliCommandInfo::name).toList());

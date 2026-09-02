@@ -1,7 +1,7 @@
 package no.imr.korona.data.ping.items.channel;
 
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
@@ -48,8 +48,8 @@ public final class AngleData {
     */
    public static double getDirectivityCorrection(double alongAngle, double athwartAngle,
                                                  double alongBeamWidth, double athwartBeamWidth) {
-      double alongTerm = Utils.sq(alongAngle / (alongBeamWidth / 2));
-      double athwartTerm = Utils.sq(athwartAngle / (athwartBeamWidth / 2));
+      double alongTerm = MathUtils.sq(alongAngle / (alongBeamWidth / 2));
+      double athwartTerm = MathUtils.sq(athwartAngle / (athwartBeamWidth / 2));
 
       // Bessel directivity function https://doi.org/10.1093/icesjms/fsn052
       return TWENTY_LOG_2 * (alongTerm + athwartTerm - 0.18 * alongTerm * athwartTerm);

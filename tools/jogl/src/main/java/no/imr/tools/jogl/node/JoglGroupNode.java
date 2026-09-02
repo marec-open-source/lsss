@@ -26,6 +26,7 @@ public sealed class JoglGroupNode extends JoglNode permits JoglRootNode, JoglTra
       if (joglModule != null) {
          joglModule.nodeAdded();
       }
+      repaint();
    }
 
    public void removeChild(JoglNode child) {
@@ -35,6 +36,7 @@ public sealed class JoglGroupNode extends JoglNode permits JoglRootNode, JoglTra
       }
       children.remove(child);
       child.setParent(null);
+      repaint();
    }
 
    public void clear() {
@@ -49,10 +51,10 @@ public sealed class JoglGroupNode extends JoglNode permits JoglRootNode, JoglTra
    }
 
    @Override
-   void initTraversal(GL2 gl) {
-      super.initTraversal(gl);
+   void initTraversal(GL2 gl, JoglModule.GlDrawInfo glDrawInfo) {
+      super.initTraversal(gl, glDrawInfo);
       for (JoglNode child : children) {
-         child.initTraversal(gl);
+         child.initTraversal(gl, glDrawInfo);
       }
    }
 

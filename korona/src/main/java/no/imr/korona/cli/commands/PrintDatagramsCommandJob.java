@@ -83,7 +83,7 @@ final class PrintDatagramsCommandJob extends CliCommandJob {
          if (datagram == null) {
             break;
          }
-         long datagramOffset = startOffset - totalBytesSkipped;
+         long datagramOffset = startOffset + bytesSkipped;
          String datagramType = datagram.getDatagramType().getAsciiQuad();
          if (skip.contains(datagramType)) {
             continue;

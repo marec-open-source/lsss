@@ -3,8 +3,8 @@ package no.imr.lsss.modules.trawl.spd;
 import no.imr.tools.range.FloatRange;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 
 public final class SLine extends BaseLine {
    public final int year;
@@ -99,7 +99,7 @@ public final class SLine extends BaseLine {
    public Instant parseTime(String time) {
       int hour = Integer.parseInt(time.substring(0, 2));
       int minute = Integer.parseInt(time.substring(2, 4));
-      return ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneOffset.UTC).toInstant();
+      return LocalDate.of(year, month, day).atTime(hour, minute).toInstant(ZoneOffset.UTC);
    }
 
    public double getLongitude() {

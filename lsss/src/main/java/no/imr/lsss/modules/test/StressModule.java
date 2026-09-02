@@ -12,11 +12,13 @@ import no.imr.korona.region.EchogramSelection;
 import no.imr.korona.region.IllegalEditException;
 import no.imr.korona.region.LayerConnector;
 import no.imr.korona.region.Region;
+import no.imr.korona.region.RegionManager;
 import no.imr.korona.region.RegionValidation;
 import no.imr.korona.region.School;
 import no.imr.korona.region.VerticalBoundary;
 import no.imr.korona.region.schooledit.SchoolEditor;
 import no.imr.lsss.database.tables.hibernate.AcousticCategory;
+import no.imr.lsss.framework.InterpretationSettings;
 import no.imr.lsss.framework.InterpretationZSettings;
 import no.imr.lsss.framework.config.survey.data.DataConf;
 import no.imr.lsss.framework.config.survey.data.DataType;
@@ -24,6 +26,8 @@ import no.imr.lsss.modules.BaseViewModule;
 import no.imr.lsss.modules.ModuleInfo;
 import no.imr.lsss.modules.interpretation.InterpretationModule;
 import no.imr.tools.RandomUtils;
+import no.imr.tools.concurrent.Exec;
+import no.imr.tools.listening.ListenerRegistry;
 import no.imr.tools.logging.Log;
 import no.imr.tools.misc.SelectionAction;
 import no.imr.tools.range.FloatRange;
@@ -46,6 +50,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import java.awt.BorderLayout;
 import java.awt.Insets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,7 +74,7 @@ public final class StressModule extends BaseViewModule {
    private final List<StressActionCollection> stressActionCollections = new CopyOnWriteArrayList<>();
    private final List<StressAction> activeStressActions = new ArrayList<>();
    private final Random random = new Random();
-   private volatile boolean asyncAccess;
+   private volatile @Nullable AsyncAccess asyncAccess;
 
    public StressModule(ModuleInfo<TestPlugin> moduleInfo) {
       super(moduleInfo);
@@ -100,6 +106,7 @@ public final class StressModule extends BaseViewModule {
                   new StressAction("Delete school", this::deleteSchool),
                   new StressAction("Edit school", this::editSchool),
                   new StressAction("Split school", this::splitSchool),
+                  new StressAction("Merge schools", this::mergeSchools),
                   new StressAction("Move school", this::moveSchool),
                   new StressAction("Scale school", this::scaleSchool),
                   new StressAction("Undo", this::undo)
@@ -134,8 +141,26 @@ public final class StressModule extends BaseViewModule {
    }
 
    @Override
-   public void close() {
+   protected void onEnable(ListenerRegistry registry) {
+      viewHolder.ifView(view -> {
+         if (view.running) {
+            view.timer.start();
+         }
+         if (view.asyncAccessCheckBox.isSelected()) {
+            asyncAccess = new AsyncAccess(this);
+         }
+      });
+   }
+
+   @Override
+   protected void onDisable() {
       viewHolder.ifView(view -> view.timer.stop());
+      asyncAccess = null;
+   }
+
+   @Override
+   public void close() {
+      onDisable();
    }
 
    public void setSeed(long seed) {
@@ -351,6 +376,16 @@ public final class StressModule extends BaseViewModule {
       editor.confirm();
    }
 
+   private void mergeSchools() {
+      School a = getRandomSchool();
+      School b = getRandomSchool();
+      if (a == null || b == null) {
+         return;
+      }
+      getRegionManager().selectRegions(List.of(a, b));
+      getRegionManager().mergeSelectedSchools();
+   }
+
    private void moveSchool() {
       School school = getRandomSchool();
       if (school == null) {
@@ -462,23 +497,33 @@ public final class StressModule extends BaseViewModule {
       }
    }
 
-   private void asyncAccess() {
-      int i = 0;
-      long t = System.currentTimeMillis();
-      while (asyncAccess) {
-         float x = 0;
-         for (Region region : getRegionManager().getSelectedRegions()) {
-            for (PingIndex pingIndex : getInterpretationSettings().getDataFileSet().getPingIndices(region.getPingRange())) {
-               Ping ping = getInterpretationSettings().getDataFileSet().getPing(pingIndex);
-               for (FloatRange depthRange : getRegionManager().getDepthRangesForChannel(region, ping, getInterpretationSettings().getChannel())) {
-                  x += depthRange.getSize();
+   private static class AsyncAccess {
+      private AsyncAccess(StressModule module) {
+         module.asyncAccess = this;
+         Exec.CACHED_THREAD_POOL.submit(() -> run(module));
+      }
+
+      private void run(StressModule module) {
+         int i = 0;
+         Duration printInterval = Duration.ofSeconds(1);
+         Instant nextPrintTime = Instant.now().plus(printInterval);
+         while (module.asyncAccess == this) {
+            float x = 0;
+            RegionManager regionManager = module.getRegionManager();
+            InterpretationSettings interpretationSettings = module.getInterpretationSettings();
+            for (Region region : regionManager.getSelectedRegions()) {
+               for (PingIndex pingIndex : interpretationSettings.getDataFileSet().getPingIndices(region.getPingRange())) {
+                  Ping ping = interpretationSettings.getDataFileSet().getPing(pingIndex);
+                  for (FloatRange depthRange : regionManager.getDepthRangesForChannel(region, ping, interpretationSettings.getChannel())) {
+                     x += depthRange.getSize();
+                  }
                }
             }
-         }
 
-         if (System.currentTimeMillis() > t + 1000) {
-            t = System.currentTimeMillis();
-            Log.global.info(i++ + ", x = " + x);
+            if (Instant.now().isAfter(nextPrintTime)) {
+               nextPrintTime = nextPrintTime.plus(printInterval);
+               Log.global.info(i++ + ", x = " + x);
+            }
          }
       }
    }
@@ -492,6 +537,7 @@ public final class StressModule extends BaseViewModule {
       private final JPanel checkBoxPanel = new VerticalScrollablePanel(new BorderLayout());
       private final JLabel statusLabel = new JLabel("");
       private final Timer timer;
+      private final JCheckBox asyncAccessCheckBox = new JCheckBox("Async access");
       private final List<JCheckBox> stressCheckBoxes = new ArrayList<>();
       private final JButton runButton = MiscIcons.PLAY.on(new JButton());
       private boolean running;
@@ -511,11 +557,9 @@ public final class StressModule extends BaseViewModule {
          topPanel.add(Box.createHorizontalStrut(5));
          topPanel.add(statusLabel);
 
-         JCheckBox asyncAccessCheckBox = new JCheckBox("Async access");
          checkBoxPanel.add(asyncAccessCheckBox);
          asyncAccessCheckBox.addActionListener(_ -> {
-            module.asyncAccess = asyncAccessCheckBox.isSelected();
-            module.executeIfEnabled(module::asyncAccess);
+            module.asyncAccess = asyncAccessCheckBox.isSelected() ? new AsyncAccess(module) : null;
          });
 
          updateLabel("");

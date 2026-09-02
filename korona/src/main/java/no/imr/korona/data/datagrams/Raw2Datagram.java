@@ -4,6 +4,7 @@ import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.tools.time.NTDate;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * Sample byte stream.
@@ -17,8 +18,8 @@ public final class Raw2Datagram extends DatagramPingItem {
    public final int messageByteSize;
    public final BeamData message;
 
-   public Raw2Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Raw2Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       ipAddress = byteBuffer.getInt();
       port = byteBuffer.getShort();

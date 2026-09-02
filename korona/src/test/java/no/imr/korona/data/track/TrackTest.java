@@ -31,7 +31,7 @@ final class TrackTest {
    }
 
    @Test
-   void testRemoveFirstSegment() {
+   void removeFirstSegment() {
       Track track = new Track();
       track.add(createSyntheticSegment(11, 20));
       track.add(createSyntheticSegment(21, 30));

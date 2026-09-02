@@ -10,6 +10,7 @@ import no.imr.korona.data.track.SegmentHandle;
 import no.imr.korona.data.util.geometry.EchogramPoint;
 import no.imr.korona.data.util.geometry.EchogramRectangle;
 import no.imr.korona.region.CurveBoundary;
+import no.imr.korona.region.ExclusionManager;
 import no.imr.korona.region.Region;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import no.imr.korona.util.echogram.EchogramZSettings;
@@ -41,8 +42,10 @@ import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.parameter.HeaderParameter;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.range.ArrayRangeSet;
 import no.imr.tools.range.DefaultRange;
 import no.imr.tools.range.FloatRange;
+import no.imr.tools.range.RangeSet;
 import no.imr.tools.swing.GuiText;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.SimpleInputDialog;
@@ -371,14 +374,16 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
       protected JPopupMenu getDefaultPopupMenu(Point point) {
          EchogramPoint echogramPoint = module.imagePointToEchogramPoint(point);
          Ping ping;
-         Region region;
          if (echogramPoint != null) {
             ping = module.getInterpretationSettings().getDataFileSet().getPing(echogramPoint.pingIndex());
-            region = lsss.getRegionManager().getRegion(echogramPoint);
          } else {
             ping = null;
-            region = null;
          }
+         RangeSet<PingIndex> selectedPingRanges = new ArrayRangeSet<>();
+         lsss.getRegionManager().getSelectedRegions().stream()
+               .map(Region::getPingRange)
+               .map(lsss.getInterpretationSettings().getPingRange()::intersection)
+               .forEach(selectedPingRanges::add);
 
          JPopupMenu mainPopupMenu = new JPopupMenu();
 
@@ -483,21 +488,23 @@ public abstract sealed class EchogramModule extends BaseOverlaidModule<BaseEchog
 
          mainPopupMenu.addSeparator();
 
-         JMenuItem excludeItem = LsssIcons.EXCLUDE.on(mainPopupMenu.add("Exclude region range"));
-         if (region == null) {
+         ExclusionManager exclusionManager = lsss.getRegionManager().getExclusionManager();
+
+         JMenuItem excludeItem = LsssIcons.EXCLUDE.on(mainPopupMenu.add("Exclude selected regions range"));
+         if (selectedPingRanges.stream().allMatch(exclusionManager.getExclusions()::containsAll)) {
             excludeItem.setEnabled(false);
          } else {
             excludeItem.addActionListener(_ -> {
-               lsss.getRegionManager().getExclusionManager().excludeRange(lsss.getInterpretationSettings().getPingRange().intersection(region.getPingRange()));
+               selectedPingRanges.forEach(exclusionManager::excludeRange);
             });
          }
 
-         JMenuItem includeItem = mainPopupMenu.add("Include region range");
-         if (region == null) {
+         JMenuItem includeItem = mainPopupMenu.add("Include selected regions range");
+         if (selectedPingRanges.stream().allMatch(exclusionManager.getExclusions()::containsNone)) {
             includeItem.setEnabled(false);
          } else {
             includeItem.addActionListener(_ -> {
-               lsss.getRegionManager().getExclusionManager().includeRange(lsss.getInterpretationSettings().getPingRange().intersection(region.getPingRange()));
+               selectedPingRanges.forEach(exclusionManager::includeRange);
             });
          }
 

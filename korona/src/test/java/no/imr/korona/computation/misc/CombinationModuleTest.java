@@ -25,7 +25,7 @@ final class CombinationModuleTest {
 
       SyntheticData syntheticData = new ConstantSyntheticData(count, svValue) {
          @Override
-         protected float getTransducerDepth(PingIndex pingIndex, int channel) {
+         public float getTransducerDepth(PingIndex pingIndex, int channel) {
             return channel == 1 ? firstChannelDepth : normalTransducerDepth; //offset for the first channel
          }
       };

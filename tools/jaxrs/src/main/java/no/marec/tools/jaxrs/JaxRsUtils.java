@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -18,6 +19,12 @@ import java.util.Date;
 
 public final class JaxRsUtils {
    private JaxRsUtils() {
+   }
+
+   public static boolean skipStackTrace(Throwable throwable, Response.StatusType statusType) {
+      return statusType.getFamily() != Response.Status.Family.SERVER_ERROR
+            || throwable instanceof SocketTimeoutException
+            || throwable.getClass().getSimpleName().equals("ClientAbortException");
    }
 
    public static Response getFile(Request request, Path file) throws IOException {
@@ -46,6 +53,10 @@ public final class JaxRsUtils {
       if (url == null) {
          return null;
       }
+      return getUrl(request, url);
+   }
+
+   public static Response getUrl(Request request, URL url) throws IOException {
       Date lastModified;
       byte[] entity;
       URLConnection connection = url.openConnection();
@@ -62,7 +73,7 @@ public final class JaxRsUtils {
          }
          entity = in.readAllBytes();
       }
-      return Response.ok(entity, WebUtils.getMediaType(path))
+      return Response.ok(entity, WebUtils.getMediaType(url.getPath()))
             .lastModified(lastModified)
             .build();
    }

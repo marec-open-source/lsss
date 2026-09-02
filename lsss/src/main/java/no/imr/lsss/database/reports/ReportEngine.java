@@ -12,8 +12,6 @@ import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.logging.Log;
 import no.imr.tools.swing.ProgressView;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
 import org.hibernate.StatelessSession;
 
 import java.io.IOException;
@@ -21,7 +19,6 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -251,12 +248,9 @@ public final class ReportEngine {
    }
 
    List<Integer> getAllFrequencies(StatelessSession session, Survey survey) {
-      List<Integer> frequencies = new ArrayList<>();
-
       String query =
             " select distinct " +
-                  "    a.compId.frequency, " +
-                  "    a.compId.transceiver " +
+                  "    a.compId.frequency " +
                   " from Scatter a" +
                   " where a.compId.nation   = " + survey.getCompId().getNation() +
                   " and   a.compId.platform = " + survey.getCompId().getPlatform() +
@@ -265,18 +259,9 @@ public final class ReportEngine {
                   "  or  (a.compId.observationDate = " + startDate + " and a.compId.observationTime >= " + startTime + ") )" +
                   " and ( a.compId.observationDate < " + stopDate +
                   "  or  (a.compId.observationDate = " + stopDate + " and a.compId.observationTime <= " + stopTime + ") )" +
-                  " order by a.compId.frequency, a.compId.transceiver ";
+                  " order by a.compId.frequency";
 
-      try (ScrollableResults<Object[]> frequencyResults = session.createSelectionQuery(query, Object[].class)
-            .setReadOnly(true)
-            .scroll(ScrollMode.FORWARD_ONLY)) {
-
-         while (frequencyResults.next()) {
-            frequencies.add((Integer) frequencyResults.get()[0]);
-         }
-      }
-
-      return frequencies;
+      return session.createSelectionQuery(query, Integer.class).list();
    }
 
    static boolean schoolObjectRegistered(int object, int[] registeredObjects, int noRegisteredObjects) {
@@ -296,8 +281,6 @@ public final class ReportEngine {
    }
 
    List<Integer> getScrutinizedSpeciesList(StatelessSession session, Survey survey) {
-      List<Integer> acousticCategory = new ArrayList<>();
-
       String query =
             " select distinct " +
                   "    a.compId.acousticCategory " +
@@ -313,16 +296,7 @@ public final class ReportEngine {
                   "  or  (a.compId.observationDate = " + stopDate + " and a.compId.observationTime <= " + stopTime + ") )" +
                   " order by a.compId.acousticCategory ";
 
-      try (ScrollableResults<Integer> acousticCategoryResults = session.createSelectionQuery(query, Integer.class)
-            .setReadOnly(true)
-            .scroll(ScrollMode.FORWARD_ONLY)) {
-
-         while (acousticCategoryResults.next()) {
-            acousticCategory.add(acousticCategoryResults.get());
-         }
-      }
-
-      return acousticCategory;
+      return session.createSelectionQuery(query, Integer.class).list();
    }
 
    static final class Feedback {

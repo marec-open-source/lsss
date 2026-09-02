@@ -56,7 +56,7 @@ public record Matrix3(float m00, float m01, float m02,
     *
     * @param originalVector the original vector
     * @param newVector      the new vector orientation after applying the rotation matrix
-    * @return the created matrix
+    * @return a rotation matrix
     */
    public static Matrix3 createRotation(Vec3 originalVector, Vec3 newVector) {
       Vec3 newAxisUnit = newVector.unit();
@@ -64,18 +64,22 @@ public record Matrix3(float m00, float m01, float m02,
       float dot = origAxisUnit.dot(newAxisUnit);
       Vec3 cross = origAxisUnit.cross(newAxisUnit);
       // Since cross.length() is always non-negative, the angle will be between 0 and 180 degrees.
-      double angle = Math.toDegrees(Math.atan2(cross.length(), dot));
-      if (angle > 1e-4) {
-         return createRotation(angle, cross.unit());
+      float crossLength = cross.length();
+      double angle = Math.toDegrees(Math.atan2(crossLength, dot));
+      if (angle < 1e-4) {
+         return IDENTITY;
       }
-      return IDENTITY;
+      Vec3 rotationAxis = crossLength == 0
+            ? originalVector.someOrthonormalVector()
+            : cross.div(crossLength);
+      return createRotation(angle, rotationAxis);
    }
 
    /**
     * Creates a new scaling matrix.
     *
     * @param scaling the scaling
-    * @return a translation matrix
+    * @return a scaling matrix
     */
    public static Matrix3 createScaling(Vec3 scaling) {
       return new Matrix3(
@@ -92,38 +96,26 @@ public record Matrix3(float m00, float m01, float m02,
             0, 0, 0, 1);
    }
 
-   /**
-    * Subtracts two matrices.
-    *
-    * @param B a matrix
-    * @return this matrix - B
-    */
-   public Matrix3 minus(Matrix3 B) {
+   public Matrix3 minus(Matrix3 b) {
       return new Matrix3(
-            m00 - B.m00, m01 - B.m01, m02 - B.m02,
-            m10 - B.m10, m11 - B.m11, m12 - B.m12,
-            m20 - B.m20, m21 - B.m21, m22 - B.m22);
+            m00 - b.m00, m01 - b.m01, m02 - b.m02,
+            m10 - b.m10, m11 - b.m11, m12 - b.m12,
+            m20 - b.m20, m21 - b.m21, m22 - b.m22);
    }
 
-   /**
-    * Multiplies two matrices.
-    *
-    * @param B another matrix
-    * @return this matrix * B
-    */
-   public Matrix3 multiply(Matrix3 B) {
+   public Matrix3 multiply(Matrix3 b) {
       return new Matrix3(
-            m00 * B.m00 + m01 * B.m10 + m02 * B.m20,
-            m00 * B.m01 + m01 * B.m11 + m02 * B.m21,
-            m00 * B.m02 + m01 * B.m12 + m02 * B.m22,
+            m00 * b.m00 + m01 * b.m10 + m02 * b.m20,
+            m00 * b.m01 + m01 * b.m11 + m02 * b.m21,
+            m00 * b.m02 + m01 * b.m12 + m02 * b.m22,
 
-            m10 * B.m00 + m11 * B.m10 + m12 * B.m20,
-            m10 * B.m01 + m11 * B.m11 + m12 * B.m21,
-            m10 * B.m02 + m11 * B.m12 + m12 * B.m22,
+            m10 * b.m00 + m11 * b.m10 + m12 * b.m20,
+            m10 * b.m01 + m11 * b.m11 + m12 * b.m21,
+            m10 * b.m02 + m11 * b.m12 + m12 * b.m22,
 
-            m20 * B.m00 + m21 * B.m10 + m22 * B.m20,
-            m20 * B.m01 + m21 * B.m11 + m22 * B.m21,
-            m20 * B.m02 + m21 * B.m12 + m22 * B.m22);
+            m20 * b.m00 + m21 * b.m10 + m22 * b.m20,
+            m20 * b.m01 + m21 * b.m11 + m22 * b.m21,
+            m20 * b.m02 + m21 * b.m12 + m22 * b.m22);
    }
 
    public Vec3 multiply(Vec2 v) {
@@ -214,5 +206,11 @@ public record Matrix3(float m00, float m01, float m02,
             c00 / det, c10 / det, c20 / det,
             c01 / det, c11 / det, c21 / det,
             c02 / det, c12 / det, c22 / det);
+   }
+
+   public float determinant() {
+      return m00 * (m11 * m22 - m12 * m21)
+            - m01 * (m10 * m22 - m12 * m20)
+            + m02 * (m10 * m21 - m11 * m20);
    }
 }

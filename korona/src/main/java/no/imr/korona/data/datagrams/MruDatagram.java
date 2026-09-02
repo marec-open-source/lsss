@@ -1,8 +1,10 @@
 package no.imr.korona.data.datagrams;
 
+import java.time.Instant;
+
 public abstract class MruDatagram extends DatagramPingItem {
-   MruDatagram(long ntDate) {
-      super(ntDate);
+   MruDatagram(Instant instant) {
+      super(instant);
    }
 
    public abstract float getHeave();

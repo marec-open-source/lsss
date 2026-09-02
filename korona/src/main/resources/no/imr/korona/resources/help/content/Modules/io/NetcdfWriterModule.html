@@ -8,8 +8,8 @@
 
 <h2 id="NetCDF-C-Library">NetCDF-C library</h2>
 <p>
-   This module requires the NetCDF-C library for writing files in the NetCDF-4 format.
-   If this version of KORONA does not include the NetCDF-C library, please consult
+   This module requires the netCDF-C library for writing files in the netCDF-4 format.
+   If this version of KORONA does not include the netCDF-C library, please consult
    <a href="https://docs.unidata.ucar.edu/netcdf-java/current/userguide/netcdf4_c_library.html">these instructions</a>.
 </p>
 
@@ -57,10 +57,10 @@
       Output data in addition to the basic information.
    </li>
    <li><span class="marec-parameter-def" id="DeltaRange">Delta range:</span>
-      Leave blank to <a href="#AutomaticRange">determine automatically</a>.
+      Range resolution [m]. Leave blank to <a href="#AutomaticRange">determine automatically</a>.
    </li>
    <li><span class="marec-parameter-def" id="MaxRange">Max range:</span>
-      Leave blank to <a href="#AutomaticRange">determine automatically</a>.
+      Range from transducer [m]. Leave blank to <a href="#AutomaticRange">determine automatically</a>.
    </li>
    <li><span class="marec-parameter-def" id="FftWindowSize">FFT window size:</span>
       Size of the FFT window in units of pulse length.
@@ -68,7 +68,7 @@
    <li><span class="marec-parameter-def" id="DeltaFrequency">Delta frequency:</span>
       Resolution of the broadband frequency array.
    </li>
-   <li><span class="marec-parameter-def" id="WriteAngels">Write angles:</span>
+   <li><span class="marec-parameter-def" id="WriteAngles">Write angles:</span>
       If selected, then the output data will include arrays for alongship and athwartship angles.
    </li>
    <li><span class="marec-parameter-def" id="CompressSv">Compress sv:</span>

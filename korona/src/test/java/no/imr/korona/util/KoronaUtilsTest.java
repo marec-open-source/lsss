@@ -6,12 +6,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class KoronaUtilsTest {
    @Test
-   void testToFromKnots() {
+   void knotsToMeterPerSecond() {
       assertEquals(3.45, KoronaUtils.knotsToMeterPerSecond(KoronaUtils.meterPerSecondToKnots(3.45)), 1e-6);
    }
 
    @Test
-   void testToFromDB() {
+   void fromDB() {
       assertEquals(3.45, KoronaUtils.fromDB(KoronaUtils.toDB(3.45)), 1e-6);
    }
 }

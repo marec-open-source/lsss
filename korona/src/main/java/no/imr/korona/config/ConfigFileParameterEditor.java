@@ -4,16 +4,16 @@ import no.imr.tools.parameter.FileParameter;
 
 import java.nio.file.Path;
 
-public abstract class ConfigFileParameterEditor implements FileParameter.Editor {
-   private final ConfigFileService configFileService;
+public abstract class ConfigFileParameterEditor<T extends ConfigFileService> implements FileParameter.Editor {
+   private final T configFileService;
    private final ConfigFileSettings configFileSettings;
 
-   protected ConfigFileParameterEditor(ConfigFileService configFileService, ConfigFileSettings configFileSettings) {
+   protected ConfigFileParameterEditor(T configFileService, ConfigFileSettings configFileSettings) {
       this.configFileService = configFileService;
       this.configFileSettings = configFileSettings;
    }
 
-   protected ConfigFileService getConfigFileService() {
+   protected T getConfigFileService() {
       return configFileService;
    }
 

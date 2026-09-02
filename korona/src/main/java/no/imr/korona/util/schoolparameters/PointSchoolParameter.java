@@ -47,14 +47,16 @@ public abstract class PointSchoolParameter<T extends Point2D> extends BaseFloatS
       String name = getName().persistentName();
       return List.of(
             name + ".x",
-            name + ".y");
+            name + ".y"
+      );
    }
 
    @Override
    public List<String> getExportValues() {
       return List.of(
             format(value.getX()),
-            format(value.getY()));
+            format(value.getY())
+      );
    }
 
    abstract T createValue(double x, double y);

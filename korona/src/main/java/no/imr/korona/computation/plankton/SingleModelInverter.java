@@ -121,7 +121,7 @@ final class SingleModelInverter {
                return;
             }
 
-            if (!sizeHistogramRedistribution.redistribute(sizeHistogram, 1E-8)) {
+            if (!sizeHistogramRedistribution.redistribute(sizeHistogram, 1e-8)) {
                return;
             }
          }

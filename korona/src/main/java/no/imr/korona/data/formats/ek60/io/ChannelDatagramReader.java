@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.time.Duration;
+import java.time.Instant;
 
 /**
  * Reads datagrams from a {@link ReadableByteChannel}.
@@ -116,15 +118,15 @@ public abstract class ChannelDatagramReader extends BaseDatagramReader {
             return;
          }
 
-         long lastReadTime = System.currentTimeMillis();
+         Instant lastReadTime = Instant.now();
          while (readBuffer.hasRemaining()) {
-            long millisWaiting = System.currentTimeMillis() - lastReadTime;
-            if (endOfInputHandler.isEndOfInput(millisWaiting, FileInfoComparator.path())) {
+            Duration durationWaiting = lastReadTime.until(Instant.now());
+            if (endOfInputHandler.isEndOfInput(durationWaiting, FileInfoComparator.path())) {
                endOfData = true;
                return;
             }
             if (FileUtils.read(readChannel, readBuffer) > 0) {
-               lastReadTime = System.currentTimeMillis();
+               lastReadTime = Instant.now();
             }
          }
       }

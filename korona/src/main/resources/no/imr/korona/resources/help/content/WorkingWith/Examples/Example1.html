@@ -27,14 +27,14 @@
       vertical correction of the measurements) are read from a reference-file specified by
       VerticalOffsetCorrectionModule.
    </li>
-   <li>The FillMissingDataModule duplicate data at one frequency if data at a given time does not exist for that frequency,
-      but do exist for other frequencies.
+   <li>The FillMissingDataModule duplicates data at one frequency if data at a given time does not exist for that frequency,
+      but does exist for other frequencies.
    </li>
    <li>The first smoother module smooths only in horizontal direction, so that the
-      bottom-detection done by the Bottom detection module is better if the backscatter from the bottom varies much. The two next
-      SmootherModule smooths data above and below the detected bottom. These smoothings are done separately to avoid
+      bottom-detection done by the Bottom detection module is better if the backscatter from the bottom varies much. The next two
+      SmootherModules smooth data above and below the detected bottom. These smoothings are done separately to avoid
       losing fish that is close to the bottom. The smoothing is done below the bottom because those data are used to
-      quantify noise in the NoiseQuantificationModule, and those results are used by the NoiseQuantificationModule
+      quantify noise in the NoiseQuantificationModule, and those results are used by the NoiseRemoverModule
       to remove noise.
    </li>
 </ul>

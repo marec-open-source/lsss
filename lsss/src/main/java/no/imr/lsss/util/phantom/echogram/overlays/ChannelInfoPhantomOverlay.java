@@ -36,7 +36,7 @@ public final class ChannelInfoPhantomOverlay extends BasePhantomOverlay {
       }
    }
 
-   private final class DisplayData extends OverlayDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private final String channelInfo;
 
       private DisplayData(String channelInfo) {

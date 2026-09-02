@@ -8,6 +8,7 @@ import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import no.imr.tools.database.ColumnOrder;
+import no.imr.tools.database.TableWithOnlyPrimaryKeyColumns;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -22,6 +23,7 @@ import java.util.Objects;
       // Properties:
       // <none>
 })
+@TableWithOnlyPrimaryKeyColumns
 public class AcCatToBiologicalSpecies implements BasePlatformObject<AcCatToBiologicalSpeciesPK> {
    private AcCatToBiologicalSpeciesPK compId;
 

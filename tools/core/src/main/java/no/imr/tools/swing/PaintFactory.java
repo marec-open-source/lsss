@@ -24,8 +24,8 @@ public final class PaintFactory {
       g.dispose();
 
       for (int i = 0; i < crossSize; i++) {
-         tile.setRGB((margin + i + xOffset) % textureSize, textureSize / 2, contrastingRGB);
-         tile.setRGB((textureSize / 2 + xOffset) % textureSize, margin + i, contrastingRGB);
+         tile.setRGB(Math.floorMod(margin + i + xOffset, textureSize), textureSize / 2, contrastingRGB);
+         tile.setRGB(Math.floorMod(textureSize / 2 + xOffset, textureSize), margin + i, contrastingRGB);
       }
 
       return new TexturePaint(tile, new Rectangle(0, 0, textureSize, textureSize));

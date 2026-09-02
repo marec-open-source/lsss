@@ -32,7 +32,6 @@ import java.awt.Stroke;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class FileDrawOverlay extends BaseEchogramOverlay {
@@ -124,11 +123,11 @@ public final class FileDrawOverlay extends BaseEchogramOverlay {
       DataFileSet dataFileSet = getInterpretationSettings().getDataFileSet();
       Rectangle bounds = getEchogramModule().getBounds();
       List<Marker> markers = lines.stream()
-            .map(line -> {
+            .<Marker>mapMulti((line, consumer) -> {
                Path2D.Float path = new Path2D.Float();
                LineStripBuilder pathBuilder = LineStripBuilders.coalescing(path, bounds);
                for (FileDrawPoint point : line.points()) {
-                  double timeValue = PingMapping.millisToTimeValue(point.time());
+                  double timeValue = PingMapping.instantToTimeValue(point.time());
                   PingIndex pingIndex = dataFileSet.getContainingPingIndex(timeValue, PingMapping.TIME);
                   if (pingIndex == null) {
                      pathBuilder.endLineStrip();
@@ -141,17 +140,16 @@ public final class FileDrawOverlay extends BaseEchogramOverlay {
                }
                pathBuilder.endLineStrip();
                if (pathBuilder.isEmpty()) {
-                  return null;
+                  return;
                }
                path.trimToSize();
-               return new Marker(line, path);
+               consumer.accept(new Marker(line, path));
             })
-            .filter(Objects::nonNull)
             .toList();
       if (markers.isEmpty()) {
          return null;
       }
-      return new DisplayData(markers);
+      return transformed(new DisplayData(markers));
    }
 
    private void setActiveLine(@Nullable FileDrawLine activeLine) {
@@ -164,7 +162,7 @@ public final class FileDrawOverlay extends BaseEchogramOverlay {
    private record Marker(FileDrawLine line, Path2D.Float path) {
    }
 
-   private final class DisplayData extends TransformedDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private final List<Marker> markers;
 
       private DisplayData(List<Marker> markers) {
@@ -172,7 +170,7 @@ public final class FileDrawOverlay extends BaseEchogramOverlay {
       }
 
       @Override
-      protected void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          g2d.setStroke(stroke);
          g2d.setColor(Color.BLACK);
          Path2D.Float activePath = null;

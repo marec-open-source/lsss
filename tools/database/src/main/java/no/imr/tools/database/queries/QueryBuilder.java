@@ -1,6 +1,7 @@
 package no.imr.tools.database.queries;
 
 import no.imr.tools.database.DatabaseColumn;
+import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 
 import java.util.function.Function;
@@ -16,11 +17,11 @@ public final class QueryBuilder<T extends BaseDatabaseObject, Q> {
    private QueryBuilder(String operation, Class<T> clazz, Function<String, Q> factory) {
       this.clazz = clazz;
       this.factory = factory;
-      query.append(operation).append("from ").append(clazz.getSimpleName()).append(" x");
+      query.append(operation).append("from ").append(DatabaseUtils.getTableName(clazz)).append(" x");
    }
 
    public static <T extends BaseDatabaseObject> QueryBuilder<T, StatelessValuedDatabaseQuery<Long>> count(Class<T> clazz) {
-      return new QueryBuilder<>("select count(*) ", clazz, query -> StatelessValuedDatabaseQuery.uniqueResult(query, Long.class));
+      return new QueryBuilder<>("select count(*) ", clazz, query -> StatelessValuedDatabaseQuery.uniqueNonNullResult(query, Long.class));
    }
 
    public static <T extends BaseDatabaseObject> QueryBuilder<T, FetchQuery<T>> fetch(Class<T> clazz) {
@@ -49,8 +50,8 @@ public final class QueryBuilder<T extends BaseDatabaseObject, Q> {
       private BeforeTerm() {
       }
 
-      public AfterTerm eq(DatabaseColumn columnA, Object valueA) {
-         return op(columnA, "=", valueA);
+      public AfterTerm eq(DatabaseColumn column, Object value) {
+         return op(column, "=", value);
       }
 
       public AfterTerm lt(DatabaseColumn column, Object value) {

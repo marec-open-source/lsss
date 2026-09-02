@@ -21,7 +21,7 @@ final class LoaderRefCsvTest {
       }
       assertEquals(15, logLines.size());
       assertEquals(new LogLine(
-            Instant.parse("2000-12-14T16:18:55Z").toEpochMilli(),
+            Instant.parse("2000-12-14T16:18:55Z"),
             ActivityType.BOTTOM_TRAWL,
             true,
             "Bottom trawl start",
@@ -54,7 +54,8 @@ final class LoaderRefCsvTest {
                   new LogLineField("Max depth", ""),
                   new LogLineField("Opening", ""),
                   new LogLineField("Spread", ""),
-                  new LogLineField("Comment", "")),
+                  new LogLineField("Comment", "")
+            ),
             List.of(
                   "040", "367", " 9594.72", "4254.91 N", "03020.37 W", " 2960.11", " 191", "    1.40", "   19.00", "    7.60", "  204.00",
                   "   18.80", " 1026.20", "  88", "4", "3", "8", "0", "1", "3533", "7", " 1149", "4500", "-9", "-9", "", "", "")

@@ -26,9 +26,4 @@ abstract class ConfigFileSettingsParameter extends SurveyFileParameter {
    public List<FileFilter> getFileFilters() {
       return List.of(new SuffixFileFilter(ConfigFileSettings.FILE_TYPE));
    }
-
-   @Override
-   public Copier getCopier() {
-      return new DefaultCopier(this);
-   }
 }

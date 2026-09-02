@@ -64,6 +64,9 @@ final class ItemHistogramChartPanel extends PlotChartPanel {
          return;
       }
       Graphics2D g2d = (Graphics2D) getGraphics();
+      if (g2d == null) {
+         return;
+      }
       g2d.setXORMode(Color.GRAY);
       if (selectionRectangle != null) {
          g2d.draw(selectionRectangle);

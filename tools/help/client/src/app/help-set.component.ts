@@ -1,8 +1,7 @@
 import {DatePipe} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
-import {AfterViewInit, ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnDestroy, signal, Signal, viewChild, WritableSignal} from '@angular/core';
+import {afterRenderEffect, Component, computed, ElementRef, inject, OnDestroy, signal, Signal, untracked, viewChild, WritableSignal} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
-import {Subscription} from 'rxjs';
 import {HelpSet} from './api/HelpSet';
 import {ConfigService} from './config.service';
 import {ErrorResponseComponent} from './error-response.component';
@@ -15,7 +14,6 @@ import {ProgressSpinnerComponent} from './progress-spinner.component';
 import {TocListComponent} from './toc-list.component';
 
 @Component({
-   changeDetection: ChangeDetectionStrategy.OnPush,
    selector: 'marec-help-set',
    templateUrl: './help-set.component.html',
    styleUrl: './help-set.component.scss',
@@ -24,11 +22,10 @@ import {TocListComponent} from './toc-list.component';
       ErrorResponseComponent, FooterComponent, MenuComponent, ProgressSpinnerComponent, TocListComponent,
    ],
 })
-export class HelpSetComponent implements AfterViewInit, OnDestroy {
+export class HelpSetComponent implements OnDestroy {
    private readonly configService: ConfigService = inject(ConfigService);
 
    private readonly helpContentEl: Signal<ElementRef<HTMLElement>> = viewChild.required('helpContent');
-   private navigationSubscription?: Subscription;
    private readonly helpPagesLoader: WritableSignal<HelpPagesLoader | undefined> = signal(undefined);
    protected readonly errorResponse: WritableSignal<HttpErrorResponse | undefined> = signal(undefined);
    protected readonly helpSet: WritableSignal<HelpSet | undefined> = signal(undefined);
@@ -37,24 +34,17 @@ export class HelpSetComponent implements AfterViewInit, OnDestroy {
 
    constructor() {
       this.configService.routePrefix = '/set';
-   }
-
-   ngAfterViewInit(): void {
-      setTimeout(() => this.startNavigationSubscription());
+      afterRenderEffect(() => {
+         const navItem = this.configService.navigation();
+         if (navItem) {
+            untracked(() => this.navigateTo(navItem));
+         }
+      });
    }
 
    ngOnDestroy(): void {
-      this.navigationSubscription?.unsubscribe();
       this.helpPagesLoader()?.cancel();
       this.configService.currentHelpSet = undefined;
-   }
-
-   private startNavigationSubscription(): void {
-      this.navigationSubscription = this.configService.navigation.subscribe(navItem => {
-         if (navItem) {
-            this.navigateTo(navItem);
-         }
-      });
    }
 
    private navigateTo(navItem: NavItem): void {
@@ -69,19 +59,16 @@ export class HelpSetComponent implements AfterViewInit, OnDestroy {
          this.helpPagesLoader()?.cancel();
          const helpPagesLoader = new HelpPagesLoader(this.configService, helpSet);
          this.helpPagesLoader.set(helpPagesLoader);
-         helpPagesLoader.helpPages.subscribe({
-            next: helpPages => {
-               this.helpSet.set(helpSet);
-               Utils.addHelpPages(this.configService, helpContent, helpSet, helpPages);
-               setTimeout(() => Utils.scrollToNavItem(this.configService, navItem));
-               this.helpPagesLoader.set(undefined);
-               this.errorResponse.set(undefined);
-            },
-            error: error => {
-               this.helpPagesLoader.set(undefined);
-               this.errorResponse.set(error);
-               console.log(error);
-            }
+         helpPagesLoader.helpPages.then(helpPages => {
+            this.helpSet.set(helpSet);
+            Utils.addHelpPages(this.configService, helpContent, helpSet, helpPages);
+            setTimeout(() => Utils.scrollToNavItem(this.configService, navItem));
+            this.helpPagesLoader.set(undefined);
+            this.errorResponse.set(undefined);
+         }).catch(error => {
+            this.helpPagesLoader.set(undefined);
+            this.errorResponse.set(error);
+            console.error(error);
          });
       }
    }

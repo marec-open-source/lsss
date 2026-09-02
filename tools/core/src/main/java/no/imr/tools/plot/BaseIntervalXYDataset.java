@@ -2,8 +2,18 @@ package no.imr.tools.plot;
 
 import org.jfree.data.xy.AbstractIntervalXYDataset;
 
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 public abstract class BaseIntervalXYDataset extends AbstractIntervalXYDataset implements XYInfoContainer {
    protected BaseIntervalXYDataset() {
+   }
+
+   @Override
+   public String toString() {
+      return IntStream.range(0, getSeriesCount())
+            .mapToObj(i -> getSeriesKey(i) + " (" + getItemCount(i) + ")")
+            .collect(Collectors.joining(", "));
    }
 
    @Override

@@ -1,4 +1,6 @@
 package no.imr.lsss.modules.filedraw;
 
-record FileDrawPoint(long time, float depth) {
+import java.time.Instant;
+
+record FileDrawPoint(Instant time, float depth) {
 }

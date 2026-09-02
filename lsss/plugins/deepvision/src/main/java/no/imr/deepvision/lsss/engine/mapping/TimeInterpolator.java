@@ -1,67 +1,43 @@
 package no.imr.deepvision.lsss.engine.mapping;
 
+import no.imr.tools.time.TimeUtils;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 final class TimeInterpolator {
-   private final long[] deepVisionTimes;
-   private final long[] lsssTimes;
+   private final Instant[] deepVisionTimes;
+   private final Instant[] lsssTimes;
 
-   private enum Interpolation {
-      DV_TO_LSSS, LSSS_TO_DV
-   }
-
-   TimeInterpolator(long[] deepVisionTimes, long[] lsssTimes) {
+   TimeInterpolator(Instant[] deepVisionTimes, Instant[] lsssTimes) {
       this.deepVisionTimes = deepVisionTimes;
       this.lsssTimes = lsssTimes;
    }
 
-   private long interpolate(long time, int i, Interpolation interpolation) {
-      long dvi = deepVisionTimes[i];
-      long dvip1 = deepVisionTimes[i + 1];
-      long lsssi = lsssTimes[i];
-      long lsssip1 = lsssTimes[i + 1];
-      if (interpolation == Interpolation.LSSS_TO_DV) {
-         long denominator = lsssip1 - lsssi;
-         double w = (double) (time - lsssi) / denominator;
-         return (long) (dvi + w * (dvip1 - dvi));
-      } else {
-         long denominator = dvip1 - dvi;
-         double w = (double) (time - dvi) / denominator;
-         return (long) (lsssi + w * (lsssip1 - lsssi));
-      }
+   Instant lsssTimeToDeepVisionTime(Instant lsssTime) {
+      return timeToOtherTime(lsssTime, lsssTimes, deepVisionTimes);
    }
 
-   long lsssTimeToDeepVisionTime(long lsssTime) {
-      int i = Arrays.binarySearch(lsssTimes, lsssTime);
-      if (i < 0) {
-         // not exact match
-         i = -(i + 1); // conversion to insertion point
-         if (i == 0) {
-            return lsssTime;
-         }
-         i = i - 1;
-         if (i >= lsssTimes.length - 1) {
-            return lsssTime;
-         }
-         return interpolate(lsssTime, i, Interpolation.LSSS_TO_DV);
-      }
-      return deepVisionTimes[i];
+   Instant deepVisionTimeToLsssTime(Instant deepVisionTime) {
+      return timeToOtherTime(deepVisionTime, deepVisionTimes, lsssTimes);
    }
 
-   long deepVisionTimeToLsssTime(long deepVisionTime) {
-      int i = Arrays.binarySearch(deepVisionTimes, deepVisionTime);
-      if (i < 0) {
-         // not exact match
-         i = -(i + 1); // conversion to insertion point
-         if (i == 0) {
-            return deepVisionTime;
-         }
-         i = i - 1;
-         if (i >= deepVisionTimes.length - 1) {
-            return deepVisionTime;
-         }
-         return interpolate(deepVisionTime, i, Interpolation.DV_TO_LSSS);
+   private static Instant timeToOtherTime(Instant time, Instant[] times, Instant[] otherTimes) {
+      int i = Arrays.binarySearch(times, time);
+      if (i >= 0) {
+         // Exact match.
+         return otherTimes[i];
       }
-      return lsssTimes[i];
+      i = -(i + 1); // Conversion to insertion point.
+      if (i <= 0 || i >= times.length) {
+         return time;
+      }
+      Instant timeA = times[i - 1];
+      Instant timeB = times[i];
+      Instant otherTimeA = otherTimes[i - 1];
+      Instant otherTimeB = otherTimes[i];
+      double w = (double) timeA.until(time, ChronoUnit.NANOS) / timeA.until(timeB, ChronoUnit.NANOS);
+      return TimeUtils.interpolateInstant(otherTimeA, otherTimeB, w);
    }
 }

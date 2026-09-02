@@ -171,7 +171,7 @@ public final class TrackPingBuffer extends PingBuffer {
       if (segment == null) {
          return new EchogramWindow(configurator, 0, List.of(), depthRange);
       }
-      int pingOffset = (int) (segment.getPingRange().begin().getPingNumber() - pingRange.begin().getPingNumber());
+      int pingOffset = (int) (pingRange.begin().getPingNumber() - segment.getPingRange().begin().getPingNumber());
       int pingCount = pingRange.getPingCount();
       List<Ping> pings = new ArrayList<>(pingCount);
       for (int i = 0; i < pingCount; i++) {

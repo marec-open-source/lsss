@@ -50,15 +50,6 @@ public final class GeometryUtils {
       return new Vec2((float) x, (float) y);
    }
 
-//   /**
-//    * Converts from spherical to cartesian coordinates
-//    * @param sphericalCoords vector on form [R, theta (horizontal angle), phi (vertical angle)]
-//    * @return the cartesian coordinate
-//    */
-//   public static Vec3 sphericalToCartesian(Vec3 sphericalCoords) {
-//      return sphericalToCartesian(sphericalCoords.x(), sphericalCoords.y(), sphericalCoords.z());
-//   }
-
    /**
     * Converts from spherical to cartesian coordinates.
     *
@@ -114,8 +105,11 @@ public final class GeometryUtils {
     */
    public static Vec3 cartesianToSpherical(Vec3 cartesianCoord) {
       float r = cartesianCoord.length();
+      if (r == 0) {
+         return Vec3.ZERO;
+      }
       double theta = Math.atan2(cartesianCoord.y(), cartesianCoord.x());
-      double phi = Math.acos(cartesianCoord.z() / r);
+      double phi = MathUtils.acosClamped(cartesianCoord.z() / r);
 
       return new Vec3(r, (float) theta, (float) phi);
    }
@@ -128,7 +122,6 @@ public final class GeometryUtils {
     * @return the point of intersection, null if parallel lines
     */
    public static @Nullable Point2D getIntersection(Line2D firstLine, Line2D secondLine) {
-      //Alternative implementation
       Point2D p1 = firstLine.getP1();
       Point2D p2 = firstLine.getP2();
 
@@ -140,8 +133,8 @@ public final class GeometryUtils {
 
       if (denominator != 0) {
          double v = fraction / denominator;
-         double x = p1.getX() + v * (p2.getX() - p1.getX());
-         double y = p1.getY() + v * (p2.getY() - p1.getY());
+         double x = MathUtils.interpolate(p1.getX(), p2.getX(), v);
+         double y = MathUtils.interpolate(p1.getY(), p2.getY(), v);
          return new Point2D.Double(x, y);
       } else {
          return null;

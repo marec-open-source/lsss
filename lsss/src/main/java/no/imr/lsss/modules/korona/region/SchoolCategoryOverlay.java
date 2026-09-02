@@ -9,7 +9,7 @@ import no.imr.lsss.framework.BaseSystemFeaturePlugin;
 import no.imr.lsss.modules.ModuleInfo;
 import no.imr.lsss.modules.OverlayDisplayData;
 import no.imr.lsss.modules.echogram.EchogramModule;
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.swing.PaintFactory;
 import org.jspecify.annotations.Nullable;
 
@@ -51,7 +51,7 @@ public final class SchoolCategoryOverlay extends KoronaRegionEchogramOverlay {
       }
    }
 
-   private final class DisplayData extends OverlayDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private DisplayData() {
       }
 
@@ -79,7 +79,7 @@ public final class SchoolCategoryOverlay extends KoronaRegionEchogramOverlay {
             }
             Color color = cac0Datagram.numberToCategory(categoryNumber).getColor();
             int textureSize = 9;
-            int offset = Utils.mod((int) entry.getValue().bounds().getMinX(), textureSize);
+            int offset = MathUtils.mod((int) entry.getValue().bounds().getMinX(), textureSize);
             Paint paint = PaintFactory.createCrossedPaint(color, textureSize, 3, offset);
             g2d.setPaint(paint);
             g2d.fill(entry.getValue().path());

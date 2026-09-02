@@ -321,6 +321,11 @@ public final class PreprocessingSetup implements ParameterContainer {
       public Editor getEditor() {
          return cfsManager.createCfsEditor();
       }
+
+      @Override
+      public Copier getCopier() {
+         return cfsManager.createCfsCopier();
+      }
    }
 
    private static final class SyncParameter extends ObjectParameter<Optional<FileParameter>> {

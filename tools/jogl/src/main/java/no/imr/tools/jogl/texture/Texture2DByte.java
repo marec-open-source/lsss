@@ -12,7 +12,7 @@ public final class Texture2DByte extends Texture2D<byte[]> {
    }
 
    @Override
-   void updateTexture1D(GL2 gl, byte[] data, int nx, int ny) {
+   void updateTexture2D(GL2 gl, byte[] data, int nx, int ny) {
       int repackedNy = repackedDim(ny);
       if (ny != repackedNy * 4) {
          data = repackData(data, nx, ny, repackedNy);

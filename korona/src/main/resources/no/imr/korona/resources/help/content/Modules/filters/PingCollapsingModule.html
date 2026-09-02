@@ -1,6 +1,15 @@
 <h1>Ping collapsing module</h1>
 <p>
-   Collapses sequential pinging. Note that collapsing pings necessarily changes ping-count as compared to the original, and therefore ping-count starts at 1 if this module is used.
+   This module collapses sequential pinging.
+   Consecutive pings with sample data only on different channels, will be combined into one ping.
+</p>
+<p>
+   The motion data (heave, roll, pitch, heading) of the resulting collapsed ping
+   will not contain the varying motion data of the original set of several uncollapsed pings.
+</p>
+<p>
+   Collapsing pings necessarily changes the ping-count compared to the original,
+   and therefore the ping-count starts at 1 if this module is used.
 </p>
 
 <h2 id="Parameters">Parameters</h2>

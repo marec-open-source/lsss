@@ -30,7 +30,7 @@ public final class PreviewFeatureToggles {
    }
 
    private static Preferences getPreferences() {
-      return Preferences.userRoot().node("/no/marec/lsss/preview");
+      return Preferences.userRoot().node("no/marec/lsss/preview");
    }
 
    void load() {

@@ -11,8 +11,8 @@ import no.imr.tools.misc.ThreadDump;
 import no.imr.tools.misc.test.UniqueTmpDir;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 /**
  * Executes smoke tests.
@@ -43,23 +43,20 @@ public final class SmokeTestExecutor {
       }
 
       try {
-         Log.addHandler(new MaxLevelHandler() {
-            @Override
-            protected void newMaxLevel(LogRecord logRecord) {
-               if (logRecord.getLevel().intValue() >= Level.WARNING.intValue()) {
-                  System.err.println("Smoke test: log >= warning");
-                  System.err.println(new OneLineFormatter().format(logRecord));
-                  if (logRecord.getThrown() == null) {
-                     new SmokeTestException(logRecord.getLevel().getName()).printStackTrace(System.err);
-                  }
-                  Thread.ofVirtual().name("maxLogLevel").start(() -> {
-                     // Run in a different thread, in case logging is done via an executor
-                     // that should be stopped in a shutdown hhok.
-                     System.exit(1);
-                  });
+         Log.addHandler(new MaxLevelHandler(logRecord -> {
+            if (logRecord.getLevel().intValue() >= Level.WARNING.intValue()) {
+               System.err.println("Smoke test: log >= warning");
+               System.err.println(new OneLineFormatter().format(logRecord));
+               if (logRecord.getThrown() == null) {
+                  new SmokeTestException(logRecord.getLevel().getName()).printStackTrace(System.err);
                }
+               Thread.ofVirtual().name("maxLogLevel").start(() -> {
+                  // Run in a different thread, in case logging is done via an executor
+                  // that should be stopped in a shutdown hook.
+                  System.exit(1);
+               });
             }
-         });
+         }));
 
          for (SmokeTestRunnable smokeTest : smokeTests) {
             smokeTest.run();
@@ -83,7 +80,7 @@ public final class SmokeTestExecutor {
 
    private static void waitForShutdown() {
       Thread.ofVirtual().name("waitForShutdown").start(() -> {
-         Utils.sleep(60_000);
+         Utils.sleep(Duration.ofSeconds(60));
          shutdownFailed();
       });
    }

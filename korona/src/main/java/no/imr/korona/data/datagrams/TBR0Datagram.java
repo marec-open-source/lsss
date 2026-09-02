@@ -3,6 +3,7 @@ package no.imr.korona.data.datagrams;
 import no.imr.tools.range.FloatRange;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 public final class TBR0Datagram extends DatagramPingItem implements TrackPingItem {
    public static final DatagramType TYPE = DatagramType.simple("TBR0", TBR0Datagram::new);
@@ -12,8 +13,8 @@ public final class TBR0Datagram extends DatagramPingItem implements TrackPingIte
    private final FloatRange depthRange;
    private final float peakDepth;
 
-   public TBR0Datagram(long ntDate, int id, int channel, FloatRange depthRange, float peakDepth) {
-      super(ntDate);
+   public TBR0Datagram(Instant instant, int id, int channel, FloatRange depthRange, float peakDepth) {
+      super(instant);
 
       this.id = id;
       this.channel = channel;
@@ -21,8 +22,8 @@ public final class TBR0Datagram extends DatagramPingItem implements TrackPingIte
       this.peakDepth = peakDepth;
    }
 
-   public TBR0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public TBR0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       id = byteBuffer.getInt();
       channel = 0xffff & byteBuffer.getShort();

@@ -16,14 +16,16 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 
 public final class AdcpData {
    private static final LoadingCache<Path, AdcpData> DIR_TO_ADCP_DATA = CacheBuilder.newBuilder()
          .maximumSize(1)
          .<Path, AdcpData>removalListener(notification -> {
-            notification.getValue().close();
+            AdcpData adcpData = notification.getValue();
+            if (adcpData != null) {
+               adcpData.close();
+            }
          })
          .build(CacheLoader.from(AdcpData::forDirectory));
 
@@ -47,24 +49,22 @@ public final class AdcpData {
          return new AdcpData(List.of());
       }
       List<AdcpFile> adcpFiles = files.stream()
-            .map(file -> {
+            .<AdcpFile>mapMulti((file, consumer) -> {
                try {
                   AdcpFile adcpFile = AdcpFile.open(file);
                   if (adcpFile == null) {
                      // Does not contain ADCP data.
-                     return null;
+                     return;
                   }
                   if (adcpFile.getPingTime().length == 0) {
                      Log.global.log(Level.WARNING, "No pings in " + file);
-                     return null;
+                     return;
                   }
-                  return adcpFile;
+                  consumer.accept(adcpFile);
                } catch (Exception e) {
                   Log.global.log(Level.WARNING, "Error opening " + file, e);
-                  return null;
                }
             })
-            .filter(Objects::nonNull)
             .toList();
       return new AdcpData(adcpFiles);
    }
@@ -75,15 +75,11 @@ public final class AdcpData {
       }
    }
 
-   private @Nullable AdcpFile netcdfTimeToAdcpFile(long netcdfTime) {
-      return netcdfTimeToAdcpFile.get(netcdfTime);
-   }
-
    static @Nullable AdcpLookup lookup(String variablePath, Ping ping) {
       Path dir = ping.getPingConfiguration().getRawFileConfiguration().getDataFile().getParent();
       AdcpData adcpData = DIR_TO_ADCP_DATA.getUnchecked(dir);
-      long netcdfTime = NetcdfUtils.ntDateToNetcdfTime(ping.getNTDate());
-      AdcpFile adcpFile = adcpData.netcdfTimeToAdcpFile(netcdfTime);
+      long netcdfTime = NetcdfUtils.instantToNetcdfTime(ping.getInstant());
+      AdcpFile adcpFile = adcpData.netcdfTimeToAdcpFile.get(netcdfTime);
       if (adcpFile == null) {
          return null;
       }

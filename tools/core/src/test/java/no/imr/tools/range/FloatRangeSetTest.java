@@ -20,7 +20,7 @@ final class FloatRangeSetTest {
    }
 
    @Test
-   void testEquals() {
+   void equalsAndHashCode() {
       FloatRangeSet a = FloatRangeSet.of(List.of(FloatRange.of(0, 1), FloatRange.of(2, 3), FloatRange.of(3, 4)));
       FloatRangeSet b = FloatRangeSet.of(List.of(FloatRange.of(0, 1), FloatRange.of(2, 4)));
       assertEquals(a.hashCode(), b.hashCode());

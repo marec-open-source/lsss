@@ -36,15 +36,15 @@ public final class BroadbandSplitterBand implements ParameterContainer, Comparab
    }
 
    @Override
-   public int compareTo(BroadbandSplitterBand o) {
-      int c = Float.compare(nominal.getFloatValue(), o.nominal.getFloatValue());
+   public int compareTo(BroadbandSplitterBand other) {
+      int c = Float.compare(nominal.getFloatValue(), other.nominal.getFloatValue());
       if (c != 0) {
          return c;
       }
-      c = Float.compare(start.getValue().orElse(Float.NEGATIVE_INFINITY), o.start.getValue().orElse(Float.NEGATIVE_INFINITY));
+      c = Float.compare(start.getValue().orElse(Float.NEGATIVE_INFINITY), other.start.getValue().orElse(Float.NEGATIVE_INFINITY));
       if (c != 0) {
          return c;
       }
-      return Float.compare(stop.getValue().orElse(Float.POSITIVE_INFINITY), o.stop.getValue().orElse(Float.POSITIVE_INFINITY));
+      return Float.compare(stop.getValue().orElse(Float.POSITIVE_INFINITY), other.stop.getValue().orElse(Float.POSITIVE_INFINITY));
    }
 }

@@ -14,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.List;
 import java.util.function.Function;
 
@@ -31,12 +32,12 @@ public final class Con1Datagram extends BaseDatagram {
    /**
     * Constructs a Con1Datagram given a time a ByteBuffer to read from.
     *
-    * @param ntDate     time for datagram
+    * @param instant    time for datagram
     * @param byteBuffer buffer to get from
     * @throws DatagramFormatException when parsing fails
     */
-   public Con1Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Con1Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       bytes = new byte[byteBuffer.remaining()];
       byteBuffer.get(bytes);

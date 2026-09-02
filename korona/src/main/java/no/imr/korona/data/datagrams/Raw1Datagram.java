@@ -4,9 +4,10 @@ import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.korona.data.ping.items.PingConversion;
 import no.imr.korona.data.ping.items.PingItem;
 import no.imr.korona.data.ping.items.channel.PowerData;
-import no.imr.tools.Utils;
+import no.imr.korona.util.KoronaUtils;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.function.Function;
 
 public final class Raw1Datagram extends DatagramPingItem {
@@ -57,8 +58,8 @@ public final class Raw1Datagram extends DatagramPingItem {
    public int count; // no. of samples
    public float[] data;
 
-   public Raw1Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Raw1Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       channel = byteBuffer.getShort();
       dataType = byteBuffer.get();
@@ -174,7 +175,7 @@ public final class Raw1Datagram extends DatagramPingItem {
    @Override
    public String toStringExtra() {
       return "channel: " + String.format("%2d", channel)
-            + ", frequency: " + String.format("%3d", Utils.hzToKHz(frequency)) + " kHz"
+            + ", frequency: " + String.format("%3d", KoronaUtils.hzToKHz(frequency)) + " kHz"
             + ", sampleCount: " + count;
    }
 

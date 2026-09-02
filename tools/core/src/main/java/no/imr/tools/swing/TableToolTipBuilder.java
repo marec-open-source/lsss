@@ -12,7 +12,6 @@ public final class TableToolTipBuilder {
             <style>
                td { white-space: nowrap; }
                td.unavailable { font-style: italic; color: gray; }
-               td.label { margin-right: 10px; }
             </style>
             <table cellpadding=0 cellspacing=0>
             """);
@@ -34,11 +33,11 @@ public final class TableToolTipBuilder {
    }
 
    public TableToolTipBuilder addRow(String name, @Nullable String... values) {
-      stringBuilder.append("<tr><td class=label");
-      if (values[0] == null) {
+      stringBuilder.append("<tr><td style='margin-right: 10px;'");
+      if (values.length == 0 || values[0] == null) {
          stringBuilder.append(" class=unavailable");
       }
-      stringBuilder.append('>').append(name).append("</td>");
+      stringBuilder.append('>').append(htmlEscape(name)).append("</td>");
       for (String value : values) {
          stringBuilder.append("<td align=right>").append(value != null ? htmlEscape(value) : "").append("</td>");
       }

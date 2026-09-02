@@ -5,6 +5,7 @@ import no.imr.korona.data.ping.items.channel.ComplexChannelData;
 import no.imr.tools.Utils;
 import no.imr.tools.parameter.Unit;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +37,7 @@ final class ImpedanceIndicator extends DataQualityIndicator {
    }
 
    @Override
-   float[] computeResult(long[] timeInMillis, float[] bottomDepths) {
+   float[] computeResult(Instant[] instants, float[] bottomDepths) {
       return Utils.toFloats(valueList);
    }
 }

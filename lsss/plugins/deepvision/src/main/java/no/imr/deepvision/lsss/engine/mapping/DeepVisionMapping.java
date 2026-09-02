@@ -11,6 +11,9 @@ import no.imr.tools.range.Range;
 import no.marec.lsss.api.util.GeoPoint;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +25,7 @@ public abstract class DeepVisionMapping {
 
    @FunctionalInterface
    interface ClosestPingIndexFinder {
-      @Nullable PingIndex getClosestPingIndex(long deepVisionTime, @Nullable GeoPoint deepVisionGeoPos, PingIndex prevLsssIndex);
+      @Nullable PingIndex getClosestPingIndex(Instant deepVisionTime, @Nullable GeoPoint deepVisionGeoPos, PingIndex prevLsssIndex);
    }
 
    DeepVisionMapping() {
@@ -30,17 +33,17 @@ public abstract class DeepVisionMapping {
 
    void addTimes(DataFileSet lsssDataFileSet, DeepVisionFileInfo deepVisionFileInfo, ClosestPingIndexFinder closestPingIndexFinder) {
       int numPoints = 0;
-      long prevLsssTime = -1;
+      Instant prevLsssTime = null;
       PingIndex prevLsssPingIndex = lsssDataFileSet.getTotalRange().begin();
       List<DeepVisionFrame> frames = deepVisionFileInfo.getDeepVisionFile().frames.frames;
-      long[] deepVisionTimes = new long[frames.size()];
-      long[] lsssTimes = new long[frames.size()];
+      Instant[] deepVisionTimes = new Instant[frames.size()];
+      Instant[] lsssTimes = new Instant[frames.size()];
       float[] athwartShipDistance = new float[frames.size()];
       ElapsedTime elapsedTime = null;
-      int interval = 5000; // 5 seconds
+      Duration interval = Duration.ofSeconds(5);
       boolean containsPositions = frames.stream().anyMatch(DeepVisionDataUtils::validPosition);
       for (DeepVisionFrame frame : frames) {
-         long dvTime = DeepVisionDataUtils.timeInMillis(frame);
+         Instant dvTime = DeepVisionDataUtils.time(frame);
          elapsedTime = ElapsedTime.checkElapsedTime(elapsedTime, dvTime, interval);
          if (elapsedTime.inInterval()) {
             continue;
@@ -52,14 +55,14 @@ public abstract class DeepVisionMapping {
          elapsedTime = new ElapsedTime(dvTime, interval);
          PingIndex pingIndex = closestPingIndexFinder.getClosestPingIndex(dvTime, geoPos, prevLsssPingIndex);
          if (pingIndex != null) {
-            long timeDiff = dvTime - pingIndex.getTimeInMillis();
-            if (numPoints > 0) {
-               long clampedTimeDiff = Math.clamp(timeDiff, 0, Math.max(0, dvTime - prevLsssTime));
-               prevLsssTime = dvTime - clampedTimeDiff;
+            long timeDiff = pingIndex.getInstant().until(dvTime, ChronoUnit.NANOS);
+            if (prevLsssTime != null) {
+               long clampedTimeDiff = Math.clamp(timeDiff, 0, Math.max(0, prevLsssTime.until(dvTime, ChronoUnit.NANOS)));
+               prevLsssTime = dvTime.minusNanos(clampedTimeDiff);
             } else {
-               prevLsssTime = dvTime - timeDiff;
+               prevLsssTime = dvTime.minusNanos(timeDiff);
             }
-            prevLsssPingIndex = lsssDataFileSet.getClosestPingIndex(PingMapping.millisToTimeValue(prevLsssTime), PingMapping.TIME);
+            prevLsssPingIndex = lsssDataFileSet.getClosestPingIndex(PingMapping.instantToTimeValue(prevLsssTime), PingMapping.TIME);
             float athwart = containsPositions ? DistanceInterpolator.computeAthwartDistance(lsssDataFileSet, geoPos, prevLsssPingIndex) : 0;
 
             deepVisionTimes[numPoints] = dvTime;
@@ -77,33 +80,33 @@ public abstract class DeepVisionMapping {
       distanceMapping.put(deepVisionFileInfo, new DistanceInterpolator(deepVisionTimes, athwartShipDistance));
    }
 
-   public long deepVisionTimeToLsssTime(long deepVisionTimeMillis, DeepVisionFileInfo deepVisionFileInfo) {
+   public Instant deepVisionTimeToLsssTime(Instant deepVisionTime, DeepVisionFileInfo deepVisionFileInfo) {
       TimeInterpolator timeInterpolator = timeMapping.get(deepVisionFileInfo);
       if (timeInterpolator == null) {
-         return 0;
+         return Instant.EPOCH;
       }
-      return timeInterpolator.deepVisionTimeToLsssTime(deepVisionTimeMillis);
+      return timeInterpolator.deepVisionTimeToLsssTime(deepVisionTime);
    }
 
-   public Range<Long> deepVisionTimeRangeToLsssTimeRange(Range<Long> deepVisionTimeRangeMillis, DeepVisionFileInfo deepVisionFileInfo) {
+   public Range<Instant> deepVisionTimeRangeToLsssTimeRange(Range<Instant> deepVisionTimeRange, DeepVisionFileInfo deepVisionFileInfo) {
       return new DefaultRange<>(
-            deepVisionTimeToLsssTime(deepVisionTimeRangeMillis.begin(), deepVisionFileInfo),
-            deepVisionTimeToLsssTime(deepVisionTimeRangeMillis.end(), deepVisionFileInfo));
+            deepVisionTimeToLsssTime(deepVisionTimeRange.begin(), deepVisionFileInfo),
+            deepVisionTimeToLsssTime(deepVisionTimeRange.end(), deepVisionFileInfo));
    }
 
-   public long lsssTimeToDeepVisionTime(long lsssTimeMillis, DeepVisionFileInfo deepVisionFileInfo) {
+   public Instant lsssTimeToDeepVisionTime(Instant lsssTime, DeepVisionFileInfo deepVisionFileInfo) {
       TimeInterpolator timeInterpolator = timeMapping.get(deepVisionFileInfo);
       if (timeInterpolator == null) {
-         return 0;
+         return Instant.EPOCH;
       }
-      return timeInterpolator.lsssTimeToDeepVisionTime(lsssTimeMillis);
+      return timeInterpolator.lsssTimeToDeepVisionTime(lsssTime);
    }
 
-   public float deepVisionTimeToAthwartDistanceMeters(long deepVisionTimeMillis, DeepVisionFileInfo deepVisionFileInfo) {
+   public float deepVisionTimeToAthwartDistanceMeters(Instant deepVisionTime, DeepVisionFileInfo deepVisionFileInfo) {
       DistanceInterpolator distanceInterpolator = distanceMapping.get(deepVisionFileInfo);
       if (distanceInterpolator == null) {
          return 0;
       }
-      return distanceInterpolator.deepVisionTimeToAthwartDistance(deepVisionTimeMillis);
+      return distanceInterpolator.deepVisionTimeToAthwartDistance(deepVisionTime);
    }
 }

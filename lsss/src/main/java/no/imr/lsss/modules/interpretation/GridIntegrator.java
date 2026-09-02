@@ -28,6 +28,7 @@ import no.imr.tools.database.DatabaseUtils;
 import no.imr.tools.range.FloatRange;
 import org.jspecify.annotations.Nullable;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -177,13 +178,13 @@ public final class GridIntegrator {
 
          PingRange pingRange = gridColumn.getPingRange();
 
-         DatabaseTime databaseTime = new DatabaseTime(pingRange.begin().getTimeInMillis());
+         DatabaseTime databaseTime = new DatabaseTime(pingRange.begin().getInstant());
          ObservationPK observationPK = StoreUtils.createObservationPK(survey.getCompId(), databaseTime, grid.getScatterTypeEnum().getObservationTypeEnum());
          Observation observation = result.observations.computeIfAbsent(observationPK, pk -> {
             return StoreUtils.createObservation(pk, perInterval.dataFileSet, pingRange.begin());
          });
 
-         DatabaseTime endDatabaseTime = new DatabaseTime(pingRange.end().getTimeInMillis());
+         DatabaseTime endDatabaseTime = new DatabaseTime(pingRange.end().getInstant());
          ObservationPK endObservationPK = StoreUtils.createObservationPK(survey.getCompId(), endDatabaseTime, ObservationTypeEnum.NAVIGATION_DATA_INPUT);
          result.observations.computeIfAbsent(endObservationPK, pk -> {
             return StoreUtils.createObservation(pk, perInterval.dataFileSet, pingRange.end());
@@ -204,7 +205,7 @@ public final class GridIntegrator {
 
          scatter.setObservationType(observation.getCompId().getObservationType());
 
-         long durationMillis = DatabaseTime.roundMillis(pingRange.end().getTimeInMillis()) - databaseTime.getMillis();
+         long durationMillis = databaseTime.getInstant().until(DatabaseTime.truncatedInstant(pingRange.end().getInstant()), ChronoUnit.MILLIS);
          scatter.setDuration((int) (durationMillis / 10));
          scatter.setDistanceInterval((float) gridColumn.getGridColumnInterval().horizontalSize());
 

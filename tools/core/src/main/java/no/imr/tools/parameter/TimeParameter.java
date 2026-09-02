@@ -10,7 +10,10 @@ import java.util.Optional;
  */
 public class TimeParameter extends OptionalParameter<LocalTime> {
    private static final Unit UNIT = new Unit("HH:MM:SS:XX");
-   private static final ValueConverter<Optional<LocalTime>> CONVERTER = ValueConverters.of(DateTimeMillis::centisTimeToLocalTime, DateTimeMillis::localTimeToCentisString);
+   private static final ValueConverter<Optional<LocalTime>> CONVERTER = ValueConverters.optional(ValueConverters.of(
+         DateTimeMillis::centisTimeToLocalTime,
+         DateTimeMillis::localTimeToCentisString
+   ));
 
    public TimeParameter(Name name) {
       super(name, Optional.empty(), UNIT, "", CONVERTER);

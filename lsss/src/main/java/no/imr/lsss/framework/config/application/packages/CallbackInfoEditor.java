@@ -21,7 +21,7 @@ final class CallbackInfoEditor implements ParameterContainer {
          "",
          "Filters list of actions");
 
-   private final ActionParameter action = new ActionParameter();
+   private final ActionParameter action;
 
    private final ObjectParameter<Optional<LsssCallbackEvent>> event = new ObjectParameter<>(new Name("Event"),
          Optional.empty()) {
@@ -38,11 +38,13 @@ final class CallbackInfoEditor implements ParameterContainer {
       this.userDefinedPackage = userDefinedPackage;
       this.callbackInfo = callbackInfo;
 
+      action = new ActionParameter(userDefinedPackage, callbackInfo);
+
       List<Optional<LsssCallbackEvent>> events = Utils.toOptionals(Arrays.asList(LsssCallbackEvent.values()));
       try {
          event.setAllowedValuesAndValue(events, Optional.of(LsssCallbackEvent.valueOf(callbackInfo.event)));
       } catch (IllegalArgumentException _) {
-         events.addFirst(Optional.empty());
+         events = Utils.toList(List.of(Optional.empty()), events);
          event.setAllowedValuesAndValue(events, Optional.empty());
       }
    }
@@ -57,13 +59,10 @@ final class CallbackInfoEditor implements ParameterContainer {
    }
 
    void init(ParameterEditor parameterEditor) {
-      action.init(parameterEditor, filter, userDefinedPackage, callbackInfo);
+      action.init(parameterEditor, filter);
    }
 
    boolean isOK(ParameterEditor parameterEditor) {
-      if (!parameterEditor.commitEdits()) {
-         return false;
-      }
       if (action.getValue().isEmpty()) {
          JOptionPane.showMessageDialog(parameterEditor.getEditorComponent(), "Please select an action", "Error", JOptionPane.ERROR_MESSAGE);
          parameterEditor.getInputComponent(action).requestFocusInWindow();

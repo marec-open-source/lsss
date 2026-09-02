@@ -10,8 +10,8 @@ public final class SvSum {
       reset();
    }
 
-   public WelfordsMethod[] getWelfordsMethod() {
-      return welfordsMethod;
+   public WelfordsMethod getWelfordsMethod(int channelIndex) {
+      return welfordsMethod[channelIndex];
    }
 
    public void reset() {

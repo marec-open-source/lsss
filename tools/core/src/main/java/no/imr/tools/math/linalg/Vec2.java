@@ -1,6 +1,6 @@
 package no.imr.tools.math.linalg;
 
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 
 import java.awt.geom.Point2D;
 
@@ -80,6 +80,6 @@ public record Vec2(float x, float y) {
    }
 
    public float length() {
-      return Utils.hypot(x, y);
+      return MathUtils.hypot(x, y);
    }
 }

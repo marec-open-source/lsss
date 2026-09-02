@@ -19,7 +19,7 @@ import java.io.IOException;
 /**
  * File parameter editor for all flavors,{@link TransducerParameters.ParameterType}, of {@link TransducerParameterManager}.
  */
-final class TransducerFileParameterEditor extends ConfigFileParameterEditor {
+final class TransducerFileParameterEditor extends ConfigFileParameterEditor<ConfigFileService> {
    private final TransducerParameters.ParameterType parameterType;
 
    TransducerFileParameterEditor(ConfigFileService configFileService, ConfigFileSettings configFileSettings,
@@ -31,15 +31,15 @@ final class TransducerFileParameterEditor extends ConfigFileParameterEditor {
 
    @Override
    public boolean edit(@Nullable Component referenceComponent, boolean editable) {
-
+      TransducerParameterManager transducerParameterManager;
       try {
          Document document = XmlUtils.readDocument(getFile());
-         TransducerParameterManager transducerParameterManager = new TransducerParameterManager(parameterType, document);
-         return show(referenceComponent, transducerParameterManager, editable);
+         transducerParameterManager = new TransducerParameterManager(parameterType, document);
       } catch (IOException e) {
          GuiUtils.showErrorDialog(referenceComponent, "Error reading " + getFile(), e);
          return false;
       }
+      return show(referenceComponent, transducerParameterManager, editable);
    }
 
    @Override
@@ -56,8 +56,8 @@ final class TransducerFileParameterEditor extends ConfigFileParameterEditor {
       ParameterTableGUI<TransducerParameters> tableGUI = new ParameterTableGUI<>(tableModel);
       boolean ok = new ConfigurableGUIDialog(referenceComponent, getConfigFileService().getName().displayName(), transducerParameterManager)
             .setHelpID(getHelpID())
-            .setCloseOnOk(tableGUI::stopEditing)
-            .setNoScrollGUI(tableGUI.createScrollPane())
+            .setScrollable(false)
+            .setGUI(tableGUI.createScrollPane())
             .show();
       if (ok) {
          transducerParameterManager.sortAndNotify();

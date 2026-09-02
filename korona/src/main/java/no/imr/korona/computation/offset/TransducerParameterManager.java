@@ -14,7 +14,7 @@ import java.util.Optional;
 
 /**
  * Data structure for transducer parameter configuration.
- * I/O to xml file for persistence of configuration.
+ * I/O to XML file for persistence of configuration.
  * Keeps a sorted List of TransducerParameters objects.
  */
 public final class TransducerParameterManager extends Configurable {

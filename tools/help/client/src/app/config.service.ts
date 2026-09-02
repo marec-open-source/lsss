@@ -1,54 +1,55 @@
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {inject, Injectable} from '@angular/core';
+import {inject, Service, signal, WritableSignal} from '@angular/core';
 import {Router} from '@angular/router';
-import {BehaviorSubject, Observable, ReplaySubject} from 'rxjs';
+import {Observable} from 'rxjs';
 import {ClientConfig} from './api/ClientConfig';
 import {HelpSet} from './api/HelpSet';
 import {TocItem} from './api/TocItem';
 import {NavItem} from './misc/NavItem';
 import * as Utils from './misc/Utils';
 
-@Injectable({
-   providedIn: 'root',
-})
+@Service()
 export class ConfigService {
    private readonly http: HttpClient = inject(HttpClient);
    private readonly router: Router = inject(Router);
 
-   loading: boolean = true;
-   errorResponse?: HttpErrorResponse;
+   readonly loading: WritableSignal<boolean> = signal(true);
+   readonly errorResponse: WritableSignal<HttpErrorResponse | undefined> = signal(undefined);
 
-   readonly init: ReplaySubject<boolean> = new ReplaySubject<boolean>();
+   readonly init: Promise<boolean>;
    config!: ClientConfig;
 
    currentHelpSet?: HelpSet;
-   routePrefix: string = '';
-   readonly navigation: BehaviorSubject<NavItem | undefined> = new BehaviorSubject<NavItem | undefined>(undefined);
+   routePrefix: '/page' | '/set' | '/all' = '/page';
+   readonly navigation: WritableSignal<NavItem | undefined> = signal(undefined);
 
    constructor() {
-      this.http.get<ClientConfig>('api/config.json').subscribe({
-         next: config => {
-            this.config = config;
-            this.config.helpSets.forEach(helpSet => {
-               helpSet.imgSrc = Utils.normalizeUrl(`api/file/${helpSet.path}`, helpSet.icon);
-               helpSet.pageIdToTocItem = {};
-               helpSet.hrefToTocItem = {};
-               this.initTocItems(helpSet, helpSet.toc);
-            });
-            const mainHelpSet = config.helpSets[0];
-            const linkElement: HTMLLinkElement | null = document.querySelector('link[rel="icon"]');
-            if (linkElement) {
-               linkElement.href = mainHelpSet.imgSrc;
+      this.init = new Promise<boolean>(resolve => {
+         this.http.get<ClientConfig>('api/config.json').subscribe({
+            next: config => {
+               this.config = config;
+               this.config.helpSets.forEach(helpSet => {
+                  helpSet.imgSrc = Utils.normalizeUrl(`api/file/${helpSet.path}`, helpSet.icon);
+                  helpSet.pageIdToTocItem = {};
+                  helpSet.hrefToTocItem = {};
+                  this.initTocItems(helpSet, helpSet.toc);
+               });
+               const mainHelpSet = config.helpSets[0];
+               const linkElement: HTMLLinkElement | null = document.querySelector('link[rel="icon"]');
+               if (linkElement) {
+                  linkElement.href = mainHelpSet.imgSrc;
+               }
+               document.title = `${mainHelpSet.name} ${mainHelpSet.version} Help`;
+               resolve(true);
+               this.loading.set(false);
+            },
+            error: error => {
+               resolve(false);
+               this.loading.set(false);
+               this.errorResponse.set(error);
+               console.error(error);
             }
-            document.title = `${mainHelpSet.name} ${mainHelpSet.version} Help`;
-            this.init.next(true);
-            this.loading = false;
-         },
-         error: error => {
-            this.loading = false;
-            this.errorResponse = error;
-            console.log(error);
-         }
+         });
       });
    }
 
@@ -117,7 +118,7 @@ export class ConfigService {
       const i = url.lastIndexOf('#');
       const pageUrl = i < 0 ? url : url.substring(0, i);
       const pagePath = pageUrl.substring('api/file/'.length);
-      const helpSet = this.config.helpSets.find(hs => pagePath.startsWith(hs.path));
+      const helpSet = this.config.helpSets.find(hs => pagePath.startsWith(hs.path + '/'));
       if (!helpSet) {
          return undefined;
       }

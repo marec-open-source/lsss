@@ -31,6 +31,7 @@ public final class CyclicBoundedList<E> extends AbstractList<E> implements Rando
 
    @Override
    public boolean add(E e) {
+      modCount++;
       elements[(origin + size) % elements.length] = e;
       if (size == elements.length) {
          origin = (origin + 1) % elements.length;
@@ -42,6 +43,7 @@ public final class CyclicBoundedList<E> extends AbstractList<E> implements Rando
 
    @Override
    public void addFirst(E e) {
+      modCount++;
       origin = origin == 0 ? elements.length - 1 : origin - 1;
       elements[origin] = e;
       if (size < elements.length) {
@@ -51,6 +53,7 @@ public final class CyclicBoundedList<E> extends AbstractList<E> implements Rando
 
    @Override
    public void clear() {
+      modCount++;
       Arrays.fill(elements, null);
       size = 0;
       origin = 0;

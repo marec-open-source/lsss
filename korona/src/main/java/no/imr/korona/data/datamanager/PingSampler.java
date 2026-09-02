@@ -39,8 +39,8 @@ public final class PingSampler {
       this.pingSettings = pingSettings;
       data = new Data(PingLoadingStrategy.LONGEST_GAP_LEFT_TO_RIGHT, dataManager.getDataFileSet());
 
-      dataManager.getPingLoadedChangeManager().addListener(Listeners.inExecutor(executor, pair -> {
-         data.loadedPing(pair.first(), pair.second());
+      dataManager.getPingLoadedChangeManager().addListener(Listeners.inExecutor(executor, loadedPing -> {
+         data.loadedPing(loadedPing.ping(), loadedPing.pingData());
       }));
    }
 
@@ -53,8 +53,9 @@ public final class PingSampler {
       data = new Data(pingLoadingStrategy, dataManager.getDataFileSet());
    }
 
+   /// Cancels the current ping request and stops notifications of new pings.
    public void cancelPingRequest() {
-      data.asyncHandle.cancel();
+      data.cancel();
    }
 
    public void waitForPingRequest() {
@@ -83,6 +84,7 @@ public final class PingSampler {
    }
 
    private final class Data {
+      private final Object cancellationLock = new Object();
       private final AsyncHandle asyncHandle = new AsyncHandle();
       private final @Nullable Ping[] sampledPings;
       @SuppressWarnings("MismatchedReadAndWriteOfArray")
@@ -137,9 +139,9 @@ public final class PingSampler {
          List<PingIndex> neededPings = new ArrayList<>();
          pingLoadingStrategy.addNeededPings(sampledPings, sampledPingIndices, neededPings);
          dataFileSet.asyncLoadPings(neededPings, asyncHandle, () -> {
-            executor.execute(asyncHandle.createManagedRunnable(() -> notifyPingSamplerListenersNewPings(true)));
+            executor.execute(asyncHandle.createManagedRunnable(this::notifyPingSamplerListenersNewPings));
          });
-         executor.execute(asyncHandle.createManagedRunnable(() -> notifyPingSamplerListenersNewPings(true)));
+         executor.execute(asyncHandle.createManagedRunnable(this::notifyPingSamplerListenersNewPings));
       }
 
       private void fillInMissing(DataFileSet dataFileSet, @Nullable PingIndex[] pingIndices) {
@@ -188,12 +190,19 @@ public final class PingSampler {
          softPingData[i] = new SoftReference<>(pingData);
          newPings.add(ping);
 
-         notifyPingSamplerListenersNewPings(false);
+         if (notificationStopwatch.seconds() >= NOTIFICATION_INTERVAL_SECONDS) {
+            notifyPingSamplerListenersNewPings();
+         }
       }
 
-      private void notifyPingSamplerListenersNewPings(boolean now) {
-         if (!newPings.isEmpty()
-               && (now || notificationStopwatch.seconds() >= NOTIFICATION_INTERVAL_SECONDS)) {
+      private void notifyPingSamplerListenersNewPings() {
+         if (newPings.isEmpty()) {
+            return;
+         }
+         synchronized (cancellationLock) {
+            if (asyncHandle.isCancelled()) {
+               return;
+            }
             notificationStopwatch.restart();
             newPings.sort(null);
             availablePings = Arrays.stream(sampledPings)
@@ -201,6 +210,12 @@ public final class PingSampler {
                   .toList();
             newPingsChangeManager.notifyListeners(newPings);
             newPings = new ArrayList<>();
+         }
+      }
+
+      private void cancel() {
+         synchronized (cancellationLock) {
+            asyncHandle.cancel();
          }
       }
    }

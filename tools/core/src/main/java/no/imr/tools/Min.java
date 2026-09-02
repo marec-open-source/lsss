@@ -43,10 +43,7 @@ public final class Min {
    public static int of(int[] values, int beginIndex, int endIndex) {
       int result = Integer.MAX_VALUE;
       for (int i = beginIndex; i < endIndex; i++) {
-         int value = values[i];
-         if (value < result) {
-            result = value;
-         }
+         result = Math.min(result, values[i]);
       }
       return result;
    }
@@ -58,10 +55,7 @@ public final class Min {
    public static float of(float[] values, int beginIndex, int endIndex) {
       float result = Float.POSITIVE_INFINITY;
       for (int i = beginIndex; i < endIndex; i++) {
-         float value = values[i];
-         if (value < result) {
-            result = value;
-         }
+         result = Math.min(result, values[i]);
       }
       return result;
    }

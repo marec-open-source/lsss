@@ -5,7 +5,7 @@ import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.items.channel.ChannelData;
 import no.imr.korona.data.ping.items.channel.ComplexChannelData;
 import no.imr.korona.util.ExportRounding;
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.ExportTransform;
@@ -54,7 +54,7 @@ public final class ComplexChannelDataParameterFunction extends PingFunction {
             return Double.NaN;
          }
          double arg = complexChannelData.getTransducerImpedanceForSector(sectorIndex).arg();
-         return Utils.normalizeAngle0To360(Math.toDegrees(arg));
+         return MathUtils.normalizeAngle0To360(Math.toDegrees(arg));
       });
    }
 }

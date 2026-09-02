@@ -80,7 +80,7 @@ public final class ZoomMapOverlay extends BaseMapOverlay {
 
    @Override
    public void mouseReleased(MouseEvent mouseEvent) {
-      if (getDisplayData() instanceof DisplayData displayData) {
+      if (getUnwrappedDisplayData() instanceof DisplayData displayData) {
          getMapModule().fitGeoRect(getMapModule().getGeoTransform().pixToGeo(displayData.box), 1);
       }
       referencePoint = null;
@@ -124,13 +124,7 @@ public final class ZoomMapOverlay extends BaseMapOverlay {
       setCursor(LsssCursors.ZOOM);
    }
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final Rectangle2D.Float box;
-
-      private DisplayData(Rectangle2D.Float box) {
-         this.box = box;
-      }
-
+   private record DisplayData(Rectangle2D.Float box) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setColor(Color.BLACK);

@@ -34,7 +34,7 @@ final class PulseCompressionTest {
    }
 
    @Test
-   void testConvolution() {
+   void conv() {
       ComplexArray array1 = ComplexArray.ofLength(16);
       for (int i = 0; i < array1.length(); i++) {
          double re = 0.1 * i;

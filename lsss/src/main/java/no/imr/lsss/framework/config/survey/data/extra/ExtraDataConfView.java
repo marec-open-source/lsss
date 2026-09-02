@@ -87,10 +87,11 @@ final class ExtraDataConfView implements ViewHolder.View {
    }
 
    private JComponent createParameterEditor(ExtraDataDir extraDataDir) {
-      ParameterEditor parameterEditor = new ParameterEditor(extraDataDir.getParameters());
+      ParameterEditor parameterEditor = new ParameterEditor(extraDataDir.getParameters(), new GUIConfig()
+            .setTextInputColumns(30)
+            .setTextAlignment(GUIConfig.Alignment.LEFT)
+      );
       parameterEditor.getParameterChangeManager().addListener(updateListener);
-      parameterEditor.getGUIConfig().setTextInputColumns(30);
-      parameterEditor.getGUIConfig().setTextAlignment(GUIConfig.Alignment.LEFT);
       ScrollablePanel component = parameterEditor.getEditorComponent();
       component.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
       component.putClientProperty(extraDataDir, extraDataDir);

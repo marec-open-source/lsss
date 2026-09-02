@@ -3,34 +3,30 @@ package no.imr.tools.swing;
 import javax.swing.AbstractListModel;
 import javax.swing.JList;
 import javax.swing.text.Position;
+import java.util.function.Function;
 
 /**
  * A JList that modifies the search result when typing.
  */
-public abstract class ModifiedKeySearchJList<T> extends JList<T> {
-   protected ModifiedKeySearchJList() {
-   }
+public final class ModifiedKeySearchJList<T> extends JList<T> {
+   private final JList<String> tmpList;
 
-   protected abstract String valueToString(T value);
+   public ModifiedKeySearchJList(Function<T, String> valueToString) {
+      tmpList = new JList<>(new AbstractListModel<>() {
+         @Override
+         public int getSize() {
+            return getModel().getSize();
+         }
+
+         @Override
+         public String getElementAt(int index) {
+            return valueToString.apply(getModel().getElementAt(index));
+         }
+      });
+   }
 
    @Override
    public int getNextMatch(String prefix, int startIndex, Position.Bias bias) {
-      JList<String> tmpList = new JList<>(new ModifiedListModel());
       return tmpList.getNextMatch(prefix, startIndex, bias);
-   }
-
-   private final class ModifiedListModel extends AbstractListModel<String> {
-      private ModifiedListModel() {
-      }
-
-      @Override
-      public int getSize() {
-         return getModel().getSize();
-      }
-
-      @Override
-      public String getElementAt(int index) {
-         return valueToString(getModel().getElementAt(index));
-      }
    }
 }

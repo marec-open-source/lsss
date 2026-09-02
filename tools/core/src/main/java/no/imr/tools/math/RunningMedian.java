@@ -13,8 +13,12 @@ public final class RunningMedian {
       values = new float[capacity];
    }
 
+   public int size() {
+      return size;
+   }
+
    public float getMedian() {
-      return values[(size - 1) / 2];
+      return size > 0 ? values[(size - 1) / 2] : Float.NaN;
    }
 
    public void clear() {
@@ -22,6 +26,9 @@ public final class RunningMedian {
    }
 
    public void add(float value) {
+      if (size == values.length) {
+         throw new IllegalStateException("Full");
+      }
       int i = Arrays.binarySearch(values, 0, size, value);
       if (i < 0) {
          i = -(i + 1); // conversion to insertion point

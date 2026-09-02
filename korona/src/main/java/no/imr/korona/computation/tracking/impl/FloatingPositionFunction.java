@@ -21,7 +21,7 @@ public final class FloatingPositionFunction implements PositionFunction {
       float dz;
       Matrix3 rotation;
 
-      ChannelData channelData = ping.getNonNullChannelData();
+      ChannelData channelData = ping.getFirstAvailableChannelData();
       if (channelData == null) {
          dz = 0;
          rotation = Matrix3.IDENTITY;
@@ -38,7 +38,7 @@ public final class FloatingPositionFunction implements PositionFunction {
    @Override
    public Measurement toMeasurement(StateVector stateVector) {
       Vec3 pos = trsInv.transformPoint(stateVector.position());
-      return StationaryPositionFunction.globalPositionToMeasurement(pos, stateVector.ts());
+      return StationaryPositionFunction.globalPositionToMeasurement(pos, stateVector.tsc());
    }
 
    @Override

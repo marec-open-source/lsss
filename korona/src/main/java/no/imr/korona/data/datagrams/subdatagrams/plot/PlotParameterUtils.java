@@ -10,7 +10,7 @@ public final class PlotParameterUtils {
    public static PlotParameterConfigSubDatagram getOrCreateConfigSubDatagram(PingConfiguration pingConfiguration) {
       PlotParameterConfigSubDatagram configSubDatagram = pingConfiguration.getConfigurationItem(PlotParameterConfigSubDatagram.class);
       if (configSubDatagram == null) {
-         configSubDatagram = new PlotParameterConfigSubDatagram(pingConfiguration.getRawFileConfiguration().getNTDate());
+         configSubDatagram = new PlotParameterConfigSubDatagram(pingConfiguration.getRawFileConfiguration().getInstant());
          pingConfiguration.getConfigurationItems().add(configSubDatagram);
       }
       return configSubDatagram;
@@ -19,7 +19,7 @@ public final class PlotParameterUtils {
    public static PlotParameterValueSubDatagram getOrCreateValueSubDatagram(Ping ping) {
       PlotParameterValueSubDatagram valueSubDatagram = ping.getPingItem(PlotParameterValueSubDatagram.class);
       if (valueSubDatagram == null) {
-         valueSubDatagram = new PlotParameterValueSubDatagram(ping.getNTDate());
+         valueSubDatagram = new PlotParameterValueSubDatagram(ping.getInstant());
          ping.add(valueSubDatagram);
       }
       return valueSubDatagram;

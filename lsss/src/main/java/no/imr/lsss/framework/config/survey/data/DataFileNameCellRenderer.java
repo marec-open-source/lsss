@@ -7,15 +7,16 @@ import no.imr.korona.data.datamanager.labelling.DataFileLabelling;
 import no.imr.korona.data.ping.items.channel.BroadbandData;
 import no.imr.korona.data.track.SegmentHandle;
 import no.imr.korona.data.track.SegmentInfo;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.Utils;
 import no.imr.tools.misc.HtmlStringBuilder;
+import no.imr.tools.time.TimeUtils;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.Component;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -90,7 +91,7 @@ final class DataFileNameCellRenderer extends DefaultTableCellRenderer {
                .html("<br>Size: ").text(Utils.getByteSizeString(fileRow.getTotalFileSize(DataType.RAW)));
          SegmentInfo segmentInfo = fileRow.getSegmentInfo();
          if (segmentInfo != null && !segmentInfo.pingRange().isEmpty()) {
-            tooltip.html("<br>Start: ").text(new Date(segmentInfo.pingRange().begin().getTimeInMillis()).toString());
+            tooltip.html("<br>Start: ").text(TimeUtils.JAVA_UTIL_DATE_FORMATTER.format(segmentInfo.pingRange().begin().getInstant()));
             addFrequencyTooltip(tooltip, segmentInfo, fileRow.getDataTypes(DataType.RAW));
          }
          DataFileLabelUtils.addLabelsTooltip(tooltip, labels);
@@ -111,7 +112,7 @@ final class DataFileNameCellRenderer extends DefaultTableCellRenderer {
             tooltip.text("...");
             break;
          }
-         tooltip.text(Utils.hzToKHz(frequencies[i]));
+         tooltip.text(KoronaUtils.hzToKHz(frequencies[i]));
          if (BroadbandData.BROADBAND_DATA_TYPE_NAME.equals(dataTypes.get(i + 1))) {
             tooltip.text(" FM");
          }

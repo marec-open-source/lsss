@@ -14,9 +14,18 @@ import ucar.nc2.Variable;
 import ucar.nc2.ffi.netcdf.NetcdfClibrary;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 public final class NetcdfUtils {
+   /**
+    * NetcdfTime is unsigned "nanoseconds since 1601-01-01 00:00:00Z".
+    * NetcdfTime as a signed long is negative since 0x8000_0000_0000_0000L, i.e., 1893-04-11T23:47:16.854775808Z.
+    * NetcdfTime has a max value of 0xffff_ffff_ffff_ffffL, i.e., 2185-07-21T23:34:33.709551615Z.
+    */
+   private static final Instant START_NEGATIVE_NETCDF_TIME = Instant.ofEpochSecond(-2421101564L, 854775808); // 1893-04-11T23:47:16.854775808Z
+
    static {
       Log.global.info(NetcdfClibrary.isLibraryPresent()
             ? "NetCDF-C library version " + NetcdfClibrary.getVersion()
@@ -30,18 +39,16 @@ public final class NetcdfUtils {
       // Logging done in static initializer.
    }
 
-   public static long netcdfTimeToNTDate(long netcdfTime) {
-      // netcdfTime is unsigned "nanoseconds since 1601-01-01 00:00:00Z"
-      // netcdftime as a signed long is negative since 0x8000_0000_0000_0000L, i.e., 1893-04-11T23:47:16.854775800Z
-      // netcdfTime has a max value of 0xffff_ffff_ffff_ffffL, i.e., 2185-07-21T23:34:33.709551600Z
-      return (netcdfTime >>> 1) / 50; // = `netcdfTime / 100` done as an unsigned division
+   public static Instant netcdfTimeToInstant(long netcdfTime) {
+      return START_NEGATIVE_NETCDF_TIME.plusNanos(netcdfTime - 0x8000_0000_0000_0000L);
    }
 
-   public static long ntDateToNetcdfTime(long ntDate) {
-      if (ntDate < 0 || ntDate > 184467440737095516L) {
-         throw new IllegalArgumentException("NT date out of range for \"nanoseconds since 1601-01-01 00:00:00Z\": " + ntDate);
+   public static long instantToNetcdfTime(Instant instant) {
+      try {
+         return START_NEGATIVE_NETCDF_TIME.until(instant, ChronoUnit.NANOS) + 0x8000_0000_0000_0000L;
+      } catch (ArithmeticException _) {
+         throw new IllegalArgumentException(instant + " is out of range for \"nanoseconds since 1601-01-01 00:00:00Z\"");
       }
-      return ntDate * 100;
    }
 
    public static Group findGroup(Group parentGroup, String groupName) throws NetcdfDataException {

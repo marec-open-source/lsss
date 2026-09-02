@@ -150,7 +150,7 @@ public final class LatLonOverlay extends BaseMapOverlay {
       return getHeight() * (geoRect.getMaxY() - latitude) / geoRect.getHeight();
    }
 
-   private final class DisplayData extends OverlayDisplayData {
+   private final class DisplayData implements OverlayDisplayData {
       private final Path2D.Float path;
       private final List<GuiText> texts;
 

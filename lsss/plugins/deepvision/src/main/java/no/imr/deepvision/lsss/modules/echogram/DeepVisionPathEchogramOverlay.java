@@ -48,6 +48,8 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -116,13 +118,13 @@ public final class DeepVisionPathEchogramOverlay extends BaseEchogramOverlay {
       ));
    }
 
-   private record InteractionPoint(long lsssTime, float depth) {
+   private record InteractionPoint(Instant lsssTime, float depth) {
    }
 
    private InteractionPoint imagePointToInteractionPoint(Point2D imagePoint) {
       double x = Math.clamp(imagePoint.getX(), 0, getWidth());
       double y = Math.clamp(imagePoint.getY(), 0, getHeight());
-      long lsssTime = getPingSettings().xToMillis(x);
+      Instant lsssTime = getPingSettings().xToInstant(x);
       PingIndex pingIndex = getPingSettings().xToClosestPingIndex(x);
       float depth = getZSettings().yToDepth(y, pingIndex);
       return new InteractionPoint(lsssTime, depth);
@@ -137,8 +139,8 @@ public final class DeepVisionPathEchogramOverlay extends BaseEchogramOverlay {
       DeepVisionMapping deepVisionMapping = deepVisionMappingManager.getDeepVisionMapping();
       List<DeepVisionFrameInfo> candidates = new ArrayList<>();
       for (DeepVisionFileInfo deepVisionFileInfo : deepVisionFileInfos) {
-         long deepVisionTime = deepVisionMapping.lsssTimeToDeepVisionTime(interactionPoint.lsssTime(), deepVisionFileInfo);
-         int i = Utils.binarySearchForLong(deepVisionFileInfo.getDeepVisionFile().frames.frames, deepVisionTime, DeepVisionDataUtils::timeInMillis);
+         Instant deepVisionTime = deepVisionMapping.lsssTimeToDeepVisionTime(interactionPoint.lsssTime(), deepVisionFileInfo);
+         int i = Utils.binarySearch(deepVisionFileInfo.getDeepVisionFile().frames.frames, deepVisionTime, DeepVisionDataUtils::time);
          if (i < 0) {
             // not exact match
             i = -(i + 1); // conversion to insertion point
@@ -161,16 +163,17 @@ public final class DeepVisionPathEchogramOverlay extends BaseEchogramOverlay {
          }
       }
       if (bestMatch == null) {
+         long minTimeDistance = Long.MAX_VALUE;
          for (DeepVisionFileInfo deepVisionFileInfo : deepVisionFileInfos) {
             List<DeepVisionFrame> frames = deepVisionFileInfo.getDeepVisionFile().frames.frames;
             for (int i : new int[]{0, frames.size() - 1}) {
                DeepVisionFrame frame = frames.get(i);
-               long deepVisionTime = DeepVisionDataUtils.timeInMillis(frame);
-               long lsssTime = deepVisionMappingManager.getDeepVisionMapping().deepVisionTimeToLsssTime(deepVisionTime, deepVisionFileInfo);
-               float dist = Math.abs(lsssTime - interactionPoint.lsssTime);
-               if (dist < minDistance) {
+               Instant deepVisionTime = DeepVisionDataUtils.time(frame);
+               Instant lsssTime = deepVisionMappingManager.getDeepVisionMapping().deepVisionTimeToLsssTime(deepVisionTime, deepVisionFileInfo);
+               long dist = Math.abs(lsssTime.until(interactionPoint.lsssTime, ChronoUnit.NANOS));
+               if (dist < minTimeDistance) {
                   bestMatch = new DeepVisionFrameInfo(deepVisionFileInfo, i);
-                  minDistance = dist;
+                  minTimeDistance = dist;
                }
             }
          }
@@ -239,9 +242,9 @@ public final class DeepVisionPathEchogramOverlay extends BaseEchogramOverlay {
          List<DeepVisionFrame> frames = intersectingFile.getDeepVisionFile().frames.frames;
          for (int i = 0; i < frames.size(); i++) {
             DeepVisionFrame frame = frames.get(i);
-            long deepVisionTime = DeepVisionDataUtils.timeInMillis(frame);
-            long lsssTime = deepVisionMapping.deepVisionTimeToLsssTime(deepVisionTime, intersectingFile);
-            float x = getPingSettings().millisToX(lsssTime);
+            Instant deepVisionTime = DeepVisionDataUtils.time(frame);
+            Instant lsssTime = deepVisionMapping.deepVisionTimeToLsssTime(deepVisionTime, intersectingFile);
+            float x = getPingSettings().instantToX(lsssTime);
             if (x < 0 || x > width) {
                continue;
             }
@@ -301,9 +304,9 @@ public final class DeepVisionPathEchogramOverlay extends BaseEchogramOverlay {
       Rectangle2D.Float selectedPoint;
       DeepVisionFrameInfo selectedFrame = deepVisionSelectedFrame.getSelectedFrame();
       if (selectedFrame != null) {
-         long deepVisionTime = DeepVisionDataUtils.timeInMillis(selectedFrame.frame());
-         long lsssTime = deepVisionMapping.deepVisionTimeToLsssTime(deepVisionTime, selectedFrame.deepVisionFileInfo());
-         float x = getPingSettings().millisToX(lsssTime);
+         Instant deepVisionTime = DeepVisionDataUtils.time(selectedFrame.frame());
+         Instant lsssTime = deepVisionMapping.deepVisionTimeToLsssTime(deepVisionTime, selectedFrame.deepVisionFileInfo());
+         float x = getPingSettings().instantToX(lsssTime);
          PingIndex pingIndex = getPingSettings().xToClosestPingIndex(x);
          float depth = getSmoothedDepth(selectedFrame.deepVisionFileInfo().getDeepVisionFile().frames.frames, selectedFrame.frameIndex());
          float y = getZSettings().depthToY(depth, pingIndex);
@@ -312,8 +315,8 @@ public final class DeepVisionPathEchogramOverlay extends BaseEchogramOverlay {
       } else {
          selectedPoint = null;
       }
-      return new DisplayData(path, inactivePath, portPath, inactivePortPath, starboardPath, inactiveStarboardPath,
-            deepVisionImageViewModule.get().showOnlyActiveImages.getBooleanValue(), selectedPoint, createPaths(circles));
+      return transformed(new DisplayData(path, inactivePath, portPath, inactivePortPath, starboardPath, inactiveStarboardPath,
+            deepVisionImageViewModule.get().showOnlyActiveImages.getBooleanValue(), selectedPoint, createPaths(circles)));
    }
 
    private float getSmoothedDepth(List<DeepVisionFrame> frames, int index) {
@@ -347,7 +350,7 @@ public final class DeepVisionPathEchogramOverlay extends BaseEchogramOverlay {
       if (frame != null) {
          GeoPoint geoPos = DeepVisionDataUtils.geoPoint(frame.frame());
          DeepVisionMapping deepVisionMapping = deepVisionMappingManager.getDeepVisionMapping();
-         float athwartDistanceMeters = deepVisionMapping.deepVisionTimeToAthwartDistanceMeters(DeepVisionDataUtils.timeInMillis(frame.frame()), frame.deepVisionFileInfo());
+         float athwartDistanceMeters = deepVisionMapping.deepVisionTimeToAthwartDistanceMeters(DeepVisionDataUtils.time(frame.frame()), frame.deepVisionFileInfo());
          return new TableToolTipBuilder()
                .addRow("Frame", Long.toString(frame.frame().time))
                .addRow("Geo pos", geoPos != null ? Earth.formatGeoPoint(geoPos, "%f") : "N/A")
@@ -357,34 +360,19 @@ public final class DeepVisionPathEchogramOverlay extends BaseEchogramOverlay {
       return null;
    }
 
-   private final class DisplayData extends TransformedDisplayData {
-      private final Path2D.Float path;
-      private final Path2D.Float inactivePath;
-      private final Path2D.Float portPath;
-      private final Path2D.Float inactivePortPath;
-      private final Path2D.Float starboardPath;
-      private final Path2D.Float inactiveStarboardPath;
-      private final boolean useWeakerInactiveColors;
-      private final Rectangle2D.@Nullable Float selectedPoint;
-      private final Map<Color, Path2D.Float> ovals;
-
-      private DisplayData(Path2D.Float path, Path2D.Float inactivePath,
-                          Path2D.Float portPath, Path2D.Float inactivePortPath,
-                          Path2D.Float starboardPath, Path2D.Float inactiveStarboardPath,
-                          boolean useWeakerInactiveColors, Rectangle2D.@Nullable Float selectedPoint, Map<Color, Path2D.Float> ovals) {
-         this.path = path;
-         this.inactivePath = inactivePath;
-         this.portPath = portPath;
-         this.inactivePortPath = inactivePortPath;
-         this.starboardPath = starboardPath;
-         this.inactiveStarboardPath = inactiveStarboardPath;
-         this.useWeakerInactiveColors = useWeakerInactiveColors;
-         this.selectedPoint = selectedPoint;
-         this.ovals = ovals;
-      }
-
+   private record DisplayData(
+         Path2D.Float path,
+         Path2D.Float inactivePath,
+         Path2D.Float portPath,
+         Path2D.Float inactivePortPath,
+         Path2D.Float starboardPath,
+         Path2D.Float inactiveStarboardPath,
+         boolean useWeakerInactiveColors,
+         Rectangle2D.@Nullable Float selectedPoint,
+         Map<Color, Path2D.Float> ovals
+   ) implements OverlayDisplayData {
       @Override
-      protected void transformedDraw(Graphics2D g2d) {
+      public void draw(Graphics2D g2d) {
          for (Map.Entry<Color, Path2D.Float> entry : ovals.entrySet()) {
             g2d.setColor(entry.getKey());
             g2d.fill(entry.getValue());

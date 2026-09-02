@@ -7,6 +7,8 @@ import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 
+import java.time.Instant;
+
 /**
  * Creates synthetic datagrams.
  */
@@ -15,7 +17,7 @@ public final class SyntheticFactory {
    }
 
    static PingIndex createPingIndex(SyntheticData syntheticData, long pingNumber) {
-      return new DefaultPingIndex(syntheticData.getNTDate(pingNumber),
+      return new DefaultPingIndex(syntheticData.getInstant(pingNumber),
             pingNumber,
             syntheticData.getVesselDistance(pingNumber),
             syntheticData.getGeographicalPosition(pingNumber));
@@ -26,13 +28,13 @@ public final class SyntheticFactory {
       for (int channelIndex = 0; channelIndex < channelDepths.length; channelIndex++) {
          channelDepths[channelIndex] = syntheticData.getBottomDepth(pingIndex, channelIndex + 1);
       }
-      return new Bot0Datagram(pingIndex.getNTDate(), channelDepths);
+      return new Bot0Datagram(pingIndex.getInstant(), channelDepths);
    }
 
    public static RawFileConfiguration createRawFileConfiguration(SyntheticDataFile syntheticDataFile) {
       SyntheticData syntheticData = syntheticDataFile.getSyntheticData();
-      long ntDate = syntheticData.getNTDate(syntheticDataFile.getFirstPingNumber());
-      RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(ntDate);
+      Instant instant = syntheticData.getInstant(syntheticDataFile.getFirstPingNumber());
+      RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(instant);
       rawFileConfiguration.setSurveyName("LSSS synthetic survey");
       rawFileConfiguration.setTransectName("LSSS synthetic transect");
       rawFileConfiguration.setSounderName("LSSS synthetic sounder");
@@ -75,7 +77,7 @@ public final class SyntheticFactory {
 
    static PowerData createPowerData(SyntheticDataFile syntheticDataFile, PingIndex pingIndex, int channel) {
       SyntheticData syntheticData = syntheticDataFile.getSyntheticData();
-      PowerData powerData = new PowerData(pingIndex.getNTDate());
+      PowerData powerData = new PowerData(pingIndex.getInstant());
       powerData.setChannel(channel);
       powerData.setFrequency(syntheticData.getFrequency(channel));
       powerData.setTransmitPower(syntheticData.getTransmitPower(pingIndex, channel));
@@ -89,6 +91,7 @@ public final class SyntheticFactory {
       powerData.setHeave(syntheticData.getHeave(pingIndex));
       powerData.setRoll(syntheticData.getRoll(pingIndex));
       powerData.setPitch(syntheticData.getPitch(pingIndex));
+      powerData.setHeading(syntheticData.getHeading(pingIndex));
 
       powerData.setPingConfiguration(syntheticDataFile.getPingConfiguration());
 

@@ -32,6 +32,7 @@ import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -52,7 +53,7 @@ public final class PhantomDataAdministrator {
    private NavigableMap<SegmentHandle, SegmentHandle> rawToPhantom = Collections.emptyNavigableMap();
 
    private Map<SegmentHandle, SegmentInfo> allSegmentInfos = Map.of();
-   private Range<Long> ntDateRange = new DefaultRange<>(0L, 0L);
+   private Range<Instant> timeRange = new DefaultRange<>(Instant.EPOCH, Instant.EPOCH);
 
    private @Nullable KoronaRelayUpdateChecker koronaRelayUpdateChecker;
 
@@ -70,7 +71,7 @@ public final class PhantomDataAdministrator {
       selectionPhantomDataManager = new DataManager(phantomDataConfiguration);
       lsss.getInterpretationSettings().getReloadChangeManager().addListener(() -> {
          updateSegmentInfo();
-         updateSelectedSegmentHandles(ntDateRange);
+         updateSelectedSegmentHandles(timeRange);
          if (prepareApply(lsss.getReferenceComponent())) {
             activateSelectionChanged();
          }
@@ -92,7 +93,7 @@ public final class PhantomDataAdministrator {
       phantomDataDir = directory;
       koronaRelayUpdateChecker = directory != null ? new KoronaRelayUpdateChecker(directory) : null;
       updateSegmentInfo();
-      updateSelectedSegmentHandles(ntDateRange);
+      updateSelectedSegmentHandles(timeRange);
    }
 
    public void update() {
@@ -132,6 +133,9 @@ public final class PhantomDataAdministrator {
                segmentInfo = segmentHandle.createSegmentInfo();
                if (segmentInfoCache != null) {
                   LastModifiedAndSize lastModifiedAndSize = segmentHandle.getLastModifiedAndSize(segmentHandlesAndAttributes.attributes(), dataFileInfoAsyncHandle);
+                  if (lastModifiedAndSize == null) {
+                     continue;
+                  }
                   if (dataFileInfoAsyncHandle.isCancelled()) {
                      return Map.of();
                   }
@@ -149,7 +153,7 @@ public final class PhantomDataAdministrator {
       return segmentInfos;
    }
 
-   private List<SegmentHandle> getSegmentHandles(Range<Long> ntDateRange) {
+   private List<SegmentHandle> getSegmentHandles(Range<Instant> timeRange) {
       new WorkerDialog(lsss::getReferenceComponent, "Loading info about " + name + " phantom data files\n" + phantomDataDir)
             .start(asyncHandle -> {
                while (!asyncHandle.isCancelled() && !dataFileInfoAsyncHandle.isFinished()) {
@@ -160,7 +164,7 @@ public final class PhantomDataAdministrator {
       List<SegmentHandle> result = new ArrayList<>();
       boolean hasFound = false;
       for (Map.Entry<SegmentHandle, SegmentInfo> entry : allSegmentInfos.entrySet()) {
-         if (entry.getValue().pingRange().toNTDateRange().intersects(ntDateRange)) {
+         if (entry.getValue().pingRange().toTimeRange().intersects(timeRange)) {
             result.add(entry.getKey());
             hasFound = true;
          } else if (hasFound) {
@@ -172,9 +176,9 @@ public final class PhantomDataAdministrator {
       return result;
    }
 
-   public void updateSelectedSegmentHandles(Range<Long> ntDateRange) {
-      this.ntDateRange = ntDateRange;
-      List<SegmentHandle> segmentHandles = getSegmentHandles(ntDateRange);
+   public void updateSelectedSegmentHandles(Range<Instant> timeRange) {
+      this.timeRange = timeRange;
+      List<SegmentHandle> segmentHandles = getSegmentHandles(timeRange);
 
       prevFileOpenAsyncHandle.cancel();
       prevFileOpenAsyncHandle.waitUntilFinished();
@@ -206,8 +210,8 @@ public final class PhantomDataAdministrator {
             phantomDataManager.closeAllFiles();
             allSegmentInfos = Map.of();
 
-            Range<Long> prevDateRange = ntDateRange;
-            updateSelectedSegmentHandles(new DefaultRange<>(0L, 0L));
+            Range<Instant> prevTimeRange = timeRange;
+            updateSelectedSegmentHandles(new DefaultRange<>(Instant.EPOCH, Instant.EPOCH));
 
             ProgressView progressView = new ProgressView("Moving " + name + " processed files", updates.size())
                   .showRemainingTime();
@@ -233,7 +237,7 @@ public final class PhantomDataAdministrator {
                      }
                   });
             updateSegmentInfo();
-            updateSelectedSegmentHandles(prevDateRange);
+            updateSelectedSegmentHandles(prevTimeRange);
          }
       } catch (IOException e) {
          if (GuiUtils.fileExists(koronaRelayUpdateChecker.getStatusFile(), referenceComponent)) {

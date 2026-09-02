@@ -12,6 +12,9 @@ public final class ComplexArgumentPolynomial {
    private final double[] coefficients;
 
    public ComplexArgumentPolynomial(double[] coefficients) {
+      if (coefficients.length == 0) {
+         throw new IllegalArgumentException("No coefficients");
+      }
       /* coefficients in increasing order, ie constant term first, leading coefficient last */
       this.coefficients = coefficients;
    }
@@ -39,11 +42,13 @@ public final class ComplexArgumentPolynomial {
    }
 
    public double getCoefficient(int degree) {
-      if (degree < coefficients.length) {
-         return coefficients[degree];
-      } else {
+      if (degree < 0) {
+         throw new IllegalArgumentException(Integer.toString(degree));
+      }
+      if (degree >= coefficients.length) {
          return 0.0;
       }
+      return coefficients[degree];
    }
 
    public double[] getCoefficients() {
@@ -74,6 +79,11 @@ public final class ComplexArgumentPolynomial {
          case 1 -> this;
          default -> MathUtils.pow(this, ComplexArgumentPolynomial::multiply, exponent);
       };
+   }
+
+   @Override
+   public String toString() {
+      return Arrays.toString(coefficients);
    }
 
    @Override

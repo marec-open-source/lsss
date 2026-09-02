@@ -15,6 +15,7 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.ParameterCollection;
 import no.imr.tools.parameter.ParameterContainer;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.icons.MiscIcons;
 import org.dom4j.Element;
@@ -118,8 +119,9 @@ public abstract sealed class BaseLsssModule extends ConcurrentObject implements 
       if (parameters.isEmpty()) {
          return null;
       }
-      ParameterEditor parameterEditor = new ParameterEditor(parameters);
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
+      ParameterEditor parameterEditor = new ParameterEditor(parameters, new GUIConfig()
+            .setHorizontalFill(true)
+      );
 
       List<Component> components = new ArrayList<>();
       String infoText = getInfoText();

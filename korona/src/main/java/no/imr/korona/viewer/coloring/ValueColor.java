@@ -12,11 +12,6 @@ public final class ValueColor {
    static final int NO_DATA_RGB = Color.BLACK.getRGB();
 
    /**
-    * Color for clip data.
-    */
-   static final int CLIP_DATA_RGB = Color.WHITE.getRGB();
-
-   /**
     * No data as byte.
     */
    public static final byte NO_DATA_BYTE = Byte.MIN_VALUE;

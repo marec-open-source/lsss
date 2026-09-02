@@ -8,6 +8,7 @@ import no.imr.lsss.framework.config.ConfigurationUnit;
 import no.imr.lsss.framework.config.UserProfile;
 import no.imr.lsss.framework.config.survey.data.DataConfLSSS;
 import no.imr.lsss.plugins.FeaturePlugin;
+import no.imr.tools.ShouldNotHappenException;
 import no.imr.tools.Utils;
 import no.imr.tools.io.FilePredicates;
 import no.imr.tools.io.FileUtils;
@@ -40,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
@@ -52,7 +52,7 @@ public final class DirectoryConf extends ConfigurationUnit {
 
    public final FileParameter mainDir = new FileParameter(
          new Name("MainDir"),
-         null, FileParameter.Mode.DIRECTORY);
+         getDefaultMainDir(), FileParameter.Mode.DIRECTORY);
 
    public final ObjectParameter<String> surveyDirStructure = new ObjectParameter<>(
          new Name("SurveyDirStructure"),
@@ -82,9 +82,9 @@ public final class DirectoryConf extends ConfigurationUnit {
       super(plugin, new Name("DirectoryConf", "Directories"),
             "Configuration of default location for new surveys");
 
-      mainDir.setConstraintAndValue(optional -> {
+      mainDir.setConstraint(optional -> {
          return optional.isEmpty() ? "Must be specified" : null;
-      }, Optional.of(getDefaultMainDir()));
+      });
 
       updateAllowedSurveyDirStructures();
 
@@ -124,16 +124,6 @@ public final class DirectoryConf extends ConfigurationUnit {
    @Override
    public JComponent getComponent() {
       return viewHolder.getComponent();
-   }
-
-   @Override
-   public boolean stopEditing() {
-      return !viewHolder.hasView() || viewHolder.getView().stopEditing();
-   }
-
-   @Override
-   public boolean prepareApply() {
-      return stopEditing();
    }
 
    @Override
@@ -234,7 +224,10 @@ public final class DirectoryConf extends ConfigurationUnit {
 
    public Path getMainDir() {
       Path dir = mainDir.getFile();
-      return dir != null ? dir : getDefaultMainDir();
+      if (dir == null) {
+         throw new ShouldNotHappenException(); // Because of the parameter constraint.
+      }
+      return dir;
    }
 
    private static Path getDefaultMainDir() {
@@ -274,7 +267,6 @@ public final class DirectoryConf extends ConfigurationUnit {
    private static final class View implements ViewHolder.View {
       private final DirectoryConf directoryConf;
       private final JPanel panel = new JPanel(new BorderLayout());
-      private List<ParameterEditor> parameterEditors = List.of();
 
       private View(DirectoryConf directoryConf) {
          this.directoryConf = directoryConf;
@@ -284,10 +276,6 @@ public final class DirectoryConf extends ConfigurationUnit {
       public JComponent getComponent() {
          update();
          return panel;
-      }
-
-      private boolean stopEditing() {
-         return parameterEditors.stream().allMatch(ParameterEditor::commitEdits);
       }
 
       private void update() {
@@ -326,10 +314,8 @@ public final class DirectoryConf extends ConfigurationUnit {
                directoryConf.mainDir,
                directoryConf.surveyDirStructure,
                directoryConf.backupDirStructure,
-               directoryConf.backupDirStructure,
                directoryConf.backupDestinationDir
          ));
-         parameterEditors = List.of(parameterEditor);
          JComponent editorComponent = parameterEditor.getEditorComponent();
          editorComponent.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
          components.add(editorComponent);
@@ -378,7 +364,6 @@ public final class DirectoryConf extends ConfigurationUnit {
                parameters.addAll(mainDirectories);
             }
             ParameterEditor advancedEditor = directoryConf.createParameterEditor(parameters);
-            parameterEditors = List.of(parameterEditor, advancedEditor);
             JComponent advancedComponent = advancedEditor.getEditorComponent();
             advancedComponent.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
             components.add(advancedComponent);

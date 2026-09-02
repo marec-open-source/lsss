@@ -20,7 +20,8 @@ final class PingCollapsingModuleTest {
    @Test
    void test() throws IOException {
       List<String> inputPingInfos = List.of(
-            "·#····", // Ping 1
+            "······", // Ping 1
+            "·#····",
             "··#···",
             "···#·#",
             "·····#", // Ping 2
@@ -28,12 +29,34 @@ final class PingCollapsingModuleTest {
             "·#··#·",
             "···#··"
       );
+      List<Integer> expectedChannelDataCounts = List.of(4, 1, 5);
+
       int firstPingNumber = 10;
       ConstantSyntheticData syntheticData = new ConstantSyntheticData() {
          @Override
-         protected boolean hasPowerData(PingIndex pingIndex, int channel) {
+         public boolean hasPowerData(PingIndex pingIndex, int channel) {
             String s = inputPingInfos.get((int) (pingIndex.getPingNumber() - firstPingNumber));
             return s.charAt(channel - 1) == '#';
+         }
+
+         @Override
+         public float getHeave(PingIndex pingIndex) {
+            return pingIndex.getPingNumber() + 1.01f;
+         }
+
+         @Override
+         public float getRoll(PingIndex pingIndex) {
+            return pingIndex.getPingNumber() + 2.01f;
+         }
+
+         @Override
+         public float getPitch(PingIndex pingIndex) {
+            return pingIndex.getPingNumber() + 3.01f;
+         }
+
+         @Override
+         public float getHeading(PingIndex pingIndex) {
+            return pingIndex.getPingNumber() + 4.01f;
          }
       };
       SyntheticDataFile syntheticDataFile = syntheticData.withFirstAndLastPingNumber(firstPingNumber, firstPingNumber + inputPingInfos.size() - 1);
@@ -54,11 +77,31 @@ final class PingCollapsingModuleTest {
             expectedPingNumber++;
             List<ChannelData> channelDataList = ping.getNonNullChannelDatas().toList();
             channelDataCounts.add(channelDataList.size());
+
+            long timePingNumber = switch ((int) ping.getPingNumber()) {
+               case 1 -> firstPingNumber;
+               case 2 -> firstPingNumber + 4;
+               case 3 -> firstPingNumber + 5;
+               default -> throw new AssertionError();
+            };
+            assertEquals(syntheticData.getInstant(timePingNumber), ping.getInstant());
+
+            long heavePingNumber = switch ((int) ping.getPingNumber()) {
+               case 1 -> firstPingNumber + 1;
+               case 2 -> firstPingNumber + 4;
+               case 3 -> firstPingNumber + 5;
+               default -> throw new AssertionError();
+            };
+            PingIndex heavePingIndex = syntheticDataFile.createPingIndex(heavePingNumber);
             for (ChannelData channelData : channelDataList) {
-               assertEquals(ping.getNTDate(), channelData.getNTDate());
+               assertEquals(ping.getInstant(), channelData.getInstant());
+               assertEquals(syntheticData.getHeave(heavePingIndex), channelData.getHeave());
+               assertEquals(syntheticData.getRoll(heavePingIndex), channelData.getRoll());
+               assertEquals(syntheticData.getPitch(heavePingIndex), channelData.getPitch());
+               assertEquals(syntheticData.getHeading(heavePingIndex), channelData.getHeading());
             }
          }
       }
-      assertEquals(List.of(4, 1, 5), channelDataCounts);
+      assertEquals(expectedChannelDataCounts, channelDataCounts);
    }
 }

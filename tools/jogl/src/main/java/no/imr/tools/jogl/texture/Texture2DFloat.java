@@ -12,7 +12,7 @@ public final class Texture2DFloat extends Texture2D<float[]> {
    }
 
    @Override
-   void updateTexture1D(GL2 gl, float[] data, int nx, int ny) {
+   void updateTexture2D(GL2 gl, float[] data, int nx, int ny) {
       int repackedNy = repackedDim(ny);
       if (ny != repackedNy * 4) {
          data = repackData(data, nx, ny, repackedNy);

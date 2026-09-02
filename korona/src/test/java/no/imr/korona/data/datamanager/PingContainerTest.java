@@ -8,6 +8,7 @@ import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.geometry.EchogramUtils;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -17,7 +18,7 @@ final class PingContainerTest {
    @Test
    void getPingIndexClamped() {
       List<PingIndex> pingIndices = IntStream.range(10, 20)
-            .<PingIndex>mapToObj(i -> new DefaultPingIndex(i, i, i, null))
+            .<PingIndex>mapToObj(i -> new DefaultPingIndex(Instant.ofEpochSecond(i), i, i, null))
             .toList();
       PingContainer pingContainer = EchogramUtils.listPingContainer(PingConfiguration.newEmpty(), pingIndices);
       PingRange totalRange = pingContainer.getTotalRange();
@@ -35,7 +36,7 @@ final class PingContainerTest {
    @Test
    void getClosestPingIndex() {
       List<PingIndex> pingIndices = IntStream.range(10, 20)
-            .<PingIndex>mapToObj(i -> new DefaultPingIndex(i, i, i, null))
+            .<PingIndex>mapToObj(i -> new DefaultPingIndex(Instant.ofEpochSecond(i), i, i, null))
             .toList();
       PingContainer pingContainer = EchogramUtils.listPingContainer(PingConfiguration.newEmpty(), pingIndices);
       PingRange totalRange = pingContainer.getTotalRange();

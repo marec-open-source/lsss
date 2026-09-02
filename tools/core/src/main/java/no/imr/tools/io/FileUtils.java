@@ -37,7 +37,8 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.FileTime;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,6 +46,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -145,47 +147,41 @@ public final class FileUtils {
       }
    }
 
-   public static long creationTime(Path file) throws IOException {
-      return Files.readAttributes(file, BasicFileAttributes.class).creationTime().toMillis();
+   public static Instant creationTime(Path file) throws IOException {
+      return Files.readAttributes(file, BasicFileAttributes.class).creationTime().toInstant();
    }
 
-   public static long lastModified(Path file) throws IOException {
-      return Files.readAttributes(file, BasicFileAttributes.class).lastModifiedTime().toMillis();
+   public static Instant lastModified(Path file) throws IOException {
+      return Files.readAttributes(file, BasicFileAttributes.class).lastModifiedTime().toInstant();
    }
 
-   public static long lastModifiedOr0(Path file) {
+   public static @Nullable Instant lastModifiedOrNull(Path file) {
       try {
          return lastModified(file);
       } catch (IOException _) {
-         return 0;
+         return null;
       }
    }
 
-   public static long lastAccessed(Path file) throws IOException {
-      return Files.readAttributes(file, BasicFileAttributes.class).lastAccessTime().toMillis();
-   }
-
-   public static void setLastAccessed(Path file, long lastAccessed) throws IOException {
-      Files.setAttribute(file, "lastAccessTime", FileTime.fromMillis(lastAccessed));
-   }
-
-   private static LastModifiedAndSize getRecursiveLastModifiedAndSizeOr0(Collection<FileInfo> fileInfos, AsyncHandle asyncHandle) {
+   private static @Nullable LastModifiedAndSize getRecursiveLastModifiedAndSizeOrNull(Collection<FileInfo> fileInfos, AsyncHandle asyncHandle) {
       return fileInfos.stream()
-            .map(fileInfo -> getRecursiveLastModifiedAndSizeOr0(fileInfo, asyncHandle))
-            .reduce(LastModifiedAndSize.ZERO, LastModifiedAndSize::combine);
+            .map(fileInfo -> getRecursiveLastModifiedAndSizeOrNull(fileInfo, asyncHandle))
+            .filter(Objects::nonNull)
+            .reduce(LastModifiedAndSize::combine)
+            .orElse(null);
    }
 
-   public static LastModifiedAndSize getRecursiveLastModifiedAndSizeOr0(FileInfo fileInfo, AsyncHandle asyncHandle) {
+   public static @Nullable LastModifiedAndSize getRecursiveLastModifiedAndSizeOrNull(FileInfo fileInfo, AsyncHandle asyncHandle) {
       try {
          BasicFileAttributes attributes = fileInfo.attributes();
          if (attributes.isDirectory()) {
             List<FileInfo> fileInfos = listFilesWithAttributes(fileInfo.file(), asyncHandle);
-            return getRecursiveLastModifiedAndSizeOr0(fileInfos, asyncHandle);
+            return getRecursiveLastModifiedAndSizeOrNull(fileInfos, asyncHandle);
          } else {
             return new LastModifiedAndSize(attributes);
          }
       } catch (IOException _) {
-         return LastModifiedAndSize.ZERO;
+         return null;
       }
    }
 
@@ -205,13 +201,20 @@ public final class FileUtils {
       }
    }
 
-   public static boolean equalsRecursively(Path fileA, Path fileB) {
-      return equalsRecursively(fileA, fileB, FilePredicates.includeAll());
+   public static boolean isRecursivelyContainedIn(Path fileA, Path fileB) {
+      return isRecursivelyContainedIn(fileA, fileB, FilePredicates.includeAll());
    }
 
-   public static boolean equalsRecursively(Path fileA, Path fileB, Predicate<Path> fileFilter) {
+   /// Tests whether every filtered entry under `fileA` exists and is equal under `fileB`.
+   /// This is a one-directional containment check: extra entries in `fileB` are ignored.
+   ///
+   /// @param fileA      the (sub)tree that must be contained in `fileB`
+   /// @param fileB      the tree that must contain `fileA`
+   /// @param fileFilter filter selecting which entries to compare
+   /// @return `true` if `fileA` is recursively contained in `fileB`
+   public static boolean isRecursivelyContainedIn(Path fileA, Path fileB, Predicate<Path> fileFilter) {
       try {
-         RecursiveEqualFileVisitor visitor = new RecursiveEqualFileVisitor(fileA, fileB, fileFilter);
+         RecursiveContainmentFileVisitor visitor = new RecursiveContainmentFileVisitor(fileA, fileB, fileFilter);
          Files.walkFileTree(fileA, visitor);
          return visitor.getResult();
       } catch (IOException e) {
@@ -282,11 +285,12 @@ public final class FileUtils {
     * @return the deepest existing parent directory, or {@code null} if not available
     */
    public static @Nullable Path getExistingParent(Path file) {
-      file = file.getParent();
-      while (file != null && !Files.exists(file)) {
+      while (true) {
          file = file.getParent();
+         if (file == null || Files.exists(file)) {
+            return file;
+         }
       }
-      return file;
    }
 
    /**
@@ -658,7 +662,7 @@ public final class FileUtils {
          // Multiple threads concurrently writing to the same file can cause various IO exceptions,
          // such as AccessDeniedException, FileAlreadyExistsException, NoSuchFileException.
          // Wait a little and check if the file content matches:
-         Utils.sleep(100);
+         Utils.sleep(Duration.ofMillis(100));
          if (equals(file, bytes)) {
             return false;
          }
@@ -707,7 +711,7 @@ public final class FileUtils {
                throw e;
             }
             // Wait a little and try again
-            Utils.sleep(1000);
+            Utils.sleep(Duration.ofSeconds(1));
          }
       }
    }
@@ -732,12 +736,16 @@ public final class FileUtils {
    }
 
    public static void unzip(ZipInputStream zipInputStream, Path dir) throws IOException {
+      Path normalizedDir = dir.toAbsolutePath().normalize();
       while (true) {
          ZipEntry entry = zipInputStream.getNextEntry();
          if (entry == null) {
             break;
          }
-         Path file = dir.resolve(toNativeSeparatorChar(entry.getName()));
+         Path file = normalizedDir.resolve(toNativeSeparatorChar(entry.getName())).normalize();
+         if (!file.startsWith(normalizedDir)) {
+            throw new IOException("Zip entry is outside of target directory: " + entry.getName());
+         }
          if (entry.isDirectory()) {
             createDirectories(file);
          } else {

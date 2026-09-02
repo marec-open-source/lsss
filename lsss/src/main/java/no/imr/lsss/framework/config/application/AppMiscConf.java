@@ -29,7 +29,6 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -171,17 +170,16 @@ public final class AppMiscConf extends ConfigurationUnit {
       if (capabilities == null) {
          return;
       }
-      Set<String> selectedLayers = Set.copyOf(Splitter.on(",").trimResults().splitToList(mapLayers.getValue()));
+      Set<String> selectedLayers = Set.copyOf(Splitter.on(',').trimResults().splitToList(mapLayers.getValue()));
       List<BooleanParameter> parameters = Utils.getAllOfType(capabilities.selectNodes("//Layer"), Element.class)
-            .map(layer -> {
+            .<BooleanParameter>mapMulti((layer, consumer) -> {
                String name = XmlParse.stringElement(layer, "Name", "");
                if (name.isEmpty()) {
-                  return null;
+                  return;
                }
                String description = XmlParse.stringElement(layer, "Abstract", "");
-               return new BooleanParameter(new Name(name), selectedLayers.contains(name), description);
+               consumer.accept(new BooleanParameter(new Name(name), selectedLayers.contains(name), description));
             })
-            .filter(Objects::nonNull)
             .toList();
       Listener layersListener = () -> {
          String value = parameters.stream()
@@ -193,7 +191,6 @@ public final class AppMiscConf extends ConfigurationUnit {
       layersListener.addTo(parameters);
       ParameterEditor parameterEditor = new ParameterEditor(parameters);
       boolean ok = new ConfigurableGUIDialog(getConfigurationManager().getDialog(), "Select map layers", new ParameterCollection(parameters))
-            .setCloseOnOk(parameterEditor::commitEdits)
             .setGUI(parameterEditor.getEditorComponent())
             .setMaximumSize(getConfigurationManager().getDialog().getWidth(), Integer.MAX_VALUE)
             .show();

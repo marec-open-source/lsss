@@ -2,6 +2,7 @@ package no.imr.tools.parameter.gui;
 
 import no.imr.tools.help.HelpID;
 import no.imr.tools.parameter.Configurable;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.VerticalScrollablePanel;
 import org.dom4j.Element;
@@ -40,10 +41,11 @@ public final class ConfigurableGUIDialog {
    private final JButton cancelButton = new JButton("Cancel");
    private final List<JButton> extraButtons = new ArrayList<>();
    private final Element backupXml;
+   private @Nullable JComponent gui;
+   private boolean scrollable = true;
    private @Nullable HelpID helpID;
    private Dimension minimumSize = new Dimension();
    private Dimension maximumSize = new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
-   private @Nullable Configurable defaultConfigurable;
    private Supplier<Boolean> closeOnOk = () -> true;
    private boolean ok;
 
@@ -83,11 +85,6 @@ public final class ConfigurableGUIDialog {
       return this;
    }
 
-   public ConfigurableGUIDialog setDefault(Configurable defaultConfigurable) {
-      this.defaultConfigurable = defaultConfigurable;
-      return this;
-   }
-
    public ConfigurableGUIDialog setCloseOnOk(Supplier<Boolean> closeOnOk) {
       this.closeOnOk = closeOnOk;
       return this;
@@ -119,17 +116,12 @@ public final class ConfigurableGUIDialog {
    }
 
    public ConfigurableGUIDialog setGUI(JComponent component) {
-      VerticalScrollablePanel panel = VerticalScrollablePanel.wrap(component);
-      panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-      mainPanel.add(new JScrollPane(panel));
+      gui = component;
       return this;
    }
 
-   public ConfigurableGUIDialog setNoScrollGUI(JComponent component) {
-      JPanel panel = new JPanel(new BorderLayout());
-      panel.add(component);
-      panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-      mainPanel.add(panel);
+   public ConfigurableGUIDialog setScrollable(boolean scrollable) {
+      this.scrollable = scrollable;
       return this;
    }
 
@@ -152,6 +144,18 @@ public final class ConfigurableGUIDialog {
    }
 
    public boolean show() {
+      if (gui != null) {
+         if (scrollable) {
+            VerticalScrollablePanel panel = VerticalScrollablePanel.wrap(gui);
+            panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            mainPanel.add(new JScrollPane(panel));
+         } else {
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.add(gui);
+            panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            mainPanel.add(panel);
+         }
+      }
       mainPanel.add(createButtonsPanel(), BorderLayout.SOUTH);
 
       dialog.pack();
@@ -172,19 +176,16 @@ public final class ConfigurableGUIDialog {
          helpID.enableHelpKeyOnButton(helpButton);
          panel.add(helpButton);
       }
-      if (defaultConfigurable != null) {
-         JButton resetButton = new JButton("Reset to default");
-         panel.add(resetButton);
-         resetButton.addActionListener(_ -> configurable.fromXml(defaultConfigurable.toXml()));
-      }
 
-      extraButtons.forEach(button -> panel.add(button, 0));
+      for (JButton button : extraButtons.reversed()) {
+         panel.add(button, 0);
+      }
 
       return panel;
    }
 
    public void ok() {
-      if (!closeOnOk.get()) {
+      if (!CurrentInputComponent.commitEdit() || !closeOnOk.get()) {
          return;
       }
       ok = true;

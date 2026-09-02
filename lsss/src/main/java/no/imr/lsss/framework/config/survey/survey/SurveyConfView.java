@@ -115,7 +115,7 @@ final class SurveyConfView {
       new WorkerDialog(lsss.getReferenceComponent(), "Deleting platform " + platformText)
             .startWithoutCancel(() -> {
                Log.global.info("Deleting platform " + platformText);
-               LsssDatabaseUtils.deletePlatform(lsss, lsss.getDatabaseManager().getConnectionManager().getDatabaseConnection(), platformToDelete);
+               LsssDatabaseUtils.deletePlatform(lsss, lsss.getDatabaseManager().getDatabaseConnection(), platformToDelete);
             });
       surveyConf.updateAllowedPlatforms();
    }
@@ -156,17 +156,20 @@ final class SurveyConfView {
       new WorkerDialog(lsss.getReferenceComponent(), "Deleting survey " + surveyText)
             .startWithoutCancel(() -> {
                Log.global.info("Deleting survey " + surveyText);
-               LsssDatabaseUtils.deleteSurvey(lsss, lsss.getDatabaseManager().getConnectionManager().getDatabaseConnection(), surveyToDelete);
+               LsssDatabaseUtils.deleteSurvey(lsss, lsss.getDatabaseManager().getDatabaseConnection(), surveyToDelete);
             });
       surveyConf.updateAllowedSurveys();
    }
 
    private void updateButtonsEnabled() {
-      newPlatformButton.setEnabled(surveyConf.mNation.getValue().isPresent() && configurationManager.canEdit(UserProfile.ADMINISTRATOR_MODE));
-      editPlatformButton.setEnabled(surveyConf.mPlatformAndName.getValue().isPresent() && configurationManager.canEdit(UserProfile.ADMINISTRATOR_MODE));
-      deletePlatformButton.setEnabled(surveyConf.mPlatformAndName.getValue().isPresent() && configurationManager.canEdit(UserProfile.ADMINISTRATOR_MODE));
-      newSurveyButton.setEnabled(surveyConf.mPlatformAndName.getValue().isPresent() && configurationManager.canEdit(UserProfile.SURVEY_SETUP));
-      editSurveyButton.setEnabled(surveyConf.mSurvey.getValue().isPresent() && configurationManager.canEdit(UserProfile.SURVEY_SETUP));
-      deleteSurveyButton.setEnabled(surveyConf.mSurvey.getValue().isPresent() && configurationManager.canEdit(UserProfile.ADMINISTRATOR_MODE));
+      boolean hasNation = surveyConf.getNation() != null;
+      boolean hasPlatform = surveyConf.getPlatform() != null;
+      boolean hasSurvey = surveyConf.getSurvey() != null;
+      newPlatformButton.setEnabled(hasNation && configurationManager.canEdit(UserProfile.ADMINISTRATOR_MODE));
+      editPlatformButton.setEnabled(hasPlatform && configurationManager.canEdit(UserProfile.ADMINISTRATOR_MODE));
+      deletePlatformButton.setEnabled(hasPlatform && configurationManager.canEdit(UserProfile.ADMINISTRATOR_MODE));
+      newSurveyButton.setEnabled(hasPlatform && configurationManager.canEdit(UserProfile.SURVEY_SETUP));
+      editSurveyButton.setEnabled(hasSurvey && configurationManager.canEdit(UserProfile.SURVEY_SETUP));
+      deleteSurveyButton.setEnabled(hasSurvey && configurationManager.canEdit(UserProfile.ADMINISTRATOR_MODE));
    }
 }

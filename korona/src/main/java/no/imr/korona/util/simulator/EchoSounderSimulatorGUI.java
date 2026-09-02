@@ -7,6 +7,7 @@ import no.imr.tools.listening.Listener;
 import no.imr.tools.logging.Log;
 import no.imr.tools.parameter.ParameterCollection;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.swing.GeometryListener;
 import no.imr.tools.swing.GuiListeners;
 import no.imr.tools.swing.GuiUtils;
@@ -67,8 +68,9 @@ public final class EchoSounderSimulatorGUI {
          echoSounderSimulator.output.setFile(defaultOutputDir);
       }
 
-      ParameterEditor parameterEditor = new ParameterEditor(echoSounderSimulator.getParameters());
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
+      ParameterEditor parameterEditor = new ParameterEditor(echoSounderSimulator.getParameters(), new GUIConfig()
+            .setHorizontalFill(true)
+      );
 
       Listener.of(this::savePreferences).addTo(echoSounderSimulator.getParameters());
 

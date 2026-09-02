@@ -101,7 +101,7 @@ public class Nation implements BaseDatabaseObject, Comparable<Nation> {
    }
 
    @Override
-   public int compareTo(Nation nation) {
-      return nationName.compareTo(nation.nationName);
+   public int compareTo(Nation other) {
+      return nationName.compareTo(other.nationName);
    }
 }

@@ -15,7 +15,6 @@ import java.util.stream.Stream;
  * Utilities for ranges and related classes.
  */
 public final class RangeUtils {
-   public static final Range<Long> ALL_LONGS = new DefaultRange<>(Long.MIN_VALUE, Long.MAX_VALUE);
    public static final Range<Float> ALL_FLOATS = new DefaultRange<>(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
 
    private static final RangeMap<?, ?> EMPTY_RANGE_MAP = new EmptyRangeMap<>();
@@ -73,12 +72,12 @@ public final class RangeUtils {
    }
 
    @SuppressWarnings("unchecked")
-   public static <K extends Comparable<K>, V> RangeMap<K, V> emptyRangeMap() {
+   public static <K extends Comparable<? super K>, V> RangeMap<K, V> emptyRangeMap() {
       return (RangeMap<K, V>) EMPTY_RANGE_MAP;
    }
 
    @SuppressWarnings("unchecked")
-   public static <K extends Comparable<K>> RangeSet<K> emptyRangeSet() {
+   public static <K extends Comparable<? super K>> RangeSet<K> emptyRangeSet() {
       return (RangeSet<K>) EMPTY_RANGE_SET;
    }
 

@@ -17,7 +17,7 @@ public abstract class ChannelDatagramWriter extends BaseDatagramWriter {
    }
 
    @Override
-   public void writeBuffer(ByteBuffer byteBuffer) throws IOException {
+   protected void writeBuffer(ByteBuffer byteBuffer) throws IOException {
       FileUtils.write(channel, byteBuffer);
    }
 

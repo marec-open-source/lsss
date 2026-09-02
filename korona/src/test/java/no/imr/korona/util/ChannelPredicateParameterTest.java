@@ -14,7 +14,7 @@ final class ChannelPredicateParameterTest {
       ChannelPredicateParameter parameter = new ChannelPredicateParameter(new Name("Test"), true);
       parameter.setStringValue("f < 50 || c >= n");
 
-      CompiledChannelPredicate predicate = parameter.getValue().second();
+      CompiledChannelPredicate predicate = parameter.getValue().predicate();
       assertTrue(predicate.test(38, 1, 10));
       assertFalse(predicate.test(70, 1, 10));
       assertTrue(predicate.test(70, 10, 10));

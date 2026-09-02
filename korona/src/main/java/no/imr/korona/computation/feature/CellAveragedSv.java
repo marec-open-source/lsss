@@ -36,11 +36,6 @@ public final class CellAveragedSv {
       count += cellAveragedSv.count;
    }
 
-   public void mergeWith(CellAveragedSv otherCell) {
-      count += otherCell.count;
-      sumSv += otherCell.sumSv;
-   }
-
    public int getCount() {
       return count;
    }

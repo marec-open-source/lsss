@@ -110,7 +110,8 @@ public final class ThresholdManager {
    }
 
    public boolean isUpperThresholdActive(PingIndex pingIndex) {
-      return upperThresholdActive.getOrDefault(pingIndex, false);
+      Boolean nullableActive = upperThresholdActive.get(pingIndex);
+      return nullableActive != null ? nullableActive : false;
    }
 
    public float getMinLowerThreshold(PingRange pingRange) {

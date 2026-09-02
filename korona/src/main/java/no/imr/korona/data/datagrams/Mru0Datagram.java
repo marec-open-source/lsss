@@ -1,6 +1,7 @@
 package no.imr.korona.data.datagrams;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 public final class Mru0Datagram extends MruDatagram {
    public static final DatagramType TYPE = DatagramType.simple("MRU0", Mru0Datagram::new);
@@ -10,8 +11,8 @@ public final class Mru0Datagram extends MruDatagram {
    private final float pitch;
    private final float heading;
 
-   public Mru0Datagram(long ntDate, float heave, float roll, float pitch, float heading) {
-      super(ntDate);
+   public Mru0Datagram(Instant instant, float heave, float roll, float pitch, float heading) {
+      super(instant);
 
       this.heave = heave;
       this.roll = roll;
@@ -19,8 +20,8 @@ public final class Mru0Datagram extends MruDatagram {
       this.heading = heading;
    }
 
-   public Mru0Datagram(long ntDate, ByteBuffer byteBuffer) {
-      super(ntDate);
+   public Mru0Datagram(Instant instant, ByteBuffer byteBuffer) {
+      super(instant);
 
       heave = byteBuffer.getFloat();
       roll = byteBuffer.getFloat();

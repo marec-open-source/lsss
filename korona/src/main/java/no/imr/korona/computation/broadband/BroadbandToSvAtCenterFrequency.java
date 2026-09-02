@@ -3,8 +3,8 @@ package no.imr.korona.computation.broadband;
 import no.imr.korona.data.ping.items.channel.BroadbandData;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.util.TvgArray;
-import no.imr.tools.Utils;
 import no.imr.tools.math.ComplexArray;
+import no.imr.tools.math.MathUtils;
 
 public final class BroadbandToSvAtCenterFrequency {
    private BroadbandToSvAtCenterFrequency() {
@@ -16,7 +16,7 @@ public final class BroadbandToSvAtCenterFrequency {
       TvgArray tvg = broadbandData.getTVGArray();
 
       for (int i = 0; i < sv.length; i++) {
-         sv[i] = Utils.avoidInfinity((float) (constantFactor * avgPc.abs2(i) * tvg.get(i)));
+         sv[i] = MathUtils.avoidInfinity((float) (constantFactor * avgPc.abs2(i) * tvg.get(i)));
       }
    }
 
@@ -25,7 +25,7 @@ public final class BroadbandToSvAtCenterFrequency {
       ComplexArray avgPc = broadbandData.getAveragePulseCompressedSignal();
       TvgArray tvg = broadbandData.getTVGArray();
 
-      return Utils.avoidInfinity((float) (constantFactor * avgPc.abs2(sampleIndex) * tvg.get(sampleIndex)));
+      return MathUtils.avoidInfinity((float) (constantFactor * avgPc.abs2(sampleIndex) * tvg.get(sampleIndex)));
    }
 
    private static double getConstantFactor(BroadbandData broadbandData) {

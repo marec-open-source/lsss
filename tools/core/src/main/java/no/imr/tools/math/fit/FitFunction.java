@@ -7,8 +7,10 @@ import java.util.List;
  * It can evaluate a function of an arbitrary number of arguments,
  * and it can return the list of parameters to be fitted.
  */
-public interface FitFunction {
-   double evaluate(List<Double> arg);
+public interface FitFunction<P> {
+   double fittedValue(P dataPoint);
+
+   double actualValue(P dataPoint);
 
    List<FitParameter> getParameters();
 }

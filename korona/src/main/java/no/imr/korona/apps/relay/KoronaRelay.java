@@ -45,6 +45,7 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.StringParameter;
 import no.imr.tools.parameter.ValueParameter;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.range.DefaultRange;
 import no.imr.tools.range.Range;
 import no.imr.tools.swing.ColorUtils;
@@ -63,6 +64,7 @@ import no.imr.tools.swing.icons.MiscIcons;
 import no.imr.tools.swing.table.TableUtils;
 import no.imr.tools.time.RealtimeSyncer;
 import no.imr.tools.time.Stopwatch;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.BorderFactory;
@@ -114,6 +116,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -195,11 +198,6 @@ public final class KoronaRelay {
       }
 
       @Override
-      public boolean isEnabled() {
-         return processingAsyncHandle.isFinished();
-      }
-
-      @Override
       public void customizeFileChooser(JFileChooser fileChooser) {
          fileChooser.setDialogTitle("Select " + getName().displayName());
          ConfigFileSettingsUtils.installTooltip(fileChooser);
@@ -218,7 +216,7 @@ public final class KoronaRelay {
 
       @Override
       public Copier getCopier() {
-         return new DefaultCopier(this);
+         return cfsManager.createCfsCopier();
       }
 
       @Override
@@ -265,12 +263,19 @@ public final class KoronaRelay {
          configFileSettings,
          sourceDirectory,
          destinationDirectory
-   ));
+   ), new GUIConfig()
+         .setHorizontalFill(true)
+   );
 
    public KoronaRelay(Map<String, String> env) {
       cfsManager.setDataFileLabellingSupplier(() -> dataFileLabelling);
 
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
+      processing.subscribe(proc -> {
+         boolean enabled = !proc;
+         configFileSettings.setEnabled(enabled);
+         sourceDirectory.setEnabled(enabled);
+         destinationDirectory.setEnabled(enabled);
+      });
 
       setParameter(env, ARG_COMMENT, comment);
       comment.setEnabled(false);
@@ -854,7 +859,7 @@ public final class KoronaRelay {
       }
    }
 
-   private record RowInfo(SegmentHandle segmentHandle, long lastModified, long size) {
+   private record RowInfo(SegmentHandle segmentHandle, Instant lastModified, long size) {
    }
 
    private static Map<SegmentHandle, RowInfo> createRowInfos(Korona korona, @Nullable Path directory, AsyncHandle asyncHandle) {
@@ -866,6 +871,9 @@ public final class KoronaRelay {
             return Map.of();
          }
          LastModifiedAndSize lastModifiedAndSize = segmentHandle.getLastModifiedAndSize(sourceDirectoryListing.map(), asyncHandle);
+         if (lastModifiedAndSize == null) {
+            continue;
+         }
          infos.put(segmentHandle, new RowInfo(segmentHandle, lastModifiedAndSize.lastModified(), lastModifiedAndSize.size()));
       }
       return infos;
@@ -982,8 +990,8 @@ public final class KoronaRelay {
     */
    private final class SingleRowProcessor {
       private final RawFileTableModel.Row row;
-      private long ntDateIn;
-      private long ntDateOut;
+      private Instant timeIn = Instant.EPOCH;
+      private Instant timeOut = Instant.EPOCH;
 
       private SingleRowProcessor(RawFileTableModel.Row row) {
          this.row = row;
@@ -997,9 +1005,9 @@ public final class KoronaRelay {
 
             ModuleContainer moduleContainer = cfsManager.loadModuleContainer();
 
-            long t0 = pingReader.getPingConfiguration().getRawFileConfiguration().getNTDate();
-            ntDateIn = t0;
-            ntDateOut = t0;
+            Instant t0 = pingReader.getPingConfiguration().getRawFileConfiguration().getInstant();
+            timeIn = t0;
+            timeOut = t0;
 
             WriterModule writerModule = moduleContainer.addModule(new WriterModule());
             writerModule.setExtraSuffix(TMP_SUFFIX);
@@ -1013,7 +1021,7 @@ public final class KoronaRelay {
                public @Nullable Ping nextPing(AsyncHandle asyncHandle) throws IOException {
                   Ping ping = super.nextPing(asyncHandle);
                   if (ping != null) {
-                     ntDateIn = ping.getNTDate();
+                     timeIn = ping.getInstant();
                   }
                   updateListener.listen();
                   return ping;
@@ -1027,9 +1035,9 @@ public final class KoronaRelay {
                   if (ping == null) {
                      break;
                   }
-                  ntDateOut = ping.getNTDate();
+                  timeOut = ping.getInstant();
                   updateListener.listen();
-                  realtimeSyncer.sync(ping.getTimeInMillis(), realtimeFactor, fullSpeedCheckBox.isSelected());
+                  realtimeSyncer.sync(processingAsyncHandle, ping.getInstant(), realtimeFactor, fullSpeedCheckBox.isSelected());
                }
             }
          }
@@ -1046,9 +1054,11 @@ public final class KoronaRelay {
       }
 
       private void updateProgress(PingReader pingReader) {
-         long t0 = pingReader.getPingConfiguration().getRawFileConfiguration().getNTDate();
+         Instant t0 = pingReader.getPingConfiguration().getRawFileConfiguration().getInstant();
          float readFraction = pingReader.getReadFraction();
-         float processedFraction = ntDateIn == t0 ? 0 : readFraction * (ntDateOut - t0) / (ntDateIn - t0);
+         long dtIn = t0.until(timeIn, ChronoUnit.NANOS);
+         long dtOut = t0.until(timeOut, ChronoUnit.NANOS);
+         float processedFraction = dtIn == 0 ? 0 : readFraction * dtOut / dtIn;
          row.setProgress((readFraction + processedFraction) / 2);
       }
    }
@@ -1079,11 +1089,11 @@ public final class KoronaRelay {
    private final class RawFileTableModel extends AbstractTableModel {
       private final class Row {
          private final SegmentHandle segmentHandle;
-         private long lastModified;
+         private Instant lastModified;
          private long size;
-         private long lastChangeTime;
+         private Instant lastChangeTime;
 
-         private long processedLastModified;
+         private @Nullable Instant processedLastModified;
 
          private Status status = Status.New;
          private boolean skip;
@@ -1101,23 +1111,23 @@ public final class KoronaRelay {
          }
 
          private boolean anyDestinationFileExist() {
-            return processedLastModified > 0;
+            return processedLastModified != null;
          }
 
-         private long getUpdatedProcessedLastModified() {
+         private @Nullable Instant getUpdatedProcessedLastModified() {
             if (destinationDirectory.getFile() == null) {
-               return 0;
+               return null;
             }
-            return Math.max(
-                  destinationDirectoryListing.lastModifiedOr0(getProcessedFile()),
-                  destinationDirectoryListing.lastModifiedOr0(getProcessedNewFile()));
+            Instant a = destinationDirectoryListing.lastModifiedOrNull(getProcessedFile());
+            Instant b = destinationDirectoryListing.lastModifiedOrNull(getProcessedNewFile());
+            return a != null && (b == null || b.isBefore(a)) ? a : b;
          }
 
          private void update(RowInfo rowInfo) {
-            if (lastModified != rowInfo.lastModified || size != rowInfo.size) {
+            if (!lastModified.equals(rowInfo.lastModified) || size != rowInfo.size) {
                size = rowInfo.size;
                lastModified = rowInfo.lastModified;
-               lastChangeTime = System.currentTimeMillis();
+               lastChangeTime = Instant.now();
                fireTableRowUpdated();
             }
             updateStatus();
@@ -1147,8 +1157,8 @@ public final class KoronaRelay {
                return;
             }
 
-            long updatedProcessedLastModified = getUpdatedProcessedLastModified();
-            if (processedLastModified != updatedProcessedLastModified) {
+            Instant updatedProcessedLastModified = getUpdatedProcessedLastModified();
+            if (!Objects.equals(processedLastModified, updatedProcessedLastModified)) {
                processedLastModified = updatedProcessedLastModified;
                if (anyDestinationFileExist()) {
                   setSkip(true);
@@ -1156,7 +1166,7 @@ public final class KoronaRelay {
             }
 
             Status newStatus;
-            if (lastChangeTime + CHANGE_THRESHOLD_MILLIS > System.currentTimeMillis()) {
+            if (lastChangeTime.until(Instant.now(), ChronoUnit.MILLIS) < CHANGE_THRESHOLD_MILLIS) {
                newStatus = Status.New;
             } else if (anyDestinationFileExist()) {
                newStatus = skip ? Status.Done : Status.Reprocess;
@@ -1278,7 +1288,7 @@ public final class KoronaRelay {
          }
       }
 
-      private final DateTimeFormatter dateFormat = Utils.createLocalDateTimeFormatter("yyyy.MM.dd HH:mm:ss");
+      private final DateTimeFormatter dateFormat = TimeUtils.createLocalDateTimeFormatter("yyyy.MM.dd HH:mm:ss");
       private final DecimalFormat progressFormat = Utils.createDecimalFormat("##0.0");
       private final DecimalFormat sizeFormat = new DecimalFormat("#,##0");
 
@@ -1346,9 +1356,9 @@ public final class KoronaRelay {
 
          Row skipNewestRow;
          if (notNewestFileCheckBox.isSelected()) {
-            long newestFileThreshold = Instant.now().minus(NEWEST_FILE_THRESHOLD_HOURS, ChronoUnit.HOURS).toEpochMilli();
+            Instant newestFileThreshold = Instant.now().minus(NEWEST_FILE_THRESHOLD_HOURS, ChronoUnit.HOURS);
             skipNewestRow = rows.stream()
-                  .filter(row -> row.lastModified > newestFileThreshold)
+                  .filter(row -> row.lastModified.isAfter(newestFileThreshold))
                   .max(Comparator.comparing(row -> row.lastModified))
                   .orElse(null);
          } else {
@@ -1397,7 +1407,7 @@ public final class KoronaRelay {
             case SKIP_COLUMN -> row.skip;
             case NAME_COLUMN -> row;
             case SIZE_COLUMN -> sizeFormat.format(row.size);
-            case LAST_MODIFIED_COLUMN -> dateFormat.format(Instant.ofEpochMilli(row.lastModified));
+            case LAST_MODIFIED_COLUMN -> dateFormat.format(row.lastModified);
             case STATUS_COLUMN -> row;
             default -> throw new IllegalArgumentException(Integer.toString(columnIndex));
          };

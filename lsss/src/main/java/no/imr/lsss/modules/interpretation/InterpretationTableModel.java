@@ -139,21 +139,21 @@ public final class InterpretationTableModel extends AbstractTableModel {
                boolean multipleAssignments = assignments.size() > 1;
                boolean restForOnlySome = isRestForOnlySome();
                if (multipleAssignments || restForOnlySome) {
-                  StringBuilder toolTipText = new StringBuilder("<html>");
+                  HtmlStringBuilder toolTipText = new HtmlStringBuilder();
                   if (restForOnlySome) {
-                     toolTipText.append(speciesName).append(" is used as rest only in some of the selected regions.");
+                     toolTipText.text(speciesName).html(" is used as rest only in some of the selected regions.");
                      if (multipleAssignments) {
-                        toolTipText.append("<br><br>");
+                        toolTipText.html("<br><br>");
                      }
                   }
                   if (multipleAssignments) {
-                     toolTipText.append("Assignments to ").append(speciesName).append(" in selected regions:<br>");
+                     toolTipText.html("Assignments to ").text(speciesName).html(" in selected regions:<br>");
                      int i = 0;
                      for (float assignment : assignments) {
                         if (i++ > 0) {
-                           toolTipText.append(", ");
+                           toolTipText.html(", ");
                         }
-                        toolTipText.append(Utils.numberToString(assignment * 100)); // Fraction to percent
+                        toolTipText.text(Utils.numberToString(assignment * 100)); // Fraction to percent.
                      }
                   }
                   return new TableCellString.RenderSettings(speciesName, toolTipText.toString(), InterpretationModuleView.MULTIPLE_VALUES_COLOR);
@@ -420,7 +420,7 @@ public final class InterpretationTableModel extends AbstractTableModel {
    }
 
    PojoData getPojoData(PojoData.Builder context) {
-      ExportTransform assignmentTransform = ExportTransform.round(10000);
+      ExportTransform assignmentTransform = ExportTransform.round(10_000);
       return context.newBuilder()
             .with("categories", rows.stream()
                   .map(row -> {

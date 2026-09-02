@@ -7,8 +7,11 @@ import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.util.ResampledFloatArray;
 import no.imr.tools.Utils;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -96,7 +99,7 @@ final class PingSubSampler implements Iterable<PingSubSampler.SubSampledBin> {
 
    private final List<Ping> pings;
    private final int mainChannelNumber;
-   private final long centerMillis;
+   private final Instant centerTime;
    private final @Nullable PowerData centerRaw;
    private final List<Map<Integer, ResampledFloatArray>> resampledSvArrays;
    private final RawFileConfiguration rawFileConfiguration;
@@ -118,7 +121,7 @@ final class PingSubSampler implements Iterable<PingSubSampler.SubSampledBin> {
       this.mainChannelNumber = mainChannelNumber;
       this.channelsToUse = channelsToUse;
       this.pings = pings;
-      centerMillis = (pings.getFirst().getTimeInMillis() + pings.getLast().getTimeInMillis()) / 2;
+      centerTime = TimeUtils.interpolateInstant(pings.getFirst().getInstant(), pings.getLast().getInstant(), 0.5);
       //resample PowerData to the 38 kHZ sample interval if necessary
       resampledSvArrays = new ArrayList<>();
       this.rawFileConfiguration = rawFileConfiguration.makeCopy();
@@ -133,7 +136,10 @@ final class PingSubSampler implements Iterable<PingSubSampler.SubSampledBin> {
          PowerData mainPowerData = getReferenceDatagram(ping, mainChannelNumber);
          resampledSvArrays.add(getResampledArrays(ping, mainPowerData, channelsToUse));
          if (mainPowerData != null) {
-            if (closestToCenter == null || Math.abs(mainPowerData.getTimeInMillis() - centerMillis) < Math.abs(closestToCenter.getTimeInMillis() - centerMillis)) {
+            if (closestToCenter == null
+                  || Math.abs(centerTime.until(mainPowerData.getInstant(), ChronoUnit.NANOS))
+                  < Math.abs(centerTime.until(closestToCenter.getInstant(), ChronoUnit.NANOS))
+            ) {
                closestToCenter = mainPowerData;
             }
             if (useMinInversionDepth) {
@@ -161,7 +167,7 @@ final class PingSubSampler implements Iterable<PingSubSampler.SubSampledBin> {
 
    private static @Nullable PowerData getReferenceDatagram(Ping ping, int mainChannel) {
       PowerData powerData = ping.getPowerData(mainChannel);
-      return powerData != null ? powerData : ping.getNonNullPowerData();
+      return powerData != null ? powerData : ping.getFirstAvailablePowerData();
    }
 
    private static Map<Integer, ResampledFloatArray> getResampledArrays(Ping ping, @Nullable PowerData mainPowerData, Set<Integer> channelToUse) {
@@ -180,8 +186,8 @@ final class PingSubSampler implements Iterable<PingSubSampler.SubSampledBin> {
       return new PingEnsembleIterator();
    }
 
-   long getCenterMillis() {
-      return centerMillis;
+   Instant getCenterTime() {
+      return centerTime;
    }
 
    private boolean excludedDepthSample(int depthSample) {

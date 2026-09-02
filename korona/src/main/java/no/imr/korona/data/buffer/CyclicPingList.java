@@ -2,7 +2,7 @@ package no.imr.korona.data.buffer;
 
 import no.imr.korona.data.ping.Ping;
 import no.imr.korona.data.ping.PingIndex;
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -30,7 +30,7 @@ public class CyclicPingList {
    }
 
    public int index(int i) {
-      return Utils.mod(i, getSize());
+      return MathUtils.mod(i, getSize());
    }
 
    public int getSize() {

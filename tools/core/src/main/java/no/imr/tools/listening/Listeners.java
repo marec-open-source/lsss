@@ -17,7 +17,7 @@ public final class Listeners {
    }
 
    public static Listener debouncing(Runnable listener) {
-      AtomicReference<Future<?>> future = new AtomicReference<>(new CompletableFuture<>());
+      AtomicReference<Future<?>> future = new AtomicReference<>(CompletableFuture.completedFuture(null));
       return () -> {
          Future<?> previousFuture = future.getAndSet(Exec.schedule(listener, 250, TimeUnit.MILLISECONDS));
          previousFuture.cancel(false);

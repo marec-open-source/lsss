@@ -1,9 +1,13 @@
 <h1>Fill missing data module</h1>
 <p>
-   Adds missing channel data.
-   Pings with missing raw0Datagrams will after passing through this module have the same values on the missing
-   raw0datagrams as the previous ping had.
-   This module is used in front of other modules that do not handle missing pings in the middle of a stream.
+   This module adds missing sample data.
+</p>
+<p>
+   If ping <em>n</em> has a channel with missing sample data,
+   then a copy of the sample data from ping <em>n - 1</em> will be added to ping <em>n</em>.
+   Although sample values are copied from ping <em>n - 1</em>, motion data (heave, roll, pitch, heading)
+   will that of ping <em>n</em>.
+   This means that the copied sample data will be shifted vertically if the heave changes.
 </p>
 
 <h2 id="Parameters">Parameters</h2>

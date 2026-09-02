@@ -7,6 +7,7 @@ import no.imr.tools.Utils;
 import no.imr.tools.help.HelpID;
 import no.imr.tools.misc.TextFilter;
 import no.imr.tools.swing.ColorUtils;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.DeepInputListener;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.MouseAndKeyAdapter;
@@ -174,7 +175,11 @@ final class ConfigurationManagerView implements ViewHolder.View {
       JButton okButton = new JButton("OK");
       bottomButtonsPanel.add(okButton);
       okButton.setToolTipText("Accept changes to configuration");
-      okButton.addActionListener(_ -> configurationManager.ok());
+      okButton.addActionListener(_ -> {
+         if (CurrentInputComponent.commitEdit()) {
+            configurationManager.ok();
+         }
+      });
 
       JButton cancelButton = new JButton("Cancel");
       cancelButton.addActionListener(_ -> cancel());
@@ -331,7 +336,7 @@ final class ConfigurationManagerView implements ViewHolder.View {
    }
 
    void updateConfigurationPanel() {
-      if (currentConfigurationUnit != null && !currentConfigurationUnit.stopEditing()) {
+      if (currentConfigurationUnit != null && !CurrentInputComponent.commitEdit()) {
          setTreePath(currentConfigurationUnit);
          return;
       }

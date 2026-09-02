@@ -51,7 +51,7 @@ public final class CommentModule extends BaseViewModule implements PojoDataConta
             .with("comments", commentDataModule.getComments().stream()
                   .map(comment -> {
                      return builder.newBuilder()
-                           .with("time", comment.toInstant().toString())
+                           .with("time", comment.time().toString())
                            .with("standardComment", comment.standardComment())
                            .with("value", comment.value())
                            .with("text", comment.text())

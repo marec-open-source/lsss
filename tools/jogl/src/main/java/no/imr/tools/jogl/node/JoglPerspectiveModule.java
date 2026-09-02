@@ -46,14 +46,14 @@ public final class JoglPerspectiveModule extends JoglModule {
 
    @Override
    void setProjection(GL2 gl) {
-      float aspect = (float) getWidth() / getHeight();
+      float aspect = (float) getGlWidth() / getGlHeight();
       new GLU().gluPerspective(fovy, aspect, near, far);
    }
 
    private Vec3 pixPosToEyeDirection(Point2D pixPos) {
-      float x = (float) (pixPos.getX() - 0.5 * getWidth());
-      float y = (float) (0.5 * getHeight() - pixPos.getY());
-      float z = (float) (0.5 * getHeight() / Math.tan(Math.toRadians(fovy / 2)));
+      float x = (float) (pixPos.getX() - 0.5 * getJava2dWidth());
+      float y = (float) (0.5 * getJava2dHeight() - pixPos.getY());
+      float z = (float) (0.5 * getJava2dHeight() / Math.tan(Math.toRadians(fovy / 2)));
       Vec3 dir = new Vec3(x, y, -z);
       return dir.unit();
    }

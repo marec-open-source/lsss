@@ -8,6 +8,7 @@ import no.imr.korona.data.ping.PingConfiguration;
 import no.imr.korona.data.ping.PingSource;
 import no.imr.korona.data.ping.items.channel.PowerData;
 import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
+import no.imr.tools.math.Mean;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.parameter.IntParameter;
@@ -116,7 +117,7 @@ public final class ES60CorrectionModule extends BaseBufferedPingModule {
          int answer = 0;
          for (ChannelStatistics channelStatistic : channelStatistics) {
             if (channelStatistic.means != null) {
-               answer = Math.max(answer, channelStatistic.means.getNumNonNulls());
+               answer = Math.max(answer, (int) channelStatistic.means.getCount());
             }
          }
          return answer;
@@ -203,8 +204,8 @@ public final class ES60CorrectionModule extends BaseBufferedPingModule {
          private boolean firstTriangleIndexReliable = false;
 
          private DeviationHistogram @Nullable [] deviations = new DeviationHistogram[WAVE];
-         private MeanHistogram @Nullable [] waveMeans = new MeanHistogram[WAVE];
-         private @Nullable MeanHistogram means = new MeanHistogram();
+         private Mean @Nullable [] waveMeans = new Mean[WAVE];
+         private @Nullable Mean means = new Mean();
 
          private int firstTriangleWaveIndex = 0;
 
@@ -213,7 +214,7 @@ public final class ES60CorrectionModule extends BaseBufferedPingModule {
          private ChannelStatistics(int channel) {
             this.channel = channel;
             for (int i = 0; i < WAVE; i++) {
-               waveMeans[i] = new MeanHistogram();
+               waveMeans[i] = new Mean();
                deviations[i] = new DeviationHistogram(i);
             }
          }
@@ -230,12 +231,12 @@ public final class ES60CorrectionModule extends BaseBufferedPingModule {
                return;
             }
             double value = getSum(START_SAMPLE, END_SAMPLE, powerData);
-            means.updateHist(pingCounter, value);
-            double mean = means.getAverage(); //running average
+            means.update(value);
+            double mean = means.getMean(); //running average
             int waveNo = 0;
-            for (MeanHistogram waveMean : waveMeans) {
-               waveMean.updateHist(pingCounter, waveAdjustment(waveNo + pingCounter));
-               deviations[waveNo].updateHist(pingCounter, value, mean, NUM_SAMPLES * waveMean.getAverage());
+            for (Mean waveMean : waveMeans) {
+               waveMean.update(waveAdjustment(waveNo + pingCounter));
+               deviations[waveNo].updateHist(pingCounter, value, mean, NUM_SAMPLES * waveMean.getMean());
                waveNo++;
             }
             int bestFitIndex = 0; //redetection each ping
@@ -263,7 +264,7 @@ public final class ES60CorrectionModule extends BaseBufferedPingModule {
                   (TURN2 - EPSILON < bestFitIndex && TURN2 + EPSILON > bestFitIndex);
             //sample additional pings if start index is close to a turning point
             int pingsRequired = toCloseToTurningPoint ? WAVE / 2 + 2 * EPSILON : WAVE / 2;
-            firstTriangleIndexReliable = means.getNumNonNulls() > pingsRequired;
+            firstTriangleIndexReliable = means.getCount() > pingsRequired;
             if (firstTriangleIndexReliable) {
                //free the used memory
                means = null;
@@ -313,27 +314,6 @@ public final class ES60CorrectionModule extends BaseBufferedPingModule {
 
          public double getSum() {
             return sum;
-         }
-      }
-
-      public static final class MeanHistogram {
-         private double sum = 0;
-         private int numNonNulls = 0;
-
-         MeanHistogram() {
-         }
-
-         public void updateHist(int pingNumber, double value) {
-            sum += value;
-            numNonNulls++;
-         }
-
-         public double getAverage() {
-            return sum / numNonNulls;
-         }
-
-         public int getNumNonNulls() {
-            return numNonNulls;
          }
       }
    }

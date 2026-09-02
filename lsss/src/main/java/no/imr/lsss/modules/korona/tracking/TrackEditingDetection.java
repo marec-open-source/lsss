@@ -12,8 +12,10 @@ import no.imr.tools.math.Mean;
 import no.imr.tools.math.PeakFinding;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.Range;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.Set;
@@ -22,7 +24,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 final class TrackEditingDetection {
    private final TrackInfoModule trackInfoModule;
    private final Set<TrackId> trackIds;
-   private final TrackId newTrackId = new TrackId(-1, -1);
+   private final TrackId newTrackId = new TrackId(Instant.EPOCH, -1);
    private final DataFileSet dataFileSet;
    private final int channel;
    private final float verticalExtent;
@@ -108,10 +110,10 @@ final class TrackEditingDetection {
       if (pingIndex2 != null) {
          TrackBorder trackBorder2 = trackBorders.get(pingIndex2);
          if (trackBorder2 != null) {
-            long t = pingIndex.getNTDate();
-            long t1 = pingIndex1.getNTDate();
-            long t2 = pingIndex2.getNTDate();
-            float a = (t2 - t) / (float) (t2 - t1);
+            Instant t = pingIndex.getInstant();
+            Instant t1 = pingIndex1.getInstant();
+            Instant t2 = pingIndex2.getInstant();
+            float a = (float) (TimeUtils.toSeconds(t, t2) / TimeUtils.toSeconds(t1, t2));
             depth = a * trackBorder1.peakDepth() + (1 - a) * trackBorder2.peakDepth();
          }
       }

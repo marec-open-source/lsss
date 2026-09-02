@@ -5,6 +5,7 @@ import no.imr.korona.data.ping.PingIndex;
 import no.imr.korona.data.ping.PingRange;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,7 +40,7 @@ final class CurveTest {
    }
 
    private static PingIndex newPingIndex(long pingNumber) {
-      return new DefaultPingIndex(pingNumber, pingNumber, 0, null);
+      return new DefaultPingIndex(Instant.ofEpochSecond(pingNumber), pingNumber, 0, null);
    }
 
    private static PingRange newPingRange(long beginPingNumber, long endPingNumber) {

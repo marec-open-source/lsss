@@ -33,7 +33,7 @@ public final class ChannelCalibrationBuilder {
    public Optional<Float> profosTauEff = Optional.empty();
    public Optional<Float> profosTau = Optional.empty();
    public Optional<Float> profosFrequency = Optional.empty();
-   public Optional<Integer> profosBeamWithMode = Optional.empty();
+   public Optional<Integer> profosBeamWidthMode = Optional.empty();
 
    public ChannelCalibrationBuilder() {
    }

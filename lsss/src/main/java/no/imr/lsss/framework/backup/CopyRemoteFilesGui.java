@@ -14,6 +14,7 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.OptionalFloatParameter;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.swing.CurrentInputComponent;
 import no.imr.tools.swing.GridBag;
 import no.imr.tools.swing.GuiUtils;
 
@@ -36,7 +37,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -56,21 +56,20 @@ public final class CopyRemoteFilesGui {
 
       RemoteDataConf remoteDataConf = lsss.getConfigurationManager().getDataConf().getRemoteDataConf();
       copyRemoteItems = remoteDataConf.remoteDirectoryParameters()
-            .map(parameter -> {
+            .<SelectionItem<CopyRemoteItem>>mapMulti((parameter, consumer) -> {
                Path remoteDir = parameter.getFile();
                if (remoteDir == null) {
-                  return null;
+                  return;
                }
                SurveyDirectoryParameter surveyDirectoryParameter = parameter.getSurveyDirectoryParameter();
                Path localDir = surveyDirectoryParameter.getFile();
                if (localDir == null) {
-                  return null;
+                  return;
                }
                CopyRemoteInfo.DirInfo dirInfo = previousInfo.idToDirInfo.get(surveyDirectoryParameter.getName().persistentName());
                boolean selected = dirInfo != null && dirInfo.selected;
-               return new SelectionItem<>(new CopyRemoteItem(surveyDirectoryParameter.getName(), remoteDir, localDir), selected);
+               consumer.accept(new SelectionItem<>(new CopyRemoteItem(surveyDirectoryParameter.getName(), remoteDir, localDir), selected));
             })
-            .filter(Objects::nonNull)
             .toList();
 
       exclusionOptions = BackupFilesUtils.getExclusionOptions(lsss, previousInfo.copyRemoteInfo().options);
@@ -92,23 +91,23 @@ public final class CopyRemoteFilesGui {
 
       JButton copyButton = new JButton("Copy remote survey data");
       copyButton.addActionListener(_ -> {
-         if (!parameterEditor.commitEdits()) {
+         if (!CurrentInputComponent.commitEdit()) {
             return;
          }
 
          CopyRemoteInfo currentInfo = new CopyRemoteInfo();
          currentInfo.directories = copyRemoteItems.stream()
-               .map(item -> {
-                  if (!item.isSelected()) {
+               .<CopyRemoteInfo.DirInfo>mapMulti((item, consumer) -> {
+                  if (item.isSelected()) {
+                     consumer.accept(new CopyRemoteInfo.DirInfo(item.get().name().persistentName(), item.get().destinationDir(), true));
+                  } else {
                      CopyRemoteInfo.DirInfo previousDirInfo = previousInfo.idToDirInfo.get(item.get().name().persistentName());
                      if (previousDirInfo != null) {
                         previousDirInfo.selected = false;
+                        consumer.accept(previousDirInfo);
                      }
-                     return previousDirInfo;
                   }
-                  return new CopyRemoteInfo.DirInfo(item.get().name().persistentName(), item.get().destinationDir(), true);
                })
-               .filter(Objects::nonNull)
                .toList();
          currentInfo.options = BackupFilesUtils.toSaveOptions(exclusionOptions);
          writeCopyRemoteInfo(infoFile, currentInfo);

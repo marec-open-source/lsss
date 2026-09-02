@@ -1,5 +1,7 @@
 package no.imr.tools.math.linalg;
 
+import no.imr.tools.math.MathUtils;
+
 public final class BoxIntersection {
    private BoxIntersection() {
    }
@@ -90,11 +92,11 @@ public final class BoxIntersection {
          return false;
       }
       float a = (z - p1z) / (p2z - p1z);
-      float x = (1 - a) * p1x + a * p2x;
+      float x = (float) MathUtils.interpolate(p1x, p2x, a);
       if (x < 0 || x > 1) {
          return false;
       }
-      float y = (1 - a) * p1y + a * p2y;
+      float y = (float) MathUtils.interpolate(p1y, p2y, a);
       return y >= 0 && y <= 1;
    }
 

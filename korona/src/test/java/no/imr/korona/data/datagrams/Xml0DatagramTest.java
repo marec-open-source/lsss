@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,7 +19,7 @@ final class Xml0DatagramTest {
       byteBuffer.put(XmlUtils.toDefaultBytes(XmlUtils.readDocument(xml)));
       byteBuffer.put((byte) 0);
       byteBuffer.flip();
-      Xml0Datagram parsed = new Xml0Datagram(0, byteBuffer);
+      Xml0Datagram parsed = new Xml0Datagram(Instant.EPOCH, byteBuffer);
       assertEquals(xml, XmlUtils.toDefaultString(parsed.getDocument().getRootElement()));
    }
 }

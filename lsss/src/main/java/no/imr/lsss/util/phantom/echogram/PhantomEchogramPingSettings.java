@@ -6,8 +6,11 @@ import no.imr.korona.data.ping.PingMapping;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.util.echogram.EchogramPingSettings;
 import no.imr.lsss.LSSS;
+import no.imr.tools.Utils;
 import no.imr.tools.listening.Listener;
 import org.jspecify.annotations.Nullable;
+
+import java.time.Instant;
 
 public final class PhantomEchogramPingSettings extends EchogramPingSettings {
    private final PhantomEchogramSettings phantomEchogramSettings;
@@ -44,41 +47,41 @@ public final class PhantomEchogramPingSettings extends EchogramPingSettings {
 
    @Override
    public float pingIndexToX(PingIndex pingIndex) {
-      long ntDateLSSS = phantomEchogramSettings.getPhantomPingIndexConverter().otherNTDateToLsssNTDate(pingIndex.getNTDate());
-      //Clamp ntDateLSSS to total LSSS range.
+      Instant lsssTime = phantomEchogramSettings.getPhantomPingIndexConverter().otherTimeToLsssTime(pingIndex.getInstant());
+      //Clamp lsssTime to total LSSS range.
       PingRange totalRange = lsss.getDataManager().getDataFileSet().getTotalRange();
       if (!totalRange.isEmpty()) {
          PingIndex lastPingIndex = lsss.getDataManager().getDataFileSet().previousOrSame(totalRange.end());
-         ntDateLSSS = Math.clamp(ntDateLSSS, totalRange.begin().getNTDate(), lastPingIndex.getNTDate());
+         lsssTime = Utils.clamp(lsssTime, totalRange.begin().getInstant(), lastPingIndex.getInstant());
       }
-      float xLSSS = lsssPingSettings.ntDateToX(ntDateLSSS);
+      float xLSSS = lsssPingSettings.instantToX(lsssTime);
       return getWidth() * xLSSS / lsssPingSettings.getWidth();
    }
 
    @Override
-   public long xToNTDate(double x) {
+   public Instant xToInstant(double x) {
       double xLSSS = lsssPingSettings.getWidth() * x / getWidth();
-      long lsssNTDate = lsssPingSettings.xToNTDate(xLSSS);
-      return phantomEchogramSettings.getPhantomPingIndexConverter().lsssNTDateToOtherNTDate(lsssNTDate);
+      Instant lsssTime = lsssPingSettings.xToInstant(xLSSS);
+      return phantomEchogramSettings.getPhantomPingIndexConverter().lsssTimeToOtherTime(lsssTime);
    }
 
    @Override
-   public float ntDateToX(long ntDate) {
-      long lsssNTDate = phantomEchogramSettings.getPhantomPingIndexConverter().otherNTDateToLsssNTDate(ntDate);
-      float xLSSS = lsssPingSettings.ntDateToX(lsssNTDate);
+   public float instantToX(Instant instant) {
+      Instant lsssTime = phantomEchogramSettings.getPhantomPingIndexConverter().otherTimeToLsssTime(instant);
+      float xLSSS = lsssPingSettings.instantToX(lsssTime);
       return getWidth() * xLSSS / lsssPingSettings.getWidth();
    }
 
    @Override
    public PingIndex xToClosestPingIndex(double x) {
-      long ntDate = xToNTDate(x);
-      return getPingContainer().getClosestPingIndex(PingMapping.ntDateToTimeValue(ntDate), PingMapping.TIME);
+      Instant instant = xToInstant(x);
+      return getPingContainer().getClosestPingIndex(PingMapping.instantToTimeValue(instant), PingMapping.TIME);
    }
 
    @Override
    public @Nullable PingIndex xToContainingPingIndex(double x) {
-      long ntDate = xToNTDate(x);
-      return getPingContainer().getContainingPingIndex(PingMapping.ntDateToTimeValue(ntDate), PingMapping.TIME);
+      Instant instant = xToInstant(x);
+      return getPingContainer().getContainingPingIndex(PingMapping.instantToTimeValue(instant), PingMapping.TIME);
    }
 
    @Override

@@ -36,8 +36,8 @@ public final class KoronaSettingsUtils {
          koronaSettings.getKoronaConfigDir().setFile(dir);
       }
       JComponent gui = new ConfigurableGUI()
-            .setParameterEditorAdaptor(parameterEditor -> {
-               parameterEditor.getGUIConfig().setHorizontalFill(true);
+            .setParameterGUIConfigAdaptor(guiConfig -> {
+               guiConfig.setHorizontalFill(true);
             })
             .createComponent(koronaSettings.getKoronaConfigDir());
       String infoText = """

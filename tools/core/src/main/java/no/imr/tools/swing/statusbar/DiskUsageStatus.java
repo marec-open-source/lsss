@@ -117,6 +117,7 @@ public final class DiskUsageStatus {
       if (file == null) {
          return "No file to monitor";
       }
+      String error = this.error;
       if (error != null) {
          return error;
       }

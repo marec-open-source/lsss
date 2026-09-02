@@ -168,21 +168,22 @@ public final class FiskView {
    }
 
    private void updateFrameTitle() {
-      String title = "KORONA " + Korona.VERSION;
-      Path cfsFile = getCfsFile();
-      if (cfsFile != null) {
-         String cfsInfo = cfsFile.getFileName().toString();
-         Path cdsFile = getCdsFile();
-         if (cdsFile != null) {
-            cfsInfo += " [" + cdsFile.getFileName() + "]";
-         }
-         title = cfsInfo + " - " + title;
-      }
+      StringBuilder title = new StringBuilder();
       Path rawFile = koronaPlaybox.getRawFile();
       if (rawFile != null) {
-         title = rawFile + " - " + title;
+         title.append(rawFile).append(" - ");
       }
-      frame.setTitle(title);
+      Path cfsFile = getCfsFile();
+      if (cfsFile != null) {
+         title.append(cfsFile.getFileName());
+         Path cdsFile = getCdsFile();
+         if (cdsFile != null) {
+            title.append(" [").append(cdsFile.getFileName()).append(']');
+         }
+         title.append(" - ");
+      }
+      title.append("KORONA ").append(Korona.VERSION);
+      frame.setTitle(title.toString());
    }
 
    void removeConfiguration() {
@@ -353,12 +354,9 @@ public final class FiskView {
          return true;
       }
 
-      StringBuilder message = new StringBuilder()
-            .append(whatIsChanged).append(" is modified");
-      if (file != null) {
-         message.append(":\n").append(file.getFileName());
-      }
-      message.append("\n\nSave changes?");
+      String message = whatIsChanged + " is modified" +
+            (file != null ? ":\n" + file.getFileName() : "") +
+            "\n\nSave changes?";
 
       int answer = JOptionPane.showConfirmDialog(referenceComponent, message,
             "Save changes?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);

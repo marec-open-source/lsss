@@ -53,6 +53,7 @@ public class GridBag {
 
    public GridBag deactivateFill() {
       constraints.weightx = 0;
+      constraints.weighty = 0;
       constraints.fill = GridBagConstraints.NONE;
       return this;
    }
@@ -98,10 +99,12 @@ public class GridBag {
    public GridBag addVerticalFiller() {
       JLabel verticalFiller = new JLabel();
       int savedFill = constraints.fill;
+      double savedWeighty = constraints.weighty;
       constraints.fill = GridBagConstraints.VERTICAL;
       constraints.weighty = 1;
       addWithLineBreak(verticalFiller);
       constraints.fill = savedFill;
+      constraints.weighty = savedWeighty;
       return this;
    }
 }

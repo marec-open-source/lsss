@@ -6,7 +6,6 @@ import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -20,15 +19,13 @@ public final class PluginManager {
 
    public PluginManager(LSSS lsss, ServiceCollection serviceCollection) {
       featurePlugins = serviceCollection.getFeatureServices().parallelStream()
-            .map(service -> {
+            .<FeaturePlugin>mapMulti((service, consumer) -> {
                try {
-                  return service.createPlugin(lsss);
+                  consumer.accept(service.createPlugin(lsss));
                } catch (Throwable e) {
                   Log.global.log(Level.WARNING, "Error creating plugin " + service.getName().persistentName(), e);
-                  return null;
                }
             })
-            .filter(Objects::nonNull)
             .toList();
       String message = featurePlugins.stream()
             .map(FeaturePlugin::getPersistentName)

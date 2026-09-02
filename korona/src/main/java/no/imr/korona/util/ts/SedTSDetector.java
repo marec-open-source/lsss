@@ -18,7 +18,6 @@ public final class SedTSDetector implements TSDetector {
    private final boolean doPhaseDeviationCheck;
    private final float maxPhaseDevPhaseSteps;
    private final float maxDepth;
-   private final boolean allowMultiplePeaks;
 
    public SedTSDetector(float minTs, float maxGainCompensation, float pulseLengthDeterminationLevel,
                         float minEchoLength, float maxEchoLength,
@@ -32,7 +31,6 @@ public final class SedTSDetector implements TSDetector {
       this.doPhaseDeviationCheck = doPhaseDeviationCheck;
       this.maxPhaseDevPhaseSteps = maxPhaseDevPhaseSteps;
       this.maxDepth = maxDepth;
-      allowMultiplePeaks = false;
    }
 
    @Override
@@ -41,7 +39,6 @@ public final class SedTSDetector implements TSDetector {
       return getTsDetections(channelData.getPowerData(), Math.min(beginIndex, maxIndex), Math.min(endIndex, maxIndex));
    }
 
-   @SuppressWarnings("RedundantIfStatement")
    private boolean isAccepted(PowerData powerData, TSDetection tsDetection) {
       if (!TSDetectorUtils.checkEchoLimits(tsDetection, powerData, minEchoLength, maxEchoLength)) {
          return false;
@@ -57,7 +54,7 @@ public final class SedTSDetector implements TSDetector {
       if (powerData.getTSU(tsDetection.peakIndex()) + 2 * oneWayGainCompensation < minTs) {
          return false;
       }
-      if (!allowMultiplePeaks && hasMultiplePeaks(powerData, tsDetection)) {
+      if (hasMultiplePeaks(powerData, tsDetection)) {
          return false;
       }
       return true;

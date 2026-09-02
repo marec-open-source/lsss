@@ -7,6 +7,33 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class RunningMedianTest {
    @Test
+   void test() {
+      RunningMedian r = new RunningMedian(3);
+      assertEquals(Float.NaN, r.getMedian());
+
+      r.add(1);
+      assertEquals(1, r.getMedian());
+
+      r.add(2);
+      assertEquals(1, r.getMedian());
+
+      r.add(3);
+      assertEquals(2, r.getMedian());
+
+      assertThrows(IllegalStateException.class, () -> r.add(4));
+      assertThrows(IllegalArgumentException.class, () -> r.remove(4));
+
+      r.remove(1);
+      assertEquals(2, r.getMedian());
+
+      r.remove(2);
+      assertEquals(3, r.getMedian());
+
+      r.remove(3);
+      assertEquals(Float.NaN, r.getMedian());
+   }
+
+   @Test
    void random() {
       JUnitUtils.runWithRandom(random -> {
          int maxSize = 100;

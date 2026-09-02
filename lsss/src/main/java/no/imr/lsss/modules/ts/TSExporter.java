@@ -15,7 +15,6 @@ import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.parameter.Name;
 import no.imr.tools.range.FloatRangeSet;
-import no.imr.tools.time.NTDate;
 import no.marec.lsss.api.util.GeoPoint;
 import tools.jackson.databind.ObjectWriter;
 
@@ -36,7 +35,7 @@ public final class TSExporter extends StreamingExporter {
    }
 
    @Override
-   public void doExport(AsyncHandle asyncHandle, ProgressHandler progressHandler) throws IOException {
+   protected void doExport(AsyncHandle asyncHandle, ProgressHandler progressHandler) throws IOException {
       PingRange pingRange = getLSSS().getInterpretationSettings().getPingRange();
       if (pingRange.isEmpty()) {
          return;
@@ -101,7 +100,7 @@ public final class TSExporter extends StreamingExporter {
 
          for (TSData tsData : tsDataComputer.compute(ping, channel, depthRanges.getFloatRanges())) {
             GeoPoint geoPos = tsData.geoPos();
-            DatabaseTime databaseTime = new DatabaseTime(NTDate.ntDateToTimeInMillis(tsData.ntDate()));
+            DatabaseTime databaseTime = new DatabaseTime(tsData.instant());
             List<String> values = List.of(Integer.toString(databaseTime.getDate()),
                   Utils.format("%08d", databaseTime.getTime()),
                   geoPos != null ? Utils.format("%.6f", geoPos.getLatitude()) : MISSING_LAT_LON,

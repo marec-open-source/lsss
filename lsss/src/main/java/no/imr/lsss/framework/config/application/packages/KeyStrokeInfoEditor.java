@@ -25,7 +25,7 @@ final class KeyStrokeInfoEditor implements ParameterContainer {
          "",
          "Filters list of actions");
 
-   private final ActionParameter action = new ActionParameter();
+   private final ActionParameter action;
 
    private final StringParameter keyStroke = new StringParameter(new Name("Keystroke"),
          "",
@@ -39,6 +39,8 @@ final class KeyStrokeInfoEditor implements ParameterContainer {
    KeyStrokeInfoEditor(UserDefinedPackage userDefinedPackage, KeyStrokeInfo keyStrokeInfo) {
       this.userDefinedPackage = userDefinedPackage;
       this.keyStrokeInfo = keyStrokeInfo;
+
+      action = new ActionParameter(userDefinedPackage, keyStrokeInfo);
 
       keyStroke.setValue(keyStrokeInfo.keyStroke);
       List<String> contexts = userDefinedPackage.getLSSS().getModuleManager().getViewModules().values().stream()
@@ -66,7 +68,7 @@ final class KeyStrokeInfoEditor implements ParameterContainer {
    }
 
    void init(ParameterEditor parameterEditor) {
-      action.init(parameterEditor, filter, userDefinedPackage, keyStrokeInfo);
+      action.init(parameterEditor, filter);
 
       JComponent inputComponent = parameterEditor.getInputComponent(keyStroke);
       inputComponent.addKeyListener(new KeyListener() {
@@ -95,9 +97,6 @@ final class KeyStrokeInfoEditor implements ParameterContainer {
    }
 
    boolean isOK(ParameterEditor parameterEditor) {
-      if (!parameterEditor.commitEdits()) {
-         return false;
-      }
       if (action.getValue().isEmpty()) {
          JOptionPane.showMessageDialog(parameterEditor.getEditorComponent(), "Please select an action", "Error", JOptionPane.ERROR_MESSAGE);
          parameterEditor.getInputComponent(action).requestFocusInWindow();

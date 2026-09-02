@@ -11,8 +11,8 @@ val lsssPlugins: Set<Project> = project(":lsss:plugins").subprojects
 
 dependencies {
    api(project(":lsss"))
-   koronaPlugins.forEach { api(it) }
-   lsssPlugins.forEach { api(it) }
+   koronaPlugins.forEach { api(project(it.path)) }
+   lsssPlugins.forEach { api(project(it.path)) }
 }
 
 tasks.register<JavaExec>("runLsss") {

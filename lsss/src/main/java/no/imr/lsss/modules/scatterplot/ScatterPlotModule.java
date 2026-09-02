@@ -1,6 +1,5 @@
 package no.imr.lsss.modules.scatterplot;
 
-import com.google.common.collect.Lists;
 import no.imr.korona.computation.categorization.Category;
 import no.imr.korona.computation.categorization.Configurator;
 import no.imr.korona.computation.categorization.GaussUtils;
@@ -243,7 +242,9 @@ public final class ScatterPlotModule extends BaseViewModule implements PojoDataC
       double quantile = GaussUtils.quantileValue(configurator.outlierFraction.getFloatValue(), configurator.getEnabledFeatureExtractors().size());
       GaussUtils.drawGaussEllipse(ellipse, stat.meanX(), stat.meanY(), stat.covXX(), stat.covXY(), stat.covYY(), quantile);
 
-      List<Graph> graphs = Lists.newArrayList(ellipse, scatter);
+      List<Graph> graphs = new ArrayList<>();
+      graphs.add(ellipse);
+      graphs.add(scatter);
 
       if (koronaCategoriesSelection.plotCategories.getBooleanValue()) {
          graphs.addAll(createCategoryGraphs(configurator, xAxis, yAxis, xyInfo, scatter.getRenderer()));

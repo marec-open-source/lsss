@@ -30,8 +30,6 @@ abstract class BaseMultiFrequencyReport extends BaseReport {
    }
 
    Path makeFile(Path aDir, String aPostfix) {
-      DecimalFormatSymbols dfs = Utils.createDecimalFormatSymbols();
-      DecimalFormat df = new DecimalFormat("#0.0", dfs);
       return aDir.resolve(getFilePrefix() +
             aPostfix +
             getFileSuffix());

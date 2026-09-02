@@ -75,8 +75,8 @@ public final class SelectionPhantomOverlay extends BasePhantomOverlay {
    }
 
    @Override
-   public boolean keyTyped(KeyEvent keyEvent) {
-      switch (Character.toLowerCase(keyEvent.getKeyChar())) {
+   public boolean keyPressed(KeyEvent keyEvent) {
+      switch (keyEvent.getKeyCode()) {
          case KeyEvent.VK_ESCAPE -> {
             if (dragPoint != null) {
                referencePoint = null;
@@ -93,13 +93,7 @@ public final class SelectionPhantomOverlay extends BasePhantomOverlay {
       return true;
    }
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final Rectangle2D box;
-
-      private DisplayData(Rectangle2D box) {
-         this.box = box;
-      }
-
+   private record DisplayData(Rectangle2D box) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setStroke(RegionEditOverlay.SELECT_STROKE);

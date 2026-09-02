@@ -57,15 +57,10 @@ public final class ParameterEditorData {
 
    public JComponent getInputComponent(BaseParameter<?> parameter) {
       ParameterGUI<?> parameterGUI = parameterGUIs.get(parameter);
-      return parameterGUI.getInputComponent();
-   }
-
-   public boolean commitEdits() {
-      for (ParameterGUI<?> parameterGUI : parameterGUIs.values()) {
-         if (!parameterGUI.commitEdit()) {
-            return false;
-         }
+      JComponent inputComponent = parameterGUI != null ? parameterGUI.getInputComponent() : null;
+      if (inputComponent == null) {
+         throw new IllegalArgumentException("No GUI for parameter: " + parameter.getPersistentName());
       }
-      return true;
+      return inputComponent;
    }
 }

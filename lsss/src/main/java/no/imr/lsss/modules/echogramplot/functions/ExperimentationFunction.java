@@ -17,8 +17,10 @@ import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.ExportTransform;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.range.FloatRangeSet;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -26,18 +28,18 @@ public final class ExperimentationFunction extends PingFunction {
    public static final boolean USE = !Utils.IS_DIST_VERSION;
 
    private final LSSS lsss;
-   private final int n;
+   private final int caseNumber;
 
-   public ExperimentationFunction(LSSS lsss, int n) {
-      super(new Name("ExperimentationFunction-" + n), Unit.DIMENSIONLESS, ExportTransform.round(1000));
+   public ExperimentationFunction(LSSS lsss, int caseNumber) {
+      super(new Name("ExperimentationFunction-" + caseNumber), Unit.DIMENSIONLESS, ExportTransform.round(1000));
 
       this.lsss = lsss;
-      this.n = n;
+      this.caseNumber = caseNumber;
    }
 
    @Override
    public void addListeners(LSSS lsss, ListenerRegistry listenerRegistry) {
-      switch (n) {
+      switch (caseNumber) {
          case 1 -> {
             listenerRegistry.add(getChangeManager(), List.of(
                   lsss.getRegionManager().getRegionDefinitionChangeManager(),
@@ -56,7 +58,7 @@ public final class ExperimentationFunction extends PingFunction {
       if (channelData == null) {
          return Double.NaN;
       }
-      return switch (n) {
+      return switch (caseNumber) {
          case 1 -> compute1(ping, channelData);
          case 2 -> compute2(channelData);
          default -> Double.NaN;
@@ -128,39 +130,39 @@ public final class ExperimentationFunction extends PingFunction {
    }
 
    @Override
-   public float[] postprocess(float[] y, long[] timeInMillis, float[] bottom) {
-      return switch (n) {
-         case 1 -> postprocess1(y, timeInMillis, bottom);
-         case 2 -> postprocess2(y, timeInMillis, bottom);
+   public float[] postprocess(float[] y, Instant[] instants, float[] bottom) {
+      return switch (caseNumber) {
+         case 1 -> postprocess1(y, instants, bottom);
+         case 2 -> postprocess2(y, instants, bottom);
          default -> y;
       };
    }
 
-   private static float[] postprocess1(float[] y, long[] timeInMillis, float[] bottom) {
+   private static float[] postprocess1(float[] y, Instant[] instants, float[] bottom) {
       y = ArrayKernel.createGaussian(3).smooth(y);
       float[] yCopy = y.clone();
       int maxRadius = 100;  //For 1 sec ping-rate, 60 means 2 minutes
       float soundSpeed = 1500; //For now
 
       for (int i = 0; i < y.length; i++) {
-         float totalRoll = 0;
+         double totalRoll = 0;
          int i_min = Math.max(i - maxRadius, 0);
          int i_max = Math.min(i + maxRadius + 1, yCopy.length);
-         float timeDiff = (float) (timeInMillis[i_max - 1] - timeInMillis[i_min]) / 1000;
-         float maxDepth = Math.min(bottom[i], 200); //Minimum of bottom depth and 200 m
+         double timeDiff = TimeUtils.toSeconds(instants[i_min], instants[i_max - 1]) / 1000;
+         double maxDepth = Math.min(bottom[i], 200); //Minimum of bottom depth and 200 m
 
          y[i] = Max.of(yCopy, i_min, i_max);
          for (int j = i_min; j < i_max - 1; j++) {
-            totalRoll += Math.abs(yCopy[j] - yCopy[j+1]);
+            totalRoll += Math.abs(yCopy[j] - yCopy[j + 1]);
          }
          // How many degrees roll until 200 m (or bottom) averaged over time (approx 2 * maxRadius seconds)
          //y[i] = totalRoll / (2 * maxRadius) * (2 * maxDepth / soundSpeed);
-         y[i] = totalRoll / timeDiff * (2 * maxDepth / soundSpeed);
+         y[i] = (float) (totalRoll / timeDiff * (2 * maxDepth / soundSpeed));
       }
       return y;
    }
 
-   private static float[] postprocess2(float[] y, long[] time, float[] bottom) {
-      return postprocess1(y, time, bottom);
+   private static float[] postprocess2(float[] y, Instant[] instants, float[] bottom) {
+      return postprocess1(y, instants, bottom);
    }
 }

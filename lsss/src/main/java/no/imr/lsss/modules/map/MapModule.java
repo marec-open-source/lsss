@@ -3,6 +3,7 @@ package no.imr.lsss.modules.map;
 import no.imr.korona.data.datamanager.DataFileSet;
 import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.DataUtils;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.lsss.framework.BaseSystemFeaturePlugin;
 import no.imr.lsss.framework.ExtendedSurveyLine;
 import no.imr.lsss.framework.MapWorkingMode;
@@ -18,6 +19,7 @@ import no.imr.tools.listening.ArgChangeManager;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.listening.ListenerRegistry;
 import no.imr.tools.listening.Listeners;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.BooleanParameter;
 import no.imr.tools.parameter.Name;
@@ -151,15 +153,15 @@ public final class MapModule extends BaseOverlaidModule<BaseMapOverlay> {
 
       if (selectionGeoBox != null) {
          GeoPoint geoDegreesPerMeter = Earth.getGeoDegreesPerMeter(selectionGeoBox.getCenterY());
-         double deltaLat = Utils.meterToNmi(selectionGeoBox.getHeight() / geoDegreesPerMeter.getLatitude());
-         double deltaLon = Utils.meterToNmi(selectionGeoBox.getWidth() / geoDegreesPerMeter.getLongitude());
-         String boxFormat = Utils.getPrecisionString(Utils.meterToNmi(getLatitudeExtent() / geoDegreesPerMeter.getLatitude()) / getHeight());
+         double deltaLat = KoronaUtils.meterToNmi(selectionGeoBox.getHeight() / geoDegreesPerMeter.getLatitude());
+         double deltaLon = KoronaUtils.meterToNmi(selectionGeoBox.getWidth() / geoDegreesPerMeter.getLongitude());
+         String boxFormat = Utils.getPrecisionString(KoronaUtils.meterToNmi(getLatitudeExtent() / geoDegreesPerMeter.getLatitude()) / getHeight());
          toolTip
                .addVerticalSpace()
                .addLine("Selection rectangle:")
                .addRow(" - North-South [nmi]", Utils.format(boxFormat, deltaLat))
                .addRow(" - East-West [nmi]", Utils.format(boxFormat, deltaLon))
-               .addRow(" - Diagonal [nmi]", Utils.format(boxFormat, Utils.hypot(deltaLat, deltaLon)));
+               .addRow(" - Diagonal [nmi]", Utils.format(boxFormat, MathUtils.hypot(deltaLat, deltaLon)));
       }
 
       return toolTip.build();

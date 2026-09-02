@@ -1,8 +1,6 @@
 package no.imr.korona.util.absorption;
 
-public abstract class Absorption {
-   protected Absorption() {
-   }
+public interface Absorption {
 
    /**
     * Calculate absorption.
@@ -10,5 +8,5 @@ public abstract class Absorption {
     * @param frequency [Hz]
     * @return [dB/m]
     */
-   public abstract double getAbsorption(double frequency);
+   double getAbsorption(double frequency);
 }

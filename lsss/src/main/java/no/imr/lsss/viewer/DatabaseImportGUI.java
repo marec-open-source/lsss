@@ -1,16 +1,20 @@
 package no.imr.lsss.viewer;
 
 import no.imr.lsss.LSSS;
-import no.imr.lsss.database.export.DatabaseExporter;
+import no.imr.lsss.database.JavaDBMigration;
 import no.imr.lsss.database.export.DatabaseImporter;
 import no.imr.lsss.resources.LsssHelp;
+import no.imr.tools.database.HsqldbUtils;
 import no.imr.tools.database.JavaDBUtils;
+import no.imr.tools.io.FileUtils;
 import no.imr.tools.parameter.FileParameter;
 import no.imr.tools.parameter.Name;
+import no.imr.tools.parameter.StringParameter;
 import no.imr.tools.parameter.gui.ParameterEditor;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.StatusView;
 import no.imr.tools.swing.WorkerDialog;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -23,6 +27,7 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Window;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -45,9 +50,14 @@ final class DatabaseImportGUI {
             or a directory containing text files with table data.
             """), BorderLayout.NORTH);
 
+      JLabel javaDbWarning = new JLabel(" ");
+      topPanel.add(javaDbWarning);
+
       FileParameter directory = new FileParameter(new Name("Directory", "Source directory"),
             null, FileParameter.Mode.DIRECTORY);
-      ParameterEditor parameterEditor = new ParameterEditor(List.of(directory));
+      StringParameter databaseName = new StringParameter(new Name("DatabaseName", "Database name"));
+      databaseName.setAllowedValuesAndValue(List.of(""), "");
+      ParameterEditor parameterEditor = new ParameterEditor(List.of(directory, databaseName));
       parameterEditor.getEditorComponent().setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
       topPanel.add(parameterEditor.getEditorComponent(), BorderLayout.SOUTH);
 
@@ -55,25 +65,48 @@ final class DatabaseImportGUI {
       importDatabaseButton.setEnabled(false);
       importDatabaseButton.addActionListener(_ -> {
          dialog.dispose();
-         startImport(lsss, referenceWindow, directory, true);
+         startImport(lsss, referenceWindow, directory, databaseName, true);
       });
 
       JButton importTextFilesButton = new JButton("Import from text files");
       importTextFilesButton.setEnabled(false);
       importTextFilesButton.addActionListener(_ -> {
          dialog.dispose();
-         startImport(lsss, referenceWindow, directory, false);
+         startImport(lsss, referenceWindow, directory, databaseName, false);
       });
 
-      directory.subscribe(value -> {
-         value.ifPresentOrElse(dir -> {
-            Path javaDbDir = toJavaDbDir(dir);
-            importDatabaseButton.setEnabled(JavaDBUtils.isJavaDBDirectory(javaDbDir));
-            importTextFilesButton.setEnabled(Files.isRegularFile(javaDbDir.resolveSibling("DBParameter.txt")));
-         }, () -> {
+      directory.subscribe(_ -> {
+         Path dir = directory.getFile();
+         if (dir != null && JavaDBUtils.isJavaDBDirectory(dir)) {
+            directory.setFile(dir.getParent());
+            databaseName.setValue(dir.getFileName().toString());
+            return;
+         }
+         List<String> dbNames = getDbNames(dir);
+         if (dbNames.isEmpty()) {
+            dbNames = List.of("");
+         }
+         databaseName.setAllowedValuesAndPossiblyValue(dbNames, dbNames.getFirst());
+      });
+
+      parameterEditor.getParameterChangeManager().subscribe(_ -> {
+         Path dir = directory.getFile();
+         String dbName = databaseName.getValue();
+         if (dir != null && !dbName.isEmpty()) {
+            boolean isJavaDB = JavaDBUtils.isJavaDBDatabase(dir, dbName);
+            if (JavaDBMigration.interactivelyConvertJavaDBToHsqldb(lsss, dir, dbName, () -> dialog, "import")) {
+               isJavaDB = false;
+            }
+            javaDbWarning.setText(isJavaDB
+                  ? "<html><span style='color: red;'><b>Warning: JavaDB is deprecated. Support will be dropped in a future LSSS version."
+                  : "");
+            importDatabaseButton.setEnabled(HsqldbUtils.isHsqldbDatabase(dir, dbName) || isJavaDB);
+            importTextFilesButton.setEnabled(Files.isRegularFile(dir.resolve("DBParameter.txt")));
+         } else {
+            javaDbWarning.setText("");
             importDatabaseButton.setEnabled(false);
             importTextFilesButton.setEnabled(false);
-         });
+         }
       });
 
       JButton cancelButton = new JButton("Cancel");
@@ -95,19 +128,33 @@ final class DatabaseImportGUI {
 
       dialog.add(mainPanel);
       dialog.pack();
-      GuiUtils.expandSizeTo(dialog, 600, 0);
+      GuiUtils.expandSizeTo(dialog, 800, 0);
       dialog.setLocationRelativeTo(referenceWindow);
       dialog.setVisible(true);
    }
 
-   private static Path toJavaDbDir(Path dir) {
-      if (JavaDBUtils.isJavaDBDirectory(dir)) {
-         return dir;
+   private static List<String> getDbNames(@Nullable Path dir) {
+      if (dir == null) {
+         return List.of();
       }
-      return dir.resolve(DatabaseExporter.DATABASE_NAME);
+      try {
+         return FileUtils.listFilesWithAttributes(dir).stream()
+               .<String>mapMulti((fileInfo, consumer) -> {
+                  if (fileInfo.isDirectory() && JavaDBUtils.isJavaDBDirectory(fileInfo.file())) {
+                     consumer.accept(fileInfo.getFileName());
+                  } else if (fileInfo.getFileName().endsWith(HsqldbUtils.SCRIPT_FILE_SUFFIX)) {
+                     String fileName = fileInfo.getFileName();
+                     consumer.accept(fileName.substring(0, fileName.length() - HsqldbUtils.SCRIPT_FILE_SUFFIX.length()));
+                  }
+               })
+               .sorted()
+               .toList();
+      } catch (IOException _) {
+         return List.of();
+      }
    }
 
-   private static void startImport(LSSS lsss, Window referenceWindow, FileParameter directory, boolean fromDB) {
+   private static void startImport(LSSS lsss, Window referenceWindow, FileParameter directory, StringParameter databaseName, boolean fromDB) {
       Path dir = directory.getFile();
       if (dir == null) {
          return;
@@ -117,19 +164,18 @@ final class DatabaseImportGUI {
             .setMinimumSize(new Dimension(350, 0))
             .setOnError(e -> lsss.showError(referenceWindow, "Database import failed.", e))
             .start(asyncHandle -> {
-               Path javaDbDir = toJavaDbDir(dir);
-               DatabaseImporter databaseImporter = new DatabaseImporter(lsss, javaDbDir.getParent(), javaDbDir.getFileName().toString())
+               DatabaseImporter databaseImporter = new DatabaseImporter(lsss)
                      .setInteractiveMode(true)
                      .setAsyncHandle(asyncHandle)
                      .setStatusListener(statusView::setSecondaryText);
                if (fromDB) {
-                  databaseImporter.importFromDatabase(referenceWindow);
+                  databaseImporter.importFromDatabase(referenceWindow, dir, databaseName.getValue());
                } else {
-                  databaseImporter.importFromTextFiles(referenceWindow);
+                  databaseImporter.importFromTextFiles(referenceWindow, dir);
                }
             });
       if (result.success()) {
-         lsss.getConfigurationManager().getSurveyConf().updateAllowedSurveys();
+         lsss.getDatabaseManager().getConnectionManager().resetDatabaseData();
       }
    }
 }

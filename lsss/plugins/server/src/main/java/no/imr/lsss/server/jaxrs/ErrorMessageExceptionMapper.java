@@ -12,10 +12,10 @@ import no.imr.lsss.server.pojo.ErrorMessage;
 import no.imr.tools.NoCanDoException;
 import no.imr.tools.Utils;
 import no.imr.tools.logging.Log;
+import no.marec.tools.jaxrs.JaxRsUtils;
 import tools.jackson.core.JacksonException;
 
 import java.io.FileNotFoundException;
-import java.net.SocketTimeoutException;
 import java.nio.file.NoSuchFileException;
 import java.time.Instant;
 import java.util.concurrent.ThreadLocalRandom;
@@ -37,7 +37,7 @@ public final class ErrorMessageExceptionMapper implements ExceptionMapper<Throwa
       String id = "#" + ThreadLocalRandom.current().nextInt(1_000_000);
       String message = "Error " + id + ", " + request.getMethod() + " " + uriInfo.getRequestUri() + ", " + throwable;
       Response.StatusType statusType = getResponseStatus(throwable);
-      if (skipStackTrace(throwable, statusType)) {
+      if (JaxRsUtils.skipStackTrace(throwable, statusType)) {
          Log.global.log(Level.INFO, message);
       } else {
          Log.global.log(Level.INFO, message, throwable);
@@ -46,12 +46,6 @@ public final class ErrorMessageExceptionMapper implements ExceptionMapper<Throwa
             .entity(new ErrorMessage(id, Instant.now().toString(), message, Utils.stackTraceToString(throwable)))
             .type(MediaType.APPLICATION_JSON)
             .build();
-   }
-
-   private static boolean skipStackTrace(Throwable throwable, Response.StatusType statusType) {
-      return statusType.getFamily() != Response.Status.Family.SERVER_ERROR
-            || throwable instanceof SocketTimeoutException
-            || throwable.getClass().getSimpleName().equals("ClientAbortException");
    }
 
    private static Response.StatusType getResponseStatus(Throwable throwable) {

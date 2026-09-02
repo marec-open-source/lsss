@@ -82,6 +82,10 @@ public final class PreprocessingConf extends ConfigurationUnit {
       return mainSetup;
    }
 
+   public List<PreprocessingSetup> getAdditionalSetups() {
+      return preprocessingSetups.subList(1, preprocessingSetups.size());
+   }
+
    public List<PreprocessingSetup> getPreprocessingSetups() {
       return preprocessingSetups;
    }

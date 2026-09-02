@@ -5,7 +5,7 @@ import no.imr.korona.computation.BaseMatrixModuleComputation;
 import no.imr.korona.computation.ComputationContext;
 import no.imr.korona.data.ping.PingSource;
 import no.imr.tools.UnionList;
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.parameter.BaseParameter;
 import no.imr.tools.parameter.FloatParameter;
 import no.imr.tools.parameter.IntParameter;
@@ -91,7 +91,7 @@ public final class EdgeDetectionModule extends BaseMatrixModule {
          for (int mat = 0; mat < 2; mat++) {
             double resOneMat = 0;
             for (int j = 0; j < 3; j++) {
-               resOneMat += M_LIST[mat][0][j] * (double) getRawDataFromBuffer(channelIndex, sampleIndexDepth - vertRes, -1);
+               resOneMat += M_LIST[mat][0][j] * (double) getRawDataFromBuffer(channelIndex, sampleIndexDepth - vertRes, j - 1);
                resOneMat += M_LIST[mat][1][j] * (double) getRawDataFromBuffer(channelIndex, sampleIndexDepth, j - 1);
                resOneMat += M_LIST[mat][2][j] * (double) getRawDataFromBuffer(channelIndex, sampleIndexDepth + vertRes, j - 1);
             }
@@ -101,7 +101,7 @@ public final class EdgeDetectionModule extends BaseMatrixModule {
          if (resAllMat > 0) {
             return 0;
          }
-         return Utils.avoidInfinity((float) resAllMat);
+         return MathUtils.avoidInfinity((float) resAllMat);
       }
    }
 }

@@ -1,5 +1,7 @@
 package no.imr.tools;
 
+import org.jspecify.annotations.Nullable;
+
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -10,8 +12,7 @@ import java.text.ParsePosition;
  */
 public final class SmartNumberFormat extends NumberFormat {
    private final NumberFormat noExp = Utils.createDecimalFormat("###.#######");
-   private final NumberFormat exp1 = Utils.createDecimalFormat("##0.#######E0");
-   private final NumberFormat exp2 = Utils.createDecimalFormat("##0.#######E00");
+   private final NumberFormat withExp = Utils.createDecimalFormat("##0.#######E0");
 
    public SmartNumberFormat() {
    }
@@ -20,11 +21,14 @@ public final class SmartNumberFormat extends NumberFormat {
       double v = Math.abs(number);
       if (v == 0 || v >= 1e-2 && v < 1e3) {
          return noExp;
-      } else if (v >= 1e-9 && v < 1e10) {
-         return exp1;
       } else {
-         return exp2;
+         return withExp;
       }
+   }
+
+   public String formatToString(double number) {
+      // NumberFormat.format is final and has a fast path for package java.text.
+      return getFormat(number).format(number);
    }
 
    @Override
@@ -40,7 +44,7 @@ public final class SmartNumberFormat extends NumberFormat {
    }
 
    @Override
-   public Number parse(String source, ParsePosition parsePosition) {
-      return exp2.parse(source, parsePosition);
+   public @Nullable Number parse(String source, ParsePosition parsePosition) {
+      return noExp.parse(source, parsePosition);
    }
 }

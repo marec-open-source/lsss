@@ -28,11 +28,6 @@ class RangeMapBasedRangeSet<K extends Comparable<? super K>> implements RangeSet
    }
 
    @Override
-   public boolean containsNone(Range<K> range) {
-      return rangeMap.containsNoKeys(range);
-   }
-
-   @Override
    public int size() {
       return rangeMap.size();
    }

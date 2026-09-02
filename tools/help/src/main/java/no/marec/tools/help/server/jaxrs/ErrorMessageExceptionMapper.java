@@ -9,9 +9,9 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import no.imr.tools.logging.Log;
 import no.imr.tools.web.WebUtils;
+import no.marec.tools.jaxrs.JaxRsUtils;
 
 import java.io.FileNotFoundException;
-import java.net.SocketTimeoutException;
 import java.nio.file.NoSuchFileException;
 import java.util.logging.Level;
 
@@ -30,7 +30,7 @@ public final class ErrorMessageExceptionMapper implements ExceptionMapper<Throwa
    public Response toResponse(Throwable throwable) {
       String message = "Error " + request.getMethod() + " " + uriInfo.getRequestUri() + ", " + throwable;
       Response.StatusType statusType = getResponseStatus(throwable);
-      if (skipStackTrace(throwable, statusType)) {
+      if (JaxRsUtils.skipStackTrace(throwable, statusType)) {
          Log.global.log(Level.INFO, message);
       } else {
          Log.global.log(Level.INFO, message, throwable);
@@ -39,12 +39,6 @@ public final class ErrorMessageExceptionMapper implements ExceptionMapper<Throwa
             .entity(message)
             .type(WebUtils.TEXT_PLAIN_UTF_8)
             .build();
-   }
-
-   private static boolean skipStackTrace(Throwable throwable, Response.StatusType statusType) {
-      return statusType.getFamily() != Response.Status.Family.SERVER_ERROR
-            || throwable instanceof SocketTimeoutException
-            || throwable.getClass().getSimpleName().equals("ClientAbortException");
    }
 
    private static Response.StatusType getResponseStatus(Throwable throwable) {

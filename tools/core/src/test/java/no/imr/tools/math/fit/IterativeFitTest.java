@@ -2,10 +2,9 @@ package no.imr.tools.math.fit;
 
 import org.junit.jupiter.api.Test;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,13 +17,10 @@ final class IterativeFitTest {
       double d = 1.0;
 
       ThirdDegreePolynomial thirdDegreePolynomial = new ThirdDegreePolynomial(a, b, c, d);
-      Set<FitDataPoint> data = new HashSet<>();
-
+      List<Point2D.Double> data = new ArrayList<>();
       for (int i = 0; i < 100; i++) {
-         List<Double> list = new ArrayList<>();
-         list.add(i / 10.0);
-
-         data.add(new XYDataPoint(list.getFirst(), thirdDegreePolynomial.evaluate(list)));
+         double x = i / 10.0;
+         data.add(new Point2D.Double(x, thirdDegreePolynomial.evaluate(x)));
       }
 
       thirdDegreePolynomial.a.setValue(a + 0.6);
@@ -32,21 +28,19 @@ final class IterativeFitTest {
       thirdDegreePolynomial.c.setValue(c - 0.4);
       thirdDegreePolynomial.d.setValue(d + 0.3);
 
-      IterativeFit iterativeFit = new IterativeFit(thirdDegreePolynomial, data);
+      IterativeFit<Point2D.Double> iterativeFit = new IterativeFit<>(thirdDegreePolynomial, data);
       iterativeFit.doFit();
 
-      List<FitParameter> parameters = thirdDegreePolynomial.getParameters();
-
-      assertEquals(a, parameters.get(0).getValue(), a * 0.2);
-      assertEquals(b, parameters.get(1).getValue(), b * 0.2);
-      assertEquals(c, parameters.get(2).getValue(), c * 0.2);
-      assertEquals(d, parameters.get(3).getValue(), d * 0.2);
+      assertEquals(a, thirdDegreePolynomial.a.getValue(), a * 0.2);
+      assertEquals(b, thirdDegreePolynomial.b.getValue(), b * 0.2);
+      assertEquals(c, thirdDegreePolynomial.c.getValue(), c * 0.2);
+      assertEquals(d, thirdDegreePolynomial.d.getValue(), d * 0.2);
    }
 
    /**
     * Function of type f(x) = ax^3 - bx^2 - cx + d.
     */
-   private static final class ThirdDegreePolynomial implements FitFunction {
+   private static final class ThirdDegreePolynomial implements FitFunction<Point2D.Double> {
       private final FitParameter a = new FitParameter(1, 0.1);
       private final FitParameter b = new FitParameter(1, 0.1);
       private final FitParameter c = new FitParameter(1, 0.1);
@@ -62,8 +56,16 @@ final class IterativeFitTest {
       }
 
       @Override
-      public double evaluate(List<Double> arg) {
-         double x = arg.getFirst();
+      public double fittedValue(Point2D.Double dataPoint) {
+         return evaluate(dataPoint.x);
+      }
+
+      @Override
+      public double actualValue(Point2D.Double dataPoint) {
+         return dataPoint.y;
+      }
+
+      private double evaluate(double x) {
          return a.getValue() * x * x * x
                - b.getValue() * x * x
                - c.getValue() * x
@@ -73,26 +75,6 @@ final class IterativeFitTest {
       @Override
       public List<FitParameter> getParameters() {
          return parameters;
-      }
-   }
-
-   private static final class XYDataPoint implements FitDataPoint {
-      private final List<Double> arguments;
-      private final double value;
-
-      private XYDataPoint(double x, double y) {
-         arguments = List.of(x);
-         value = y;
-      }
-
-      @Override
-      public List<Double> getArguments() {
-         return arguments;
-      }
-
-      @Override
-      public double getValue() {
-         return value;
       }
    }
 }

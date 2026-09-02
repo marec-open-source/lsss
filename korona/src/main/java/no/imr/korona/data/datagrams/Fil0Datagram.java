@@ -5,6 +5,7 @@ import no.imr.tools.Utils;
 import no.imr.tools.math.ComplexArray;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.StringTokenizer;
 
 /**
@@ -19,8 +20,8 @@ public final class Fil0Datagram extends DatagramPingItem {
    private final ComplexArray filter;
    private final byte[] bytes; // todo: remove when write reproduces read
 
-   public Fil0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public Fil0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       bytes = new byte[byteBuffer.remaining()];
       byteBuffer.get(bytes);
@@ -74,12 +75,12 @@ public final class Fil0Datagram extends DatagramPingItem {
 
       byteBuffer.putShort(channel);
       ByteBufferUtils.writeCString(byteBuffer, channelId, 128);
-      ByteBufferUtils.writeCString(byteBuffer, ((Double) g).toString());
+      ByteBufferUtils.writeCString(byteBuffer, Double.toString(g));
       ByteBufferUtils.writeCString(byteBuffer, "\n");
       for (int i = 0; i < filter.length(); i++) {
          long re = 0xffff & Math.round(filter.re(i));
          long im = 0xffff & Math.round(filter.im(i));
-         String str = Utils.format("0x%04x%04x\n", re, im);
+         String str = Utils.format("0x%04x%04x\n", im, re);
          ByteBufferUtils.writeCString(byteBuffer, str);
       }
    }

@@ -2,7 +2,7 @@ package no.imr.tools.math.linalg;
 
 import no.imr.tools.RandomUtils;
 import no.imr.tools.ShouldNotHappenException;
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 import no.imr.tools.test.JUnitUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -40,7 +40,7 @@ final class BoxIntersectionMain {
          if (i % 1000 == 0) {
             System.out.println("Iteration: " + i +
                   ",  wrong: " + wrongCount + " (" + (100f * wrongCount / i) + " %)" +
-                  ",  intersections: " + Utils.round(100f * intersectionCount / i, 1) + " %");
+                  ",  intersections: " + MathUtils.round(100f * intersectionCount / i, 1) + " %");
          }
       }
       if (!failedSeeds.isEmpty()) {

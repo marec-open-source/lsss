@@ -31,14 +31,14 @@ final class RegionIntegrationModuleTest {
 
    private static final class TestSyntheticData extends SyntheticData {
       @Override
-      protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+      public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
          float[] sv = new float[2000];
          Arrays.fill(sv, SV_VALUE);
          powerData.setSv(sv);
       }
 
       @Override
-      protected float getBottomDepth(PingIndex pingIndex, int channel) {
+      public float getBottomDepth(PingIndex pingIndex, int channel) {
          return 500;
       }
    }
@@ -127,5 +127,13 @@ final class RegionIntegrationModuleTest {
          assertEquals((float) PingMapping.DISTANCE.distance(pingRange.begin(), point.pingIndex()), accumulatedDistance);
          assertEquals(expectedSa * accumulatedDistance, point.getHorizontallyIntegratedSv(IntegrationArea.TOTAL), errorTol * accumulatedDistance);
       }
+
+      PingRange interiorPingRange = PingRange.of(
+            dataManager.getDataFileSet().getPingIndex(pingRange.begin().getPingNumber() + pingRange.getPingCount() / 4),
+            dataManager.getDataFileSet().getPingIndex(pingRange.begin().getPingNumber() + 3L * pingRange.getPingCount() / 4)
+      );
+      float interiorSa = regionIntegrationModule.getSa(region, interiorPingRange, IntegrationArea.TOTAL);
+      float interiorSl = regionIntegrationModule.getSL(region, interiorPingRange, IntegrationArea.TOTAL);
+      assertEquals(interiorSl, interiorSa * interiorPingRange.getVesselDistance(), errorTol * interiorPingRange.getVesselDistance());
    }
 }

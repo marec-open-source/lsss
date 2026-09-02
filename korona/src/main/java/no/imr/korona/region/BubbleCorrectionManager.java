@@ -47,7 +47,8 @@ public final class BubbleCorrectionManager {
    }
 
    public float getBubbleCorrection(PingIndex pingIndex) {
-      return bubbleCorrectionMap.getOrDefault(pingIndex, 1f);
+      Float nullableValue = bubbleCorrectionMap.get(pingIndex);
+      return nullableValue != null ? nullableValue : 1f;
    }
 
    public float getBubbleCorrection(PingRange pingRange) {
@@ -74,7 +75,7 @@ public final class BubbleCorrectionManager {
    }
 
    public void setBubbleCorrection(PingRange pingRange, float value) {
-      regionManager.writeablePingRanges(pingRange).stream()
+      regionManager.writeablePingRanges(pingRange)
             .forEach(range -> bubbleCorrectionMap.put(range, value));
       notifyListeners();
    }

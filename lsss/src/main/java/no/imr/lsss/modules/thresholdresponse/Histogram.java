@@ -2,15 +2,6 @@ package no.imr.lsss.modules.thresholdresponse;
 
 /**
  * Histogram for computing the threshold response.
- * <p>
- * Cell <code>i</code> has range
- * <pre>[ MIN_LOG_SV + (i - 1) * DELTA_LOG_SV, MIN_LOG_SV + i * DELTA_LOG_SV )</pre>
- * except for the leftmost cell, i = 0, that has range
- * <pre>( -inf, MIN_LOG_SV )</pre>
- * and for the rightmost cell, i = CELL_COUNT - 1, that has range
- * <pre>[ MAX_LOG_SV, +inf )</pre>
- * <p>
- * dB values higher than MAX_LOG_SV are ignored.
  */
 final class Histogram {
    static final float MIN_LOG_SV = -80;

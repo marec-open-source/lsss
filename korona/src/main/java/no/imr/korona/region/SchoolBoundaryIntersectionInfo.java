@@ -3,9 +3,9 @@ package no.imr.korona.region;
 import no.imr.korona.data.util.geometry.EchogramPoint;
 
 public record SchoolBoundaryIntersectionInfo(
+      School school,
       SchoolBoundaryObject schoolBoundary,
       int startIndex,
-      int endIndex,
       EchogramPoint closestPoint,
       double distanceSquared
 ) {
@@ -14,6 +14,6 @@ public record SchoolBoundaryIntersectionInfo(
    }
 
    public EchogramPoint getEndPoint() {
-      return schoolBoundary.getBoundary().get(endIndex);
+      return schoolBoundary.getBoundary().get((startIndex + 1) % schoolBoundary.getBoundary().size());
    }
 }

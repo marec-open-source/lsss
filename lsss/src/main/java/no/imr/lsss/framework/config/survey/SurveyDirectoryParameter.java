@@ -33,11 +33,10 @@ public class SurveyDirectoryParameter extends SurveyFileParameter {
    }
 
    @Override
-   public void applyFileChooser(JFileChooser fileChooser) {
-      Path file = fileChooser.getSelectedFile().toPath();
-      if (Files.isRegularFile(file)) {
-         file = file.getParent();
+   public void applyFileChooserResult(Path selectedFile) {
+      if (Files.isRegularFile(selectedFile)) {
+         selectedFile = selectedFile.getParent();
       }
-      setFile(file);
+      setFile(selectedFile);
    }
 }

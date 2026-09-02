@@ -26,15 +26,13 @@ public final class CategoryColorConverter extends DiscreteColorConverter {
    @Override
    public void convertToColor(Ping ping, int channel, int[] rgbs, FloatRange depthRange) {
       DiscreteVariableResult discreteVariableResult = getDiscreteVariable().evaluate(ping);
-      byte[] byteData = discreteVariableResult.byteData();
-
-      if (byteData.length == 0) {
+      if (discreteVariableResult == null) {
          Arrays.fill(rgbs, ValueColor.NO_DATA_RGB);
          return;
       }
 
       byte[] categories = new byte[rgbs.length];
-      Resampler.sampleByteData(byteData, discreteVariableResult.depthRange(), categories, depthRange, ResampleMode.NEAREST);
+      Resampler.sampleByteData(discreteVariableResult.byteData, discreteVariableResult.depthRange, categories, depthRange, ResampleMode.NEAREST);
 
       getRGBs(rgbs, categories);
    }

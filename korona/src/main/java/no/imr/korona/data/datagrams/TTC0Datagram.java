@@ -4,28 +4,30 @@ import no.imr.korona.data.formats.ek60.io.ByteBufferUtils;
 import no.imr.korona.data.ping.items.TableOfContentsPingItem;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
+import java.util.List;
 
 public final class TTC0Datagram extends DatagramPingItem implements TableOfContentsPingItem {
    public static final DatagramType TYPE = DatagramType.simple("TTC0", TTC0Datagram::new);
 
    private final int[] validIds;
-   private final long[] ntDates;
+   private final List<Instant> instants;
 
-   public TTC0Datagram(long ntDate, int[] validIds, long[] trackNTDates) {
-      super(ntDate);
+   public TTC0Datagram(Instant instant, int[] validIds, List<Instant> trackInstants) {
+      super(instant);
 
       this.validIds = validIds;
-      ntDates = trackNTDates;
+      instants = trackInstants;
    }
 
-   public TTC0Datagram(long ntDate, ByteBuffer byteBuffer) throws DatagramFormatException {
-      super(ntDate);
+   public TTC0Datagram(Instant instant, ByteBuffer byteBuffer) throws DatagramFormatException {
+      super(instant);
 
       validIds = ByteBufferUtils.readCountAndIntArray(byteBuffer);
       if (byteBuffer.hasRemaining()) { // For retaining backward compatibility
-         ntDates = ByteBufferUtils.readCountAndLongArray(byteBuffer);
+         instants = ByteBufferUtils.readInstantsAsNTDates(byteBuffer);
       } else {
-         ntDates = new long[0];
+         instants = List.of();
       }
    }
 
@@ -37,7 +39,7 @@ public final class TTC0Datagram extends DatagramPingItem implements TableOfConte
    @Override
    public void write(ByteBuffer byteBuffer) {
       ByteBufferUtils.writeCountAndIntArray(byteBuffer, validIds);
-      ByteBufferUtils.writeCountAndLongArray(byteBuffer, ntDates);
+      ByteBufferUtils.writeInstantsAsNTDates(byteBuffer, instants);
    }
 
    public int[] getValidIds() {
@@ -45,7 +47,7 @@ public final class TTC0Datagram extends DatagramPingItem implements TableOfConte
    }
 
    @Override
-   public long[] getNTDates() {
-      return ntDates;
+   public List<Instant> getInstants() {
+      return instants;
    }
 }

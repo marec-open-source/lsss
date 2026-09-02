@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * {@link DataFormatPlugin} for NetCDF data.
+ * {@link DataFormatPlugin} for netCDF data.
  */
 final class NetcdfDataFormatPlugin extends DataFormatPlugin {
    private static final String NETCDF_SUFFIX = ".nc";
 
    NetcdfDataFormatPlugin(Name name) {
-      super(name, "Gridded NetCDF data file", List.of(NETCDF_SUFFIX));
+      super(name, "Gridded netCDF data file", List.of(NETCDF_SUFFIX));
    }
 
    @Override

@@ -4,7 +4,6 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Abstract helper base class for ping indices.
- * Concrete classes must override at least one of {@link #getNTDate()} and {@link #getTimeInMillis()}.
  */
 public abstract class AbstractPingIndex implements PingIndex {
    AbstractPingIndex() {

@@ -51,7 +51,6 @@ public final class WrappingFlowLayout extends FlowLayout {
                Component component = target.getComponent(componentIndex);
                if (component.isVisible()) {
                   Dimension d = component.getPreferredSize();
-                  rowHeight = Math.max(rowHeight, d.height);
                   if (firstRowComponent) {
                      firstRowComponent = false;
                   } else {
@@ -61,6 +60,7 @@ public final class WrappingFlowLayout extends FlowLayout {
                      rowWidth += getHgap();
                   }
                   rowWidth += d.width;
+                  rowHeight = Math.max(rowHeight, d.height);
                   if (useBaseline) {
                      int baseline = component.getBaseline(d.width, d.height);
                      if (baseline >= 0) {

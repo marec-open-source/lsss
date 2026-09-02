@@ -4,6 +4,7 @@ import no.imr.tools.Utils;
 import no.imr.tools.io.FileUtils;
 import org.jspecify.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.logging.FileHandler;
@@ -19,7 +20,7 @@ public final class RollingFileLogging {
       fileName = fileNamePrefix + "_%g.log";
       try {
          FileUtils.createDirectories(dir);
-         fileHandler = new FileHandler(dir + "/" + fileName, fileSize, fileCount, true);
+         fileHandler = new FileHandler(dir + File.separator + fileName, fileSize, fileCount, true);
          fileHandler.setFormatter(new OneLineFormatter());
          fileHandler.setEncoding(Utils.UTF_8.name());
          fileHandler.setLevel(Level.FINE);

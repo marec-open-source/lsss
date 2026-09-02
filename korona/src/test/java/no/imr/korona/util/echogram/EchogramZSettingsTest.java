@@ -4,6 +4,8 @@ import no.imr.korona.data.ping.DefaultPingIndex;
 import no.imr.korona.data.ping.PingIndex;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 final class EchogramZSettingsTest {
@@ -12,7 +14,7 @@ final class EchogramZSettingsTest {
       EchogramZSettings zSettings = new DefaultEchogramZSettings();
       zSettings.setHeight(100);
 
-      PingIndex pingIndex = new DefaultPingIndex(0, 0, 0, null);
+      PingIndex pingIndex = new DefaultPingIndex(Instant.EPOCH, 0, 0, null);
 
       assertEquals(Float.POSITIVE_INFINITY, zSettings.depthToY(Float.POSITIVE_INFINITY, pingIndex));
       assertEquals(Float.NEGATIVE_INFINITY, zSettings.depthToY(Float.NEGATIVE_INFINITY, pingIndex));

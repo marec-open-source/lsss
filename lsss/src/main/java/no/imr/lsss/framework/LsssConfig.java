@@ -11,7 +11,7 @@ public final class LsssConfig {
    public @Nullable Document applicationXml;
    public boolean isPrimaryLSSS = true;
    public Runnable onClose = Runnables.doNothing();
-   public String preferencesNode = "/no/marec/lsss";
+   public String preferencesNode = "no/marec/lsss";
    public int serverPort = 8000;
 
    public LsssConfig(ServiceCollection serviceCollection) {

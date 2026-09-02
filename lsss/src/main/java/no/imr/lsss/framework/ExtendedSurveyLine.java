@@ -14,14 +14,14 @@ import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.listening.ChangeManager;
 import no.imr.tools.listening.Listener;
 import no.imr.tools.logging.Log;
-import no.imr.tools.time.NTDate;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -88,8 +88,8 @@ public final class ExtendedSurveyLine {
       } else {
          currentlyOldest = extendedPingIndices.getFirst();
       }
-      long targetEnd = currentlyOldest.getNTDate();
-      long targetBegin = (long) (targetEnd - (hours * 3600 * NTDate.UNITS_PER_SECOND));
+      Instant targetEnd = currentlyOldest.getInstant();
+      Instant targetBegin = targetEnd.minus(TimeUtils.secondsToDuration(hours * 3600));
 
       List<DataFileTableModel.FileRow> rows = lsss.getConfigurationManager().getDataConf().getFileRows().stream()
             .filter(row -> {
@@ -99,10 +99,10 @@ public final class ExtendedSurveyLine {
                }
                PingRange pingRange = segmentInfo.pingRange();
                return !pingRange.isEmpty()
-                     && pingRange.begin().getNTDate() < targetEnd
-                     && pingRange.end().getNTDate() > targetBegin;
+                     && pingRange.begin().getInstant().isBefore(targetEnd)
+                     && pingRange.end().getInstant().isAfter(targetBegin);
             })
-            .sorted(Comparator.comparing(DataFileTableModel.FileRow::getInstant).reversed()) // Newest first.
+            .sorted(DataFileTableModel.fileRowByTimeComparator().reversed()) // Newest first.
             .toList();
       Listener progressListener = progressHandler.asCountingListener(rows.size());
 

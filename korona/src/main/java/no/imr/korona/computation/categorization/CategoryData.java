@@ -39,13 +39,13 @@ final class CategoryData implements Comparable<CategoryData> {
    /**
     * NB: CategoryData compares opposite to the numerical value of the discriminant.
     *
-    * @param categoryData the CategoryData to compare to
+    * @param other the CategoryData to compare to
     * @return -1, 0, or +1 as this object is less than, equal to, or greater
     * than the specified object.
     */
    @Override
-   public int compareTo(CategoryData categoryData) {
-      return Float.compare(categoryData.discriminant, discriminant);
+   public int compareTo(CategoryData other) {
+      return Float.compare(other.discriminant, discriminant);
    }
 
    Category getCategory() {

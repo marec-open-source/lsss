@@ -1,6 +1,6 @@
 package no.imr.tools.math.nnls;
 
-import no.imr.tools.Utils;
+import no.imr.tools.math.MathUtils;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
@@ -164,7 +164,7 @@ final class NnlsTest {
 
          double dx2 = 0;
          for (int i = 0; i < x0.length; i++) {
-            dx2 += Utils.sq(x[i] - x0[i]);
+            dx2 += MathUtils.sq(x[i] - x0[i]);
          }
          dx = Math.sqrt(dx2);
       }

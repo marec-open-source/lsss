@@ -49,7 +49,7 @@ interface TsDataComputer {
                      detection.tsu,
                      detection.peakDepth,
                      channelData.depthToRange(detection.peakDepth),
-                     ping.getNTDate(),
+                     ping.getInstant(),
                      ping.getPingIndex().getGeographicalPosition()
                );
             })

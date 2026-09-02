@@ -237,7 +237,7 @@ final class SurveyList {
             /**/ + "South: " + htmlEscape(xml.getBoundarySouth()) + "&nbsp;, &nbsp;"
             /**/ + "West: " + htmlEscape(xml.getBoundaryWest()) + "&nbsp;, &nbsp;"
             /**/ + "East: " + htmlEscape(xml.getBoundaryEast()) + "</td></tr>"
-            + "<tr><td>Comment</td><td>" + htmlEscape(xml.getSurveyDescription()).replaceAll("\\n", "<br>") + "</td></tr>"
+            + "<tr><td>Comment</td><td>" + htmlEscape(xml.getSurveyDescription()).replace("\n", "<br>") + "</td></tr>"
             + "</table>";
    }
 
@@ -278,10 +278,7 @@ final class SurveyList {
       DirectoryConf directoryConf = lsss.getConfigurationManager().getApplicationConfiguration().getDirectoryConf();
       List<SurveyDirStructure> surveyDirStructures = directoryConf.getAllSurveyDirStructures();
       Set<Path> lsssDataDirs = new HashSet<>();
-      Path mainDir = directoryConf.mainDir.getFile();
-      if (mainDir != null) {
-         lsssDataDirs.add(mainDir);
-      }
+      lsssDataDirs.add(directoryConf.getMainDir());
       for (Path root : SurveyIndexFile.getRoots()) {
          try {
             for (Path dir : FileUtils.listFiles(root)) {
@@ -424,7 +421,7 @@ final class SurveyList {
                      surveyIndexFile.saveIfChanged();
                   }
                }
-               message.append("Found " + foundCount.get() + " survey file" + (changeCount == 1 ? "" : "s") + " (" + changeCount + " new)");
+               message.append("Found " + foundCount.get() + " survey file" + (foundCount.get() == 1 ? "" : "s") + " (" + changeCount + " new)");
                for (Path updatedFile : updatedFiles) {
                   message.append("\nUpdated survey index file: ").append(updatedFile);
                }

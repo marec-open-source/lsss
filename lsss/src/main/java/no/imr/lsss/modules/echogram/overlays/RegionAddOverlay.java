@@ -5,7 +5,6 @@ import no.imr.korona.data.ping.PingRange;
 import no.imr.korona.data.util.geometry.EchogramPoint;
 import no.imr.korona.data.util.mask.GrowEngine;
 import no.imr.korona.data.util.mask.MaskUtils;
-import no.imr.korona.data.util.mask.SchoolCandidateDepthRangeExtractor;
 import no.imr.korona.region.School;
 import no.imr.lsss.framework.BaseSystemFeaturePlugin;
 import no.imr.lsss.framework.EchogramSettings;
@@ -15,6 +14,7 @@ import no.imr.lsss.modules.echogram.EchogramModule;
 import no.imr.lsss.resources.LsssCursors;
 import no.imr.tools.listening.ListenerRegistry;
 import no.imr.tools.range.FloatRange;
+import no.imr.tools.range.FloatRangeSet;
 import no.imr.tools.swing.GuiListeners;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.WorkerDialog;
@@ -31,6 +31,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.function.Function;
 
 /**
  * Background overlay for adding layer boundaries.
@@ -57,7 +58,7 @@ public final class RegionAddOverlay extends BaseEchogramOverlay {
    @Override
    protected void onEnable(ListenerRegistry registry) {
       registry.add(echogramSettings.addSubMode,
-            GuiListeners.coalescingLater(this::updateCursor));
+            GuiListeners.coalescingLater(this::onSubModeChange));
    }
 
    @Override
@@ -67,6 +68,16 @@ public final class RegionAddOverlay extends BaseEchogramOverlay {
 
    @Override
    public void onActivate() {
+      updateCursor();
+   }
+
+   @Override
+   public void onDeactivate() {
+      setSchoolStartPoint(null);
+   }
+
+   private void onSubModeChange() {
+      setSchoolStartPoint(null);
       updateCursor();
    }
 
@@ -135,7 +146,7 @@ public final class RegionAddOverlay extends BaseEchogramOverlay {
                         // NB: nextDepth < echogramPoint.getDepth() if seabed mounted
                         FloatRange depthRange = FloatRange.ofUnsorted(echogramPoint.depth(), nextDepth);
                         PingRange pingRange = getLSSS().getInterpretationSettings().getPingRange();
-                        SchoolCandidateDepthRangeExtractor depthRangeExtractor = new SchoolCandidateDepthRangeExtractor(
+                        Function<PingIndex, FloatRangeSet> depthRangeExtractor = MaskUtils.schoolCandidateDepthRangeExtractor(
                               getLSSS().getRegionManager(),
                               getLSSS().getInterpretationSettings().getDataFileSet(),
                               getLSSS().getInterpretationSettings().getChannel()
@@ -150,7 +161,7 @@ public final class RegionAddOverlay extends BaseEchogramOverlay {
                               .ifPresent(schoolMask -> {
                                  schoolMask = MaskUtils.fillHoles(schoolMask, getInterpretationSettings().getDataFileSet());
                                  schoolMask = MaskUtils.smooth(schoolMask, getConfigurationManager().getSurveyMiscConf().schoolGrowSmoothing.getFloatValue(),
-                                       getInterpretationSettings().getDataFileSet(), getPingSettings(), getZSettings());
+                                       getPingSettings(), getZSettings());
                                  School school = getRegionManager().addSchool(schoolMask);
                                  if (school != null) {
                                     getRegionManager().replaceSelectedRegions(school);
@@ -197,7 +208,9 @@ public final class RegionAddOverlay extends BaseEchogramOverlay {
                PingIndex clampedEndIndex = getRegionManager().toWritablePingIndex(echogramPoint, schoolStartPoint.pingIndex(), getInterpretationSettings().getPingRange());
                if (echogramPoint != null && clampedEndIndex != null) {
                   Point2D p2 = getEchogramModule().echogramPointToImagePoint(new EchogramPoint(clampedEndIndex, echogramPoint.depth()));
-                  yield new DisplayData(p1, p2);
+                  Rectangle2D.Float schoolBox = new Rectangle2D.Float();
+                  schoolBox.setFrameFromDiagonal(p1, p2);
+                  yield new DisplayData(schoolBox);
                }
             }
             yield null;
@@ -241,6 +254,7 @@ public final class RegionAddOverlay extends BaseEchogramOverlay {
                   }
                }
             }
+            setSchoolStartPoint(null);
          }
          case HORIZONTAL_BOUNDARY, VERTICAL_BOUNDARY -> {
          }
@@ -251,8 +265,12 @@ public final class RegionAddOverlay extends BaseEchogramOverlay {
    public boolean keyPressed(KeyEvent keyEvent) {
       switch (keyEvent.getKeyCode()) {
          case KeyEvent.VK_ESCAPE -> {
-            setDisplayData(null);
-            echogramSettings.useDefault();
+            if (echogramSettings.addSubMode.getValue() == AddMode.SCHOOL && schoolStartPoint != null) {
+               setSchoolStartPoint(null);
+               echogramSettings.useDefaultIfNotSticky();
+            } else {
+               echogramSettings.useDefault();
+            }
          }
          case KeyEvent.VK_SPACE -> {
             echogramSettings.addSubMode.shiftValue(keyEvent.isShiftDown() ? -1 : 1);
@@ -280,13 +298,7 @@ public final class RegionAddOverlay extends BaseEchogramOverlay {
       return true;
    }
 
-   private static final class DisplayData extends OverlayDisplayData {
-      private final Rectangle2D.Float schoolBox = new Rectangle2D.Float();
-
-      private DisplayData(Point2D p1, Point2D p2) {
-         schoolBox.setFrameFromDiagonal(p1, p2);
-      }
-
+   private record DisplayData(Rectangle2D.Float schoolBox) implements OverlayDisplayData {
       @Override
       public void draw(Graphics2D g2d) {
          g2d.setStroke(GuiUtils.STROKE_1);

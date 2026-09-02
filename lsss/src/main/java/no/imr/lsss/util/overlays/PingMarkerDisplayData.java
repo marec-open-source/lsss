@@ -6,13 +6,13 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
-public final class PingMarkerDisplayData extends OverlayDisplayData {
-   private final Rectangle2D.Float marker;
-   private final Color color;
+public record PingMarkerDisplayData(
+      Rectangle2D.Float marker,
+      Color color
+) implements OverlayDisplayData {
 
    public PingMarkerDisplayData(float x, float markerWidth, float height, Color color) {
-      marker = new Rectangle2D.Float(x - markerWidth / 2, 0, markerWidth, height);
-      this.color = color;
+      this(new Rectangle2D.Float(x - markerWidth / 2, 0, markerWidth, height), color);
    }
 
    @Override

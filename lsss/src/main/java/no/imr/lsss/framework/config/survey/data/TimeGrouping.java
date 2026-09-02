@@ -1,14 +1,15 @@
 package no.imr.lsss.framework.config.survey.data;
 
-import no.imr.tools.Utils;
+import no.imr.tools.time.TimeUtils;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 enum TimeGrouping {
-   DAYS("Days", Utils.createUTCDateTimeFormatter("yyyy-MM-dd EEEE")),
-   HOURS("Hours", Utils.createUTCDateTimeFormatter("yyyy-MM-dd EEEE HH"));
+   DAYS("Days", TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd EEEE")),
+   HOURS("Hours", TimeUtils.createUTCDateTimeFormatter("yyyy-MM-dd EEEE HH"));
 
    final String label;
    final DateTimeFormatter dateTimeFormatter;
@@ -18,8 +19,8 @@ enum TimeGrouping {
       this.dateTimeFormatter = dateTimeFormatter;
    }
 
-   TimeGroup toTimeGroup(Instant instant) {
-      if (instant.equals(Instant.MAX)) {
+   TimeGroup toTimeGroup(@Nullable Instant instant) {
+      if (instant == null) {
          return TimeGroup.MAX;
       }
       return new TimeGroup(truncate(instant));

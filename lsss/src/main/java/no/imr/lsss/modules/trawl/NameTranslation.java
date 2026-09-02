@@ -39,31 +39,36 @@ final class NameTranslation {
    }
 
    private int indexOf(String speciesName) {
-      if (norwegian.contains(speciesName)) {
-         return norwegian.indexOf(speciesName);
-      } else { // check substring
-         for (String st : norwegian) {
-            if (st.contains(speciesName)) {
-               return norwegian.indexOf(st);
-            }
-         }
-         String equivalent = switch (speciesName) {
-            // Hard code herring equivalents
-            case "SILD'G03" -> "NORSK VÅRGYTENDE SILD";
-            case "SILD'G05" -> "NORDSJØSILD";
-            case "SILD'G07" -> "KVITSJØSILD";
-            case "SILD'G14" -> "ROMSDALSFJORDSILD";
-
-            // and some other
-            case "STORHAVNÅL" -> "STOR HAVNÅL";
-            case "LITENHAVNÅL" -> "LITEN HAVNÅL";
-
-            // the rest
-            case "KRÅKEBOLLEFA" -> "KRÅKEBOLLEFAMILIEN";
-            default -> speciesName;
-         };
-         return norwegian.indexOf(equivalent);
+      // Check exact match:
+      int i = norwegian.indexOf(speciesName);
+      if (i >= 0) {
+         return i;
       }
+
+      // Check substring:
+      for (int j = 0; j < norwegian.size(); j++) {
+         if (norwegian.get(j).contains(speciesName)) {
+            return j;
+         }
+      }
+
+      // Check equivalents:
+      String equivalent = switch (speciesName) {
+         // Hard code herring equivalents
+         case "SILD'G03" -> "NORSK VÅRGYTENDE SILD";
+         case "SILD'G05" -> "NORDSJØSILD";
+         case "SILD'G07" -> "KVITSJØSILD";
+         case "SILD'G14" -> "ROMSDALSFJORDSILD";
+
+         // and some other
+         case "STORHAVNÅL" -> "STOR HAVNÅL";
+         case "LITENHAVNÅL" -> "LITEN HAVNÅL";
+
+         // the rest
+         case "KRÅKEBOLLEFA" -> "KRÅKEBOLLEFAMILIEN";
+         default -> speciesName;
+      };
+      return norwegian.indexOf(equivalent);
    }
 
    private String lookUp(String speciesName, List<String> list) {

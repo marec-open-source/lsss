@@ -3,7 +3,7 @@ package no.imr.lsss.database;
 import no.imr.lsss.LSSS;
 import no.imr.lsss.database.tables.hibernate.Purpose;
 import no.imr.lsss.database.tables.hibernate.Survey;
-import no.imr.lsss.database.types.JavaDBInMemoryDatabasePlugin;
+import no.imr.lsss.database.types.TestDatabasePlugin;
 import no.imr.lsss.test.LsssTestUtils;
 import no.imr.tools.database.queries.QueryBuilder;
 import no.imr.tools.xml.XmlUtils;
@@ -24,7 +24,7 @@ final class DatabaseManagerTest {
    void beforeEach() {
       lsss = LsssTestUtils.start(List.of(), List.of());
       databaseManager = lsss.getDatabaseManager();
-      JavaDBInMemoryDatabasePlugin.install(lsss);
+      TestDatabasePlugin.install(lsss);
    }
 
    @AfterEach

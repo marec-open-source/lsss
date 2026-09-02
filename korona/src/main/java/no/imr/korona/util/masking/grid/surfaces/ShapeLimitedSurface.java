@@ -5,7 +5,7 @@ import no.imr.tools.math.Function2D;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
-public final class ShapeLimitedSurface extends Surface {
+public final class ShapeLimitedSurface implements Surface {
    private final Shape shape;
    private final Function2D function;
    private final Rectangle2D boundingBox;

@@ -14,7 +14,7 @@ import java.util.TreeMap;
  * Meta information about the export.
  * <p>
  * Units should use names defined by
- * <a href="http://www.unidata.ucar.edu/software/udunits/">http://www.unidata.ucar.edu/software/udunits/</a>.
+ * <a href="https://www.unidata.ucar.edu/software/udunits">https://www.unidata.ucar.edu/software/udunits</a>.
  */
 public final class ExportInfo {
    public String exportType;

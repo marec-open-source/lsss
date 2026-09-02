@@ -22,9 +22,10 @@ public final class Histogram1DDataset extends BaseIntervalXYDataset {
 
    public void setStartCounts(int[] startCounts) {
       if (startCounts.length != counts.length) {
-         throw new IllegalArgumentException();
+         throw new IllegalArgumentException(startCounts.length + " != " + counts.length);
       }
       this.startCounts = startCounts;
+      fireDatasetChanged();
    }
 
    @Override
@@ -33,7 +34,7 @@ public final class Histogram1DDataset extends BaseIntervalXYDataset {
    }
 
    @Override
-   public Comparable<String> getSeriesKey(int series) {
+   public String getSeriesKey(int series) {
       return name;
    }
 

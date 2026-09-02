@@ -19,9 +19,9 @@ public final class SimpleGateFunction implements GateFunction {
    @Override
    public float evaluate2(Measurement a, Measurement b) {
       float dRange = (a.range() - b.range()) / rangeScale;
-      float dAlong = (a.alongshipAngle() - b.alongshipAngle()) / alongScale;
-      float dAthwart = (a.athwartshipAngle() - b.athwartshipAngle()) / athwartScale;
-      float dTS = (a.ts() - b.ts()) / tsScale;
+      float dAlong = (a.alongshipAngleRad() - b.alongshipAngleRad()) / alongScale;
+      float dAthwart = (a.athwartshipAngleRad() - b.athwartshipAngleRad()) / athwartScale;
+      float dTS = (a.tsc() - b.tsc()) / tsScale;
 
       return dRange * dRange + dAlong * dAlong + dAthwart * dAthwart + dTS * dTS;
    }

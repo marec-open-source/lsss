@@ -112,7 +112,7 @@ final class NoiseMedianQuantificationModuleComputation extends GeneralPingModule
             averageNoise = 0;
             upperLimitNoise = 0;
          }
-         Nqp0Datagram noiseDatagram = new Nqp0Datagram(powerData.getNTDate(), (short) channel,
+         Nqp0Datagram noiseDatagram = new Nqp0Datagram(powerData.getInstant(), (short) channel,
                averageNoise, upperLimitNoise, 100);
          ping.add(noiseDatagram);
       });

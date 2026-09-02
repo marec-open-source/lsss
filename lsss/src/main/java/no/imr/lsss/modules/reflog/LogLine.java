@@ -1,9 +1,10 @@
 package no.imr.lsss.modules.reflog;
 
+import java.time.Instant;
 import java.util.List;
 
 public record LogLine(
-      long timeInMillis,
+      Instant time,
       ActivityType activityType,
       boolean start,
       String stationType,

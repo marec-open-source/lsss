@@ -57,8 +57,8 @@ public final class VerticalOffsetCorrectionModule extends ConcurrentPingModule {
             if (channelData == null) {
                continue;
             }
-            if (channelToOffsetMap.containsKey(channelData.getChannel())) {
-               TransducerParameters offsets = channelToOffsetMap.get(channelData.getChannel());
+            TransducerParameters offsets = channelToOffsetMap.get(channelData.getChannel());
+            if (offsets != null) {
                channelData.setTransducerDepth(channelData.getTransducerDepth() +
                      offsets.getDeltaZ0() + offsets.getDeltaZPulseDelay());
             }

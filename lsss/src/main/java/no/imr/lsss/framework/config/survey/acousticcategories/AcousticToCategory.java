@@ -19,7 +19,6 @@ import java.awt.Dimension;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -132,12 +131,12 @@ public final class AcousticToCategory {
    void localFromXml(Element element) {
       Map<Integer, AcousticCategory> acousticCategoryMap = lsss.getConfigurationManager().getSurveyConfiguration().getAcousticCategoryConf().getAcousticCategoryMap();
       koronaMappings = element.elements(AcousticCategoryConf.XML_SPECIES).stream()
-            .map(speciesElement -> {
+            .<KoronaMapping>mapMulti((speciesElement, consumer) -> {
                int id = Integer.parseInt(speciesElement.attributeValue(AcousticCategoryConf.XML_ID));
                AcousticCategory acousticCategory = acousticCategoryMap.get(id);
                if (acousticCategory == null) {
                   Log.global.warning("No species with id " + id);
-                  return null;
+                  return;
                }
                KoronaMapping koronaMapping = newKoronaMapping(acousticCategory);
                for (Element categoryElement : speciesElement.elements(XML_CATEGORY)) {
@@ -146,9 +145,8 @@ public final class AcousticToCategory {
                for (Element planktonElement : speciesElement.elements(XML_PLANKTON)) {
                   koronaMapping.planktonNames().add(planktonElement.attributeValue(AcousticCategoryConf.XML_NAME));
                }
-               return koronaMapping;
+               consumer.accept(koronaMapping);
             })
-            .filter(Objects::nonNull)
             .collect(Collectors.toUnmodifiableMap(KoronaMapping::acousticCategory, Function.identity()));
    }
 

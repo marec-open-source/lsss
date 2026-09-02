@@ -15,7 +15,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ContainerListener;
 import java.util.List;
 
 /**
@@ -23,7 +22,7 @@ import java.util.List;
  * Allows the user to add elements from the right list to the left,
  * and to remove them from the left list.
  */
-public class AddRemoveListPanel<T extends Comparable<? super T>> {
+public class AddRemoveListPanel<T> {
    protected final List<T> allOptionsList;
    protected final JList<T> allOptionsJList;
 
@@ -112,10 +111,6 @@ public class AddRemoveListPanel<T extends Comparable<? super T>> {
 
    public JPanel getPanel() {
       return panel;
-   }
-
-   public void addSelectedListContainerListener(ContainerListener containerListener) {
-      selectedOptionsJList.addContainerListener(containerListener);
    }
 
    public ChangeManager getChangeManager() {

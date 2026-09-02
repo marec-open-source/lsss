@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class NiceNumberTest {
    @Test
-   void niceNumberTest() {
+   void niceNumber() {
       assertEquals(1, NiceNumber.niceNumber(0, true));
 
       assertEquals(1e-300, NiceNumber.niceNumber(0.9e-300, true));
@@ -23,5 +23,10 @@ final class NiceNumberTest {
 
       assertEquals(1e300, NiceNumber.niceNumber(0.9e300, true));
       assertEquals(1e300, NiceNumber.niceNumber(1.1e300, true));
+
+      assertEquals(Double.NaN, NiceNumber.niceNumber(Double.NaN, true));
+
+      assertThrows(IllegalArgumentException.class, () -> NiceNumber.niceNumber(-1, true));
+      assertThrows(IllegalArgumentException.class, () -> NiceNumber.niceNumber(-1e-10, true));
    }
 }

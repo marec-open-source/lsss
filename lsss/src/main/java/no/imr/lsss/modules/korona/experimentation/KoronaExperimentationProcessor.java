@@ -24,6 +24,7 @@ import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.range.FloatRange;
 import no.imr.tools.swing.GuiUtils;
+import no.imr.tools.time.TimeUtils;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -32,6 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -115,8 +117,8 @@ final class KoronaExperimentationProcessor {
 
       module.setProgress(0, true);
       DataFileSet dataFileSet = sourceLsss.getInterpretationSettings().getDataFileSet();
-      long startTime = pingRange.begin().getTimeInMillis();
-      double duration = dataFileSet.previousOrSame(pingRange.end()).getTimeInMillis() - startTime;
+      Instant startTime = pingRange.begin().getInstant();
+      double durationSeconds = TimeUtils.toSeconds(startTime, pingRange.end().getInstant());
       try {
          ModuleContainer moduleContainer = module.createModuleContainerForProcessing();
 
@@ -128,9 +130,10 @@ final class KoronaExperimentationProcessor {
             while (!processingAsyncHandle.isCancelled()) {
                Ping ping = computation.nextPing();
                if (ping == null) {
+                  module.setProgress(1, true);
                   break;
                }
-               module.setProgress((ping.getTimeInMillis() - startTime) / duration, true);
+               module.setProgress(TimeUtils.toSeconds(startTime, ping.getInstant()) / durationSeconds, true);
             }
          }
          if (!processingAsyncHandle.isCancelled()) {

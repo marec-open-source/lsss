@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -198,14 +197,12 @@ public final class PackagesConf extends ConfigurationUnit {
          return List.of();
       }
       return fileInfos.stream()
-            .map(fileInfo -> {
+            .<UserDefinedPackage>mapMulti((fileInfo, consumer) -> {
                UserDefinedPackageInfo info = UserDefinedPackage.loadPackageInfo(fileInfo.file());
-               if (info == null) {
-                  return null;
+               if (info != null) {
+                  consumer.accept(new UserDefinedPackage(this, fileInfo.file(), info));
                }
-               return new UserDefinedPackage(this, fileInfo.file(), info);
             })
-            .filter(Objects::nonNull)
             .toList();
    }
 
@@ -254,8 +251,7 @@ public final class PackagesConf extends ConfigurationUnit {
       Process process = processBuilder.start();
       byte[] outputBytes = process.getInputStream().readAllBytes();
       String outputString = new String(outputBytes, Utils.UTF_8);
-      process.waitFor();
-      int exitCode = process.exitValue();
+      int exitCode = process.waitFor();
       if (exitCode != 0) {
          throw new IOException("Exit code: " + exitCode + ", Output: " + outputString);
       }

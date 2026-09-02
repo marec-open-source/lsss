@@ -11,6 +11,8 @@ import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.ExportTransform;
 import org.jfree.chart.plot.XYPlot;
 
+import java.time.Instant;
+
 public final class AthwartDistancePingFunction extends PingFunction {
    private final DeepVisionEngine deepVisionEngine;
    private final SelectedFrameMarker selectedFrameMarker;
@@ -30,13 +32,13 @@ public final class AthwartDistancePingFunction extends PingFunction {
 
    @Override
    public double compute(DataFileSet dataFileSet, Ping ping, int channel) {
-      long lsssTime = ping.getTimeInMillis();
+      Instant lsssTime = ping.getInstant();
       DeepVisionMapping deepVisionMapping = deepVisionEngine.getDeepVisionMappingManager().getDeepVisionMapping();
       DeepVisionFileInfo fileInfo = deepVisionEngine.getDataAdministrator().lsssTimeToFileInfo(lsssTime, deepVisionMapping);
       if (fileInfo == null) {
          return Double.NaN;
       }
-      long deepVisionTime = deepVisionMapping.lsssTimeToDeepVisionTime(lsssTime, fileInfo);
+      Instant deepVisionTime = deepVisionMapping.lsssTimeToDeepVisionTime(lsssTime, fileInfo);
       return deepVisionMapping.deepVisionTimeToAthwartDistanceMeters(deepVisionTime, fileInfo);
    }
 }

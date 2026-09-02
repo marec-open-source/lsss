@@ -72,8 +72,8 @@ final class DatabaseUpgradeTest {
       assertEquals(List.of(new PlatformName(new PlatformNamePK((short) 1, (short) 1, 0), 0, "TestPlatformName")), databaseConnection.executeFetchQuery(LsssQuery.fetch(PlatformName.class)));
       assertEquals(List.of(new StandardComment(new StandardCommentPK((short) 1, (short) 1, 1), "TestStandardCommentText")), databaseConnection.executeFetchQuery(LsssQuery.fetch(StandardComment.class)));
       assertEquals(List.of(new Survey(new SurveyPK((short) 1, (short) 1, 1), "TestSurveyTitle", 0, 0, 0, 0, "TestSurveyComment", 0, 0, 0, 0)), databaseConnection.executeFetchQuery(LsssQuery.fetch(Survey.class)));
-      assertEquals(List.of(new Observation(new ObservationPK((short) 1, (short) 1, 1, 20160427, 11223344, (short) 1000), 0, 0, 0, 0)), databaseConnection.executeFetchQuery(LsssQuery.fetch(Observation.class)));
-      assertEquals(List.of(new ObservationComment(new ObservationPK((short) 1, (short) 1, 1, 20160427, 11223344, (short) 1000), 1, 12, 34, "TestCommentText")), databaseConnection.executeFetchQuery(LsssQuery.fetch(ObservationComment.class)));
+      assertEquals(List.of(new Observation(new ObservationPK((short) 1, (short) 1, 1, 2016_04_27, 11_22_33_44, (short) 1000), 0, 0, 0, 0)), databaseConnection.executeFetchQuery(LsssQuery.fetch(Observation.class)));
+      assertEquals(List.of(new ObservationComment(new ObservationPK((short) 1, (short) 1, 1, 2016_04_27, 11_22_33_44, (short) 1000), 1, 12, 34, "TestCommentText")), databaseConnection.executeFetchQuery(LsssQuery.fetch(ObservationComment.class)));
    }
 
    @Test

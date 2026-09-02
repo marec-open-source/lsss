@@ -11,7 +11,7 @@ public record ValueAndPingMapping(double value, PingMapping pingMapping) {
    public static @Nullable ValueAndPingMapping from(@Nullable String time, @Nullable Long pingNumber, @Nullable Double vesselDistance) {
       if (time != null) {
          Instant instant = Instant.parse(time);
-         double timeValue = PingMapping.millisToTimeValue(instant.toEpochMilli());
+         double timeValue = PingMapping.instantToTimeValue(instant);
          return new ValueAndPingMapping(timeValue, PingMapping.TIME);
       } else if (pingNumber != null) {
          return new ValueAndPingMapping(pingNumber, PingMapping.NUMBER);

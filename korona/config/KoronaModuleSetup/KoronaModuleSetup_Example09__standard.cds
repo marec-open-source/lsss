@@ -80,12 +80,11 @@ is detected. The bottom telegram are kept after TemporaryComputationsEndModule.<
          <parameters>
             <parameter name="Active">true</parameter>
             <parameter name="Algorithm">EK500</parameter>
-            <parameter name="MinDepthLimit">10</parameter>
             <parameter name="MinDepthValueFraction">0.001</parameter>
             <parameter name="SignalStrengthThreshold">-45</parameter>
-            <parameter name="MinimumDepthThresholdFactor">0.99</parameter>
             <parameter name="MaxRangeFactor">1.5</parameter>
             <parameter name="AlwaysDetectBottom">true</parameter>
+            <parameter name="UseExistingBottom">false</parameter>
             <parameter name="KeepBottomDeeperThanData">false</parameter>
             <parameter name="MinBottomDepth">10</parameter>
             <parameter name="MaxBottomDepth">1000</parameter>
@@ -93,6 +92,8 @@ is detected. The bottom telegram are kept after TemporaryComputationsEndModule.<
             <parameter name="MinKHz">20</parameter>
             <parameter name="MaxKHz">40</parameter>
             <parameter name="DoNotUseKHz"/>
+            <parameter name="MinimumDepthThresholdFactor">0.99</parameter>
+            <parameter name="MinimumDepthThresholdDistance">10</parameter>
             <parameter name="CoordinatedBottomOffset">0</parameter>
          </parameters>
       </module>

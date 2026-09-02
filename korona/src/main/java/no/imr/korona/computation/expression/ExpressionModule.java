@@ -48,7 +48,7 @@ public final class ExpressionModule extends ConcurrentPingModule {
          new Name("Expression"),
          List.of("C1"), Unit.NONE, EXPRESSION_CONSTRAINT, ValueConverters.STRING) {
       @Override
-      public OptionalStringParameter createNewParameter(int index, String persistentName) {
+      public OptionalStringParameter newOptionalParameter(int index, String persistentName) {
          OptionalStringParameter parameter = new OptionalStringParameter(new Name(persistentName, "Expression"),
                Optional.empty(), EXPRESSION_CONSTRAINT,
                index == 0 ? "Use C1, C2, ..., or F18, F38, ..." : "Alternative expression");

@@ -1,23 +1,35 @@
 package no.imr.tools.parameter;
 
+import no.imr.tools.Utils;
 import no.imr.tools.parameter.gui.ParameterTableGUI;
 import no.imr.tools.parameter.gui.ParameterTableModel;
+import no.imr.tools.swing.CurrentInputComponent;
+import no.imr.tools.swing.GuiUtils;
+import no.imr.tools.swing.icons.MiscIcons;
 import no.marec.lsss.api.util.parameters.ValueConstraints;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+@SuppressWarnings("PMD.SystemPrintln")
 final class ParameterTableGUIMain {
    private ParameterTableGUIMain() {
    }
 
-   static void main() {
+   static void main(String[] args) {
+      Utils.init(args, MiscIcons.SETTINGS.getImage());
       SwingUtilities.invokeLater(ParameterTableGUIMain::start);
    }
 
@@ -38,13 +50,38 @@ final class ParameterTableGUIMain {
 
       JButton okButton = new JButton("OK");
       okButton.addActionListener(_ -> {
-         if (parameterTableGUI.stopEditing()) {
-            frame.dispose();
+         if (!CurrentInputComponent.commitEdit()) {
+            return;
+         }
+         frame.dispose();
+         Map<Integer, Integer> parameterIndexToMaxWidth = new HashMap<>();
+         for (Parameters row : rows) {
+            List<? extends BaseParameter<?>> parameters = row.getParameters();
+            for (int i = 0; i < parameters.size(); i++) {
+               String stringValue = ParameterEditorMain.parameterToStringValue(parameters.get(i));
+               parameterIndexToMaxWidth.merge(i, stringValue.length(), Math::max);
+            }
+         }
+         for (Parameters row : rows) {
+            List<? extends BaseParameter<?>> parameters = row.getParameters();
+            String line = IntStream.range(0, parameters.size())
+                  .mapToObj(i -> {
+                     BaseParameter<?> p = parameters.get(i);
+                     String stringValue = ParameterEditorMain.parameterToStringValue(p);
+                     return p.getPersistentName() + " = " + Utils.format("%-" + parameterIndexToMaxWidth.get(i) + "s", stringValue);
+                  })
+                  .collect(Collectors.joining(" | "));
+            System.out.println(line);
          }
       });
 
+      JButton cancelButton = new JButton("Cancel");
+      GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
+      cancelButton.addActionListener(_ -> frame.dispose());
+
       JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
       bottomPanel.add(okButton);
+      bottomPanel.add(cancelButton);
 
       JPanel mainPanel = new JPanel(new BorderLayout());
       mainPanel.add(parameterTableGUI.createScrollPane());
@@ -59,6 +96,10 @@ final class ParameterTableGUIMain {
    }
 
    private static final class Parameters implements ParameterContainer {
+      private final ButtonParameter button = new ButtonParameter(
+            new Name("Button"),
+            "");
+
       private final BooleanParameter bool = new BooleanParameter(
             new Name("Bool"),
             true);
@@ -67,6 +108,8 @@ final class ParameterTableGUIMain {
             new Name("Int"),
             100, Unit.METER, ValueConstraints.gteLte(0, 100),
             "[0,100]");
+
+      private final SeparatorParameter sep = SeparatorParameter.line();
 
       private final FloatParameter floatParam = new FloatParameter(
             new Name("Float"),
@@ -106,8 +149,10 @@ final class ParameterTableGUIMain {
       @Override
       public List<? extends BaseParameter<?>> getParameters() {
          return List.of(
+               button,
                bool,
                intParam,
+               sep,
                floatParam,
                selection,
                suggestion,

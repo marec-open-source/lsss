@@ -4,10 +4,9 @@ import no.imr.korona.util.echogram.EchogramZSettings;
 import no.imr.lsss.framework.InterpretationSettings;
 import no.imr.lsss.modules.BaseOverlaidModule;
 
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public final class EchogramKeys extends KeyAdapter {
+public final class EchogramKeys {
    private EchogramKeys() {
    }
 

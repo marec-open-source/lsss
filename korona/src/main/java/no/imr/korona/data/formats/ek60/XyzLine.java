@@ -1,8 +1,11 @@
 package no.imr.korona.data.formats.ek60;
 
-import no.imr.tools.Utils;
+import no.imr.tools.time.TimeUtils;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -39,12 +42,13 @@ import java.time.format.DateTimeFormatter;
  * @see <a href="https://www.simrad.online/ek80/interface/ek80_interface_en_a4.pdf">https://www.simrad.online/ek80/interface/ek80_interface_en_a4.pdf</a>
  */
 final class XyzLine {
-   private static final DateTimeFormatter DATE_TIME_FORMATTER = Utils.createUTCDateTimeFormatter("ddMMyyyy HHmmss.SS");
+   private static final DateTimeFormatter DATE_FORMATTER = TimeUtils.createUTCDateTimeFormatter("ddMMyyyy");
+   private static final DateTimeFormatter TIME_FORMATTER = TimeUtils.createUTCDateTimeFormatter("HHmmss.SS");
 
    final double latitude;
    final double longitude;
    final float depth;
-   final long timeInMillis;
+   final Instant instant;
    final float transducerOffset;
 
    XyzLine(String line) {
@@ -66,14 +70,14 @@ final class XyzLine {
          i = 2;
       }
       depth = Float.parseFloat(parts[i++]);
-      String date = parts[i++];
-      String time = parts[i++];
-      timeInMillis = DATE_TIME_FORMATTER.parse(date + ' ' + time, Instant::from).toEpochMilli();
+      LocalDate localDate = DATE_FORMATTER.parse(parts[i++], LocalDate::from);
+      LocalTime localTime = TIME_FORMATTER.parse(parts[i++], LocalTime::from);
+      instant = localDate.atTime(localTime).toInstant(ZoneOffset.UTC);
       transducerOffset = Float.parseFloat(parts[i]);
    }
 
    @Override
    public String toString() {
-      return "time: " + Instant.ofEpochMilli(timeInMillis) + ", depth: " + depth;
+      return "time: " + instant + ", depth: " + depth;
    }
 }

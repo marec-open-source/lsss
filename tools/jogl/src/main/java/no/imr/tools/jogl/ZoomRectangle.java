@@ -45,8 +45,8 @@ public final class ZoomRectangle extends JoglDisplayNode {
       if (drag != null) {
          gl.glPushAttrib(GL_ALL_ATTRIB_BITS);
          gl.glEnable(GL_LINE_STIPPLE);
-         gl.glLineWidth(1);
-         gl.glLineStipple(2, (short) 0xaaaa);
+         gl.glLineWidth(1 * getUiScaleFactor());
+         gl.glLineStipple(Math.round(2 * getUiScaleFactor()), (short) 0xaaaa);
          gl.glDisable(GL_DEPTH_TEST);
          gl.glColor3f(0, 0, 0);
          Vec3 p1 = mousePosToIntersectionPos.apply(drag.startPixPos);
@@ -58,7 +58,7 @@ public final class ZoomRectangle extends JoglDisplayNode {
          gl.glVertex3f(p2.x(), p2.y(), p2.z());
          gl.glVertex3f(p2.x(), p1.y(), p2.z());
          gl.glVertex3f(p2.x(), p1.y(), p1.z());
-         gl.glEnd(); // GL_LINE_STRIP
+         gl.glEnd(); // GL_LINE_LOOP
          gl.glPopAttrib(); //GL_ALL_ATTRIB_BITS
       }
    }

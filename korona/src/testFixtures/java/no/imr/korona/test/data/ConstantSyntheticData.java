@@ -22,7 +22,7 @@ public class ConstantSyntheticData extends SyntheticData {
    }
 
    @Override
-   protected void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
+   public void defineSampleValues(PowerData powerData, PingIndex pingIndex) {
       powerData.setSv(svArray.clone());
    }
 }

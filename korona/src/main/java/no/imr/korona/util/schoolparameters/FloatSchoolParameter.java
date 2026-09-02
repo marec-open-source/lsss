@@ -18,7 +18,7 @@ public class FloatSchoolParameter extends SimpleSchoolParameter {
    }
 
    @Override
-   public String getExportValue() {
+   protected String getExportValue() {
       return Utils.format(format, value);
    }
 

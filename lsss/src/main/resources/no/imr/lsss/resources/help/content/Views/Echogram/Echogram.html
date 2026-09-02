@@ -41,7 +41,7 @@
 </p>
 <p>
    The echogram images are continually updated while pings are read from the data files. When the data loading mode is set to BROWSE, the width of the
-   echogram image decides how many pings that will be read from file and used in computations.
+   echogram image decides how many pings will be read from file and used in computations.
    At most one ping corresponding to each pixel column will be used.
    In the DETAIL data loading mode, all pings will be used in the computations, but still only one ping will be used for each pixel column.
    Vertically, however, the samples corresponding to one pixel are averaged.
@@ -105,7 +105,7 @@
    </li>
    <li><strong>Depth transform:</strong>
       Only applicable to bottom echogram.
-      Sets which bottom that should be horizontal for the displayed frequency.
+      Sets which bottom should be horizontal for the displayed frequency.
       Choices:
       <ul style="margin-top:0; margin-bottom:0;">
          <li>The bottom for each frequency.</li>
@@ -150,11 +150,11 @@
       the currently selected schools.
       <hr> <!-------------------------------------------------------->
    </li>
-   <li><strong>Exclude region range:</strong>
+   <li><strong>Exclude selected regions range:</strong>
       <a href="../../WorkingWith/Regions/Exclusion.html">Excludes</a>
-      the visible horizontal extent of the region in which the popup menu was triggered.
+      the visible horizontal extent of the selected regions.
    </li>
-   <li><strong>Include region range:</strong>
+   <li><strong>Include selected regions range:</strong>
       Includes a previously <a href="../../WorkingWith/Regions/Exclusion.html">excluded</a> range.
       <hr> <!-------------------------------------------------------->
    </li>
@@ -199,7 +199,7 @@
    S<sub>v</sub>, measured in dB.
    The thresholds on the colorbar decide which samples that are included in the s<sub>A</sub> integrations and other computations.
    The lower threshold is always active, while the upper threshold can be activated through the colorbar context menu
-   (when the checkbox "Clip values above" is unchecked).
+   (when the checkbox "Clip values above" is checked).
    The <a href="../ThresholdResponse/ThresholdResponse.html">threshold response view</a> shows how s<sub>A</sub> integration
    depends on the thresholds.
    Sample values outside the threshold range are shown in white in the echogram.
@@ -216,11 +216,11 @@
 </p>
 <ul>
    <li><strong>Set thresholds...:</strong>
-      Shows a dialog for settings the upper and lower threshold.
+      Shows a dialog for setting the upper and lower threshold.
       These thresholds can also be adjusted by dragging them with the mouse.
    </li>
    <li><strong>Set colour scale limits...:</strong>
-      Shows a dialog for settings the upper and lower limits of the colour scale.
+      Shows a dialog for setting the upper and lower limits of the colour scale.
       <hr> <!-------------------------------------------------------->
    </li>
    <li><strong>Clip values above:</strong>
@@ -294,14 +294,14 @@
 
 <h3 id="LowerThresholdButtons">Lower threshold buttons</h3>
 <p>
-   Located below the colorbar are one or more buttons for settings the lower threshold.
+   Located below the colorbar are one or more buttons for setting the lower threshold.
    These buttons can be configured in
    <a href="../../Configuration/Survey/SurveyMiscConf.html#PreferredLowerThreshold">[Survey Configuration - Miscellaneous]</a>.
 </p>
 <p>
    When clicking these buttons, the category assignments to the selected region in the
    <a href="../Interpretation/Interpretation.html#CategoryAssignments">Interpretation module</a>
-   is changes as follows:
+   is changed as follows:
 </p>
 <ul>
    <li>Click: Keep assignment (%) fixed so that s<sub>A</sub> changes.</li>
@@ -323,8 +323,8 @@
 <p>
    This overlay displays the targets detected by
    <a href="../../Broadband/Views/BroadbandTsModule.html">BB TS(f) module</a>.
-   A gray area marks a depth range identified at an individual target.
-   The back line indicates the depth of the target's maximal target strength.
+   A gray area marks the depth range of an identified individual target.
+   The black line indicates the depth of the target's maximal target strength.
 </p>
 
 <!--###########################################################################################-->
@@ -422,7 +422,7 @@
 <p>
    This overlay draws the integration line for the selected regions if the s<sub>A</sub> &gt; 0.
    Only data from the visible part of the echogram is used even if the regions extend further.
-   The steepness of this line indicates how much the corresponding pings are contribution to the s<sub>A</sub>.
+   The steepness of this line indicates how much the corresponding pings are contributing to the s<sub>A</sub>.
 </p>
 <p>
    The integration line is given by the function f(ping) = s<sub>V</sub> integrated over the visible area of the selected regions
@@ -468,7 +468,7 @@
 <p>
    Ranges that are <a href="../../WorkingWith/Regions/Exclusion.html">excluded</a> from storing to the database
    are displayed gray with black diagonal lines.
-   Grid cells that overlap partly with an excluded range will be shortened before stored to the database.
+   Grid cells that overlap partly with an excluded range will be shortened before being stored to the database.
 </p>
 <p>
    <a href="../../WorkingWith/Regions/Masking.html">Frequency-dependent deleting</a> of data is shown using semi-transparent gray overlay.
@@ -609,7 +609,7 @@
 </figure>
 <p>
    This overlay shows equidistant vertical lines stretching from top to bottom of the echogram.
-   A line is drawn
+   A line is drawn:
 </p>
 <ul>
    <li>Thick if it corresponds to a distance divisible by 10 nmi.</li>
@@ -633,14 +633,14 @@
    The color of the s<sub>A</sub> / s<sub>L</sub> values for a region is
 </p>
 <ul>
-   <li><span style='font-weight: bold; color: #DC143C; background-color: white;'>Crimson</span> / <span style='font-weight: bold; color: #0000FF; background-color: white;'>Blue</span> if the region is selected.</li>
-   <li><span style='font-weight: bold; color: #FFE4B5; background-color: #B0B0B0;'>Moccasin</span> if the region has never been selected.</li>
+   <li><span style='font-weight: bold; color: #dc143c; background-color: white;'>Crimson</span> / <span style='font-weight: bold; color: #0000ff; background-color: white;'>Blue</span> if the region is selected.</li>
+   <li><span style='font-weight: bold; color: #ffe4b5; background-color: #b0b0b0;'>Moccasin</span> if the region has never been selected.</li>
    <li><span style='font-weight: bold; color: black; background-color: white;'>Black</span> if the region has been selected at least once.</li>
-   <li><span style='font-weight: bold; color: green; background-color: #B0B0B0;'>Green</span>/<span style='font-weight: bold; color: #00FFFF; background-color: #B0B0B0;'>Cyan</span> if an interpretation is stored to the database.</li>
+   <li><span style='font-weight: bold; color: green; background-color: #b0b0b0;'>Green</span>/<span style='font-weight: bold; color: #00ffff; background-color: #b0b0b0;'>Cyan</span> if an interpretation is stored to the database.</li>
 </ul>
 <p>
    There are several s<sub>A</sub> and s<sub>L</sub> numbers in the echogram below. s<sub>A</sub> is
-   always shown just prior to the vertical live. If there are three numbers by the vertical line, the second and third
+   always shown just prior to the vertical line. If there are three numbers by the vertical line, the second and third
    are averages s<sub>A</sub> and s<sub>L</sub> of the visible part of the region respectively. Numbers on a
    white background indicate that the region has been inspected using the Interpretation window, i.e. it
    has been active. Numbers on a black background, as some of the numbers in the figure below, indicate that the region

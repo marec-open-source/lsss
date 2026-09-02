@@ -18,7 +18,7 @@ public interface DatabaseQuery extends ValuedDatabaseQuery<Optional<Void>> {
    }
 
    static DatabaseQuery empty() {
-      return session -> {
+      return _ -> {
       };
    }
 }

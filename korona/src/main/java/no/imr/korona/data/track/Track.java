@@ -135,7 +135,7 @@ public class Track implements PingContainer {
       segment.close();
 
       PingIndex begin = segment.getPingRange().begin();
-      PingIndex end = segments.size() > 1 ? segments.get(1).getPingRange().begin() : segment.getPingRange().end();
+      PingIndex end = !segments.isEmpty() ? segments.getFirst().getPingRange().begin() : segment.getPingRange().end();
       updateRangeMaps(begin, end, null);
       updatePingRange();
    }
@@ -258,7 +258,7 @@ public class Track implements PingContainer {
    public Ping getPing(PingIndex pingIndex, AsyncHandle asyncHandle) throws IOException {
       Segment segment = getSegment(pingIndex);
       if (segment == null) {
-         RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(0);
+         RawFileConfiguration rawFileConfiguration = new RawFileConfiguration(pingIndex.getInstant());
          return new DefaultPing(new PingConfiguration(rawFileConfiguration), pingIndex, new MissingBot0Datagram(rawFileConfiguration, pingIndex));
       }
       SegmentData segmentData = segment.getSegmentData();

@@ -15,6 +15,7 @@ import no.imr.lsss.modules.korona.DataObjectLoader;
 import no.imr.tools.Utils;
 import no.imr.tools.concurrent.ExecutorObservation;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -29,11 +30,11 @@ final class GraphicalInfoLoader {
 
    private static Stream<GraphicalInfo> graphicalInfos(DataFileSet dataFileSet, Ping ping) {
       return ping.getPingItems(GraphicalInfoSubDatagram.class)
-            .map(graphicalInfoSubDatagram -> createGraphicalInfo(dataFileSet, ping.getNTDate(), graphicalInfoSubDatagram));
+            .map(graphicalInfoSubDatagram -> createGraphicalInfo(dataFileSet, ping.getInstant(), graphicalInfoSubDatagram));
    }
 
-   private static GraphicalInfo createGraphicalInfo(DataFileSet dataFileSet, long ntDate, GraphicalInfoSubDatagram graphicalInfoSubDatagram) {
-      PingIndex referenceIndex = dataFileSet.getClosestPingIndex(PingMapping.ntDateToTimeValue(ntDate), PingMapping.TIME);
+   private static GraphicalInfo createGraphicalInfo(DataFileSet dataFileSet, Instant instant, GraphicalInfoSubDatagram graphicalInfoSubDatagram) {
+      PingIndex referenceIndex = dataFileSet.getClosestPingIndex(PingMapping.instantToTimeValue(instant), PingMapping.TIME);
       PingRangeBuilder pingRangeBuilder = new PingRangeBuilder();
       List<String> datagramTexts = graphicalInfoSubDatagram.getTexts();
       List<EchogramGraphicalInfo> graphicalInfos = graphicalInfoSubDatagram.getGraphicalObjects().stream()

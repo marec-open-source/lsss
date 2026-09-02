@@ -38,6 +38,10 @@ public final class JoglUtils {
       gl.glColor3f(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f);
    }
 
+   public static void glNormal(GL2 gl, Vec3 normal) {
+      gl.glNormal3f(normal.x(), normal.y(), normal.z());
+   }
+
    public static void glVertex(GL2 gl, Vec3 vertex) {
       gl.glVertex3f(vertex.x(), vertex.y(), vertex.z());
    }
@@ -48,6 +52,16 @@ public final class JoglUtils {
 
    public static void glVertex(GL2 gl, Point2D point, Point2D referencePoint) {
       gl.glVertex2d(point.getX() - referencePoint.getX(), point.getY() - referencePoint.getY());
+   }
+
+   public static void glVertices(GL2 gl, Vec3 p1, Vec3 p2, Vec3 p3) {
+      glVertex(gl, p1);
+      glVertex(gl, p2);
+      glVertex(gl, p3);
+   }
+
+   public static void glVertices(GL2 gl, List<Vec3> vertices) {
+      vertices.forEach(vertex -> glVertex(gl, vertex));
    }
 
    public static void drawPoints(GL2 gl, Collection<? extends Point2D> points) {
@@ -95,24 +109,6 @@ public final class JoglUtils {
    }
 
    /**
-    * Draw a triangle and compute the normal vector.
-    *
-    * @param gl the gl object
-    * @param p1 a point
-    * @param p2 a point
-    * @param p3 a point
-    */
-   public static void drawTriangle(GL2 gl, Vec3 p1, Vec3 p2, Vec3 p3) {
-      gl.glBegin(GL_TRIANGLES);
-      Vec3 normal = computeNormal(p1, p2, p3);
-      gl.glNormal3f(normal.x(), normal.y(), normal.z());
-      glVertex(gl, p1);
-      glVertex(gl, p2);
-      glVertex(gl, p3);
-      gl.glEnd();
-   }
-
-   /**
     * Computes a normal to the input set of points.
     * Normalization is not performed since it will be destroyed by rescaling later.
     *
@@ -121,7 +117,7 @@ public final class JoglUtils {
     * @param p3 p3
     * @return the normal vector
     */
-   private static Vec3 computeNormal(Vec3 p1, Vec3 p2, Vec3 p3) {
+   public static Vec3 computeClockwiseNormal(Vec3 p1, Vec3 p2, Vec3 p3) {
       Vec3 v1 = p2.minus(p1);
       Vec3 v2 = p3.minus(p2);
       return v2.cross(v1);
@@ -160,7 +156,7 @@ public final class JoglUtils {
       gl.glDisable(GL_LIGHT0);
    }
 
-   public static void renderCubicObject(GL2 gl, List<Vec3> corners) {
+   public static void drawCubicObject(GL2 gl, List<Vec3> corners) {
       gl.glBegin(GL_QUADS);
 
       glVertex(gl, corners.get(0));
@@ -196,23 +192,19 @@ public final class JoglUtils {
       gl.glEnd();
    }
 
-   public static void renderCube(GL2 gl, Vec3 lowerLeftCorner, Vec3 extent) {
-      Vec3 c0 = lowerLeftCorner;
-      Vec3 c1 = lowerLeftCorner.plus(extent.x(), 0, 0);
-      Vec3 c2 = lowerLeftCorner.plus(extent.x(), 0, extent.z());
-      Vec3 c3 = lowerLeftCorner.plus(0, 0, extent.z());
+   public static void drawCube(GL2 gl, Vec3 lowerLeftCorner, Vec3 extent) {
+      List<Vec3> corners = List.of(
+            lowerLeftCorner,
+            lowerLeftCorner.plus(extent.x(), 0, 0),
+            lowerLeftCorner.plus(extent.x(), 0, extent.z()),
+            lowerLeftCorner.plus(0, 0, extent.z()),
 
-      Vec3 c4 = lowerLeftCorner.plus(0, extent.y(), 0);
-      Vec3 c5 = lowerLeftCorner.plus(extent.x(), extent.y(), 0);
-      Vec3 c6 = lowerLeftCorner.plus(extent);
-      Vec3 c7 = lowerLeftCorner.plus(0, extent.y(), extent.z());
-
-      List<Vec3> corners = List.of(c0, c1, c2, c3, c4, c5, c6, c7);
-      renderCubicObject(gl, corners);
-   }
-
-   public static void renderVertexList(GL2 gl, List<Vec3> vertices) {
-      vertices.forEach(vertex -> glVertex(gl, vertex));
+            lowerLeftCorner.plus(0, extent.y(), 0),
+            lowerLeftCorner.plus(extent.x(), extent.y(), 0),
+            lowerLeftCorner.plus(extent),
+            lowerLeftCorner.plus(0, extent.y(), extent.z())
+      );
+      drawCubicObject(gl, corners);
    }
 
    public static GLContext createSharableContext(String profile) {

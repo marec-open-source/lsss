@@ -87,7 +87,7 @@ public final class CurveBoundary extends LayerBoundary {
          List<CurveBoundary> upperBoundaries = getUpperBoundaries();
          Set<CurveBoundary> canBeRemovedUpperBoundaries = new HashSet<>();
          for (int i = 0; i < upperBoundaries.size(); i++) {
-            for (int j = i; j < upperBoundaries.size(); j++) {
+            for (int j = i + 1; j < upperBoundaries.size(); j++) {
                PingRange intersection = range.intersection(upperBoundaries.get(i).getPingRange());
                intersection = intersection.intersection(upperBoundaries.get(j).getPingRange());
                if (!intersection.isEmpty()) {
@@ -115,7 +115,7 @@ public final class CurveBoundary extends LayerBoundary {
          List<CurveBoundary> lowerBoundaries = getLowerBoundaries();
          Set<CurveBoundary> canBeRemovedLowerBoundaries = new HashSet<>();
          for (int i = 0; i < lowerBoundaries.size(); i++) {
-            for (int j = i; j < lowerBoundaries.size(); j++) {
+            for (int j = i + 1; j < lowerBoundaries.size(); j++) {
                PingRange intersection = range.intersection(lowerBoundaries.get(i).getPingRange());
                intersection = intersection.intersection(lowerBoundaries.get(j).getPingRange());
                if (!intersection.isEmpty()) {

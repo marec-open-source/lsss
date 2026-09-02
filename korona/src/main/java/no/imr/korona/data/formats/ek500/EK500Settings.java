@@ -2,8 +2,7 @@ package no.imr.korona.data.formats.ek500;
 
 import no.imr.korona.Korona;
 import no.imr.korona.data.util.NoticeHandler;
-import no.imr.tools.Utils;
-import no.imr.tools.time.NTDate;
+import no.imr.korona.util.KoronaUtils;
 import no.imr.tools.xml.XmlUtils;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -24,7 +23,7 @@ public final class EK500Settings {
    public static final String XML_EK500 = "ek500";
 
    private static final boolean IGNORE_LAST_PING = true;
-   static final int MAX_TIME_RECORD_JUMP_NT_DATE = 30 * NTDate.UNITS_PER_SECOND;
+   static final int MAX_TIME_RECORD_JUMP_SECONDS = 30;
    static final int NMEA_GENERATION_INTERVAL = 10;
    static final int DATA_THRESHOLD = -10000;
 
@@ -121,7 +120,7 @@ public final class EK500Settings {
    EK500TransducerSettings getEK500TransducerSettings(float frequency, NoticeHandler noticeHandler) {
       EK500TransducerSettings ek500TransducerSettings = getExistingEK500TransducerSetting(frequency);
       if (ek500TransducerSettings == null) {
-         int kHz = Utils.hzToKHz(frequency);
+         int kHz = KoronaUtils.hzToKHz(frequency);
          noticeHandler.addNotice("Did not find EK500 settings for " + kHz + " kHz. Using default settings.");
          ek500TransducerSettings = new EK500TransducerSettings();
          ek500TransducerSettings.frequency.setFloatValue(kHz);

@@ -108,7 +108,9 @@ final class ItemScatter<T> extends ItemView<T> {
       yGridBag.addWithLineBreak(Box.createVerticalStrut(10));
       yGridBag.addWithLineBreak(yMenuBar);
 
-      panel.add(new ItemScatterChartPanel<>(this, new JFreeChart(null, null, plot, false)));
+      JFreeChart chart = new JFreeChart(null, null, plot, false);
+      chart.setBackgroundPaint(null);
+      panel.add(new ItemScatterChartPanel<>(this, chart));
       panel.add(xGridBag.getPanel(), BorderLayout.SOUTH);
       panel.add(yGridBag.getPanel(), BorderLayout.WEST);
    }

@@ -1,10 +1,11 @@
 package no.imr.tools.database;
 
 import jakarta.persistence.metamodel.Metamodel;
-import no.imr.tools.Utils;
+import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.database.hibernate.BaseDatabaseObject;
 import no.imr.tools.database.queries.FetchQuery;
 import no.imr.tools.logging.Log;
+import no.imr.tools.math.MathUtils;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.cfg.Configuration;
@@ -22,7 +23,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public final class DatabaseUtils {
    private DatabaseUtils() {
@@ -35,33 +38,31 @@ public final class DatabaseUtils {
       MappingMetamodel metamodelImplementor = (MappingMetamodel) metamodel;
       EntityPersister entityPersister = metamodelImplementor.getEntityDescriptor(databaseObject.getClass());
 
-      databaseConnection.executeStatelessQuery(session -> {
-         Object identifier = entityPersister.getIdentifier(databaseObject);
-         Type identifierType = entityPersister.getIdentifierType();
-         switch (identifierType) {
-            case BasicType<?> _ -> {
-               values.put(entityPersister.getIdentifierPropertyName(), identifier);
-            }
-            case ComponentType componentType -> {
-               String[] identifierPropertyNames = componentType.getPropertyNames();
-               Object[] identifierPropertyValues = componentType.getPropertyValues(identifier);
-               for (int i = 0; i < identifierPropertyNames.length; i++) {
-                  values.put(identifierPropertyNames[i], identifierPropertyValues[i]);
-               }
-            }
-            default -> {
-               Log.global.warning("Unsupported type: " + identifierType.getClass());
+      Object identifier = entityPersister.getIdentifier(databaseObject);
+      Type identifierType = entityPersister.getIdentifierType();
+      switch (identifierType) {
+         case BasicType<?> _ -> {
+            values.put(entityPersister.getIdentifierPropertyName(), identifier);
+         }
+         case ComponentType componentType -> {
+            String[] identifierPropertyNames = componentType.getPropertyNames();
+            Object[] identifierPropertyValues = componentType.getPropertyValues(identifier);
+            for (int i = 0; i < identifierPropertyNames.length; i++) {
+               values.put(identifierPropertyNames[i], identifierPropertyValues[i]);
             }
          }
+         default -> {
+            Log.global.warning("Unsupported type: " + identifierType.getClass());
+         }
+      }
 
-         for (String propertyName : entityPersister.getPropertyNames()) {
-            AttributeMapping attributeMapping = entityPersister.findAttributeMapping(propertyName);
-            if (attributeMapping instanceof BasicAttributeMapping) {
-               Object propertyValue = entityPersister.getPropertyValue(databaseObject, propertyName);
-               values.put(propertyName, propertyValue);
-            }
+      for (String propertyName : entityPersister.getPropertyNames()) {
+         AttributeMapping attributeMapping = entityPersister.findAttributeMapping(propertyName);
+         if (attributeMapping instanceof BasicAttributeMapping) {
+            Object propertyValue = entityPersister.getPropertyValue(databaseObject, propertyName);
+            values.put(propertyName, propertyValue);
          }
-      });
+      }
 
       return values;
    }
@@ -73,18 +74,41 @@ public final class DatabaseUtils {
     * @param source      the database to copy from
     * @param fetchQuery  what to copy
     * @param destination the database to copy to
+    * @param asyncHandle async handle
     */
-   public static <T extends BaseDatabaseObject> void copyByInsert(DatabaseConnection source, FetchQuery<T> fetchQuery, DatabaseConnection destination) {
+   public static <T extends BaseDatabaseObject> void copyByInsert(DatabaseConnection source, FetchQuery<T> fetchQuery,
+                                                                  DatabaseConnection destination, AsyncHandle asyncHandle) {
       source.executeStatelessQuery(sessionFrom -> {
-         SelectionQuery<T> query = sessionFrom.createSelectionQuery(fetchQuery.getQueryString(), fetchQuery.getQueryClass());
+         SelectionQuery<T> query = fetchQuery.createSelectionQuery(sessionFrom);
          try (ScrollableResults<T> results = query.scroll(ScrollMode.FORWARD_ONLY)) {
             destination.executeStatelessQuery(sessionTo -> {
                while (results.next()) {
+                  if (asyncHandle.isCancelled()) {
+                     return;
+                  }
                   sessionTo.insert(results.get());
                }
             });
          }
       });
+   }
+
+   public static void updateOrInsert(DatabaseConnection databaseConnection,
+                                     Collection<? extends BaseDatabaseObject> objects,
+                                     FetchQuery<?> fetchExisting) {
+      databaseConnection.executeStatelessQuery(session -> {
+         Set<Object> existingPrimaryKeys = fetchExisting.createSelectionQuery(session).stream()
+               .map(BaseDatabaseObject::primaryKey)
+               .collect(Collectors.toSet());
+         for (BaseDatabaseObject object : objects) {
+            if (existingPrimaryKeys.contains(object.primaryKey())) {
+               session.update(object);
+            } else {
+               session.insert(object);
+            }
+         }
+      });
+
    }
 
    public static String getTableName(Class<? extends BaseDatabaseObject> clazz) {
@@ -129,11 +153,11 @@ public final class DatabaseUtils {
     * @return a finite float
     */
    public static float toFiniteFloat(double value) {
-      return Utils.avoidInfinity((float) value);
+      return MathUtils.avoidInfinity((float) value);
    }
 
    public static float toFiniteFloat(float value) {
-      return Utils.avoidInfinity(value);
+      return MathUtils.avoidInfinity(value);
    }
 
    /**

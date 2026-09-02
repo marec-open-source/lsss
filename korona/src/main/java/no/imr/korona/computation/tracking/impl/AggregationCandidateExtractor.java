@@ -12,12 +12,12 @@ import java.util.List;
 
 public final class AggregationCandidateExtractor implements TargetCandidateExtractor {
    private final int channel;
-   private final FloatRange tsRange;
+   private final FloatRange tscRange;
    private final float maxDirectivityCorrection;
 
-   public AggregationCandidateExtractor(int channel, FloatRange tsRange, float maxDirectivityCorrection) {
+   public AggregationCandidateExtractor(int channel, FloatRange tscRange, float maxDirectivityCorrection) {
       this.channel = channel;
-      this.tsRange = tsRange;
+      this.tscRange = tscRange;
       this.maxDirectivityCorrection = maxDirectivityCorrection;
    }
 
@@ -37,11 +37,11 @@ public final class AggregationCandidateExtractor implements TargetCandidateExtra
          if (directivityCorrection > maxDirectivityCorrection) {
             continue;
          }
-         float ts = powerData.getTSU(i) + directivityCorrection;
-         if (!tsRange.contains(ts)) {
+         float tsc = powerData.getTSU(i) + directivityCorrection;
+         if (!tscRange.contains(tsc)) {
             continue;
          }
-         Measurement measurement = new Measurement(powerData, i, ts);
+         Measurement measurement = new Measurement(powerData, i, tsc);
          float minRange = powerData.getSampleRange(i);
          float maxRange = powerData.getSampleRange(i + 1);
          targetCandidates.add(new TargetCandidate(i, 1, FloatRange.of(minRange, maxRange), measurement));

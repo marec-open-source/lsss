@@ -47,7 +47,7 @@ public final class TrackExporter extends StreamingExporter {
    }
 
    @Override
-   public void doExport(AsyncHandle asyncHandle, ProgressHandler progressHandler) throws IOException {
+   protected void doExport(AsyncHandle asyncHandle, ProgressHandler progressHandler) throws IOException {
       PingRange pingRange = getLSSS().getInterpretationSettings().getPingRange();
       if (pingRange.isEmpty()) {
          return;
@@ -118,7 +118,7 @@ public final class TrackExporter extends StreamingExporter {
          FloatRangeSet depthRanges = getDepthRanges(selectedRegions, ping, channel);
 
          trackInfoModule.getTrackEditing().getTrackBorders(ping, channel).forEach(trackBorder -> {
-            DatabaseTime databaseTime = new DatabaseTime(pingIndex.getTimeInMillis());
+            DatabaseTime databaseTime = new DatabaseTime(pingIndex.getInstant());
             TrackId trackId = trackBorder.trackId();
             TrackAccumulator trackAccumulator = trackMap.get(trackId);
             if (trackAccumulator == null) {
@@ -203,7 +203,8 @@ public final class TrackExporter extends StreamingExporter {
                Utils.format("%.2f", useTsc ? PowerData.svToLogSv((float) (tscSum / count)) : Float.NaN),
                Utils.format("%.2f", trackBorder.useAngles() ? xSum / count : Float.NaN),
                Utils.format("%.2f", trackBorder.useAngles() ? ySum / count : Float.NaN),
-               Utils.format("%.2f", trackBorder.useAngles() ? z : Float.NaN)));
+               Utils.format("%.2f", trackBorder.useAngles() ? z : Float.NaN)
+         ));
       }
 
       private boolean isExportable() {
@@ -225,7 +226,8 @@ public final class TrackExporter extends StreamingExporter {
                Utils.format("%.2f", PowerData.svToLogSv((float) tsuTrack.getMean())),
                Utils.format("%.2f", PowerData.svToLogSv((float) tscTrack.getMean())),
                Integer.toString(pingCount),
-               Utils.format("%.3f", zExtent.toFloatRange().getSize() / pingCount));
+               Utils.format("%.3f", zExtent.toFloatRange().getSize() / pingCount)
+         );
          writeValues(out, values);
       }
    }

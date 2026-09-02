@@ -1,4 +1,4 @@
-<h1>Categorization NetCDF writer module (beta)</h1>
+<h1>Categorization netCDF writer module (beta)</h1>
 <p>
    Module for writing categorization data in netCDF-format.
 </p>
@@ -8,8 +8,8 @@
 
 <h2 id="NetCDF-C-Library">NetCDF-C library</h2>
 <p>
-   This module requires the NetCDF-C library for writing files in the NetCDF-4 format.
-   If this version of KORONA does not include the NetCDF-C library, please consult
+   This module requires the netCDF-C library for writing files in the netCDF-4 format.
+   If this version of KORONA does not include the netCDF-C library, please consult
    <a href="https://docs.unidata.ucar.edu/netcdf-java/current/userguide/netcdf4_c_library.html">these instructions</a>.
 </p>
 
@@ -36,9 +36,10 @@
       The channel with the main frequency is used for converting depth to range.
    </li>
    <li><span class="marec-parameter-def" id="DeltaRange">Delta range:</span>
-      Leave blank to <a href="#AutomaticRange">determine automatically</a>.
+      Range resolution [m]. Leave blank to <a href="#AutomaticRange">determine automatically</a>.
+      This is typically 0.19 m for EK60 data for 1 ms pulse resolution.
    </li>
    <li><span class="marec-parameter-def" id="MaxRange">Max range:</span>
-      Leave blank to <a href="#AutomaticRange">determine automatically</a>.
+      Max range from transducer [m]. Leave blank to <a href="#AutomaticRange">determine automatically</a>.
    </li>
 </ul>

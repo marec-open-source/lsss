@@ -1,21 +1,27 @@
 package no.imr.tools.parameter;
 
+import no.imr.tools.ToolsPreferences;
 import no.imr.tools.Utils;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
+import no.imr.tools.swing.CurrentInputComponent;
+import no.imr.tools.swing.GeometryListener;
+import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.VerticalScrollablePanel;
 import no.imr.tools.swing.icons.MiscIcons;
 import no.imr.tools.xml.XmlUtils;
 import no.marec.lsss.api.util.parameters.ValueConstraints;
 
 import javax.swing.BorderFactory;
-import javax.swing.JFormattedTextField;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.FlowLayout;
+import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +45,10 @@ final class ParameterEditorMain implements ParameterContainer {
          "> 0");
 
    private final SeparatorParameter separator = SeparatorParameter.line();
+
+   private final ButtonParameter buttonParam = new ButtonParameter(
+         new Name("Button"),
+         "ButtonParameter");
 
    private final FloatParameter floatParam = new FloatParameter(
          new Name("Float"),
@@ -72,7 +82,7 @@ final class ParameterEditorMain implements ParameterContainer {
 
    private final ValueParameter<String> selection2 = new ValueParameter<>(
          new Name("Selection2"),
-         "111", Unit.NONE, ValueConstraints.ofValues(List.of("111", "122", "123")), ValueConverters.STRING,
+         "111<a>", Unit.NONE, ValueConstraints.ofValues(List.of("111<a>", "122<b>", "123<c>")), ValueConverters.STRING,
          "ValueParameter<String>");
 
    private final IntParameter editableSelection = new IntParameter(
@@ -84,25 +94,25 @@ final class ParameterEditorMain implements ParameterContainer {
 
    private final PasswordParameter password = new PasswordParameter(
          new Name("Password"),
-         "password",
-         "A password");
+         "password", ValueConstraints.maxLength(10),
+         "Max 10");
 
    private final TextParameter text = new TextParameter(
          new Name("Text"),
          "Some text", ValueConstraints.maxLength(50),
          "Max 50");
 
+   private final MultiParameter<IntParameter> multiInt = new MultiParameter<>(
+         new Name("MultiInt"));
+
    private final MultiParameter<BooleanParameter> multiBool = new MultiParameter<>(
          new Name("MultiBool"));
-
-   private final MultiParameter<BooleanParameter> multiBool2 = new MultiParameter<>(
-         new Name("MultiBool2"));
 
    private final DynamicListParameter<String> dynamicListParameter = new DynamicListParameter<>(
          new Name("DynamicListParameter"),
          List.of("a", "b"), Unit.NONE, ValueConverters.STRING) {
       @Override
-      public OptionalStringParameter createNewParameter(int index, String persistentName) {
+      public OptionalStringParameter newOptionalParameter(int index, String persistentName) {
          return new OptionalStringParameter(new Name(persistentName),
                Optional.empty(),
                "Description " + index);
@@ -110,9 +120,12 @@ final class ParameterEditorMain implements ParameterContainer {
    };
 
    private ParameterEditorMain() {
-      bool.subscribe(value -> getParameters().forEach(p -> {
-         p.setEnabled(value || p == bool);
-      }));
+      bool.subscribe(value -> {
+         getParameters().forEach(p -> p.setEnabled(value || p == bool));
+         intParam.setVisible(value);
+         intList.setVisible(value);
+         editableSelection.setVisible(value);
+      });
 
       header2.setHtmlContent("""
             Some text in the first sentence of the first paragraph.
@@ -124,17 +137,25 @@ final class ParameterEditorMain implements ParameterContainer {
       editableSelection.setSuggestedValues(List.of(111, 222, 333, 444, 555));
 
       for (int i = 0; i < 5; i++) {
-         multiBool.addParameter(new BooleanParameter(new Name("Bool_" + i), false));
+         multiInt.addParameter(new IntParameter(new Name("Int_" + i), 0, Unit.NONE));
       }
       for (int i = 0; i < 15; i++) {
-         multiBool2.addParameter(new BooleanParameter(new Name("Bool_" + i), false));
+         multiBool.addParameter(new BooleanParameter(new Name("Bool_" + i), false));
       }
-      getParameters().forEach(p -> p.subscribe(_ -> {
-         String value = p instanceof ValueParameter<?> valueParameter
-               ? valueParameter.getStringValue()
-               : XmlUtils.toCompactString(p.toXml());
-         System.out.println(p.getPersistentName() + " = " + value);
-      }));
+      getParameters().forEach(p -> {
+         p.subscribe(_ -> {
+            System.out.println(p.getPersistentName() + " = " + parameterToStringValue(p));
+         });
+      });
+   }
+
+   static String parameterToStringValue(BaseParameter<?> parameter) {
+      return switch (parameter) {
+         case ValueParameter<?> valueParameter -> valueParameter.getStringValue();
+         case ButtonParameter _ -> "<Button>";
+         case SeparatorParameter _ -> "<Separator>";
+         default -> XmlUtils.toCompactString(parameter.toXml());
+      };
    }
 
    @Override
@@ -144,7 +165,9 @@ final class ParameterEditorMain implements ParameterContainer {
             bool,
             intParam,
             intList,
+            //---
             separator,
+            buttonParam,
             floatParam,
             floatParam2,
             floatParam3,
@@ -157,8 +180,8 @@ final class ParameterEditorMain implements ParameterContainer {
             header2,
             password,
             text,
+            multiInt,
             multiBool,
-            multiBool2,
             dynamicListParameter
       );
    }
@@ -169,29 +192,38 @@ final class ParameterEditorMain implements ParameterContainer {
    }
 
    private static void start() {
-      ParameterEditor parameterEditor = new ParameterEditor(new ParameterEditorMain().getParameters());
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
+      ParameterEditor parameterEditor = new ParameterEditor(new ParameterEditorMain().getParameters(), new GUIConfig()
+            .setHorizontalFill(true)
+      );
+
+      JFrame frame = new JFrame(ParameterEditorMain.class.getSimpleName());
+
+      JButton okButton = new JButton("OK");
+      okButton.addActionListener(_ -> {
+         if (CurrentInputComponent.commitEdit()) {
+            frame.dispose();
+         }
+      });
+
+      JButton cancelButton = new JButton("Cancel");
+      cancelButton.addActionListener(_ -> frame.dispose());
+      GuiUtils.setAccelerator(cancelButton, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
+
+      JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+      buttonsPanel.add(okButton);
+      buttonsPanel.add(cancelButton);
 
       JPanel panel = new JPanel(new BorderLayout());
       JPanel editorPanel = VerticalScrollablePanel.wrap(parameterEditor.getEditorComponent());
       editorPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
       panel.add(new JScrollPane(editorPanel));
-      panel.add(new JFormattedTextField("a JFormattedTextField"), BorderLayout.SOUTH);
-      //panel.add(new JTextField("a JTextField"), BorderLayout.SOUTH);
+      panel.add(buttonsPanel, BorderLayout.SOUTH);
 
-      JFrame frame = new JFrame(ParameterEditorMain.class.getSimpleName());
-      frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-      frame.addWindowListener(new WindowAdapter() {
-         @Override
-         public void windowClosing(WindowEvent e) {
-            if (parameterEditor.commitEdits()) {
-               frame.dispose();
-            }
-         }
-      });
+      frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
       frame.add(panel);
-      frame.pack();
-      frame.setLocationRelativeTo(null);
+      frame.getRootPane().setDefaultButton(okButton);
+      GeometryListener.startPreferenceSyncing(frame, null, null,
+            ToolsPreferences.node(ParameterEditorMain.class.getSimpleName()), "windowGeometry");
       frame.setVisible(true);
    }
 }

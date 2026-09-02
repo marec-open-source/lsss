@@ -9,12 +9,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class DiscreteColorMappingTest {
    @Test
-   void testGetRGB() {
+   void getRGB() {
       List<DiscreteColor> discreteColors = List.of(
             new DiscreteColor(3, Color.RED, "Mackerel"),
             new DiscreteColor(5, Color.BLUE, "Small Fish"),
             new DiscreteColor(4, Color.GREEN, "Mackerel"),
-            new DiscreteColor(7, Color.PINK, "rr"));
+            new DiscreteColor(7, Color.PINK, "rr")
+      );
       DiscreteColorMapping dcm = new DiscreteColorMapping(discreteColors);
 
       assertEquals(Color.RED.getRGB(), dcm.getRGB(3));

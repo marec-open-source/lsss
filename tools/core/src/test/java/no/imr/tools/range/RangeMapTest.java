@@ -35,7 +35,8 @@ final class RangeMapTest {
       m2.putAll(m);
       assertEquals(List.of(
                   new RangeMap.Entry<>(new DefaultRange<>(0, 1), "a"),
-                  new RangeMap.Entry<>(new DefaultRange<>(5, 6), "b")),
+                  new RangeMap.Entry<>(new DefaultRange<>(5, 6), "b")
+            ),
             m2.stream().toList());
    }
 
@@ -162,12 +163,12 @@ final class RangeMapTest {
    }
 
    @Test
-   void testSize() {
-      doTestSize(new ArrayRangeMap<>());
-      doTestSize(new CopyOnWriteRangeMap<>());
+   void size() {
+      testSize(new ArrayRangeMap<>());
+      testSize(new CopyOnWriteRangeMap<>());
    }
 
-   private static void doTestSize(RangeMap<Integer, Boolean> m) {
+   private static void testSize(RangeMap<Integer, Boolean> m) {
       assertEquals(0, m.size());
       m.put(0, 1, true);
       assertEquals(1, m.size());
@@ -182,12 +183,12 @@ final class RangeMapTest {
    }
 
    @Test
-   void testIterator() {
-      doTestIterator(new ArrayRangeMap<>());
-      doTestIterator(new CopyOnWriteRangeMap<>());
+   void iterator() {
+      testIterator(new ArrayRangeMap<>());
+      testIterator(new CopyOnWriteRangeMap<>());
    }
 
-   private static void doTestIterator(RangeMap<Integer, Boolean> m) {
+   private static void testIterator(RangeMap<Integer, Boolean> m) {
       m.put(-1, 3, true);
       m.put(3, 4, true);
       m.put(4, 5, false);
@@ -230,7 +231,7 @@ final class RangeMapTest {
    }
 
    @Test
-   void testNoSuchElementException() {
+   void iteratorNoSuchElementException() {
       RangeMap<Integer, Boolean> m = new ArrayRangeMap<>();
       assertThrows(NoSuchElementException.class, () -> {
          m.iterator().next();
@@ -246,7 +247,8 @@ final class RangeMapTest {
       assertEquals(List.of(
                   new RangeMap.Entry<>(new DefaultRange<>(10, 15), "a"),
                   new RangeMap.Entry<>(new DefaultRange<>(20, 30), "b"),
-                  new RangeMap.Entry<>(new DefaultRange<>(30, 35), "c")),
+                  new RangeMap.Entry<>(new DefaultRange<>(30, 35), "c")
+            ),
             m.stream().toList());
    }
 
@@ -265,7 +267,8 @@ final class RangeMapTest {
       assertEquals(List.of(
                   new RangeMap.Entry<>(new DefaultRange<>(22, 25), "b"),
                   new RangeMap.Entry<>(new DefaultRange<>(30, 40), "c"),
-                  new RangeMap.Entry<>(new DefaultRange<>(40, 41), "d")),
+                  new RangeMap.Entry<>(new DefaultRange<>(40, 41), "d")
+            ),
             m.stream(new DefaultRange<>(22, 41)).toList());
 
       assertEquals(List.of(), m.stream(new DefaultRange<>(0, 9)).toList());

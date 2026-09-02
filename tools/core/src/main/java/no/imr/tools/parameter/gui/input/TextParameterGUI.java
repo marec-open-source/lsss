@@ -53,11 +53,6 @@ public final class TextParameterGUI extends ParameterGUI<TextParameter> {
       return parameterComponent.getComponent();
    }
 
-   @Override
-   public boolean commitEdit() {
-      return parameterComponent.commitEdit();
-   }
-
    /**
     * Workaround for <a href="https://bugs.openjdk.org/browse/JDK-4238932">JDK-4238932</a>.
     */

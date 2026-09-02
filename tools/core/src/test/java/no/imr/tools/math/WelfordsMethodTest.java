@@ -1,6 +1,5 @@
 package no.imr.tools.math;
 
-import no.imr.tools.Utils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -12,9 +11,14 @@ final class WelfordsMethodTest {
    void test() {
       double[] values = {-1.1, -0.1, 0, 0.1, 1};
       double mean = Arrays.stream(values).sum() / values.length;
-      double variance = Arrays.stream(values).map(v -> Utils.sq(v - mean)).sum() / (values.length - 1);
+      double variance = Arrays.stream(values).map(v -> MathUtils.sq(v - mean)).sum() / (values.length - 1);
 
       WelfordsMethod w = new WelfordsMethod();
+      assertEquals(0, w.getCount());
+      assertEquals(Double.NaN, w.getMean());
+      assertEquals(Double.NaN, w.getVariance());
+      assertEquals(Double.NaN, w.getStdDev());
+
       Arrays.stream(values).forEach(w::update);
 
       assertEquals(values.length, w.getCount());
@@ -30,7 +34,7 @@ final class WelfordsMethodTest {
 
       for (int n = 2; n <= values.length; n++) {
          double mean = Arrays.stream(values, 0, n).sum() / n;
-         double variance = Arrays.stream(values, 0, n).map(v -> Utils.sq(v - mean)).sum() / (n - 1);
+         double variance = Arrays.stream(values, 0, n).map(v -> MathUtils.sq(v - mean)).sum() / (n - 1);
 
          for (int i = 0; i <= n; i++) {
             WelfordsMethod w1 = new WelfordsMethod();

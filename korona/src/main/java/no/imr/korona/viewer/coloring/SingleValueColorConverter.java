@@ -57,15 +57,13 @@ public final class SingleValueColorConverter extends ColorConverter {
    @Override
    public void convertToColor(Ping ping, int channel, int[] rgbs, FloatRange depthRange) {
       ContinuousVariableResult continuousVariableResult = continuousVariable.evaluate(channel, ping);
-      float[] floatData = continuousVariableResult.floatData();
-
-      if (floatData.length == 0) {
+      if (continuousVariableResult == null) {
          Arrays.fill(rgbs, ValueColor.NO_DATA_RGB);
          return;
       }
 
       float[] values = new float[rgbs.length];
-      Resampler.sampleFloatData(floatData, continuousVariableResult.depthRange(), values, depthRange, ResampleMode.AVERAGE);
+      Resampler.sampleFloatData(continuousVariableResult.floatData, continuousVariableResult.depthRange, values, depthRange, ResampleMode.AVERAGE);
       FloatRange clipRange = getVariablePerPingSettings().getClipRange(ping.getPingIndex());
       valueToColor.getRGBs(rgbs, values, clipRange);
    }
@@ -114,8 +112,8 @@ public final class SingleValueColorConverter extends ColorConverter {
          image = g.getDeviceConfiguration().createCompatibleImage(1, height);
       }
 
-      makeColors(colorBuffer, true);
-      image.setRGB(0, 0, 1, height, colorBuffer, 0, 1);
+      makeColors(colorBuffer);
+      image.setRGB(0, 0, 1, height, colorBuffer, colorBuffer.length - 1, -1);
       for (int i = 0; i < width; i++) {
          g.drawImage(image, null, i, 0);
       }
@@ -134,26 +132,13 @@ public final class SingleValueColorConverter extends ColorConverter {
       }
    }
 
-   /**
-    * Make an array or rgb colors.
-    *
-    * @param colorBuffer the rgb array
-    * @param reversed    if reversed then increasing index corresponds to decreasing value
-    */
-   public void makeColors(int[] colorBuffer, boolean reversed) {
-      float delta = getDeltaValue(colorBuffer.length);
-
-      float value;
-      if (reversed) {
-         value = getSettings().getMaxRange().max();
-         delta = -delta;
-      } else {
-         value = getSettings().getMaxRange().min();
-      }
-
+   public void makeColors(int[] rgbArray) {
+      float delta = getDeltaValue(rgbArray.length);
+      float min = getSettings().getMaxRange().min();
       FloatRange clipRange = getSettings().getEffectiveRange();
-      for (int i = 0; i < colorBuffer.length; i++, value += delta) {
-         colorBuffer[i] = valueToColor.getRGB(value, clipRange);
+      for (int i = 0; i < rgbArray.length; i++) {
+         float value = min + i * delta;
+         rgbArray[i] = valueToColor.getRGB(value, clipRange);
       }
    }
 

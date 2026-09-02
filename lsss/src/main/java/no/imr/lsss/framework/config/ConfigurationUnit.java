@@ -10,6 +10,7 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.ParameterCollection;
 import no.imr.tools.parameter.ParameterContainer;
 import no.imr.tools.parameter.gui.ParameterEditor;
+import no.imr.tools.parameter.gui.input.GUIConfig;
 import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.svg.SvgIcon;
 import no.imr.tools.xml.XmlUtils;
@@ -136,10 +137,6 @@ public abstract class ConfigurationUnit implements ParameterContainer {
       return GuiUtils.createScrollPane(createParameterEditor());
    }
 
-   public boolean stopEditing() {
-      return true;
-   }
-
    public void removeView() {
    }
 
@@ -154,14 +151,10 @@ public abstract class ConfigurationUnit implements ParameterContainer {
    }
 
    public ParameterEditor createParameterEditor(List<? extends BaseParameter<?>> parameters) {
-      ParameterEditor parameterEditor = new ParameterEditor(parameters);
-      adaptParameterEditor(parameterEditor);
-      return parameterEditor;
-   }
-
-   private void adaptParameterEditor(ParameterEditor parameterEditor) {
-      parameterEditor.getGUIConfig().setHorizontalFill(true);
-      parameterEditor.getGUIConfig().setParameterEnabledDecider(this::isParameterEnabled);
+      return new ParameterEditor(parameters, new GUIConfig()
+            .setHorizontalFill(true)
+            .setParameterEnabledDecider(this::isParameterEnabled)
+      );
    }
 
    public boolean isParameterEnabled(BaseParameter<?> parameter) {
@@ -172,12 +165,6 @@ public abstract class ConfigurationUnit implements ParameterContainer {
       return UserProfile.NORMAL_USE;
    }
 
-   /**
-    * Serializes this configuration unit to XML.
-    * Subunits should be recursively serialized.
-    *
-    * @return an XML element, or {@code null} if nothing to serialize
-    */
    public Element toXml() {
       Element unitElement = DocumentHelper.createElement(XML_UNIT)
             .addAttribute(XML_NAME, getPersistentName());
@@ -193,7 +180,7 @@ public abstract class ConfigurationUnit implements ParameterContainer {
 
       configurationOfUnknownSubUnits.forEach((index, element) -> {
          List<Element> elements = unitElement.elements();
-         elements.add(Math.min(index, elements.size()), (Element) element.clone());
+         elements.add(Math.min(index, elements.size()), element.createCopy());
       });
 
       return unitElement;
@@ -229,7 +216,7 @@ public abstract class ConfigurationUnit implements ParameterContainer {
          String name = subUnitElement.attributeValue(XML_NAME);
          ConfigurationUnit subUnit = nameToSubUnit.get(name);
          if (subUnit == null) {
-            Element copy = (Element) subUnitElement.clone();
+            Element copy = subUnitElement.createCopy();
             XmlUtils.removeBlankMixedContentText(copy);
             unknowns.put(element.elements().indexOf(subUnitElement), copy);
             continue;

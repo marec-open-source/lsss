@@ -10,6 +10,7 @@ import no.imr.tools.parameter.Name;
 import no.imr.tools.parameter.Unit;
 import no.imr.tools.plot.ExportTransform;
 import no.imr.tools.range.FloatRange;
+import org.jspecify.annotations.Nullable;
 
 public final class RawComplexVariable extends ContinuousRawVariable {
    RawComplexVariable() {
@@ -19,10 +20,10 @@ public final class RawComplexVariable extends ContinuousRawVariable {
    }
 
    @Override
-   public ContinuousVariableResult evaluate(int channel, Ping ping) {
+   public @Nullable ContinuousVariableResult evaluate(int channel, Ping ping) {
       ChannelData channelData = ping.getChannelData(channel);
       if (!(channelData instanceof ComplexChannelData complexChannelData)) {
-         return ContinuousVariableResult.EMPTY;
+         return null;
       }
       float[][] real = complexChannelData.getReal();
       float[][] imag = complexChannelData.getImag();
@@ -40,6 +41,6 @@ public final class RawComplexVariable extends ContinuousRawVariable {
          im /= sectorCount;
          floatData[i] = (float) KoronaUtils.toDB(Math.sqrt(re * re + im * im));
       }
-      return new ContinuousVariableResult(floatData, complexChannelData.getDepthRange());
+      return ContinuousVariableResult.of(floatData, complexChannelData.getDepthRange());
    }
 }

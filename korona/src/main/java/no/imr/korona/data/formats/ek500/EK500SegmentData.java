@@ -11,6 +11,7 @@ import no.imr.korona.data.ping.items.configuration.RawFileConfiguration;
 import no.imr.korona.data.track.SegmentData;
 import no.imr.korona.data.util.NoticeHandler;
 import no.imr.korona.util.KoronaUtils;
+import no.imr.tools.Min;
 import no.imr.tools.Utils;
 import no.imr.tools.concurrent.AsyncHandle;
 import no.imr.tools.misc.HtmlStringBuilder;
@@ -18,6 +19,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +41,7 @@ public final class EK500SegmentData extends SegmentData {
 
       EK500Settings ek500Settings = EK500Settings.createFromReferenceLocation(ek500FileSet.getMainFile());
 
-      long smallestNTDate = Long.MAX_VALUE;
+      Instant smallestInstant = Instant.MAX;
       List<InfoRecord> infoRecords = new ArrayList<>();
       for (EK500FileSet.FrequencyFileSet frequencyFileSet : ek500FileSet.getFrequencyFileSets()) {
          InfoRecord infoRecord = new InfoRecord(frequencyFileSet.getInfoFile());
@@ -53,14 +55,14 @@ public final class EK500SegmentData extends SegmentData {
          infoRecords.add(infoRecord);
 
          List<IndexRecord> indexRecords = pingFile.getIndexRecords();
-         long startNTDate = indexRecords.getFirst().getNTDate();
-         long stopNTDate = indexRecords.getLast().getNTDate();
-         infoRecord.setStartNTDate(startNTDate);
-         infoRecord.setStopNTDate(stopNTDate);
-         smallestNTDate = Math.min(smallestNTDate, startNTDate);
+         Instant startInstant = indexRecords.getFirst().getInstant();
+         Instant stopInstant = indexRecords.getLast().getInstant();
+         infoRecord.setStartInstant(startInstant);
+         infoRecord.setStopInstant(stopInstant);
+         smallestInstant = Min.of(smallestInstant, startInstant);
       }
 
-      RawFileConfiguration rawFileConfiguration = EK500DatagramFactory.createRawFileConfiguration(smallestNTDate, ek500Settings, ek500FileSet, infoRecords);
+      RawFileConfiguration rawFileConfiguration = EK500DatagramFactory.createRawFileConfiguration(smallestInstant, ek500Settings, ek500FileSet, infoRecords);
       pingConfiguration = new PingConfiguration(rawFileConfiguration);
       pingIndices = createPingIndices();
       bot0Datagrams = createBot0Datagrams();
@@ -111,19 +113,19 @@ public final class EK500SegmentData extends SegmentData {
    }
 
    private List<EK500PingIndex> createPingIndices() {
-      NavigableMap<Long, EK500PingIndex> ntDateToEK500PingIndex = new TreeMap<>();
+      NavigableMap<Instant, EK500PingIndex> instantToEK500PingIndex = new TreeMap<>();
       for (PingFile pingFile : getPingFilesForCreatingPingIndices()) {
          for (IndexRecord indexRecord : pingFile.getIndexRecords()) {
-            Long ntDate = indexRecord.getNTDate();
-            if (!ntDateToEK500PingIndex.containsKey(ntDate)) {
-               ntDateToEK500PingIndex.put(ntDate, new EK500PingIndex(indexRecord, pingFiles.size()));
+            Instant instant = indexRecord.getInstant();
+            if (!instantToEK500PingIndex.containsKey(instant)) {
+               instantToEK500PingIndex.put(instant, new EK500PingIndex(indexRecord, pingFiles.size()));
             }
          }
       }
 
       for (PingFile pingFile : pingFiles) {
          for (IndexRecord indexRecord : pingFile.getIndexRecords()) {
-            Map.Entry<Long, EK500PingIndex> floorEntry = ntDateToEK500PingIndex.floorEntry(indexRecord.getNTDate());
+            Map.Entry<Instant, EK500PingIndex> floorEntry = instantToEK500PingIndex.floorEntry(indexRecord.getInstant());
             if (floorEntry != null) {
                EK500PingIndex ek500PingIndex = floorEntry.getValue();
                ek500PingIndex.getIndexRecords()[pingFile.getChannel() - 1] = indexRecord;
@@ -131,7 +133,7 @@ public final class EK500SegmentData extends SegmentData {
          }
       }
 
-      return new ArrayList<>(ntDateToEK500PingIndex.values());
+      return new ArrayList<>(instantToEK500PingIndex.values());
    }
 
    private List<Bot0Datagram> createBot0Datagrams() {
@@ -145,7 +147,7 @@ public final class EK500SegmentData extends SegmentData {
    }
 
    private Bot0Datagram createBot0Datagram(EK500PingIndex ek500PingIndex) {
-      Bot0Datagram bot0Datagram = new Bot0Datagram(ek500PingIndex.getNTDate(), pingFiles.size());
+      Bot0Datagram bot0Datagram = new Bot0Datagram(ek500PingIndex.getInstant(), pingFiles.size());
       @Nullable IndexRecord[] indexRecords = ek500PingIndex.getIndexRecords();
       for (int i = 0; i < indexRecords.length; i++) {
          IndexRecord indexRecord = indexRecords[i];
@@ -221,7 +223,7 @@ public final class EK500SegmentData extends SegmentData {
          double knots = KoronaUtils.getKnots(pingIndices.get(i0), pingIndices.get(i1));
          double kmh = KoronaUtils.knotsToKilometerPerHour(knots);
          String nmea = "$GPVTG,000,T,000,M," + knots + ",N," + kmh + ",K";
-         pingData.add(new NmeaPingItem(pingIndex.getNTDate(), nmea));
+         pingData.add(new NmeaPingItem(pingIndex.getInstant(), nmea));
       }
 
       for (PingFile pingFile : pingFiles) {

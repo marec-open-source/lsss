@@ -1,21 +1,17 @@
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {inject, Injectable, signal, WritableSignal} from '@angular/core';
+import {inject, Service, signal, WritableSignal} from '@angular/core';
 import {Index} from 'lunr';
-import {Observable, of as observableOf, ReplaySubject} from 'rxjs';
-import {map} from 'rxjs/operators';
 import {ConfigService} from './config.service';
 import {SearchResult} from './misc/SearchResult';
 
-@Injectable({
-   providedIn: 'root',
-})
+@Service()
 export class SearchService {
    private readonly configService: ConfigService = inject(ConfigService);
    private readonly http: HttpClient = inject(HttpClient);
 
    private inited: boolean = false;
-   private loadingSubject?: ReplaySubject<void> = new ReplaySubject<void>();
    readonly loading: WritableSignal<boolean> = signal(true);
+   readonly searchFunction: WritableSignal<(text: string) => SearchResult[]> = signal(() => []);
    readonly errorResponse: WritableSignal<HttpErrorResponse | undefined> = signal(undefined);
 
    init(): void {
@@ -23,36 +19,20 @@ export class SearchService {
          return;
       }
       this.inited = true;
-      this.http.get<object[]>(`api/lunrIndexes.json`).subscribe({
+      this.http.get<object[]>('api/lunrIndexes.json').subscribe({
          next: lunrIndexes => {
             this.configService.config.helpSets.forEach((helpSet, i) => {
                helpSet.lunrIndex = Index.load(lunrIndexes[i]);
             });
-            this.doneLoading();
+            this.searchFunction.set(text => this.doSearch(text));
+            this.loading.set(false);
          },
          error: error => {
+            console.error(error);
             this.errorResponse.set(error);
-            console.log(error);
-            this.doneLoading();
+            this.loading.set(false);
          }
       });
-   }
-
-   private doneLoading(): void {
-      this.loading.set(false);
-      this.loadingSubject?.next();
-      this.loadingSubject = undefined;
-   }
-
-   search(text: string): Observable<SearchResult[]> {
-      this.init();
-      if (this.loadingSubject) {
-         return this.loadingSubject.pipe(map(() => this.doSearch(text)));
-      }
-      if (this.errorResponse()) {
-         return observableOf([]);
-      }
-      return observableOf(this.doSearch(text));
    }
 
    private doSearch(text: string): SearchResult[] {
@@ -62,7 +42,7 @@ export class SearchService {
       const searchResults: SearchResult[] = [];
       this.configService.config.helpSets.forEach(helpSet => {
          if (!helpSet.lunrIndex) {
-            console.log('Missing lunrIndex');
+            console.error('Missing lunrIndex');
             return;
          }
          helpSet.lunrIndex.search(text).forEach(result => {

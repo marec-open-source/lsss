@@ -47,6 +47,7 @@ final class KeyStrokeDispatcher implements KeyEventPostProcessor {
          }
       }
       KeyStroke keyStroke = KeyStroke.getKeyStrokeForEvent(e);
+      Window focusedWindow = keyboardFocusManager.getFocusedWindow(); // Get focused window before dispatching any keystrokes.
       BaseViewModule module = BaseViewModule.moduleForComponent(keyboardFocusManager.getFocusOwner());
       if (module != null) {
          module.getLSSS().getPackageManager().dispatchKeyStroke(module.getPersistentName(), keyStroke, new ActionArgument(e));
@@ -54,7 +55,6 @@ final class KeyStrokeDispatcher implements KeyEventPostProcessor {
             module.getLSSS().getPackageManager().dispatchKeyStroke(LsssPackage.KEY_STROKE_CONTEXT_ANY_ECHOGRAM_MODULE, keyStroke, new ActionArgument(e));
          }
       }
-      Window focusedWindow = keyboardFocusManager.getFocusedWindow();
       if (focusedWindow instanceof RootPaneContainer rootPaneContainer) {
          Object lsssProperty = rootPaneContainer.getRootPane().getClientProperty(MainDisplay.LSSS_KEY);
          if (lsssProperty instanceof LSSS lsss) {

@@ -39,9 +39,8 @@ ________________________________________________________________
 Optional post-install steps
 
 1. Create an account on a database server supported by LSSS,
-   such as PostgreSQL. The JavaDB and HSQLDB databases can be used
-   without an external database server, but note that HSQLDB may
-   not be suited for large databases.
+   such as PostgreSQL. The HSQLDB database can be used
+   without an external database server.
 
 2. Change the size of the Java heap. Edit the startup script
      LSSS_HOME\lsss\LSSS.bat or LSSS_HOME/lsss/LSSS.sh

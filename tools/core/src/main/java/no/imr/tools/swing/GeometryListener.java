@@ -1,5 +1,7 @@
 package no.imr.tools.swing;
 
+import no.imr.tools.listening.Listener;
+import no.imr.tools.listening.Listeners;
 import no.imr.tools.logging.Log;
 import no.imr.tools.parameter.StringParameter;
 import org.jspecify.annotations.Nullable;
@@ -30,16 +32,19 @@ public final class GeometryListener {
    }
 
    private static void startPreferenceSyncing(Window window, String initialGeometry, @Nullable Dimension defaultSize, @Nullable Point defaultLocation, Consumer<String> geometrySaver) {
+      Listener debouncingGeometrySaver = Listeners.debouncing(() -> {
+         saveGeometryString(window, geometrySaver);
+      });
       applyGeometryString(window, initialGeometry, defaultSize, defaultLocation);
       window.addComponentListener(new ComponentAdapter() {
          @Override
          public void componentResized(ComponentEvent e) {
-            saveGeometryString(window, geometrySaver);
+            debouncingGeometrySaver.listen();
          }
 
          @Override
          public void componentMoved(ComponentEvent e) {
-            saveGeometryString(window, geometrySaver);
+            debouncingGeometrySaver.listen();
          }
       });
    }

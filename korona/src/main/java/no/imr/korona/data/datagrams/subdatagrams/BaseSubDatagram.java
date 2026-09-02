@@ -5,11 +5,12 @@ import no.imr.korona.data.datagrams.LsssDatagram;
 import no.imr.korona.data.ping.items.PingConversion;
 import no.imr.korona.data.ping.items.PingItem;
 
+import java.time.Instant;
 import java.util.List;
 
 public abstract class BaseSubDatagram extends SubDatagram implements PingItem {
-   protected BaseSubDatagram(long ntDate) {
-      super(ntDate);
+   protected BaseSubDatagram(Instant instant) {
+      super(instant);
    }
 
    @Override

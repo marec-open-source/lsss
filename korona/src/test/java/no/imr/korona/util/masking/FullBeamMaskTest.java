@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class FullBeamMaskTest {
    @Test
-   void testToCompact() {
+   void toCompactBeamMask() {
       FullBeamMask fullBeamMask = new FullBeamMask(20);
       fullBeamMask.setInside(2);
       fullBeamMask.setInside(5);

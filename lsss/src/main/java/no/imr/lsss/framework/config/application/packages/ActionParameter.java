@@ -21,8 +21,14 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 final class ActionParameter extends ObjectParameter<Optional<LsssAction>> {
-   ActionParameter() {
-      super(new Name("Action"), Optional.empty());
+   private final List<Optional<LsssAction>> allActions;
+
+   ActionParameter(UserDefinedPackage userDefinedPackage, ActionReference actionReference) {
+      LsssAction initialAction = userDefinedPackage.uiInfoToLsssAction(actionReference);
+      List<Optional<LsssAction>> allActions = toAllActions(userDefinedPackage.getLSSS().getPackageManager(), initialAction);
+      this.allActions = allActions;
+
+      super(new Name("Action"), Optional.ofNullable(initialAction), allActions);
    }
 
    @Override
@@ -35,11 +41,7 @@ final class ActionParameter extends ObjectParameter<Optional<LsssAction>> {
       return value.flatMap(LsssAction::getIcon).orElse(MiscIcons.EMPTY);
    }
 
-   void init(ParameterEditor parameterEditor, StringParameter filter, UserDefinedPackage userDefinedPackage, ActionReference actionReference) {
-      LsssAction initialAction = userDefinedPackage.uiInfoToLsssAction(actionReference);
-      List<Optional<LsssAction>> allActions = toAllActions(userDefinedPackage.getLSSS().getPackageManager(), initialAction);
-      setAllowedValuesAndValue(allActions, Optional.ofNullable(initialAction));
-
+   void init(ParameterEditor parameterEditor, StringParameter filter) {
       JTextField filterComponent = (JTextField) parameterEditor.getInputComponent(filter);
       filterComponent.getDocument().addDocumentListener(new SimpleDocumentListener(_ -> {
          SwingDelayer.invokeLater(filterComponent, () -> {

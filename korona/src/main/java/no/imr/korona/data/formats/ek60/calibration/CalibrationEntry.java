@@ -1,6 +1,5 @@
 package no.imr.korona.data.formats.ek60.calibration;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import no.imr.korona.data.ping.items.configuration.RawFileTransducer;
 import no.imr.korona.data.ping.items.configuration.TransducerNameAndSerialNumber;
@@ -89,7 +88,7 @@ public final class CalibrationEntry {
       channelCalibration.id.ifPresent(id -> items.add("id " + id));
       channelCalibration.channel.ifPresent(channel -> items.add("channel " + channel));
       channelCalibration.nameAndSerialNumber.ifPresent(nameAndSerialNumber -> items.add(toNameAndSerialNumberString(nameAndSerialNumber)));
-      return Joiner.on(", ").join(items);
+      return String.join(", ", items);
    }
 
    private static String toNameAndSerialNumberString(TransducerNameAndSerialNumber nameAndSerialNumber) {

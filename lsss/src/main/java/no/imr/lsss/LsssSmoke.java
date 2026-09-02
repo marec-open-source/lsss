@@ -2,7 +2,7 @@ package no.imr.lsss;
 
 import no.imr.korona.computation.ModuleManagerSmoke;
 import no.imr.korona.config.ConfigFileSettingsSmoke;
-import no.imr.lsss.database.types.JavaDBInMemoryDatabasePlugin;
+import no.imr.lsss.database.types.TestDatabasePlugin;
 import no.imr.lsss.framework.LsssConfig;
 import no.imr.lsss.framework.ServiceCollection;
 import no.imr.lsss.modules.interpretation.FrequencyResponseFunctionParameterSmoke;
@@ -26,7 +26,7 @@ final class LsssSmoke extends SmokeTestRunnable {
    public void run() throws Exception {
       LsssConfig lsssConfig = new LsssConfig(new ServiceCollection()).skipLoadSetting();
       LSSS lsss = new LSSS(lsssConfig);
-      JavaDBInMemoryDatabasePlugin.install(lsss);
+      TestDatabasePlugin.install(lsss);
       lsssConfig.onClose = LSSS.LOGGING_MANAGER::shutDown;
       assert ServiceLoader.load(HelpDisplayerService.class).findFirst().isPresent();
       new ConfigFileSettingsSmoke(lsss.getKorona()).run();

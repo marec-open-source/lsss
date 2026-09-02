@@ -100,6 +100,9 @@ final class HelpSetConverterMain {
          throw new AssertionError(helpDir + ": Illegal characters in id: " + id);
       }
       String href = element.attributeValue("href");
+      if (href == null) {
+         throw new AssertionError(helpDir + ": Missing href: " + id);
+      }
       if (!hrefs.add(href)) {
          throw new AssertionError(helpDir + ": Duplicate href: " + href);
       }

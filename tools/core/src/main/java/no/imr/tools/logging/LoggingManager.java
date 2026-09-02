@@ -9,6 +9,7 @@ import no.imr.tools.adm.LicenseInfo;
 import no.imr.tools.concurrent.Exec;
 import no.imr.tools.io.FileUtils;
 import no.imr.tools.misc.test.UniqueTmpDir;
+import no.imr.tools.time.TimeUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -171,7 +172,7 @@ public final class LoggingManager {
    private void startFileLogging() {
       Path logDir = getLogDir();
 
-      DateTimeFormatter dateFormat = Utils.createLocalDateTimeFormatter(DATE_FORMAT_PATTERN);
+      DateTimeFormatter dateFormat = TimeUtils.createLocalDateTimeFormatter(DATE_FORMAT_PATTERN);
       String prefix = applicationInfo.appName() + "-";
       String suffix = ".log";
       logFile = logDir.resolve(prefix + dateFormat.format(Instant.now()) + suffix);
@@ -221,8 +222,8 @@ public final class LoggingManager {
          String name = file.getFileName().toString();
          Matcher matcher = logFilePattern.matcher(name);
          if (matcher.matches()) {
-            Instant modificationTime = fileInfo.lastModifiedTime().toInstant();
-            if (modificationTime.isBefore(keepTime)) {
+            Instant lastModified = fileInfo.lastModified();
+            if (lastModified.isBefore(keepTime)) {
                Log.global.info("Deleting old log file " + file);
                try {
                   Files.deleteIfExists(file);
@@ -260,10 +261,12 @@ public final class LoggingManager {
    }
 
    public Path getApplicationDataDir() {
-      if (applicationDataDir == null) {
-         applicationDataDir = getApplicationDataRoot().resolve(applicationInfo.applicationDataSubDir());
+      Path dir = applicationDataDir;
+      if (dir == null) {
+         dir = getApplicationDataRoot().resolve(applicationInfo.applicationDataSubDir());
+         applicationDataDir = dir;
       }
-      return applicationDataDir;
+      return dir;
    }
 
    public static Path getApplicationDataRoot() {

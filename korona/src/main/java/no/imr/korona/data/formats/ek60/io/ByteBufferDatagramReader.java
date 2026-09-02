@@ -46,6 +46,9 @@ public final class ByteBufferDatagramReader extends BaseDatagramReader implement
 
    @Override
    public void setPosition(long position) {
+      if (position < 0 || position > size) {
+         throw new IllegalArgumentException(Long.toString(position));
+      }
       byteBuffer.position((int) position);
    }
 
