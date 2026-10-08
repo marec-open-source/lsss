@@ -50,6 +50,10 @@ public final class DatabaseConnectionManager {
 
    private final ChangeManager changeManager = new ChangeManager();
 
+   /// Set when the global database has just been converted from JavaDB to HSQLDB,
+   /// so that the user can be asked to save the application configuration once the connection is open.
+   private boolean convertedFromJavaDB;
+
    DatabaseConnectionManager(LSSS lsss, @Nullable DatabasePlugin databasePlugin) {
       this.lsss = lsss;
       this.databasePlugin = databasePlugin;
@@ -108,6 +112,35 @@ public final class DatabaseConnectionManager {
       }
 
       connectionStateChanged();
+
+      if (convertedFromJavaDB) {
+         convertedFromJavaDB = false;
+         if (databaseConnection.isConnected()) {
+            askToSaveApplicationConfigurationAfterConversion();
+         }
+      }
+   }
+
+   /// The database type was switched from JavaDB to HSQLDB in memory only.
+   /// Unless the application configuration is saved, the next LSSS startup will try to open the
+   /// JavaDB database, which has been renamed to a backup directory, and fail to connect.
+   private void askToSaveApplicationConfigurationAfterConversion() {
+      if (!lsss.getLsssConfig().isPrimaryLSSS) {
+         return;
+      }
+      GuiUtils.invokeNowOrWait(() -> {
+         int answer = GuiUtils.showOptionDialog(lsss.getReferenceComponent(),
+               "Save application configuration?", """
+                     <html>
+                     <p>The global database has been converted from JavaDB to HSQLDB.</p>
+                     <p>The application configuration must be saved for LSSS to use the converted database<br>
+                        the next time LSSS is started. Otherwise LSSS will fail to connect to the database.</p>
+                     """,
+               new String[]{"Save now (recommended)", "Later – remember to save before exiting LSSS"});
+         if (answer == 0) {
+            lsss.getConfigurationManager().getApplicationConfiguration().saveDefault();
+         }
+      });
    }
 
    /**
@@ -175,6 +208,7 @@ public final class DatabaseConnectionManager {
             hsqldbDatabasePlugin.directory.setValue(javaDBDatabasePlugin.directory.getValue());
             hsqldbDatabasePlugin.storageFormat.setValue(HsqldbDatabasePlugin.HsqldbStorageFormat.BINARY);
             setDatabasePlugin(hsqldbDatabasePlugin);
+            convertedFromJavaDB = true;
          }
       }
       Configuration configuration = databasePlugin.getConfiguration(connectionType);

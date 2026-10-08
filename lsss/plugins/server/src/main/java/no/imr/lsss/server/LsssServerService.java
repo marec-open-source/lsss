@@ -18,6 +18,11 @@ public final class LsssServerService extends FeatureService {
    }
 
    @Override
+   public boolean isEnabledByDefault() {
+      return true;
+   }
+
+   @Override
    public FeaturePlugin createPlugin(LSSS lsss) {
       return new LsssServerPlugin(this, lsss);
    }

@@ -28,6 +28,12 @@ final class ExtensionFeatureService extends FeatureService {
       return icon;
    }
 
+   /// Extension plugins are installed explicitly by the user, so they are enabled by default.
+   @Override
+   public boolean isEnabledByDefault() {
+      return true;
+   }
+
    @Override
    public FeaturePlugin createPlugin(LSSS lsss) {
       return new ExtensionFeaturePlugin(this, lsss, lsssPluginLoader);

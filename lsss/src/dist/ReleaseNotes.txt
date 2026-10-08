@@ -9,6 +9,20 @@ Contact information
 
 ________________________________________________________________
 
+Version 3.3.1 - October 2026
+
+LSSS:
+• Plugins:
+  - Plugins such as Deep Vision and PROFOS are now disabled by default on
+    new installations, and can be enabled in the application configuration
+    under Plugins. Existing installations keep their current plugin selection.
+• Database:
+  - After converting the global JavaDB database to HSQLDB, LSSS now asks
+    to save the application configuration, so that the converted database
+    is used the next time LSSS is started.
+
+________________________________________________________________
+
 Version 3.3.0 - September 2026
 
 LSSS:

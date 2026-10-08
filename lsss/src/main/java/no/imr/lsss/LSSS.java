@@ -413,11 +413,14 @@ public final class LSSS {
       return null;
    }
 
-   private static Set<String> getDeactivatedPlugins(ServiceCollection serviceCollection, Element applicationXml) {
-      Element pluginElement = XmlUtils.getFirstWithAttribute(applicationXml.elements(ConfigurationUnit.XML_UNIT), ConfigurationUnit.XML_NAME, PluginConf.NAME.persistentName());
-      return pluginElement != null
-            ? PluginConf.getDeactivatedPlugins(serviceCollection, pluginElement)
-            : Set.of();
+   /// Returns the plugins that should not be loaded.
+   /// If the application configuration is missing or has no plugin configuration,
+   /// the default of each plugin applies.
+   private static Set<String> getDeactivatedPlugins(ServiceCollection serviceCollection, @Nullable Document applicationXml) {
+      Element pluginElement = applicationXml != null
+            ? XmlUtils.getFirstWithAttribute(applicationXml.getRootElement().elements(ConfigurationUnit.XML_UNIT), ConfigurationUnit.XML_NAME, PluginConf.NAME.persistentName())
+            : null;
+      return PluginConf.getDeactivatedPlugins(serviceCollection, pluginElement);
    }
 
    /**
@@ -454,15 +457,11 @@ public final class LSSS {
       }
 
       Document applicationXml = loadApplicationXml();
-      if (applicationXml != null) {
-         Set<String> deactivatedPlugins = getDeactivatedPlugins(serviceCollection, applicationXml.getRootElement());
-         serviceCollection.removeFeatures(deactivatedPlugins);
-
-         if (serverPort != null) {
-            Node serverPortNode = new ApplicationConfigurationXml(applicationXml).lsssServerPortNode();
-            if (serverPortNode != null) {
-               serverPortNode.setText(serverPort.toString());
-            }
+      serviceCollection.removeFeatures(getDeactivatedPlugins(serviceCollection, applicationXml));
+      if (applicationXml != null && serverPort != null) {
+         Node serverPortNode = new ApplicationConfigurationXml(applicationXml).lsssServerPortNode();
+         if (serverPortNode != null) {
+            serverPortNode.setText(serverPort.toString());
          }
       }
 

@@ -20,5 +20,14 @@ public abstract class FeatureService extends BaseService {
       return null;
    }
 
+   /// Tests whether the plugin should be enabled when the application configuration
+   /// has no setting for it, typically on a new installation.
+   /// The user can enable or disable the plugin in the plugin configuration.
+   ///
+   /// @return `true` if the plugin should be enabled by default
+   public boolean isEnabledByDefault() {
+      return false;
+   }
+
    public abstract FeaturePlugin createPlugin(LSSS lsss);
 }

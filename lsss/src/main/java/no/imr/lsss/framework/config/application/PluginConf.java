@@ -13,6 +13,7 @@ import no.imr.tools.swing.GuiUtils;
 import no.imr.tools.swing.icons.MiscIcons;
 import no.imr.tools.swing.svg.SvgIcon;
 import org.dom4j.Element;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.JComponent;
 import java.util.List;
@@ -47,14 +48,22 @@ public final class PluginConf extends ConfigurationUnit {
       return GuiUtils.createScrollPane(
             createInfoComponent("""
                   <h2>Plugins</h2>
-                  <p>Changes take effect on restart.</p>
+                  <p>Most plugins are disabled by default. Changes take effect on restart.</p>
                   """),
             createParameterEditor().getEditorComponent());
    }
 
-   public static Set<String> getDeactivatedPlugins(ServiceCollection serviceCollection, Element element) {
+   /// Returns the plugins that should not be loaded.
+   ///
+   /// @param serviceCollection the available plugins
+   /// @param element the XML element of this configuration unit,
+   ///                or `null` if the application configuration has no such element,
+   ///                in which case the default of each plugin applies
+   /// @return the persistent names of the deactivated plugins
+   public static Set<String> getDeactivatedPlugins(ServiceCollection serviceCollection, @Nullable Element element) {
       List<BooleanParameter> pluginsEnabled = toPluginEnabled(serviceCollection);
-      Element parametersElement = element.element(XML_CONFIGURATION).element(ParameterCollection.XML_PARAMETERS);
+      Element configurationElement = element != null ? element.element(XML_CONFIGURATION) : null;
+      Element parametersElement = configurationElement != null ? configurationElement.element(ParameterCollection.XML_PARAMETERS) : null;
       if (parametersElement != null) {
          new ParameterCollection(pluginsEnabled).fromXml(parametersElement);
       }
@@ -68,7 +77,7 @@ public final class PluginConf extends ConfigurationUnit {
       return serviceCollection.getAllFeatureServices().stream()
             .filter(service -> !(service instanceof BaseSystemFeatureService))
             .map(service -> {
-               BooleanParameter parameter = new BooleanParameter(service.getName(), true);
+               BooleanParameter parameter = new BooleanParameter(service.getName(), service.isEnabledByDefault());
                SvgIcon icon = service.getIcon();
                parameter.setProperty(BaseParameter.KEY_ICON, Optional.of(icon != null ? icon : MiscIcons.EMPTY));
                return parameter;
